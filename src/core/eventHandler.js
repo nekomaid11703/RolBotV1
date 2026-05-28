@@ -1,4 +1,4 @@
-const { createContext } = require("./context");
+const createContext = require("./context");
 const { handleCommand } = require("./commandHandler");
 
 function registerEvents(sock) {

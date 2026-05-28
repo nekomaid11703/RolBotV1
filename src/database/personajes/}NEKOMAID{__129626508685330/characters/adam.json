@@ -1,0 +1,19 @@
+{
+  "name": "adam",
+  "slug": "adam",
+  "category": "F",
+  "creatorId": "129626508685330@lid",
+  "creatorName": "}NEKOMAID{",
+  "stats": {
+    "vida": 50,
+    "dinero": 0,
+    "exp": 0,
+    "fuerza": 0,
+    "defensa": 0,
+    "agilidad": 0,
+    "inteligencia": 0,
+    "suerte": 0
+  },
+  "createdAt": "2026-05-28T23:34:01.577Z",
+  "updatedAt": "2026-05-28T23:34:01.577Z"
+}

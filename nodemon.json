@@ -1,4 +1,9 @@
 {
-  "ignore": ["src/database/auth/*", "node_modules/*"],
+  "ignore": [
+    "node_modules/*",
+    "src/database/auth/*",
+    "src/database/personajes/*",
+    "src/database/personajes/**/*"
+  ],
   "ext": "js,json"
 }

@@ -1,6 +1,4 @@
-const { proto } = require("@whiskeysockets/baileys");
-
-function getMessageText(message) {
+function extractText(message) {
   if (!message) return "";
 
   return (
@@ -8,6 +6,8 @@ function getMessageText(message) {
     message.extendedTextMessage?.text ||
     message.imageMessage?.caption ||
     message.videoMessage?.caption ||
+    message.buttonsResponseMessage?.selectedButtonId ||
+    message.listResponseMessage?.singleSelectReply?.selectedRowId ||
     ""
   ).trim();
 }
@@ -15,40 +15,46 @@ function getMessageText(message) {
 function createContext(sock, msg) {
   const from = msg.key.remoteJid;
   const isGroup = from.endsWith("@g.us");
-  const sender = isGroup ? msg.key.participant || msg.participant : from;
 
-  const text = getMessageText(msg.message);
+  const sender = isGroup
+    ? msg.key.participant || msg.participant || from
+    : from;
+
+  const userName = msg.pushName || sender.split("@")[0];
+
+  const mentionedJid =
+    msg.message?.extendedTextMessage?.contextInfo?.mentionedJid || [];
+
+  const text = extractText(msg.message);
 
   return {
     sock,
     msg,
     from,
     sender,
+    userId: sender,
+    userName,
     isGroup,
     text,
+    mentionedJid,
+
     async reply(content, options = {}) {
       return sock.sendMessage(
         from,
-        {
-          text: content,
-          ...options,
-        },
-        {
-          quoted: msg,
-        },
+        { text: content, ...options },
+        { quoted: msg },
       );
     },
-    react(emoji) {
+
+    async react(emoji) {
       return sock.sendMessage(from, {
-        react: { text: emoji, key: msg.key },
+        react: {
+          text: emoji,
+          key: msg.key,
+        },
       });
-    },
-    get quotedMsg() {
-      const quoted =
-        msg.message?.extendedTextMessage?.contextInfo?.quotedMessage;
-      return quoted ? proto.Message.fromObject(quoted) : null;
     },
   };
 }
 
-module.exports = { createContext, getMessageText };
+module.exports = createContext;
