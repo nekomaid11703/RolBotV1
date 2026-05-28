@@ -1,3 +1,4 @@
+" dado.js - Comando para lanzar dados (d4, d10, d20) con detección de críticos altos y bajos. Ej: /dado 2d20";
 module.exports = {
     name: "dado",
     description: "Lanza dados (d4, d10, d20). Ej: /dado 2d20",
