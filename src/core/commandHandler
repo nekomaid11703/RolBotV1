@@ -1,0 +1,111 @@
+const fs = require("fs");
+const path = require("path");
+
+const commands = new Map();
+
+function loadCommands() {
+  const commandsPath = path.join(__dirname, "../commands");
+
+  const folders = fs.readdirSync(commandsPath);
+
+  for (const folder of folders) {
+    const folderPath = path.join(commandsPath, folder);
+    if (!fs.statSync(folderPath).isDirectory()) continue;
+
+    const files = fs.readdirSync(folderPath).filter((f) => f.endsWith(".js"));
+
+    for (const file of files) {
+      const filePath = path.join(folderPath, file);
+      delete require.cache[require.resolve(filePath)];
+
+      const command = require(filePath);
+
+      if (!command?.name || typeof command.execute !== "function") continue;
+
+      commands.set(command.name, command);
+
+      if (Array.isArray(command.aliases)) {
+        for (const alias of command.aliases) commands.set(alias, command);
+      }
+
+      console.log(`✅ Comando cargado: ${command.name}`);
+    }
+  }
+}
+
+const { isAdmin, isBotAdmin } = require("../utils/groupUtils");
+
+// =========================
+// HANDLE COMMAND
+// =========================
+
+async function handleCommand(ctx) {
+  const prefix = "/";
+
+  if (!ctx.text.startsWith(prefix)) {
+    return;
+  }
+
+  const args = ctx.text.slice(prefix.length).trim().split(/\s+/);
+
+  const commandName = args.shift()?.toLowerCase();
+
+  if (!commandName) return;
+
+  const command = commands.get(commandName);
+
+  if (!command) return;
+
+  ctx.args = args;
+  ctx.command = commandName;
+
+  // =========================
+  // ONLY GROUP
+  // =========================
+
+  if (command.groupOnly && !ctx.isGroup) {
+    return ctx.reply("❌ Este comando solo funciona en grupos.");
+  }
+
+  // =========================
+  // ADMIN ONLY
+  // =========================
+
+  if (command.adminOnly) {
+    if (!ctx.isGroup) {
+      return ctx.reply("❌ Este comando solo funciona en grupos.");
+    }
+
+    const admin = await isAdmin(ctx.sock, ctx.from, ctx.sender);
+
+    if (!admin) {
+      return ctx.reply("❌ Solo los administradores pueden usar este comando.");
+    }
+  }
+
+  // =========================
+  // BOT ADMIN ONLY
+  // =========================
+
+  if (command.botAdminOnly) {
+    const botAdmin = await isBotAdmin(ctx.sock, ctx.from);
+
+    if (!botAdmin) {
+      return ctx.reply("❌ El bot necesita ser administrador.");
+    }
+  }
+
+  // =========================
+  // EXECUTE
+  // =========================
+
+  try {
+    await command.execute(ctx);
+  } catch (error) {
+    console.error(error);
+
+    await ctx.reply("❌ Error ejecutando comando.");
+  }
+}
+
+module.exports = { loadCommands, handleCommand, commands };

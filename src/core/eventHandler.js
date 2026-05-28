@@ -1,48 +1,26 @@
-function registerEvents(sock) {
-  // =========================
-  // MESSAGE EVENT
-  // =========================
+const { createContext } = require("./context");
+const { handleCommand } = require("./commandHandler");
 
+function registerEvents(sock) {
   sock.ev.on("messages.upsert", async ({ messages }) => {
     try {
       const msg = messages[0];
+      if (!msg?.message) return;
+      if (msg.key.remoteJid === "status@broadcast") return;
 
-      if (!msg.message) return;
+      const ctx = createContext(sock, msg);
 
-      // =========================
-      // IGNORE STATUS
-      // =========================
+      if (!ctx.text) return;
 
-      if (msg.key.remoteJid === "status@broadcast") {
-        return;
-      }
+      console.log("🔥 MENSAJE RECIBIDO");
+      console.log("📩 TEXTO:", ctx.text);
 
-      // =========================
-      // EXTRACT TEXT
-      // =========================
-
-      const text =
-        msg.message?.conversation ||
-        msg.message?.extendedTextMessage?.text ||
-        msg.message?.imageMessage?.caption ||
-        msg.message?.videoMessage?.caption ||
-        "";
-
-      if (!text) return;
-
-      console.log("\n=========================");
-      console.log("📩 NUEVO MENSAJE");
-      console.log("=========================");
-      console.log("De:", msg.key.remoteJid);
-      console.log("Mensaje:", text);
+      await handleCommand(ctx);
     } catch (error) {
       console.log("\n❌ Error procesando mensaje:");
-
       console.error(error);
     }
   });
 }
 
-module.exports = {
-  registerEvents,
-};
+module.exports = { registerEvents };

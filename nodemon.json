@@ -1,0 +1,4 @@
+{
+  "ignore": ["src/database/auth/*", "node_modules/*"],
+  "ext": "js,json"
+}
