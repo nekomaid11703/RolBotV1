@@ -6,6 +6,7 @@ const {
   CHARACTER_ROOT,
   CHARACTER_CATEGORIES,
   DEFAULT_CHARACTER_STATS,
+  DEFAULT_CHARACTER_SLOTS,
 } = require("../config/characterConfig");
 
 function stripAccents(text) {
@@ -140,6 +141,7 @@ async function createCharacter({
   characterName,
   category = "F",
   stats = {},
+  slots = {},
   isAdmin = false,
 }) {
   const folder = await ensureCreatorFolder(creatorId, creatorName);
@@ -161,12 +163,25 @@ async function createCharacter({
 
   const character = {
     name: characterName,
+
     slug,
+
     category: normalizeCategory(category, isAdmin),
+
     creatorId,
+
     creatorName,
+
     stats: normalizeStats(stats),
+
+    slots: {
+      ...DEFAULT_CHARACTER_SLOTS,
+
+      ...(slots || {}),
+    },
+
     createdAt: now,
+
     updatedAt: now,
   };
 
@@ -304,7 +319,218 @@ async function updateCharacterStats({ creatorId, characterName, patch = {} }) {
 
   return character;
 }
+// =========================
+// EDIT CHARACTER
+// =========================
 
+async function editCharacter({
+  creatorId,
+
+  characterName,
+
+  patch = {},
+}) {
+  const folder = await findCreatorFolderById(creatorId);
+
+  if (!folder) {
+    throw new Error("No existe el creador.");
+  }
+
+  // =========================
+  // FILE ORIGINAL
+  // =========================
+
+  const oldSlug = getCharacterSlug(characterName);
+
+  const oldFile = characterFilePath(folder, oldSlug);
+
+  if (!fs.existsSync(oldFile)) {
+    throw new Error("No existe el personaje.");
+  }
+
+  const character = await readJson(oldFile, null);
+
+  if (!character) {
+    throw new Error("No se pudo leer el personaje.");
+  }
+
+  // =========================
+  // OWNER SECURITY
+  // =========================
+
+  if (character.creatorId !== creatorId) {
+    throw new Error("No puedes editar personajes ajenos.");
+  }
+
+  // =========================
+  // RENAME
+  // =========================
+
+  let newSlug = oldSlug;
+
+  if (patch.name && patch.name !== character.name) {
+    const cleanName = String(patch.name).trim();
+
+    if (cleanName.length < 2) {
+      throw new Error("Nombre demasiado corto.");
+    }
+
+    if (cleanName.length > 40) {
+      throw new Error("Nombre demasiado largo.");
+    }
+
+    newSlug = getCharacterSlug(cleanName);
+
+    const newFile = characterFilePath(folder, newSlug);
+
+    // =========================
+    // DUPLICATE
+    // =========================
+
+    if (fs.existsSync(newFile)) {
+      throw new Error("Ya existe un personaje con ese nombre.");
+    }
+
+    character.name = cleanName;
+
+    character.slug = newSlug;
+
+    // =========================
+    // MOVE FILE
+    // =========================
+
+    await fsp.rename(oldFile, newFile);
+  }
+
+  // =========================
+  // DESCRIPTION
+  // =========================
+
+  if (patch.description !== undefined) {
+    character.description = String(patch.description);
+  }
+
+  // =========================
+  // SLOTS
+  // =========================
+
+  if (patch.slots) {
+    if (typeof patch.slots !== "object") {
+      throw new Error("Slots inválidos.");
+    }
+
+    if (!character.slots) {
+      character.slots = {};
+    }
+
+    for (const [key, value] of Object.entries(patch.slots)) {
+      // =========================
+      // KEY SECURITY
+      // =========================
+
+      const cleanKey = String(key).trim().toLowerCase();
+
+      if (cleanKey.length < 1) {
+        continue;
+      }
+
+      if (cleanKey.length > 50) {
+        throw new Error(`Slot demasiado largo:\n${cleanKey}`);
+      }
+
+      // =========================
+      // VALUE SECURITY
+      // =========================
+
+      const cleanValue = String(value).trim();
+
+      if (cleanValue.length > 5000) {
+        throw new Error(`Contenido demasiado largo:\n${cleanKey}`);
+      }
+
+      character.slots[cleanKey] = cleanValue;
+    }
+  }
+
+  character.updatedAt = new Date().toISOString();
+
+  // =========================
+  // NEW FILE
+  // =========================
+
+  const finalFile = characterFilePath(folder, newSlug);
+
+  await writeJson(finalFile, character);
+
+  // =========================
+  // UPDATE ACTIVE
+  // =========================
+
+  const profilePath = path.join(folder, "profile.json");
+
+  const profile = await readJson(profilePath, null);
+
+  if (profile && profile.activeCharacter === oldSlug) {
+    profile.activeCharacter = newSlug;
+
+    profile.updatedAt = new Date().toISOString();
+
+    await writeJson(profilePath, profile);
+  }
+
+  return character;
+}
+
+// =========================
+// DELETE CHARACTER
+// =========================
+
+async function deleteCharacter({
+  creatorId,
+
+  characterName,
+}) {
+  const folder = await findCreatorFolderById(creatorId);
+
+  if (!folder) {
+    throw new Error("No existe el creador.");
+  }
+
+  const slug = getCharacterSlug(characterName);
+
+  const file = characterFilePath(folder, slug);
+
+  if (!fs.existsSync(file)) {
+    throw new Error("No existe el personaje.");
+  }
+
+  await fsp.unlink(file);
+
+  return true;
+}
+// =========================
+// GET CHARACTER BY SLUG
+// =========================
+
+async function getCharacterBySlug({
+  creatorId,
+
+  slug,
+}) {
+  const folder = await findCreatorFolderById(creatorId);
+
+  if (!folder) {
+    return null;
+  }
+
+  const file = characterFilePath(folder, slug);
+
+  if (!fs.existsSync(file)) {
+    return null;
+  }
+
+  return await readJson(file, null);
+}
 module.exports = {
   createCharacter,
   getCharacter,
@@ -314,4 +540,7 @@ module.exports = {
   updateCharacterStats,
   getCreatorFolderName,
   getCharacterSlug,
+  editCharacter,
+  deleteCharacter,
+  getCharacterBySlug,
 };

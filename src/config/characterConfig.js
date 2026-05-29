@@ -5,7 +5,7 @@ const CHARACTER_ROOT = path.join(__dirname, "../database/personajes");
 const CHARACTER_CATEGORIES = ["F", "E", "D", "C", "BA", "S"];
 
 // =========================
-// STATS OFICIALES
+// STATS
 // =========================
 
 const DEFAULT_CHARACTER_STATS = {
@@ -27,13 +27,29 @@ const DEFAULT_CHARACTER_STATS = {
 };
 
 // =========================
-// KEYS VALIDAS
+// SLOTS
+// =========================
+
+const DEFAULT_CHARACTER_SLOTS = {
+  descripcion: "",
+
+  historia: "",
+
+  habilidades: "",
+};
+
+// =========================
+// VALID KEYS
 // =========================
 
 const VALID_CHARACTER_FIELDS = [
   "rango",
 
+  "nombre",
+
   ...Object.keys(DEFAULT_CHARACTER_STATS),
+
+  ...Object.keys(DEFAULT_CHARACTER_SLOTS),
 ];
 
 module.exports = {
@@ -42,6 +58,8 @@ module.exports = {
   CHARACTER_CATEGORIES,
 
   DEFAULT_CHARACTER_STATS,
+
+  DEFAULT_CHARACTER_SLOTS,
 
   VALID_CHARACTER_FIELDS,
 };

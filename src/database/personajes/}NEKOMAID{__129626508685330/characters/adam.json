@@ -1,11 +1,11 @@
 {
   "name": "adam",
   "slug": "adam",
-  "category": "F",
+  "category": "S",
   "creatorId": "129626508685330@lid",
   "creatorName": "}NEKOMAID{",
   "stats": {
-    "vida": 50,
+    "vida": 100,
     "dinero": 0,
     "exp": 0,
     "fuerza": 0,
@@ -14,6 +14,12 @@
     "inteligencia": 0,
     "suerte": 0
   },
-  "createdAt": "2026-05-28T23:34:01.577Z",
-  "updatedAt": "2026-05-28T23:34:01.577Z"
+  "slots": {
+    "descripcion": "",
+    "historia": "",
+    "habilidades": "",
+    "descripción": "es un papucho"
+  },
+  "createdAt": "2026-05-29T00:50:45.937Z",
+  "updatedAt": "2026-05-29T00:50:45.937Z"
 }

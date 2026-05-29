@@ -5,8 +5,6 @@ const { isAdmin } = require("../../utils/groupUtils");
 const {
   DEFAULT_CHARACTER_STATS,
 
-  VALID_CHARACTER_FIELDS,
-
   CHARACTER_CATEGORIES,
 } = require("../../config/characterConfig");
 
@@ -14,82 +12,139 @@ const {
 // PARSER
 // =========================
 
-function parseCharacterMessage(text) {
-  const lines = text
-
-    .split("\n")
-
-    .map((line) => line.trim())
-
-    .filter(Boolean);
-
+function parseCharacter(lines) {
   // =========================
-  // VALIDAR MINIMO
+  // NAME
   // =========================
 
-  if (lines.length < 2) {
-    throw new Error("Formato inválido.\n\n" + "Debes usar saltos de línea.");
-  }
-
-  // =========================
-  // COMANDO
-  // =========================
-
-  if (lines[0].toLowerCase() !== "/crear_pj") {
-    throw new Error("Comando inválido.");
-  }
-
-  // =========================
-  // NOMBRE
-  // =========================
-
-  const name = lines[1];
+  const name = lines[1]?.trim();
 
   if (!name) {
     throw new Error("Debes escribir un nombre.");
+  }
+
+  if (name.length < 2) {
+    throw new Error("Nombre demasiado corto.");
+  }
+
+  if (name.length > 40) {
+    throw new Error("Nombre demasiado largo.");
   }
 
   // =========================
   // DATA
   // =========================
 
-  const data = {};
+  let category = "F";
 
-  for (let i = 2; i < lines.length; i++) {
-    const line = lines[i];
+  const stats = {};
+
+  const slots = {};
+
+  let i = 2;
+
+  while (i < lines.length) {
+    const raw = lines[i];
+
+    const line = raw.trim();
+
+    if (!line) {
+      i++;
+      continue;
+    }
+
+    // =========================
+    // INVALID
+    // =========================
 
     if (!line.includes(":")) {
       throw new Error(`Línea inválida:\n${line}`);
     }
 
-    const splitIndex = line.indexOf(":");
+    const index = line.indexOf(":");
 
-    const key = line.slice(0, splitIndex).trim().toLowerCase();
+    const key = line.slice(0, index).trim().toLowerCase();
 
-    let value = line.slice(splitIndex + 1).trim();
+    let value = line.slice(index + 1).trim();
 
     // =========================
-    // KEY INVALIDA
+    // EMPTY KEY
     // =========================
 
-    if (!VALID_CHARACTER_FIELDS.includes(key)) {
-      throw new Error(`Característica inválida:\n${key}`);
+    if (!key) {
+      throw new Error("Key inválida.");
     }
 
     // =========================
-    // NUMEROS
+    // RANGO
+    // =========================
+
+    if (key === "rango") {
+      category = value.toUpperCase();
+
+      i++;
+      continue;
+    }
+
+    // =========================
+    // MULTILINE SLOT
+    // =========================
+
+    if (value === "") {
+      i++;
+
+      if (i >= lines.length || lines[i].trim() !== '"') {
+        throw new Error(`${key} debe comenzar con "`);
+      }
+
+      i++;
+
+      const content = [];
+
+      while (i < lines.length && lines[i].trim() !== '"') {
+        content.push(lines[i]);
+
+        i++;
+      }
+
+      if (i >= lines.length) {
+        throw new Error(`${key} no fue cerrado con "`);
+      }
+
+      const finalContent = content.join("\n").trim();
+
+      if (finalContent.length > 5000) {
+        throw new Error(`${key} es demasiado largo.`);
+      }
+
+      slots[key] = finalContent;
+
+      i++;
+
+      continue;
+    }
+
+    // =========================
+    // NUMBER
     // =========================
 
     if (/^-?\d+$/.test(value)) {
       value = Number(value);
     }
 
-    data[key] = value;
+    stats[key] = value;
+
+    i++;
   }
 
   return {
     name,
-    data,
+
+    category,
+
+    stats,
+
+    slots,
   };
 }
 
@@ -103,44 +158,30 @@ module.exports = {
   category: "personajes",
 
   async execute(ctx) {
+    const lines = ctx.text.split("\n");
+
     // =========================
     // HELP
     // =========================
 
-    if (ctx.text.trim().toLowerCase() === "/crear_pj") {
+    if (lines.length < 2) {
       let help =
         "📘 *CREAR PERSONAJE*\n\n" +
-        "Usa EXACTAMENTE este formato:\n\n" +
         "/crear_pj\n" +
         "Kevin\n\n" +
-        "Las estadisticas validas son:\n\n";
+        "rango: F\n\n";
 
-      for (const key of VALID_CHARACTER_FIELDS) {
-        if (key === "rango") {
-          help += "rango: F\n";
-
-          continue;
-        }
-
-        help += `${key}: ${DEFAULT_CHARACTER_STATS[key]}\n`;
+      for (const [key, value] of Object.entries(DEFAULT_CHARACTER_STATS)) {
+        help += `${key}: ${value}\n`;
       }
 
-      help += "\n⚠️ Las líneas son obligatorias.";
+      help +=
+        "\n" + "descripcion:\n" + '"\n' + "Un guerrero legendario.\n" + '"\n';
 
       return ctx.reply(help);
     }
 
     try {
-      // =========================
-      // PARSE
-      // =========================
-
-      const parsed = parseCharacterMessage(ctx.text);
-
-      const name = parsed.name;
-
-      const data = parsed.data;
-
       // =========================
       // ADMIN
       // =========================
@@ -148,25 +189,33 @@ module.exports = {
       let admin = false;
 
       if (ctx.isGroup) {
-        admin = await isAdmin(ctx.sock, ctx.from, ctx.sender);
+        admin = await isAdmin(
+          ctx.sock,
+
+          ctx.from,
+
+          ctx.sender,
+        );
       }
 
       // =========================
-      // RANGO
+      // PARSE
       // =========================
 
-      let rango = String(data.rango || "F").toUpperCase();
+      const parsed = parseCharacter(lines);
 
-      if (!CHARACTER_CATEGORIES.includes(rango)) {
-        rango = "F";
+      // =========================
+      // CATEGORY
+      // =========================
+
+      let category = parsed.category;
+
+      if (!CHARACTER_CATEGORIES.includes(category)) {
+        category = "F";
       }
 
-      // =========================
-      // NO ADMIN
-      // =========================
-
-      if (!admin && rango !== "F") {
-        rango = "F";
+      if (!admin && category !== "F") {
+        category = "F";
       }
 
       // =========================
@@ -175,15 +224,9 @@ module.exports = {
 
       const stats = {
         ...DEFAULT_CHARACTER_STATS,
+
+        ...parsed.stats,
       };
-
-      for (const key of Object.keys(data)) {
-        if (key === "rango") {
-          continue;
-        }
-
-        stats[key] = data[key];
-      }
 
       // =========================
       // CREATE
@@ -194,33 +237,42 @@ module.exports = {
 
         creatorName: ctx.userName,
 
-        characterName: name,
+        characterName: parsed.name,
 
-        category: rango,
+        category,
 
         stats,
+
+        slots: parsed.slots,
 
         isAdmin: admin,
       });
 
       // =========================
-      // SUCCESS
+      // RESPONSE
       // =========================
 
       await ctx.react("🎉");
 
       let response =
-        "🎉 *PERSONAJE CREADO EXITOSAMENTE*\n\n" +
-        `👤 *Nombre:* ${character.name}\n` +
-        `🏷️ *Rango:* ${character.category}\n` +
-        `⭐ *Estado:* Activo\n\n` +
-        "📊 *Estadísticas*\n\n";
+        "🎉 *PERSONAJE CREADO*\n\n" +
+        `👤 ${character.name}\n` +
+        `🏷️ Rango: ${character.category}\n\n` +
+        "📊 *Stats*\n";
 
       for (const [key, value] of Object.entries(character.stats)) {
         response += `• ${key}: ${value}\n`;
       }
 
-      response += "\n✅ El personaje fue guardado correctamente.";
+      if (character.slots && Object.keys(character.slots).length) {
+        response += "\n🧩 *Slots*\n";
+
+        for (const key of Object.keys(character.slots)) {
+          response += `• ${key}\n`;
+        }
+      }
+
+      response += "\n✅ Guardado correctamente.";
 
       await ctx.reply(response);
     } catch (error) {
