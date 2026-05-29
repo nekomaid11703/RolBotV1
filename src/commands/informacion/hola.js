@@ -7,11 +7,7 @@ module.exports = {
 
   category: "informacion",
 
-  groupOnly: false,
 
-  adminOnly: true,
-
-  botAdminOnly: false,
 
   async execute(ctx) {
     const numero = ctx.sender.split("@")[0];

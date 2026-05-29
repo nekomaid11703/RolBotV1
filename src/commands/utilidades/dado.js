@@ -7,11 +7,6 @@ module.exports = {
 
   category: "utilidades",
 
-  groupOnly: false,
-
-  adminOnly: true,
-
-  botAdminOnly: false,
 
   async execute(ctx) {
     // =========================

@@ -9,11 +9,7 @@ module.exports = {
 
   category: "informacion",
 
-  groupOnly: false,
 
-  adminOnly: true,
-
-  botAdminOnly: false,
 
   async execute(ctx) {
     const uniqueCommands = new Map();
