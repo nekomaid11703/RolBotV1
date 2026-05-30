@@ -2,7 +2,7 @@ const { getActiveCharacter } = require("../../services/characterService");
 
 module.exports = {
   name: "pj",
-  aliases: ["ver_pj", "perfil"],
+  aliases: ["perfil"],
   description: "Muestra el personaje activo",
   category: "personajes",
   groupOnly: true,

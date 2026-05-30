@@ -1,13 +1,37 @@
+function unwrapMessageContent(message) {
+  if (!message) return null;
+
+  if (message.ephemeralMessage?.message) {
+    return unwrapMessageContent(message.ephemeralMessage.message);
+  }
+
+  if (message.viewOnceMessage?.message) {
+    return unwrapMessageContent(message.viewOnceMessage.message);
+  }
+
+  if (message.viewOnceMessageV2?.message) {
+    return unwrapMessageContent(message.viewOnceMessageV2.message);
+  }
+
+  if (message.viewOnceMessageV2Extension?.message) {
+    return unwrapMessageContent(message.viewOnceMessageV2Extension.message);
+  }
+
+  return message;
+}
+
 function extractText(message) {
   if (!message) return "";
 
+  const normalized = unwrapMessageContent(message);
+
   return (
-    message.conversation ||
-    message.extendedTextMessage?.text ||
-    message.imageMessage?.caption ||
-    message.videoMessage?.caption ||
-    message.buttonsResponseMessage?.selectedButtonId ||
-    message.listResponseMessage?.singleSelectReply?.selectedRowId ||
+    normalized.conversation ||
+    normalized.extendedTextMessage?.text ||
+    normalized.imageMessage?.caption ||
+    normalized.videoMessage?.caption ||
+    normalized.buttonsResponseMessage?.selectedButtonId ||
+    normalized.listResponseMessage?.singleSelectReply?.selectedRowId ||
     ""
   ).trim();
 }

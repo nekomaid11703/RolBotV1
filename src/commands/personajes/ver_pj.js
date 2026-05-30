@@ -50,7 +50,7 @@ function formatCharacter(character) {
 module.exports = {
   name: "ver_pj",
 
-  aliases: ["pj", "verpersonaje"],
+  aliases: ["verpersonaje"],
 
   description: "Muestra personajes",
 

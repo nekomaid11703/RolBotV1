@@ -2,22 +2,47 @@ const createContext = require("./context");
 const { handleCommand } = require("./commandHandler");
 
 function registerEvents(sock) {
-  sock.ev.on("messages.upsert", async ({ messages }) => {
+  sock.ev.on("messages.upsert", async ({ messages, type }) => {
     try {
-      const msg = messages[0];
-      if (!msg?.message) return;
-      if (msg.key.remoteJid === "status@broadcast") return;
+      if (type && type !== "notify") {
+        return;
+      }
 
-      const ctx = createContext(sock, msg);
+      if (!Array.isArray(messages) || messages.length === 0) {
+        return;
+      }
 
-      if (!ctx.text) return;
+      for (const rawMsg of messages) {
+        try {
+          if (!rawMsg?.message) {
+            continue;
+          }
 
-      console.log("🔥 MENSAJE RECIBIDO");
-      console.log("📩 TEXTO:", ctx.text);
+          if (rawMsg.key?.remoteJid === "status@broadcast") {
+            continue;
+          }
 
-      await handleCommand(ctx);
+          if (rawMsg.key?.fromMe) {
+            continue;
+          }
+
+          const ctx = createContext(sock, rawMsg);
+
+          if (!ctx.text) {
+            continue;
+          }
+
+          console.log("🔥 MENSAJE RECIBIDO");
+          console.log("📩 TEXTO:", ctx.text);
+
+          await handleCommand(ctx);
+        } catch (messageError) {
+          console.log("\n❌ Error procesando mensaje individual:");
+          console.error(messageError);
+        }
+      }
     } catch (error) {
-      console.log("\n❌ Error procesando mensaje:");
+      console.log("\n❌ Error procesando mensajes.upsert:");
       console.error(error);
     }
   });

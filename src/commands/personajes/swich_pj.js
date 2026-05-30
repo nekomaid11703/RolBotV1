@@ -1,5 +1,4 @@
 const { setActiveCharacter } = require("../../services/characterService");
-
 const { isAdmin } = require("../../utils/groupUtils");
 
 module.exports = {
@@ -8,8 +7,9 @@ module.exports = {
   description: "Activa un personaje",
   category: "personajes",
   groupOnly: true,
+
   async execute(ctx) {
-    const payload = ctx.text.slice(ctx.command.length + 1).trim();
+    const payload = ctx.args.join(" ").trim();
 
     if (!payload) {
       return ctx.reply(
@@ -24,7 +24,12 @@ module.exports = {
       .filter(Boolean);
 
     const mentioned = ctx.mentionedJid || [];
-    const admin = await isAdmin(ctx.sock, ctx.from, ctx.sender);
+
+    const admin = await isAdmin(
+      ctx.sock,
+      ctx.from,
+      ctx.sender,
+    );
 
     let targetCreatorId = ctx.sender;
     let targetCreatorName = ctx.userName;
@@ -53,7 +58,9 @@ module.exports = {
 
       await ctx.react("🔁");
 
-      await ctx.reply(`✅ Ahora el personaje activo es *${character.name}*`);
+      await ctx.reply(
+        `✅ Ahora el personaje activo es *${character.name}*`,
+      );
     } catch (error) {
       await ctx.reply(`❌ ${error.message}`);
     }
