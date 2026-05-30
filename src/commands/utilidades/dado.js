@@ -7,7 +7,6 @@ module.exports = {
 
   category: "utilidades",
 
-
   async execute(ctx) {
     // =========================
     // VALIDAR INPUT
@@ -37,7 +36,6 @@ module.exports = {
       await ctx.reply(
         "❌ Formato inválido.\n\n" + "Usa: /dado XdY\n" + "Ejemplo: /dado 2d20",
       );
-
       return;
     }
 
