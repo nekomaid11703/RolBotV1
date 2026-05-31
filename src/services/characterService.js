@@ -246,7 +246,17 @@ async function getActiveCharacter({ creatorId }) {
 
   const file = characterFilePath(folder, profile.activeCharacter);
 
-  if (!fs.existsSync(file)) return null;
+  if (!fs.existsSync(file)) {
+  profile.activeCharacter = null;
+  profile.updatedAt = new Date().toISOString();
+
+  await writeJson(
+    path.join(folder, "profile.json"),
+    profile,
+  );
+
+  return null;
+}
 
   const character = await readJson(file, null);
   if (!character) return null;
@@ -262,14 +272,24 @@ async function setActiveCharacter({
   requesterId,
   requesterIsAdmin = false,
 }) {
-  if (requesterId !== targetCreatorId && !requesterIsAdmin) {
-    throw new Error("Solo el creador o un admin pueden hacer switch.");
+  if (
+    requesterId !== targetCreatorId &&
+    !requesterIsAdmin
+  ) {
+    throw new Error(
+      "Solo el creador o un admin pueden hacer switch.",
+    );
   }
 
-  const folder = await ensureCreatorFolder(
+  const folder = await findCreatorFolderById(
     targetCreatorId,
-    targetCreatorName || "usuario",
   );
+
+  if (!folder) {
+    throw new Error(
+      "El usuario no tiene personajes registrados.",
+    );
+  }
 
   const character = await getCharacter({
     creatorId: targetCreatorId,
@@ -277,25 +297,36 @@ async function setActiveCharacter({
   });
 
   if (!character) {
-    throw new Error("No existe ese personaje.");
+    throw new Error(
+      "No existe ese personaje.",
+    );
   }
 
-  const profilePath = path.join(folder, "profile.json");
-  const profile = await readJson(profilePath, {
-    creatorId: targetCreatorId,
-    creatorName: targetCreatorName,
-    activeCharacter: null,
-  });
+  const profilePath = path.join(
+    folder,
+    "profile.json",
+  );
+
+  const profile = await readJson(
+    profilePath,
+    {
+      creatorId: targetCreatorId,
+      creatorName: targetCreatorName,
+      activeCharacter: null,
+    },
+  );
 
   profile.activeCharacter = character.slug;
-  profile.updatedAt = new Date().toISOString();
+
+  profile.updatedAt =
+    new Date().toISOString();
 
   await writeJson(profilePath, profile);
 
   character.active = true;
+
   return character;
 }
-
 async function updateCharacterStats({ creatorId, characterName, patch = {} }) {
   const folder = await findCreatorFolderById(creatorId);
   if (!folder) return null;
@@ -487,7 +518,6 @@ async function editCharacter({
 
 async function deleteCharacter({
   creatorId,
-
   characterName,
 }) {
   const folder = await findCreatorFolderById(creatorId);
@@ -504,7 +534,53 @@ async function deleteCharacter({
     throw new Error("No existe el personaje.");
   }
 
+  const profilePath = path.join(
+    folder,
+    "profile.json",
+  );
+
+  const profile = await readJson(profilePath, {
+    activeCharacter: null,
+  });
+
+  const wasActive =
+    profile.activeCharacter === slug;
+
   await fsp.unlink(file);
+
+  if (!wasActive) {
+    return true;
+  }
+
+  const charsDir = path.join(
+    folder,
+    "characters",
+  );
+
+  const files = await fsp
+    .readdir(charsDir)
+    .catch(() => []);
+
+  const remaining = files
+    .filter((f) => f.endsWith(".json"))
+    .sort();
+
+  if (remaining.length === 0) {
+    profile.activeCharacter = null;
+  } else {
+    const nextCharacter = await readJson(
+      path.join(charsDir, remaining[0]),
+      null,
+    );
+
+    profile.activeCharacter =
+      nextCharacter?.slug || null;
+  }
+
+  profile.updatedAt =
+    new Date().toISOString();
+
+  await writeJson(profilePath, profile);
 
   return true;
 }
