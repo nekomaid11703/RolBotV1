@@ -5,7 +5,7 @@ module.exports = {
   aliases: ["perfil"],
   description: "Muestra el personaje activo",
   category: "personajes",
-  groupOnly: true,
+
   async execute(ctx) {
     const character = await getActiveCharacter({
       creatorId: ctx.sender,

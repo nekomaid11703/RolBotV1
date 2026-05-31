@@ -9,8 +9,6 @@ module.exports = {
 
   category: "informacion",
 
-
-
   async execute(ctx) {
     const uniqueCommands = new Map();
 

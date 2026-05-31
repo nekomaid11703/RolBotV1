@@ -6,7 +6,7 @@ module.exports = {
   aliases: ["spj", "usar_pj"],
   description: "Activa un personaje",
   category: "personajes",
-  groupOnly: true,
+ 
 
   async execute(ctx) {
     const payload = ctx.args.join(" ").trim();

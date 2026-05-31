@@ -5,7 +5,7 @@ module.exports = {
   aliases: ["pjs", "listar_pj"],
   description: "Lista tus personajes",
   category: "personajes",
-  groupOnly: true,
+  
   async execute(ctx) {
     const characters = await listCharacters({
       creatorId: ctx.sender,
