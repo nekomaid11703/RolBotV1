@@ -11,10 +11,16 @@ const path = require("path");
 
 const { loadCommands } = require("./commandHandler");
 const { registerEvents } = require("./eventHandler");
+const {
+  logSystem,
+  logError,
+} = require("../services/loggerService");
 
 async function startBot() {
   try {
     console.log("🚀 Iniciando bot...\n");
+
+    await logSystem("Iniciando bot");
 
     const { state, saveCreds } = await useMultiFileAuthState(
       path.join(__dirname, "../database/auth"),
@@ -33,6 +39,10 @@ async function startBot() {
     loadCommands();
     registerEvents(sock);
 
+    await logSystem("Bot inicializado y eventos registrados", {
+      version,
+    });
+
     sock.ev.on("connection.update", async (update) => {
       const { connection, lastDisconnect, qr } = update;
 
@@ -40,25 +50,35 @@ async function startBot() {
         console.clear();
         console.log("\nEscanea el código QR:\n");
         qrcode.generate(qr, { small: true });
+
+        await logSystem("Código QR generado");
       }
 
       if (connection === "open") {
         console.log("=================================");
         console.log("✅ BOT CONECTADO CORRECTAMENTE");
         console.log("=================================");
+
+        await logSystem("Bot conectado correctamente");
       }
 
       if (connection === "close") {
         const reason = lastDisconnect?.error?.output?.statusCode;
 
         console.log("\n⚠️ Conexión cerrada");
+        await logSystem("Conexión cerrada", {
+          reason: reason || null,
+        });
 
         if (reason === DisconnectReason.loggedOut) {
           console.log("❌ Sesión cerrada. Elimina auth y vuelve a escanear.");
+
+          await logSystem("Sesión cerrada por logout");
           return;
         }
 
         console.log("🔄 Reconectando...\n");
+        await logSystem("Reconectando bot");
         startBot();
       }
     });
@@ -67,6 +87,11 @@ async function startBot() {
   } catch (error) {
     console.log("\n❌ Error iniciando bot:\n");
     console.error(error);
+
+    await logError({
+      source: "startBot",
+      error,
+    });
   }
 }
 

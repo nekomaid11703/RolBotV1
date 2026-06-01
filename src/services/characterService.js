@@ -9,33 +9,14 @@ const {
   DEFAULT_CHARACTER_SLOTS,
 } = require("../config/characterConfig");
 
-function stripAccents(text) {
-  return String(text || "")
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "");
-}
-
-function sanitizeName(text) {
-  return (
-    stripAccents(text)
-      .replace(/[<>:"/\\|?*\x00-\x1F]/g, "")
-      .trim()
-      .replace(/\s+/g, "_")
-      .replace(/_+/g, "_") || "usuario"
-  );
-}
-
-function creatorDigits(creatorId) {
-  return (
-    String(creatorId || "")
-      .split("@")[0]
-      .replace(/\D/g, "") || "sin_id"
-  );
-}
-
-function getCreatorFolderName(creatorName, creatorId) {
-  return `${sanitizeName(creatorName)}__${creatorDigits(creatorId)}`;
-}
+const {
+  sanitizeName,
+  getCreatorFolderName,
+  findUserFolderById,
+  ensureUserProfile,
+  getUserProfile,
+  saveUserProfile,
+} = require("./userService");
 
 function getCharacterSlug(characterName) {
   return sanitizeName(characterName).toLowerCase();
@@ -59,55 +40,6 @@ async function writeJson(file, data) {
   await fsp.writeFile(file, JSON.stringify(data, null, 2), "utf8");
 }
 
-async function listCreatorFolders() {
-  await ensureDir(CHARACTER_ROOT);
-
-  return await fsp.readdir(CHARACTER_ROOT, {
-    withFileTypes: true,
-  });
-}
-
-async function findCreatorFolderById(creatorId) {
-  const suffix = `__${creatorDigits(creatorId)}`;
-  const folders = await listCreatorFolders();
-
-  const match = folders.find(
-    (entry) => entry.isDirectory() && entry.name.endsWith(suffix),
-  );
-
-  return match ? path.join(CHARACTER_ROOT, match.name) : null;
-}
-
-async function ensureCreatorFolder(creatorId, creatorName) {
-  const existing = await findCreatorFolderById(creatorId);
-
-  if (existing) {
-    await ensureDir(path.join(existing, "characters"));
-    return existing;
-  }
-
-  const folder = path.join(
-    CHARACTER_ROOT,
-    getCreatorFolderName(creatorName, creatorId),
-  );
-
-  await ensureDir(path.join(folder, "characters"));
-
-  const profilePath = path.join(folder, "profile.json");
-
-  if (!fs.existsSync(profilePath)) {
-    await writeJson(profilePath, {
-      creatorId,
-      creatorName,
-      activeCharacter: null,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    });
-  }
-
-  return folder;
-}
-
 function normalizeCategory(category, isAdmin = false) {
   const normalized = String(category || "F")
     .toUpperCase()
@@ -127,7 +59,7 @@ function normalizeCategory(category, isAdmin = false) {
 function normalizeStats(stats = {}) {
   return {
     ...DEFAULT_CHARACTER_STATS,
-    ...stats,
+    ...(stats || {}),
   };
 }
 
@@ -144,8 +76,10 @@ async function createCharacter({
   slots = {},
   isAdmin = false,
 }) {
-  const folder = await ensureCreatorFolder(creatorId, creatorName);
-  const profilePath = path.join(folder, "profile.json");
+  const { folder, profile } = await ensureUserProfile({
+    creatorId,
+    creatorName,
+  });
 
   const slug = getCharacterSlug(characterName);
   const file = characterFilePath(folder, slug);
@@ -155,33 +89,19 @@ async function createCharacter({
   }
 
   const now = new Date().toISOString();
-  const profile = await readJson(profilePath, {
-    creatorId,
-    creatorName,
-    activeCharacter: null,
-  });
 
   const character = {
     name: characterName,
-
     slug,
-
     category: normalizeCategory(category, isAdmin),
-
     creatorId,
-
     creatorName,
-
     stats: normalizeStats(stats),
-
     slots: {
       ...DEFAULT_CHARACTER_SLOTS,
-
       ...(slots || {}),
     },
-
     createdAt: now,
-
     updatedAt: now,
   };
 
@@ -190,7 +110,12 @@ async function createCharacter({
   if (!profile.activeCharacter) {
     profile.activeCharacter = slug;
     profile.updatedAt = now;
-    await writeJson(profilePath, profile);
+
+    await saveUserProfile({
+      folder,
+      profile,
+    });
+
     character.active = true;
   } else {
     character.active = false;
@@ -200,7 +125,7 @@ async function createCharacter({
 }
 
 async function getCharacter({ creatorId, characterName }) {
-  const folder = await findCreatorFolderById(creatorId);
+  const folder = await findUserFolderById(creatorId);
   if (!folder) return null;
 
   const slug = getCharacterSlug(characterName);
@@ -212,13 +137,12 @@ async function getCharacter({ creatorId, characterName }) {
 }
 
 async function listCharacters({ creatorId }) {
-  const folder = await findCreatorFolderById(creatorId);
+  const folder = await findUserFolderById(creatorId);
   if (!folder) return [];
 
-  const profilePath = path.join(folder, "profile.json");
-  const profile = await readJson(profilePath, {
-    activeCharacter: null,
-  });
+  const profile = await getUserProfile({ creatorId });
+
+  const activeCharacter = profile?.profile?.activeCharacter || null;
 
   const charsDir = path.join(folder, "characters");
   const files = await fsp.readdir(charsDir).catch(() => []);
@@ -227,8 +151,9 @@ async function listCharacters({ creatorId }) {
 
   for (const file of files.filter((f) => f.endsWith(".json"))) {
     const data = await readJson(path.join(charsDir, file), null);
+
     if (data) {
-      data.active = profile.activeCharacter === data.slug;
+      data.active = activeCharacter === data.slug;
       result.push(data);
     }
   }
@@ -237,29 +162,44 @@ async function listCharacters({ creatorId }) {
 }
 
 async function getActiveCharacter({ creatorId }) {
-  const folder = await findCreatorFolderById(creatorId);
-  if (!folder) return null;
+  const profileData = await getUserProfile({ creatorId });
 
-  const profile = await readJson(path.join(folder, "profile.json"), null);
+  if (!profileData) {
+    return null;
+  }
 
-  if (!profile?.activeCharacter) return null;
+  const { folder, profile, profilePath } = profileData;
+
+  if (!profile?.activeCharacter) {
+    return null;
+  }
 
   const file = characterFilePath(folder, profile.activeCharacter);
 
   if (!fs.existsSync(file)) {
-  profile.activeCharacter = null;
-  profile.updatedAt = new Date().toISOString();
+    profile.activeCharacter = null;
+    profile.updatedAt = new Date().toISOString();
 
-  await writeJson(
-    path.join(folder, "profile.json"),
-    profile,
-  );
+    await saveUserProfile({
+      folder,
+      profile,
+    });
 
-  return null;
-}
+    return null;
+  }
 
   const character = await readJson(file, null);
-  if (!character) return null;
+  if (!character) {
+    profile.activeCharacter = null;
+    profile.updatedAt = new Date().toISOString();
+
+    await saveUserProfile({
+      folder,
+      profile,
+    });
+
+    return null;
+  }
 
   character.active = true;
   return character;
@@ -272,23 +212,14 @@ async function setActiveCharacter({
   requesterId,
   requesterIsAdmin = false,
 }) {
-  if (
-    requesterId !== targetCreatorId &&
-    !requesterIsAdmin
-  ) {
-    throw new Error(
-      "Solo el creador o un admin pueden hacer switch.",
-    );
+  if (requesterId !== targetCreatorId && !requesterIsAdmin) {
+    throw new Error("Solo el creador o un admin pueden hacer switch.");
   }
 
-  const folder = await findCreatorFolderById(
-    targetCreatorId,
-  );
+  const folder = await findUserFolderById(targetCreatorId);
 
   if (!folder) {
-    throw new Error(
-      "El usuario no tiene personajes registrados.",
-    );
+    throw new Error("El usuario no tiene personajes registrados.");
   }
 
   const character = await getCharacter({
@@ -297,38 +228,39 @@ async function setActiveCharacter({
   });
 
   if (!character) {
-    throw new Error(
-      "No existe ese personaje.",
-    );
+    throw new Error("No existe ese personaje.");
   }
 
-  const profilePath = path.join(
-    folder,
-    "profile.json",
-  );
+  const profileData = await getUserProfile({ creatorId: targetCreatorId });
 
-  const profile = await readJson(
-    profilePath,
-    {
+  const profile =
+    profileData?.profile || {
       creatorId: targetCreatorId,
-      creatorName: targetCreatorName,
+      creatorName: targetCreatorName || "usuario",
+      metadata: {
+        displayName: targetCreatorName || "usuario",
+        pushName: targetCreatorName || "usuario",
+        lastSeenAt: new Date().toISOString(),
+      },
       activeCharacter: null,
-    },
-  );
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
 
   profile.activeCharacter = character.slug;
+  profile.updatedAt = new Date().toISOString();
 
-  profile.updatedAt =
-    new Date().toISOString();
-
-  await writeJson(profilePath, profile);
+  await saveUserProfile({
+    folder,
+    profile,
+  });
 
   character.active = true;
-
   return character;
 }
+
 async function updateCharacterStats({ creatorId, characterName, patch = {} }) {
-  const folder = await findCreatorFolderById(creatorId);
+  const folder = await findUserFolderById(creatorId);
   if (!folder) return null;
 
   const slug = getCharacterSlug(characterName);
@@ -350,29 +282,23 @@ async function updateCharacterStats({ creatorId, characterName, patch = {} }) {
 
   return character;
 }
+
 // =========================
 // EDIT CHARACTER
 // =========================
 
 async function editCharacter({
   creatorId,
-
   characterName,
-
   patch = {},
 }) {
-  const folder = await findCreatorFolderById(creatorId);
+  const folder = await findUserFolderById(creatorId);
 
   if (!folder) {
     throw new Error("No existe el creador.");
   }
 
-  // =========================
-  // FILE ORIGINAL
-  // =========================
-
   const oldSlug = getCharacterSlug(characterName);
-
   const oldFile = characterFilePath(folder, oldSlug);
 
   if (!fs.existsSync(oldFile)) {
@@ -385,19 +311,12 @@ async function editCharacter({
     throw new Error("No se pudo leer el personaje.");
   }
 
-  // =========================
-  // OWNER SECURITY
-  // =========================
-
   if (character.creatorId !== creatorId) {
     throw new Error("No puedes editar personajes ajenos.");
   }
 
-  // =========================
-  // RENAME
-  // =========================
-
   let newSlug = oldSlug;
+  let renamed = false;
 
   if (patch.name && patch.name !== character.name) {
     const cleanName = String(patch.name).trim();
@@ -414,36 +333,20 @@ async function editCharacter({
 
     const newFile = characterFilePath(folder, newSlug);
 
-    // =========================
-    // DUPLICATE
-    // =========================
-
     if (fs.existsSync(newFile)) {
       throw new Error("Ya existe un personaje con ese nombre.");
     }
 
     character.name = cleanName;
-
     character.slug = newSlug;
-
-    // =========================
-    // MOVE FILE
-    // =========================
+    renamed = true;
 
     await fsp.rename(oldFile, newFile);
   }
 
-  // =========================
-  // DESCRIPTION
-  // =========================
-
   if (patch.description !== undefined) {
     character.description = String(patch.description);
   }
-
-  // =========================
-  // SLOTS
-  // =========================
 
   if (patch.slots) {
     if (typeof patch.slots !== "object") {
@@ -455,10 +358,6 @@ async function editCharacter({
     }
 
     for (const [key, value] of Object.entries(patch.slots)) {
-      // =========================
-      // KEY SECURITY
-      // =========================
-
       const cleanKey = String(key).trim().toLowerCase();
 
       if (cleanKey.length < 1) {
@@ -468,10 +367,6 @@ async function editCharacter({
       if (cleanKey.length > 50) {
         throw new Error(`Slot demasiado largo:\n${cleanKey}`);
       }
-
-      // =========================
-      // VALUE SECURITY
-      // =========================
 
       const cleanValue = String(value).trim();
 
@@ -485,28 +380,20 @@ async function editCharacter({
 
   character.updatedAt = new Date().toISOString();
 
-  // =========================
-  // NEW FILE
-  // =========================
-
   const finalFile = characterFilePath(folder, newSlug);
 
   await writeJson(finalFile, character);
 
-  // =========================
-  // UPDATE ACTIVE
-  // =========================
+  const profileData = await getUserProfile({ creatorId });
 
-  const profilePath = path.join(folder, "profile.json");
+  if (profileData?.profile && profileData.profile.activeCharacter === oldSlug) {
+    profileData.profile.activeCharacter = newSlug;
+    profileData.profile.updatedAt = new Date().toISOString();
 
-  const profile = await readJson(profilePath, null);
-
-  if (profile && profile.activeCharacter === oldSlug) {
-    profile.activeCharacter = newSlug;
-
-    profile.updatedAt = new Date().toISOString();
-
-    await writeJson(profilePath, profile);
+    await saveUserProfile({
+      folder,
+      profile: profileData.profile,
+    });
   }
 
   return character;
@@ -520,31 +407,22 @@ async function deleteCharacter({
   creatorId,
   characterName,
 }) {
-  const folder = await findCreatorFolderById(creatorId);
+  const folder = await findUserFolderById(creatorId);
 
   if (!folder) {
     throw new Error("No existe el creador.");
   }
 
   const slug = getCharacterSlug(characterName);
-
   const file = characterFilePath(folder, slug);
 
   if (!fs.existsSync(file)) {
     throw new Error("No existe el personaje.");
   }
 
-  const profilePath = path.join(
-    folder,
-    "profile.json",
-  );
-
-  const profile = await readJson(profilePath, {
-    activeCharacter: null,
-  });
-
-  const wasActive =
-    profile.activeCharacter === slug;
+  const profileData = await getUserProfile({ creatorId });
+  const profile = profileData?.profile || null;
+  const wasActive = profile?.activeCharacter === slug;
 
   await fsp.unlink(file);
 
@@ -552,18 +430,12 @@ async function deleteCharacter({
     return true;
   }
 
-  const charsDir = path.join(
-    folder,
-    "characters",
-  );
-
-  const files = await fsp
-    .readdir(charsDir)
-    .catch(() => []);
+  const charsDir = path.join(folder, "characters");
+  const files = await fsp.readdir(charsDir).catch(() => []);
 
   const remaining = files
     .filter((f) => f.endsWith(".json"))
-    .sort();
+    .sort((a, b) => a.localeCompare(b, "es"));
 
   if (remaining.length === 0) {
     profile.activeCharacter = null;
@@ -573,27 +445,28 @@ async function deleteCharacter({
       null,
     );
 
-    profile.activeCharacter =
-      nextCharacter?.slug || null;
+    profile.activeCharacter = nextCharacter?.slug || null;
   }
 
-  profile.updatedAt =
-    new Date().toISOString();
+  profile.updatedAt = new Date().toISOString();
 
-  await writeJson(profilePath, profile);
+  await saveUserProfile({
+    folder,
+    profile,
+  });
 
   return true;
 }
+
 // =========================
 // GET CHARACTER BY SLUG
 // =========================
 
 async function getCharacterBySlug({
   creatorId,
-
   slug,
 }) {
-  const folder = await findCreatorFolderById(creatorId);
+  const folder = await findUserFolderById(creatorId);
 
   if (!folder) {
     return null;
@@ -607,6 +480,7 @@ async function getCharacterBySlug({
 
   return await readJson(file, null);
 }
+
 module.exports = {
   createCharacter,
   getCharacter,

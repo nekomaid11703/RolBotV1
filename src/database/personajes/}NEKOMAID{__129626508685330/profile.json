@@ -1,7 +1,23 @@
 {
   "creatorId": "129626508685330@lid",
   "creatorName": "}NEKOMAID{",
+  "metadata": {
+    "displayName": "}NEKOMAID{",
+    "pushName": "}NEKOMAID{",
+    "lastSeenAt": "2026-05-31T20:58:50.172Z"
+  },
+  "economy": {
+    "money": 0
+  },
+  "activity": {
+    "messages": 0,
+    "commands": 0
+  },
+  "daily": {
+    "streak": 0,
+    "lastClaim": null
+  },
   "activeCharacter": "katherine",
-  "createdAt": "2026-05-28T23:25:57.450Z",
-  "updatedAt": "2026-05-30T01:26:15.451Z"
+  "createdAt": "2026-05-31T20:02:28.906Z",
+  "updatedAt": "2026-05-31T20:58:50.172Z"
 }
