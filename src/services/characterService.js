@@ -79,6 +79,11 @@ async function createCharacter({
   const { folder, profile } = await ensureUserProfile({
     creatorId,
     creatorName,
+    registration: {
+      source: "crear_pj",
+      scope: "self",
+      createdBy: creatorId,
+    },
   });
 
   const slug = getCharacterSlug(characterName);

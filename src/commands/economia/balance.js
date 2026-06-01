@@ -38,6 +38,11 @@ module.exports = {
       ? await getOrCreateProfile({
           creatorId: ctx.sender,
           creatorName: ctx.userName,
+          registration: {
+            source: "balance",
+            scope: "self",
+            createdBy: ctx.sender,
+          },
         })
       : await getUserProfile({
           creatorId: target.userId,

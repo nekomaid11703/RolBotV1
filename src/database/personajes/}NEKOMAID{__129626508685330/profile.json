@@ -4,20 +4,27 @@
   "metadata": {
     "displayName": "}NEKOMAID{",
     "pushName": "}NEKOMAID{",
-    "lastSeenAt": "2026-05-31T20:58:50.172Z"
+    "lastSeenAt": "2026-06-01T23:13:03.779Z"
+  },
+  "registration": {
+    "source": "system",
+    "scope": "self",
+    "createdBy": "129626508685330@lid",
+    "createdAt": "2026-05-31T20:02:28.906Z"
   },
   "economy": {
-    "money": 0
+    "money": 100
   },
   "activity": {
     "messages": 0,
     "commands": 0
   },
   "daily": {
-    "streak": 0,
-    "lastClaim": null
+    "streak": 1,
+    "lastClaim": "2026-06-01T23:08:22.133Z",
+    "totalClaims": 1
   },
   "activeCharacter": "katherine",
   "createdAt": "2026-05-31T20:02:28.906Z",
-  "updatedAt": "2026-05-31T20:58:50.172Z"
+  "updatedAt": "2026-06-01T23:13:03.779Z"
 }

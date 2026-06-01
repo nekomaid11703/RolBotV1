@@ -69,41 +69,115 @@ async function findUserFolderById(creatorId) {
   return match ? path.join(CHARACTER_ROOT, match.name) : null;
 }
 
-function buildDefaultProfile({ creatorId, creatorName }) {
+async function listUserProfiles() {
+  const folders = await listCreatorFolders();
+  const result = [];
+
+  for (const entry of folders) {
+    if (!entry.isDirectory()) {
+      continue;
+    }
+
+    const folder = path.join(CHARACTER_ROOT, entry.name);
+    const profilePath = path.join(folder, "profile.json");
+    const stored = await readJson(profilePath, null);
+
+    if (!stored) {
+      continue;
+    }
+
+    const normalized = normalizeProfile(stored, {
+      creatorId: stored.creatorId || entry.name.split("__").pop(),
+      creatorName: stored.creatorName || "usuario",
+    });
+
+    if (JSON.stringify(stored) !== JSON.stringify(normalized)) {
+      await writeJson(profilePath, normalized);
+    }
+
+    result.push({
+      folder,
+      profilePath,
+      profile: normalized,
+    });
+  }
+
+  return result;
+}
+
+function buildRegistration({
+  creatorId,
+  registration = {},
+}) {
+  const now = new Date().toISOString();
+
+  return {
+    source: registration.source || "system",
+    scope: registration.scope || "self",
+    createdBy: registration.createdBy || creatorId,
+    createdAt: registration.createdAt || now,
+  };
+}
+
+function buildDefaultProfile({
+  creatorId,
+  creatorName,
+  registration = {},
+}) {
   const now = new Date().toISOString();
   const cleanName = String(creatorName || "usuario").trim() || "usuario";
 
   return {
     creatorId,
-
     creatorName: cleanName,
-
     metadata: {
       displayName: cleanName,
       pushName: cleanName,
       lastSeenAt: now,
     },
-
+    registration: buildRegistration({
+      creatorId,
+      registration,
+    }),
     economy: {
       money: 0,
     },
-
     activity: {
       messages: 0,
       commands: 0,
     },
-
     daily: {
       streak: 0,
       lastClaim: null,
+      totalClaims: 0,
     },
-
     activeCharacter: null,
-
     createdAt: now,
     updatedAt: now,
   };
 }
+
+function normalizeRegistration({
+  creatorId,
+  registration = {},
+  fallback = {},
+}) {
+  const base = buildRegistration({
+    creatorId,
+    registration: {
+      ...fallback,
+      ...registration,
+    },
+  });
+
+  return {
+    ...base,
+    ...registration,
+    createdBy: registration.createdBy || fallback.createdBy || creatorId,
+    createdAt: registration.createdAt || fallback.createdAt || base.createdAt,
+  };
+}
+
 function normalizeProfile(profile, { creatorId, creatorName }) {
   const now = new Date().toISOString();
   const cleanName =
@@ -111,7 +185,11 @@ function normalizeProfile(profile, { creatorId, creatorName }) {
     "usuario";
 
   const normalized = {
-    ...buildDefaultProfile({ creatorId, creatorName: cleanName }),
+    ...buildDefaultProfile({
+      creatorId,
+      creatorName: cleanName,
+      registration: profile?.registration || {},
+    }),
     ...profile,
   };
 
@@ -123,9 +201,24 @@ function normalizeProfile(profile, { creatorId, creatorName }) {
       : null;
 
   normalized.metadata = {
-    ...buildDefaultProfile({ creatorId, creatorName: cleanName }).metadata,
+    ...buildDefaultProfile({
+      creatorId,
+      creatorName: cleanName,
+    }).metadata,
     ...(profile?.metadata || {}),
   };
+
+  normalized.registration = normalizeRegistration({
+    creatorId,
+    registration: profile?.registration || {},
+    fallback: {
+      source: "system",
+      scope: "self",
+      createdBy: creatorId,
+      createdAt: normalized.createdAt || now,
+    },
+  });
+
   normalized.economy = {
     money: 0,
     ...(profile?.economy || {}),
@@ -140,8 +233,10 @@ function normalizeProfile(profile, { creatorId, creatorName }) {
   normalized.daily = {
     streak: 0,
     lastClaim: null,
+    totalClaims: 0,
     ...(profile?.daily || {}),
   };
+
   if (!normalized.metadata.displayName) {
     normalized.metadata.displayName = cleanName;
   }
@@ -161,7 +256,11 @@ function normalizeProfile(profile, { creatorId, creatorName }) {
   return normalized;
 }
 
-async function ensureUserFolder(creatorId, creatorName = "usuario") {
+async function ensureUserFolder(
+  creatorId,
+  creatorName = "usuario",
+  registration = {},
+) {
   const existing = await findUserFolderById(creatorId);
 
   if (existing) {
@@ -181,21 +280,37 @@ async function ensureUserFolder(creatorId, creatorName = "usuario") {
   if (!fs.existsSync(profilePath)) {
     await writeJson(
       profilePath,
-      buildDefaultProfile({ creatorId, creatorName }),
+      buildDefaultProfile({
+        creatorId,
+        creatorName,
+        registration,
+      }),
     );
   }
 
   return folder;
 }
 
-async function ensureUserProfile({ creatorId, creatorName = "usuario" }) {
-  const folder = await ensureUserFolder(creatorId, creatorName);
+async function ensureUserProfile({
+  creatorId,
+  creatorName = "usuario",
+  registration = {},
+}) {
+  const folder = await ensureUserFolder(
+    creatorId,
+    creatorName,
+    registration,
+  );
   const profilePath = path.join(folder, "profile.json");
 
   const stored = await readJson(profilePath, null);
   const profile = stored
     ? normalizeProfile(stored, { creatorId, creatorName })
-    : buildDefaultProfile({ creatorId, creatorName });
+    : buildDefaultProfile({
+        creatorId,
+        creatorName,
+        registration,
+      });
 
   if (!stored || JSON.stringify(stored) !== JSON.stringify(profile)) {
     await writeJson(profilePath, profile);
@@ -236,6 +351,11 @@ async function getUserProfile({ creatorId }) {
     profilePath,
     profile,
   };
+}
+
+async function isUserRegistered({ creatorId }) {
+  const profile = await getUserProfile({ creatorId });
+  return Boolean(profile);
 }
 
 async function saveUserProfile({ folder, profile }) {
@@ -325,14 +445,15 @@ async function syncUserMetadata({
 
   return next;
 }
+
 async function getOrCreateProfile({
   creatorId,
   creatorName = "usuario",
+  registration = {},
 }) {
-  const existing =
-    await getUserProfile({
-      creatorId,
-    });
+  const existing = await getUserProfile({
+    creatorId,
+  });
 
   if (existing) {
     return existing;
@@ -341,18 +462,40 @@ async function getOrCreateProfile({
   return await ensureUserProfile({
     creatorId,
     creatorName,
+    registration,
   });
 }
+
+async function resolveUserProfile({
+  creatorId,
+  creatorName = "usuario",
+  createIfMissing = false,
+  registration = {},
+}) {
+  if (createIfMissing) {
+    return await ensureUserProfile({
+      creatorId,
+      creatorName,
+      registration,
+    });
+  }
+
+  return await getUserProfile({ creatorId });
+}
+
 module.exports = {
   stripAccents,
   sanitizeName,
   creatorDigits,
   getCreatorFolderName,
   findUserFolderById,
+  listUserProfiles,
   ensureUserFolder,
   ensureUserProfile,
   getUserProfile,
+  isUserRegistered,
   saveUserProfile,
   syncUserMetadata,
   getOrCreateProfile,
+  resolveUserProfile,
 };
