@@ -1,3 +1,8 @@
+const {
+  extractPhoneNumber,
+  normalizeJid,
+} = require("../utils/identityUtils");
+
 function unwrapMessageContent(message) {
   if (!message) return null;
 
@@ -40,11 +45,14 @@ function createContext(sock, msg) {
   const from = msg.key.remoteJid;
   const isGroup = from.endsWith("@g.us");
 
-  const sender = isGroup
+  const senderJid = isGroup
     ? msg.key.participant || msg.participant || from
     : from;
 
-  const userName = msg.pushName || sender.split("@")[0];
+  const senderNumber = extractPhoneNumber(senderJid) || null;
+  const senderBareJid = normalizeJid(senderJid);
+
+  const userName = msg.pushName || senderNumber || senderBareJid.split("@")[0];
 
   const mentionedJid =
     msg.message?.extendedTextMessage?.contextInfo?.mentionedJid || [];
@@ -55,8 +63,12 @@ function createContext(sock, msg) {
     sock,
     msg,
     from,
-    sender,
-    userId: sender,
+    chatJid: from,
+    sender: senderJid,
+    senderJid,
+    senderNumber,
+    senderBareJid,
+    userId: senderJid,
     userName,
     isGroup,
     text,

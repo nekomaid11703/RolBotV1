@@ -127,6 +127,8 @@ function buildDefaultProfile({ creatorId, creatorName, registration = {} }) {
       displayName: cleanName,
       pushName: cleanName,
       lastSeenAt: now,
+      lastKnownJid: null,
+      lastKnownNumber: null,
     },
     registration: buildRegistration({
       creatorId,
@@ -371,6 +373,8 @@ async function syncUserMetadata({
   creatorName,
   displayName,
   pushName,
+  senderJid,
+  senderNumber,
 }) {
   const current = await getUserProfile({ creatorId });
 
@@ -422,6 +426,24 @@ async function syncUserMetadata({
 
     if (next.creatorName !== cleanCreatorName) {
       next.creatorName = cleanCreatorName;
+      changed = true;
+    }
+  }
+
+  if (typeof senderJid === "string") {
+    const cleanSenderJid = String(senderJid).trim() || null;
+
+    if (cleanSenderJid && next.metadata.lastKnownJid !== cleanSenderJid) {
+      next.metadata.lastKnownJid = cleanSenderJid;
+      changed = true;
+    }
+  }
+
+  if (typeof senderNumber === "string") {
+    const cleanSenderNumber = senderNumber.trim() || null;
+
+    if (cleanSenderNumber && next.metadata.lastKnownNumber !== cleanSenderNumber) {
+      next.metadata.lastKnownNumber = cleanSenderNumber;
       changed = true;
     }
   }

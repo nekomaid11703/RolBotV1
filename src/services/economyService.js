@@ -171,7 +171,7 @@ async function transferMoney(
   const fromData = await resolveEconomyProfile({
     userId: fromUserId,
     userName: fromName,
-    createIfMissing: false,
+    createIfMissing: true,
   });
 
   if (!fromData) {

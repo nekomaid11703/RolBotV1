@@ -4,16 +4,18 @@
   "metadata": {
     "displayName": "}NEKOMAID{",
     "pushName": "}NEKOMAID{",
-    "lastSeenAt": "2026-06-05T17:28:23.822Z"
+    "lastSeenAt": "2026-06-05T20:42:39.455Z",
+    "lastKnownJid": "129626508685330@lid",
+    "lastKnownNumber": "129626508685330"
   },
   "registration": {
-    "source": "system",
+    "source": "balance",
     "scope": "self",
     "createdBy": "129626508685330@lid",
-    "createdAt": "2026-05-31T20:02:28.906Z"
+    "createdAt": "2026-06-05T20:33:20.390Z"
   },
   "economy": {
-    "money": 200
+    "money": 90
   },
   "activity": {
     "messages": 0,
@@ -21,10 +23,13 @@
   },
   "daily": {
     "streak": 1,
-    "lastClaim": "2026-06-05T17:28:03.272Z",
-    "totalClaims": 2
+    "lastClaim": "2026-06-05T20:34:05.290Z",
+    "totalClaims": 1
   },
-  "activeCharacter": "katherine",
-  "createdAt": "2026-05-31T20:02:28.906Z",
-  "updatedAt": "2026-06-05T17:28:23.822Z"
+  "permissions": {
+    "economyAdmin": false
+  },
+  "activeCharacter": null,
+  "createdAt": "2026-06-05T20:33:20.390Z",
+  "updatedAt": "2026-06-05T20:42:39.455Z"
 }

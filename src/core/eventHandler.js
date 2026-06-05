@@ -36,15 +36,17 @@ function registerEvents(sock) {
 
           try {
             await syncUserMetadata({
-              creatorId: ctx.sender,
+              creatorId: ctx.senderJid || ctx.sender,
               creatorName: ctx.userName,
               displayName: ctx.userName,
               pushName: rawMsg.pushName || ctx.userName,
+              senderJid: ctx.senderJid || ctx.sender,
+              senderNumber: ctx.senderNumber || null,
             });
           } catch (error) {
             await logError({
               source: "syncUserMetadata",
-              userId: ctx.sender,
+              userId: ctx.senderJid || ctx.sender,
               userName: ctx.userName,
               groupId: ctx.from,
               error,

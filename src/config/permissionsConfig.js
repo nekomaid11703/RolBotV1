@@ -1,5 +1,11 @@
 module.exports = {
   OWNERS: [
-    "573156602784@s.whatsapp.net",
+    {
+      phone: "573156602784",
+      displayName: "Nekomaid",
+      aliases: [
+        "129626508685330@lid",
+      ],
+    },
   ],
 };

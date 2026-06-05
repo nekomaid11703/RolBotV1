@@ -1,8 +1,9 @@
 const fs = require("fs");
 const path = require("path");
 
-const { isAdmin, isBotAdmin } = require("../utils/groupUtils");
+const { isAdmin, isBotAdmin, isOnGroup } = require("../utils/groupUtils");
 const { isOwner } = require("../utils/permissionUtils");
+const { hasEconomyPermission } = require("../services/permissionService");
 const {
   logSystem,
   logCommand,
@@ -172,7 +173,8 @@ async function handleCommand(ctx) {
   ctx.commandName = command.name;
 
   const logBase = {
-    userId: ctx.sender,
+    userId: ctx.senderJid || ctx.sender,
+    userPhone: ctx.senderNumber || null,
     userName: ctx.userName,
     groupId: ctx.from,
     inputCommand: commandName,
@@ -180,7 +182,7 @@ async function handleCommand(ctx) {
     args,
   };
 
-  if (command.groupOnly && !ctx.isGroup) {
+  if (command.groupOnly && !isOnGroup(ctx.from)) {
     await logCommand({
       ...logBase,
       status: "denied",
@@ -190,8 +192,47 @@ async function handleCommand(ctx) {
     return ctx.reply("❌ Este comando solo funciona en grupos.");
   }
 
+  if (command.creatorOnly) {
+    const owner = isOwner({
+      jid: ctx.senderJid || ctx.sender,
+      phone: ctx.senderNumber,
+      displayName: ctx.userName,
+    });
+
+    if (!owner) {
+      await logCommand({
+        ...logBase,
+        status: "denied",
+        reason: "Solo el creador puede usar este comando.",
+      });
+
+      return ctx.reply("❌ Solo el creador puede usar este comando.");
+    }
+  }
+
+  if (command.economyAdminOnly) {
+    const allowed = await hasEconomyPermission({
+      jid: ctx.senderJid || ctx.sender,
+      phone: ctx.senderNumber,
+      displayName: ctx.userName,
+    });
+
+    if (!allowed) {
+      await logCommand({
+        ...logBase,
+        status: "denied",
+        reason:
+          "Solo los administradores de economía pueden usar este comando.",
+      });
+
+      return ctx.reply(
+        "❌ Solo los administradores de economía pueden usar este comando.",
+      );
+    }
+  }
+
   if (command.adminOnly) {
-    if (!ctx.isGroup) {
+    if (!isOnGroup(ctx.from)) {
       await logCommand({
         ...logBase,
         status: "denied",
@@ -200,21 +241,8 @@ async function handleCommand(ctx) {
 
       return ctx.reply("❌ Este comando solo funciona en grupos.");
     }
-    if (command.creatorOnly) {
-      const owner = isOwner(ctx.sender);
 
-      if (!owner) {
-        await logCommand({
-          ...logBase,
-          status: "denied",
-          reason: "Solo el creador puede usar este comando.",
-        });
-
-        return ctx.reply("❌ Solo el creador puede usar este comando.");
-      }
-    }
-
-    const admin = await isAdmin(ctx.sock, ctx.from, ctx.sender);
+    const admin = await isAdmin(ctx.sock, ctx.from, ctx.senderJid || ctx.sender);
 
     if (!admin) {
       await logCommand({
@@ -257,7 +285,7 @@ async function handleCommand(ctx) {
 
     await logError({
       source: `command:${command.name}`,
-      userId: ctx.sender,
+      userId: ctx.senderJid || ctx.sender,
       userName: ctx.userName,
       groupId: ctx.from,
       error,
@@ -265,7 +293,7 @@ async function handleCommand(ctx) {
         inputCommand: commandName,
         resolvedCommand: command.name,
         args,
-        isGroup: ctx.isGroup,
+        isGroup: isOnGroup(ctx.from),
       },
     });
 
