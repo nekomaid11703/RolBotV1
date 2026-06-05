@@ -105,10 +105,7 @@ async function listUserProfiles() {
   return result;
 }
 
-function buildRegistration({
-  creatorId,
-  registration = {},
-}) {
+function buildRegistration({ creatorId, registration = {} }) {
   const now = new Date().toISOString();
 
   return {
@@ -119,11 +116,7 @@ function buildRegistration({
   };
 }
 
-function buildDefaultProfile({
-  creatorId,
-  creatorName,
-  registration = {},
-}) {
+function buildDefaultProfile({ creatorId, creatorName, registration = {} }) {
   const now = new Date().toISOString();
   const cleanName = String(creatorName || "usuario").trim() || "usuario";
 
@@ -150,6 +143,9 @@ function buildDefaultProfile({
       streak: 0,
       lastClaim: null,
       totalClaims: 0,
+    },
+    permissions: {
+      economyAdmin: false,
     },
     activeCharacter: null,
     createdAt: now,
@@ -236,6 +232,10 @@ function normalizeProfile(profile, { creatorId, creatorName }) {
     totalClaims: 0,
     ...(profile?.daily || {}),
   };
+  normalized.permissions = {
+    economyAdmin: false,
+    ...(profile?.permissions || {}),
+  };
 
   if (!normalized.metadata.displayName) {
     normalized.metadata.displayName = cleanName;
@@ -296,11 +296,7 @@ async function ensureUserProfile({
   creatorName = "usuario",
   registration = {},
 }) {
-  const folder = await ensureUserFolder(
-    creatorId,
-    creatorName,
-    registration,
-  );
+  const folder = await ensureUserFolder(creatorId, creatorName, registration);
   const profilePath = path.join(folder, "profile.json");
 
   const stored = await readJson(profilePath, null);

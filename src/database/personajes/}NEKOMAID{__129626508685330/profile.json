@@ -4,7 +4,7 @@
   "metadata": {
     "displayName": "}NEKOMAID{",
     "pushName": "}NEKOMAID{",
-    "lastSeenAt": "2026-06-01T23:13:03.779Z"
+    "lastSeenAt": "2026-06-05T17:28:23.822Z"
   },
   "registration": {
     "source": "system",
@@ -13,7 +13,7 @@
     "createdAt": "2026-05-31T20:02:28.906Z"
   },
   "economy": {
-    "money": 100
+    "money": 200
   },
   "activity": {
     "messages": 0,
@@ -21,10 +21,10 @@
   },
   "daily": {
     "streak": 1,
-    "lastClaim": "2026-06-01T23:08:22.133Z",
-    "totalClaims": 1
+    "lastClaim": "2026-06-05T17:28:03.272Z",
+    "totalClaims": 2
   },
   "activeCharacter": "katherine",
   "createdAt": "2026-05-31T20:02:28.906Z",
-  "updatedAt": "2026-06-01T23:13:03.779Z"
+  "updatedAt": "2026-06-05T17:28:23.822Z"
 }

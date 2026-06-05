@@ -2,6 +2,7 @@ const fs = require("fs");
 const path = require("path");
 
 const { isAdmin, isBotAdmin } = require("../utils/groupUtils");
+const { isOwner } = require("../utils/permissionUtils");
 const {
   logSystem,
   logCommand,
@@ -12,7 +13,9 @@ const commands = new Map();
 const aliases = new Map();
 
 function normalizeName(value) {
-  return String(value || "").trim().toLowerCase();
+  return String(value || "")
+    .trim()
+    .toLowerCase();
 }
 
 function registerCommand(command, fileName) {
@@ -31,9 +34,7 @@ function registerCommand(command, fileName) {
   const commandName = normalizeName(command.name);
 
   if (!commandName) {
-    throw new Error(
-      `Comando inválido (${fileName}): el nombre está vacío.`,
-    );
+    throw new Error(`Comando inválido (${fileName}): el nombre está vacío.`);
   }
 
   if (commands.has(commandName)) {
@@ -66,9 +67,7 @@ function registerCommand(command, fileName) {
     const aliasName = normalizeName(alias);
 
     if (!aliasName) {
-      throw new Error(
-        `Alias inválido en (${fileName}): no puede estar vacío.`,
-      );
+      throw new Error(`Alias inválido en (${fileName}): no puede estar vacío.`);
     }
 
     if (commands.has(aliasName)) {
@@ -200,6 +199,19 @@ async function handleCommand(ctx) {
       });
 
       return ctx.reply("❌ Este comando solo funciona en grupos.");
+    }
+    if (command.creatorOnly) {
+      const owner = isOwner(ctx.sender);
+
+      if (!owner) {
+        await logCommand({
+          ...logBase,
+          status: "denied",
+          reason: "Solo el creador puede usar este comando.",
+        });
+
+        return ctx.reply("❌ Solo el creador puede usar este comando.");
+      }
     }
 
     const admin = await isAdmin(ctx.sock, ctx.from, ctx.sender);
