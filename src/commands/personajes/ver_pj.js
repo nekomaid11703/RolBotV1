@@ -52,7 +52,7 @@ module.exports = {
 
   aliases: ["verpersonaje"],
 
-  description: "Muestra personajes",
+  description: "Muestra personajes específicos por su nombre o el nombre del personaje activo con 'main'. Si solo escribes el comando, te mostrará la lista de tus personajes.",
 
   category: "personajes",
 

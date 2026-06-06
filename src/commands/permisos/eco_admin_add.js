@@ -11,7 +11,7 @@ const {
 module.exports = {
   name: "eco_admin_add",
   aliases: ["eaa", "econ_admin_add"],
-  description: "Otorga permiso de economía a un usuario.",
+  description: "Otorga permiso de economía a un usuario.(Solo para el creador del bot)",
   category: "permisos",
   creatorOnly: true,
 

@@ -3,7 +3,7 @@ const { getActiveCharacter } = require("../../services/characterService");
 module.exports = {
   name: "pj",
   aliases: ["perfil"],
-  description: "Muestra el personaje activo",
+  description: "Muestra el personaje activo que estás usando actualmente en tus campañas o historias.",
   category: "personajes",
 
   async execute(ctx) {

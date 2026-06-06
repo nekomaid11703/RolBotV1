@@ -4,7 +4,7 @@ const { isAdmin } = require("../../utils/groupUtils");
 module.exports = {
   name: "switch_pj",
   aliases: ["spj", "usar_pj"],
-  description: "Activa un personaje",
+  description: "Activa un personaje para usarlo en tus campañas o historias. Si eres admin, puedes activar el personaje de otro usuario mencionándolo.",
   category: "personajes",
  
 

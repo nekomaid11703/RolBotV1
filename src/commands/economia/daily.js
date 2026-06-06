@@ -16,7 +16,7 @@ function formatStreakLabel(streak) {
 module.exports = {
   name: "daily",
   aliases: ["claim", "reclamar"],
-  description: "Reclama tu recompensa diaria.",
+  description: "Reclama tu recompensa diaria, aumenta tu racha y gana más stelas cada día.",
   category: "economia",
 
   async execute(ctx) {

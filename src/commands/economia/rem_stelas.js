@@ -12,7 +12,7 @@ const {
 module.exports = {
   name: "rem_stelas",
   aliases: ["rem_money", "quitar_stelas"],
-  description: "Retira stelas a un usuario.",
+  description: "Retira stelas de un usuario.(Solo para administradores de economía)",
   category: "economia",
   economyAdminOnly: true,
 

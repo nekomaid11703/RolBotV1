@@ -4,7 +4,7 @@
   "metadata": {
     "displayName": "}NEKOMAID{",
     "pushName": "}NEKOMAID{",
-    "lastSeenAt": "2026-06-05T20:42:39.455Z",
+    "lastSeenAt": "2026-06-06T01:40:25.328Z",
     "lastKnownJid": "129626508685330@lid",
     "lastKnownNumber": "129626508685330"
   },
@@ -15,7 +15,7 @@
     "createdAt": "2026-06-05T20:33:20.390Z"
   },
   "economy": {
-    "money": 90
+    "money": 180
   },
   "activity": {
     "messages": 0,
@@ -29,7 +29,7 @@
   "permissions": {
     "economyAdmin": false
   },
-  "activeCharacter": null,
+  "activeCharacter": "katherine",
   "createdAt": "2026-06-05T20:33:20.390Z",
-  "updatedAt": "2026-06-05T20:42:39.455Z"
+  "updatedAt": "2026-06-06T01:40:25.328Z"
 }

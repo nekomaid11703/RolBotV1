@@ -5,7 +5,7 @@ module.exports = {
 
   aliases: ["dpj"],
 
-  description: "Elimina un personaje",
+  description: "Elimina un personaje existente. ¡Cuidado, esta acción es irreversible!",
 
   category: "personajes",
 

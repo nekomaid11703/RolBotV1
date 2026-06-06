@@ -28,7 +28,7 @@ function resolveTarget(ctx) {
 module.exports = {
   name: "balance",
   aliases: ["bal", "money"],
-  description: "Muestra el balance de un usuario.",
+  description: "Muestra la cantidad de stelas de un usuario.",
   category: "economia",
 
   async execute(ctx) {

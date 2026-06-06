@@ -12,7 +12,7 @@ const {
 module.exports = {
   name: "dar_stelas",
   aliases: ["give_stelas", "transferir_stelas", "send_stelas"],
-  description: "Transfiere stelas a otro usuario.",
+  description: "Transfiere tus stelas a otro usuario.",
   category: "economia",
 
   async execute(ctx) {

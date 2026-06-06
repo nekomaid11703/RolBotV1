@@ -12,7 +12,7 @@ const {
 module.exports = {
   name: "add_stelas",
   aliases: ["add_money", "sumar_stelas"],
-  description: "Añade stelas a un usuario.",
+  description: "Añade stelas a un usuario.(Solo para administradores de economía)",
   category: "economia",
   economyAdminOnly: true,
 

@@ -84,7 +84,7 @@ module.exports = {
 
   aliases: ["edit_pj_desc", "epjd"],
 
-  description: "Edita descripciones y lore",
+  description: "Edita descripciones y lore de un personaje existente.",
 
   category: "personajes",
 

@@ -14,7 +14,7 @@ const {
 module.exports = {
   name: "eco_admin_rem",
   aliases: ["ear", "econ_admin_rem"],
-  description: "Quita permiso de economía a un usuario.",
+  description: "Quita permiso de economía a un usuario.(Solo para el creador del bot)",
   category: "permisos",
   creatorOnly: true,
 

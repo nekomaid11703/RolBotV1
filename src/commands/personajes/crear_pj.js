@@ -153,7 +153,7 @@ module.exports = {
 
   aliases: ["cpj"],
 
-  description: "Crea un personaje",
+  description: "Crea un personaje de nivel básico, puedes agregarle stats y slots personalizados.",
 
   category: "personajes",
 

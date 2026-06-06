@@ -4,7 +4,7 @@ const { getOwnerRecords } = require("../../utils/permissionUtils");
 module.exports = {
   name: "eco_admin_list",
   aliases: ["eal", "econ_admin_list"],
-  description: "Lista los administradores de economía.",
+  description: "Lista los administradores de economía.(Solo para el creador del bot)",
   category: "permisos",
   creatorOnly: true,
 

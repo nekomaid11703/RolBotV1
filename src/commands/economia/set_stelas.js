@@ -12,7 +12,7 @@ const {
 module.exports = {
   name: "set_stelas",
   aliases: ["set_money", "fijar_stelas"],
-  description: "Establece el balance de un usuario.",
+  description: "Establece el balance de un usuario.(Solo para administradores de economía)",
   category: "economia",
   economyAdminOnly: true,
 

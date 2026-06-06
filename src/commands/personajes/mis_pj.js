@@ -3,7 +3,7 @@ const { listCharacters } = require("../../services/characterService");
 module.exports = {
   name: "mis_pj",
   aliases: ["pjs", "listar_pj"],
-  description: "Lista tus personajes",
+  description: "Lista tus personajes creados. Puedes tener varios personajes para diferentes campañas o historias.",
   category: "personajes",
   
   async execute(ctx) {

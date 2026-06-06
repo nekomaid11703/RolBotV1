@@ -5,7 +5,7 @@ module.exports = {
 
   aliases: ["renombrar_pj"],
 
-  description: "Renombra un personaje",
+  description: "Renombra un personaje existente.",
 
   category: "personajes",
 
