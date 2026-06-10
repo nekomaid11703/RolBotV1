@@ -1,9 +1,16 @@
 {
-  "ignore": [
-    "node_modules/*",
-    "src/database/auth/*",
-    "src/database/personajes/*",
-    "src/database/personajes/**/*"
+  "watch": [
+    "src",
+    "index.js"
   ],
-  "ext": "js,json"
+  "ignore": [
+    "node_modules/**",
+    "src/database/**",
+    "src/logs/**",
+    ".git/**",
+    "*logs/**"
+  ],
+  "ext": "js,json",
+  "delay": 1000,
+  "verbose": false
 }

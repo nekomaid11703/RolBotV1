@@ -48,6 +48,7 @@ module.exports = {
       "informacion",
       "economia",
       "personajes",
+      "grupo",
       "permisos",
       "utilidades",
       "otros",

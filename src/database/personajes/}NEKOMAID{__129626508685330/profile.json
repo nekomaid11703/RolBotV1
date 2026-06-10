@@ -4,7 +4,7 @@
   "metadata": {
     "displayName": "}NEKOMAID{",
     "pushName": "}NEKOMAID{",
-    "lastSeenAt": "2026-06-10T15:56:29.594Z",
+    "lastSeenAt": "2026-06-10T16:46:21.939Z",
     "lastKnownJid": "129626508685330@lid",
     "lastKnownNumber": "129626508685330"
   },
@@ -18,8 +18,19 @@
     "money": 180
   },
   "activity": {
-    "messages": 0,
-    "commands": 0
+    "messages": 9,
+    "commands": 0,
+    "textMessages": 9,
+    "mediaMessages": 0,
+    "stickerMessages": 0,
+    "audioMessages": 0,
+    "imageMessages": 0,
+    "videoMessages": 0,
+    "documentMessages": 0,
+    "reactionMessages": 0,
+    "lastMessageType": "conversation",
+    "lastMessageAt": "2026-06-10T16:46:21.939Z",
+    "lastCommandAt": null
   },
   "daily": {
     "streak": 1,
@@ -31,5 +42,5 @@
   },
   "activeCharacter": "katherine",
   "createdAt": "2026-06-05T20:33:20.390Z",
-  "updatedAt": "2026-06-10T15:56:29.594Z"
+  "updatedAt": "2026-06-10T16:46:21.939Z"
 }

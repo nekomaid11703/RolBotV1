@@ -5,6 +5,9 @@ const { isAdmin, isBotAdmin, isOnGroup } = require("../utils/groupUtils");
 const { isOwner } = require("../utils/permissionUtils");
 const { hasEconomyPermission } = require("../services/permissionService");
 const {
+  recordUserActivity,
+} = require("../services/userService");
+const {
   logSystem,
   logCommand,
   logError,
@@ -276,6 +279,37 @@ async function handleCommand(ctx) {
       ...logBase,
       status: "success",
     });
+
+    try {
+      await recordUserActivity({
+        creatorId: ctx.senderJid || ctx.sender,
+        creatorName: ctx.userName,
+        displayName: ctx.userName,
+        pushName: ctx.userName,
+        senderJid: ctx.senderJid || ctx.sender,
+        senderNumber: ctx.senderNumber || null,
+        commandCount: 1,
+        messageType: ctx.messageType,
+        isText: Boolean(ctx.text),
+        registration: {
+          source: "command",
+          scope: isOnGroup(ctx.from) ? "group" : "self",
+          createdBy: ctx.senderJid || ctx.sender,
+        },
+      });
+    } catch (activityError) {
+      await logError({
+        source: `command-activity:${command.name}`,
+        userId: ctx.senderJid || ctx.sender,
+        userName: ctx.userName,
+        groupId: ctx.from,
+        error: activityError,
+        context: {
+          inputCommand: commandName,
+          resolvedCommand: command.name,
+        },
+      });
+    }
   } catch (error) {
     await logCommand({
       ...logBase,

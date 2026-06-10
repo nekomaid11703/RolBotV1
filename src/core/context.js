@@ -3,6 +3,18 @@ const {
   normalizeJid,
 } = require("../utils/identityUtils");
 
+const TEXT_MESSAGE_TYPES = new Set([
+  "conversation",
+  "extendedtextmessage",
+  "imagemessage",
+  "videomessage",
+  "buttonsresponsemessage",
+  "listresponsemessage",
+  "templatebuttonreplymessage",
+  "interactiveresponsemessage",
+  "messagecontextinfo",
+]);
+
 function unwrapMessageContent(message) {
   if (!message) return null;
 
@@ -25,20 +37,61 @@ function unwrapMessageContent(message) {
   return message;
 }
 
+function getMessageType(message) {
+  const normalized = unwrapMessageContent(message);
+
+  if (!normalized || typeof normalized !== "object") {
+    return "unknown";
+  }
+
+  const keys = [
+    "conversation",
+    "extendedTextMessage",
+    "imageMessage",
+    "videoMessage",
+    "stickerMessage",
+    "audioMessage",
+    "documentMessage",
+    "reactionMessage",
+    "buttonsResponseMessage",
+    "listResponseMessage",
+    "templateButtonReplyMessage",
+    "interactiveResponseMessage",
+    "protocolMessage",
+    "messageContextInfo",
+  ];
+
+  for (const key of keys) {
+    if (normalized[key]) {
+      return key;
+    }
+  }
+
+  return Object.keys(normalized)[0] || "unknown";
+}
+
+function isTextLikeMessageType(messageType) {
+  return TEXT_MESSAGE_TYPES.has(String(messageType || "").trim().toLowerCase());
+}
+
 function extractText(message) {
   if (!message) return "";
 
   const normalized = unwrapMessageContent(message);
 
-  return (
+  const text =
     normalized.conversation ||
     normalized.extendedTextMessage?.text ||
     normalized.imageMessage?.caption ||
     normalized.videoMessage?.caption ||
     normalized.buttonsResponseMessage?.selectedButtonId ||
     normalized.listResponseMessage?.singleSelectReply?.selectedRowId ||
-    ""
-  ).trim();
+    normalized.templateButtonReplyMessage?.selectedId ||
+    normalized.interactiveResponseMessage?.body?.text ||
+    normalized.interactiveResponseMessage?.nativeFlowResponseMessage?.paramsJson ||
+    "";
+
+  return String(text).trim();
 }
 
 function createContext(sock, msg) {
@@ -57,6 +110,7 @@ function createContext(sock, msg) {
   const mentionedJid =
     msg.message?.extendedTextMessage?.contextInfo?.mentionedJid || [];
 
+  const messageType = getMessageType(msg.message);
   const text = extractText(msg.message);
 
   return {
@@ -72,6 +126,9 @@ function createContext(sock, msg) {
     userName,
     isGroup,
     text,
+    messageType,
+    isTextLike: isTextLikeMessageType(messageType),
+    hasText: Boolean(text),
     mentionedJid,
 
     async reply(content, options = {}) {

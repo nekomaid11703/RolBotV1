@@ -140,6 +140,17 @@ function buildDefaultProfile({ creatorId, creatorName, registration = {} }) {
     activity: {
       messages: 0,
       commands: 0,
+      textMessages: 0,
+      mediaMessages: 0,
+      stickerMessages: 0,
+      audioMessages: 0,
+      imageMessages: 0,
+      videoMessages: 0,
+      documentMessages: 0,
+      reactionMessages: 0,
+      lastMessageType: null,
+      lastMessageAt: null,
+      lastCommandAt: null,
     },
     daily: {
       streak: 0,
@@ -173,6 +184,25 @@ function normalizeRegistration({
     ...registration,
     createdBy: registration.createdBy || fallback.createdBy || creatorId,
     createdAt: registration.createdAt || fallback.createdAt || base.createdAt,
+  };
+}
+
+function normalizeActivity(activity = {}) {
+  return {
+    messages: 0,
+    commands: 0,
+    textMessages: 0,
+    mediaMessages: 0,
+    stickerMessages: 0,
+    audioMessages: 0,
+    imageMessages: 0,
+    videoMessages: 0,
+    documentMessages: 0,
+    reactionMessages: 0,
+    lastMessageType: null,
+    lastMessageAt: null,
+    lastCommandAt: null,
+    ...(activity || {}),
   };
 }
 
@@ -222,11 +252,7 @@ function normalizeProfile(profile, { creatorId, creatorName }) {
     ...(profile?.economy || {}),
   };
 
-  normalized.activity = {
-    messages: 0,
-    commands: 0,
-    ...(profile?.activity || {}),
-  };
+  normalized.activity = normalizeActivity(profile?.activity || {});
 
   normalized.daily = {
     streak: 0,
@@ -484,21 +510,145 @@ async function getOrCreateProfile({
   });
 }
 
-async function resolveUserProfile({
+function resolveActivityBucket(messageType) {
+  const normalizedType = String(messageType || "").trim().toLowerCase();
+
+  if (!normalizedType) {
+    return null;
+  }
+
+  if (normalizedType.includes("sticker")) return "stickerMessages";
+  if (normalizedType.includes("audio")) return "audioMessages";
+  if (normalizedType.includes("image")) return "imageMessages";
+  if (normalizedType.includes("video")) return "videoMessages";
+  if (normalizedType.includes("document")) return "documentMessages";
+  if (normalizedType.includes("reaction")) return "reactionMessages";
+
+  return null;
+}
+
+async function recordUserActivity({
   creatorId,
   creatorName = "usuario",
-  createIfMissing = false,
+  displayName,
+  pushName,
+  senderJid,
+  senderNumber,
+  messageType = "unknown",
+  messageCount = 0,
+  commandCount = 0,
+  isText = false,
   registration = {},
 }) {
-  if (createIfMissing) {
-    return await ensureUserProfile({
-      creatorId,
-      creatorName,
-      registration,
+  const current = await getOrCreateProfile({
+    creatorId,
+    creatorName,
+    registration: {
+      source: registration.source || "activity",
+      scope: registration.scope || "self",
+      createdBy: registration.createdBy || creatorId,
+      createdAt: registration.createdAt,
+    },
+  });
+
+  if (!current) {
+    return null;
+  }
+
+  const profile = current.profile;
+  const next = {
+    ...profile,
+    metadata: {
+      ...(profile.metadata || {}),
+    },
+    activity: normalizeActivity(profile.activity || {}),
+  };
+
+  const now = new Date().toISOString();
+  let changed = false;
+
+  if (typeof displayName === "string") {
+    const cleanDisplayName = displayName.trim() || "usuario";
+
+    if (next.metadata.displayName !== cleanDisplayName) {
+      next.metadata.displayName = cleanDisplayName;
+      changed = true;
+    }
+
+    if (next.creatorName !== cleanDisplayName) {
+      next.creatorName = cleanDisplayName;
+      changed = true;
+    }
+  }
+
+  if (typeof pushName === "string") {
+    const cleanPushName = pushName.trim() || "usuario";
+
+    if (next.metadata.pushName !== cleanPushName) {
+      next.metadata.pushName = cleanPushName;
+      changed = true;
+    }
+  }
+
+  if (typeof senderJid === "string") {
+    const cleanSenderJid = String(senderJid).trim() || null;
+
+    if (cleanSenderJid && next.metadata.lastKnownJid !== cleanSenderJid) {
+      next.metadata.lastKnownJid = cleanSenderJid;
+      changed = true;
+    }
+  }
+
+  if (typeof senderNumber === "string") {
+    const cleanSenderNumber = senderNumber.trim() || null;
+
+    if (cleanSenderNumber && next.metadata.lastKnownNumber !== cleanSenderNumber) {
+      next.metadata.lastKnownNumber = cleanSenderNumber;
+      changed = true;
+    }
+  }
+
+  if (next.metadata.lastSeenAt !== now) {
+    next.metadata.lastSeenAt = now;
+    changed = true;
+  }
+
+  const safeMessageCount = Math.max(0, Math.floor(Number(messageCount) || 0));
+  const safeCommandCount = Math.max(0, Math.floor(Number(commandCount) || 0));
+  const bucket = resolveActivityBucket(messageType);
+  const normalizedType = String(messageType || "unknown").trim().toLowerCase() || "unknown";
+
+  if (safeMessageCount > 0) {
+    next.activity.messages = Number(next.activity.messages || 0) + safeMessageCount;
+    next.activity.lastMessageAt = now;
+    next.activity.lastMessageType = normalizedType;
+    changed = true;
+
+    if (isText) {
+      next.activity.textMessages = Number(next.activity.textMessages || 0) + safeMessageCount;
+    } else if (bucket) {
+      next.activity.mediaMessages = Number(next.activity.mediaMessages || 0) + safeMessageCount;
+      next.activity[bucket] = Number(next.activity[bucket] || 0) + safeMessageCount;
+    } else {
+      next.activity.mediaMessages = Number(next.activity.mediaMessages || 0) + safeMessageCount;
+    }
+  }
+
+  if (safeCommandCount > 0) {
+    next.activity.commands = Number(next.activity.commands || 0) + safeCommandCount;
+    next.activity.lastCommandAt = now;
+    changed = true;
+  }
+
+  if (changed) {
+    next.updatedAt = now;
+    await saveUserProfile({
+      folder: current.folder,
+      profile: next,
     });
   }
 
-  return await getUserProfile({ creatorId });
+  return next;
 }
 
 module.exports = {
@@ -514,6 +664,6 @@ module.exports = {
   isUserRegistered,
   saveUserProfile,
   syncUserMetadata,
+  recordUserActivity,
   getOrCreateProfile,
-  resolveUserProfile,
 };
