@@ -8,6 +8,9 @@ const {
   formatJidTag,
 } = require("../../utils/commandParseUtils");
 const {
+  withMentions,
+} = require("../../utils/userMentionUtils");
+const {
   GROUP_TOP_LIMIT,
 } = require("../../config/groupConfig");
 
@@ -59,7 +62,13 @@ module.exports = {
       );
     }
 
+    const mentions = [];
     const lines = topMembers.map((member, index) => {
+      const memberId = String(member.memberId || "").trim();
+      if (memberId) {
+        mentions.push(memberId);
+      }
+
       const label = formatJidTag(member.memberId, member.memberName);
       return [
         `${medal(index)} ${label}`,
@@ -69,16 +78,19 @@ module.exports = {
     });
 
     await ctx.reply(
-      [
-        "━━━━━━━━━━━━━━━━━━━━",
-        "🏆 Top de actividad",
-        "",
-        `👥 Grupo: ${groupName}`,
-        "",
-        ...lines,
-        "",
-        "━━━━━━━━━━━━━━━━━━━━",
-      ].join("\n"),
+      withMentions(
+        [
+          "━━━━━━━━━━━━━━━━━━━━",
+          "🏆 Top de actividad",
+          "",
+          `👥 Grupo: ${groupName}`,
+          "",
+          ...lines,
+          "",
+          "━━━━━━━━━━━━━━━━━━━━",
+        ].join("\n"),
+        mentions,
+      ),
     );
   },
 };

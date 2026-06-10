@@ -132,6 +132,20 @@ function createContext(sock, msg) {
     mentionedJid,
 
     async reply(content, options = {}) {
+      if (content && typeof content === "object" && !Array.isArray(content)) {
+        const payload = {
+          ...content,
+          ...options,
+        };
+
+        if (typeof payload.text !== "string" && typeof payload.content === "string") {
+          payload.text = payload.content;
+          delete payload.content;
+        }
+
+        return sock.sendMessage(from, payload, { quoted: msg });
+      }
+
       return sock.sendMessage(
         from,
         { text: content, ...options },

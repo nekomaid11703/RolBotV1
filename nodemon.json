@@ -8,7 +8,7 @@
     "src/database/**",
     "src/logs/**",
     ".git/**",
-    "*logs/**"
+    "logs/**"
   ],
   "ext": "js,json",
   "delay": 1000,

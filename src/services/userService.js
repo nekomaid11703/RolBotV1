@@ -651,6 +651,44 @@ async function recordUserActivity({
   return next;
 }
 
+
+function sortActivityProfilesDesc(a, b) {
+  const diffMessages = Number(b.activity?.messages || 0) - Number(a.activity?.messages || 0);
+  if (diffMessages !== 0) return diffMessages;
+
+  const diffCommands = Number(b.activity?.commands || 0) - Number(a.activity?.commands || 0);
+  if (diffCommands !== 0) return diffCommands;
+
+  const diffText = Number(b.activity?.textMessages || 0) - Number(a.activity?.textMessages || 0);
+  if (diffText !== 0) return diffText;
+
+  return String(a.displayName || "").localeCompare(String(b.displayName || ""), "es");
+}
+
+async function getTopActiveUsers({ limit = 10 } = {}) {
+  const safeLimit = Math.max(1, Math.min(50, Math.floor(Number(limit) || 10)));
+  const profiles = await listUserProfiles();
+
+  return profiles
+    .map((entry) => {
+      const profile = entry?.profile || {};
+      const activity = normalizeActivity(profile.activity || {});
+      const displayName =
+        String(profile?.metadata?.displayName || profile?.creatorName || "usuario").trim() || "usuario";
+
+      return {
+        creatorId: profile.creatorId || null,
+        creatorName: profile.creatorName || displayName,
+        displayName,
+        activity,
+        lastSeenAt: profile?.metadata?.lastSeenAt || profile?.updatedAt || null,
+      };
+    })
+    .sort(sortActivityProfilesDesc)
+    .slice(0, safeLimit);
+}
+
+
 module.exports = {
   stripAccents,
   sanitizeName,
@@ -666,4 +704,5 @@ module.exports = {
   syncUserMetadata,
   recordUserActivity,
   getOrCreateProfile,
+  getTopActiveUsers,
 };
