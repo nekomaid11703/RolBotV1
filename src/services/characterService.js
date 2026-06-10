@@ -7,6 +7,9 @@ const {
   CHARACTER_CATEGORIES,
   DEFAULT_CHARACTER_STATS,
   DEFAULT_CHARACTER_SLOTS,
+  MAX_CHARACTER_NAME_LENGTH,
+  MAX_SLOT_SIZE,
+  MAX_CHARACTERS_PER_USER,
 } = require("../config/characterConfig");
 
 const {
@@ -67,6 +70,43 @@ function characterFilePath(folder, slug) {
   return path.join(folder, "characters", `${slug}.json`);
 }
 
+function normalizeCharacterRecord(character) {
+  if (!character || typeof character !== "object") {
+    return character;
+  }
+
+  const normalized = { ...character };
+
+  normalized.name = String(normalized.name || "").trim();
+  normalized.slug = getCharacterSlug(normalized.slug || normalized.name);
+  normalized.category = normalizeCategory(normalized.category, true);
+  normalized.creatorId = normalized.creatorId || null;
+  normalized.creatorName = String(normalized.creatorName || "usuario").trim() || "usuario";
+  normalized.stats = normalizeStats(normalized.stats || {});
+
+  const legacyDescription = normalized.description;
+
+  normalized.slots = {
+    ...DEFAULT_CHARACTER_SLOTS,
+    ...(normalized.slots || {}),
+  };
+
+  if (
+    legacyDescription !== undefined &&
+    legacyDescription !== null &&
+    !String(normalized.slots.descripcion || "").trim()
+  ) {
+    normalized.slots.descripcion = String(legacyDescription).trim();
+  }
+
+  delete normalized.description;
+
+  normalized.createdAt = normalized.createdAt || new Date().toISOString();
+  normalized.updatedAt = normalized.updatedAt || normalized.createdAt;
+
+  return normalized;
+}
+
 async function createCharacter({
   creatorId,
   creatorName,
@@ -86,6 +126,15 @@ async function createCharacter({
     },
   });
 
+  const existingCount = await fsp
+    .readdir(path.join(folder, "characters"), { withFileTypes: true })
+    .then((entries) => entries.filter((entry) => entry.isFile() && entry.name.endsWith(".json")).length)
+    .catch(() => 0);
+
+  if (existingCount >= MAX_CHARACTERS_PER_USER) {
+    throw new Error(`Has alcanzado el máximo de ${MAX_CHARACTERS_PER_USER} personajes por usuario.`);
+  }
+
   const slug = getCharacterSlug(characterName);
   const file = characterFilePath(folder, slug);
 
@@ -95,7 +144,7 @@ async function createCharacter({
 
   const now = new Date().toISOString();
 
-  const character = {
+  const character = normalizeCharacterRecord({
     name: characterName,
     slug,
     category: normalizeCategory(category, isAdmin),
@@ -108,7 +157,7 @@ async function createCharacter({
     },
     createdAt: now,
     updatedAt: now,
-  };
+  });
 
   await writeJson(file, character);
 
@@ -138,7 +187,7 @@ async function getCharacter({ creatorId, characterName }) {
 
   if (!fs.existsSync(file)) return null;
 
-  return await readJson(file, null);
+  return normalizeCharacterRecord(await readJson(file, null));
 }
 
 async function listCharacters({ creatorId }) {
@@ -158,8 +207,9 @@ async function listCharacters({ creatorId }) {
     const data = await readJson(path.join(charsDir, file), null);
 
     if (data) {
-      data.active = activeCharacter === data.slug;
-      result.push(data);
+      const normalized = normalizeCharacterRecord(data);
+      normalized.active = activeCharacter === normalized.slug;
+      result.push(normalized);
     }
   }
 
@@ -173,7 +223,7 @@ async function getActiveCharacter({ creatorId }) {
     return null;
   }
 
-  const { folder, profile, profilePath } = profileData;
+  const { folder, profile } = profileData;
 
   if (!profile?.activeCharacter) {
     return null;
@@ -193,7 +243,7 @@ async function getActiveCharacter({ creatorId }) {
     return null;
   }
 
-  const character = await readJson(file, null);
+  const character = normalizeCharacterRecord(await readJson(file, null));
   if (!character) {
     profile.activeCharacter = null;
     profile.updatedAt = new Date().toISOString();
@@ -273,7 +323,7 @@ async function updateCharacterStats({ creatorId, characterName, patch = {} }) {
 
   if (!fs.existsSync(file)) return null;
 
-  const character = await readJson(file, null);
+  const character = normalizeCharacterRecord(await readJson(file, null));
   if (!character) return null;
 
   character.stats = {
@@ -310,7 +360,7 @@ async function editCharacter({
     throw new Error("No existe el personaje.");
   }
 
-  const character = await readJson(oldFile, null);
+  const character = normalizeCharacterRecord(await readJson(oldFile, null));
 
   if (!character) {
     throw new Error("No se pudo leer el personaje.");
@@ -321,7 +371,6 @@ async function editCharacter({
   }
 
   let newSlug = oldSlug;
-  let renamed = false;
 
   if (patch.name && patch.name !== character.name) {
     const cleanName = String(patch.name).trim();
@@ -330,7 +379,7 @@ async function editCharacter({
       throw new Error("Nombre demasiado corto.");
     }
 
-    if (cleanName.length > 40) {
+    if (cleanName.length > MAX_CHARACTER_NAME_LENGTH) {
       throw new Error("Nombre demasiado largo.");
     }
 
@@ -344,13 +393,13 @@ async function editCharacter({
 
     character.name = cleanName;
     character.slug = newSlug;
-    renamed = true;
 
     await fsp.rename(oldFile, newFile);
   }
 
   if (patch.description !== undefined) {
-    character.description = String(patch.description);
+    character.slots = character.slots || {};
+    character.slots.descripcion = String(patch.description).trim();
   }
 
   if (patch.slots) {
@@ -375,7 +424,7 @@ async function editCharacter({
 
       const cleanValue = String(value).trim();
 
-      if (cleanValue.length > 5000) {
+      if (cleanValue.length > MAX_SLOT_SIZE) {
         throw new Error(`Contenido demasiado largo:\n${cleanKey}`);
       }
 
@@ -483,7 +532,7 @@ async function getCharacterBySlug({
     return null;
   }
 
-  return await readJson(file, null);
+  return normalizeCharacterRecord(await readJson(file, null));
 }
 
 module.exports = {

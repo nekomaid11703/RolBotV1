@@ -4,8 +4,9 @@ const { isAdmin } = require("../../utils/groupUtils");
 
 const {
   DEFAULT_CHARACTER_STATS,
-
   CHARACTER_CATEGORIES,
+  MAX_CHARACTER_NAME_LENGTH,
+  MAX_SLOT_SIZE,
 } = require("../../config/characterConfig");
 
 // =========================
@@ -27,7 +28,7 @@ function parseCharacter(lines) {
     throw new Error("Nombre demasiado corto.");
   }
 
-  if (name.length > 40) {
+  if (name.length > MAX_CHARACTER_NAME_LENGTH) {
     throw new Error("Nombre demasiado largo.");
   }
 
@@ -113,7 +114,7 @@ function parseCharacter(lines) {
 
       const finalContent = content.join("\n").trim();
 
-      if (finalContent.length > 5000) {
+      if (finalContent.length > MAX_SLOT_SIZE) {
         throw new Error(`${key} es demasiado largo.`);
       }
 

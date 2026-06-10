@@ -19,7 +19,7 @@ function getMedal(index) {
 
 module.exports = {
   name: "top_dinero",
-  aliases: ["top_money", "top_stelas", "top_ricos", "top_tinero"],
+  aliases: ["top_money", "top_stelas", "top_ricos"],
   description: "Muestra el top de usuarios con más stelas.",
   category: "economia",
 

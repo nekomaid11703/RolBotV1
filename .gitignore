@@ -7,7 +7,7 @@ session/
 sessions/
 
 # Bases de datos
-database/
+src/database/
 data/
 
 # Logs

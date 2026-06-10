@@ -1,4 +1,5 @@
 const { editCharacter } = require("../../services/characterService");
+const { MAX_SLOT_SIZE } = require("../../config/characterConfig");
 
 // =========================
 // PARSER
@@ -67,7 +68,7 @@ function parseSlots(lines) {
 
     const finalContent = content.join("\n").trim();
 
-    if (finalContent.length > 5000) {
+    if (finalContent.length > MAX_SLOT_SIZE) {
       throw new Error(`Contenido demasiado largo:\n${key}`);
     }
 
