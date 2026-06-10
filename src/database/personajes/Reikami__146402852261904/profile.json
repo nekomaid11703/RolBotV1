@@ -1,0 +1,46 @@
+{
+  "creatorId": "146402852261904@lid",
+  "creatorName": "Reikami",
+  "metadata": {
+    "displayName": "Reikami",
+    "pushName": "Reikami",
+    "lastSeenAt": "2026-06-10T17:35:47.019Z",
+    "lastKnownJid": "146402852261904@lid",
+    "lastKnownNumber": "146402852261904"
+  },
+  "registration": {
+    "source": "activity",
+    "scope": "group",
+    "createdBy": "146402852261904@lid",
+    "createdAt": "2026-06-10T17:33:27.522Z"
+  },
+  "economy": {
+    "money": 0
+  },
+  "activity": {
+    "messages": 2,
+    "commands": 0,
+    "textMessages": 2,
+    "mediaMessages": 0,
+    "stickerMessages": 0,
+    "audioMessages": 0,
+    "imageMessages": 0,
+    "videoMessages": 0,
+    "documentMessages": 0,
+    "reactionMessages": 0,
+    "lastMessageType": "extendedtextmessage",
+    "lastMessageAt": "2026-06-10T17:35:47.019Z",
+    "lastCommandAt": null
+  },
+  "daily": {
+    "streak": 0,
+    "lastClaim": null,
+    "totalClaims": 0
+  },
+  "permissions": {
+    "economyAdmin": false
+  },
+  "activeCharacter": null,
+  "createdAt": "2026-06-10T17:33:27.521Z",
+  "updatedAt": "2026-06-10T17:35:47.019Z"
+}

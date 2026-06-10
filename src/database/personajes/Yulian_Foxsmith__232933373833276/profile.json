@@ -1,0 +1,46 @@
+{
+  "creatorId": "232933373833276@lid",
+  "creatorName": "Yulian Foxsmith",
+  "metadata": {
+    "displayName": "Yulian Foxsmith",
+    "pushName": "Yulian Foxsmith",
+    "lastSeenAt": "2026-06-10T17:36:27.890Z",
+    "lastKnownJid": "232933373833276@lid",
+    "lastKnownNumber": "232933373833276"
+  },
+  "registration": {
+    "source": "activity",
+    "scope": "group",
+    "createdBy": "232933373833276@lid",
+    "createdAt": "2026-06-10T17:05:37.409Z"
+  },
+  "economy": {
+    "money": 0
+  },
+  "activity": {
+    "messages": 15,
+    "commands": 0,
+    "textMessages": 8,
+    "mediaMessages": 7,
+    "stickerMessages": 7,
+    "audioMessages": 0,
+    "imageMessages": 0,
+    "videoMessages": 0,
+    "documentMessages": 0,
+    "reactionMessages": 0,
+    "lastMessageType": "extendedtextmessage",
+    "lastMessageAt": "2026-06-10T17:36:27.890Z",
+    "lastCommandAt": null
+  },
+  "daily": {
+    "streak": 0,
+    "lastClaim": null,
+    "totalClaims": 0
+  },
+  "permissions": {
+    "economyAdmin": false
+  },
+  "activeCharacter": null,
+  "createdAt": "2026-06-10T17:05:37.409Z",
+  "updatedAt": "2026-06-10T17:36:27.890Z"
+}

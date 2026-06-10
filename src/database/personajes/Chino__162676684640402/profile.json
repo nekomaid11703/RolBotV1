@@ -1,0 +1,46 @@
+{
+  "creatorId": "162676684640402@lid",
+  "creatorName": "Chino",
+  "metadata": {
+    "displayName": "Chino",
+    "pushName": "Chino",
+    "lastSeenAt": "2026-06-10T18:07:19.656Z",
+    "lastKnownJid": "162676684640402@lid",
+    "lastKnownNumber": "162676684640402"
+  },
+  "registration": {
+    "source": "activity",
+    "scope": "group",
+    "createdBy": "162676684640402@lid",
+    "createdAt": "2026-06-10T17:45:25.173Z"
+  },
+  "economy": {
+    "money": 0
+  },
+  "activity": {
+    "messages": 31,
+    "commands": 1,
+    "textMessages": 26,
+    "mediaMessages": 5,
+    "stickerMessages": 3,
+    "audioMessages": 0,
+    "imageMessages": 0,
+    "videoMessages": 0,
+    "documentMessages": 0,
+    "reactionMessages": 0,
+    "lastMessageType": "extendedtextmessage",
+    "lastMessageAt": "2026-06-10T18:07:19.656Z",
+    "lastCommandAt": "2026-06-10T17:59:23.583Z"
+  },
+  "daily": {
+    "streak": 0,
+    "lastClaim": null,
+    "totalClaims": 0
+  },
+  "permissions": {
+    "economyAdmin": false
+  },
+  "activeCharacter": null,
+  "createdAt": "2026-06-10T17:45:25.173Z",
+  "updatedAt": "2026-06-10T18:07:19.656Z"
+}

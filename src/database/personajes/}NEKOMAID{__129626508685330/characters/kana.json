@@ -1,0 +1,25 @@
+{
+  "name": "Kana",
+  "slug": "kana",
+  "category": "F",
+  "creatorId": "129626508685330@lid",
+  "creatorName": "}NEKOMAID{",
+  "stats": {
+    "vida": 100,
+    "dinero": 0,
+    "exp": 0,
+    "fuerza": 0,
+    "defensa": 0,
+    "agilidad": 0,
+    "inteligencia": 0,
+    "suerte": 0
+  },
+  "slots": {
+    "descripcion": "",
+    "historia": "",
+    "habilidad_1": "",
+    "habilidad_2": ""
+  },
+  "createdAt": "2026-06-10T15:56:29.909Z",
+  "updatedAt": "2026-06-10T15:56:29.909Z"
+}
