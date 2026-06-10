@@ -2,9 +2,7 @@
 node_modules/
 
 # Sesiones WhatsApp
-auth/
-session/
-sessions/
+
 
 # Bases de datos
 src/database/
