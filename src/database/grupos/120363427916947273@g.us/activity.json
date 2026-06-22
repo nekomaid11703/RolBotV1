@@ -1,0 +1,83 @@
+{
+  "groupId": "120363427916947273@g.us",
+  "groupName": null,
+  "createdAt": "2026-06-21T23:07:51.813Z",
+  "updatedAt": "2026-06-22T00:10:08.245Z",
+  "totals": {
+    "messages": 213,
+    "textMessages": 168,
+    "mediaMessages": 44,
+    "stickerMessages": 31,
+    "audioMessages": 7,
+    "imageMessages": 6,
+    "videoMessages": 0,
+    "documentMessages": 1,
+    "reactionMessages": 1
+  },
+  "members": {
+    "129626508685330@lid": {
+      "memberId": "129626508685330@lid",
+      "memberName": "}NEKOMAID{",
+      "messages": 76,
+      "textMessages": 60,
+      "mediaMessages": 16,
+      "stickerMessages": 10,
+      "audioMessages": 2,
+      "imageMessages": 4,
+      "videoMessages": 0,
+      "documentMessages": 0,
+      "reactionMessages": 0,
+      "firstSeenAt": "2026-06-21T23:07:51.817Z",
+      "lastSeenAt": "2026-06-22T00:06:52.294Z",
+      "lastMessageType": "audiomessage"
+    },
+    "275162062668001@lid": {
+      "memberId": "275162062668001@lid",
+      "memberName": "⠀",
+      "messages": 117,
+      "textMessages": 88,
+      "mediaMessages": 28,
+      "stickerMessages": 21,
+      "audioMessages": 5,
+      "imageMessages": 2,
+      "videoMessages": 0,
+      "documentMessages": 1,
+      "reactionMessages": 1,
+      "firstSeenAt": "2026-06-21T23:18:57.631Z",
+      "lastSeenAt": "2026-06-22T00:10:08.245Z",
+      "lastMessageType": "conversation"
+    },
+    "240797811245267@lid": {
+      "memberId": "240797811245267@lid",
+      "memberName": "Nothing IA",
+      "messages": 19,
+      "textMessages": 19,
+      "mediaMessages": 0,
+      "stickerMessages": 0,
+      "audioMessages": 0,
+      "imageMessages": 0,
+      "videoMessages": 0,
+      "documentMessages": 0,
+      "reactionMessages": 0,
+      "firstSeenAt": "2026-06-21T23:22:13.594Z",
+      "lastSeenAt": "2026-06-21T23:55:41.423Z",
+      "lastMessageType": "extendedtextmessage"
+    },
+    "162676684640402@lid": {
+      "memberId": "162676684640402@lid",
+      "memberName": "Chino",
+      "messages": 1,
+      "textMessages": 1,
+      "mediaMessages": 0,
+      "stickerMessages": 0,
+      "audioMessages": 0,
+      "imageMessages": 0,
+      "videoMessages": 0,
+      "documentMessages": 0,
+      "reactionMessages": 0,
+      "firstSeenAt": "2026-06-21T23:38:20.233Z",
+      "lastSeenAt": "2026-06-21T23:38:20.233Z",
+      "lastMessageType": "extendedtextmessage"
+    }
+  }
+}

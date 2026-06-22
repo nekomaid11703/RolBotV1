@@ -1,0 +1,46 @@
+{
+  "creatorId": "77511291584537@lid",
+  "creatorName": "Kev🌪️",
+  "metadata": {
+    "displayName": "Kev🌪️",
+    "pushName": "Kev🌪️",
+    "lastSeenAt": "2026-06-21T23:29:45.039Z",
+    "lastKnownJid": "77511291584537@lid",
+    "lastKnownNumber": "77511291584537"
+  },
+  "registration": {
+    "source": "activity",
+    "scope": "group",
+    "createdBy": "77511291584537@lid",
+    "createdAt": "2026-06-21T23:28:27.969Z"
+  },
+  "economy": {
+    "money": 0
+  },
+  "activity": {
+    "messages": 3,
+    "commands": 0,
+    "textMessages": 2,
+    "mediaMessages": 1,
+    "stickerMessages": 0,
+    "audioMessages": 1,
+    "imageMessages": 0,
+    "videoMessages": 0,
+    "documentMessages": 0,
+    "reactionMessages": 0,
+    "lastMessageType": "extendedtextmessage",
+    "lastMessageAt": "2026-06-21T23:29:45.039Z",
+    "lastCommandAt": null
+  },
+  "daily": {
+    "streak": 0,
+    "lastClaim": null,
+    "totalClaims": 0
+  },
+  "permissions": {
+    "economyAdmin": false
+  },
+  "activeCharacter": null,
+  "createdAt": "2026-06-21T23:28:27.969Z",
+  "updatedAt": "2026-06-21T23:29:45.039Z"
+}

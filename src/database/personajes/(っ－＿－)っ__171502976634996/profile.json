@@ -1,0 +1,46 @@
+{
+  "creatorId": "171502976634996@lid",
+  "creatorName": "(っ－＿－)っ",
+  "metadata": {
+    "displayName": "(っ－＿－)っ",
+    "pushName": "(っ－＿－)っ",
+    "lastSeenAt": "2026-06-21T23:26:26.478Z",
+    "lastKnownJid": "171502976634996@lid",
+    "lastKnownNumber": "171502976634996"
+  },
+  "registration": {
+    "source": "activity",
+    "scope": "group",
+    "createdBy": "171502976634996@lid",
+    "createdAt": "2026-06-21T23:17:16.181Z"
+  },
+  "economy": {
+    "money": 0
+  },
+  "activity": {
+    "messages": 2,
+    "commands": 0,
+    "textMessages": 1,
+    "mediaMessages": 1,
+    "stickerMessages": 1,
+    "audioMessages": 0,
+    "imageMessages": 0,
+    "videoMessages": 0,
+    "documentMessages": 0,
+    "reactionMessages": 0,
+    "lastMessageType": "stickermessage",
+    "lastMessageAt": "2026-06-21T23:26:26.478Z",
+    "lastCommandAt": null
+  },
+  "daily": {
+    "streak": 0,
+    "lastClaim": null,
+    "totalClaims": 0
+  },
+  "permissions": {
+    "economyAdmin": false
+  },
+  "activeCharacter": null,
+  "createdAt": "2026-06-21T23:17:16.181Z",
+  "updatedAt": "2026-06-21T23:26:26.478Z"
+}

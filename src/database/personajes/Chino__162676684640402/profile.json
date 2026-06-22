@@ -4,7 +4,7 @@
   "metadata": {
     "displayName": "Chino",
     "pushName": "Chino",
-    "lastSeenAt": "2026-06-10T18:07:19.656Z",
+    "lastSeenAt": "2026-06-21T23:38:20.228Z",
     "lastKnownJid": "162676684640402@lid",
     "lastKnownNumber": "162676684640402"
   },
@@ -18,9 +18,9 @@
     "money": 0
   },
   "activity": {
-    "messages": 31,
+    "messages": 37,
     "commands": 1,
-    "textMessages": 26,
+    "textMessages": 32,
     "mediaMessages": 5,
     "stickerMessages": 3,
     "audioMessages": 0,
@@ -29,7 +29,7 @@
     "documentMessages": 0,
     "reactionMessages": 0,
     "lastMessageType": "extendedtextmessage",
-    "lastMessageAt": "2026-06-10T18:07:19.656Z",
+    "lastMessageAt": "2026-06-21T23:38:20.228Z",
     "lastCommandAt": "2026-06-10T17:59:23.583Z"
   },
   "daily": {
@@ -42,5 +42,5 @@
   },
   "activeCharacter": null,
   "createdAt": "2026-06-10T17:45:25.173Z",
-  "updatedAt": "2026-06-10T18:07:19.656Z"
+  "updatedAt": "2026-06-21T23:38:20.228Z"
 }

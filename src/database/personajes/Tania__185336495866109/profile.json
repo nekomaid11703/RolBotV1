@@ -4,7 +4,7 @@
   "metadata": {
     "displayName": "Tania",
     "pushName": "Tania",
-    "lastSeenAt": "2026-06-10T18:36:29.632Z",
+    "lastSeenAt": "2026-06-21T23:39:24.193Z",
     "lastKnownJid": "185336495866109@lid",
     "lastKnownNumber": "185336495866109"
   },
@@ -18,18 +18,18 @@
     "money": 100
   },
   "activity": {
-    "messages": 79,
+    "messages": 88,
     "commands": 5,
-    "textMessages": 61,
-    "mediaMessages": 18,
-    "stickerMessages": 13,
+    "textMessages": 66,
+    "mediaMessages": 22,
+    "stickerMessages": 14,
     "audioMessages": 0,
     "imageMessages": 0,
     "videoMessages": 0,
     "documentMessages": 0,
-    "reactionMessages": 3,
-    "lastMessageType": "extendedtextmessage",
-    "lastMessageAt": "2026-06-10T18:36:29.632Z",
+    "reactionMessages": 6,
+    "lastMessageType": "reactionmessage",
+    "lastMessageAt": "2026-06-21T23:39:24.193Z",
     "lastCommandAt": "2026-06-10T17:29:44.581Z"
   },
   "daily": {
@@ -42,5 +42,5 @@
   },
   "activeCharacter": null,
   "createdAt": "2026-06-10T17:00:11.509Z",
-  "updatedAt": "2026-06-10T18:36:29.632Z"
+  "updatedAt": "2026-06-21T23:39:24.193Z"
 }

@@ -1,0 +1,46 @@
+{
+  "creatorId": "175836212785259@lid",
+  "creatorName": "Nahuel",
+  "metadata": {
+    "displayName": "Nahuel",
+    "pushName": "Nahuel",
+    "lastSeenAt": "2026-06-21T23:39:12.265Z",
+    "lastKnownJid": "175836212785259@lid",
+    "lastKnownNumber": "175836212785259"
+  },
+  "registration": {
+    "source": "activity",
+    "scope": "group",
+    "createdBy": "175836212785259@lid",
+    "createdAt": "2026-06-21T23:20:39.153Z"
+  },
+  "economy": {
+    "money": 0
+  },
+  "activity": {
+    "messages": 6,
+    "commands": 0,
+    "textMessages": 4,
+    "mediaMessages": 2,
+    "stickerMessages": 2,
+    "audioMessages": 0,
+    "imageMessages": 0,
+    "videoMessages": 0,
+    "documentMessages": 0,
+    "reactionMessages": 0,
+    "lastMessageType": "stickermessage",
+    "lastMessageAt": "2026-06-21T23:39:12.265Z",
+    "lastCommandAt": null
+  },
+  "daily": {
+    "streak": 0,
+    "lastClaim": null,
+    "totalClaims": 0
+  },
+  "permissions": {
+    "economyAdmin": false
+  },
+  "activeCharacter": null,
+  "createdAt": "2026-06-21T23:20:39.153Z",
+  "updatedAt": "2026-06-21T23:39:12.265Z"
+}

@@ -1,0 +1,46 @@
+{
+  "creatorId": "39368324550684@lid",
+  "creatorName": "Bairsha",
+  "metadata": {
+    "displayName": "Bairsha",
+    "pushName": "Bairsha",
+    "lastSeenAt": "2026-06-21T23:40:02.071Z",
+    "lastKnownJid": "39368324550684@lid",
+    "lastKnownNumber": "39368324550684"
+  },
+  "registration": {
+    "source": "activity",
+    "scope": "group",
+    "createdBy": "39368324550684@lid",
+    "createdAt": "2026-06-21T23:17:27.115Z"
+  },
+  "economy": {
+    "money": 0
+  },
+  "activity": {
+    "messages": 22,
+    "commands": 0,
+    "textMessages": 15,
+    "mediaMessages": 7,
+    "stickerMessages": 6,
+    "audioMessages": 0,
+    "imageMessages": 0,
+    "videoMessages": 0,
+    "documentMessages": 0,
+    "reactionMessages": 1,
+    "lastMessageType": "reactionmessage",
+    "lastMessageAt": "2026-06-21T23:40:02.071Z",
+    "lastCommandAt": null
+  },
+  "daily": {
+    "streak": 0,
+    "lastClaim": null,
+    "totalClaims": 0
+  },
+  "permissions": {
+    "economyAdmin": false
+  },
+  "activeCharacter": null,
+  "createdAt": "2026-06-21T23:17:27.115Z",
+  "updatedAt": "2026-06-21T23:40:02.071Z"
+}

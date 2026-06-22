@@ -1,0 +1,46 @@
+{
+  "creatorId": "45608794615873@lid",
+  "creatorName": "sashihatake",
+  "metadata": {
+    "displayName": "sashihatake",
+    "pushName": "sashihatake",
+    "lastSeenAt": "2026-06-21T23:47:18.530Z",
+    "lastKnownJid": "45608794615873@lid",
+    "lastKnownNumber": "45608794615873"
+  },
+  "registration": {
+    "source": "activity",
+    "scope": "group",
+    "createdBy": "45608794615873@lid",
+    "createdAt": "2026-06-21T23:09:48.575Z"
+  },
+  "economy": {
+    "money": 0
+  },
+  "activity": {
+    "messages": 11,
+    "commands": 0,
+    "textMessages": 10,
+    "mediaMessages": 1,
+    "stickerMessages": 1,
+    "audioMessages": 0,
+    "imageMessages": 0,
+    "videoMessages": 0,
+    "documentMessages": 0,
+    "reactionMessages": 0,
+    "lastMessageType": "extendedtextmessage",
+    "lastMessageAt": "2026-06-21T23:47:18.530Z",
+    "lastCommandAt": null
+  },
+  "daily": {
+    "streak": 0,
+    "lastClaim": null,
+    "totalClaims": 0
+  },
+  "permissions": {
+    "economyAdmin": false
+  },
+  "activeCharacter": null,
+  "createdAt": "2026-06-21T23:09:48.575Z",
+  "updatedAt": "2026-06-21T23:47:18.530Z"
+}
