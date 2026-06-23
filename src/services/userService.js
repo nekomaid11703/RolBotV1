@@ -1,9 +1,3 @@
-const fs = require("fs");
-const fsp = require("fs/promises");
-const path = require("path");
-
-const { CHARACTER_ROOT } = require("../config/characterConfig");
-
 function stripAccents(text) {
   return String(text || "")
     .normalize("NFD")
@@ -30,32 +24,6 @@ function creatorDigits(creatorId) {
 
 function getCreatorFolderName(creatorName, creatorId) {
   return `${sanitizeName(creatorName)}__${creatorDigits(creatorId)}`;
-}
-
-async function ensureDir(dir) {
-  await fsp.mkdir(dir, { recursive: true });
-}
-
-async function readJson(file, fallback = null) {
-  try {
-    const raw = await fsp.readFile(file, "utf8");
-    return JSON.parse(raw);
-  } catch {
-    return fallback;
-  }
-}
-
-async function writeJson(file, data) {
-  await ensureDir(path.dirname(file));
-  await fsp.writeFile(file, JSON.stringify(data, null, 2), "utf8");
-}
-
-async function listCreatorFolders() {
-  return [];
-}
-
-async function findUserFolderById(creatorId) {
-  return "supabase";
 }
 
 async function listUserProfiles() {
@@ -250,14 +218,6 @@ function normalizeProfile(profile, { creatorId, creatorName }) {
   }
 
   return normalized;
-}
-
-async function ensureUserFolder(
-  creatorId,
-  creatorName = "usuario",
-  registration = {},
-) {
-  return "supabase";
 }
 
 async function ensureUserProfile({
@@ -614,9 +574,7 @@ module.exports = {
   sanitizeName,
   creatorDigits,
   getCreatorFolderName,
-  findUserFolderById,
   listUserProfiles,
-  ensureUserFolder,
   ensureUserProfile,
   getUserProfile,
   isUserRegistered,

@@ -1,26 +1,4 @@
-const fs = require("fs");
-const fsp = require("fs/promises");
-const path = require("path");
-
-const { GROUP_ACTIVITY_ROOT, GROUP_TOP_LIMIT } = require("../config/groupConfig");
-
-function ensureDir(dir) {
-  return fsp.mkdir(dir, { recursive: true });
-}
-
-async function readJson(file, fallback = null) {
-  try {
-    const raw = await fsp.readFile(file, "utf8");
-    return JSON.parse(raw);
-  } catch {
-    return fallback;
-  }
-}
-
-async function writeJson(file, data) {
-  await ensureDir(path.dirname(file));
-  await fsp.writeFile(file, JSON.stringify(data, null, 2), "utf8");
-}
+const { GROUP_TOP_LIMIT } = require("../config/groupConfig");
 
 function sanitizeGroupId(groupId) {
   return String(groupId || "")
@@ -29,14 +7,6 @@ function sanitizeGroupId(groupId) {
     .replace(/[<>:"/\\|?*\x00-\x1F]/g, "_")
     .replace(/\s+/g, "_")
     .replace(/_+/g, "_") || "grupo";
-}
-
-function groupFolderPath(groupId) {
-  return path.join(GROUP_ACTIVITY_ROOT, sanitizeGroupId(groupId));
-}
-
-function groupFilePath(groupId) {
-  return path.join(groupFolderPath(groupId), "activity.json");
 }
 
 function buildDefaultGroupRecord({ groupId, groupName = "" }) {
@@ -275,7 +245,6 @@ async function getGroupMemberActivity({ groupId, memberId }) {
 }
 
 module.exports = {
-  GROUP_ACTIVITY_ROOT,
   GROUP_TOP_LIMIT,
   buildDefaultGroupRecord,
   ensureGroupActivity,

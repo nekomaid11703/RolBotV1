@@ -1,135 +1,66 @@
-const { editCharacter } = require("../../services/characterService");
+const { getActiveCharacter, editCharacter } = require("../../services/characterService");
 const { MAX_SLOT_SIZE } = require("../../config/characterConfig");
-
-// =========================
-// PARSER
-// =========================
-
-function parseSlots(lines) {
-  const slots = {};
-
-  let i = 2;
-
-  while (i < lines.length) {
-    const raw = lines[i];
-
-    const line = raw.trim();
-
-    if (!line) {
-      i++;
-      continue;
-    }
-
-    // =========================
-    // KEY:
-    // =========================
-
-    if (!line.endsWith(":")) {
-      throw new Error(`Formato inválido:\n${line}`);
-    }
-
-    const key = line.slice(0, -1).trim().toLowerCase();
-
-    // =========================
-    // SECURITY
-    // =========================
-
-    if (key.length < 1) {
-      throw new Error("Slot inválido.");
-    }
-
-    if (key.length > 50) {
-      throw new Error(`Slot demasiado largo:\n${key}`);
-    }
-
-    i++;
-
-    // =========================
-    // "
-    // =========================
-
-    if (i >= lines.length || lines[i].trim() !== '"') {
-      throw new Error(`${key} debe comenzar con "`);
-    }
-
-    i++;
-
-    const content = [];
-
-    while (i < lines.length && lines[i].trim() !== '"') {
-      content.push(lines[i]);
-
-      i++;
-    }
-
-    if (i >= lines.length) {
-      throw new Error(`${key} no fue cerrado con "`);
-    }
-
-    const finalContent = content.join("\n").trim();
-
-    if (finalContent.length > MAX_SLOT_SIZE) {
-      throw new Error(`Contenido demasiado largo:\n${key}`);
-    }
-
-    slots[key] = finalContent;
-
-    i++;
-  }
-
-  return slots;
-}
 
 module.exports = {
   name: "editar_pj_descripcion",
-
   aliases: ["edit_pj_desc", "epjd"],
-
-  description: "Edita descripciones y lore de un personaje existente.",
-
+  description: "Edita información o descripciones (slots) de tu personaje activo.",
   category: "personajes",
 
   async execute(ctx) {
-    const lines = ctx.text.split("\n");
+    const rawText = ctx.text.trim();
+
+    const template = 
+      "✦ ━━━━━━━━━━━━━━ ✦\n" +
+      "  📝 *EDITAR DESCRIPCIÓN*\n" +
+      "✦ ━━━━━━━━━━━━━━ ✦\n\n" +
+      "Copia este mensaje, llena tus datos y envíalo de vuelta para actualizar tu personaje activo:\n\n" +
+      "/edit_pj_desc\n" +
+      "Campo: Historia\n" +
+      "Descripción: \n" +
+      "(Escribe aquí todo lo que quieras...)";
 
     // =========================
-    // HELP
+    // PLANTILLA / FORMULARIO
     // =========================
-
-    if (lines.length < 4) {
-      return ctx.reply(
-        "📘 *EDITAR DESCRIPCIONES*\n\n" +
-          "/editar_pj_descripcion\n" +
-          "Kevin\n\n" +
-          "descripcion:\n" +
-          '"\n' +
-          "Un guerrero legendario.\n" +
-          '"\n\n' +
-          "habilidad_1:\n" +
-          '"\n' +
-          "Lanza fuego.\n" +
-          '"',
-      );
-    }
-
-    const characterName = lines[1].trim();
-
-    if (!characterName) {
-      return ctx.reply("❌ Debes escribir el personaje.");
+    if (!rawText) {
+      return ctx.reply(template);
     }
 
     try {
-      const slots = parseSlots(lines);
-
-      if (Object.keys(slots).length < 1) {
-        return ctx.reply("❌ No hay slots para editar.");
+      const activeChar = await getActiveCharacter({ creatorId: ctx.sender });
+      
+      if (!activeChar) {
+        return ctx.reply("❌ No tienes un personaje activo para editar. Usa `/switch_pj` o `/crear_pj` primero.");
       }
+
+      // =========================
+      // EXTRACCIÓN CON REGEX
+      // =========================
+      const fieldMatch = rawText.match(/Campo:\s*(.+)/i);
+      const descMatch = rawText.match(/Descripción:\s*([\s\S]+)/i);
+
+      if (!fieldMatch || !descMatch) {
+        return ctx.reply("❌ Formato incorrecto. Por favor, asegúrate de usar la plantilla:\n\n" + template);
+      }
+
+      const key = fieldMatch[1].trim().toLowerCase().replace(/[^a-z0-9_]/g, "_");
+      const value = descMatch[1].trim();
+
+      if (key.length < 1 || key.length > 30) {
+        throw new Error("El nombre del campo debe ser corto (ej: Historia, Arma, Habilidad).");
+      }
+
+      if (value.length > MAX_SLOT_SIZE) {
+        throw new Error(`La descripción es demasiado larga (Máximo ${MAX_SLOT_SIZE} caracteres).`);
+      }
+
+      const slots = {};
+      slots[key] = value;
 
       const character = await editCharacter({
         creatorId: ctx.sender,
-
-        characterName,
-
+        characterName: activeChar.name,
         patch: {
           slots,
         },
@@ -137,14 +68,11 @@ module.exports = {
 
       await ctx.react("📝");
 
-      let response =
-        "📝 *DESCRIPCIONES ACTUALIZADAS*\n\n" + `👤 ${character.name}\n\n`;
-
-      for (const key of Object.keys(slots)) {
-        response += `✅ ${key}\n`;
-      }
-
-      await ctx.reply(response);
+      await ctx.reply(
+        "📝 *INFORMACIÓN ACTUALIZADA*\n\n" + 
+        `👤 *${character.name}*\n` +
+        `✅ El campo _${key}_ ha sido modificado con éxito.`
+      );
     } catch (error) {
       await ctx.reply(`❌ ${error.message}`);
     }

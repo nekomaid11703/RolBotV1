@@ -46,7 +46,7 @@
    - Priorizar hallazgos según impacto en la estabilidad del bot (sesiones, pérdida de memoria, fallos en eventos) y proponer acciones de refactorización o documentación.
 
 3. **Diseño de la migración hacia Supabase**
-   - Establecer el esquema destino en Supabase (tablas, columnas, restricciones) para la información de usuarios, partiendo de `auth/`, `grupos/` y `personajes/`.
+   - Establecer el esquema destino en Supabase (tablas, columnas, restricciones) para la información de usuarios, partiendo de `auth/`, `grupos/` y `characters/`.
    - Definir el mecanismo de exportación de los datos locales y la transformación necesaria (estructuras JSON -> filas/columnas). Esta fase incluye validar que las credenciales sensibles se mantengan seguras y que la migración sea reversable.
    - Crear un script o conjunto de utilidades (documentados sin codificación directa) que Antigravity implementará posteriormente para automatizar la transferencia y las comprobaciones integradas.
 

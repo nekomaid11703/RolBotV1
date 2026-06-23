@@ -33,9 +33,7 @@ module.exports = {
     const categories = new Map();
 
     for (const command of uniqueCommands.values()) {
-      const category = normalizeCategory(
-        command.category,
-      );
+      const category = normalizeCategory(command.category);
 
       if (!categories.has(category)) {
         categories.set(category, []);
@@ -56,62 +54,43 @@ module.exports = {
 
     const sortedCategories = [
       ...order.filter((c) => categories.has(c)),
-      ...[...categories.keys()].filter(
-        (c) => !order.includes(c),
-      ),
+      ...[...categories.keys()].filter((c) => !order.includes(c)),
     ];
 
-    let text = "";
-
-    text += "╔════════════════╗\n";
-    text += "  📚 ROLBOT V1    \n";
-    text += "╚════════════════╝\n\n";
-
-    text +=
-      "Usa los comandos con el prefijo /\n\n";
+    let text = "✨ *CENTRO DE COMANDOS ROLBOT* ✨\n";
+    text += "‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n";
+    text += "💡 _Usa el prefijo_ `/` _para invocar un comando._\n\n";
 
     for (const category of sortedCategories) {
-      const commandsInCategory =
-        categories.get(category);
+      const commandsInCategory = categories.get(category);
 
       commandsInCategory.sort((a, b) =>
         a.name.localeCompare(b.name, "es"),
       );
 
-      text +=
-        "━━━━━━━━━━━━━━━━━━━━\n";
+      const catEmoji = category === "economia" ? "💰" : category === "personajes" ? "🎭" : category === "grupo" ? "🏰" : "📂";
 
-      text += `📂 ${formatCategory(
-        category,
-      )}\n`;
-
-      text +=
-        "━━━━━━━━━━━━━━━━━━━━\n";
+      text += `${catEmoji} *${formatCategory(category).toUpperCase()}*\n`;
+      text += "┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈\n";
 
       for (const command of commandsInCategory) {
-        text += `➤ /${command.name}\n`;
+        text += ` 🔹 */${command.name}*`;
 
-        if (command.description) {
-          text += `   ${command.description}\n`;
-        }
-
-        if (
-          Array.isArray(command.aliases) &&
-          command.aliases.length > 0
-        ) {
-          text += `   Alias: ${command.aliases
-            .map((a) => `/${a}`)
-            .join(", ")}\n`;
+        if (Array.isArray(command.aliases) && command.aliases.length > 0) {
+          text += ` _(o /${command.aliases[0]})_`;
         }
 
         text += "\n";
+
+        if (command.description) {
+          text += `   ↳ _${command.description}_\n`;
+        }
       }
+      text += "\n";
     }
 
-    text +=
-      "━━━━━━━━━━━━━━━━━━━━\n";
-    text += "🤖 RolBotV1\n";
-    text += "👑 Creador: Nekomaid\n";
+    text += "────────────────────────\n";
+    text += "🤖 *RolBotV1* | 👑 _Desarrollado por Nekomaid_\n";
 
     await ctx.reply(text);
   },

@@ -1,5 +1,143 @@
 # Registro de Cambios (AI Changelog)
 
+## [2026-06-23] - Supabase Schema Hardening
+**Rama:** `AI_bot`
+
+- **Modificado:**
+  - `supabase_migration.sql`: reescrito como fuente de esquema backend-only. Ahora incluye la tabla `bot_auth_state`, habilita RLS para todas las tablas del bot, elimina politicas legacy permisivas y limita privilegios esperados a `service_role`.
+- **Anadido:**
+  - `tests/test_supabase_schema.js`: prueba de lectura no destructiva que valida acceso a `bot_auth_state`, `players`, `groups`, `group_members` y `characters`.
+- **Validado:**
+  - `node test_supa.js`
+  - `node tests/test_supabase_schema.js` con acceso de red habilitado.
+- **Nota:**
+  - No se aplico SQL destructivo contra la base remota durante esta ejecucion. El archivo de migracion queda como fuente corregida para aplicar manualmente o mediante proceso controlado.
+
+## [2026-06-23] - Memoria Compartida Codex/Antigravity y Contexto IA
+**Rama:** `AI_bot`
+
+- **Anadido:**
+  - `.agents/AGENTS.md`: reglas locales para agentes del workspace RolBotV1.
+  - `.agents/skills/*`: skills locales adaptadas desde `antigravity_config_asistente` para memoria compartida, planificacion, investigacion y auditoria/calidad.
+  - `ai-memory/memory_protocol.md`: protocolo canonico para memoria persistente compartida, board, handoffs y control de fragmentacion.
+  - `task.md`: checklist vivo de ejecucion del roadmap.
+  - `src/services/ai/memoryContextService.js`: recuperacion ligera de contexto desde `rolbot-memory.jsonl` y `design_board.md`, sin RAG ni dependencias nuevas.
+  - `tests/test_memory_context.js`: prueba local del servicio de contexto.
+- **Modificado:**
+  - `mcp_nekomemori/tools/memory.js`: `record_memory` acepta tipos canonicos extendidos (`bug`, `fix`, `risk`, `validation`, `handoff`, `pending`) y metadatos (`sourceAgent`, `relatedFiles`, `status`, `supersedes`), manteniendo tipos legacy.
+  - `src/services/ai/aiOrchestrator.js`: `generateText` soporta contexto compartido compacto con `useMemory: true`; por defecto permanece limpio para evitar filtrar memoria interna en respuestas de juego.
+  - `src/services/ai/aiWorkerPool.js`: las tareas de agentes activan memoria compartida salvo que indiquen `useMemory: false`.
+  - `ai-memory/design_board.md`: tickets 006 y 007 cerrados con evidencias.
+- **Validado:**
+  - `node tests/test_memory_context.js`
+  - `node tests/test_crear_pj.js`
+  - Dry-run del orquestador con proveedor dummy confirmando prompts con memoria (`useMemory: true`) y prompts limpios por defecto.
+  - NekoMemori MCP lista herramientas y registra memoria extendida.
+
+## [2026-06-23] - Sistema Multi-Agente Jerárquico (Plan de Ahorro Antigravity)
+**Rama:** `AI_bot`
+
+- **Añadido:**
+  - `src/services/ai/aiDispatcher.js`: Clasificador automático de tareas. Infiere el tipo y tier de complejidad de cada subtarea (HARD/MEDIUM/EASY/TRIVIAL) usando la IA, y asigna el modelo y proveedor óptimos según jerarquía.
+  - `src/services/ai/aiWorkerPool.js`: Pool de trabajadores asincrónicos. Implementa un semáforo de concurrencia por proveedor (máx 3 para Gemini, máx 5 para OpenRouter), ejecución paralela con `Promise.all`, ejecución secuencial con encadenamiento opcional, reintentos con backoff exponencial y generador de reportes.
+  - `tests/test_multiagent.js`: Prueba de integración del sistema completo: 3 subtareas en paralelo, auto-clasificación y ensamblaje por Antigravity.
+- **Modificado:**
+  - `src/services/ai/aiConfig.js`: Añadidos `MODEL_TIERS`, `TASK_PROFILES` (11 perfiles con instrucciones de sistema especializadas), `CONCURRENCY_LIMITS` por proveedor y `AUTO_CLASSIFY_LABELS`.
+  - `src/services/ai/aiOrchestrator.js`: Integrado con Dispatcher y WorkerPool. Nuevo método `dispatchTasks([...])` para despachar N subtareas en paralelo y `autoDispatchSingle()` para tareas de descripción libre.
+- **Decisión técnica:** Antigravity actúa como "Director Técnico": fragmenta tareas, despacha a modelos externos, ensambla y aplica los resultados. El modo automático usa OpenRouter (gratuito) para clasificar tareas, ahorrando cuota de Gemini para las generaciones de contenido.
+
+## [2026-06-23] - Pruebas de Integración del Orquestador de IA + Fixes de Config
+**Rama:** `AI_bot`
+
+- **Verificado:**
+  - ✅ `gemini-2.5-flash` responde correctamente. Se confirmó que la API key de Gemini (AI Studio) es válida con acceso a 37 modelos incluyendo Gemini 2.5, 3.x y Gemma.
+  - ✅ `openrouter/auto` responde correctamente. El router automático de modelos gratuitos de OpenRouter funciona sin necesidad de especificar un modelo fijo.
+  - ✅ Mecanismo de fallback interno del orquestador probado: conmuta automáticamente entre proveedores cuando uno falla.
+- **Corregido:**
+  - `geminiProvider.js`: Añadido fallback interno entre modelos Gemini (`gemini-2.5-flash` → `gemini-2.0-flash` → etc.) para manejar errores 503 (sobrecarga temporal) y 404 (modelo no disponible).
+  - `aiConfig.js`: Modelos Gemini actualizados de la serie 1.5 (deprecada) a `gemini-2.5-flash` / `gemini-2.0-flash`. Modelo OpenRouter cambiado a `openrouter/auto` (router automático de modelos gratuitos). OpenRouter añadido a la lista de fallbacks de clasificación.
+
+## [2026-06-23] - MCP NekoMemori v2.0.0 — Modularización y Nuevas Herramientas
+**Rama:** `AI_bot`
+
+- **Añadido:**
+  - Estructura modular para el servidor MCP: `tools/memory.js`, `tools/board.js`, `utils/fileUtils.js`.
+  - 5 herramientas de memoria: `record_memory` (reemplaza `record_decision`), `read_memory` (mejorado con filtro por tipo y orden), `search_memory` (búsqueda por keyword), `delete_memory` (eliminar entradas por ID), `get_memory_stats` (estadísticas del proyecto).
+  - 2 herramientas de Design Board: `read_board` (leer tablón completo), `update_ticket` (añadir o completar tickets de rol via MCP).
+- **Modificado:**
+  - `index.js`: Reescrito como punto de entrada limpio que importa los módulos. De 101 líneas monolíticas a ~50 líneas legibles.
+  - `package.json`: Versión bumped a `2.0.0`, dependencias con versiones fijas (`^1.13.0` para el SDK, `^3.24.0` para zod).
+  - `ai-memory/design_board.md`: Sincronizado con el estado real del proyecto. Tickets 001–005 marcados como completados.
+- **Decisión técnica:** Usar `fileUtils.js` como capa de abstracción de I/O evita código duplicado y hace que añadir nuevos módulos de herramientas sea trivial.
+
+## [2026-06-22] - Implementación de Orquestador Modular de IA (Agentes Externos)
+**Rama:** `AI_bot`
+
+- **Añadido:**
+  - Nueva arquitectura de IA modular en `src/services/ai/`.
+  - `src/services/ai/aiConfig.js`: Configuración centralizada de modelos y prioridades por tipo de tarea (generación de texto y clasificación).
+  - `src/services/ai/providers/geminiProvider.js`: Adaptador nativo usando `fetch` para la API de Google Gemini (AI Studio).
+  - `src/services/ai/providers/huggingfaceProvider.js`: Adaptador nativo para Hugging Face Serverless API.
+  - `src/services/ai/providers/ollamaProvider.js`: Adaptador nativo para Ollama local (`http://localhost:11434`).
+  - `src/services/ai/providers/openrouterProvider.js`: Adaptador nativo para OpenRouter API.
+  - `src/services/ai/aiOrchestrator.js`: Core orquestador que inicializa dinámicamente los proveedores configurados en el `.env` y gestiona el fallback automático a otros proveedores si el principal falla (ej: límites de cuota, error de red).
+  - Script de pruebas unitarias `tests/test_ai_orchestrator.js` para verificar el correcto funcionamiento del fallback y la inicialización.
+- **Modificado:**
+  - `src/services/aiService.js`: Refactorizado para actuar como un wrapper compatible hacia atrás que delega todo el trabajo al nuevo orquestador modular de IA, asegurando continuidad en el resto del bot.
+  - `.env.example`: Añadidas las variables de configuración correspondientes para Gemini, Hugging Face, OpenRouter y Ollama.
+
+## [2026-06-22] - Hotfix: Solución a Error de Guardado de Personajes (Supabase Permission Denied)
+**Rama:** `AI_bot`
+
+- **Solucionado:**
+  - Error `permission denied for table characters` al crear personajes. La causa era la falta de privilegios explícitos (`GRANT`) en la tabla `characters` para el rol `service_role` (utilizado por el bot para saltarse el RLS) y los roles públicos de la API (`anon` y `authenticated`).
+  - Se agregaron instrucciones explícitas de `GRANT ALL PRIVILEGES` para la tabla `characters` y el resto de tablas y secuencias del esquema `public` en `supabase_migration.sql`.
+
+## [2026-06-22] - Auditoría y Mejora de Suite de Personajes (Higiene y UI)
+**Rama:** `AI_bot`
+
+- **Solucionado:**
+  - `eliminar_pj.js`: Simplificación en la lectura de argumentos, ya no requiere saltos de línea engorrosos.
+  - `edit_pj_name.js`: Renombrado lógico. Ahora `/renombrar_pj` edita el **personaje activo** directamente.
+  - `editar_pj_descripcion.js`: Al igual que `/crear_pj`, ahora utiliza Regex y una plantilla limpia de formulario. Afecta directamente al **personaje activo**.
+  - `swich_pj.js`: Corregido un typo en el nombre del archivo (ahora es `switch_pj.js`).
+- **Mejora Visual:**
+  - `mis_pj.js` y `pj.js` ahora cuentan con una interfaz inmersiva premium en vez de strings planos, heredando los estándares gráficos de `ver_pj.js`.
+- **Testing:**
+  - Se creó el directorio `tests/` y el archivo `test_crear_pj.js` con pruebas unitarias para validar que las expresiones regulares extraen perfectamente nombres, clases e historias incluso si el jugador usa mayúsculas, espacios aleatorios u omite información.
+## [2026-06-22] - Refactorización de UI/UX para Creación de Personajes
+**Rama:** `AI_bot`
+
+- **Modificado:**
+  - `src/commands/personajes/crear_pj.js`: Se reemplazó el antiguo parser estricto por un sistema de plantillas guiadas y extracción de datos vía expresiones regulares. Ahora el comando provee un formulario fácil de copiar/pegar para el usuario.
+  - `src/services/characterService.js`: Se simplificó `createCharacter` para omitir la inyección manual de atributos y estadísticas por defecto, delegando esta responsabilidad a los modificadores `DEFAULT` de la base de datos PostgreSQL/Supabase.
+## [2026-06-22] - Hotfix: Corrección de esquema SQL (Duplicidad de Cline)
+**Rama:** `AI_bot`
+
+- **Solucionado:**
+  - Se detectó y eliminó una tabla `characters` duplicada y desactualizada en `supabase_migration.sql` (líneas 15-25) que había sido añadida en iteraciones previas por Cline. Esta duplicidad iba a causar que la tabla real con las columnas `slug`, `slots` e `is_active` fuera ignorada durante la migración, rompiendo la lógica del bot.
+## [2026-06-22] - Sección 11 y 12: Roles Agnósticos y Micro-Agentes
+**Rama:** `AI_bot`
+
+- **Añadido:**
+  - `ai-memory/design_board.md` como tablón MCP asíncrono para coordinar tareas entre los roles "Arquitecto", "Creativo" y "Coder", independientemente del LLM (Claude o Gemini) que esté activo en el momento.
+  - Nuevo servicio `src/services/aiService.js` preparado para usar la API gratuita de Hugging Face (`HuggingFaceH4/zephyr-7b-beta` y `DeBERTa-v3`) para tareas de reconocimiento de intenciones y generación de texto en tiempo de ejecución.
+- **Modificado:**
+  - `.roomodes` reescrito para independizar los roles de los LLMs. Ahora Antigravity asume "sombreros funcionales" según el ticket del `design_board.md`.
+  - `help.js` y `ver_pj.js` refactorizados aplicando la estética premium del rol "Creativo" (Markdown de WhatsApp avanzado, separadores visuales, estructura tipo tarjeta RPG).
+- **Decisión técnica:** Al desvincular los roles de un modelo de IA específico, el ecosistema se vuelve inmune a los cortes o agotamiento de tokens en Claude o Gemini. Cualquier IA activa puede leer el `design_board.md` y asumir el rol requerido.
+
+## [2026-06-22] - Pre-Sección 11: Deuda Técnica y Migración de Personajes
+**Rama:** `AI_bot`
+
+- **Añadido:**
+  - Esquema SQL en `supabase_migration.sql` para la tabla `characters` (soporte RLS y restricciones).
+  - Script `migrateCharacters.js` para transferir personajes desde JSON local a la tabla Supabase (`is_active` auto-gestionado).
+- **Modificado:**
+  - `src/services/characterService.js` refactorizado al 100%. Eliminado el uso de `fs` y el sistema de archivos local, conectándolo directamente con Supabase (`insert`, `update`, `delete`, `select`).
+  - `src/services/userService.js` y `src/services/groupActivityService.js` limpiados de código muerto. Eliminadas importaciones inútiles de `fs`/`path` y funciones helpers huérfanas (`readJson`, `ensureDir`).
+  - `.gitignore` actualizado para excluir `git_status.txt` y archivo eliminado del repositorio local.
+- **Decisión técnica:** Al mover los personajes a Supabase, el bot ya es **completamente stateless**. No hay riesgo de pérdida de datos en hostings volátiles. Se completaron todas las pre-condiciones para la Sección 11 (Gemini como admin creativo).
 ## [2026-06-22] - Blindaje del Protocolo de Memoria Multi-Agente
 **Rama:** `AI_bot`
 

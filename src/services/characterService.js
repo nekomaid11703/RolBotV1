@@ -1,9 +1,5 @@
-const fs = require("fs");
-const fsp = require("fs/promises");
-const path = require("path");
-
+const { supabase } = require("../database/supabase");
 const {
-  CHARACTER_ROOT,
   CHARACTER_CATEGORIES,
   DEFAULT_CHARACTER_STATS,
   DEFAULT_CHARACTER_SLOTS,
@@ -14,95 +10,42 @@ const {
 
 const {
   sanitizeName,
-  getCreatorFolderName,
-  findUserFolderById,
   ensureUserProfile,
-  getUserProfile,
-  saveUserProfile,
 } = require("./userService");
 
 function getCharacterSlug(characterName) {
   return sanitizeName(characterName).toLowerCase();
 }
 
-async function ensureDir(dir) {
-  await fsp.mkdir(dir, { recursive: true });
-}
-
-async function readJson(file, fallback = null) {
-  try {
-    const raw = await fsp.readFile(file, "utf8");
-    return JSON.parse(raw);
-  } catch {
-    return fallback;
-  }
-}
-
-async function writeJson(file, data) {
-  await ensureDir(path.dirname(file));
-  await fsp.writeFile(file, JSON.stringify(data, null, 2), "utf8");
-}
-
 function normalizeCategory(category, isAdmin = false) {
-  const normalized = String(category || "F")
-    .toUpperCase()
-    .trim();
-
-  if (!CHARACTER_CATEGORIES.includes(normalized)) {
-    return "F";
-  }
-
-  if (!isAdmin && normalized !== "F") {
-    return "F";
-  }
-
+  const normalized = String(category || "F").toUpperCase().trim();
+  if (!CHARACTER_CATEGORIES.includes(normalized)) return "F";
+  if (!isAdmin && normalized !== "F") return "F";
   return normalized;
 }
 
 function normalizeStats(stats = {}) {
-  return {
-    ...DEFAULT_CHARACTER_STATS,
-    ...(stats || {}),
-  };
-}
-
-function characterFilePath(folder, slug) {
-  return path.join(folder, "characters", `${slug}.json`);
+  return { ...DEFAULT_CHARACTER_STATS, ...(stats || {}) };
 }
 
 function normalizeCharacterRecord(character) {
-  if (!character || typeof character !== "object") {
-    return character;
-  }
+  if (!character || typeof character !== "object") return character;
 
   const normalized = { ...character };
-
   normalized.name = String(normalized.name || "").trim();
   normalized.slug = getCharacterSlug(normalized.slug || normalized.name);
   normalized.category = normalizeCategory(normalized.category, true);
-  normalized.creatorId = normalized.creatorId || null;
-  normalized.creatorName = String(normalized.creatorName || "usuario").trim() || "usuario";
   normalized.stats = normalizeStats(normalized.stats || {});
-
-  const legacyDescription = normalized.description;
-
+  
   normalized.slots = {
     ...DEFAULT_CHARACTER_SLOTS,
     ...(normalized.slots || {}),
   };
 
-  if (
-    legacyDescription !== undefined &&
-    legacyDescription !== null &&
-    !String(normalized.slots.descripcion || "").trim()
-  ) {
-    normalized.slots.descripcion = String(legacyDescription).trim();
+  if (normalized.description !== undefined && !String(normalized.slots.descripcion || "").trim()) {
+    normalized.slots.descripcion = String(normalized.description).trim();
   }
-
   delete normalized.description;
-
-  normalized.createdAt = normalized.createdAt || new Date().toISOString();
-  normalized.updatedAt = normalized.updatedAt || normalized.createdAt;
 
   return normalized;
 }
@@ -116,148 +59,104 @@ async function createCharacter({
   slots = {},
   isAdmin = false,
 }) {
-  const { folder, profile } = await ensureUserProfile({
+  await ensureUserProfile({
     creatorId,
     creatorName,
-    registration: {
-      source: "crear_pj",
-      scope: "self",
-      createdBy: creatorId,
-    },
+    registration: { source: "crear_pj", scope: "self", createdBy: creatorId },
   });
 
-  const existingCount = await fsp
-    .readdir(path.join(folder, "characters"), { withFileTypes: true })
-    .then((entries) => entries.filter((entry) => entry.isFile() && entry.name.endsWith(".json")).length)
-    .catch(() => 0);
+  const { count } = await supabase
+    .from("characters")
+    .select("*", { count: "exact", head: true })
+    .eq("player_phone", creatorId);
 
-  if (existingCount >= MAX_CHARACTERS_PER_USER) {
+  if (count >= MAX_CHARACTERS_PER_USER) {
     throw new Error(`Has alcanzado el máximo de ${MAX_CHARACTERS_PER_USER} personajes por usuario.`);
   }
 
   const slug = getCharacterSlug(characterName);
-  const file = characterFilePath(folder, slug);
+  
+  const { data: existing } = await supabase
+    .from("characters")
+    .select("id")
+    .eq("player_phone", creatorId)
+    .eq("slug", slug)
+    .single();
 
-  if (fs.existsSync(file)) {
+  if (existing) {
     throw new Error("Ya existe un personaje con ese nombre.");
   }
 
-  const now = new Date().toISOString();
+  const isActive = count === 0;
 
-  const character = normalizeCharacterRecord({
+  const record = {
+    player_phone: creatorId,
     name: characterName,
-    slug,
+    slug: slug,
     category: normalizeCategory(category, isAdmin),
-    creatorId,
-    creatorName,
-    stats: normalizeStats(stats),
-    slots: {
-      ...DEFAULT_CHARACTER_SLOTS,
-      ...(slots || {}),
-    },
-    createdAt: now,
-    updatedAt: now,
-  });
+    is_active: isActive
+  };
 
-  await writeJson(file, character);
+  // Solo inyectar si no son null o vacíos, permitiendo que Supabase use los suyos.
+  if (stats && Object.keys(stats).length > 0) record.stats = normalizeStats(stats);
+  if (slots && Object.keys(slots).length > 0) record.slots = { ...DEFAULT_CHARACTER_SLOTS, ...slots };
 
-  if (!profile.activeCharacter) {
-    profile.activeCharacter = slug;
-    profile.updatedAt = now;
+  const { data, error } = await supabase
+    .from("characters")
+    .insert(record)
+    .select()
+    .single();
 
-    await saveUserProfile({
-      folder,
-      profile,
-    });
+  if (error) throw new Error("Error guardando el personaje: " + error.message);
 
-    character.active = true;
-  } else {
-    character.active = false;
-  }
-
-  return character;
+  const normalized = normalizeCharacterRecord(data);
+  normalized.active = data.is_active;
+  return normalized;
 }
 
 async function getCharacter({ creatorId, characterName }) {
-  const folder = await findUserFolderById(creatorId);
-  if (!folder) return null;
-
   const slug = getCharacterSlug(characterName);
-  const file = characterFilePath(folder, slug);
+  const { data, error } = await supabase
+    .from("characters")
+    .select("*")
+    .eq("player_phone", creatorId)
+    .eq("slug", slug)
+    .single();
 
-  if (!fs.existsSync(file)) return null;
-
-  return normalizeCharacterRecord(await readJson(file, null));
+  if (error || !data) return null;
+  const normalized = normalizeCharacterRecord(data);
+  normalized.active = data.is_active;
+  return normalized;
 }
 
 async function listCharacters({ creatorId }) {
-  const folder = await findUserFolderById(creatorId);
-  if (!folder) return [];
+  const { data, error } = await supabase
+    .from("characters")
+    .select("*")
+    .eq("player_phone", creatorId)
+    .order("name", { ascending: true });
 
-  const profile = await getUserProfile({ creatorId });
-
-  const activeCharacter = profile?.profile?.activeCharacter || null;
-
-  const charsDir = path.join(folder, "characters");
-  const files = await fsp.readdir(charsDir).catch(() => []);
-
-  const result = [];
-
-  for (const file of files.filter((f) => f.endsWith(".json"))) {
-    const data = await readJson(path.join(charsDir, file), null);
-
-    if (data) {
-      const normalized = normalizeCharacterRecord(data);
-      normalized.active = activeCharacter === normalized.slug;
-      result.push(normalized);
-    }
-  }
-
-  return result.sort((a, b) => a.name.localeCompare(b.name, "es"));
+  if (error || !data) return [];
+  
+  return data.map(row => {
+    const normalized = normalizeCharacterRecord(row);
+    normalized.active = row.is_active;
+    return normalized;
+  });
 }
 
 async function getActiveCharacter({ creatorId }) {
-  const profileData = await getUserProfile({ creatorId });
+  const { data, error } = await supabase
+    .from("characters")
+    .select("*")
+    .eq("player_phone", creatorId)
+    .eq("is_active", true)
+    .single();
 
-  if (!profileData) {
-    return null;
-  }
-
-  const { folder, profile } = profileData;
-
-  if (!profile?.activeCharacter) {
-    return null;
-  }
-
-  const file = characterFilePath(folder, profile.activeCharacter);
-
-  if (!fs.existsSync(file)) {
-    profile.activeCharacter = null;
-    profile.updatedAt = new Date().toISOString();
-
-    await saveUserProfile({
-      folder,
-      profile,
-    });
-
-    return null;
-  }
-
-  const character = normalizeCharacterRecord(await readJson(file, null));
-  if (!character) {
-    profile.activeCharacter = null;
-    profile.updatedAt = new Date().toISOString();
-
-    await saveUserProfile({
-      folder,
-      profile,
-    });
-
-    return null;
-  }
-
-  character.active = true;
-  return character;
+  if (error || !data) return null;
+  const normalized = normalizeCharacterRecord(data);
+  normalized.active = true;
+  return normalized;
 }
 
 async function setActiveCharacter({
@@ -271,268 +170,187 @@ async function setActiveCharacter({
     throw new Error("Solo el creador o un admin pueden hacer switch.");
   }
 
-  const folder = await findUserFolderById(targetCreatorId);
+  const slug = getCharacterSlug(characterName);
 
-  if (!folder) {
-    throw new Error("El usuario no tiene personajes registrados.");
-  }
+  const { data: character, error } = await supabase
+    .from("characters")
+    .select("id")
+    .eq("player_phone", targetCreatorId)
+    .eq("slug", slug)
+    .single();
 
-  const character = await getCharacter({
-    creatorId: targetCreatorId,
-    characterName,
-  });
-
-  if (!character) {
+  if (error || !character) {
     throw new Error("No existe ese personaje.");
   }
 
-  const profileData = await getUserProfile({ creatorId: targetCreatorId });
+  await supabase
+    .from("characters")
+    .update({ is_active: false })
+    .eq("player_phone", targetCreatorId);
 
-  const profile =
-    profileData?.profile || {
-      creatorId: targetCreatorId,
-      creatorName: targetCreatorName || "usuario",
-      metadata: {
-        displayName: targetCreatorName || "usuario",
-        pushName: targetCreatorName || "usuario",
-        lastSeenAt: new Date().toISOString(),
-      },
-      activeCharacter: null,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
+  const { data: updated } = await supabase
+    .from("characters")
+    .update({ is_active: true })
+    .eq("player_phone", targetCreatorId)
+    .eq("slug", slug)
+    .select()
+    .single();
 
-  profile.activeCharacter = character.slug;
-  profile.updatedAt = new Date().toISOString();
-
-  await saveUserProfile({
-    folder,
-    profile,
-  });
-
-  character.active = true;
-  return character;
+  const normalized = normalizeCharacterRecord(updated);
+  normalized.active = true;
+  return normalized;
 }
 
 async function updateCharacterStats({ creatorId, characterName, patch = {} }) {
-  const folder = await findUserFolderById(creatorId);
-  if (!folder) return null;
-
   const slug = getCharacterSlug(characterName);
-  const file = characterFilePath(folder, slug);
+  
+  const { data, error } = await supabase
+    .from("characters")
+    .select("stats")
+    .eq("player_phone", creatorId)
+    .eq("slug", slug)
+    .single();
 
-  if (!fs.existsSync(file)) return null;
+  if (error || !data) return null;
 
-  const character = normalizeCharacterRecord(await readJson(file, null));
-  if (!character) return null;
+  const newStats = { ...data.stats, ...patch };
 
-  character.stats = {
-    ...character.stats,
-    ...patch,
-  };
+  const { data: updated, error: updateError } = await supabase
+    .from("characters")
+    .update({ stats: newStats, updated_at: new Date().toISOString() })
+    .eq("player_phone", creatorId)
+    .eq("slug", slug)
+    .select()
+    .single();
 
-  character.updatedAt = new Date().toISOString();
-
-  await writeJson(file, character);
-
-  return character;
+  if (updateError || !updated) return null;
+  
+  const normalized = normalizeCharacterRecord(updated);
+  normalized.active = updated.is_active;
+  return normalized;
 }
 
-// =========================
-// EDIT CHARACTER
-// =========================
-
-async function editCharacter({
-  creatorId,
-  characterName,
-  patch = {},
-}) {
-  const folder = await findUserFolderById(creatorId);
-
-  if (!folder) {
-    throw new Error("No existe el creador.");
-  }
-
+async function editCharacter({ creatorId, characterName, patch = {} }) {
   const oldSlug = getCharacterSlug(characterName);
-  const oldFile = characterFilePath(folder, oldSlug);
+  
+  const { data: character, error } = await supabase
+    .from("characters")
+    .select("*")
+    .eq("player_phone", creatorId)
+    .eq("slug", oldSlug)
+    .single();
 
-  if (!fs.existsSync(oldFile)) {
+  if (error || !character) {
     throw new Error("No existe el personaje.");
   }
 
-  const character = normalizeCharacterRecord(await readJson(oldFile, null));
-
-  if (!character) {
-    throw new Error("No se pudo leer el personaje.");
-  }
-
-  if (character.creatorId !== creatorId) {
-    throw new Error("No puedes editar personajes ajenos.");
-  }
-
+  const updates = { updated_at: new Date().toISOString() };
   let newSlug = oldSlug;
 
   if (patch.name && patch.name !== character.name) {
     const cleanName = String(patch.name).trim();
-
-    if (cleanName.length < 2) {
-      throw new Error("Nombre demasiado corto.");
-    }
-
-    if (cleanName.length > MAX_CHARACTER_NAME_LENGTH) {
-      throw new Error("Nombre demasiado largo.");
-    }
-
+    if (cleanName.length < 2) throw new Error("Nombre demasiado corto.");
+    if (cleanName.length > MAX_CHARACTER_NAME_LENGTH) throw new Error("Nombre demasiado largo.");
+    
     newSlug = getCharacterSlug(cleanName);
+    
+    const { data: existing } = await supabase
+      .from("characters")
+      .select("id")
+      .eq("player_phone", creatorId)
+      .eq("slug", newSlug)
+      .single();
 
-    const newFile = characterFilePath(folder, newSlug);
-
-    if (fs.existsSync(newFile)) {
-      throw new Error("Ya existe un personaje con ese nombre.");
-    }
-
-    character.name = cleanName;
-    character.slug = newSlug;
-
-    await fsp.rename(oldFile, newFile);
+    if (existing) throw new Error("Ya existe un personaje con ese nombre.");
+    
+    updates.name = cleanName;
+    updates.slug = newSlug;
   }
 
+  const newSlots = { ...character.slots };
+  
   if (patch.description !== undefined) {
-    character.slots = character.slots || {};
-    character.slots.descripcion = String(patch.description).trim();
+    newSlots.descripcion = String(patch.description).trim();
   }
 
   if (patch.slots) {
-    if (typeof patch.slots !== "object") {
-      throw new Error("Slots inválidos.");
-    }
-
-    if (!character.slots) {
-      character.slots = {};
-    }
-
+    if (typeof patch.slots !== "object") throw new Error("Slots inválidos.");
     for (const [key, value] of Object.entries(patch.slots)) {
       const cleanKey = String(key).trim().toLowerCase();
-
-      if (cleanKey.length < 1) {
-        continue;
-      }
-
-      if (cleanKey.length > 50) {
-        throw new Error(`Slot demasiado largo:\n${cleanKey}`);
-      }
-
+      if (cleanKey.length < 1) continue;
+      if (cleanKey.length > 50) throw new Error(`Slot demasiado largo:\n${cleanKey}`);
       const cleanValue = String(value).trim();
-
-      if (cleanValue.length > MAX_SLOT_SIZE) {
-        throw new Error(`Contenido demasiado largo:\n${cleanKey}`);
-      }
-
-      character.slots[cleanKey] = cleanValue;
+      if (cleanValue.length > MAX_SLOT_SIZE) throw new Error(`Contenido demasiado largo:\n${cleanKey}`);
+      newSlots[cleanKey] = cleanValue;
     }
   }
+  
+  updates.slots = newSlots;
 
-  character.updatedAt = new Date().toISOString();
+  const { data: updated, error: updateError } = await supabase
+    .from("characters")
+    .update(updates)
+    .eq("id", character.id)
+    .select()
+    .single();
 
-  const finalFile = characterFilePath(folder, newSlug);
+  if (updateError) throw new Error("Error guardando el personaje: " + updateError.message);
 
-  await writeJson(finalFile, character);
-
-  const profileData = await getUserProfile({ creatorId });
-
-  if (profileData?.profile && profileData.profile.activeCharacter === oldSlug) {
-    profileData.profile.activeCharacter = newSlug;
-    profileData.profile.updatedAt = new Date().toISOString();
-
-    await saveUserProfile({
-      folder,
-      profile: profileData.profile,
-    });
-  }
-
-  return character;
+  const normalized = normalizeCharacterRecord(updated);
+  normalized.active = updated.is_active;
+  return normalized;
 }
 
-// =========================
-// DELETE CHARACTER
-// =========================
-
-async function deleteCharacter({
-  creatorId,
-  characterName,
-}) {
-  const folder = await findUserFolderById(creatorId);
-
-  if (!folder) {
-    throw new Error("No existe el creador.");
-  }
-
+async function deleteCharacter({ creatorId, characterName }) {
   const slug = getCharacterSlug(characterName);
-  const file = characterFilePath(folder, slug);
+  
+  const { data: character, error } = await supabase
+    .from("characters")
+    .select("*")
+    .eq("player_phone", creatorId)
+    .eq("slug", slug)
+    .single();
 
-  if (!fs.existsSync(file)) {
+  if (error || !character) {
     throw new Error("No existe el personaje.");
   }
 
-  const profileData = await getUserProfile({ creatorId });
-  const profile = profileData?.profile || null;
-  const wasActive = profile?.activeCharacter === slug;
+  await supabase
+    .from("characters")
+    .delete()
+    .eq("id", character.id);
 
-  await fsp.unlink(file);
+  if (character.is_active) {
+    const { data: remaining } = await supabase
+      .from("characters")
+      .select("id")
+      .eq("player_phone", creatorId)
+      .order("name", { ascending: true })
+      .limit(1);
 
-  if (!wasActive) {
-    return true;
+    if (remaining && remaining.length > 0) {
+      await supabase
+        .from("characters")
+        .update({ is_active: true })
+        .eq("id", remaining[0].id);
+    }
   }
-
-  const charsDir = path.join(folder, "characters");
-  const files = await fsp.readdir(charsDir).catch(() => []);
-
-  const remaining = files
-    .filter((f) => f.endsWith(".json"))
-    .sort((a, b) => a.localeCompare(b, "es"));
-
-  if (remaining.length === 0) {
-    profile.activeCharacter = null;
-  } else {
-    const nextCharacter = await readJson(
-      path.join(charsDir, remaining[0]),
-      null,
-    );
-
-    profile.activeCharacter = nextCharacter?.slug || null;
-  }
-
-  profile.updatedAt = new Date().toISOString();
-
-  await saveUserProfile({
-    folder,
-    profile,
-  });
 
   return true;
 }
 
-// =========================
-// GET CHARACTER BY SLUG
-// =========================
+async function getCharacterBySlug({ creatorId, slug }) {
+  const { data, error } = await supabase
+    .from("characters")
+    .select("*")
+    .eq("player_phone", creatorId)
+    .eq("slug", slug)
+    .single();
 
-async function getCharacterBySlug({
-  creatorId,
-  slug,
-}) {
-  const folder = await findUserFolderById(creatorId);
-
-  if (!folder) {
-    return null;
-  }
-
-  const file = characterFilePath(folder, slug);
-
-  if (!fs.existsSync(file)) {
-    return null;
-  }
-
-  return normalizeCharacterRecord(await readJson(file, null));
+  if (error || !data) return null;
+  const normalized = normalizeCharacterRecord(data);
+  normalized.active = data.is_active;
+  return normalized;
 }
 
 module.exports = {
@@ -542,7 +360,6 @@ module.exports = {
   getActiveCharacter,
   setActiveCharacter,
   updateCharacterStats,
-  getCreatorFolderName,
   getCharacterSlug,
   editCharacter,
   deleteCharacter,

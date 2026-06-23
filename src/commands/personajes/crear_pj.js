@@ -1,279 +1,93 @@
 const { createCharacter } = require("../../services/characterService");
-
 const { isAdmin } = require("../../utils/groupUtils");
-
-const {
-  DEFAULT_CHARACTER_STATS,
-  CHARACTER_CATEGORIES,
-  MAX_CHARACTER_NAME_LENGTH,
-  MAX_SLOT_SIZE,
-} = require("../../config/characterConfig");
-
-// =========================
-// PARSER
-// =========================
-
-function parseCharacter(lines) {
-  // =========================
-  // NAME
-  // =========================
-
-  const name = lines[1]?.trim();
-
-  if (!name) {
-    throw new Error("Debes escribir un nombre.");
-  }
-
-  if (name.length < 2) {
-    throw new Error("Nombre demasiado corto.");
-  }
-
-  if (name.length > MAX_CHARACTER_NAME_LENGTH) {
-    throw new Error("Nombre demasiado largo.");
-  }
-
-  // =========================
-  // DATA
-  // =========================
-
-  let category = "F";
-
-  const stats = {};
-
-  const slots = {};
-
-  let i = 2;
-
-  while (i < lines.length) {
-    const raw = lines[i];
-
-    const line = raw.trim();
-
-    if (!line) {
-      i++;
-      continue;
-    }
-
-    // =========================
-    // INVALID
-    // =========================
-
-    if (!line.includes(":")) {
-      throw new Error(`Línea inválida:\n${line}`);
-    }
-
-    const index = line.indexOf(":");
-
-    const key = line.slice(0, index).trim().toLowerCase();
-
-    let value = line.slice(index + 1).trim();
-
-    // =========================
-    // EMPTY KEY
-    // =========================
-
-    if (!key) {
-      throw new Error("Key inválida.");
-    }
-
-    // =========================
-    // RANGO
-    // =========================
-
-    if (key === "rango") {
-      category = value.toUpperCase();
-
-      i++;
-      continue;
-    }
-
-    // =========================
-    // MULTILINE SLOT
-    // =========================
-
-    if (value === "") {
-      i++;
-
-      if (i >= lines.length || lines[i].trim() !== '"') {
-        throw new Error(`${key} debe comenzar con "`);
-      }
-
-      i++;
-
-      const content = [];
-
-      while (i < lines.length && lines[i].trim() !== '"') {
-        content.push(lines[i]);
-
-        i++;
-      }
-
-      if (i >= lines.length) {
-        throw new Error(`${key} no fue cerrado con "`);
-      }
-
-      const finalContent = content.join("\n").trim();
-
-      if (finalContent.length > MAX_SLOT_SIZE) {
-        throw new Error(`${key} es demasiado largo.`);
-      }
-
-      slots[key] = finalContent;
-
-      i++;
-
-      continue;
-    }
-
-    // =========================
-    // NUMBER
-    // =========================
-
-    if (/^-?\d+$/.test(value)) {
-      value = Number(value);
-    }
-
-    stats[key] = value;
-
-    i++;
-  }
-
-  return {
-    name,
-
-    category,
-
-    stats,
-
-    slots,
-  };
-}
+const { CHARACTER_CATEGORIES, MAX_CHARACTER_NAME_LENGTH } = require("../../config/characterConfig");
 
 module.exports = {
   name: "crear_pj",
-
   aliases: ["cpj"],
-
-  description: "Crea un personaje de nivel básico, puedes agregarle stats y slots personalizados.",
-
+  description: "Crea un personaje mediante un formulario simple.",
   category: "personajes",
 
   async execute(ctx) {
-    const lines = ctx.text.split("\n");
+    const rawText = ctx.text.trim();
+
+    const template = 
+      "✦ ━━━━━━━━━━━━━━ ✦\n" +
+      "    🎭 *CREAR PERSONAJE*\n" +
+      "✦ ━━━━━━━━━━━━━━ ✦\n\n" +
+      "Copia este mensaje, llena tus datos y envíalo de vuelta:\n\n" +
+      "/crear_pj\n" +
+      "Nombre: \n" +
+      "Clase: \n" +
+      "Historia: \n";
 
     // =========================
-    // HELP
+    // PLANTILLA / FORMULARIO
     // =========================
-
-    if (lines.length < 2) {
-      let help =
-        "📘 *CREAR PERSONAJE*\n\n" +
-        "/crear_pj\n" +
-        "Kevin\n\n" +
-        "rango: F\n\n";
-
-      for (const [key, value] of Object.entries(DEFAULT_CHARACTER_STATS)) {
-        help += `${key}: ${value}\n`;
-      }
-
-      help +=
-        "\n" + "descripcion:\n" + '"\n' + "Un guerrero legendario.\n" + '"\n';
-
-      return ctx.reply(help);
+    if (!rawText) {
+      return ctx.reply(template);
     }
 
     try {
       // =========================
-      // ADMIN
+      // EXTRACCIÓN CON REGEX
       // =========================
+      const nameMatch = rawText.match(/Nombre:\s*(.+)/i);
+      const classMatch = rawText.match(/Clase:\s*(.+)/i);
+      
+      // La historia puede ser multilinea, extraemos todo lo que hay después de "Historia:"
+      const historyMatch = rawText.match(/Historia:\s*([\s\S]+)/i);
 
+      if (!nameMatch) {
+        return ctx.reply("❌ Formato incorrecto. Por favor, usa la plantilla:\n\n" + template);
+      }
+
+      const name = nameMatch[1].trim();
+      const clase = classMatch ? classMatch[1].trim() : "";
+      const historia = historyMatch ? historyMatch[1].trim() : "";
+
+      if (name.length < 2 || name.length > MAX_CHARACTER_NAME_LENGTH) {
+        throw new Error(`El nombre debe tener entre 2 y ${MAX_CHARACTER_NAME_LENGTH} caracteres.`);
+      }
+
+      // =========================
+      // ADMIN Y RANGOS (Por defecto F)
+      // =========================
       let admin = false;
-
       if (ctx.isGroup) {
-        admin = await isAdmin(
-          ctx.sock,
-
-          ctx.from,
-
-          ctx.sender,
-        );
+        admin = await isAdmin(ctx.sock, ctx.from, ctx.sender);
       }
 
       // =========================
-      // PARSE
+      // DELEGAR A LA BD
       // =========================
-
-      const parsed = parseCharacter(lines);
-
-      // =========================
-      // CATEGORY
-      // =========================
-
-      let category = parsed.category;
-
-      if (!CHARACTER_CATEGORIES.includes(category)) {
-        category = "F";
-      }
-
-      if (!admin && category !== "F") {
-        category = "F";
-      }
-
-      // =========================
-      // STATS
-      // =========================
-
-      const stats = {
-        ...DEFAULT_CHARACTER_STATS,
-
-        ...parsed.stats,
-      };
-
-      // =========================
-      // CREATE
-      // =========================
+      // Enviamos solo los slots que el usuario rellenó. 
+      // Supabase inyectará por defecto 'vida:100', 'dinero:0', etc.
+      
+      const slots = {};
+      if (historia) slots.historia = historia;
+      if (clase) slots.descripcion = `Clase: ${clase}`;
 
       const character = await createCharacter({
         creatorId: ctx.sender,
-
         creatorName: ctx.userName,
-
-        characterName: parsed.name,
-
-        category,
-
-        stats,
-
-        slots: parsed.slots,
-
+        characterName: name,
+        category: "F", // Rango inicial por defecto
+        stats: null,   // NULL para que la BD aplique sus defaults
+        slots: Object.keys(slots).length > 0 ? slots : null,
         isAdmin: admin,
       });
 
       // =========================
-      // RESPONSE
+      // RESPUESTA
       // =========================
-
       await ctx.react("🎉");
 
-      let response =
-        "🎉 *PERSONAJE CREADO*\n\n" +
-        `👤 ${character.name}\n` +
-        `🏷️ Rango: ${character.category}\n\n` +
-        "📊 *Stats*\n";
-
-      for (const [key, value] of Object.entries(character.stats)) {
-        response += `• ${key}: ${value}\n`;
-      }
-
-      if (character.slots && Object.keys(character.slots).length) {
-        response += "\n🧩 *Slots*\n";
-
-        for (const key of Object.keys(character.slots)) {
-          response += `• ${key}\n`;
-        }
-      }
-
-      response += "\n✅ Guardado correctamente.";
+      const response = 
+        "🎉 *PERSONAJE CREADO CON ÉXITO*\n\n" +
+        `👤 *${character.name.toUpperCase()}*\n` +
+        `🎖️ Rango: ${character.category}\n\n` +
+        "_Tus estadísticas base (Vida, Fuerza, etc) han sido asignadas por la base de datos. Usa_ `/ver_pj` _para ver tu perfil completo._";
 
       await ctx.reply(response);
     } catch (error) {

@@ -1,43 +1,28 @@
-const { editCharacter } = require("../../services/characterService");
+const { getActiveCharacter, editCharacter } = require("../../services/characterService");
 
 module.exports = {
   name: "edit_pj_name",
-
   aliases: ["renombrar_pj"],
-
-  description: "Renombra un personaje existente.",
-
+  description: "Renombra tu personaje activo.",
   category: "personajes",
 
   async execute(ctx) {
-    const lines = ctx.text
-      .split("\n")
-      .map((x) => x.trim())
-      .filter(Boolean);
+    const newName = ctx.args.join(" ").trim();
 
-    // =========================
-    // HELP
-    // =========================
-
-    if (lines.length < 3) {
-      return ctx.reply(
-        "📘 *RENOMBRAR PERSONAJE*\n\n" +
-          "/edit_pj_name\n" +
-          "Kevin\n" +
-          "Michel",
-      );
+    if (!newName) {
+      return ctx.reply("📘 *RENOMBRAR PERSONAJE*\n\nUso: `/renombrar_pj NuevoNombre`\n_(Afectará a tu personaje activo)_");
     }
 
-    const oldName = lines[1];
-
-    const newName = lines[2];
-
     try {
+      const activeChar = await getActiveCharacter({ creatorId: ctx.sender });
+      
+      if (!activeChar) {
+        return ctx.reply("❌ No tienes un personaje activo para renombrar.");
+      }
+
       const character = await editCharacter({
         creatorId: ctx.sender,
-
-        characterName: oldName,
-
+        characterName: activeChar.name,
         patch: {
           name: newName,
         },
@@ -47,7 +32,7 @@ module.exports = {
 
       await ctx.reply(
         "✏️ *PERSONAJE RENOMBRADO*\n\n" +
-          `👤 Antes: ${oldName}\n` +
+          `👤 Antes: ${activeChar.name}\n` +
           `✨ Ahora: ${character.name}`,
       );
     } catch (error) {

@@ -10,16 +10,11 @@ module.exports = {
   category: "personajes",
 
   async execute(ctx) {
-    const lines = ctx.text
-      .split("\n")
-      .map((x) => x.trim())
-      .filter(Boolean);
+    const characterName = ctx.args.join(" ").trim();
 
-    if (lines.length < 2) {
-      return ctx.reply("🗑️ Uso:\n\n" + "/eliminar_pj\n" + "NombrePersonaje");
+    if (!characterName) {
+      return ctx.reply("🗑️ Uso: `/eliminar_pj NombrePersonaje`");
     }
-
-    const characterName = lines[1];
 
     try {
       await deleteCharacter({

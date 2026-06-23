@@ -11,20 +11,22 @@ const {
 // =========================
 
 function formatCharacter(character) {
-  let text =
-    "👤 *PERSONAJE*\n\n" +
-    `📛 Nombre: ${character.name}\n` +
-    `🏷️ Rango: ${character.category}\n`;
+  let text = "✦ ━━━━━━━━━━━━━━ ✦\n";
+  text += `      👤 *${String(character.name).toUpperCase()}*\n`;
+  text += "✦ ━━━━━━━━━━━━━━ ✦\n\n";
+  
+  text += `🎖️ *Rango:* ${character.category}\n`;
 
   // =========================
   // STATS
   // =========================
 
   if (character.stats && Object.keys(character.stats).length) {
-    text += "\n📊 *Stats*\n\n";
+    text += "\n📊 *ATRIBUTOS*\n";
+    text += "┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈\n";
 
     for (const [key, value] of Object.entries(character.stats)) {
-      text += `• ${key}: ${value}\n`;
+      text += ` 🔸 *${String(key).toUpperCase()}*: ${value}\n`;
     }
   }
 
@@ -33,14 +35,13 @@ function formatCharacter(character) {
   // =========================
 
   if (character.slots && Object.keys(character.slots).length) {
-    text += "\n🧩 *Información*\n";
+    text += "\n🎒 *INVENTARIO E INFO*\n";
+    text += "┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈\n";
 
     for (const [key, value] of Object.entries(character.slots)) {
-      if (!value) {
-        continue;
-      }
+      if (!value) continue;
 
-      text += `\n🔹 *${key}*\n` + `${value}\n`;
+      text += ` ▫️ *${key}*\n   _${value}_\n\n`;
     }
   }
 
