@@ -4,7 +4,7 @@
   "metadata": {
     "displayName": "sashihatake",
     "pushName": "sashihatake",
-    "lastSeenAt": "2026-06-21T23:47:18.530Z",
+    "lastSeenAt": "2026-06-22T22:08:27.147Z",
     "lastKnownJid": "45608794615873@lid",
     "lastKnownNumber": "45608794615873"
   },
@@ -18,18 +18,18 @@
     "money": 0
   },
   "activity": {
-    "messages": 11,
+    "messages": 14,
     "commands": 0,
     "textMessages": 10,
-    "mediaMessages": 1,
+    "mediaMessages": 4,
     "stickerMessages": 1,
-    "audioMessages": 0,
+    "audioMessages": 2,
     "imageMessages": 0,
     "videoMessages": 0,
     "documentMessages": 0,
     "reactionMessages": 0,
-    "lastMessageType": "extendedtextmessage",
-    "lastMessageAt": "2026-06-21T23:47:18.530Z",
+    "lastMessageType": "audiomessage",
+    "lastMessageAt": "2026-06-22T22:08:27.147Z",
     "lastCommandAt": null
   },
   "daily": {
@@ -42,5 +42,5 @@
   },
   "activeCharacter": null,
   "createdAt": "2026-06-21T23:09:48.575Z",
-  "updatedAt": "2026-06-21T23:47:18.530Z"
+  "updatedAt": "2026-06-22T22:08:27.147Z"
 }

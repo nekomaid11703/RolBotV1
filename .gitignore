@@ -5,6 +5,9 @@ node_modules/
 
 
 # Bases de datos
+src/database/auth/
+src/database/grupos/
+src/database/personajes/
 
 # Logs
 logs/

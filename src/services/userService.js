@@ -51,58 +51,26 @@ async function writeJson(file, data) {
 }
 
 async function listCreatorFolders() {
-  await ensureDir(CHARACTER_ROOT);
-
-  return await fsp.readdir(CHARACTER_ROOT, {
-    withFileTypes: true,
-  });
+  return [];
 }
 
 async function findUserFolderById(creatorId) {
-  const suffix = `__${creatorDigits(creatorId)}`;
-  const folders = await listCreatorFolders();
-
-  const match = folders.find(
-    (entry) => entry.isDirectory() && entry.name.endsWith(suffix),
-  );
-
-  return match ? path.join(CHARACTER_ROOT, match.name) : null;
+  return "supabase";
 }
 
 async function listUserProfiles() {
-  const folders = await listCreatorFolders();
-  const result = [];
-
-  for (const entry of folders) {
-    if (!entry.isDirectory()) {
-      continue;
-    }
-
-    const folder = path.join(CHARACTER_ROOT, entry.name);
-    const profilePath = path.join(folder, "profile.json");
-    const stored = await readJson(profilePath, null);
-
-    if (!stored) {
-      continue;
-    }
-
-    const normalized = normalizeProfile(stored, {
-      creatorId: stored.creatorId || entry.name.split("__").pop(),
-      creatorName: stored.creatorName || "usuario",
-    });
-
-    if (JSON.stringify(stored) !== JSON.stringify(normalized)) {
-      await writeJson(profilePath, normalized);
-    }
-
-    result.push({
-      folder,
-      profilePath,
-      profile: normalized,
-    });
-  }
-
-  return result;
+  const { supabase } = require("../database/supabase");
+  const { data, error } = await supabase.from('players').select('*');
+  if (error || !data) return [];
+  
+  return data.map(row => {
+    const profile = normalizeProfile({}, { creatorId: row.phone, creatorName: row.username });
+    profile.economy.money = Number(row.money || 0);
+    profile.activity.messages = Number(row.activity_messages || 0);
+    profile.activity.commands = Number(row.activity_commands || 0);
+    profile.metadata.lastSeenAt = row.last_active_at || profile.createdAt;
+    return { folder: "supabase", profilePath: "supabase", profile };
+  });
 }
 
 function buildRegistration({ creatorId, registration = {} }) {
@@ -289,34 +257,7 @@ async function ensureUserFolder(
   creatorName = "usuario",
   registration = {},
 ) {
-  const existing = await findUserFolderById(creatorId);
-
-  if (existing) {
-    await ensureDir(path.join(existing, "characters"));
-    return existing;
-  }
-
-  const folder = path.join(
-    CHARACTER_ROOT,
-    getCreatorFolderName(creatorName, creatorId),
-  );
-
-  await ensureDir(path.join(folder, "characters"));
-
-  const profilePath = path.join(folder, "profile.json");
-
-  if (!fs.existsSync(profilePath)) {
-    await writeJson(
-      profilePath,
-      buildDefaultProfile({
-        creatorId,
-        creatorName,
-        registration,
-      }),
-    );
-  }
-
-  return folder;
+  return "supabase";
 }
 
 async function ensureUserProfile({
@@ -324,57 +265,33 @@ async function ensureUserProfile({
   creatorName = "usuario",
   registration = {},
 }) {
-  const folder = await ensureUserFolder(creatorId, creatorName, registration);
-  const profilePath = path.join(folder, "profile.json");
+  const existing = await getUserProfile({ creatorId });
+  if (existing) return existing;
 
-  const stored = await readJson(profilePath, null);
-  const profile = stored
-    ? normalizeProfile(stored, { creatorId, creatorName })
-    : buildDefaultProfile({
-        creatorId,
-        creatorName,
-        registration,
-      });
+  const profile = normalizeProfile({}, { creatorId, creatorName });
+  profile.registration = normalizeRegistration({ 
+    creatorId, 
+    registration, 
+    fallback: { source: "system", scope: "self" }
+  });
 
-  if (!stored || JSON.stringify(stored) !== JSON.stringify(profile)) {
-    await writeJson(profilePath, profile);
-  }
-
-  return {
-    folder,
-    profilePath,
-    profile,
-  };
+  await saveUserProfile({ folder: "supabase", profile });
+  return { folder: "supabase", profilePath: "supabase", profile };
 }
 
 async function getUserProfile({ creatorId }) {
-  const folder = await findUserFolderById(creatorId);
+  const { supabase } = require("../database/supabase");
+  const { data, error } = await supabase.from('players').select('*').eq('phone', creatorId).single();
+  
+  if (error || !data) return null;
 
-  if (!folder) {
-    return null;
-  }
+  const profile = normalizeProfile({}, { creatorId: data.phone, creatorName: data.username });
+  profile.economy.money = Number(data.money || 0);
+  profile.activity.messages = Number(data.activity_messages || 0);
+  profile.activity.commands = Number(data.activity_commands || 0);
+  profile.metadata.lastSeenAt = data.last_active_at || profile.createdAt;
 
-  const profilePath = path.join(folder, "profile.json");
-  const stored = await readJson(profilePath, null);
-
-  if (!stored) {
-    return null;
-  }
-
-  const profile = normalizeProfile(stored, {
-    creatorId,
-    creatorName: stored.creatorName || "usuario",
-  });
-
-  if (JSON.stringify(stored) !== JSON.stringify(profile)) {
-    await writeJson(profilePath, profile);
-  }
-
-  return {
-    folder,
-    profilePath,
-    profile,
-  };
+  return { folder: "supabase", profilePath: "supabase", profile };
 }
 
 async function isUserRegistered({ creatorId }) {
@@ -383,14 +300,17 @@ async function isUserRegistered({ creatorId }) {
 }
 
 async function saveUserProfile({ folder, profile }) {
-  if (!folder) {
-    throw new Error("Falta la carpeta del perfil.");
-  }
+  const { supabase } = require("../database/supabase");
+  const { error } = await supabase.from('players').upsert({
+    phone: profile.creatorId,
+    username: profile.creatorName,
+    money: Number(profile.economy?.money || 0),
+    activity_messages: Number(profile.activity?.messages || 0),
+    activity_commands: Number(profile.activity?.commands || 0),
+    last_active_at: profile.metadata?.lastSeenAt || new Date().toISOString()
+  }, { onConflict: 'phone' });
 
-  const profilePath = path.join(folder, "profile.json");
-
-  await writeJson(profilePath, profile);
-
+  if (error) console.error("Supabase Error saving user:", error);
   return profile;
 }
 

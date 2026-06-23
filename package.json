@@ -17,7 +17,9 @@
   "author": "NekoMaid",
   "license": "ISC",
   "dependencies": {
+    "@supabase/supabase-js": "^2.108.2",
     "@whiskeysockets/baileys": "^6.7.23",
+    "dotenv": "^17.4.2",
     "pino": "^9.14.0",
     "qrcode-terminal": "^0.12.0"
   },

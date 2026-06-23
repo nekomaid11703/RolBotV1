@@ -4,7 +4,7 @@
   "metadata": {
     "displayName": "⠀",
     "pushName": "⠀",
-    "lastSeenAt": "2026-06-22T00:10:08.240Z",
+    "lastSeenAt": "2026-06-22T22:03:18.015Z",
     "lastKnownJid": "275162062668001@lid",
     "lastKnownNumber": "275162062668001"
   },
@@ -18,18 +18,18 @@
     "money": 0
   },
   "activity": {
-    "messages": 117,
+    "messages": 134,
     "commands": 0,
-    "textMessages": 88,
-    "mediaMessages": 29,
-    "stickerMessages": 21,
-    "audioMessages": 5,
+    "textMessages": 99,
+    "mediaMessages": 35,
+    "stickerMessages": 24,
+    "audioMessages": 8,
     "imageMessages": 1,
     "videoMessages": 0,
     "documentMessages": 1,
     "reactionMessages": 1,
-    "lastMessageType": "conversation",
-    "lastMessageAt": "2026-06-22T00:10:08.240Z",
+    "lastMessageType": "audiomessage",
+    "lastMessageAt": "2026-06-22T22:03:18.015Z",
     "lastCommandAt": null
   },
   "daily": {
@@ -42,5 +42,5 @@
   },
   "activeCharacter": null,
   "createdAt": "2026-06-21T23:18:57.620Z",
-  "updatedAt": "2026-06-22T00:10:08.240Z"
+  "updatedAt": "2026-06-22T22:03:18.015Z"
 }

@@ -2,14 +2,14 @@
   "groupId": "120363335187262999@g.us",
   "groupName": null,
   "createdAt": "2026-06-10T16:56:23.195Z",
-  "updatedAt": "2026-06-22T00:12:29.910Z",
+  "updatedAt": "2026-06-22T22:08:27.156Z",
   "totals": {
-    "messages": 413,
-    "textMessages": 303,
-    "mediaMessages": 97,
-    "stickerMessages": 92,
-    "audioMessages": 2,
-    "imageMessages": 2,
+    "messages": 422,
+    "textMessages": 308,
+    "mediaMessages": 101,
+    "stickerMessages": 93,
+    "audioMessages": 4,
+    "imageMessages": 3,
     "videoMessages": 0,
     "documentMessages": 0,
     "reactionMessages": 13
@@ -194,18 +194,18 @@
     "45608794615873@lid": {
       "memberId": "45608794615873@lid",
       "memberName": "sashihatake",
-      "messages": 10,
+      "messages": 13,
       "textMessages": 9,
-      "mediaMessages": 1,
+      "mediaMessages": 4,
       "stickerMessages": 1,
-      "audioMessages": 0,
+      "audioMessages": 2,
       "imageMessages": 0,
       "videoMessages": 0,
       "documentMessages": 0,
       "reactionMessages": 0,
       "firstSeenAt": "2026-06-21T23:09:48.595Z",
-      "lastSeenAt": "2026-06-21T23:47:18.535Z",
-      "lastMessageType": "extendedtextmessage"
+      "lastSeenAt": "2026-06-22T22:08:27.156Z",
+      "lastMessageType": "audiomessage"
     },
     "171502976634996@lid": {
       "memberId": "171502976634996@lid",
@@ -258,8 +258,8 @@
     "77511291584537@lid": {
       "memberId": "77511291584537@lid",
       "memberName": "Kev🌪️",
-      "messages": 3,
-      "textMessages": 2,
+      "messages": 4,
+      "textMessages": 3,
       "mediaMessages": 1,
       "stickerMessages": 0,
       "audioMessages": 1,
@@ -268,8 +268,8 @@
       "documentMessages": 0,
       "reactionMessages": 0,
       "firstSeenAt": "2026-06-21T23:28:27.979Z",
-      "lastSeenAt": "2026-06-21T23:29:45.043Z",
-      "lastMessageType": "extendedtextmessage"
+      "lastSeenAt": "2026-06-22T21:46:28.642Z",
+      "lastMessageType": "conversation"
     },
     "208662614249699@lid": {
       "memberId": "208662614249699@lid",
@@ -302,6 +302,22 @@
       "firstSeenAt": "2026-06-22T00:12:29.910Z",
       "lastSeenAt": "2026-06-22T00:12:29.910Z",
       "lastMessageType": "stickermessage"
+    },
+    "250242075238640@lid": {
+      "memberId": "250242075238640@lid",
+      "memberName": "🪩☀️",
+      "messages": 5,
+      "textMessages": 4,
+      "mediaMessages": 1,
+      "stickerMessages": 1,
+      "audioMessages": 0,
+      "imageMessages": 1,
+      "videoMessages": 0,
+      "documentMessages": 0,
+      "reactionMessages": 0,
+      "firstSeenAt": "2026-06-22T21:53:13.575Z",
+      "lastSeenAt": "2026-06-22T22:03:34.102Z",
+      "lastMessageType": "extendedtextmessage"
     }
   }
 }

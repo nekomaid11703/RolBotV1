@@ -102,44 +102,57 @@ function resolveBucket(messageType) {
 }
 
 async function getGroupActivity(groupId) {
-  if (!groupId) {
-    return null;
+  if (!groupId) return null;
+  const { supabase } = require("../database/supabase");
+  const { data: group } = await supabase.from('groups').select('*').eq('group_jid', groupId).single();
+  if (!group) return null;
+
+  const { data: members } = await supabase.from('group_members').select('*, players(username)').eq('group_id', group.id);
+  
+  const record = buildDefaultGroupRecord({ groupId, groupName: group.group_name });
+  record.totals.messages = group.total_messages;
+  
+  if (members) {
+    for (const m of members) {
+      record.members[m.player_phone] = {
+        memberId: m.player_phone,
+        memberName: m.players?.username || "usuario",
+        messages: m.messages_count,
+        textMessages: 0, 
+        mediaMessages: 0
+      };
+    }
   }
-
-  await ensureDir(GROUP_ACTIVITY_ROOT);
-
-  const file = groupFilePath(groupId);
-  const stored = await readJson(file, null);
-
-  if (!stored) {
-    return null;
-  }
-
-  return normalizeGroupRecord(stored, {
-    groupId,
-    groupName: stored.groupName || "",
-  });
+  return record;
 }
 
 async function ensureGroupActivity({ groupId, groupName = "" }) {
-  if (!groupId) {
-    throw new Error("Falta el identificador del grupo.");
+  if (!groupId) throw new Error("Falta el identificador del grupo.");
+  let record = await getGroupActivity(groupId);
+  if (!record) {
+    record = buildDefaultGroupRecord({ groupId, groupName });
+    await saveGroupActivity(record);
   }
-
-  await ensureDir(GROUP_ACTIVITY_ROOT);
-
-  const file = groupFilePath(groupId);
-  const stored = await readJson(file, null);
-
-  const record = stored
-    ? normalizeGroupRecord(stored, { groupId, groupName })
-    : buildDefaultGroupRecord({ groupId, groupName });
-
-  if (!stored || JSON.stringify(stored) !== JSON.stringify(record)) {
-    await writeJson(file, record);
-  }
-
   return record;
+}
+
+async function saveGroupActivity(record) {
+  const { supabase } = require("../database/supabase");
+  const { data: group } = await supabase.from('groups').upsert({
+    group_jid: record.groupId,
+    group_name: record.groupName,
+    total_messages: record.totals.messages
+  }, { onConflict: 'group_jid' }).select('id').single();
+
+  if (group) {
+    for (const member of Object.values(record.members)) {
+      await supabase.from('group_members').upsert({
+        group_id: group.id,
+        player_phone: member.memberId,
+        messages_count: member.messages
+      });
+    }
+  }
 }
 
 async function recordGroupActivity({
@@ -219,7 +232,7 @@ async function recordGroupActivity({
 
   if (changed) {
     record.updatedAt = now;
-    await writeJson(groupFilePath(groupId), record);
+    await saveGroupActivity(record);
   }
 
   return record;

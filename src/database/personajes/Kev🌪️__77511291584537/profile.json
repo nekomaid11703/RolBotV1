@@ -4,7 +4,7 @@
   "metadata": {
     "displayName": "Kev🌪️",
     "pushName": "Kev🌪️",
-    "lastSeenAt": "2026-06-21T23:29:45.039Z",
+    "lastSeenAt": "2026-06-22T21:46:28.634Z",
     "lastKnownJid": "77511291584537@lid",
     "lastKnownNumber": "77511291584537"
   },
@@ -18,9 +18,9 @@
     "money": 0
   },
   "activity": {
-    "messages": 3,
+    "messages": 4,
     "commands": 0,
-    "textMessages": 2,
+    "textMessages": 3,
     "mediaMessages": 1,
     "stickerMessages": 0,
     "audioMessages": 1,
@@ -28,8 +28,8 @@
     "videoMessages": 0,
     "documentMessages": 0,
     "reactionMessages": 0,
-    "lastMessageType": "extendedtextmessage",
-    "lastMessageAt": "2026-06-21T23:29:45.039Z",
+    "lastMessageType": "conversation",
+    "lastMessageAt": "2026-06-22T21:46:28.634Z",
     "lastCommandAt": null
   },
   "daily": {
@@ -42,5 +42,5 @@
   },
   "activeCharacter": null,
   "createdAt": "2026-06-21T23:28:27.969Z",
-  "updatedAt": "2026-06-21T23:29:45.039Z"
+  "updatedAt": "2026-06-22T21:46:28.634Z"
 }

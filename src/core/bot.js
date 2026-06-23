@@ -1,9 +1,10 @@
+require('dotenv').config();
 const {
   default: makeWASocket,
-  useMultiFileAuthState,
   DisconnectReason,
   fetchLatestBaileysVersion,
 } = require("@whiskeysockets/baileys");
+const { useSupabaseAuthState } = require("./supabaseAuthState");
 
 const P = require("pino");
 const qrcode = require("qrcode-terminal");
@@ -22,9 +23,7 @@ async function startBot() {
 
     await logSystem("Iniciando bot");
 
-    const { state, saveCreds } = await useMultiFileAuthState(
-      path.join(__dirname, "../database/auth"),
-    );
+    const { state, saveCreds } = await useSupabaseAuthState('bot-session-1');
 
     const { version } = await fetchLatestBaileysVersion();
 
