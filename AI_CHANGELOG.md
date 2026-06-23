@@ -1,5 +1,21 @@
 # Registro de Cambios (AI Changelog)
 
+## [2026-06-22] - Blindaje del Protocolo de Memoria Multi-Agente
+**Rama:** `AI_bot`
+
+- **Modificado:**
+  - `.clinerules` reescrito con protocolo estricto de memoria compartida, checklist obligatorio pre-respuesta, y protocolos de inicio/cierre de sesión para Codex.
+  - `.roomodes` actualizado con `roleDefinition` completo incluyendo reglas de memoria, `customInstructions` como recordatorio permanente, y grupo `edit` habilitado para que Codex pueda escribir archivos críticos.
+- **Decisión técnica:** La memoria compartida (`NekoMemori`, `implementation_plan.md`, `AI_CHANGELOG.md`, `task.md`) tiene PRIORIDAD ABSOLUTA sobre el ahorro de tokens. Codex ya no puede sacrificar actualizaciones de memoria por optimización.
+- **Problema resuelto:** Codex añadió secciones 10-11 al plan pero olvidó registrarlas en NekoMemori, rompiendo la sincronización entre agentes.
+
+## [2026-06-22] - Codex: Secciones 10 y 11 del Plan Maestro
+**Rama:** `AI_bot`
+
+- **Añadido (por Codex en Cline):**
+  - Sección 10: Simulación de uso de tokens con tabla comparativa (reducción proyectada de ~4200 a ~2320 tokens/ciclo).
+  - Sección 11: Plan para integrar a Gemini como administrador creativo del ecosistema multi-agente.
+- **NOTA:** Estas secciones NO fueron registradas en NekoMemori por Codex. Corregido por Antigravity.
 ## [2026-06-22] - Ejecución del Plan de Codex (Migración a Supabase)
 **Rama:** `AI_bot`
 

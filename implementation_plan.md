@@ -114,3 +114,32 @@
 4. **Métricas y límites operativos**
    - Definir un umbral sensible (ej. 1200 tokens para Codex, 800 para Antigravity) por ciclo de interacción y activar prompts de diagnóstico corto cuando se acerquen a ese límite.
    - Registrar en NekoMemori cada vez que se alcance un pico de tokens para aprender de los patrones y ajustar las respuestas futuras.
+
+## 10. Simulación de uso de tokens
+
+| Fase | Rol | Tokens estimados (actual) | Tokens estimados (optimizado) | Notas |
+| --- | --- | --- | --- | --- |
+| Auditoría arquitectónica | Codex | 1500 | 800 | Uso de resúmenes guardados en NekoMemori en lugar de reexplicar todo.
+| Planificación de ejecución | Codex → Antigravity | 1200 | 650 | Objetivos y archivos específicos en lugar de historial completo.
+| Implementación de mejoras | Antigravity | 900 | 520 | Actualizaciones puntuales con referencias a `task.md` y `AI_CHANGELOG.md`.
+| Verificación final | Codex + Antigravity | 600 | 350 | Prompt de diagnóstico corto previo al cierre.
+
+**Total estimado:** de ~4200 tokens a ~2320 tokens.
+
+## 11. Plan para integrar a Gemini como administrador creativo
+
+1. **Definición del rol**
+   - Gemini garantiza coherencia global, estética moderna y respuestas atractivas, con énfasis en comandos, manteniendo el tono y paleta premium.
+   - Actúa como administrador creativo con prioridad en la estética visual y la atención al detalle narrativo.
+
+2. **Flujo MCP/Git**
+   - Codex documenta decisiones y objetivos; Gemini revisa y propone ajustes estéticos antes de que Antigravity los implemente.
+   - Las sugerencias de Gemini se reflejan en Git (por ejemplo `README.md`, descripciones de comandos) y en la documentación del plan.
+
+3. **Métricas de coherencia y estética**
+   - Checkpoints para evaluar tono, estructura, uso de formatos visuales (listas, tarjetas) y mantener la modernidad.
+   - Documentar validaciones estéticas en NekoMemori y `AI_CHANGELOG.md`.
+
+4. **Ejecución y verificación**
+   - Alertas críticas indican cuándo aplicar cambios estéticos y se documentan en `task.md` para seguimiento.
+   - Registrar los resultados finales en `AI_CHANGELOG.md` y NekoMemori.
