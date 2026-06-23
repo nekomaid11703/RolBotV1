@@ -16,6 +16,7 @@ const OpenRouterProvider = require("./providers/openrouterProvider");
 const AiDispatcher = require("./aiDispatcher");
 const { workerPool, AiWorkerPool } = require("./aiWorkerPool");
 const memoryContextService = require("./memoryContextService");
+const TokenSavingDelegationManager = require("./tokenSavingDelegationManager");
 
 class AiOrchestrator {
   constructor() {
@@ -23,6 +24,7 @@ class AiOrchestrator {
     this.initialized = false;
     this.dispatcher = null;
     this.memoryContextService = memoryContextService;
+    this.delegationManager = new TokenSavingDelegationManager(this);
   }
 
   // ──────────────────────────────────────────────────────────────────────────
@@ -81,6 +83,16 @@ class AiOrchestrator {
 
   async buildMemoryContext(options = {}) {
     return this.memoryContextService.retrieveMemoryContext(options);
+  }
+
+  planTokenSavingDelegation(options = {}) {
+    this.init();
+    return this.delegationManager.buildPlan(options);
+  }
+
+  async runTokenSavingWorkflow(options = {}) {
+    this.init();
+    return this.delegationManager.execute(options);
   }
 
   async generateText({

@@ -87,7 +87,12 @@ class AiDispatcher {
           task.prompt,
           task.overrides || {}
         );
-        prepared.push({ id: task.id, ...dispatched });
+        prepared.push({
+          id: task.id,
+          ...dispatched,
+          useMemory: task.useMemory,
+          memoryTags: task.memoryTags,
+        });
       } catch (err) {
         // Si el taskType no existe, intentar autoDispatch con el prompt como descripción
         console.warn(
@@ -98,7 +103,12 @@ class AiDispatcher {
           task.prompt,
           task.overrides || {}
         );
-        prepared.push({ id: task.id, ...dispatched });
+        prepared.push({
+          id: task.id,
+          ...dispatched,
+          useMemory: task.useMemory,
+          memoryTags: task.memoryTags,
+        });
       }
     }
     return prepared;

@@ -100,6 +100,14 @@ older entry as superseded when practical.
 - Shared memory context is available through `memoryContextService.js`.
   Agent/worker tasks can opt in with `useMemory: true`; user-facing generation
   should stay clean unless explicitly intended.
+- Automatic token-saving delegation is available through
+  `aiOrchestrator.runTokenSavingWorkflow()` and `aiService.runTokenSavingWorkflow()`.
+  It delegates only when estimated savings or quality gain is meaningful,
+  prioritizes free/cheap providers for simple work, keeps low-value tasks local
+  to Codex/Antigravity, and runs a highest-quality `qualityGate` before final
+  assembly. If delegation, quality review, or assembly fails because a provider
+  runs out of quota/tokens, the workflow must return structured fallback data so
+  Codex/Antigravity can continue locally without discarding safe partial results.
 - GitHub MCP source is present but local operation is blocked until Docker or Go
   and a real GitHub token are available.
 - RAG, vector databases, and embeddings are not implemented.

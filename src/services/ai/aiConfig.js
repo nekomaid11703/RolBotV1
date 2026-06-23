@@ -16,6 +16,39 @@ const PROVIDER_PRIORITIES = {
   classification: ["gemini", "openrouter", "huggingface", "ollama"],
 };
 
+const PROVIDER_CAPABILITIES = {
+  gemini: {
+    quality: 0.92,
+    freePriority: 0.78,
+    strengths: ["architecture", "implementation", "qualityReview", "assembly"],
+  },
+  openrouter: {
+    quality: 0.78,
+    freePriority: 0.95,
+    strengths: ["classification", "boilerplate", "documentation", "simpleTasks"],
+  },
+  ollama: {
+    quality: 0.7,
+    freePriority: 1,
+    strengths: ["localDrafts", "privacy", "offline"],
+  },
+  huggingface: {
+    quality: 0.62,
+    freePriority: 0.82,
+    strengths: ["classification", "simpleNlp"],
+  },
+};
+
+const TOKEN_SAVING_POLICY = {
+  minDelegationTasks: 2,
+  minEstimatedSavingsRatio: 0.18,
+  minQualityGainRatio: 0.08,
+  maxCoordinatorPromptChars: 2200,
+  requireQualityReview: true,
+  qualityTaskType: "qualityGate",
+  assemblyTaskType: "assembleResults",
+};
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Modelos por defecto por proveedor
 // ─────────────────────────────────────────────────────────────────────────────
@@ -116,6 +149,21 @@ const TASK_PROFILES = {
       "bugs lógicos, vulnerabilidades de seguridad, memory leaks, y antipatrones. " +
       "Estructura tu respuesta como: PROBLEMAS ENCONTRADOS / SUGERENCIAS DE MEJORA / VEREDICTO FINAL.",
   },
+  qualityGate: {
+    tier: "HARD",
+    description: "Control final de calidad sobre resultados delegados",
+    systemInstruction:
+      "Eres el gestor de calidad senior del proyecto. Revisa resultados delegados con prioridad maxima en calidad, seguridad, coherencia y mantenibilidad. " +
+      "No reescribas todo si no hace falta. Devuelve: RIESGOS BLOQUEANTES / AJUSTES NECESARIOS / VEREDICTO. " +
+      "Marca como BLOQUEADO cualquier cambio inseguro, incoherente o incompleto.",
+  },
+  assembleResults: {
+    tier: "HARD",
+    description: "Ensamblaje coherente de multiples resultados de agentes",
+    systemInstruction:
+      "Eres el integrador tecnico final. Combina resultados de agentes en una salida coherente, sin duplicados ni contradicciones. " +
+      "Prioriza el objetivo original, las convenciones del repositorio y el veredicto de calidad. Devuelve una propuesta final lista para aplicar.",
+  },
   // ── Complejidad Media ─────────────────────────────────────────────────────
   implementFeature: {
     tier: "MEDIUM",
@@ -203,4 +251,6 @@ module.exports = {
   TASK_TIERS,
   TASK_PROFILES,
   AUTO_CLASSIFY_LABELS,
+  PROVIDER_CAPABILITIES,
+  TOKEN_SAVING_POLICY,
 };

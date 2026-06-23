@@ -7,6 +7,18 @@ const { isOwner } = require("../../utils/permissionUtils");
 const {
   resolveTargetDisplayName,
 } = require("../../utils/userMentionUtils");
+const {
+  formatCommandUsage,
+  formatError,
+} = require("../../utils/messageFormatUtils");
+
+const usageMessage = formatCommandUsage({
+  icon: "🛡️",
+  title: "Dar permiso de economia",
+  description: "Otorga permisos de economia a un usuario. Solo el creador del bot.",
+  usage: "/eco_admin_add @usuario",
+  example: "/eco_admin_add @Nekomaid",
+});
 
 module.exports = {
   name: "eco_admin_add",
@@ -19,7 +31,7 @@ module.exports = {
     const targetId = getFirstMentionedJid(ctx);
 
     if (!targetId) {
-      return ctx.reply("Uso: /eco_admin_add @usuario");
+      return ctx.reply(usageMessage);
     }
 
     if (isOwner(targetId)) {
@@ -47,7 +59,7 @@ module.exports = {
         { mentions: [targetId] },
       );
     } catch (error) {
-      await ctx.reply(`❌ ${error.message}`);
+      await ctx.reply(formatError(error.message));
     }
   },
 };

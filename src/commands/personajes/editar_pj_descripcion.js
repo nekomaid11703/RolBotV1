@@ -1,5 +1,9 @@
 const { getActiveCharacter, editCharacter } = require("../../services/characterService");
 const { MAX_SLOT_SIZE } = require("../../config/characterConfig");
+const {
+  formatCommandForm,
+  formatError,
+} = require("../../utils/messageFormatUtils");
 
 module.exports = {
   name: "editar_pj_descripcion",
@@ -10,15 +14,19 @@ module.exports = {
   async execute(ctx) {
     const rawText = ctx.text.trim();
 
-    const template = 
-      "✦ ━━━━━━━━━━━━━━ ✦\n" +
-      "  📝 *EDITAR DESCRIPCIÓN*\n" +
-      "✦ ━━━━━━━━━━━━━━ ✦\n\n" +
-      "Copia este mensaje, llena tus datos y envíalo de vuelta para actualizar tu personaje activo:\n\n" +
-      "/edit_pj_desc\n" +
-      "Campo: Historia\n" +
-      "Descripción: \n" +
-      "(Escribe aquí todo lo que quieras...)";
+    const template = formatCommandForm({
+      icon: "📝",
+      title: "Editar descripcion",
+      description: "Actualiza un campo narrativo del personaje activo.",
+      command: "/edit_pj_desc",
+      fields: ["Campo", "Descripción"],
+      example: [
+        "/edit_pj_desc",
+        "Campo: Historia",
+        "Descripción: Sobrevivio a una guerra antigua y ahora protege ruinas olvidadas.",
+      ],
+      notes: ["Campos recomendados: Historia, Arma, Habilidad, Apariencia."],
+    });
 
     // =========================
     // PLANTILLA / FORMULARIO
@@ -31,7 +39,10 @@ module.exports = {
       const activeChar = await getActiveCharacter({ creatorId: ctx.sender });
       
       if (!activeChar) {
-        return ctx.reply("❌ No tienes un personaje activo para editar. Usa `/switch_pj` o `/crear_pj` primero.");
+        return ctx.reply(formatError(
+          "No tienes un personaje activo para editar.",
+          "Usa `/switch_pj` o `/crear_pj` primero.",
+        ));
       }
 
       // =========================
@@ -41,7 +52,7 @@ module.exports = {
       const descMatch = rawText.match(/Descripción:\s*([\s\S]+)/i);
 
       if (!fieldMatch || !descMatch) {
-        return ctx.reply("❌ Formato incorrecto. Por favor, asegúrate de usar la plantilla:\n\n" + template);
+        return ctx.reply(formatError("Formato incorrecto. Usa la plantilla completa.", template));
       }
 
       const key = fieldMatch[1].trim().toLowerCase().replace(/[^a-z0-9_]/g, "_");
@@ -74,7 +85,7 @@ module.exports = {
         `✅ El campo _${key}_ ha sido modificado con éxito.`
       );
     } catch (error) {
-      await ctx.reply(`❌ ${error.message}`);
+      await ctx.reply(formatError(error.message));
     }
   },
 };

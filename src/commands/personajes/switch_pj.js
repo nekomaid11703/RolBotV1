@@ -1,5 +1,18 @@
 const { setActiveCharacter } = require("../../services/characterService");
 const { isAdmin } = require("../../utils/groupUtils");
+const {
+  formatCommandUsage,
+  formatError,
+} = require("../../utils/messageFormatUtils");
+
+const usageMessage = formatCommandUsage({
+  icon: "🔁",
+  title: "Activar personaje",
+  description: "Selecciona el personaje que quedara activo para tus escenas.",
+  usage: "/switch_pj Nombre",
+  example: "/switch_pj Kael",
+  notes: ["Admin en grupo: `/switch_pj @usuario | Nombre`."],
+});
 
 module.exports = {
   name: "switch_pj",
@@ -12,10 +25,7 @@ module.exports = {
     const payload = ctx.args.join(" ").trim();
 
     if (!payload) {
-      return ctx.reply(
-        "Uso: /swich_pj Nombre\n\n" +
-          "Admin en grupo: /swich_pj @usuario | Nombre",
-      );
+      return ctx.reply(usageMessage);
     }
 
     const parts = payload
@@ -37,9 +47,7 @@ module.exports = {
 
     if (mentioned.length > 0 && parts.length >= 2) {
       if (!admin) {
-        return ctx.reply(
-          "❌ Solo un administrador puede cambiar el personaje de otro usuario.",
-        );
+        return ctx.reply(formatError("Solo un administrador puede cambiar el personaje de otro usuario."));
       }
 
       targetCreatorId = mentioned[0];
@@ -62,7 +70,7 @@ module.exports = {
         `✅ Ahora el personaje activo es *${character.name}*`,
       );
     } catch (error) {
-      await ctx.reply(`❌ ${error.message}`);
+      await ctx.reply(formatError(error.message));
     }
   },
 };

@@ -1,3 +1,17 @@
+const {
+  formatCommandUsage,
+  formatError,
+} = require("../../utils/messageFormatUtils");
+
+const usageMessage = formatCommandUsage({
+  icon: "🎲",
+  title: "Lanzar dados",
+  description: "Lanza dados de rol con notacion XdY.",
+  usage: "/dado XdY",
+  example: "/dado 2d20",
+  notes: ["Tambien puedes usar `/dado d20`.", "Dados permitidos: d4, d6, d8, d10, d12, d20 y d100."],
+});
+
 module.exports = {
   name: "dado",
 
@@ -13,13 +27,7 @@ module.exports = {
     // =========================
 
     if (ctx.args.length === 0) {
-      await ctx.reply(
-        "🎲 Uso: /dado XdY\n\n" +
-          "Ejemplos:\n" +
-          "/dado d20\n" +
-          "/dado 2d10\n" +
-          "/dado 3d4",
-      );
+      await ctx.reply(usageMessage);
 
       return;
     }
@@ -33,9 +41,7 @@ module.exports = {
     // =========================
 
     if (!match) {
-      await ctx.reply(
-        "❌ Formato inválido.\n\n" + "Usa: /dado XdY\n" + "Ejemplo: /dado 2d20",
-      );
+      await ctx.reply(formatError("Formato invalido.", usageMessage));
       return;
     }
 
@@ -54,9 +60,7 @@ module.exports = {
     const dadosPermitidos = [4, 6, 8, 10, 12, 20, 100];
 
     if (!dadosPermitidos.includes(caras)) {
-      await ctx.reply(
-        "❌ Dados permitidos:\n" + "d4, d6, d8, d10, d12, d20 y d100",
-      );
+      await ctx.reply(formatError("Ese dado no esta permitido.", usageMessage));
 
       return;
     }
@@ -66,7 +70,7 @@ module.exports = {
     // =========================
 
     if (cantidad < 1 || cantidad > 20) {
-      await ctx.reply("❌ Puedes lanzar entre 1 y 20 dados.");
+      await ctx.reply(formatError("Puedes lanzar entre 1 y 20 dados.", usageMessage));
 
       return;
     }

@@ -1,5 +1,40 @@
 # Registro de Cambios (AI Changelog)
 
+## [2026-06-23] - Revision Estetica Profunda de Comandos y Fallback de Pausa
+**Rama:** `AI_bot`
+
+- **Anadido:**
+  - `src/utils/messageFormatUtils.js`: helper compartido para tarjetas de uso, formularios, feedback y errores.
+  - `tests/test_command_usage_format.js`: prueba que ejecuta comandos sin argumentos y valida que devuelvan uso/plantilla con ejemplo.
+- **Modificado:**
+  - Comandos con entrada obligatoria en economia, permisos, personajes y utilidades ahora usan un formato coherente de `Uso`, `Ejemplo`, notas y errores.
+  - `/crear_pj` y `/edit_pj_desc` usan plantillas modernas con ejemplo completo.
+  - `/switch_pj` corrige el ejemplo visible de `/swich_pj` a `/switch_pj`.
+  - `tokenSavingDelegationManager.js` ahora devuelve fallback estructurado si fallan dispatch, quality gate o ensamblaje por cuota/tokens, evitando romper el flujo.
+- **Validado:**
+  - `node tests/test_command_usage_format.js`
+  - `node tests/test_token_saving_delegation.js`
+  - `node tests/test_memory_context.js`
+  - `node tests/test_crear_pj.js`
+  - La tarea continuo correctamente despues de una pausa por agotamiento de tokens en Codex.
+
+## [2026-06-23] - Plan Automatico de Ahorro de Tokens Multi-Agente
+**Rama:** `AI_bot`
+
+- **Anadido:**
+  - `src/services/ai/tokenSavingDelegationManager.js`: gestor automatico que decide si conviene delegar una tarea a agentes externos o mantenerla en Codex/Antigravity cuando el ahorro/calidad no compensa.
+  - Politica `TOKEN_SAVING_POLICY` y matriz `PROVIDER_CAPABILITIES` en `aiConfig.js` para priorizar calidad y gratuidad por proveedor.
+  - Perfiles `qualityGate` y `assembleResults` para revision final de maxima calidad y ensamblaje coherente.
+  - Metodos `planTokenSavingDelegation()` y `runTokenSavingWorkflow()` en `aiOrchestrator.js` y `aiService.js`.
+  - `tests/test_token_saving_delegation.js`: valida delegacion automatica, ruta local para tareas pequenas, priorizacion de proveedores gratuitos y quality gate con proveedor de mayor calidad.
+- **Modificado:**
+  - `aiDispatcher.js`: preserva `useMemory` y `memoryTags` al preparar tareas para el WorkerPool.
+- **Validado:**
+  - `node tests/test_token_saving_delegation.js`
+  - `node tests/test_memory_context.js`
+  - `node tests/test_ai_orchestrator.js`
+  - `node tests/test_crear_pj.js`
+
 ## [2026-06-23] - Supabase Schema Hardening
 **Rama:** `AI_bot`
 

@@ -59,8 +59,18 @@ function isAvailable() {
   return activeProviders.length > 0;
 }
 
+function planTokenSavingDelegation(options = {}) {
+  return aiOrchestrator.planTokenSavingDelegation(options);
+}
+
+async function runTokenSavingWorkflow(options = {}) {
+  return aiOrchestrator.runTokenSavingWorkflow(options);
+}
+
 module.exports = {
   classifyIntent,
   generateNPCResponse,
-  isAvailable
+  isAvailable,
+  planTokenSavingDelegation,
+  runTokenSavingWorkflow
 };

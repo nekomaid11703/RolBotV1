@@ -8,6 +8,19 @@ const {
 const {
   resolveTargetDisplayName,
 } = require("../../utils/userMentionUtils");
+const {
+  formatCommandUsage,
+  formatError,
+} = require("../../utils/messageFormatUtils");
+
+const usageMessage = formatCommandUsage({
+  icon: "💸",
+  title: "Transferir stelas",
+  description: "Envia parte de tus stelas a otro usuario.",
+  usage: "/dar_stelas @usuario cantidad",
+  example: "/dar_stelas @Nekomaid 100",
+  notes: ["No puedes transferirte stelas a ti mismo."],
+});
 
 module.exports = {
   name: "dar_stelas",
@@ -19,17 +32,17 @@ module.exports = {
     const targetId = getFirstMentionedJid(ctx);
 
     if (!targetId) {
-      return ctx.reply("Uso: /dar_stelas @usuario 100");
+      return ctx.reply(usageMessage);
     }
 
     if (targetId === ctx.sender) {
-      return ctx.reply("❌ No puedes enviarte stelas a ti mismo.");
+      return ctx.reply(formatError("No puedes enviarte stelas a ti mismo."));
     }
 
     const amount = extractAmountFromArgs(ctx.args);
 
     if (!amount) {
-      return ctx.reply("Uso: /dar_stelas @usuario 100");
+      return ctx.reply(usageMessage);
     }
 
     try {
@@ -62,7 +75,7 @@ module.exports = {
         { mentions: [targetId] },
       );
     } catch (error) {
-      await ctx.reply(`❌ ${error.message}`);
+      await ctx.reply(formatError(error.message));
     }
   },
 };

@@ -1,6 +1,10 @@
 const { createCharacter } = require("../../services/characterService");
 const { isAdmin } = require("../../utils/groupUtils");
-const { CHARACTER_CATEGORIES, MAX_CHARACTER_NAME_LENGTH } = require("../../config/characterConfig");
+const { MAX_CHARACTER_NAME_LENGTH } = require("../../config/characterConfig");
+const {
+  formatCommandForm,
+  formatError,
+} = require("../../utils/messageFormatUtils");
 
 module.exports = {
   name: "crear_pj",
@@ -11,15 +15,20 @@ module.exports = {
   async execute(ctx) {
     const rawText = ctx.text.trim();
 
-    const template = 
-      "✦ ━━━━━━━━━━━━━━ ✦\n" +
-      "    🎭 *CREAR PERSONAJE*\n" +
-      "✦ ━━━━━━━━━━━━━━ ✦\n\n" +
-      "Copia este mensaje, llena tus datos y envíalo de vuelta:\n\n" +
-      "/crear_pj\n" +
-      "Nombre: \n" +
-      "Clase: \n" +
-      "Historia: \n";
+    const template = formatCommandForm({
+      icon: "🎭",
+      title: "Crear personaje",
+      description: "Copia la plantilla, completa tus datos y enviala de vuelta.",
+      command: "/crear_pj",
+      fields: ["Nombre", "Clase", "Historia"],
+      example: [
+        "/crear_pj",
+        "Nombre: Kael",
+        "Clase: Explorador",
+        "Historia: Un viajero que busca reliquias antiguas.",
+      ],
+      notes: ["El nombre debe tener entre 2 y 40 caracteres."],
+    });
 
     // =========================
     // PLANTILLA / FORMULARIO
@@ -39,7 +48,7 @@ module.exports = {
       const historyMatch = rawText.match(/Historia:\s*([\s\S]+)/i);
 
       if (!nameMatch) {
-        return ctx.reply("❌ Formato incorrecto. Por favor, usa la plantilla:\n\n" + template);
+        return ctx.reply(formatError("Formato incorrecto. Usa la plantilla completa.", template));
       }
 
       const name = nameMatch[1].trim();
@@ -91,7 +100,7 @@ module.exports = {
 
       await ctx.reply(response);
     } catch (error) {
-      await ctx.reply(`❌ ${error.message}`);
+      await ctx.reply(formatError(error.message));
     }
   },
 };

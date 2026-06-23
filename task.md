@@ -33,6 +33,23 @@ Status: In Progress
 - [x] Add read-only schema validation test for required tables.
 - [x] Validate current remote schema access for bot tables.
 
+## Phase 5 - Automatic Token-Saving Delegation
+
+- [x] Define delegation policy for when external agents are worth using.
+- [x] Prioritize providers by quality and free-tier value.
+- [x] Keep small or low-value tasks local to Codex/Antigravity.
+- [x] Add automatic workflow API for planning, delegation, assembly, and optional persistence.
+- [x] Add a highest-quality quality gate before final assembly.
+- [x] Validate delegation and local fallback with no-network dummy providers.
+
+## Phase 6 - Command UX Consistency And Pause Resilience
+
+- [x] Add shared message formatting helpers for usage, examples, forms, feedback, and errors.
+- [x] Normalize commands that require user input across economy, permissions, characters, and utilities.
+- [x] Test empty-command responses that show examples to users.
+- [x] Harden delegated workflows so quota/token exhaustion returns structured fallback instead of throwing.
+- [x] Validate continuation after a Codex pause without losing partial work.
+
 ## Pending External Requirements
 
 - [ ] GitHub MCP requires Docker or Go plus a real GitHub token.

@@ -8,6 +8,19 @@ const {
 const {
   resolveTargetDisplayName,
 } = require("../../utils/userMentionUtils");
+const {
+  formatCommandUsage,
+  formatError,
+} = require("../../utils/messageFormatUtils");
+
+const usageMessage = formatCommandUsage({
+  icon: "⚙️",
+  title: "Fijar stelas",
+  description: "Establece el balance exacto de un usuario. Solo administradores de economia.",
+  usage: "/set_stelas @usuario cantidad",
+  example: "/set_stelas @Nekomaid 1000",
+  notes: ["La cantidad puede ser 0 o mayor."],
+});
 
 module.exports = {
   name: "set_stelas",
@@ -20,13 +33,13 @@ module.exports = {
     const targetId = getFirstMentionedJid(ctx);
 
     if (!targetId) {
-      return ctx.reply("Uso: /set_stelas @usuario 1000");
+      return ctx.reply(usageMessage);
     }
 
     const amount = extractAmountFromArgs(ctx.args, { min: 0 });
 
     if (amount === null) {
-      return ctx.reply("Uso: /set_stelas @usuario 1000");
+      return ctx.reply(usageMessage);
     }
 
     try {
@@ -56,7 +69,7 @@ module.exports = {
         { mentions: [targetId] },
       );
     } catch (error) {
-      await ctx.reply(`❌ ${error.message}`);
+      await ctx.reply(formatError(error.message));
     }
   },
 };

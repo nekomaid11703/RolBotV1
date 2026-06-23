@@ -1,4 +1,17 @@
 const { getActiveCharacter, editCharacter } = require("../../services/characterService");
+const {
+  formatCommandUsage,
+  formatError,
+} = require("../../utils/messageFormatUtils");
+
+const usageMessage = formatCommandUsage({
+  icon: "✏️",
+  title: "Renombrar personaje",
+  description: "Cambia el nombre de tu personaje activo.",
+  usage: "/renombrar_pj NuevoNombre",
+  example: "/renombrar_pj Kael Sombragris",
+  notes: ["Afecta solamente al personaje activo."],
+});
 
 module.exports = {
   name: "edit_pj_name",
@@ -10,14 +23,17 @@ module.exports = {
     const newName = ctx.args.join(" ").trim();
 
     if (!newName) {
-      return ctx.reply("📘 *RENOMBRAR PERSONAJE*\n\nUso: `/renombrar_pj NuevoNombre`\n_(Afectará a tu personaje activo)_");
+      return ctx.reply(usageMessage);
     }
 
     try {
       const activeChar = await getActiveCharacter({ creatorId: ctx.sender });
       
       if (!activeChar) {
-        return ctx.reply("❌ No tienes un personaje activo para renombrar.");
+        return ctx.reply(formatError(
+          "No tienes un personaje activo para renombrar.",
+          "Usa `/switch_pj` o `/crear_pj` primero.",
+        ));
       }
 
       const character = await editCharacter({
@@ -36,7 +52,7 @@ module.exports = {
           `✨ Ahora: ${character.name}`,
       );
     } catch (error) {
-      await ctx.reply(`❌ ${error.message}`);
+      await ctx.reply(formatError(error.message));
     }
   },
 };

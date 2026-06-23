@@ -10,6 +10,19 @@ const { isOwner } = require("../../utils/permissionUtils");
 const {
   resolveTargetDisplayName,
 } = require("../../utils/userMentionUtils");
+const {
+  formatCommandUsage,
+  formatError,
+} = require("../../utils/messageFormatUtils");
+
+const usageMessage = formatCommandUsage({
+  icon: "🛡️",
+  title: "Quitar permiso de economia",
+  description: "Retira permisos de economia a un usuario. Solo el creador del bot.",
+  usage: "/eco_admin_rem @usuario",
+  example: "/eco_admin_rem @Nekomaid",
+  notes: ["El creador conserva permisos permanentes."],
+});
 
 module.exports = {
   name: "eco_admin_rem",
@@ -22,11 +35,11 @@ module.exports = {
     const targetId = getFirstMentionedJid(ctx);
 
     if (!targetId) {
-      return ctx.reply("Uso: /eco_admin_rem @usuario");
+      return ctx.reply(usageMessage);
     }
 
     if (isOwner(targetId)) {
-      return ctx.reply("❌ No puedes quitar permisos de economía al creador.");
+      return ctx.reply(formatError("No puedes quitar permisos de economia al creador."));
     }
 
     const current = await isEconomyAdmin(targetId);
@@ -58,7 +71,7 @@ module.exports = {
         { mentions: [targetId] },
       );
     } catch (error) {
-      await ctx.reply(`❌ ${error.message}`);
+      await ctx.reply(formatError(error.message));
     }
   },
 };
