@@ -8,6 +8,9 @@ const {
   listUserProfiles,
   saveUserProfile,
 } = require("./userService");
+const { supabase } = require("../database/supabase");
+
+const PERMISSIONS_SESSION = 'permissions';
 
 function resolveCandidateId(candidate) {
   if (candidate && typeof candidate === "object") {
@@ -44,6 +47,24 @@ function pickDisplayName(profile, fallback = "usuario") {
   return fallback;
 }
 
+async function readPermissions(userId) {
+  const { data } = await supabase
+    .from('bot_auth_state')
+    .select('data')
+    .eq('session_id', PERMISSIONS_SESSION)
+    .eq('id', userId)
+    .maybeSingle();
+  return data?.data || {};
+}
+
+async function writePermissions(userId, permissions) {
+  await supabase.from('bot_auth_state').upsert({
+    session_id: PERMISSIONS_SESSION,
+    id: userId,
+    data: permissions,
+  }, { onConflict: 'session_id,id' });
+}
+
 async function isEconomyAdmin(candidate) {
   if (isOwner(candidate)) {
     return true;
@@ -54,9 +75,8 @@ async function isEconomyAdmin(candidate) {
     return false;
   }
 
-  const data = await getUserProfile({ creatorId });
-
-  return Boolean(data?.profile?.permissions?.economyAdmin);
+  const perms = await readPermissions(creatorId);
+  return Boolean(perms.economyAdmin);
 }
 
 async function hasEconomyPermission(candidate) {
@@ -88,31 +108,43 @@ async function setEconomyAdmin({
     throw new Error("El usuario no tiene perfil.");
   }
 
-  data.profile.permissions = {
-    ...(data.profile.permissions || {}),
-    economyAdmin: Boolean(enabled),
-  };
-
-  data.profile.updatedAt = new Date().toISOString();
-
-  await saveUserProfile({
-    folder: data.folder,
-    profile: data.profile,
-  });
+  const perms = await readPermissions(userId);
+  perms.economyAdmin = Boolean(enabled);
+  await writePermissions(userId, perms);
 
   return data.profile;
 }
 
 async function listEconomyAdmins() {
-  const users = await listUserProfiles();
+  const { data: rows } = await supabase
+    .from('bot_auth_state')
+    .select('id, data')
+    .eq('session_id', PERMISSIONS_SESSION);
 
-  return users
-    .filter(({ profile }) => Boolean(profile?.permissions?.economyAdmin))
-    .map(({ profile }) => ({
-      userId: profile.creatorId,
-      displayName: pickDisplayName(profile, "usuario"),
-      profile,
-    }))
+  if (!rows || rows.length === 0) return [];
+
+  const adminIds = rows
+    .filter(row => row.data && row.data.economyAdmin === true)
+    .map(row => row.id);
+
+  if (adminIds.length === 0) return [];
+
+  const users = await listUserProfiles();
+  const userMap = {};
+  for (const u of users) {
+    userMap[u.profile.creatorId] = u.profile;
+  }
+
+  return adminIds
+    .map(id => {
+      const profile = userMap[id];
+      return {
+        userId: id,
+        displayName: profile ? pickDisplayName(profile, "usuario") : id,
+        profile: profile || null,
+      };
+    })
+    .filter(a => a.userId)
     .sort((a, b) =>
       String(a.displayName).localeCompare(String(b.displayName), "es"),
     );

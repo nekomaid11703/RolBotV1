@@ -3,7 +3,6 @@ const {
   isEconomyAdmin,
 } = require("../../services/permissionService");
 const {
-  formatMentionTag,
   getFirstMentionedJid,
 } = require("../../utils/commandParseUtils");
 const { isOwner } = require("../../utils/permissionUtils");
@@ -47,7 +46,7 @@ module.exports = {
 
     if (!current) {
       return ctx.reply(
-        `ℹ️ ${targetName} (${formatMentionTag(targetName)}) no tiene permisos de economía activos.`,
+        `ℹ️ ${targetName} no tiene permisos de economía activos.`,
         { mentions: [targetId] },
       );
     }
@@ -67,7 +66,7 @@ module.exports = {
       });
 
       await ctx.reply(
-        `✅ Permiso de economía retirado a ${targetName} (${formatMentionTag(targetName)}).`,
+        `✅ Permiso de economía retirado a ${targetName}.`,
         { mentions: [targetId] },
       );
     } catch (error) {

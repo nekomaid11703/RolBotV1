@@ -1,6 +1,5 @@
 const { setEconomyAdmin } = require("../../services/permissionService");
 const {
-  formatMentionTag,
   getFirstMentionedJid,
 } = require("../../utils/commandParseUtils");
 const { isOwner } = require("../../utils/permissionUtils");
@@ -55,7 +54,7 @@ module.exports = {
       });
 
       await ctx.reply(
-        `✅ Permiso de economía otorgado a ${targetName} (${formatMentionTag(targetName)}).`,
+        `✅ Permiso de economía otorgado a ${targetName}.`,
         { mentions: [targetId] },
       );
     } catch (error) {
