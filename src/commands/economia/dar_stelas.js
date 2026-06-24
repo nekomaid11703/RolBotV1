@@ -1,4 +1,5 @@
-const { transferMoney, getBalance, getUserProfile } = require("../../services/economyService");
+const { transferMoney, getBalance } = require("../../services/economyService");
+const { getUserProfile } = require("../../services/userService");
 const { formatStelas } = require("../../utils/economyUtils");
 const {
   getFirstMentionedJid,

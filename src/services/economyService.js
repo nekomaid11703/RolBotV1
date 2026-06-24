@@ -267,11 +267,18 @@ async function claimDaily({
   const cooldownMs = DAILY_COOLDOWN_HOURS * 60 * 60 * 1000;
   const resetMs = DAILY_STREAK_RESET_HOURS * 60 * 60 * 1000;
 
+  const { data: dailyRow } = await supabase
+    .from('bot_auth_state')
+    .select('data')
+    .eq('session_id', 'daily')
+    .eq('id', userId)
+    .maybeSingle();
+
   const daily = {
     streak: 0,
     lastClaim: null,
     totalClaims: 0,
-    ...(profile.daily || {}),
+    ...(dailyRow?.data || {}),
   };
 
   const lastClaimMs = daily.lastClaim
@@ -305,18 +312,26 @@ async function claimDaily({
   const reward = DAILY_BASE_REWARD + bonus;
 
   profile.economy.money = getMoneyValue(profile) + reward;
-  profile.daily = {
-    ...daily,
-    streak: nextStreak,
-    lastClaim: new Date(now).toISOString(),
-    totalClaims: Number(daily.totalClaims || 0) + 1,
-  };
   profile.updatedAt = new Date(now).toISOString();
 
   await saveUserProfile({
     folder: data.folder,
     profile,
   });
+
+  const nextDaily = {
+    streak: nextStreak,
+    lastClaim: new Date(now).toISOString(),
+    totalClaims: Number(daily.totalClaims || 0) + 1,
+  };
+
+  await supabase.from('bot_auth_state').upsert({
+    session_id: 'daily',
+    id: userId,
+    data: nextDaily,
+  }, { onConflict: 'session_id,id' });
+
+  invalidateUserCache(userId);
 
   return {
     claimed: true,
