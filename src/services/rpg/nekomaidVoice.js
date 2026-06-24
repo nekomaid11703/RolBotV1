@@ -1,42 +1,58 @@
 const PREFIX = {
-  dom: ['Atiende~ ', 'Escucha~ '],
-  error: ['Ay~ ', 'Vaya~ ', 'Mmm~ '],
+  tease: ['Oye~ ', 'Mira~ ', 'Escucha~ ', 'Dime~ ', 'Otra vez~ '],
+  dom: ['Ya sabes~ ', 'Te lo explico~ ', 'Atiende~ ', 'No me hagas repetir~ '],
+  error: ['Ay~ ', 'Vaya~ ', 'Mmm~ ', 'Ni modo~ '],
+  neutral: ['Mm~ ', '', 'Bien~ ', 'Claro~ '],
+  greet: ['Otra vez tú, ¿eh? ', 'Ah, llegaste~ ', '¿Ya viniste? '],
+  farewell: ['Cuídate~ ', 'Nos vemos~ ', 'Hasta luego~ ', 'No te pierdas~ '],
+  combatStart: ['¿Quieres pelea? ', 'Tendré que ensuciarme el uniforme~ ', 'No me hagas lastimarte~ '],
+  combatWin: ['No fue nada~ ', 'Fácil~ ', '¿Eso es todo lo que tienes? '],
+  combatLose: ['Me tomó desprevenida~ ', 'Buena suerte~ ', 'Esta vez ganaste~ '],
 };
 
 const SUFFIX = {
-  neutral: ['~nya', '~ ¿ok?', '~ ¿entiendes?'],
-  tease: ['~nya', '~ ¿eh?', '~ mira...'],
-  dom: ['~ ¿entendiste?', '~ ¿claro?'],
-  error: ['~nya...', '~ tsk.'],
-  greet: ['~nya', '~ ¿qué tal?'],
-  farewell: ['~ cuídate.', '~ nos vemos.', '~ hasta luego.'],
+  neutral: ['~nya', '~ ¿ok?', '~ ¿entiendes?', '', '~ ¿o qué?', '~ está bien?'],
+  tease: ['~ si es que...', '~ mira que...', '~ ¿entiendes?', '~ nya~'],
+  dom: ['~ ¿entendido?', '~ ¿claro?', '~ nya.', '~ bien.'],
+  error: ['~ ¿en serio?', '~ nya...', '~ tsk.'],
 };
 
-const HONORIFICS = ['-kun', '-san', '-chan'];
+const MAID_TITLES = ['-san', '-kun', '-senpai', '', '-sama', '-chan'];
 
 function pick(arr) {
   return arr[Math.floor(Math.random() * arr.length)];
+}
+
+function buildPrefix(vibe) {
+  const pool = PREFIX[vibe];
+  if (!pool || pool.length === 0) return '';
+  if (vibe === 'error' || vibe === 'dom') return pick(pool);
+  if (Math.random() < 0.35) return pick(pool);
+  return '';
+}
+
+function buildSuffix(vibe) {
+  const pool = SUFFIX[vibe];
+  if (!pool || pool.length === 0) return '';
+  if (Math.random() < 0.4) return pick(pool);
+  return '';
 }
 
 function injectPersonality(text, vibe = 'neutral') {
   if (!text || typeof text !== 'string') return text;
   if (text.length > 200) return text;
 
-  let result = text;
+  const prefix = buildPrefix(vibe);
+  const suffix = buildSuffix(vibe);
 
-  const prefixPool = PREFIX[vibe];
-  if (prefixPool && prefixPool.length > 0) {
-    result = pick(prefixPool) + result;
-  }
+  let result = prefix + text;
+  if (suffix) result += suffix;
 
-  const suffixPool = SUFFIX[vibe];
-  if (suffixPool && suffixPool.length > 0) {
-    result += pick(suffixPool);
-  }
-
-  if (vibe !== 'error' && vibe !== 'dom' && vibe !== 'farewell') {
-    const honorific = pick(HONORIFICS);
-    result = result.replace(/@(\w+)/g, (_, name) => `@${name}${honorific}`);
+  if (Math.random() < 0.15 && vibe !== 'error') {
+    const title = pick(MAID_TITLES);
+    if (title && !result.includes(title)) {
+      result = result.replace(/( usuario| @\w+|$)/, (m) => m + title || '');
+    }
   }
 
   return result;
