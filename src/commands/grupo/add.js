@@ -35,13 +35,13 @@ module.exports = {
     const targetId = getFirstMentionedJid(ctx) || extractPhoneFromArgs(ctx.args || []);
 
     if (!targetId) {
-      return ctx.reply(usageMessage);
+      return ctx.social(usageMessage);
     }
 
     try {
       await ctx.sock.groupParticipantsUpdate(ctx.from, [targetId], 'add');
       const phoneDisplay = targetId.split("@")[0];
-      await ctx.reply(
+      await ctx.social(
         [
           "━━━━━━━━━━━━━━━━━━━━",
           "➕ Miembro añadido",
@@ -54,7 +54,7 @@ module.exports = {
         { mentions: [targetId] },
       );
     } catch (error) {
-      await ctx.reply(formatError(`No se pudo añadir. El usuario debe tener el bot en contactos o abrir privacidad de grupos.`));
+      await ctx.social(formatError(`No se pudo añadir. El usuario debe tener el bot en contactos o abrir privacidad de grupos.`));
     }
   },
 };

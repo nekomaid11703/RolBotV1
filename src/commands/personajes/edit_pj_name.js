@@ -23,14 +23,14 @@ module.exports = {
     const newName = ctx.args.join(" ").trim();
 
     if (!newName) {
-      return ctx.reply(usageMessage);
+      return ctx.social(usageMessage);
     }
 
     try {
       const activeChar = await getActiveCharacter({ creatorId: ctx.sender });
       
       if (!activeChar) {
-        return ctx.reply(formatError(
+        return ctx.social(formatError(
           "No tienes un personaje activo para renombrar.",
           "Usa `/switch_pj` o `/crear_pj` primero.",
         ));
@@ -52,7 +52,7 @@ module.exports = {
           `✨ Ahora: ${character.name}`,
       );
     } catch (error) {
-      await ctx.reply(formatError(error.message));
+      await ctx.social(formatError(error.message));
     }
   },
 };

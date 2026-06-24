@@ -20,7 +20,7 @@ module.exports = {
   async execute(ctx) {
     try {
       await ctx.sock.groupSettingUpdate(ctx.from, 'announcement');
-      await ctx.reply(
+      await ctx.social(
         [
           "━━━━━━━━━━━━━━━━━━━━",
           "🔒 Grupo cerrado",
@@ -30,7 +30,7 @@ module.exports = {
         ].join("\n"),
       );
     } catch (error) {
-      await ctx.reply(formatError("No se pudo cerrar el grupo. Asegúrate de que el bot sea admin."));
+      await ctx.social(formatError("No se pudo cerrar el grupo. Asegúrate de que el bot sea admin."));
     }
   },
 };

@@ -60,8 +60,7 @@ function injectPersonality(text, vibe = 'neutral') {
 
 function say(ctx, text, options = {}) {
   const { vibe = 'neutral' } = options;
-  const decorated = injectPersonality(text, vibe);
-  return ctx.reply(decorated, options);
+  return ctx.reply(text, { ...options, vibe });
 }
 
 module.exports = {

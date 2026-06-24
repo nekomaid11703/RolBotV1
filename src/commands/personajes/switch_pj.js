@@ -25,7 +25,7 @@ module.exports = {
     const payload = ctx.args.join(" ").trim();
 
     if (!payload) {
-      return ctx.reply(usageMessage);
+      return ctx.social(usageMessage);
     }
 
     const parts = payload
@@ -47,7 +47,7 @@ module.exports = {
 
     if (mentioned.length > 0 && parts.length >= 2) {
       if (!admin) {
-        return ctx.reply(formatError("Solo un administrador puede cambiar el personaje de otro usuario."));
+        return ctx.social(formatError("Solo un administrador puede cambiar el personaje de otro usuario."));
       }
 
       targetCreatorId = mentioned[0];
@@ -70,7 +70,7 @@ module.exports = {
         `✅ Ahora el personaje activo es *${character.name}*`,
       );
     } catch (error) {
-      await ctx.reply(formatError(error.message));
+      await ctx.social(formatError(error.message));
     }
   },
 };

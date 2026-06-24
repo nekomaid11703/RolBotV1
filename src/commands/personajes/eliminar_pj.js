@@ -26,7 +26,7 @@ module.exports = {
     const characterName = ctx.args.join(" ").trim();
 
     if (!characterName) {
-      return ctx.reply(usageMessage);
+      return ctx.social(usageMessage);
     }
 
     try {
@@ -40,7 +40,7 @@ module.exports = {
 
       await ctx.reply(`🗑️ Personaje eliminado:\n\n` + `👤 ${characterName}`);
     } catch (error) {
-      await ctx.reply(formatError(error.message));
+      await ctx.social(formatError(error.message));
     }
   },
 };

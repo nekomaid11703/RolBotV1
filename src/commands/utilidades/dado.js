@@ -27,7 +27,7 @@ module.exports = {
     // =========================
 
     if (ctx.args.length === 0) {
-      await ctx.reply(usageMessage);
+      await ctx.social(usageMessage);
 
       return;
     }
@@ -41,7 +41,7 @@ module.exports = {
     // =========================
 
     if (!match) {
-      await ctx.reply(formatError("Formato invalido.", usageMessage));
+      await ctx.social(formatError("Formato invalido.", usageMessage));
       return;
     }
 
@@ -60,7 +60,7 @@ module.exports = {
     const dadosPermitidos = [4, 6, 8, 10, 12, 20, 100];
 
     if (!dadosPermitidos.includes(caras)) {
-      await ctx.reply(formatError("Ese dado no esta permitido.", usageMessage));
+      await ctx.social(formatError("Ese dado no esta permitido.", usageMessage));
 
       return;
     }
@@ -70,7 +70,7 @@ module.exports = {
     // =========================
 
     if (cantidad < 1 || cantidad > 20) {
-      await ctx.reply(formatError("Puedes lanzar entre 1 y 20 dados.", usageMessage));
+      await ctx.social(formatError("Puedes lanzar entre 1 y 20 dados.", usageMessage));
 
       return;
     }

@@ -45,7 +45,7 @@ module.exports = {
     const targetId = getFirstMentionedJid(ctx);
 
     if (!targetId) {
-      return ctx.reply(usageMessage);
+      return ctx.social(usageMessage);
     }
 
     const targetName = await resolveTargetDisplayName(ctx, targetId);
@@ -57,7 +57,7 @@ module.exports = {
       try {
         await ctx.sock.groupParticipantsUpdate(ctx.from, [targetId], "remove");
         await supabase.from("bot_auth_state").delete().eq("session_id", WARN_SESSION).eq("id", `${ctx.from}:${targetId}`);
-        return ctx.reply(
+        return ctx.social(
           [
             "━━━━━━━━━━━━━━━━━━━━",
             "⚠️ Usuario expulsado",
@@ -69,13 +69,13 @@ module.exports = {
           { mentions: [targetId] },
         );
       } catch {
-        return ctx.reply(formatError(`No se pudo expulsar a ${targetName}. Asegúrate de que el bot sea admin.`));
+        return ctx.social(formatError(`No se pudo expulsar a ${targetName}. Asegúrate de que el bot sea admin.`));
       }
     }
 
     await saveWarns(ctx.from, targetId, warns);
 
-    await ctx.reply(
+    await ctx.social(
       [
         "━━━━━━━━━━━━━━━━━━━━",
         "⚠️ Advertencia",

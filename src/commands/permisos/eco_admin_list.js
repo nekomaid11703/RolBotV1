@@ -44,6 +44,6 @@ module.exports = {
 
     lines.push("━━━━━━━━━━━━━━");
 
-    await ctx.reply(lines.join("\n"));
+    await ctx.social(lines.join("\n"));
   },
 };

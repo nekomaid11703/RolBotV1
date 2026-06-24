@@ -34,23 +34,23 @@ module.exports = {
     const targetId = getFirstMentionedJid(ctx);
 
     if (!targetId) {
-      return ctx.reply(usageMessage);
+      return ctx.social(usageMessage);
     }
 
     if (targetId === ctx.sender) {
-      return ctx.reply(formatError("No puedes enviarte stelas a ti mismo."));
+      return ctx.social(formatError("No puedes enviarte stelas a ti mismo."));
     }
 
     const amount = extractAmountFromArgs(ctx.args);
 
     if (!amount) {
-      return ctx.reply(usageMessage);
+      return ctx.social(usageMessage);
     }
 
     try {
       const targetProfile = await getUserProfile({ creatorId: targetId });
       if (!targetProfile) {
-        return ctx.reply(formatError("El usuario destinatario no tiene perfil registrado."));
+        return ctx.social(formatError("El usuario destinatario no tiene perfil registrado."));
       }
 
       const targetName = await resolveTargetDisplayName(ctx, targetId);
@@ -82,7 +82,7 @@ module.exports = {
         { mentions: [targetId] },
       );
     } catch (error) {
-      await ctx.reply(formatError(error.message));
+      await ctx.social(formatError(error.message));
     }
   },
 };

@@ -34,18 +34,18 @@ module.exports = {
     const targetId = getFirstMentionedJid(ctx);
 
     if (!targetId) {
-      return ctx.reply(usageMessage);
+      return ctx.social(usageMessage);
     }
 
     if (isOwner(targetId)) {
-      return ctx.reply(formatError("No puedes quitar permisos de economia al creador."));
+      return ctx.social(formatError("No puedes quitar permisos de economia al creador."));
     }
 
     const current = await isEconomyAdmin(targetId);
     const targetName = await resolveTargetDisplayName(ctx, targetId);
 
     if (!current) {
-      return ctx.reply(
+      return ctx.social(
         `ℹ️ ${targetName} no tiene permisos de economía activos.`,
         { mentions: [targetId] },
       );
@@ -65,12 +65,12 @@ module.exports = {
         },
       });
 
-      await ctx.reply(
+      await ctx.social(
         `✅ Permiso de economía retirado a ${targetName}.`,
         { mentions: [targetId] },
       );
     } catch (error) {
-      await ctx.reply(formatError(error.message));
+      await ctx.social(formatError(error.message));
     }
   },
 };

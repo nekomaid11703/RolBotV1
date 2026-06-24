@@ -39,7 +39,7 @@ module.exports = {
       const activeChar = await getActiveCharacter({ creatorId: ctx.sender });
       
       if (!activeChar) {
-        return ctx.reply(formatError(
+        return ctx.social(formatError(
           "No tienes un personaje activo para editar.",
           "Usa `/switch_pj` o `/crear_pj` primero.",
         ));
@@ -52,7 +52,7 @@ module.exports = {
       const descMatch = rawText.match(/Descripción:\s*([\s\S]+)/i);
 
       if (!fieldMatch || !descMatch) {
-        return ctx.reply(formatError("Formato incorrecto. Usa la plantilla completa.", template));
+        return ctx.social(formatError("Formato incorrecto. Usa la plantilla completa.", template));
       }
 
       const key = fieldMatch[1].trim().toLowerCase().replace(/[^a-z0-9_]/g, "_");
@@ -85,7 +85,7 @@ module.exports = {
         `✅ El campo _${key}_ ha sido modificado con éxito.`
       );
     } catch (error) {
-      await ctx.reply(formatError(error.message));
+      await ctx.social(formatError(error.message));
     }
   },
 };

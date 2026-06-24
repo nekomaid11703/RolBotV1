@@ -8,7 +8,7 @@ module.exports = {
   async execute(ctx) {
     const description = ctx.args.join(' ').trim();
     if (!description && !ctx.msg?.message?.imageMessage) {
-      return ctx.reply('❌ Usa: /bugreport <descripción del bug>\n\nPuedes adjuntar una imagen.');
+      return ctx.social('❌ Usa: /bugreport <descripción del bug>\n\nPuedes adjuntar una imagen.');
     }
 
     try {
@@ -28,9 +28,9 @@ module.exports = {
         `📊 Estado: ${report.status}`,
       ];
       if (report.mediaUrl) lines.push('🖼 Imagen adjunta guardada');
-      await ctx.reply(lines.join('\n'));
+      await ctx.social(lines.join('\n'));
     } catch (error) {
-      await ctx.reply(`❌ ${error.message}`);
+      await ctx.social(`❌ ${error.message}`);
     }
   },
 };

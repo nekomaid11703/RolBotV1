@@ -74,7 +74,7 @@ module.exports = {
         });
 
         if (!characters.length) {
-          return ctx.reply("❌ No tienes personajes.");
+          return ctx.social("❌ No tienes personajes.");
         }
 
         let response = "📂 *TUS PERSONAJES*\n";
@@ -108,7 +108,7 @@ module.exports = {
         });
 
         if (!character) {
-          return ctx.reply("❌ No tienes personaje activo.");
+          return ctx.social("❌ No tienes personaje activo.");
         }
       }
 
@@ -123,7 +123,7 @@ module.exports = {
         });
 
         if (!character) {
-          return ctx.reply("❌ No existe ese personaje.");
+          return ctx.social("❌ No existe ese personaje.");
         }
       }
 
@@ -135,7 +135,7 @@ module.exports = {
 
       await ctx.reply(formatCharacter(character));
     } catch (error) {
-      await ctx.reply(`❌ ${error.message}`);
+      await ctx.social(`❌ ${error.message}`);
     }
   },
 };

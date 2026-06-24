@@ -48,7 +48,7 @@ module.exports = {
       const historyMatch = rawText.match(/Historia:\s*([\s\S]+)/i);
 
       if (!nameMatch) {
-        return ctx.reply(formatError("Formato incorrecto. Usa la plantilla completa.", template));
+        return ctx.social(formatError("Formato incorrecto. Usa la plantilla completa.", template));
       }
 
       const name = nameMatch[1].trim();
@@ -100,7 +100,7 @@ module.exports = {
 
       await ctx.reply(response);
     } catch (error) {
-      await ctx.reply(formatError(error.message));
+      await ctx.social(formatError(error.message));
     }
   },
 };

@@ -23,14 +23,14 @@ module.exports = {
     const targetId = getFirstMentionedJid(ctx);
 
     if (!targetId) {
-      return ctx.reply(usageMessage);
+      return ctx.social(usageMessage);
     }
 
     const targetName = await resolveTargetDisplayName(ctx, targetId);
 
     try {
       await ctx.sock.groupParticipantsUpdate(ctx.from, [targetId], 'demote');
-      await ctx.reply(
+      await ctx.social(
         [
           "━━━━━━━━━━━━━━━━━━━━",
           "⬇️ Admin degradado",
@@ -41,7 +41,7 @@ module.exports = {
         { mentions: [targetId] },
       );
     } catch (error) {
-      await ctx.reply(formatError(`No se pudo degradar a ${targetName}. Asegúrate de que el bot sea admin.`));
+      await ctx.social(formatError(`No se pudo degradar a ${targetName}. Asegúrate de que el bot sea admin.`));
     }
   },
 };
