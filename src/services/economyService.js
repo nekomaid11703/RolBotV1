@@ -4,6 +4,8 @@ const {
   saveUserProfile,
   listUserProfiles,
 } = require("./userService");
+const { topBalancesCacheKey, invalidateTopBalancesCache, invalidateUserCache, TTLS, cache } = require("../utils/safeQuery");
+const { supabase } = require("../database/supabase");
 
 const {
   DAILY_BASE_REWARD,
@@ -165,6 +167,10 @@ async function transferMoney(
     throw new Error("Cantidad inválida.");
   }
 
+  if (fromUserId === toUserId) {
+    throw new Error("No puedes transferirte a ti mismo.");
+  }
+
   const fromName = options.fromUserName || "usuario";
   const toName = options.toUserName || "usuario";
 
@@ -184,14 +190,6 @@ async function transferMoney(
     throw new Error("Dinero insuficiente.");
   }
 
-  fromData.profile.economy.money = current - safeAmount;
-  fromData.profile.updatedAt = new Date().toISOString();
-
-  await saveUserProfile({
-    folder: fromData.folder,
-    profile: fromData.profile,
-  });
-
   const toData = await resolveEconomyProfile({
     userId: toUserId,
     userName: toName,
@@ -203,13 +201,42 @@ async function transferMoney(
     },
   });
 
-  toData.profile.economy.money = getMoneyValue(toData.profile) + safeAmount;
-  toData.profile.updatedAt = new Date().toISOString();
+  if (!toData) {
+    throw new Error("El usuario destino no tiene perfil.");
+  }
 
-  await saveUserProfile({
-    folder: toData.folder,
-    profile: toData.profile,
-  });
+  const fromNewMoney = current - safeAmount;
+  const toNewMoney = getMoneyValue(toData.profile) + safeAmount;
+  const now = new Date().toISOString();
+
+  const { error: fromError } = await supabase
+    .from("players")
+    .update({ money: fromNewMoney, last_active_at: now })
+    .eq("phone", fromUserId);
+
+  if (fromError) {
+    throw new Error(`Error actualizando remitente: ${fromError.message}`);
+  }
+
+  const { error: toError } = await supabase
+    .from("players")
+    .update({ money: toNewMoney, last_active_at: now })
+    .eq("phone", toUserId);
+
+  if (toError) {
+    const { error: rollbackError } = await supabase
+      .from("players")
+      .update({ money: current, last_active_at: now })
+      .eq("phone", fromUserId);
+    if (rollbackError) {
+      console.error("❌ CRITICAL: Rollback falló en transferMoney:", rollbackError.message);
+    }
+    throw new Error(`Error actualizando destinatario: ${toError.message}`);
+  }
+
+  invalidateUserCache(fromUserId);
+  invalidateUserCache(toUserId);
+  invalidateTopBalancesCache();
 
   return true;
 }
@@ -303,10 +330,14 @@ async function claimDaily({
 }
 
 async function getTopBalances(limit = 10) {
+  const cacheKey = topBalancesCacheKey(limit);
+  const cached = cache.get(cacheKey);
+  if (cached) return cached;
+
   const safeLimit = Math.max(1, Math.floor(Number(limit) || 10));
   const users = await listUserProfiles();
 
-  return users
+  const result = users
     .map(({ profile }) => ({
       userId: profile.creatorId,
       displayName:
@@ -327,6 +358,9 @@ async function getTopBalances(limit = 10) {
       );
     })
     .slice(0, safeLimit);
+
+  cache.set(cacheKey, result, TTLS.memoryContext);
+  return result;
 }
 
 module.exports = {

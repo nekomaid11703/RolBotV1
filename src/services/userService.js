@@ -1,3 +1,5 @@
+const { safeSingleOrNull, userCacheKey, invalidateUserCache, TTLS, cache, topActiveUsersCacheKey } = require("../utils/safeQuery");
+
 function stripAccents(text) {
   return String(text || "")
     .normalize("NFD")
@@ -27,11 +29,14 @@ function getCreatorFolderName(creatorName, creatorId) {
 }
 
 async function listUserProfiles() {
-  const { supabase } = require("../database/supabase");
+  const cacheKey = 'allUserProfiles';
+  const cached = cache.get(cacheKey);
+  if (cached) return cached;
+
   const { data, error } = await supabase.from('players').select('*');
   if (error || !data) return [];
-  
-  return data.map(row => {
+
+  const result = data.map(row => {
     const profile = normalizeProfile({}, { creatorId: row.phone, creatorName: row.username });
     profile.economy.money = Number(row.money || 0);
     profile.activity.messages = Number(row.activity_messages || 0);
@@ -39,6 +44,9 @@ async function listUserProfiles() {
     profile.metadata.lastSeenAt = row.last_active_at || profile.createdAt;
     return { folder: "supabase", profilePath: "supabase", profile };
   });
+
+  cache.set(cacheKey, result, TTLS.memoryContext);
+  return result;
 }
 
 function buildRegistration({ creatorId, registration = {} }) {
@@ -240,10 +248,15 @@ async function ensureUserProfile({
 }
 
 async function getUserProfile({ creatorId }) {
-  const { supabase } = require("../database/supabase");
-  const { data, error } = await supabase.from('players').select('*').eq('phone', creatorId).single();
+  const cacheKey = userCacheKey(creatorId);
+  const cached = cache.get(cacheKey);
+  if (cached) return cached;
+
+  const data = await safeSingleOrNull(
+    supabase.from('players').select('*').eq('phone', creatorId)
+  );
   
-  if (error || !data) return null;
+  if (!data) return null;
 
   const profile = normalizeProfile({}, { creatorId: data.phone, creatorName: data.username });
   profile.economy.money = Number(data.money || 0);
@@ -251,7 +264,9 @@ async function getUserProfile({ creatorId }) {
   profile.activity.commands = Number(data.activity_commands || 0);
   profile.metadata.lastSeenAt = data.last_active_at || profile.createdAt;
 
-  return { folder: "supabase", profilePath: "supabase", profile };
+  const result = { folder: "supabase", profilePath: "supabase", profile };
+  cache.set(cacheKey, result, TTLS.memoryContext);
+  return result;
 }
 
 async function isUserRegistered({ creatorId }) {
@@ -260,7 +275,6 @@ async function isUserRegistered({ creatorId }) {
 }
 
 async function saveUserProfile({ folder, profile }) {
-  const { supabase } = require("../database/supabase");
   const { error } = await supabase.from('players').upsert({
     phone: profile.creatorId,
     username: profile.creatorName,
@@ -270,7 +284,9 @@ async function saveUserProfile({ folder, profile }) {
     last_active_at: profile.metadata?.lastSeenAt || new Date().toISOString()
   }, { onConflict: 'phone' });
 
-  if (error) console.error("Supabase Error saving user:", error);
+  if (error) throw new Error("Error guardando usuario: " + error.message);
+
+  invalidateUserCache(profile.creatorId);
   return profile;
 }
 
@@ -546,10 +562,14 @@ function sortActivityProfilesDesc(a, b) {
 }
 
 async function getTopActiveUsers({ limit = 10 } = {}) {
+  const cacheKey = topActiveUsersCacheKey(limit);
+  const cached = cache.get(cacheKey);
+  if (cached) return cached;
+
   const safeLimit = Math.max(1, Math.min(50, Math.floor(Number(limit) || 10)));
   const profiles = await listUserProfiles();
 
-  return profiles
+  const result = profiles
     .map((entry) => {
       const profile = entry?.profile || {};
       const activity = normalizeActivity(profile.activity || {});
@@ -566,6 +586,9 @@ async function getTopActiveUsers({ limit = 10 } = {}) {
     })
     .sort(sortActivityProfilesDesc)
     .slice(0, safeLimit);
+
+  cache.set(cacheKey, result, TTLS.memoryContext);
+  return result;
 }
 
 

@@ -12,6 +12,7 @@ const {
   getFirstMentionedJid,
 } = require("../../utils/commandParseUtils");
 const {
+  formatDisplayMention,
   resolveTargetDisplayName,
   withMentions,
 } = require("../../utils/userMentionUtils");
@@ -78,7 +79,7 @@ module.exports = {
     };
 
     const commandCount = Number(userProfile?.profile?.activity?.commands || 0);
-    const targetLabel = String(targetDisplayName || "usuario").trim() || "usuario";
+    const targetLabel = formatDisplayMention(targetId, targetDisplayName);
 
     await ctx.reply(
       withMentions(
@@ -87,7 +88,7 @@ module.exports = {
           "📊 Actividad",
           "",
           `👥 Grupo: ${groupName}`,
-          `👤 Usuario: @${targetLabel}`,
+          `👤 Usuario: ${targetLabel}`,
           "",
           `💬 Mensajes: ${formatCount(activity.messages)}`,
           `⚙️ Comandos usados: ${formatCount(commandCount)}`,

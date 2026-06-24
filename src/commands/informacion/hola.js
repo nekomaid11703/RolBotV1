@@ -1,4 +1,4 @@
-const { formatMentionTag } = require("../../utils/commandParseUtils");
+const { formatDisplayMention } = require("../../utils/userMentionUtils");
 
 module.exports = {
   name: "hola",
@@ -12,7 +12,7 @@ module.exports = {
   async execute(ctx) {
     await ctx.react("👋");
 
-    await ctx.reply(`👋 Hola ${formatMentionTag(ctx.userName || "usuario")}`, {
+    await ctx.reply(`👋 Hola ${formatDisplayMention(ctx.sender, ctx.userName || "usuario")}`, {
       mentions: [ctx.sender],
     });
   },

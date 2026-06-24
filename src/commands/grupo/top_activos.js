@@ -5,9 +5,7 @@ const {
   getGroupMetadata,
 } = require("../../utils/groupUtils");
 const {
-  formatJidTag,
-} = require("../../utils/commandParseUtils");
-const {
+  formatDisplayMention,
   withMentions,
 } = require("../../utils/userMentionUtils");
 const {
@@ -69,7 +67,7 @@ module.exports = {
         mentions.push(memberId);
       }
 
-      const label = formatJidTag(member.memberId, member.memberName);
+      const label = formatDisplayMention(member.memberId, member.memberName);
       return [
         `${medal(index)} ${label}`,
         `   Mensajes: ${formatCount(member.messages)}`,

@@ -79,6 +79,26 @@ function extractMentionLabelFromContext(ctx) {
   return "";
 }
 
+function formatRealMentionTag(jid, fallback = "usuario") {
+  const local = String(jid || "")
+    .split("@")[0]
+    .replace(/\D/g, "")
+    .trim();
+
+  return `@${local || String(fallback || "usuario").replace(/^@+/, "").trim() || "usuario"}`;
+}
+
+function formatDisplayMention(jid, displayName = "usuario") {
+  const cleanName = cleanText(displayName, "usuario");
+  const mention = formatRealMentionTag(jid, cleanName);
+
+  if (isMeaningfulDisplayName(cleanName)) {
+    return `${cleanName} (${mention})`;
+  }
+
+  return mention;
+}
+
 async function resolveTargetDisplayName(ctx, targetId, fallback = "usuario") {
   const cleanFallback = cleanText(fallback, "usuario");
 
@@ -152,6 +172,8 @@ function withMentions(text, mentions = []) {
 module.exports = {
   resolveTargetDisplayName,
   withMentions,
+  formatDisplayMention,
+  formatRealMentionTag,
   isMeaningfulDisplayName,
   extractMentionLabelFromContext,
 };

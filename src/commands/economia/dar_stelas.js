@@ -1,4 +1,4 @@
-const { transferMoney, getBalance } = require("../../services/economyService");
+const { transferMoney, getBalance, getUserProfile } = require("../../services/economyService");
 const { formatStelas } = require("../../utils/economyUtils");
 const {
   getFirstMentionedJid,
@@ -7,6 +7,7 @@ const {
 } = require("../../utils/commandParseUtils");
 const {
   resolveTargetDisplayName,
+  formatDisplayMention,
 } = require("../../utils/userMentionUtils");
 const {
   formatCommandUsage,
@@ -46,6 +47,11 @@ module.exports = {
     }
 
     try {
+      const targetProfile = await getUserProfile({ creatorId: targetId });
+      if (!targetProfile) {
+        return ctx.reply(formatError("El usuario destinatario no tiene perfil registrado."));
+      }
+
       const targetName = await resolveTargetDisplayName(ctx, targetId);
 
       await transferMoney(ctx.sender, targetId, amount, {
@@ -66,7 +72,7 @@ module.exports = {
           "━━━━━━━━━━━━━━",
           "💸 Transferencia",
           "",
-          `👤 Destinatario: ${targetName} (${formatMentionTag(targetName)})`,
+          `👤 Destinatario: ${formatDisplayMention(targetId, targetName)}`,
           "",
           `💵 Enviado: ${formatStelas(amount)}`,
           `💰 Tu balance restante: ${formatStelas(senderBalance)}`,

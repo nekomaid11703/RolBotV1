@@ -64,6 +64,18 @@ Status: In Progress
 - [x] Write `tests/test_context_compactor.js` (21 tests, all pass).
 - [x] Verify no regressions in existing tests (command_usage_format, memory_context, crear_pj).
 
+## Phase 8 - Supabase Bug Fixes, Race Conditions & Cache Integration
+
+- [x] Fix race condition en `transferMoney` — transacción atómica con rollback compensatorio en `economyService.js`.
+- [x] Fix race condition en `createCharacter` — elimina count check, usa UNIQUE constraint (código 23505) en `characterService.js`.
+- [x] Fix transacción incompleta en `setActiveCharacter` — dos updates atómicos con validación en `characterService.js`.
+- [x] Fix `saveGroupActivity` null check — lanza error si upsert falla en `groupActivityService.js`.
+- [x] Crear `safeQuery.js` con `safeSingle`, `safeSingleOrNull`, `safeMaybeSingle` — aplicado a userService, characterService, groupActivityService, economyService.
+- [x] Integrar cache LRU+TTL en 10+ funciones: `getUserProfile`, `listUserProfiles`, `getTopBalances`, `getTopActiveUsers`, `getGroupActivity`, `getTopGroupMembers`, `listCharacters`, `getCharacter`, `getActiveCharacter`, `getCharacterBySlug`.
+- [x] Invalidación automática de cache en writes: `saveUserProfile`, `saveGroupActivity`, `createCharacter`, `updateCharacterStats`, `editCharacter`, `deleteCharacter`, `setActiveCharacter`, `claimDaily`, `transferMoney`, `addMoney`, `removeMoney`, `setMoney`.
+- [x] Validación `targetId` existe en `dar_stelas` antes de transferir.
+- [x] Tests: `test_prompt_cache.js` (22/22), `test_context_compactor.js` (21/21), `test_crear_pj.js` (3/3), `command_usage_format`, `memory_context`, `token_saving_delegation` — todos verdes sin regresión.
+
 ## Pending External Requirements
 
 - [ ] GitHub MCP requires Docker or Go plus a real GitHub token.

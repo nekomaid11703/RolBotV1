@@ -6,6 +6,7 @@ const {
   getFirstMentionedJid,
 } = require("../../utils/commandParseUtils");
 const {
+  formatDisplayMention,
   resolveTargetDisplayName,
   withMentions,
 } = require("../../utils/userMentionUtils");
@@ -80,7 +81,7 @@ module.exports = {
             "━━━━━━━━━━━━━━━━━━━━",
             "📊 Actividad global",
             "",
-            `👤 Usuario: @${String(targetDisplayName || "usuario").trim() || "usuario"}`,
+            `👤 Usuario: ${formatDisplayMention(targetId, targetDisplayName)}`,
             "",
             `💬 Mensajes: ${formatCount(activity.messages)}`,
             `⚙️ Comandos usados: ${formatCount(activity.commands)}`,
@@ -113,7 +114,7 @@ module.exports = {
       }
 
       return [
-        `${medal(index)} @${String(entry.displayName || "usuario").trim() || "usuario"}`,
+        `${medal(index)} ${formatDisplayMention(entry.creatorId, entry.displayName)}`,
         `   Mensajes: ${formatCount(entry.activity?.messages)}`,
         `   Comandos: ${formatCount(entry.activity?.commands)}`,
       ].join("\n");
@@ -125,7 +126,7 @@ module.exports = {
           "━━━━━━━━━━━━━━━━━━━━",
           "📊 Actividad global",
           "",
-          `👤 Usuario: @${String(targetDisplayName || "usuario").trim() || "usuario"}`,
+          `👤 Usuario: ${formatDisplayMention(targetId, targetDisplayName)}`,
           "",
           `💬 Mensajes: ${formatCount(activity.messages)}`,
           `⚙️ Comandos usados: ${formatCount(activity.commands)}`,

@@ -1,4 +1,5 @@
 const { supabase } = require("../database/supabase");
+const { invalidateUserCache, charactersCacheKey } = require("../utils/safeQuery");
 const {
   CHARACTER_CATEGORIES,
   DEFAULT_CHARACTER_STATS,
@@ -65,6 +66,8 @@ async function createCharacter({
     registration: { source: "crear_pj", scope: "self", createdBy: creatorId },
   });
 
+  const slug = getCharacterSlug(characterName);
+
   const { count } = await supabase
     .from("characters")
     .select("*", { count: "exact", head: true })
@@ -72,19 +75,6 @@ async function createCharacter({
 
   if (count >= MAX_CHARACTERS_PER_USER) {
     throw new Error(`Has alcanzado el máximo de ${MAX_CHARACTERS_PER_USER} personajes por usuario.`);
-  }
-
-  const slug = getCharacterSlug(characterName);
-  
-  const { data: existing } = await supabase
-    .from("characters")
-    .select("id")
-    .eq("player_phone", creatorId)
-    .eq("slug", slug)
-    .single();
-
-  if (existing) {
-    throw new Error("Ya existe un personaje con ese nombre.");
   }
 
   const isActive = count === 0;
@@ -97,7 +87,6 @@ async function createCharacter({
     is_active: isActive
   };
 
-  // Solo inyectar si no son null o vacíos, permitiendo que Supabase use los suyos.
   if (stats && Object.keys(stats).length > 0) record.stats = normalizeStats(stats);
   if (slots && Object.keys(slots).length > 0) record.slots = { ...DEFAULT_CHARACTER_SLOTS, ...slots };
 
@@ -107,29 +96,47 @@ async function createCharacter({
     .select()
     .single();
 
-  if (error) throw new Error("Error guardando el personaje: " + error.message);
+  if (error) {
+    if (error.code === '23505') {
+      throw new Error("Ya existe un personaje con ese nombre.");
+    }
+    throw new Error("Error guardando el personaje: " + error.message);
+  }
 
   const normalized = normalizeCharacterRecord(data);
   normalized.active = data.is_active;
+
+  invalidateUserCache(creatorId);
+
   return normalized;
 }
 
 async function getCharacter({ creatorId, characterName }) {
   const slug = getCharacterSlug(characterName);
-  const { data, error } = await supabase
-    .from("characters")
-    .select("*")
-    .eq("player_phone", creatorId)
-    .eq("slug", slug)
-    .single();
+  const cacheKey = `character:${creatorId}:${slug}`;
+  const cached = cache.get(cacheKey);
+  if (cached) return cached;
 
-  if (error || !data) return null;
+  const data = await safeSingleOrNull(
+    supabase.from("characters")
+      .select("*")
+      .eq("player_phone", creatorId)
+      .eq("slug", slug)
+  );
+
+  if (!data) return null;
   const normalized = normalizeCharacterRecord(data);
   normalized.active = data.is_active;
+
+  cache.set(cacheKey, normalized, TTLS.memoryContext);
   return normalized;
 }
 
 async function listCharacters({ creatorId }) {
+  const cacheKey = charactersCacheKey(creatorId);
+  const cached = cache.get(cacheKey);
+  if (cached) return cached;
+
   const { data, error } = await supabase
     .from("characters")
     .select("*")
@@ -137,25 +144,34 @@ async function listCharacters({ creatorId }) {
     .order("name", { ascending: true });
 
   if (error || !data) return [];
-  
-  return data.map(row => {
+
+  const result = data.map(row => {
     const normalized = normalizeCharacterRecord(row);
     normalized.active = row.is_active;
     return normalized;
   });
+
+  cache.set(cacheKey, result, TTLS.memoryContext);
+  return result;
 }
 
 async function getActiveCharacter({ creatorId }) {
+  const cacheKey = `activeCharacter:${creatorId}`;
+  const cached = cache.get(cacheKey);
+  if (cached) return cached;
+
   const { data, error } = await supabase
     .from("characters")
     .select("*")
     .eq("player_phone", creatorId)
     .eq("is_active", true)
-    .single();
+    .maybeSingle();
 
   if (error || !data) return null;
   const normalized = normalizeCharacterRecord(data);
   normalized.active = true;
+
+  cache.set(cacheKey, normalized, TTLS.memoryContext);
   return normalized;
 }
 
@@ -183,35 +199,51 @@ async function setActiveCharacter({
     throw new Error("No existe ese personaje.");
   }
 
-  await supabase
+  const { data: updated, error: updateError } = await supabase
     .from("characters")
-    .update({ is_active: false })
-    .eq("player_phone", targetCreatorId);
+    .update({
+      is_active: false,
+      updated_at: new Date().toISOString()
+    })
+    .eq("player_phone", targetCreatorId)
+    .neq("slug", slug);
 
-  const { data: updated } = await supabase
+  if (updateError) throw new Error("Error desactivando personajes: " + updateError.message);
+
+  const { data: activated, error: activateError } = await supabase
     .from("characters")
-    .update({ is_active: true })
+    .update({
+      is_active: true,
+      updated_at: new Date().toISOString()
+    })
     .eq("player_phone", targetCreatorId)
     .eq("slug", slug)
     .select()
     .single();
 
-  const normalized = normalizeCharacterRecord(updated);
+  if (activateError || !activated) {
+    throw new Error("Error activando personaje: " + (activateError?.message || "No encontrado"));
+  }
+
+  const normalized = normalizeCharacterRecord(activated);
   normalized.active = true;
+
+  invalidateUserCache(targetCreatorId);
+
   return normalized;
 }
 
 async function updateCharacterStats({ creatorId, characterName, patch = {} }) {
   const slug = getCharacterSlug(characterName);
   
-  const { data, error } = await supabase
-    .from("characters")
-    .select("stats")
-    .eq("player_phone", creatorId)
-    .eq("slug", slug)
-    .single();
+  const data = await safeSingleOrNull(
+    supabase.from("characters")
+      .select("stats")
+      .eq("player_phone", creatorId)
+      .eq("slug", slug)
+  );
 
-  if (error || !data) return null;
+  if (!data) return null;
 
   const newStats = { ...data.stats, ...patch };
 
@@ -221,12 +253,14 @@ async function updateCharacterStats({ creatorId, characterName, patch = {} }) {
     .eq("player_phone", creatorId)
     .eq("slug", slug)
     .select()
-    .single();
+    .maybeSingle();
 
   if (updateError || !updated) return null;
   
   const normalized = normalizeCharacterRecord(updated);
   normalized.active = updated.is_active;
+
+  invalidateUserCache(creatorId);
   return normalized;
 }
 
@@ -292,33 +326,37 @@ async function editCharacter({ creatorId, characterName, patch = {} }) {
     .update(updates)
     .eq("id", character.id)
     .select()
-    .single();
+    .maybeSingle();
 
-  if (updateError) throw new Error("Error guardando el personaje: " + updateError.message);
+  if (updateError || !updated) throw new Error("Error guardando el personaje: " + (updateError?.message || "No encontrado"));
 
   const normalized = normalizeCharacterRecord(updated);
   normalized.active = updated.is_active;
+
+  invalidateUserCache(creatorId);
   return normalized;
 }
 
 async function deleteCharacter({ creatorId, characterName }) {
   const slug = getCharacterSlug(characterName);
   
-  const { data: character, error } = await supabase
-    .from("characters")
-    .select("*")
-    .eq("player_phone", creatorId)
-    .eq("slug", slug)
-    .single();
+  const character = await safeSingleOrNull(
+    supabase.from("characters")
+      .select("*")
+      .eq("player_phone", creatorId)
+      .eq("slug", slug)
+  );
 
-  if (error || !character) {
+  if (!character) {
     throw new Error("No existe el personaje.");
   }
 
-  await supabase
+  const { error: deleteError } = await supabase
     .from("characters")
     .delete()
     .eq("id", character.id);
+
+  if (deleteError) throw new Error("Error eliminando personaje: " + deleteError.message);
 
   if (character.is_active) {
     const { data: remaining } = await supabase
@@ -336,20 +374,27 @@ async function deleteCharacter({ creatorId, characterName }) {
     }
   }
 
+  invalidateUserCache(creatorId);
   return true;
 }
 
 async function getCharacterBySlug({ creatorId, slug }) {
-  const { data, error } = await supabase
-    .from("characters")
-    .select("*")
-    .eq("player_phone", creatorId)
-    .eq("slug", slug)
-    .single();
+  const cacheKey = `character:${creatorId}:${slug}`;
+  const cached = cache.get(cacheKey);
+  if (cached) return cached;
 
-  if (error || !data) return null;
+  const data = await safeSingleOrNull(
+    supabase.from("characters")
+      .select("*")
+      .eq("player_phone", creatorId)
+      .eq("slug", slug)
+  );
+
+  if (!data) return null;
   const normalized = normalizeCharacterRecord(data);
   normalized.active = data.is_active;
+
+  cache.set(cacheKey, normalized, TTLS.memoryContext);
   return normalized;
 }
 

@@ -3,10 +3,10 @@ const { formatStelas } = require("../../utils/economyUtils");
 const {
   getFirstMentionedJid,
   extractAmountFromArgs,
-  formatMentionTag,
 } = require("../../utils/commandParseUtils");
 const {
   resolveTargetDisplayName,
+  formatDisplayMention,
 } = require("../../utils/userMentionUtils");
 const {
   formatCommandUsage,
@@ -61,7 +61,7 @@ module.exports = {
           "━━━━━━━━━━━━━━",
           "➖ Stelas retiradas",
           "",
-          `👤 ${targetName} (${formatMentionTag(targetName)})`,
+          `👤 ${formatDisplayMention(targetId, targetName)}`,
           "",
           `💵 Retiradas: ${formatStelas(amount)}`,
           `💰 Balance: ${formatStelas(balance)}`,

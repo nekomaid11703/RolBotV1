@@ -1,5 +1,38 @@
 # Registro de Cambios (AI Changelog)
 
+## [2026-06-24] - Fase E: Bug Fixes Críticos Supabase, Race Conditions & Cache Integration
+**Rama:** `AI_rolbot`
+
+- **Corregido (Race Conditions & Transacciones):**
+  - `economyService.transferMoney()`: Ahora atómico con rollback compensatorio si falla el segundo update. Invalidación de cache `invalidateUserCache` + `invalidateTopBalancesCache`.
+  - `characterService.createCharacter()`: Elimina count check + existence check previos; confía en UNIQUE constraint `(player_phone, slug)` y atrapa código 23505. Cache invalidado.
+  - `characterService.setActiveCharacter()`: Dos updates atómicos (desactivar otros + activar uno) con validación de errores. Invalida cache de usuario.
+  - `groupActivityService.saveGroupActivity()`: Lanza error si upsert de grupo falla, valida cada upsert de miembro. Invalida cache de grupo.
+
+- **Seguridad en Queries (Null Checks):**
+  - Nuevo `src/utils/safeQuery.js`: `safeSingle`, `safeSingleOrNull`, `safeMaybeSingle` — wrappers tipados para `.single()`/`.maybeSingle()` que lanzan en error real o retornan `null` en PGRST116.
+  - Aplicado en: `userService.getUserProfile` (con cache LRU 30s), `characterService` (getCharacter, getActiveCharacter, getCharacterBySlug, updateCharacterStats, editCharacter, deleteCharacter), `groupActivityService` (getGroupActivity), `economyService` (getTopBalances).
+
+- **Cache LRU + TTL Integrado (Phase D follow-up):**
+  - Cache en 10+ funciones: `getUserProfile`, `listUserProfiles`, `getTopBalances`, `getTopActiveUsers`, `getGroupActivity`, `getTopGroupMembers`, `listCharacters`, `getCharacter`, `getActiveCharacter`, `getCharacterBySlug`.
+  - TTLs: user/profile 30s, tops 30-60s, memory context 30s, classification 1h.
+  - Invalidación automática en TODOS los writes: `saveUserProfile`, `saveGroupActivity`, `createCharacter`, `updateCharacterStats`, `editCharacter`, `deleteCharacter`, `setActiveCharacter`, `claimDaily`, `transferMoney`, `addMoney`, `removeMoney`, `setMoney`.
+
+- **Validación Adicional:**
+  - `dar_stelas`: Verifica `getUserProfile(targetId)` antes de transferir → error claro si usuario no existe.
+
+- **Tests (Sin Regresión):**
+  - `test_prompt_cache.js`: 22/22 ✅
+  - `test_context_compactor.js`: 21/21 ✅
+  - `test_crear_pj.js`: 3/3 ✅
+  - `test_command_usage_format.js` ✅
+  - `test_memory_context.js` ✅
+  - `test_token_saving_delegation.js` ✅
+
+- **Archivos Creados/Modificados:**
+  - Creados: `src/utils/safeQuery.js`, `src/services/ai/promptCacheService.js`, `src/services/ai/contextCompactor.js`, `tests/test_prompt_cache.js`, `tests/test_context_compactor.js`
+  - Modificados: `economyService.js`, `characterService.js`, `groupActivityService.js`, `userService.js`, `aiOrchestrator.js`, `aiDispatcher.js`, `memoryContextService.js`, `aiConfig.js`, `dar_stelas.js`, `task.md`, `design_board.md`
+
 ## [2026-06-24] - Fase D: Prompt Cache y Context Compaction
 **Rama:** `AI_rolbot`
 
