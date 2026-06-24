@@ -93,5 +93,6 @@ module.exports = {
   invalidateTopBalancesCache,
   invalidateTopActiveUsersCache,
   invalidateAllCache,
+  cache,
   TTLS,
 };

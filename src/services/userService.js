@@ -1,3 +1,4 @@
+const { supabase } = require("../database/supabase");
 const { safeSingleOrNull, userCacheKey, invalidateUserCache, invalidateAllCache, TTLS, cache, topActiveUsersCacheKey, cachedRead } = require("../utils/safeQuery");
 
 function stripAccents(text) {
