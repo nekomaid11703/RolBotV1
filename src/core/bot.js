@@ -21,6 +21,10 @@ async function startBot() {
   try {
     console.log("🚀 Iniciando bot...\n");
 
+    const { invalidateAllCache } = require("../utils/safeQuery");
+    invalidateAllCache();
+    console.log("📦 Cache local limpiado. Los datos se leerán desde Supabase.\n");
+
     await logSystem("Iniciando bot");
 
     const { state, saveCreds } = await useSupabaseAuthState('bot-session-1');

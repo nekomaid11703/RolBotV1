@@ -76,6 +76,19 @@ Status: In Progress
 - [x] Validación `targetId` existe en `dar_stelas` antes de transferir.
 - [x] Tests: `test_prompt_cache.js` (22/22), `test_context_compactor.js` (21/21), `test_crear_pj.js` (3/3), `command_usage_format`, `memory_context`, `token_saving_delegation` — todos verdes sin regresión.
 
+## Phase 9 - Supabase Source of Truth & Sync Infrastructure
+
+- [x] Auditar datos locales vs Supabase — 30 players, 1 char, 6 groups, 43 members, 284 auth en Supabase. Cero datos transaccionales en local (solo JSONL de memoria IA).
+- [x] Crear `src/services/syncService.js` con `verifySync()`, `forceSync()`, `clearServiceCaches()`, `fetchAllFromSupabase()`.
+- [x] Crear `scripts/force_sync.js` — CLI tool con `--verify-only` para verificar sin limpiar cache.
+- [x] Añadir `bypassCache` option a TODAS las funciones de lectura: `getUserProfile`, `listUserProfiles`, `getTopBalances`, `getTopActiveUsers`, `getGroupActivity`, `getTopGroupMembers`, `listCharacters`, `getCharacter`, `getActiveCharacter`, `getCharacterBySlug`.
+- [x] Añadir `cachedRead()` helper genérico en `safeQuery.js` con soporte `bypassCache`.
+- [x] Añadir `invalidateAllCache()` en `safeQuery.js`.
+- [x] Limpiar cache al inicio del bot (`bot.js` startup) — garantiza datos frescos desde Supabase en cada reinicio.
+- [x] Verificar que TODAS las escrituras van a Supabase primero (ninguna a local): auditados `saveUserProfile`, `saveGroupActivity`, `addMoney`, `removeMoney`, `setMoney`, `transferMoney`, `createCharacter`, `updateCharacterStats`, `editCharacter`, `deleteCharacter`, `setActiveCharacter`, `recordUserActivity`, `ensureUserProfile` — todas escriben a Supabase directo.
+- [x] Tests: `test_prompt_cache.js` (22/22), `test_context_compactor.js` (21/21), `test_crear_pj.js` (3/3), `command_usage_format`, `memory_context`, `token_saving_delegation` — todos verdes sin regresión.
+- [x] Memoria persistente, design_board, task.md, AI_CHANGELOG actualizados.
+
 ## Pending External Requirements
 
 - [ ] GitHub MCP requires Docker or Go plus a real GitHub token.

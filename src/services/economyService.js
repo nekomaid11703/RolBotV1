@@ -329,13 +329,15 @@ async function claimDaily({
   };
 }
 
-async function getTopBalances(limit = 10) {
+async function getTopBalances(limit = 10, bypassCache = false) {
   const cacheKey = topBalancesCacheKey(limit);
-  const cached = cache.get(cacheKey);
-  if (cached) return cached;
+  if (!bypassCache) {
+    const cached = cache.get(cacheKey);
+    if (cached) return cached;
+  }
 
   const safeLimit = Math.max(1, Math.floor(Number(limit) || 10));
-  const users = await listUserProfiles();
+  const users = await listUserProfiles(bypassCache);
 
   const result = users
     .map(({ profile }) => ({

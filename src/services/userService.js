@@ -1,4 +1,4 @@
-const { safeSingleOrNull, userCacheKey, invalidateUserCache, TTLS, cache, topActiveUsersCacheKey } = require("../utils/safeQuery");
+const { safeSingleOrNull, userCacheKey, invalidateUserCache, invalidateAllCache, TTLS, cache, topActiveUsersCacheKey, cachedRead } = require("../utils/safeQuery");
 
 function stripAccents(text) {
   return String(text || "")
@@ -28,10 +28,12 @@ function getCreatorFolderName(creatorName, creatorId) {
   return `${sanitizeName(creatorName)}__${creatorDigits(creatorId)}`;
 }
 
-async function listUserProfiles() {
+async function listUserProfiles(bypassCache = false) {
   const cacheKey = 'allUserProfiles';
-  const cached = cache.get(cacheKey);
-  if (cached) return cached;
+  if (!bypassCache) {
+    const cached = cache.get(cacheKey);
+    if (cached) return cached;
+  }
 
   const { data, error } = await supabase.from('players').select('*');
   if (error || !data) return [];
@@ -247,10 +249,12 @@ async function ensureUserProfile({
   return { folder: "supabase", profilePath: "supabase", profile };
 }
 
-async function getUserProfile({ creatorId }) {
-  const cacheKey = userCacheKey(creatorId);
-  const cached = cache.get(cacheKey);
-  if (cached) return cached;
+async function getUserProfile({ creatorId, bypassCache = false }) {
+  const key = userCacheKey(creatorId);
+  if (!bypassCache) {
+    const cached = cache.get(key);
+    if (cached) return cached;
+  }
 
   const data = await safeSingleOrNull(
     supabase.from('players').select('*').eq('phone', creatorId)
@@ -265,7 +269,7 @@ async function getUserProfile({ creatorId }) {
   profile.metadata.lastSeenAt = data.last_active_at || profile.createdAt;
 
   const result = { folder: "supabase", profilePath: "supabase", profile };
-  cache.set(cacheKey, result, TTLS.memoryContext);
+  cache.set(key, result, TTLS.memoryContext);
   return result;
 }
 
@@ -561,13 +565,15 @@ function sortActivityProfilesDesc(a, b) {
   return String(a.displayName || "").localeCompare(String(b.displayName || ""), "es");
 }
 
-async function getTopActiveUsers({ limit = 10 } = {}) {
+async function getTopActiveUsers({ limit = 10, bypassCache = false } = {}) {
   const cacheKey = topActiveUsersCacheKey(limit);
-  const cached = cache.get(cacheKey);
-  if (cached) return cached;
+  if (!bypassCache) {
+    const cached = cache.get(cacheKey);
+    if (cached) return cached;
+  }
 
   const safeLimit = Math.max(1, Math.min(50, Math.floor(Number(limit) || 10)));
-  const profiles = await listUserProfiles();
+  const profiles = await listUserProfiles(bypassCache);
 
   const result = profiles
     .map((entry) => {

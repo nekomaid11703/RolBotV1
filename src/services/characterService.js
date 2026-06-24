@@ -1,5 +1,5 @@
 const { supabase } = require("../database/supabase");
-const { invalidateUserCache, charactersCacheKey } = require("../utils/safeQuery");
+const { invalidateUserCache, invalidateAllCache, charactersCacheKey, cachedRead, cache, TTLS } = require("../utils/safeQuery");
 const {
   CHARACTER_CATEGORIES,
   DEFAULT_CHARACTER_STATS,
@@ -111,11 +111,13 @@ async function createCharacter({
   return normalized;
 }
 
-async function getCharacter({ creatorId, characterName }) {
+async function getCharacter({ creatorId, characterName, bypassCache = false }) {
   const slug = getCharacterSlug(characterName);
   const cacheKey = `character:${creatorId}:${slug}`;
-  const cached = cache.get(cacheKey);
-  if (cached) return cached;
+  if (!bypassCache) {
+    const cached = cache.get(cacheKey);
+    if (cached) return cached;
+  }
 
   const data = await safeSingleOrNull(
     supabase.from("characters")
@@ -132,10 +134,12 @@ async function getCharacter({ creatorId, characterName }) {
   return normalized;
 }
 
-async function listCharacters({ creatorId }) {
+async function listCharacters({ creatorId, bypassCache = false }) {
   const cacheKey = charactersCacheKey(creatorId);
-  const cached = cache.get(cacheKey);
-  if (cached) return cached;
+  if (!bypassCache) {
+    const cached = cache.get(cacheKey);
+    if (cached) return cached;
+  }
 
   const { data, error } = await supabase
     .from("characters")
@@ -155,10 +159,12 @@ async function listCharacters({ creatorId }) {
   return result;
 }
 
-async function getActiveCharacter({ creatorId }) {
+async function getActiveCharacter({ creatorId, bypassCache = false }) {
   const cacheKey = `activeCharacter:${creatorId}`;
-  const cached = cache.get(cacheKey);
-  if (cached) return cached;
+  if (!bypassCache) {
+    const cached = cache.get(cacheKey);
+    if (cached) return cached;
+  }
 
   const { data, error } = await supabase
     .from("characters")
@@ -378,10 +384,12 @@ async function deleteCharacter({ creatorId, characterName }) {
   return true;
 }
 
-async function getCharacterBySlug({ creatorId, slug }) {
+async function getCharacterBySlug({ creatorId, slug, bypassCache = false }) {
   const cacheKey = `character:${creatorId}:${slug}`;
-  const cached = cache.get(cacheKey);
-  if (cached) return cached;
+  if (!bypassCache) {
+    const cached = cache.get(cacheKey);
+    if (cached) return cached;
+  }
 
   const data = await safeSingleOrNull(
     supabase.from("characters")

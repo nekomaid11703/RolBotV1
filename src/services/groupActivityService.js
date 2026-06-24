@@ -72,11 +72,13 @@ function resolveBucket(messageType) {
   return null;
 }
 
-async function getGroupActivity(groupId) {
+async function getGroupActivity(groupId, bypassCache = false) {
   if (!groupId) return null;
   const cacheKey = groupCacheKey(groupId);
-  const cached = cache.get(cacheKey);
-  if (cached) return cached;
+  if (!bypassCache) {
+    const cached = cache.get(cacheKey);
+    if (cached) return cached;
+  }
 
   const group = await safeSingleOrNull(
     supabase.from('groups').select('*').eq('group_jid', groupId)
@@ -224,12 +226,15 @@ async function recordGroupActivity({
 async function getTopGroupMembers({
   groupId,
   limit = GROUP_TOP_LIMIT,
+  bypassCache = false,
 }) {
   const cacheKey = topGroupMembersCacheKey(groupId, limit);
-  const cached = cache.get(cacheKey);
-  if (cached) return cached;
+  if (!bypassCache) {
+    const cached = cache.get(cacheKey);
+    if (cached) return cached;
+  }
 
-  const record = await getGroupActivity(groupId);
+  const record = await getGroupActivity(groupId, bypassCache);
 
   if (!record) {
     return [];

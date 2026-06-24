@@ -21,6 +21,16 @@ async function safeMaybeSingle(query) {
   return data;
 }
 
+async function cachedRead({ key, fetch, ttl, bypassCache = false }) {
+  if (!bypassCache) {
+    const cached = cache.get(key);
+    if (cached) return cached;
+  }
+  const data = await fetch();
+  cache.set(key, data, ttl);
+  return data;
+}
+
 function userCacheKey(creatorId) {
   return `user:${creatorId}`;
 }
@@ -63,10 +73,15 @@ function invalidateTopActiveUsersCache() {
   cache.invalidate(k => k.startsWith('topActiveUsers:'));
 }
 
+function invalidateAllCache() {
+  cache.clear();
+}
+
 module.exports = {
   safeSingle,
   safeSingleOrNull,
   safeMaybeSingle,
+  cachedRead,
   userCacheKey,
   groupCacheKey,
   charactersCacheKey,
@@ -77,5 +92,6 @@ module.exports = {
   invalidateGroupCache,
   invalidateTopBalancesCache,
   invalidateTopActiveUsersCache,
+  invalidateAllCache,
   TTLS,
 };

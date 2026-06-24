@@ -1,5 +1,31 @@
 # Registro de Cambios (AI Changelog)
 
+## [2026-06-24] - Phase F: Supabase Source of Truth & Sync Infrastructure
+**Rama:** `AI_rolbot`
+
+- **Añadido:**
+  - `src/services/syncService.js`: `verifySync()`, `forceSync()`, `clearServiceCaches()`, `fetchAllFromSupabase()` — núcleo de sincronización que asegura Supabase como fuente de verdad.
+  - `scripts/force_sync.js`: CLI tool con `--verify-only` para verificar sin limpiar cache. Uso: `node scripts/force_sync.js [--verify-only]`.
+  - `cachedRead({ key, fetch, ttl, bypassCache })` helper genérico en `safeQuery.js` con soporte `bypassCache`.
+  - `invalidateAllCache()` en `safeQuery.js` — limpia todo el cache LRU en memoria.
+
+- **Modificado:**
+  - `bot.js`: Al iniciar, limpia cache con `invalidateAllCache()` para garantizar datos frescos desde Supabase en cada reinicio.
+  - `userService.js`: `getUserProfile`, `listUserProfiles`, `getTopActiveUsers` aceptan `{ bypassCache }` para forzar lectura desde Supabase.
+  - `economyService.js`: `getTopBalances` acepta `bypassCache`.
+  - `characterService.js`: `getCharacter`, `listCharacters`, `getActiveCharacter`, `getCharacterBySlug` aceptan `{ bypassCache }`.
+  - `groupActivityService.js`: `getGroupActivity`, `getTopGroupMembers` aceptan `bypassCache`.
+
+- **Auditado:**
+  - Supabase: 30 players, 1 character, 6 groups, 43 group_members, 284 bot_auth_state registros.
+  - Local: 0 archivos persistentes con datos transaccionales. Solo `rolbot-memory.jsonl` (24 entradas de metadata IA) y `design_board.md`.
+  - Todas las escrituras van directamente a Supabase: `saveUserProfile`, `saveGroupActivity`, `addMoney`, `removeMoney`, `setMoney`, `transferMoney`, `createCharacter`, `updateCharacterStats`, `editCharacter`, `deleteCharacter`, `setActiveCharacter`, `recordUserActivity`, `ensureUserProfile` — ninguna escribe a local primero.
+
+- **Validado:**
+  - `node scripts/force_sync.js --verify-only` (30/1/6/43/284 registros OK)
+  - `node scripts/force_sync.js` (cache limpiado, sync completado)
+  - Tests: 22/22 prompt_cache, 21/21 context_compactor, 3/3 crear_pj, command_usage_format, memory_context, token_saving_delegation — todos verdes
+
 ## [2026-06-24] - Fase E: Bug Fixes Críticos Supabase, Race Conditions & Cache Integration
 **Rama:** `AI_rolbot`
 
