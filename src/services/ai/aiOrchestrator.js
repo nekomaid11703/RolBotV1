@@ -8,7 +8,7 @@
  * - Método dispatchTasks() para despachar múltiples subtareas a modelos externos
  */
 
-const { PROVIDER_PRIORITIES } = require("./aiConfig");
+const { PROVIDER_PRIORITIES, CACHE_POLICY } = require("./aiConfig");
 const GeminiProvider = require("./providers/geminiProvider");
 const HuggingFaceProvider = require("./providers/huggingfaceProvider");
 const OllamaProvider = require("./providers/ollamaProvider");
@@ -17,6 +17,8 @@ const AiDispatcher = require("./aiDispatcher");
 const { workerPool, AiWorkerPool } = require("./aiWorkerPool");
 const memoryContextService = require("./memoryContextService");
 const TokenSavingDelegationManager = require("./tokenSavingDelegationManager");
+const { cache, generateCacheKey, classificationCacheKey, TTLS } = require("./promptCacheService");
+const { compactPrompt, minifyClassificationPrompt } = require("./contextCompactor");
 
 class AiOrchestrator {
   constructor() {
@@ -104,6 +106,8 @@ class AiOrchestrator {
     useMemory = false,
     memoryTags = [],
     memoryLimit = 4,
+    bypassCache = false,
+    maxTokens,
   }) {
     this.init();
 
@@ -132,16 +136,57 @@ class AiOrchestrator {
       memoryContext,
     );
 
+    const compacted = compactPrompt({
+      prompt: promptWithMemory,
+      systemInstruction,
+      memoryContext: memoryContext.text,
+      maxTokens: maxTokens || undefined,
+    });
+
+    const finalPrompt = compacted.prompt;
+    const finalSystemInstruction = compacted.systemInstruction;
+
+    const shouldCache = !bypassCache && (temperature === undefined || temperature <= CACHE_POLICY.bypassOnTemperatureAbove);
+    if (shouldCache) {
+      for (const providerName of providersToTry) {
+        const cacheKey = generateCacheKey({
+          prompt: finalPrompt,
+          systemInstruction: finalSystemInstruction,
+          temperature,
+          model,
+          provider: providerName,
+        });
+        const cached = cache.get(cacheKey);
+        if (cached) {
+          console.log(`💫 [Cache HIT] generateText para proveedor '${providerName}'`);
+          return cached;
+        }
+      }
+    }
+
     const errors = [];
     for (const providerName of providersToTry) {
       const provider = this.providers[providerName];
       try {
-        return await provider.generateText({
-          prompt: promptWithMemory,
-          systemInstruction,
+        const result = await provider.generateText({
+          prompt: finalPrompt,
+          systemInstruction: finalSystemInstruction,
           temperature,
           model,
         });
+
+        if (shouldCache) {
+          const cacheKey = generateCacheKey({
+            prompt: finalPrompt,
+            systemInstruction: finalSystemInstruction,
+            temperature,
+            model,
+            provider: providerName,
+          });
+          cache.set(cacheKey, result, TTLS.textGeneration);
+        }
+
+        return result;
       } catch (error) {
         const errorMsg = `Error en proveedor '${providerName}': ${error.message}`;
         console.warn(`⚠️ [AI Orchestrator Fallback] ${errorMsg}. Probando siguiente proveedor...`);
@@ -152,7 +197,7 @@ class AiOrchestrator {
     throw new Error(`Todos los proveedores de IA fallaron al generar texto. Detalles:\n- ${errors.join("\n- ")}`);
   }
 
-  async classifyText({ text, candidateLabels, providerPreference, model }) {
+  async classifyText({ text, candidateLabels, providerPreference, model, bypassCache = false }) {
     this.init();
 
     let providersToTry = [];
@@ -166,11 +211,33 @@ class AiOrchestrator {
       throw new Error("No hay proveedores de IA configurados o disponibles para clasificar texto.");
     }
 
+    const minifiedText = minifyClassificationPrompt(text, candidateLabels);
+
+    if (!bypassCache) {
+      for (const providerName of providersToTry) {
+        const cacheKey = classificationCacheKey(minifiedText, candidateLabels, providerName, model);
+        const cached = cache.get(cacheKey);
+        if (cached) {
+          console.log(`💫 [Cache HIT] classifyText para proveedor '${providerName}'`);
+          return cached;
+        }
+      }
+    }
+
     const errors = [];
     for (const providerName of providersToTry) {
       const provider = this.providers[providerName];
       try {
-        return await provider.classifyText({ text, candidateLabels, model });
+        const result = await provider.classifyText({
+          text: minifiedText,
+          candidateLabels,
+          model,
+        });
+
+        const cacheKey = classificationCacheKey(minifiedText, candidateLabels, providerName, model);
+        cache.set(cacheKey, result, TTLS.classification);
+
+        return result;
       } catch (error) {
         const errorMsg = `Error en proveedor de clasificación '${providerName}': ${error.message}`;
         console.warn(`⚠️ [AI Orchestrator Fallback] ${errorMsg}. Probando siguiente clasificador...`);

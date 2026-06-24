@@ -50,6 +50,20 @@ Status: In Progress
 - [x] Harden delegated workflows so quota/token exhaustion returns structured fallback instead of throwing.
 - [x] Validate continuation after a Codex pause without losing partial work.
 
+## Phase 7 - Prompt Cache And Context Compaction
+
+- [x] Create `promptCacheService.js` with LRU cache, TTL, key generation, and stats.
+- [x] Create `contextCompactor.js` with token estimation, smart trimming, and classification minification.
+- [x] Integrate cache into `aiOrchestrator.generateText()` — check cache before provider call, bypass if temperature > 0.7.
+- [x] Integrate cache into `aiOrchestrator.classifyText()` — cache classification results with 1h TTL.
+- [x] Add memory context compaction via `compactMemoryEntries()` in `memoryContextService.js`.
+- [x] Add 30s cache for memory retrieval to avoid redundant JSONL reads.
+- [x] Cache `_inferTaskType` results in `aiDispatcher.js`.
+- [x] Add `CACHE_POLICY` and `COMPACTION_POLICY` to `aiConfig.js`.
+- [x] Write `tests/test_prompt_cache.js` (22 tests, all pass).
+- [x] Write `tests/test_context_compactor.js` (21 tests, all pass).
+- [x] Verify no regressions in existing tests (command_usage_format, memory_context, crear_pj).
+
 ## Pending External Requirements
 
 - [ ] GitHub MCP requires Docker or Go plus a real GitHub token.

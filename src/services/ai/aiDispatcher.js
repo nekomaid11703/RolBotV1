@@ -13,6 +13,7 @@ const {
   AUTO_CLASSIFY_LABELS,
   DEFAULT_MODELS,
 } = require("./aiConfig");
+const { cache, TTLS } = require("./promptCacheService");
 
 class AiDispatcher {
   /**
@@ -123,11 +124,17 @@ class AiDispatcher {
    * Usa el proveedor de clasificación más barato disponible.
    */
   async _inferTaskType(taskDescription) {
+    const cacheKey = `dispatch:infer:${taskDescription.trim().toLowerCase().slice(0, 200)}`;
+    const cached = cache.get(cacheKey);
+    if (cached) {
+      console.log(`💫 [Cache HIT] _inferTaskType: "${cached}"`);
+      return cached;
+    }
+
     try {
       const result = await this.orchestrator.classifyText({
         text: `Tarea de desarrollo: "${taskDescription}"`,
         candidateLabels: AUTO_CLASSIFY_LABELS,
-        // Preferir openrouter para no gastar cuota de Gemini en clasificación
         providerPreference: this.orchestrator.providers.openrouter
           ? "openrouter"
           : undefined,
@@ -135,15 +142,14 @@ class AiDispatcher {
 
       const inferred = result.intent;
 
-      // Validar que el label inferido existe en los perfiles
       if (TASK_PROFILES[inferred]) {
         console.log(
           `🧭 [Dispatcher] Tarea auto-clasificada como: "${inferred}" (confianza: ${(result.confidence * 100).toFixed(0)}%)`
         );
+        cache.set(cacheKey, inferred, TTLS.classification);
         return inferred;
       }
 
-      // Si la confianza es baja o el label no coincide exactamente, usar MEDIUM como fallback seguro
       console.warn(
         `⚠️ [Dispatcher] Clasificación con baja confianza ("${inferred}"). Usando fallback: "implementFeature"`
       );

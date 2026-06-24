@@ -11,6 +11,22 @@
 // Prioridades de proveedor por tipo de operación
 // ─────────────────────────────────────────────────────────────────────────────
 
+const CACHE_POLICY = {
+  maxSize: 100,
+  defaultTTL: 300000,
+  classificationTTL: 3600000,
+  delegationPlanTTL: 600000,
+  memoryContextTTL: 30000,
+  bypassOnTemperatureAbove: 0.7,
+};
+
+const COMPACTION_POLICY = {
+  maxPromptTokens: 2048,
+  maxMemoryContextTokens: 500,
+  minClassificationPromptChars: 100,
+  preserveHeadTailRatio: 0.3,
+};
+
 const PROVIDER_PRIORITIES = {
   textGeneration: ["gemini", "openrouter", "ollama", "huggingface"],
   classification: ["gemini", "openrouter", "huggingface", "ollama"],
@@ -245,6 +261,8 @@ const TASK_PROFILES = {
 const AUTO_CLASSIFY_LABELS = Object.keys(TASK_PROFILES);
 
 module.exports = {
+  CACHE_POLICY,
+  COMPACTION_POLICY,
   PROVIDER_PRIORITIES,
   DEFAULT_MODELS,
   CONCURRENCY_LIMITS,

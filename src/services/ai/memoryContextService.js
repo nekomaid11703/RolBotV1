@@ -8,6 +8,8 @@
 
 const fs = require("fs/promises");
 const path = require("path");
+const { compactMemoryEntries } = require("./contextCompactor");
+const { cache, memoryCacheKey, TTLS } = require("./promptCacheService");
 
 const PROJECT_ROOT = path.resolve(__dirname, "../../..");
 const DEFAULT_MEMORY_FILE = path.join(
@@ -150,10 +152,15 @@ async function retrieveMemoryContext({
   tags = [],
   limit = 4,
   maxChars = 1800,
+  maxTokens = 500,
   includeBoard = true,
   memoryFilePath = DEFAULT_MEMORY_FILE,
   boardFilePath = DEFAULT_BOARD_FILE,
 } = {}) {
+  const cacheKey = memoryCacheKey({ prompt, tags, limit, includeBoard });
+  const cached = cache.get(cacheKey);
+  if (cached) return cached;
+
   const entries = await readMemoryEntries(memoryFilePath);
   const queryTokens = tokenize(`${taskType} ${systemInstruction} ${prompt}`);
   const requestedTags = Array.isArray(tags) ? tags : [];
@@ -172,18 +179,22 @@ async function retrieveMemoryContext({
     .slice(0, Math.max(0, Math.min(10, Number(limit) || 4)))
     .map(({ entry }) => entry);
 
+  const compacted = compactMemoryEntries(scored, maxTokens);
   const boardText = includeBoard ? await readTextFile(boardFilePath, "") : "";
   const text = formatMemoryContext({
-    entries: scored,
+    entries: compacted,
     boardText,
     maxChars: Math.max(300, Number(maxChars) || 1800),
   });
 
-  return {
+  const result = {
     text,
-    entries: scored,
+    entries: compacted,
     boardIncluded: Boolean(extractActiveBoard(boardText)),
   };
+
+  cache.set(cacheKey, result, TTLS.memoryContext);
+  return result;
 }
 
 function withMemoryContext(prompt, memoryContext) {
