@@ -49,7 +49,7 @@ module.exports = {
         });
 
     if (!data) {
-      return ctx.reply(
+      return ctx.social(
         "❌ Ese usuario aún no tiene un perfil registrado en el bot."
       );
     }

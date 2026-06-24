@@ -41,7 +41,7 @@ module.exports = {
     });
 
     if (!character) {
-      return ctx.reply("❌ No tienes un personaje activo. Usa `/crear_pj` o `/switch_pj`.");
+      return ctx.social("❌ No tienes un personaje activo. Usa `/crear_pj` o `/switch_pj`.");
     }
 
     await ctx.reply(formatCharacter(character));
