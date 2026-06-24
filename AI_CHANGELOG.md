@@ -1,5 +1,20 @@
 # Registro de Cambios (AI Changelog)
 
+## [2026-06-24] - Separación Personalidad NekoMaid: Sistema vs Social
+**Rama:** `AI_rolbot`
+
+- **Problema:** `nekomaidVoice.injectPersonality()` se aplicaba automáticamente a TODO texto enviado por el bot mediante un heurístico frágil (detección de caracteres de recuadro/longitud/emojis), alterando mensajes de combate, estadísticas, inventario y sistema RPG que no usaran esos marcadores.
+- **Cambio en API core:**
+  - `ctx.reply(text, options)` — modo **limpio por defecto**. Solo aplica personalidad si `options.vibe` está presente.
+  - `ctx.social(text, options)` — nuevo método que **siempre aplica personalidad** NekoMaid (vibe por defecto: `'neutral'`).
+  - Eliminado el heurístico automático de `context.js` que inyectaba personalidad basado en patrones de contenido.
+- **Migración:** ~60 llamadas `ctx.reply()` en mensajes sociales (usage, errores, feedback, help, saludos) migradas a `ctx.social()` en 28 archivos de comandos. Las ~34 llamadas de sistema (economía, stats, personajes, actividad) no requirieron cambios.
+- **Archivos modificados:**
+  - `src/core/context.js` — `reply()` limpio, añadido `social()`
+  - `src/services/rpg/nekomaidVoice.js` — ajustado `say()` para nuevo API
+  - 28 archivos de comandos en `src/commands/` — `ctx.reply()` social → `ctx.social()`
+- **Memoria:** `mem-1782342561757`
+
 ## [2026-06-24] - Phase G: Bug Report Multi-Agent System
 **Rama:** `AI_rolbot`
 
