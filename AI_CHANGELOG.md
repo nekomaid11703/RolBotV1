@@ -1,9 +1,60 @@
 # Registro de Cambios (AI Changelog)
 
+## [2026-06-24] - Fase D: Prompt Cache y Context Compaction
+**Rama:** `AI_rolbot`
+
+- **Añadido:**
+  - `src/services/ai/promptCacheService.js`: LRU cache con TTL por tipo, `generateCacheKey()`, `classificationCacheKey()`, `memoryCacheKey()`, `invalidate(predicate)` y `stats()`.
+  - `src/services/ai/contextCompactor.js`: `estimateTokens()`, `stripExcessWhitespace()`, `truncatePreservingHeadTail()`, `compactMemoryEntries()`, `minifyClassificationPrompt()`, `compactPrompt()` con token budget.
+  - `tests/test_prompt_cache.js`: 22 pruebas de cache (set/get, LRU eviction, TTL, stats, key consistency, invalidate).
+  - `tests/test_context_compactor.js`: 21 pruebas de compactación (token estimation, whitespace, head/tail truncation, memory compaction, classification minification, prompt budget).
+- **Modificado:**
+  - `aiOrchestrator.js`: `generateText()` verifica cache antes de llamar al provider, bypass si temperatura > 0.7. `classifyText()` cachea resultados con TTL de 1h, prompt de clasificación minificado.
+  - `memoryContextService.js`: `retrieveMemoryContext()` usa `compactMemoryEntries()` para priorizar entradas por score dentro de un token budget, cachea resultado por 30s.
+  - `aiDispatcher.js`: `_inferTaskType()` cachea resultados de clasificación con TTL de clasificación.
+  - `aiConfig.js`: Nuevas políticas `CACHE_POLICY` y `COMPACTION_POLICY`.
+  - `task.md`: Phase 7 añadida con todos los items marcados como completados.
+- **Validado:**
+  - `node tests/test_prompt_cache.js` (22/22)
+  - `node tests/test_context_compactor.js` (21/21)
+  - `node tests/test_command_usage_format.js` (sin regresión)
+  - `node tests/test_memory_context.js` (sin regresión)
+  - `node tests/test_crear_pj.js` (sin regresión)
+
+## [2026-06-24] - Push de Rama AI_rolbot y Registro de Estado
+**Rama:** `AI_rolbot`
+
+- **Añadido:**
+  - Rama `AI_rolbot` creada desde `AI_bot` y pusheada a `origin`.
+  - Memoria persistente registrada con handoff para fases siguientes.
+- **Validado:**
+  - `git push origin AI_rolbot` exitoso.
+
+## [2026-06-24] - Fase B/C: GitHub MCP Conectado (Opción C)
+**Rama:** `AI_rolbot`
+
+- **Añadido:**
+  - `opencode.json`: Configuración de MCPs nekomemori (local) y github (remote streamable-http) para el workspace.
+  - Variable `GITHUB_PERSONAL_ACCESS_TOKEN` en `.env` (gitignored) con PAT de nekomaid11703.
+  - Memoria `mem-1750000000001` registrando la conexión.
+- **Validado:**
+  - `initialize` handshake HTTP 200 OK, `serverInfo: github-mcp-server/remote-...`.
+  - Token válido para usuario `nekomaid11703` via GitHub API (`GET /user`).
+
+## [2026-06-24] - Fase A: Preparación del Entorno
+**Rama:** `AI_rolbot`
+
+- **Corregido:**
+  - Directorio `.git` corrupto en raíz del proyecto eliminado (el repositorio real está en `RolBotV1/`).
+  - `Set-ExecutionPolicy RemoteSigned` habilitado para permitir npm.
+- **Validado:**
+  - NekoMemori MCP v2.0.0: handshake MCP + `tools/list` devuelve 7 herramientas operativas.
+  - Supabase: `node test_supa.js` — conexión exitosa, tabla `bot_auth_state` accesible.
+
 ## [2026-06-23] - Revision Estetica Profunda de Comandos y Fallback de Pausa
 **Rama:** `AI_bot`
 
-- **Anadido:**
+- **Añadido:**
   - `src/utils/messageFormatUtils.js`: helper compartido para tarjetas de uso, formularios, feedback y errores.
   - `tests/test_command_usage_format.js`: prueba que ejecuta comandos sin argumentos y valida que devuelvan uso/plantilla con ejemplo.
 - **Modificado:**
@@ -21,7 +72,7 @@
 ## [2026-06-23] - Plan Automatico de Ahorro de Tokens Multi-Agente
 **Rama:** `AI_bot`
 
-- **Anadido:**
+- **Añadido:**
   - `src/services/ai/tokenSavingDelegationManager.js`: gestor automatico que decide si conviene delegar una tarea a agentes externos o mantenerla en Codex/Antigravity cuando el ahorro/calidad no compensa.
   - Politica `TOKEN_SAVING_POLICY` y matriz `PROVIDER_CAPABILITIES` en `aiConfig.js` para priorizar calidad y gratuidad por proveedor.
   - Perfiles `qualityGate` y `assembleResults` para revision final de maxima calidad y ensamblaje coherente.
