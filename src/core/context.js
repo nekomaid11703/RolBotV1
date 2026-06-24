@@ -4,10 +4,6 @@ const {
 } = require("../utils/identityUtils");
 const { injectPersonality } = require("../services/rpg/nekomaidVoice");
 
-function formatSocial(text, vibe) {
-  return vibe ? injectPersonality(text, vibe) : text;
-}
-
 const TEXT_MESSAGE_TYPES = new Set([
   "conversation",
   "extendedtextmessage",
@@ -152,16 +148,17 @@ function createContext(sock, msg) {
       }
 
       if (typeof content === "string") {
-        const { vibe, ...sendOpts } = options;
-        const text = vibe ? injectPersonality(content, vibe) : content;
-        return sock.sendMessage(from, { text, ...sendOpts }, { quoted: msg });
+        const isFormatted = /[━━╭╰╮╯├┤└┘┌┐]/.test(content) || content.length > 300 || content.startsWith("❌") || content.startsWith("✅");
+        if (!isFormatted) {
+          content = injectPersonality(content);
+        }
       }
 
-      return sock.sendMessage(from, { text: content, ...options }, { quoted: msg });
-    },
-
-    async social(content, options = {}) {
-      return this.reply(content, { ...options, vibe: options.vibe || 'neutral' });
+      return sock.sendMessage(
+        from,
+        { text: content, ...options },
+        { quoted: msg },
+      );
     },
 
     async react(emoji) {

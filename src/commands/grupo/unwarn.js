@@ -42,14 +42,14 @@ module.exports = {
     const targetId = getFirstMentionedJid(ctx);
 
     if (!targetId) {
-      return ctx.social(usageMessage);
+      return ctx.reply(usageMessage);
     }
 
     const targetName = await resolveTargetDisplayName(ctx, targetId);
     const warns = await getWarns(ctx.from, targetId);
 
     if (warns.count <= 0) {
-      return ctx.social(`ℹ️ ${targetName} no tiene warns activos.`);
+      return ctx.reply(`ℹ️ ${targetName} no tiene warns activos.`);
     }
 
     warns.count = Math.max(0, (warns.count || 0) - 1);
@@ -60,7 +60,7 @@ module.exports = {
       await saveWarns(ctx.from, targetId, warns);
     }
 
-    await ctx.social(
+    await ctx.reply(
       [
         "━━━━━━━━━━━━━━━━━━━━",
         "✅ Warn removido",

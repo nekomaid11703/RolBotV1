@@ -33,13 +33,13 @@ module.exports = {
     const targetId = getFirstMentionedJid(ctx);
 
     if (!targetId) {
-      return ctx.social(usageMessage);
+      return ctx.reply(usageMessage);
     }
 
     const amount = extractAmountFromArgs(ctx.args);
 
     if (!amount) {
-      return ctx.social(usageMessage);
+      return ctx.reply(usageMessage);
     }
 
     try {
@@ -70,7 +70,7 @@ module.exports = {
         { mentions: [targetId] },
       );
     } catch (error) {
-      await ctx.social(formatError(error.message));
+      await ctx.reply(formatError(error.message));
     }
   },
 };

@@ -24,7 +24,7 @@ module.exports = {
       const metadata = await ctx.sock.groupMetadata(ctx.from);
       const groupName = String(metadata.subject || "el grupo").trim() || "el grupo";
 
-      await ctx.social(
+      await ctx.reply(
         [
           "━━━━━━━━━━━━━━━━━━━━",
           "🔗 Link de invitación",
@@ -37,7 +37,7 @@ module.exports = {
         ].join("\n"),
       );
     } catch (error) {
-      await ctx.social(formatError("No se pudo obtener el link. Asegúrate de que el bot sea admin."));
+      await ctx.reply(formatError("No se pudo obtener el link. Asegúrate de que el bot sea admin."));
     }
   },
 };

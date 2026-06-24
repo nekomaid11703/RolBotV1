@@ -30,11 +30,11 @@ module.exports = {
     const targetId = getFirstMentionedJid(ctx);
 
     if (!targetId) {
-      return ctx.social(usageMessage);
+      return ctx.reply(usageMessage);
     }
 
     if (isOwner(targetId)) {
-      return ctx.social("ℹ️ El creador ya tiene permisos de economía.");
+      return ctx.reply("ℹ️ El creador ya tiene permisos de economía.");
     }
 
     try {
@@ -53,12 +53,12 @@ module.exports = {
         },
       });
 
-      await ctx.social(
+      await ctx.reply(
         `✅ Permiso de economía otorgado a ${targetName}.`,
         { mentions: [targetId] },
       );
     } catch (error) {
-      await ctx.social(formatError(error.message));
+      await ctx.reply(formatError(error.message));
     }
   },
 };

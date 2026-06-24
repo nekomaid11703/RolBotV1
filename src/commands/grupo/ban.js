@@ -37,14 +37,14 @@ module.exports = {
     }
 
     if (!targetId) {
-      return ctx.social(usageMessage);
+      return ctx.reply(usageMessage);
     }
 
     const targetName = await resolveTargetDisplayName(ctx, targetId);
 
     try {
       await ctx.sock.groupParticipantsUpdate(ctx.from, [targetId], 'remove');
-      await ctx.social(
+      await ctx.reply(
         [
           "━━━━━━━━━━━━━━━━━━━━",
           "🚫 Miembro expulsado",
@@ -54,7 +54,7 @@ module.exports = {
         ].join("\n"),
       );
     } catch (error) {
-      await ctx.social(formatError(`No se pudo expulsar a ${targetName}. Asegúrate de que el bot sea admin.`));
+      await ctx.reply(formatError(`No se pudo expulsar a ${targetName}. Asegúrate de que el bot sea admin.`));
     }
   },
 };

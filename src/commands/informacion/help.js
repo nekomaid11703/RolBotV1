@@ -92,6 +92,6 @@ module.exports = {
     text += "────────────────────────\n";
     text += "🤖 *RolBotV1* | 👑 _Desarrollado por Nekomaid_\n";
 
-    await ctx.social(text);
+    await ctx.reply(text);
   },
 };

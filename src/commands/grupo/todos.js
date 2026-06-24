@@ -11,7 +11,7 @@ module.exports = {
   async execute(ctx) {
     const metadata = await getGroupMetadata(ctx.sock, ctx.from);
     if (!metadata) {
-      return ctx.social("No se pudo obtener la lista de miembros.");
+      return ctx.reply("No se pudo obtener la lista de miembros.");
     }
 
     const botJid = String(ctx.sock?.user?.id || "").split(":")[0] + "@s.whatsapp.net";
@@ -21,7 +21,7 @@ module.exports = {
       .filter(jid => jid !== botJid);
 
     if (participants.length === 0) {
-      return ctx.social("No hay miembros para mencionar.");
+      return ctx.reply("No hay miembros para mencionar.");
     }
 
     const groupName = String(metadata.subject || "el grupo").trim() || "el grupo";
@@ -38,6 +38,6 @@ module.exports = {
       body,
     ];
 
-    await ctx.social(lines.join("\n"), { mentions: participants });
+    await ctx.reply(lines.join("\n"), { mentions: participants });
   },
 };

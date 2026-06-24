@@ -12,7 +12,7 @@ module.exports = {
   async execute(ctx) {
     await ctx.react("👋");
 
-    await ctx.social(`👋 Hola ${formatDisplayMention(ctx.sender, ctx.userName || "usuario")}`, {
+    await ctx.reply(`👋 Hola ${formatDisplayMention(ctx.sender, ctx.userName || "usuario")}`, {
       mentions: [ctx.sender],
     });
   },

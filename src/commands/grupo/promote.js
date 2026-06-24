@@ -23,14 +23,14 @@ module.exports = {
     const targetId = getFirstMentionedJid(ctx);
 
     if (!targetId) {
-      return ctx.social(usageMessage);
+      return ctx.reply(usageMessage);
     }
 
     const targetName = await resolveTargetDisplayName(ctx, targetId);
 
     try {
       await ctx.sock.groupParticipantsUpdate(ctx.from, [targetId], 'promote');
-      await ctx.social(
+      await ctx.reply(
         [
           "━━━━━━━━━━━━━━━━━━━━",
           "👑 Admin promovido",
@@ -41,7 +41,7 @@ module.exports = {
         { mentions: [targetId] },
       );
     } catch (error) {
-      await ctx.social(formatError(`No se pudo promover a ${targetName}. Asegúrate de que el bot sea admin.`));
+      await ctx.reply(formatError(`No se pudo promover a ${targetName}. Asegúrate de que el bot sea admin.`));
     }
   },
 };
