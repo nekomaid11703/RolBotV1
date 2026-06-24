@@ -4,10 +4,6 @@ const {
 } = require("../utils/identityUtils");
 const { injectPersonality } = require("../services/rpg/nekomaidVoice");
 
-function formatSocial(text, vibe) {
-  return vibe ? injectPersonality(text, vibe) : text;
-}
-
 const TEXT_MESSAGE_TYPES = new Set([
   "conversation",
   "extendedtextmessage",

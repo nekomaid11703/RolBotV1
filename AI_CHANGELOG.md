@@ -1,6 +1,18 @@
 # Registro de Cambios (AI Changelog)
 
-## [2026-06-24] - Separación Personalidad NekoMaid: Sistema vs Social
+## [2026-06-24] - Fix: Inyección de personalidad natural (sin prefijos aleatorios)
+**Rama:** `AI_rolbot`
+
+- **Problema:** Los prefijos/sufijos aleatorios de `injectPersonality()` producían frases poco naturales como `"Bien~ Hola @usuario-kun"` donde "Bien~" no fluye con el texto porque son fragmentos independientes combinados al azar (35% prefijo + 40% sufijo + 15% título = 77% de mensajes con al menos una modificación impredecible).
+- **Solución:** Sistema determinístico por vibe con variedad controlada en sufijos:
+  - **Prefijos solo para `error`** (`Ay~/Vaya~/Mmm~`) y **`dom`** (`Atiende~/Escucha~`). `neutral`/`tease`/`greet`/`farewell` ya NO tienen prefijo.
+  - **Sufijos siempre** (pool de 2-3 opciones naturales por vibe). Sin probabilidad: se aplica siempre.
+  - **Honoríficos** (`-kun`/`-san`/`-chan`) en @menciones siempre para `neutral`/`tease`/`greet`.
+  - Eliminada toda aleatoriedad de capas (35%, 40%, 15%) y el regex frágil `( usuario| @\w+|$)`.
+- **Archivos modificados:**
+  - `src/services/rpg/nekomaidVoice.js` — reescrito `injectPersonality`, eliminados `buildPrefix`/`buildSuffix`, pools de PREFIX/SUFFIX simplificados
+  - `src/core/context.js` — eliminada función muerta `formatSocial`
+- **Memoria:** `mem-1782342964834` (resuelto)
 **Rama:** `AI_rolbot`
 
 - **Problema:** `nekomaidVoice.injectPersonality()` se aplicaba automáticamente a TODO texto enviado por el bot mediante un heurístico frágil (detección de caracteres de recuadro/longitud/emojis), alterando mensajes de combate, estadísticas, inventario y sistema RPG que no usaran esos marcadores.
