@@ -12,7 +12,7 @@ module.exports = {
     });
 
     if (!characters.length) {
-      return ctx.social("❌ No tienes personajes todavía. Usa `/crear_pj` para empezar.");
+      return ctx.reply("❌ No tienes personajes todavía. Usa `/crear_pj` para empezar.");
     }
 
     let text = "✦ ━━━━━━━━━━━━━━ ✦\n";
