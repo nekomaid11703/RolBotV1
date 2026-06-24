@@ -25,7 +25,7 @@ const usageMessage = formatCommandUsage({
 
 module.exports = {
   name: "add",
-  aliases: ["agregar", "invitar", "invite"],
+  aliases: ["agregar", "invitar"],
   description: "Añade un miembro al grupo por número.",
   category: "grupo",
   groupOnly: true,
