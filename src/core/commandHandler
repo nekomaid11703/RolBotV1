@@ -12,6 +12,7 @@ const {
   logCommand,
   logError,
 } = require("../services/loggerService");
+const { incrementCommands, addEvent } = require("../services/stats");
 
 const commands = new Map();
 const aliases = new Map();
@@ -136,14 +137,10 @@ function loadCommands() {
         aliasCount += command.aliases.length;
       }
 
-      console.log(`✅ Comando cargado: ${command.name}`);
     }
   }
 
-  console.log("\n━━━━━━━━━━━━━━━━━━━━");
-  console.log(`📦 Comandos cargados: ${commandCount}`);
-  console.log(`🔗 Aliases cargados: ${aliasCount}`);
-  console.log("━━━━━━━━━━━━━━━━━━━━\n");
+  console.log(`📦 ${commandCount} comandos · ${aliasCount} aliases cargados`);
 
   void logSystem("Comandos cargados correctamente", {
     commandCount,
@@ -275,6 +272,9 @@ async function handleCommand(ctx) {
   try {
     await command.execute(ctx);
 
+    incrementCommands();
+    addEvent("cmd", `/${command.name} — ${ctx.userName}`);
+
     await logCommand({
       ...logBase,
       status: "success",
@@ -317,6 +317,9 @@ async function handleCommand(ctx) {
       reason: error?.message || "Error desconocido",
     });
 
+    incrementErrors();
+    addEvent("err", `Error en /${command.name}: ${error.message?.slice(0, 60)}`);
+
     await logError({
       source: `command:${command.name}`,
       userId: ctx.senderJid || ctx.sender,
@@ -330,8 +333,6 @@ async function handleCommand(ctx) {
         isGroup: isOnGroup(ctx.from),
       },
     });
-
-    console.error(`❌ Error ejecutando "${command.name}":`, error);
     await ctx.reply("❌ Error ejecutando comando.");
   }
 }

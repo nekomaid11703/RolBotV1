@@ -1,5 +1,29 @@
 # Registro de Cambios (AI Changelog)
 
+## [2026-06-24] - Phase G: Bug Report Multi-Agent System
+**Rama:** `AI_rolbot`
+
+- **Añadido:**
+  - `src/services/bugReportService.js`: CRUD completo con AI classification via `classifyIntent`, spam detection, auto-priority por keywords, límite diario por rol (owner=∞, admin=5, user=3), guardado de imágenes locales en `bugs/media/`, notificación DM al owner para bugs ≥ high.
+  - `src/services/schedulerService.js`: Timer interno con `setTimeout` que calcula ms hasta próxima medianoche y ejecuta `midnightReview`.
+  - `src/commands/utilidades/bugreport.js`: `/bugreport <descripción> [+imagen]` — comando que valida con IA, aplica límite diario, guarda media, reporta al owner por DM si critical/high.
+  - `src/commands/utilidades/bugstatus.js`: `/bugstatus [id]` — lista tus reportes o muestra detalle.
+  - `scripts/process_bugs.js`: CLI para opencode: `--list`, `--view <id>`, `--resolve <id> --summary <fix> --commit <hash>`, `--stats`.
+  - `scripts/midnight_review.js`: Revisión automática de bugs abiertos, marca stale >7 días, notifica owner DM con resumen.
+  - `.opencode/skills/bug-fixer/SKILL.md`: Skill que enseña a opencode a procesar, examinar y resolver bugs.
+
+- **Modificado:**
+  - `bot.js`: Al conectar, notifica al owner bugs resueltos en los últimos 7 días. Inicia `startMidnightReview(sock)` para scheduler interno.
+  - `bugReportService.js`: `getResolvedSince(timestamp)` añadido para startup notification.
+
+- **Almacenamiento:**
+  - Bugs en `bot_auth_state` (session_id='bug_report'), imágenes en `bugs/media/{id}.{ext}`.
+
+- **Validado:**
+  - Todos los imports resuelven correctamente.
+  - `downloadMediaMessage` accesible desde Baileys.
+  - `crypto.randomUUID()` disponible (Node v24).
+
 ## [2026-06-24] - Phase F: Supabase Source of Truth & Sync Infrastructure
 **Rama:** `AI_rolbot`
 

@@ -2,6 +2,7 @@ const {
   extractPhoneNumber,
   normalizeJid,
 } = require("../utils/identityUtils");
+const { injectPersonality } = require("../services/rpg/nekomaidVoice");
 
 const TEXT_MESSAGE_TYPES = new Set([
   "conversation",
@@ -144,6 +145,13 @@ function createContext(sock, msg) {
         }
 
         return sock.sendMessage(from, payload, { quoted: msg });
+      }
+
+      if (typeof content === "string") {
+        const isFormatted = /[━━╭╰╮╯├┤└┘┌┐]/.test(content) || content.length > 300 || content.startsWith("❌") || content.startsWith("✅");
+        if (!isFormatted) {
+          content = injectPersonality(content);
+        }
       }
 
       return sock.sendMessage(

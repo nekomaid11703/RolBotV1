@@ -64,3 +64,10 @@ Instrucciones para agentes:
 
 - GitHub MCP local requiere Docker o Go y un `GITHUB_PERSONAL_ACCESS_TOKEN` real.
 - RAG/vector search no existe aun; requiere decision futura e infraestructura explicita.
+
+
+### 🟢 Tickets Activos
+
+
+### 🔴 Tickets Completados
+- **[Ticket 016]** `@Creativo` → Implementar sistema de Bug Report multi-agente: comando /bugreport con validación IA, límites por rol (owner/admin/user), imágenes locales, notificación DM owner, scheduler midnight review, CLI para opencode y skill bug-fixer. *Estado: ✅ Completado. *Resultado: Ticket 016 completado. 7 archivos creados (bugReportService.js, schedulerService.js, bugreport.js, bugstatus.js, process_bugs.js, midnight_review.js, SKILL.md). bot.js modificado con startup notify + midnight scheduler. Todos los imports verificados.**

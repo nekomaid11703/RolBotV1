@@ -6,6 +6,7 @@ const {
 const {
   recordGroupActivity,
 } = require("../services/groupActivityService");
+const { incrementMessages, addEvent } = require("../services/stats");
 const { logError } = require("../services/loggerService");
 
 function registerEvents(sock) {
@@ -42,6 +43,8 @@ function registerEvents(sock) {
             scope: ctx.isGroup ? "group" : "self",
             createdBy: userId,
           };
+
+          incrementMessages();
 
           try {
             await recordUserActivity({
@@ -100,9 +103,6 @@ function registerEvents(sock) {
             continue;
           }
 
-          console.log("🔥 MENSAJE RECIBIDO");
-          console.log("📩 TEXTO:", ctx.text);
-
           await handleCommand(ctx);
         } catch (messageError) {
           await logError({
@@ -113,9 +113,6 @@ function registerEvents(sock) {
               fromMe: rawMsg?.key?.fromMe || false,
             },
           });
-
-          console.log("\n❌ Error procesando mensaje individual:");
-          console.error(messageError);
         }
       }
     } catch (error) {
@@ -127,9 +124,6 @@ function registerEvents(sock) {
           messageCount: Array.isArray(messages) ? messages.length : 0,
         },
       });
-
-      console.log("\n❌ Error procesando mensajes.upsert:");
-      console.error(error);
     }
   });
 }

@@ -76,6 +76,18 @@ Status: In Progress
 - [x] Validación `targetId` existe en `dar_stelas` antes de transferir.
 - [x] Tests: `test_prompt_cache.js` (22/22), `test_context_compactor.js` (21/21), `test_crear_pj.js` (3/3), `command_usage_format`, `memory_context`, `token_saving_delegation` — todos verdes sin regresión.
 
+## Phase 10 - Bug Report Multi-Agent System
+
+- [x] Crear `src/services/bugReportService.js` con CRUD + AI classification + spam detection + límites por rol.
+- [x] Crear `src/commands/utilidades/bugreport.js` con soporte de imágenes y notificación DM.
+- [x] Crear `src/commands/utilidades/bugstatus.js` para consultar estado de reportes.
+- [x] Crear `src/services/schedulerService.js` con timer interno para midnight review.
+- [x] Crear `scripts/process_bugs.js` CLI para opencode.
+- [x] Crear `scripts/midnight_review.js` con auto-review y marcado stale.
+- [x] Crear `.opencode/skills/bug-fixer/SKILL.md` para workflow opencode.
+- [x] Modificar `bot.js`: startup notification de bugs resueltos + midnight scheduler.
+- [x] Actualizar memoria, design_board, AI_CHANGELOG, task.md.
+
 ## Phase 9 - Supabase Source of Truth & Sync Infrastructure
 
 - [x] Auditar datos locales vs Supabase — 30 players, 1 char, 6 groups, 43 members, 284 auth en Supabase. Cero datos transaccionales en local (solo JSONL de memoria IA).

@@ -26,13 +26,16 @@ module.exports = {
 
     const groupName = String(metadata.subject || "el grupo").trim() || "el grupo";
 
+    const customMessage = ctx.args.join(" ").trim();
+    const body = customMessage || "Mencionando a todos:";
+
     const lines = [
       "━━━━━━━━━━━━━━━━━━━━",
       "📢 *ATENCIÓN*",
       "",
       `👥 *${groupName}* — ${participants.length} miembros`,
       "",
-      "Mencionando a todos:",
+      body,
     ];
 
     await ctx.reply(lines.join("\n"), { mentions: participants });
