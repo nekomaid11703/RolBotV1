@@ -2,15 +2,14 @@ const stateManager = require("../../services/rpg/combatStateManager");
 const turnManager = require("../../services/rpg/combatTurnManager");
 const combatEngine = require("../../services/rpg/combatEngine");
 const combatNarrator = require("../../services/rpg/combatNarrator");
-const combatParser = require("../../services/rpg/combatParser");
 const combatValidator = require("../../services/rpg/combatValidator");
 const combatLogger = require("../../services/rpg/combatLogger");
 const { formatError } = require("../../utils/messageFormatUtils");
 
 module.exports = {
-  name: "defender",
-  aliases: ["defensa", "block", "protegerse", "def"],
-  description: "Te pones en guardia para reducir el daño del próximo ataque enemigo.",
+  name: "descansar",
+  aliases: ["rest", "descanso", "recuperarse", "respirar"],
+  description: "Descansas un momento para reducir la fatiga en combate.",
   category: "rpg",
 
   async execute(ctx) {
@@ -34,10 +33,7 @@ module.exports = {
         return ctx.reply(validation.message);
       }
 
-      const raw = ctx.args.join(" ").trim() || 'defender';
-      const parsed = combatParser.parse(raw, { room, sender: ctx.sender });
-      const vResult = combatValidator.validate(raw, { parsed, room, participant });
-
+      const vResult = combatValidator.validate('descansar', { parsed: { type: 'transicion', intent: 'auxiliar' }, room, participant });
       if (vResult.sanction) {
         participant.fatigue = Math.min(10, (participant.fatigue || 0) + 5);
         turnManager.advanceTurn(room);
@@ -46,23 +42,40 @@ module.exports = {
         return;
       }
 
-      if (vResult.messages.length > 0) {
-        await ctx.reply(vResult.messages.join('\n'));
-      }
-
       if (!vResult.valid) return;
 
-      const actionResult = await combatEngine.processDefend(room, ctx.sender);
-      if (actionResult.error) return ctx.reply(actionResult.error);
+      const antes = participant.fatigue;
+      const reduccion = Math.max(1, Math.min(3, Math.ceil((participant.resistencia_fisica || 5) / 3)));
+      participant.fatigue = Math.max(0, antes - reduccion);
+      participant.turnsActive = Math.max(0, (participant.turnsActive || 0) - 2);
+
+      const actionResult = {
+        action: { actor: ctx.sender, type: 'defend', intent: 'descanso', targetZone: 'general', damageType: 'none', moveNumber: 1 },
+        result: { hit: false, damage: 0, bodyPart: 'general', crit: false, blocked: false, ko: false, intercepted: false, moveNumber: 1 },
+        context: {
+          attacker: { name: participant.name, fatigue: participant.fatigue, fulgor: participant.fulgor },
+          defender: null,
+          location: room.location,
+          participants: turnManager.getAliveParticipants(room).length,
+          round: room.round,
+          turnCount: room.turnCount,
+        },
+      };
 
       const narrative = await combatNarrator.narrate(actionResult);
-      await combatLogger.logAction(room, combatLogger.mapActionResultToLogEntry(room, actionResult, narrative.narrative));
+      await combatLogger.logAction(room, {
+        turnCount: room.turnCount, round: room.round, timestamp: Date.now(),
+        actor: ctx.sender, actorName: participant.name, actionType: 'rest',
+        target: null, targetName: null, zone: null, damage: 0,
+        crit: false, ko: false, intercepted: false, blocked: false,
+        narrative: narrative.narrative,
+      });
 
       const alive = turnManager.advanceTurn(room);
       if (!alive) {
         room.status = 'finished';
         await stateManager.updateRoom(room.id, {});
-        await ctx.reply(`${narrative.narrative}\n\n🏁 Combate terminado.`);
+        await ctx.reply(`${narrative.narrative}\n😮‍💨 Fatiga: ${antes} → ${participant.fatigue}\n\n🏁 Combate terminado.`);
         return;
       }
 
@@ -76,13 +89,6 @@ module.exports = {
         await ctx.reply(`${enemyMsg}\n\n${enemyNarrative.narrative}`);
 
         if (enemyAction.result.ko) {
-          const victoria = turnManager.checkVictoryConditions(room);
-          if (victoria.finished) {
-            room.status = 'finished';
-            await stateManager.updateRoom(room.id, {});
-            await ctx.reply(victoria.message);
-            return;
-          }
           const next = turnManager.getNextActiveParticipant(room);
           await stateManager.updateRoom(room.id, {});
           await ctx.reply(next ? `► @${next.name} — Es tu turno!` : '🏁 Combate terminado.');
@@ -101,10 +107,11 @@ module.exports = {
 
       await stateManager.updateRoom(room.id, {});
       const nextTag = turnManager.formatTurnTag(room);
-      await ctx.reply(`${narrative.narrative}\n\n🛡️ Te has puesto en guardia.\n\n► @${nextTag} — Es tu turno!`);
+      const reductionText = antes > 0 ? `Fatiga: ${antes} → ${participant.fatigue}` : 'Fatiga: sin cambios (ya estabas descansado)';
+      await ctx.reply(`${narrative.narrative}\n😮‍💨 ${reductionText}\n\n► @${nextTag} — Es tu turno!`);
 
     } catch (error) {
-      console.error('defender error:', error);
+      console.error('descansar error:', error);
       return ctx.reply(`❌ ${error.message}`);
     }
   },

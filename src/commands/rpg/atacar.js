@@ -3,23 +3,13 @@ const stateManager = require("../../services/rpg/combatStateManager");
 const turnManager = require("../../services/rpg/combatTurnManager");
 const combatEngine = require("../../services/rpg/combatEngine");
 const combatNarrator = require("../../services/rpg/combatNarrator");
+const combatParser = require("../../services/rpg/combatParser");
+const combatValidator = require("../../services/rpg/combatValidator");
+const combatLogger = require("../../services/rpg/combatLogger");
 const { getAllEnemies } = require("../../services/rpg/enemies");
+const { addMoney } = require("../../services/economyService");
+const { updateCharacterStats } = require("../../services/characterService");
 const { formatError } = require("../../utils/messageFormatUtils");
-
-const VALID_ZONES = ['cabeza','cuello','pecho','abdomen','brazo_izq','brazo_der','mano_izq','mano_der','pierna_izq','pierna_der','pie_izq','pie_der'];
-
-function parseZone(args) {
-  const zone = args[args.length - 1]?.toLowerCase().replace(/[áéíóú]/g, (c) => ({'á':'a','é':'e','í':'i','ó':'o','ú':'u'})[c]);
-  if (zone && VALID_ZONES.includes(zone)) {
-    args.pop();
-    return zone;
-  }
-  if (zone === 'brazo') return 'brazo_der';
-  if (zone === 'pierna') return 'pierna_der';
-  if (zone === 'mano') return 'mano_der';
-  if (zone === 'pie') return 'pie_der';
-  return 'pecho';
-}
 
 module.exports = {
   name: "atacar",
@@ -29,8 +19,7 @@ module.exports = {
 
   async execute(ctx) {
     const groupId = ctx.from;
-    const args = ctx.args.slice();
-    const raw = ctx.args.join(" ").trim().toLowerCase();
+    const raw = ctx.args.join(" ").trim();
 
     try {
       let room = stateManager.getRoomByGroup(groupId);
@@ -70,7 +59,7 @@ module.exports = {
           ].join('\n'));
         }
 
-        const targetEnemy = raw.replace(/[0-9]+$/, '').trim();
+        const targetEnemy = raw.toLowerCase().replace(/[0-9]+$/, '').trim();
         const quantityMatch = raw.match(/(\d+)\s*$/);
         const quantity = quantityMatch ? parseInt(quantityMatch[1]) : 1;
         const enemyData = getAllEnemies().find(e => e.id === targetEnemy);
@@ -81,6 +70,11 @@ module.exports = {
         room = await stateManager.createCombatRoom(groupId, ctx.sender, character, [enemyData.id], Math.min(quantity, 8));
         await ctx.react("⚔️");
         return ctx.reply(turnManager.formatStatus(room));
+      }
+
+      const participant = turnManager.getParticipantByJid(room, ctx.sender);
+      if (!participant) {
+        return ctx.reply("No formas parte de este combate. Usa /atacar sin argumentos para unirte.");
       }
 
       const validation = turnManager.validateTurn(room, ctx.sender);
@@ -104,21 +98,43 @@ module.exports = {
         }
       }
 
-      const zone = parseZone(args);
+      const parsed = combatParser.parse(raw, { mentions: ctx.mentions, room, sender: ctx.sender });
+      const vResult = combatValidator.validate(raw, { parsed, room, participant });
 
-      const mentionTarget = ctx.mentions ? ctx.mentions[0] : null;
-      let targetJid = null;
+      if (vResult.sanction) {
+        participant.fatigue = Math.min(10, (participant.fatigue || 0) + 5);
+        turnManager.advanceTurn(room);
+        await stateManager.updateRoom(room.id, {});
+        await ctx.reply(vResult.messages.join('\n'));
+        return;
+      }
 
-      if (mentionTarget) {
-        targetJid = mentionTarget;
-      } else {
-        const aliveEnemies = turnManager.getAliveParticipants(room, 'enemies');
-        if (aliveEnemies.length === 0) {
-          targetJid = turnManager.getNextActiveJid(room);
+      if (vResult.messages.length > 0) {
+        await ctx.reply(vResult.messages.join('\n'));
+      }
+
+      if (!vResult.valid) {
+        return;
+      }
+
+      const zone = parsed.zone || 'pecho';
+      let targetJid = parsed.target;
+
+      if (!targetJid) {
+        const mentionTarget = ctx.mentions ? ctx.mentions[0] : null;
+        if (mentionTarget) {
+          targetJid = mentionTarget;
         } else {
-          const targetName = args[0]?.toLowerCase();
-          const match = aliveEnemies.find(e => e.name.toLowerCase().startsWith(targetName) || e.id.includes(targetName || ''));
-          targetJid = match ? match.id : aliveEnemies[0].id;
+          const aliveEnemies = turnManager.getAliveParticipants(room, 'enemies');
+          if (aliveEnemies.length === 0) {
+            targetJid = turnManager.getNextActiveJid(room);
+          } else {
+            const targetName = ctx.args[0]?.toLowerCase();
+            const match = aliveEnemies.find(e =>
+              e.name.toLowerCase().startsWith(targetName) || e.id.includes(targetName || '')
+            );
+            targetJid = match ? match.id : aliveEnemies[0].id;
+          }
         }
       }
 
@@ -130,7 +146,37 @@ module.exports = {
       const narrative = await combatNarrator.narrate(actionResult);
       const formatMsg = combatEngine.formatActionResult(actionResult);
 
+      await combatLogger.logAction(room, combatLogger.mapActionResultToLogEntry(room, actionResult, narrative.narrative));
+
       if (actionResult.result.ko) {
+        const victoria = turnManager.checkVictoryConditions(room);
+        if (victoria.finished && victoria.winner === 'players') {
+          const reward = combatEngine.generateReward(room);
+          for (const p of turnManager.getAliveParticipants(room, 'players')) {
+            try {
+              await addMoney(p.id, reward.stelas, {
+                userName: p.name,
+                registration: { source: 'combat', scope: 'self', createdBy: p.id },
+              });
+            } catch {}
+            try {
+              await updateCharacterStats({
+                creatorId: p.id,
+                characterName: p.name,
+                patch: { exp: reward.xp },
+              });
+            } catch {}
+          }
+          await combatLogger.logCombatEnd(room.id, {
+            winner: 'players', rounds: room.round, totalTurns: room.turnCount,
+            participants: room.participants.map(p => p.name),
+            reward, duration: Date.now() - room.createdAt,
+          });
+          await stateManager.finishRoom(room.id);
+          await ctx.reply(`${formatMsg}\n\n${narrative.narrative}\n\n${victoria.message}`);
+          return;
+        }
+
         const next = turnManager.getNextActiveParticipant(room);
         const nextTag = next ? `\n► @${next.name} — Es tu turno!` : '\n🏁 Combate terminado.';
         await stateManager.updateRoom(room.id, {});
@@ -142,23 +188,55 @@ module.exports = {
       if (!alive) {
         room.status = 'finished';
         await stateManager.updateRoom(room.id, {});
-        const victorias = turnManager.checkVictoryConditions(room);
-        await ctx.reply(`${formatMsg}\n\n${narrative.narrative}\n\n${victorias.message}`);
+        const victoria = turnManager.checkVictoryConditions(room);
+        await combatLogger.logCombatEnd(room.id, {
+          winner: victoria.winner || 'none', rounds: room.round, totalTurns: room.turnCount,
+          participants: room.participants.map(p => p.name), duration: Date.now() - room.createdAt,
+        });
+        await ctx.reply(`${formatMsg}\n\n${narrative.narrative}\n\n${victoria.message}`);
         return;
       }
 
       while (turnManager.getCurrentParticipant(room) && turnManager.getCurrentParticipant(room).team === 'enemies') {
         const enemyAction = await combatEngine.autoResolveEnemyTurn(room);
         if (!enemyAction) break;
+
         const enemyNarrative = await combatNarrator.narrate(enemyAction);
         const enemyMsg = combatEngine.formatActionResult(enemyAction);
+        await combatLogger.logAction(room, combatLogger.mapActionResultToLogEntry(room, enemyAction, enemyNarrative.narrative));
         await ctx.reply(`${enemyMsg}\n\n${enemyNarrative.narrative}`);
 
         if (enemyAction.result.ko) {
+          const victoria = turnManager.checkVictoryConditions(room);
+          if (victoria.finished) {
+            room.status = 'finished';
+            if (victoria.winner === 'players') {
+              const reward = combatEngine.generateReward(room);
+              for (const p of turnManager.getAliveParticipants(room, 'players')) {
+                try {
+                  await addMoney(p.id, reward.stelas, {
+                    userName: p.name,
+                    registration: { source: 'combat', scope: 'self', createdBy: p.id },
+                  });
+                } catch {}
+                try {
+                  await updateCharacterStats({
+                    creatorId: p.id, characterName: p.name, patch: { exp: reward.xp },
+                  });
+                } catch {}
+              }
+              await combatLogger.logCombatEnd(room.id, {
+                winner: 'players', rounds: room.round, totalTurns: room.turnCount,
+                participants: room.participants.map(p => p.name), reward, duration: Date.now() - room.createdAt,
+              });
+            }
+            await stateManager.updateRoom(room.id, {});
+            await ctx.reply(victoria.message);
+            return;
+          }
           const next = turnManager.getNextActiveParticipant(room);
-          const nextTag = next ? `► @${next.name} — Es tu turno!` : '🏁 Combate terminado.';
           await stateManager.updateRoom(room.id, {});
-          await ctx.reply(nextTag);
+          await ctx.reply(next ? `► @${next.name} — Es tu turno!` : '🏁 Combate terminado.');
           return;
         }
 
@@ -166,8 +244,12 @@ module.exports = {
         if (!stillAlive) {
           room.status = 'finished';
           await stateManager.updateRoom(room.id, {});
-          const victorias = turnManager.checkVictoryConditions(room);
-          await ctx.reply(victorias.message);
+          const victoria = turnManager.checkVictoryConditions(room);
+          await combatLogger.logCombatEnd(room.id, {
+            winner: victoria.winner || 'none', rounds: room.round, totalTurns: room.turnCount,
+            participants: room.participants.map(p => p.name), duration: Date.now() - room.createdAt,
+          });
+          await ctx.reply(victoria.message);
           return;
         }
       }

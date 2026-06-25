@@ -2,6 +2,9 @@ const stateManager = require("../../services/rpg/combatStateManager");
 const turnManager = require("../../services/rpg/combatTurnManager");
 const combatEngine = require("../../services/rpg/combatEngine");
 const combatNarrator = require("../../services/rpg/combatNarrator");
+const combatParser = require("../../services/rpg/combatParser");
+const combatValidator = require("../../services/rpg/combatValidator");
+const combatLogger = require("../../services/rpg/combatLogger");
 const { formatError } = require("../../utils/messageFormatUtils");
 
 module.exports = {
@@ -31,10 +34,30 @@ module.exports = {
         return ctx.reply(validation.message);
       }
 
+      const raw = ctx.args.join(" ").trim() || 'huir';
+      const parsed = combatParser.parse(raw, { room, sender: ctx.sender });
+      const vResult = combatValidator.validate(raw, { parsed, room, participant });
+
+      if (vResult.sanction) {
+        participant.fatigue = Math.min(10, (participant.fatigue || 0) + 5);
+        turnManager.advanceTurn(room);
+        await stateManager.updateRoom(room.id, {});
+        await ctx.reply(vResult.messages.join('\n'));
+        return;
+      }
+
+      if (vResult.messages.length > 0) {
+        await ctx.reply(vResult.messages.join('\n'));
+      }
+
+      if (!vResult.valid) return;
+
       const actionResult = await combatEngine.processFlee(room, ctx.sender);
       if (actionResult.error) return ctx.reply(actionResult.error);
 
       const narrative = await combatNarrator.narrate(actionResult);
+      await combatLogger.logAction(room, combatLogger.mapActionResultToLogEntry(room, actionResult, narrative.narrative));
+
       const fled = actionResult.result.hit;
 
       if (fled) {
@@ -45,6 +68,10 @@ module.exports = {
         if (survivors === 0) {
           room.status = 'finished';
           await stateManager.updateRoom(room.id, {});
+          await combatLogger.logCombatEnd(room.id, {
+            winner: 'enemies', rounds: room.round, totalTurns: room.turnCount,
+            participants: room.participants.map(p => p.name), duration: Date.now() - room.createdAt,
+          });
           await ctx.reply('💀 Todos los jugadores huyeron o cayeron. Combate terminado.');
         }
         return;
@@ -61,8 +88,10 @@ module.exports = {
       while (turnManager.getCurrentParticipant(room) && turnManager.getCurrentParticipant(room).team === 'enemies') {
         const enemyAction = await combatEngine.autoResolveEnemyTurn(room);
         if (!enemyAction) break;
+
         const enemyNarrative = await combatNarrator.narrate(enemyAction);
         const enemyMsg = combatEngine.formatActionResult(enemyAction);
+        await combatLogger.logAction(room, combatLogger.mapActionResultToLogEntry(room, enemyAction, enemyNarrative.narrative));
         await ctx.reply(`${enemyMsg}\n\n${enemyNarrative.narrative}`);
 
         if (enemyAction.result.ko) {

@@ -1,5 +1,26 @@
 # Registro de Cambios (AI Changelog)
 
+## [2026-06-24] - Blindaje Multi-Participante + Entorno + NSFW + Ahorro Tokens
+**Rama:** `AI_rolbot` | **Commit:** `0df1661`
+
+- **CombatStateManager (NUEVO):** `combatStateManager.js` — salas de combate multi-participante (2-8 personas), persistentes en Supabase (`bot_auth_state` con `session_id='combat'`), cache en RAM con índice por grupo. Carga automática al iniciar el bot. Aislamiento total entre grupos.
+- **CombatTurnManager (NUEVO):** `combatTurnManager.js` — cola de turnos ordenada por velocidad_ataque, validación JID vs turno actual, timeout configurable (24h default), penalización de +5 fatiga por skip, expulsión automática tras 3 skips consecutivos. @tag del siguiente jugador en cada respuesta.
+- **CombatEngine (REWRITE):** `combatEngine.js` — rewrite completo con stats del diseño canónico (fuerza, resistencia_fisica, resistencia_magica, reflejos, velocidad_ataque, precision, velocidad_desplazamiento, dominio_fulgor, fatiga, fulgor). Daño localizado por zona corporal con umbrales de inutilización y amputación. Fórmula de daño: condiciones → excepciones (cortadura ignora resistencia) → multiplicadores → críticos → incertidumbre ±15%. Intercepción de ataques por velocidad. Auto-resolución de turnos enemigos. Fatiga tras 5 turnos activos.
+- **WorldLore jerárquico (UPDATE):** `worldLore.getContextualLore(region, zone, locationId)` — búsqueda de lo más específico a lo general (locationId → zone → region). Ahorro estimado: ~2500 tokens por consulta vs cargar todos los archivos.
+- **SceneCache con versiones (UPDATE):** `sceneCache.incrementSceneVersion(locationId)` — cada combate en un lugar incrementa la versión, el narrador describe cómo el lugar cambia entre combates.
+- **CombatNarrator (UPDATE):** Prompt con contexto de entorno (reino→zona→lugar), lore contextual, tono según ubicación (burdel/prisión→grim, amputación→graphic). Detección de escenas repetidas. Integración con system prompt editable.
+- **System Prompt NSFW (UPDATE):** `combat.system.md` — reglas para contenido maduro (gore, violencia, amputaciones, entornos sórdidos), escenas repetidas, multi-participante, sin alterar resultados mecánicos.
+- **18 Templates (UPDATE):** `combat.templates.js` — nuevas plantillas: interceptación, multi-target, zona destruida, amputación.
+- **Comandos rewrite:**
+  - `/atacar` — soporta PvP con @menciones, zonas corporales, inicio con cantidad de enemigos (`/atacar 2 goblins`), unirse a sala existente.
+  - `/defender` — postura defensiva multi-participante con validación de turno.
+  - `/huir` — huida multi-participante con intercepción basada en reflejos.
+  - `/combate` (NUEVO) — status completo: HP bars de todos, turno actual con @tag, timeout restante, contador de skips, ubicación.
+  - `/habilidad` — detecta combate por sala en lugar de por userId.
+- **Config:** `rpg.config.js` — nueva sección `combatRoom` con turnTimeoutMs, maxConsecutiveSkips, skipFatiguePenalty, koThreshold, incertidumbreMin/Max, interceptionSpeedRatio, fleeReflexRatio, fatigueAfterTurns.
+- **Tokens:** estrategia integrada (lore jerárquico 600 vs 3000 tokens, cache de escena 30min, 18 templates de <100 chars, compactPrompt existente).
+- **Validación:** todos los tests pasan (21/21, 22/22, 3/3, etc.), 15 archivos modificados, 3 nuevos, 1387 líneas añadidas, 420 eliminadas.
+
 ## [2026-06-24] - Infraestructura Narrador + Lore Mundial + DeepSeek Provider
 **Rama:** `AI_rolbot`
 
