@@ -1,5 +1,18 @@
 # Registro de Cambios (AI Changelog)
 
+## [2026-06-25] — Fase 4: Referee + Validación + Fallback
+**Rama:** `AI_rolbot` | **Commit:** `d211552`
+
+- **narratorOutputValidator.js (UPDATE):** Nuevo `fuzzyParseJSON()` con reparación heurística de errores comunes del LLM: convierte single quotes a double quotes, añade quotes a keys sin comillas, elimina trailing commas, intenta parseo parcial si hay corchetes truncados, recursive regex para estructuras incompletas. `VALID_ZONES` incluye `espalda`.
+- **combatRefereeService.js (REWRITE):** Múltiples mejoras:
+  - Cache LRU de respuestas LLM (hash MD5 de room+player+text, TTL 5min, max 50 entradas, poda automática)
+  - `logRefereeDecision()` — logging estructurado de cada decisión: roomId, player, turn, source (llm/fallback/carta_blanca), valid, actionType, infractionCount, errores
+  - `parseLLMResponse()` ahora usa `fuzzyParseJSON()` antes de intentar JSON.parse directo
+  - `validateCoherence()` — validación expandida: chequea si el arma está equipada antes de atacar, si el item existe en inventario para use_item, si la zona corporal no está amputada, si hay fulgor para ataque mágico, si el efecto ambiental es válido para la ubicación, si diálogo>2 líneas marca como acción
+  - `fallbackProcess()` extrae layers del texto original (`extractLayers()`: separa membrete/acción/diálogo por verbos de acción y comillas) y parsea solo la capa de acción
+  - `buildRefereeContext()` incluye `ZONAS_CRITICAS` (body parts con HP <=3) en el prompt
+  - `invalidateCache()` exportado para recarga manual
+
 ## [2026-06-25] — Fase 3: Daño + Items + Equipamiento
 **Rama:** `AI_rolbot` | **Commit:** `21ca4d5`
 

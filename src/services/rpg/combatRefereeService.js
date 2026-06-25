@@ -13,9 +13,24 @@ const { getContextualLore } = require('./worldLore');
 const { getSceneForNarrative, getSceneVersion } = require('./sceneCache');
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
 
 const SYSTEM_PROMPT_PATH = path.join(__dirname, 'narrativePrompts', 'combat.system.md');
-const MAX_NARRATIVE_LENGTH = 300;
+const CACHE_TTL = 300000;
+const MAX_CACHE_SIZE = 50;
+const llmCache = new Map();
+
+function getCacheKey(ctx) {
+  const raw = `${ctx.room?.id || ''}:${ctx.participant?.id || ''}:${ctx.text}`;
+  return crypto.createHash('md5').update(raw).digest('hex');
+}
+
+function pruneCache() {
+  if (llmCache.size <= MAX_CACHE_SIZE) return;
+  const entries = [...llmCache.entries()].sort((a, b) => a[1].ts - b[1].ts);
+  const toDelete = entries.slice(0, entries.length - MAX_CACHE_SIZE);
+  for (const [key] of toDelete) llmCache.delete(key);
+}
 
 function loadSystemPrompt() {
   try {
@@ -41,7 +56,10 @@ function buildRefereeContext(ctx) {
   const invList = [];
   for (const stack of inv.items) {
     const item = itemsData.getItem(stack.itemId);
-    if (item) invList.push(`${item.name} x${stack.quantity}`);
+    if (item) {
+      const dur = stack.durability !== undefined ? ` [dur:${stack.durability}/${item.resistencia}]` : '';
+      invList.push(`${item.name} x${stack.quantity}${dur}`);
+    }
   }
 
   const alivePlayers = turnManager.getAliveParticipants(room, 'players');
@@ -63,9 +81,15 @@ function buildRefereeContext(ctx) {
 
   const lore = getContextualLore(location.region, location.zone, location.locationId, 500);
 
+  const bodyPartsSummary = Object.entries(participant.bodyParts || {})
+    .filter(([_, hp]) => hp <= 3)
+    .map(([zone, hp]) => `${zone} (${hp} HP)`)
+    .join(', ') || 'Ninguna zona crítica';
+
   return {
     EQUIPO: equippedList.length > 0 ? equippedList.join(', ') : 'Ninguno',
     INVENTARIO: invList.length > 0 ? invList.join(', ') : 'Vacío',
+    ZONAS_CRITICAS: bodyPartsSummary,
     PARTICIPANTES_VIVOS: room.participants.filter(p => !p.ko).map(p =>
       `- ${p.id === participant.id ? '(TU)' : ''} ${p.name} (${p.team}): HP ${p.hp}/${p.maxHp}, Fatiga ${p.fatigue || 0}/10${p.ko ? ' [KO]' : ''}`
     ).join('\n'),
@@ -83,7 +107,7 @@ function buildRefereeContext(ctx) {
   };
 }
 
-function buildRefereePrompt(ctx, systemPrompt) {
+function buildRefereePrompt(ctx) {
   const c = buildRefereeContext(ctx);
   return [
     '## CONTEXTO DEL COMBATE',
@@ -103,11 +127,13 @@ function buildRefereePrompt(ctx, systemPrompt) {
     '### Inventario del Personaje',
     c.INVENTARIO,
     '',
+    '### Zonas Corporales Dañadas',
+    c.ZONAS_CRITICAS,
+    '',
     '### Efectos Ambientales Activos',
     c.EFFECTS_ACTIVOS,
     '',
     '### Registro de Efectos Ambientales Disponibles',
-    '(Puedes seleccionar uno si la acción del jugador lo justifica)',
     c.EFFECTS_REGISTRY,
     '',
     '### Lore del Mundo',
@@ -118,15 +144,36 @@ function buildRefereePrompt(ctx, systemPrompt) {
     ctx.text,
     '',
     '---',
-    'Responde SOLO con el JSON especificado en las instrucciones. Sin texto adicional antes ni después.',
+    'Responde SOLO con el JSON especificado en las instrucciones. Sin texto adicional.',
   ].join('\n');
+}
+
+function logRefereeDecision(entry) {
+  const log = [
+    `[REFEREE] room=${entry.roomId} player=${entry.playerName} turn=${entry.turnCount}`,
+    `  text="${entry.text.slice(0, 80)}"`,
+    `  source=${entry.source} valid=${entry.valid} cb=${entry.cartaBlanca}`,
+    `  action=${entry.actionType} infractions=${entry.infractionCount}`,
+    entry.cartaBlanca ? `  carta_blanca: ${entry.infractionDetails}` : '',
+    entry.errors ? `  errors: ${entry.errors}` : '',
+  ].filter(Boolean).join('\n');
+  console.log(log);
 }
 
 async function processRoleplay(text, room, participant, inventory) {
   const ctx = { text, room, participant, inventory };
   const systemPrompt = loadSystemPrompt();
+  const prompt = buildRefereePrompt(ctx);
+  const cacheKey = getCacheKey(ctx);
 
-  const prompt = buildRefereePrompt(ctx, systemPrompt);
+  const cached = llmCache.get(cacheKey);
+  if (cached && Date.now() - cached.ts < CACHE_TTL) {
+    const validation = outputValidator.validateOutput(cached.data);
+    if (validation.valid) {
+      return await executeValidatedOutput(cached.data, ctx);
+    }
+    llmCache.delete(cacheKey);
+  }
 
   try {
     const rawResponse = await orchestrator.generateText({
@@ -138,16 +185,45 @@ async function processRoleplay(text, room, participant, inventory) {
     });
 
     const parsed = parseLLMResponse(rawResponse);
-    const validation = outputValidator.validateOutput(parsed);
-
-    if (validation.valid) {
-      return await executeValidatedOutput(parsed, ctx);
+    if (parsed.error) {
+      return await fallbackProcess(text, room, participant);
     }
 
-    console.warn('combatRefereeService: LLM output invalid, falling back:', validation.errors.join(', '));
+    const coherence = validateCoherence(parsed, ctx);
+    if (!coherence.coherent) {
+      parsed.coherent = false;
+      parsed.coherence_issues = (parsed.coherence_issues || []).concat(coherence.issues);
+    }
+
+    const validation = outputValidator.validateOutput(parsed);
+    if (validation.valid) {
+      llmCache.set(cacheKey, { data: parsed, ts: Date.now() });
+      pruneCache();
+
+      const result = await executeValidatedOutput(parsed, ctx);
+      logRefereeDecision({
+        roomId: room.id, playerName: participant.name, turnCount: room.turnCount,
+        text, source: 'llm', valid: true, cartaBlanca: result.cartaBlanca,
+        actionType: parsed.mechanics?.action_type || 'unknown',
+        infractionCount: (parsed.infractions || []).length,
+        infractionDetails: JSON.stringify(parsed.infractions || []),
+      });
+      return result;
+    }
+
+    logRefereeDecision({
+      roomId: room.id, playerName: participant.name, turnCount: room.turnCount,
+      text, source: 'llm_invalid', valid: false, cartaBlanca: false,
+      actionType: 'fallback', infractionCount: 0, errors: validation.errors.join('; '),
+    });
+
     return await fallbackProcess(text, room, participant);
   } catch (err) {
-    console.warn('combatRefereeService: LLM call failed, using fallback:', err.message);
+    logRefereeDecision({
+      roomId: room.id, playerName: participant.name, turnCount: room.turnCount,
+      text, source: 'llm_error', valid: false, cartaBlanca: false,
+      actionType: 'fallback', infractionCount: 0, errors: err.message,
+    });
     return await fallbackProcess(text, room, participant);
   }
 }
@@ -157,16 +233,84 @@ function parseLLMResponse(raw) {
     return { error: 'Respuesta vacía de la IA.' };
   }
 
+  const parsed = outputValidator.fuzzyParseJSON(raw);
+  if (parsed) return parsed;
+
   const jsonMatch = raw.match(/\{[\s\S]*\}/);
   if (jsonMatch) {
     try {
       return JSON.parse(jsonMatch[0]);
     } catch {
-      return { error: 'El JSON extraído no es válido.', raw };
+      return { error: 'JSON extraído no válido.', raw: raw.slice(0, 200) };
     }
   }
 
-  return { error: 'No se encontró JSON en la respuesta.', raw };
+  return { error: 'No se encontró JSON en la respuesta.', raw: raw.slice(0, 200) };
+}
+
+function validateCoherence(data, ctx) {
+  const issues = [];
+  const { participant, inventory, room } = ctx;
+  const mechanics = data.mechanics || {};
+
+  const ac = mechanics.action_type;
+
+  if (['attack', 'defend'].includes(ac)) {
+    const weaponId = inventory.equipped?.arma;
+    if (ac === 'attack' && !weaponId && itemsData.findItemByName(mechanics.weapon || '')) {
+      const found = itemsData.findItemByName(mechanics.weapon);
+      if (found && found.type === 'arma') {
+        issues.push(`Tienes "${found.name}" en inventario pero no está equipada. Usa /rol para equiparla primero.`);
+      } else if (mechanics.weapon && !weaponId) {
+        issues.push('No tienes un arma equipada. Puedes atacar sin arma (daño reducido) o equipar una.');
+      }
+    }
+  }
+
+  if (ac === 'use_item' && mechanics.weapon) {
+    const item = itemsData.findItemByName(mechanics.weapon);
+    if (!item) {
+      issues.push(`"${mechanics.weapon}" no es un item válido.`);
+    } else if (item.type === 'consumible') {
+      const stack = inventory.items.find(i => i.itemId === item.id);
+      if (!stack || stack.quantity < 1) {
+        issues.push(`No tienes "${item.name}" en tu inventario.`);
+      }
+    } else if (item.type === 'arma' || item.type === 'armadura') {
+      issues.push(`"${item.name}" no es consumible. No puedes usarlo directamente.`);
+    }
+  }
+
+  if (mechanics.zone) {
+    const bp = participant.bodyParts || {};
+    const validZones = outputValidator.VALID_ZONES;
+    if (validZones.includes(mechanics.zone) && (bp[mechanics.zone] !== undefined && bp[mechanics.zone] <= 0)) {
+      issues.push(`Tu ${mechanics.zone} está amputada/inutilizada. No puedes usarla para esta acción.`);
+    }
+  }
+
+  const participantHasFulgor = (participant.fulgor || 0) <= 0;
+  if (data.damage_type === 'magico' && participantHasFulgor) {
+    issues.push('No tienes fulgor suficiente para un ataque mágico.');
+  }
+
+  if (data.environmental_effect) {
+    const valid = envEffects.validateEffectSelection(data.environmental_effect, room.location);
+    if (!valid) {
+      issues.push(`El efecto "${data.environmental_effect}" no es aplicable en esta ubicación.`);
+    }
+  }
+
+  if (participant.stunned && ac !== 'defend') {
+    issues.push('Estás aturdido. Solo puedes defenderte este turno.');
+  }
+
+  if (data.dialogue_count > 2 && !data.dialogue_as_action) {
+    data.dialogue_as_action = true;
+    issues.push('El diálogo excede 2 líneas — consume tu acción.');
+  }
+
+  return { coherent: issues.length === 0, issues };
 }
 
 async function executeValidatedOutput(data, ctx) {
@@ -247,9 +391,7 @@ async function executeValidatedOutput(data, ctx) {
                 success: true,
                 narrative: estabilizado ? `Usaste ${item.name}. Zonas estabilizadas.` : `Usaste ${item.name}, pero no tenías zonas amputadas.`,
                 mechanical: estabilizado ? '🩹 Zonas estabilizadas' : 'Sin efecto',
-                actionResult: null,
-                cartaBlanca: false,
-                infractions: [],
+                actionResult: null, cartaBlanca: false, infractions: [],
               };
             }
             if (item.efecto === 'repara' && item.potencia) {
@@ -303,9 +445,7 @@ async function executeValidatedOutput(data, ctx) {
         success: true,
         narrative: data.narrative || 'Realizas una acción auxiliar.',
         mechanical: '🔄 Acción auxiliar (+1 fatiga)',
-        actionResult: null,
-        cartaBlanca: false,
-        infractions: [],
+        actionResult: null, cartaBlanca: false, infractions: [],
       };
     }
 
@@ -316,9 +456,7 @@ async function executeValidatedOutput(data, ctx) {
         success: true,
         narrative: data.narrative || 'Interactúas con el entorno.',
         mechanical: '🤝 Interacción',
-        actionResult: null,
-        cartaBlanca: false,
-        infractions: [],
+        actionResult: null, cartaBlanca: false, infractions: [],
       };
     }
 
@@ -359,6 +497,13 @@ async function handleCartaBlanca(data, ctx) {
 
   await stateManager.updateRoom(room.id, {});
 
+  logRefereeDecision({
+    roomId: room.id, playerName: participant.name, turnCount: room.turnCount,
+    text: ctx.text, source: 'carta_blanca', valid: false, cartaBlanca: true,
+    actionType: 'none', infractionCount: infractions.length,
+    infractionDetails: infractions.map(i => `${i.type}:${i.description}`).join(' | '),
+  });
+
   return {
     success: false,
     cartaBlanca: true,
@@ -389,8 +534,11 @@ function applyEnvironmentalEffect(data, room, participant) {
 }
 
 async function fallbackProcess(text, room, participant) {
-  const parsed = combatParser.parse(text, { room, sender: participant.id });
-  const vResult = combatValidator.validate(text, { parsed, room, participant });
+  const layers = extractLayers(text);
+  const actionText = layers.accion || text;
+
+  const parsed = combatParser.parse(actionText, { room, sender: participant.id });
+  const vResult = combatValidator.validate(actionText, { parsed, room, participant });
 
   if (vResult.sanction) {
     participant.fatigue = Math.min(10, (participant.fatigue || 0) + 5);
@@ -455,6 +603,32 @@ async function fallbackProcess(text, room, participant) {
   };
 }
 
+function extractLayers(text) {
+  const quoteMatch = text.match(/"([^"]+)"/);
+  const dialogo = quoteMatch ? quoteMatch[1] : '';
+
+  const actionVerbs = ['ataco', 'golpeo', 'corro', 'salto', 'esquivo', 'bloqueo',
+    'defiendo', 'uso', 'sac', 'tomo', 'busco', 'apunto', 'disparo', 'lanzo',
+    'cargo', 'empujo', 'tiro', 'agarr', 'cubr', 'proteg', 'retroced'];
+  const lines = text.split('\n').filter(l => l.trim());
+  let membrete = '';
+  let accion = '';
+
+  if (lines.length > 0) {
+    const first = lines[0].toLowerCase();
+    const verb = actionVerbs.find(v => first.includes(v));
+    if (verb) {
+      membrete = lines[0].trim();
+      accion = lines.slice(0, Math.min(2, lines.length)).join('\n').trim();
+    } else {
+      accion = lines[0].trim();
+      membrete = lines[0].trim().split(/[.,!?]/)[0] || lines[0].trim();
+    }
+  }
+
+  return { membrete, accion, dialogo };
+}
+
 async function autoResolveStunnedOpponent(room, targetJid) {
   const target = turnManager.getParticipantByJid(room, targetJid);
   if (!target) return null;
@@ -466,6 +640,10 @@ async function autoResolveStunnedOpponent(room, targetJid) {
   return { type: 'player_action_required', target: target.name, message: `@${target.name} tiene una acción libre por carta en blanco! Usa /rol para actuar.` };
 }
 
+function invalidateCache() {
+  llmCache.clear();
+}
+
 module.exports = {
   processRoleplay,
   buildRefereeContext,
@@ -475,4 +653,6 @@ module.exports = {
   handleCartaBlanca,
   fallbackProcess,
   autoResolveStunnedOpponent,
+  invalidateCache,
+  validateCoherence,
 };

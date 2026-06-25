@@ -1,5 +1,5 @@
 const VALID_ZONES = [
-  'cabeza', 'cuello', 'pecho', 'abdomen',
+  'cabeza', 'cuello', 'pecho', 'abdomen', 'espalda',
   'brazo_izq', 'brazo_der', 'mano_izq', 'mano_der',
   'pierna_izq', 'pierna_der', 'pie_izq', 'pie_der',
 ];
@@ -33,6 +33,57 @@ const LLM_OUTPUT_SCHEMA = {
   narrative: 'string',
 };
 
+function fuzzyParseJSON(raw) {
+  if (!raw || typeof raw !== 'string') return null;
+
+  const jsonMatch = raw.match(/\{[\s\S]*\}/);
+  if (!jsonMatch) return null;
+
+  let text = jsonMatch[0];
+
+  text = text.replace(/'/g, '"');
+
+  text = text.replace(/(\w+):/g, '"$1":');
+
+  text = text.replace(/,\s*([}\]])/g, '$1');
+
+  text = text.replace(/\s+/g, ' ').trim();
+
+  try {
+    return JSON.parse(text);
+  } catch (e) {
+    return attemptPartialRepair(text);
+  }
+}
+
+function attemptPartialRepair(text) {
+  let cleaned = text
+    .replace(/"[^"]*"[^:]*:\s*"[^"]*"/g, m => m.replace(/\n/g, '\\n').replace(/\t/g, '\\t'))
+    .replace(/:\s*'([^']*)'/g, ':"$1"');
+
+  try { return JSON.parse(cleaned); } catch {}
+
+  const closeBrace = cleaned.lastIndexOf('}');
+  const closeBracket = cleaned.lastIndexOf(']');
+  if (closeBrace !== -1) {
+    try { return JSON.parse(cleaned.slice(0, closeBrace + 1)); } catch {}
+  }
+  if (closeBracket !== -1) {
+    const upToBracket = cleaned.slice(0, closeBracket + 1);
+    const lastBrace = upToBracket.lastIndexOf('}');
+    if (lastBrace !== -1) {
+      try { return JSON.parse(upToBracket.slice(0, lastBrace + 1)); } catch {}
+    }
+  }
+
+  const incompleteMatch = cleaned.match(/\{(?:[^{}]|\{(?:[^{}]|\{[^{}]*\})*\})*\}/);
+  if (incompleteMatch) {
+    try { return JSON.parse(incompleteMatch[0]); } catch {}
+  }
+
+  return null;
+}
+
 function validateOutput(data) {
   const errors = [];
 
@@ -54,7 +105,7 @@ function validateOutput(data) {
     for (let i = 0; i < data.infractions.length; i++) {
       const inf = data.infractions[i];
       if (!VALID_INFRACTION_TYPES.includes(inf.type)) {
-        errors.push(`infractions[${i}].type inválido: "${inf.type}". Debe ser mano_blanca o mano_negra.`);
+        errors.push(`infractions[${i}].type inválido: "${inf.type}".`);
       }
     }
   }
@@ -70,7 +121,7 @@ function validateOutput(data) {
   if (data.mechanics && typeof data.mechanics === 'object') {
     const m = data.mechanics;
     if (m.action_type && !VALID_ACTION_TYPES.includes(m.action_type)) {
-      errors.push(`mechanics.action_type "${m.action_type}" no válido. Valores: ${VALID_ACTION_TYPES.join(', ')}`);
+      errors.push(`mechanics.action_type "${m.action_type}" no válido.`);
     }
     if (m.zone && !VALID_ZONES.includes(m.zone)) {
       errors.push(`mechanics.zone "${m.zone}" no válida.`);
@@ -124,6 +175,7 @@ function buildDefaultInfractionOutput(infractions) {
 }
 
 module.exports = {
+  fuzzyParseJSON,
   validateOutput,
   buildDefaultInfractionOutput,
   LLM_OUTPUT_SCHEMA,
