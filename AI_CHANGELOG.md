@@ -1,5 +1,21 @@
 # Registro de Cambios (AI Changelog)
 
+## [2026-06-24] - Phase 11: Sistema de Combate RPG (PvE)
+**Rama:** `AI_rolbot`
+
+- **Nuevos archivos:**
+  - `src/services/rpg/enemies.js` — 8 enemigos (Slime, Goblin, Lobo, Bandido, Esqueleto, Sombra, Orco, Troll) con stats, nivel, recompensas.
+  - `src/services/rpg/combatEngine.js` — Motor de combate por turnos: `startCombat`, `processAttack`, `processDefend`, `processFlee`. Turnos: jugador ataca → enemigo contraataca. Cálculo de daño con statCalculator, chance de golpe con agilidad/percepción, chance de crítico (10%), defensa reduce daño 60%, huida con probabilidad basada en agilidad y nivel enemigo. Estado de combate en memoria (Map).
+  - `src/commands/rpg/atacar.js` — Inicia combate PvE (`/atacar slime`) o ataca en combate activo. Muestra lista de enemigos si no se especifica target.
+  - `src/commands/rpg/defender.js` — Postura defensiva, reduce daño recibido.
+  - `src/commands/rpg/huir.js` — Intenta escapar del combate.
+  - `src/commands/rpg/habilidad.js` — Muestra habilidades del personaje activo.
+- **Integración:**
+  - Victoria: `addMoney()` otorga stelas aleatorias, `updateCharacterStats` actualiza `exp` en Supabase.
+  - Derrota: combate termina, personaje no pierde recursos.
+  - Sistema de niveles calculado desde `exp` usando fórmula RPG_CONFIG.
+- **Validación:** 40 comandos cargan sin errores (84 aliases). Test de integración verifica ataque, defensa y huida.
+
 ## [2026-06-24] - Purga General y Preparación para Phase 11-13 RPG
 **Rama:** `AI_rolbot`
 

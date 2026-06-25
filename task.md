@@ -103,20 +103,29 @@ Status: In Progress
 
 ## Phase 11 - Sistema de Combate RPG
 
-*Status: Pendiente*
+*Status: En progreso*
 
-**Objetivo:** Implementar sistema de combate por turnos entre jugadores y contra NPCs, utilizando estadísticas de personaje, dados y el sistema RPG base existente.
+### Completado:
+- [x] `src/services/rpg/enemies.js` — 8 enemigos (Slime a Troll) con stats, nivel y recompensas
+- [x] `src/services/rpg/combatEngine.js` — Motor de combate por turnos: inicio, ataque, defensa, huida
+- [x] Cálculo de daño basado en stats (fuerza, defensa, agilidad, inteligencia→magia, suerte→percepción)
+- [x] Sistema de turnos: jugador ataca → enemigo contraataca
+- [x] Enemigos/NPCs básicos con drops de estelas y XP
+- [x] Sistema de defensa (-60% daño recibido)
+- [x] Sistema de huida con probabilidad (agilidad vs nivel enemigo)
+- [x] Notificaciones formateadas con barras de HP visuales
+- [x] Comandos: `/atacar` (inicia combate o ataca), `/defender`, `/huir`
+- [x] Comando `/habilidad` — muestra habilidades del personaje
+- [x] Persistencia de XP: `updateCharacterStats` actualiza `exp` en Supabase tras victoria
+- [x] Integración con economía: `addMoney` otorga stelas al derrotar enemigos
+- [x] 40 comandos totales·84 aliases cargados sin errores
+- [x] Test de integración: combate, ataque, defensa, huida verificados
 
-### Features planificadas:
-
-- [ ] Motor de combate por turnos (PvP y PvE)
-- [ ] Comandos: `/atacar`, `/defender`, `/habilidad`, `/huir`
-- [ ] Cálculo de daño basado en stats del personaje (fuerza, defensa, agilidad, magia)
-- [ ] Sistema de iniciativa y turnos
-- [ ] Enemigos/NPCs básicos definidos en dataLoader
-- [ ] Recompensas: drops de stelas, objetos, XP
-- [ ] Sistema de huida con probabilidad
-- [ ] Notificaciones visuales formateadas con el estándar actual
+### Pendiente:
+- [ ] Habilidades especiales con efecto en combate
+- [ ] Combate PvP entre jugadores
+- [ ] Más enemigos por zona/región
+- [ ] Sistema de loot con objetos equipables
 
 ### Dependencias:
 - src/services/rpg/ (dataLoader, statCalculator, ruleEngine) — ✅ Listo
