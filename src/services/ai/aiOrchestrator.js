@@ -14,6 +14,7 @@ const HuggingFaceProvider = require("./providers/huggingfaceProvider");
 const OllamaProvider = require("./providers/ollamaProvider");
 const OpenRouterProvider = require("./providers/openrouterProvider");
 const DeepSeekProvider = require("./providers/deepseekProvider");
+const NaraRouterProvider = require("./providers/nararouterProvider");
 const AiDispatcher = require("./aiDispatcher");
 const { workerPool, AiWorkerPool } = require("./aiWorkerPool");
 const memoryContextService = require("./memoryContextService");
@@ -41,6 +42,7 @@ class AiOrchestrator {
     const geminiKey = process.env.GEMINI_API_KEY;
     const hfToken = process.env.HUGGINGFACE_TOKEN;
     const openrouterKey = process.env.OPENROUTER_API_KEY;
+    const nararouterKey = process.env.NARAROUTER_API_KEY;
     const ollamaHost = process.env.OLLAMA_HOST || "http://localhost:11434";
 
     if (deepseekKey && deepseekKey !== "tu_deepseek_api_key") {
@@ -61,6 +63,11 @@ class AiOrchestrator {
     if (openrouterKey && openrouterKey !== "tu_api_key_de_openrouter") {
       this.providers.openrouter = new OpenRouterProvider(openrouterKey);
       console.log("🧠 Orquestador de IA: Proveedor 'openrouter' registrado con éxito.");
+    }
+
+    if (nararouterKey && nararouterKey !== "tu_api_key_de_nararouter") {
+      this.providers.nararouter = new NaraRouterProvider(nararouterKey);
+      console.log("🧠 Orquestador de IA: Proveedor 'nararouter' registrado con éxito.");
     }
 
     if (ollamaHost) {
@@ -115,12 +122,14 @@ class AiOrchestrator {
     memoryLimit = 4,
     bypassCache = false,
     maxTokens,
+    jsonMode = false,
   }) {
     this.init();
 
     let providersToTry = [];
     if (providerPreference && this.providers[providerPreference]) {
-      providersToTry = [providerPreference];
+      const fullChain = this.getAvailableProvidersForTask("textGeneration");
+      providersToTry = [providerPreference, ...fullChain.filter(p => p !== providerPreference)];
     } else {
       providersToTry = this.getAvailableProvidersForTask("textGeneration");
     }
@@ -180,6 +189,7 @@ class AiOrchestrator {
           systemInstruction: finalSystemInstruction,
           temperature,
           model,
+          jsonMode,
         });
 
         if (shouldCache) {
@@ -209,7 +219,8 @@ class AiOrchestrator {
 
     let providersToTry = [];
     if (providerPreference && this.providers[providerPreference]) {
-      providersToTry = [providerPreference];
+      const fullChain = this.getAvailableProvidersForTask("classification");
+      providersToTry = [providerPreference, ...fullChain.filter(p => p !== providerPreference)];
     } else {
       providersToTry = this.getAvailableProvidersForTask("classification");
     }

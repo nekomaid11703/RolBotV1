@@ -11,7 +11,7 @@ class OpenRouterProvider {
     this.name = "openrouter";
   }
 
-  async generateText({ prompt, systemInstruction, temperature = 0.7, model }) {
+  async generateText({ prompt, systemInstruction, temperature = 0.7, model, jsonMode }) {
     const selectedModel = model || DEFAULT_MODELS.openrouter.textGeneration;
     const url = "https://openrouter.ai/api/v1/chat/completions";
 
@@ -21,6 +21,15 @@ class OpenRouterProvider {
     }
     messages.push({ role: "user", content: prompt });
 
+    const requestBody = {
+      model: selectedModel,
+      messages: messages,
+      temperature: temperature
+    };
+    if (jsonMode) {
+      requestBody.response_format = { type: "json_object" };
+    }
+
     const response = await fetch(url, {
       method: "POST",
       headers: {
@@ -29,11 +38,7 @@ class OpenRouterProvider {
         "HTTP-Referer": "https://github.com/Usuario/IA_rolbot",
         "X-Title": "IA RolBot"
       },
-      body: JSON.stringify({
-        model: selectedModel,
-        messages: messages,
-        temperature: temperature
-      })
+      body: JSON.stringify(requestBody)
     });
 
     if (!response.ok) {

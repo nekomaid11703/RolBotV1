@@ -20,6 +20,12 @@ const TRANSITION_SYNONYMS = ['tomar', 'tomo', 'sacar', 'saco', 'guardar', 'guard
   'cambiar', 'cambio', 'retroceder', 'retrocedo', 'agacharse', 'me agacho',
   'levantarse', 'me levanto', 'recoger', 'recojo', 'beber', 'bebo'];
 
+const OBSERVATION_SYNONYMS = ['miro', 'mira', 'observo', 'observa', 'examino', 'examina',
+  'analizo', 'analiza', 'reviso', 'revisa', 'inspecciono', 'inspecciona',
+  'reconozco', 'reconoce', 'exploro', 'explora', 'evalúo', 'evalua',
+  'estudio', 'estudia', 'contemplo', 'contempla', 'atisbo', 'atisba',
+  'escudriño', 'escudriña', 'vigilo', 'vigila', 'acecho', 'acecha'];
+
 const ATTEMPT_MARKERS = ['intento', 'trato de', 'trate de', 'busco', 'busqué',
   'procuro', 'procuré', 'voy a intentar'];
 
@@ -88,6 +94,10 @@ function isTransicion(text) {
   return TRANSITION_SYNONYMS.some(s => text.includes(s));
 }
 
+function isObservacion(text) {
+  return OBSERVATION_SYNONYMS.some(s => text.includes(s));
+}
+
 function parse(text, opts = {}) {
   const { mentions, room, sender } = opts;
   const raw = text.toLowerCase();
@@ -120,6 +130,13 @@ function parse(text, opts = {}) {
       normalized.includes('cubrirme') || normalized.includes('cubro')) {
     type = 'accion';
     intent = 'defensivo';
+  }
+
+  if (!intent || intent === 'ofensivo') {
+    if (isObservacion(normalized) && !isAccion(normalized)) {
+      type = 'accion';
+      intent = 'interact';
+    }
   }
 
   const zone = extractZone(normalized);
@@ -157,5 +174,9 @@ module.exports = {
   ZONE_ALIASES,
   ATTACK_SYNONYMS,
   TRANSITION_SYNONYMS,
+  OBSERVATION_SYNONYMS,
   ATTEMPT_MARKERS,
+  isObservacion,
+  extractZone,
+  extractWeapon,
 };

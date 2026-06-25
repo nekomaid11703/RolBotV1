@@ -35,14 +35,17 @@ class DeepSeekProvider {
     }
   }
 
-  async generateText({ prompt, systemInstruction, temperature = 0.7, model }) {
+  async generateText({ prompt, systemInstruction, temperature = 0.7, model, jsonMode }) {
     const selectedModel = model || DEFAULT_MODELS.deepseek.textGeneration;
 
     const body = {
       messages: [],
       temperature,
-      max_tokens: 300,
+      max_tokens: jsonMode ? 800 : 300,
     };
+    if (jsonMode) {
+      body.response_format = { type: "json_object" };
+    }
 
     if (systemInstruction) {
       body.messages.push({ role: "system", content: systemInstruction });

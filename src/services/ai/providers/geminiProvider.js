@@ -59,7 +59,7 @@ class GeminiProvider {
    * Genera texto intentando la lista de modelos de fallback si el principal
    * está temporalmente no disponible (503) o no encontrado (404).
    */
-  async generateText({ prompt, systemInstruction, temperature = 0.7, model }) {
+  async generateText({ prompt, systemInstruction, temperature = 0.7, model, jsonMode }) {
     const primaryModel = model || DEFAULT_MODELS.gemini.textGeneration;
 
     // Construir lista: modelo solicitado primero, luego los fallbacks (sin duplicar)
@@ -68,9 +68,14 @@ class GeminiProvider {
       ...GEMINI_FALLBACK_MODELS.filter((m) => m !== primaryModel),
     ];
 
+    const generationConfig = { temperature };
+    if (jsonMode) {
+      generationConfig.responseMimeType = "application/json";
+    }
+
     const body = {
       contents: [{ parts: [{ text: prompt }] }],
-      generationConfig: { temperature },
+      generationConfig,
     };
     if (systemInstruction) {
       body.systemInstruction = { parts: [{ text: systemInstruction }] };
