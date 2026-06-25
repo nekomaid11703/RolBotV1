@@ -1,7 +1,20 @@
 # Registro de Cambios (AI Changelog)
 
+## [2026-06-25] — Fase 3: Daño + Items + Equipamiento
+**Rama:** `AI_rolbot` | **Commit:** `21ca4d5`
+
+- **items.js (EXPAND):** De 5 a 16 items. Nuevas armas: hacha_mano (cortadura), daga (perforacion), lanza (perforacion), maza (contundente). Nuevas armaduras: cota_malla (malla), yelmo_acero (placa), peto_placas (placa), escudo_acero (escudo), armadura_escamas (escamas). Nuevos consumibles: kit_reparacion (repara 10 resistencia), pocion_fulgor (restaura 20 fulgor). Coverage estandarizado mediante COBERTURA_MAP (casco→cabeza, pectoral→pecho+abdomen, grebas→piernas, etc.).
+- **items.js (NUEVO):** `DAMAGE_EFFECTIVENESS` — matriz completa: cortadura efectiva vs cuero, inefectiva vs placa; contundente devastadora vs placa; perforación letal vs cuero, pobre vs placa; mágico efectivo vs todo excepto escamas.
+- **items.js (NUEVO):** `DAMAGE_ICONS` — cada tipo de daño tiene icono único. `ARMOR_TYPE_LABELS` — etiquetas legibles. `getDamageEffectiveness()`, `getDamageIcon()`, `getArmorTypeLabel()`, `getArmorByCoverage()`.
+- **combatEngine.js (UPDATE):** `getArmorDataForZone()` reemplaza `getArmorDefenseForZone()` — retorna defensa + item de armadura presente en la zona. `calculateDamageFormula()` aplica effectiveness multiplicador según daño vs tipo de armadura. Daño final = (base * zoneMult - defensa) * effectiveness * incertidumbre.
+- **combatEngine.js (UPDATE):** Zona `espalda` añadida a multipliers, body part resistances, y bodyParts por defecto. `processAttack()` captura resultados de `damageEquippedItem()` en `brokenItems[]` — incluye qué item se rompió y de quién.
+- **combatEngine.js (UPDATE):** `formatActionResult()` pulido: icono por damage type, etiqueta de armadura con efectividad porcentual, indicadores 🔹/🔸 si efectividad <80%/>120%, mensaje de rotura con nombre y dueño del item.
+- **combatStateManager.js (UPDATE):** `espalda` añadido a bodyParts de players y enemies.
+- **combatRefereeService.js (UPDATE):** Soporte para efecto `repara` (kit_reparacion recorre equipo equipado, repara el primer item dañado, persiste inventario). Soporte para efecto `fulgor` (pocion_fulgor restaura fulgor respetando maxFulgor).
+- **Total:** 4 archivos modificados, +220 líneas.
+
 ## [2026-06-25] — Fase 2: Auto-resolve loop + carta en blanco enforcement
-**Rama:** `AI_rolbot` | **Commit:** `cedd652`
+**Rama:** `AI_rolbot` | **Commit:** `aeced57`
 
 - **combatTurnManager.js (UPDATE):** `validateTurn` rechaza si `participant.stunned === true`, devuelve `autoSkip: true`. Al detectar stunned, lo limpia automáticamente e informa salto.
 - **combatEngine.js (UPDATE):** `processAttack` verifica `attacker.stunned` al inicio — si aturdido, falla automáticamente y limpia el flag.

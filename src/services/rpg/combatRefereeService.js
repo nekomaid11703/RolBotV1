@@ -252,6 +252,44 @@ async function executeValidatedOutput(data, ctx) {
                 infractions: [],
               };
             }
+            if (item.efecto === 'repara' && item.potencia) {
+              let reparado = false;
+              for (const [slot, itemId] of Object.entries(inventory.equipped)) {
+                if (!itemId) continue;
+                const eqItem = itemsData.getItem(itemId);
+                if (eqItem && eqItem.resistencia) {
+                  const stack = inventory.items.find(i => i.itemId === itemId);
+                  const currentDur = stack ? (stack.durability ?? eqItem.resistencia) : eqItem.resistencia;
+                  if (currentDur < eqItem.resistencia) {
+                    const newDur = Math.min(eqItem.resistencia, currentDur + item.potencia);
+                    if (!stack) inventory.items.push({ itemId, quantity: 0 });
+                    inventory.items.find(i => i.itemId === itemId).durability = newDur;
+                    reparado = true;
+                    break;
+                  }
+                }
+              }
+              await invService.removeItem(participant.id, item.id, 1);
+              await invService.saveInventory(participant.id, inventory);
+              await stateManager.updateRoom(room.id, {});
+              const repairMsg = reparado ? `Usaste ${item.name}. Resistencia restaurada.` : `Usaste ${item.name}, pero todo tu equipo está en buen estado.`;
+              return {
+                success: true, narrative: repairMsg, mechanical: reparado ? '🔧 Equipo reparado' : 'Sin efecto',
+                actionResult: null, cartaBlanca: false, infractions: [],
+              };
+            }
+            if (item.efecto === 'fulgor' && item.potencia) {
+              const fulgorAntes = participant.fulgor || 0;
+              participant.fulgor = Math.min(participant.maxFulgor || 50, fulgorAntes + item.potencia);
+              await invService.removeItem(participant.id, item.id, 1);
+              await stateManager.updateRoom(room.id, {});
+              return {
+                success: true,
+                narrative: `Usaste ${item.name}. Fulgor: ${fulgorAntes} → ${participant.fulgor}.`,
+                mechanical: `✨ +${participant.fulgor - fulgorAntes} Fulgor`,
+                actionResult: null, cartaBlanca: false, infractions: [],
+              };
+            }
           }
         }
       }

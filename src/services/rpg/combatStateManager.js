@@ -38,7 +38,7 @@ function makeBaseParticipant(jid, name, team, charStats = {}, equipped = {}, equ
     equipped,
     equipmentBonuses,
     bodyParts: {
-      cabeza: 10, cuello: 5, pecho: 20, abdomen: 15,
+      cabeza: 10, cuello: 5, pecho: 20, abdomen: 15, espalda: 15,
       brazo_izq: 10, brazo_der: 10, mano_izq: 5, mano_der: 5,
       pierna_izq: 12, pierna_der: 12, pie_izq: 5, pie_der: 5,
     },
@@ -69,7 +69,7 @@ function makeEnemyParticipant(enemy, index) {
     consecutiveSkips: 0,
     lastActionAt: Date.now(),
     bodyParts: {
-      cabeza: 8, cuello: 4, pecho: 18, abdomen: 12,
+      cabeza: 8, cuello: 4, pecho: 18, abdomen: 12, espalda: 12,
       brazo_izq: 8, brazo_der: 8, mano_izq: 4, mano_der: 4,
       pierna_izq: 10, pierna_der: 10, pie_izq: 4, pie_der: 4,
     },
