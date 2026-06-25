@@ -1,6 +1,8 @@
 const { RPG_CONFIG } = require('../../config/rpg.config');
 const turnManager = require('./combatTurnManager');
 const stateManager = require('./combatStateManager');
+const itemsData = require('./items');
+const invService = require('./inventoryService');
 
 const CR = RPG_CONFIG.combatRoom;
 
@@ -27,6 +29,29 @@ function applyFatigueEffect(stats, fatigue) {
   };
 }
 
+function getEquippedWeapon(participant) {
+  if (!participant.equipped || !participant.equipped.arma) return null;
+  return itemsData.getItem(participant.equipped.arma);
+}
+
+function getArmorDefenseForZone(participant, targetZone) {
+  if (!participant.equipped) return 0;
+  let total = 0;
+  const covered = new Set();
+  for (const itemId of Object.values(participant.equipped)) {
+    if (!itemId || covered.has(itemId)) continue;
+    covered.add(itemId);
+    const item = itemsData.getItem(itemId);
+    if (item && item.type === 'armadura') {
+      const zones = itemsData.getCoverageZones(item);
+      if (zones.includes(targetZone)) {
+        total += item.defensaBonus || 0;
+      }
+    }
+  }
+  return total;
+}
+
 function getEffectiveStats(participant) {
   return applyFatigueEffect(participant, participant.fatigue);
 }
@@ -44,8 +69,13 @@ function calculateDamageFormula(attacker, defender, targetZone, options = {}) {
   const dStats = getEffectiveStats(defender);
 
   let baseDamage = 0;
-  const damageType = options.damageType || 'impacto';
+  let damageType = options.damageType || 'impacto';
   const isMagical = options.isMagical || false;
+  const attackerItem = options.attackerItem || null;
+
+  if (attackerItem && attackerItem.damageType && !isMagical) {
+    damageType = attackerItem.damageType;
+  }
 
   if (isMagical) {
     const dominio = aStats.dominio_fulgor || 1;
@@ -53,19 +83,23 @@ function calculateDamageFormula(attacker, defender, targetZone, options = {}) {
     baseDamage = dominio * (precision / 5);
     const cost = Math.round(baseDamage * 0.3);
     attacker.fulgor = Math.max(0, (attacker.fulgor || 0) - cost);
+  } else if (attackerItem && attackerItem.baseDamage) {
+    const fuerzaBonus = Math.round((aStats.fuerza || 5) * 0.3);
+    baseDamage = attackerItem.baseDamage + fuerzaBonus;
   } else if (damageType === 'cortadura') {
     baseDamage = (aStats.fuerza || 5) * 1.2;
   } else {
     baseDamage = (aStats.fuerza || 5);
   }
 
+  const armorDefense = getArmorDefenseForZone(defender, targetZone);
   let defense = 0;
   if (damageType === 'cortadura') {
-    defense = 0;
+    defense = armorDefense;
   } else if (isMagical) {
-    defense = dStats.resistencia_magica || 3;
+    defense = (dStats.resistencia_magica || 3) + armorDefense;
   } else {
-    defense = dStats.resistencia_fisica || 5;
+    defense = (dStats.resistencia_fisica || 5) + armorDefense;
   }
 
   const zoneMult = getZoneMultiplier(targetZone);
@@ -175,6 +209,8 @@ async function processAttack(room, attackerJid, targetJid, targetZone = 'pecho',
   const isMagical = options.isMagical || false;
   const damageType = options.damageType || (isMagical ? 'magico' : 'impacto');
 
+  const attackerItem = getEquippedWeapon(attacker);
+
   let hitResult = { hit: false, intercepted: false, blocked: false, crit: false, damage: 0 };
 
   if (moveNumber === 1 && defender.team !== attacker.team) {
@@ -197,6 +233,7 @@ async function processAttack(room, attackerJid, targetJid, targetZone = 'pecho',
         damageType,
         isMagical,
         crit: hitResult.crit,
+        attackerItem,
       });
 
       hitResult.damage = formulaResult.damage;
@@ -206,6 +243,23 @@ async function processAttack(room, attackerJid, targetJid, targetZone = 'pecho',
       hitResult.ko = defender.ko;
 
       hitResult.blocked = defender.defending && hitResult.damage < formulaResult.baseDamage * 0.5;
+
+      if (attackerItem && !attacker.id.startsWith('enemy:')) {
+        invService.damageEquippedItem(attacker.id, 'arma', 1).catch(() => {});
+      }
+
+      if (hitResult.damage > 0 && !defender.id.startsWith('enemy:')) {
+        for (const [slot, itemId] of Object.entries(defender.equipped || {})) {
+          if (!itemId) continue;
+          const item = itemsData.getItem(itemId);
+          if (item && item.type === 'armadura') {
+            const zones = itemsData.getCoverageZones(item);
+            if (zones.includes(targetZone)) {
+              invService.damageEquippedItem(defender.id, slot, 1).catch(() => {});
+            }
+          }
+        }
+      }
     }
   }
 
@@ -228,6 +282,7 @@ async function processAttack(room, attackerJid, targetJid, targetZone = 'pecho',
     defenderFatigue: defender.fatigue,
     defenderHp: defender.hp,
     defenderMaxHp: defender.maxHp,
+    attackerItem: attackerItem ? { id: attackerItem.id, name: attackerItem.name } : null,
   };
 
   return {
@@ -369,11 +424,12 @@ function formatActionResult(actionResult) {
       lines.push(`💨 ${aName} falló el ataque contra ${dName}.`);
     } else {
       const zoneLabel = result.bodyPart.replace(/_/g, ' ');
+      const weaponTag = result.attackerItem ? `con *${result.attackerItem.name}* ` : '';
       const critTag = result.crit ? ' 💥 CRÍTICO!' : '';
       const statusTag = result.bodyPartStatus === 'amputated' ? ' ⚠️ AMPUTACIÓN' :
                         result.bodyPartStatus === 'useless' ? ' ⛔ INUTILIZADA' : '';
       const koTag = result.ko ? ' 💀 K.O.!' : '';
-      lines.push(`⚔️ ${aName} golpea a ${dName} en ${zoneLabel} causando *${result.damage}* de daño${critTag}${statusTag}${koTag}`);
+      lines.push(`⚔️ ${aName} ${weaponTag}golpea a ${dName} en ${zoneLabel} causando *${result.damage}* de daño${critTag}${statusTag}${koTag}`);
     }
     if (context.attacker.fatigue > 3) {
       lines.push(`😮‍💨 ${aName} muestra signos de fatiga (${context.attacker.fatigue})`);

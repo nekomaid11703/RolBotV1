@@ -9,6 +9,8 @@ const combatLogger = require("../../services/rpg/combatLogger");
 const { getAllEnemies } = require("../../services/rpg/enemies");
 const { addMoney } = require("../../services/economyService");
 const { updateCharacterStats } = require("../../services/characterService");
+const invService = require("../../services/rpg/inventoryService");
+const enemiesLib = require("../../services/rpg/enemies");
 const { formatError } = require("../../utils/messageFormatUtils");
 
 module.exports = {
@@ -34,8 +36,9 @@ module.exports = {
         if (mentions.length > 0) {
           const targetJid = mentions[0];
           const targetName = raw.replace(/@\S+/g, '').trim() || targetJid.split('@')[0];
+          const inv = await invService.getInventory(ctx.sender);
           room = stateManager.createRoom(groupId, [
-            stateManager.makeBaseParticipant(ctx.sender, character.name, 'players', character.stats || {}),
+            stateManager.makeBaseParticipant(ctx.sender, character.name, 'players', character.stats || {}, inv.equipped || {}, await invService.calculateEquipmentBonuses(ctx.sender)),
             stateManager.makeBaseParticipant(targetJid, targetName, 'players'),
           ], { startedVia: 'pvp' });
           await stateManager.updateRoom(room.id, {});
@@ -67,7 +70,8 @@ module.exports = {
           return ctx.reply(formatError("Enemigo no encontrado.", `Usa /atacar para ver la lista.`));
         }
 
-        room = await stateManager.createCombatRoom(groupId, ctx.sender, character, [enemyData.id], Math.min(quantity, 8));
+        const inv = await invService.getInventory(ctx.sender);
+        room = await stateManager.createCombatRoom(groupId, ctx.sender, character, [enemyData.id], Math.min(quantity, 8), inv.equipped || {}, await invService.calculateEquipmentBonuses(ctx.sender));
         await ctx.react("⚔️");
         return ctx.reply(turnManager.formatStatus(room));
       }
@@ -152,6 +156,8 @@ module.exports = {
         const victoria = turnManager.checkVictoryConditions(room);
         if (victoria.finished && victoria.winner === 'players') {
           const reward = combatEngine.generateReward(room);
+          const enemyIds = room.participants.filter(p => p.team === 'enemies').map(p => p.id.replace(/^enemy:/, '').replace(/_\d+$/, ''));
+          const loot = enemiesLib.generateLootForEnemies(enemyIds);
           for (const p of turnManager.getAliveParticipants(room, 'players')) {
             try {
               await addMoney(p.id, reward.stelas, {
@@ -166,14 +172,18 @@ module.exports = {
                 patch: { exp: reward.xp },
               });
             } catch {}
+            for (const drop of loot) {
+              try { await invService.addItem(p.id, drop.itemId, drop.quantity); } catch {}
+            }
           }
+          const lootMsg = loot.length > 0 ? `\n\n🎒 Botín: ${loot.map(l => `${l.quantity}x ${itemsData.getItem(l.itemId)?.name || l.itemId}`).join(', ')}` : '';
           await combatLogger.logCombatEnd(room.id, {
             winner: 'players', rounds: room.round, totalTurns: room.turnCount,
             participants: room.participants.map(p => p.name),
             reward, duration: Date.now() - room.createdAt,
           });
           await stateManager.finishRoom(room.id);
-          await ctx.reply(`${formatMsg}\n\n${narrative.narrative}\n\n${victoria.message}`);
+          await ctx.reply(`${formatMsg}\n\n${narrative.narrative}\n\n${victoria.message}${lootMsg}`);
           return;
         }
 
@@ -212,6 +222,8 @@ module.exports = {
             room.status = 'finished';
             if (victoria.winner === 'players') {
               const reward = combatEngine.generateReward(room);
+              const enemyIds = room.participants.filter(p => p.team === 'enemies').map(p => p.id.replace(/^enemy:/, '').replace(/_\d+$/, ''));
+              const loot = enemiesLib.generateLootForEnemies(enemyIds);
               for (const p of turnManager.getAliveParticipants(room, 'players')) {
                 try {
                   await addMoney(p.id, reward.stelas, {
@@ -224,14 +236,20 @@ module.exports = {
                     creatorId: p.id, characterName: p.name, patch: { exp: reward.xp },
                   });
                 } catch {}
+                for (const drop of loot) {
+                  try { await invService.addItem(p.id, drop.itemId, drop.quantity); } catch {}
+                }
               }
+                const lootMsg = loot.length > 0 ? `\n\n🎒 Botín: ${loot.map(l => `${l.quantity}x ${itemsData.getItem(l.itemId)?.name || l.itemId}`).join(', ')}` : '';
               await combatLogger.logCombatEnd(room.id, {
                 winner: 'players', rounds: room.round, totalTurns: room.turnCount,
                 participants: room.participants.map(p => p.name), reward, duration: Date.now() - room.createdAt,
               });
+            } else {
+              var lootMsg = '';
             }
             await stateManager.updateRoom(room.id, {});
-            await ctx.reply(victoria.message);
+            await ctx.reply(victoria.message + (typeof lootMsg !== 'undefined' ? lootMsg : ''));
             return;
           }
           const next = turnManager.getNextActiveParticipant(room);

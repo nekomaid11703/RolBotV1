@@ -1,5 +1,21 @@
 # Registro de Cambios (AI Changelog)
 
+## [2026-06-24] - Parser Semántico + Validador Mano Blanca/Negra + Logger + Reward Fix + Descansar
+**Rama:** `AI_rolbot` | **Commit:** `9f07f8c`
+
+- **combatParser.js (NUEVO):** Parser semántico que interpreta texto del jugador y extrae: tipo (acción/transición), intención (ofensivo/defensivo/retirada/auxiliar), target, zona corporal, arma/método, número de movimiento (#1 asegurado vs #2+ intento). Detecta "intento", "trato de" como indicadores de movimiento #2. Normaliza texto (tildes, mayúsculas, ruido).
+- **combatValidator.js (NUEVO):** Detector de infracciones narrativas con sistema de strikes por participante:
+  - Mano blanca (asumir acción no resuelta): strike #1 = advertencia, #2 = bloqueo, #3+ = bloqueo + sanción (+5 fatiga, pérdida de turno)
+  - Mano negra (decidir por el oponente): strike #1 = bloqueo + advertencia, #2+ = bloqueo + sanción
+  - 7 patrones de mano blanca (declarar KO, amputación, desarme, acciones compuestas, secuencias forzadas)
+  - 7 patrones de mano negra (negar defensa del oponente, decidir resultado de su ataque, imponer estados, describir impactos como consumados)
+- **combatLogger.js (NUEVO):** Registro de eventos de combate en Supabase (`session_id='combat_log'`). Cada acción se persiste con timestamp, roomId, actor, target, daño, crítico, KO, narrativa. Soporta log de fin de combate con resumen (ganador, rounds, reward). Consultable por roomId.
+- **Fix reward distribution:** `generateReward()` ahora se llama efectivamente en victoria. Stelas vía `addMoney()` y XP vía `updateCharacterStats()` por cada jugador vivo. Ya no muere el reward sin ser distribuido.
+- **Fix PvP resolution:** El bucle de auto-resolución solo corre para `team === 'enemies'`. Turnos de players en PvP reciben @tag y esperan acción humana.
+- **descansar.js (NUEVO):** Comando `/descansar` que reduce fatiga en combate (-1 a -3 según resistencia_fisica). Consume el turno. Integrado con auto-resolución de enemigos, narrador, logger y validador.
+- **defender.js + huir.js:** Integrados con combatParser + combatValidator + combatLogger. Validación de infracciones antes de ejecutar acción.
+- **Tests:** Todos los tests existentes pasan (21/21, 22/22, 3/3). Parser y validador verificados con casos reales de mano blanca y mano negra.
+
 ## [2026-06-24] - Blindaje Multi-Participante + Entorno + NSFW + Ahorro Tokens
 **Rama:** `AI_rolbot` | **Commit:** `0df1661`
 

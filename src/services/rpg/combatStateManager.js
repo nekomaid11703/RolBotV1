@@ -11,7 +11,7 @@ function uuid() {
   return 'cmb_' + crypto.randomBytes(6).toString('hex');
 }
 
-function makeBaseParticipant(jid, name, team, charStats = {}) {
+function makeBaseParticipant(jid, name, team, charStats = {}, equipped = {}, equipmentBonuses = {}) {
   const s = charStats;
   return {
     id: jid,
@@ -34,6 +34,8 @@ function makeBaseParticipant(jid, name, team, charStats = {}) {
     ko: false,
     consecutiveSkips: 0,
     lastActionAt: Date.now(),
+    equipped,
+    equipmentBonuses,
     bodyParts: {
       cabeza: 10, cuello: 5, pecho: 20, abdomen: 15,
       brazo_izq: 10, brazo_der: 10, mano_izq: 5, mano_der: 5,
@@ -154,11 +156,11 @@ function createRoom(groupId, participants, location = {}) {
   return room;
 }
 
-async function createCombatRoom(groupId, initiator, character, enemyIds, quantity = 1) {
+async function createCombatRoom(groupId, initiator, character, enemyIds, quantity = 1, equipped = {}, equipmentBonuses = {}) {
   const participants = [];
 
   const charStats = character.stats || {};
-  participants.push(makeBaseParticipant(initiator, character.name, 'players', charStats));
+  participants.push(makeBaseParticipant(initiator, character.name, 'players', charStats, equipped, equipmentBonuses));
 
   if (enemyIds && enemyIds.length > 0) {
     for (const eid of enemyIds) {
@@ -176,9 +178,9 @@ async function createCombatRoom(groupId, initiator, character, enemyIds, quantit
   return room;
 }
 
-async function addParticipant(room, jid, name, charStats = {}) {
+async function addParticipant(room, jid, name, charStats = {}, equipped = {}, equipmentBonuses = {}) {
   if (room.participants.some(p => p.id === jid)) return false;
-  const p = makeBaseParticipant(jid, name, 'players', charStats);
+  const p = makeBaseParticipant(jid, name, 'players', charStats, equipped, equipmentBonuses);
   room.participants.push(p);
   room.turnQueue.push({ participantId: jid, order: room.turnQueue.length, vel: p.velocidad_ataque });
   room.turnQueue.sort((a, b) => b.vel - a.vel);
