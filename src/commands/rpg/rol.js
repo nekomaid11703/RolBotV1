@@ -1,0 +1,152 @@
+const stateManager = require("../../services/rpg/combatStateManager");
+const turnManager = require("../../services/rpg/combatTurnManager");
+const combatEngine = require("../../services/rpg/combatEngine");
+const combatLogger = require("../../services/rpg/combatLogger");
+const invService = require("../../services/rpg/inventoryService");
+const refereeService = require("../../services/rpg/combatRefereeService");
+const enemiesLib = require("../../services/rpg/enemies");
+const { addMoney } = require("../../services/economyService");
+const { updateCharacterStats } = require("../../services/characterService");
+const itemsData = require("../../services/rpg/items");
+const { formatError } = require("../../utils/messageFormatUtils");
+
+module.exports = {
+  name: "rol",
+  aliases: ["rp", "r", "actuar", "hago", "rolear"],
+  description: "Realiza una acción en combate mediante rol. Usa: /rol <texto descriptivo>",
+  category: "rpg",
+
+  async execute(ctx) {
+    const groupId = ctx.from;
+    const raw = (ctx.args || []).join(" ").trim();
+
+    if (!raw) {
+      return ctx.reply("Describe tu acción. Ej: `/rol ataco al goblin en la cabeza con mi espada` o `/rol me cubro detrás del escudo`");
+    }
+
+    try {
+      const room = stateManager.getRoomByGroup(groupId);
+      if (!room) {
+        return ctx.reply(formatError("No hay combate activo aquí.", "Usa /atacar <enemigo> para iniciar uno."));
+      }
+
+      if (room.status !== 'active') {
+        return ctx.reply("Este combate ya terminó. Usa /atacar para iniciar uno nuevo.");
+      }
+
+      const participant = turnManager.getParticipantByJid(room, ctx.sender);
+      if (!participant) {
+        return ctx.reply("No formas parte de este combate.");
+      }
+
+      const validation = turnManager.validateTurn(room, ctx.sender);
+      if (!validation.valid) {
+        if (validation.reason === 'wrong_turn') {
+          return ctx.reply(`⛔ No es tu turno.`);
+        }
+        return ctx.reply(validation.message);
+      }
+
+      const inventory = await invService.getInventory(ctx.sender);
+      const result = await refereeService.processRoleplay(raw, room, participant, inventory);
+
+      if (result.error) {
+        return ctx.reply(`❌ ${result.error}`);
+      }
+
+      if (result.cartaBlanca) {
+        await stateManager.updateRoom(room.id, {});
+        const freeActionMsg = result.cartaBlancaTarget
+          ? await handleFreeAction(room, result.cartaBlancaTarget)
+          : '';
+        return ctx.reply(`${result.mechanical}\n\n${result.narrative}${freeActionMsg}`);
+      }
+
+      if (!result.success && result.narrative) {
+        await stateManager.updateRoom(room.id, {});
+        return ctx.reply(result.narrative);
+      }
+
+      if (result.actionResult) {
+        await combatLogger.logAction(room, combatLogger.mapActionResultToLogEntry(room, result.actionResult, result.narrative));
+
+        if (result.actionResult.result && result.actionResult.result.ko) {
+          const victoria = turnManager.checkVictoryConditions(room);
+          if (victoria.finished) {
+            return await handleVictory(room, ctx, result, victoria);
+          }
+        }
+
+        await stateManager.updateRoom(room.id, {});
+        const msg = buildTurnMessage(room, result);
+        return ctx.reply(msg);
+      }
+
+      await stateManager.updateRoom(room.id, {});
+      return ctx.reply(`${result.mechanical || ''}\n\n${result.narrative || ''}`);
+
+    } catch (error) {
+      console.error('rol error:', error);
+      return ctx.reply(`❌ ${error.message}`);
+    }
+  },
+};
+
+async function handleVictory(room, ctx, result, victoria) {
+  room.status = 'finished';
+  if (victoria.winner === 'players') {
+    const reward = combatEngine.generateReward(room);
+    const enemyIds = room.participants.filter(p => p.team === 'enemies').map(p => p.id.replace(/^enemy:/, '').replace(/_\d+$/, ''));
+    const loot = enemiesLib.generateLootForEnemies(enemyIds);
+    for (const p of turnManager.getAliveParticipants(room, 'players')) {
+      try { await addMoney(p.id, reward.stelas, { userName: p.name, registration: { source: 'combat', scope: 'self', createdBy: p.id } }); } catch {}
+      try { await updateCharacterStats({ creatorId: p.id, characterName: p.name, patch: { exp: reward.xp } }); } catch {}
+      for (const drop of loot) { try { await invService.addItem(p.id, drop.itemId, drop.quantity); } catch {} }
+    }
+    const lootMsg = loot.length > 0 ? `\n\n🎒 Botín: ${loot.map(l => `${l.quantity}x ${itemsData.getItem(l.itemId)?.name || l.itemId}`).join(', ')}` : '';
+    await combatLogger.logCombatEnd(room.id, {
+      winner: 'players', rounds: room.round, totalTurns: room.turnCount,
+      participants: room.participants.map(p => p.name), reward, duration: Date.now() - room.createdAt,
+    });
+    await stateManager.updateRoom(room.id, {});
+    const finalNarrative = result.narrative;
+    return ctx.reply(`${result.mechanical || ''}\n\n${finalNarrative}\n\n${victoria.message}${lootMsg}`);
+  }
+  await combatLogger.logCombatEnd(room.id, {
+    winner: victoria.winner || 'enemies', rounds: room.round, totalTurns: room.turnCount,
+    participants: room.participants.map(p => p.name), duration: Date.now() - room.createdAt,
+  });
+  await stateManager.updateRoom(room.id, {});
+  return ctx.reply(`${result.mechanical || ''}\n\n${result.narrative}\n\n${victoria.message}`);
+}
+
+function buildTurnMessage(room, result) {
+  const lines = [];
+  if (result.mechanical) lines.push(result.mechanical);
+  if (result.narrative) lines.push('', result.narrative);
+
+  const alive = turnManager.advanceTurn(room);
+  if (!alive) {
+    room.status = 'finished';
+    lines.push('', '🏁 El combate ha terminado.');
+  } else {
+    const current = turnManager.getCurrentParticipant(room);
+    if (current) {
+      lines.push('', `► @${current.name} — Es tu turno!`);
+    }
+  }
+
+  return lines.join('\n');
+}
+
+async function handleFreeAction(room, targetJid) {
+  try {
+    const result = await refereeService.autoResolveStunnedOpponent(room, targetJid);
+    if (result) {
+      const narrative = await require("../../services/rpg/combatNarrator").narrate(result);
+      const mechanical = combatEngine.formatActionResult(result);
+      return `\n\n*Acción libre del defensor:*\n${mechanical}\n${narrative.narrative}`;
+    }
+  } catch {}
+  return '';
+}

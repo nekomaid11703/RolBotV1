@@ -1,5 +1,29 @@
 # Registro de Cambios (AI Changelog)
 
+## [2026-06-25] — Fase 1: Arquitectura Narrator-as-Referee + /rol
+**Rama:** `AI_rolbot` | **Commit:** `904e697`
+
+- **environmentalEffects.js (NUEVO):** Registro de 8 efectos ambientales (viento, lluvia, oscuridad, fuego, pantano, elevación, polvo, campo protegido) con condiciones, reglas estadísticas, damagePerTurn, y validación contra ubicación.
+- **narratorOutputValidator.js (NUEVO):** Validador de esquema JSON para la salida estructurada del LLM. Valida layers, infractions, mechanics, action_type, zone, damage_type, narrative. Fallback a output por defecto si inválido.
+- **combatRefereeService.js (NUEVO):** Orquestador central que:
+  - Construye prompt completo con contexto de combate (participantes, equipo, inventario, escenario, lore, efectos, registro de efectos)
+  - Llama al LLM (DeepSeek v4 Flash Free) con temperatura 0.3
+  - Parsea respuesta JSON o fallback regex si LLM no disponible
+  - Ejecuta salida validada: ataque, defensa, huida, uso de items, interacción, transición
+  - Implementa carta en blanco: cualquier infracción anula turno, aturde atacante, da acción libre al defensor
+  - Aplica efectos ambientales seleccionados por el LLM
+  - Auto-resuelve acción del defensor aturdido si es enemigo
+- **rol.js (NUEVO):** Comando `/rol` (aliases: rp, r, actuar, hago, rolear) como único punto de entrada para acciones en combate. Valida turno, llama refereeService, distribuye loot en victoria, maneja carta en blanco con acción libre.
+- **combat.system.md (REWRITE):** Sistema de prompt completo para rol de referee:
+  - Análisis por capas (membrete/acción/diálogo)
+  - Detección de infracciones mano blanca y mano negra
+  - Carta en blanco como sanción inmediata (sin strikes progresivos)
+  - Diálogo como acción si >2 líneas
+  - Validación de coherencia (equipo, inventario, estado, efectos)
+  - Selección de efectos ambientales desde registry
+  - Formato JSON de salida con documentación de cada action_type
+- **Total:** 5 archivos nuevos, 1 reescrito.
+
 ## [2026-06-25] — Fase 0: Limpieza de comandos + /atacar solo inicio
 **Rama:** `AI_rolbot` | **Commit:** `c68b14c`
 
