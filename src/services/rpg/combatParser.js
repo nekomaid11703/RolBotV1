@@ -24,7 +24,10 @@ const OBSERVATION_SYNONYMS = ['miro', 'mira', 'observo', 'observa', 'examino', '
   'analizo', 'analiza', 'reviso', 'revisa', 'inspecciono', 'inspecciona',
   'reconozco', 'reconoce', 'exploro', 'explora', 'evalúo', 'evalua',
   'estudio', 'estudia', 'contemplo', 'contempla', 'atisbo', 'atisba',
-  'escudriño', 'escudriña', 'vigilo', 'vigila', 'acecho', 'acecha'];
+  'escudriño', 'escudriña', 'vigilo', 'vigila', 'acecho', 'acecha',
+  'preparo', 'prepara', 'prepararme', 'espero', 'espera', 'pienso',
+  'piensa', 'medito', 'medita', 'planeo', 'planea', 'considero',
+  'considera', 'busco', 'busca'];
 
 const ATTEMPT_MARKERS = ['intento', 'trato de', 'trate de', 'busco', 'busqué',
   'procuro', 'procuré', 'voy a intentar'];
