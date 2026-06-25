@@ -33,6 +33,11 @@ function validateTurn(room, jid) {
     return { valid: false, reason: 'ko', message: `Estás K.O. No puedes actuar hasta que te recuperes.` };
   }
 
+  if (participant.stunned) {
+    participant.stunned = false;
+    return { valid: false, reason: 'stunned', message: `⛔ @${participant.name} está aturdido por carta en blanco. Turno saltado automáticamente.`, autoSkip: true };
+  }
+
   const current = getCurrentParticipant(room);
   if (!current) {
     return { valid: false, reason: 'no_turn', message: 'No hay un turno activo en este momento.' };

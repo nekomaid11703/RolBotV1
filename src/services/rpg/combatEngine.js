@@ -202,6 +202,10 @@ async function processAttack(room, attackerJid, targetJid, targetZone = 'pecho',
   if (!defender) return { error: 'Objetivo no encontrado en el combate.' };
   if (attacker.ko) return { error: 'Estás K.O., no puedes atacar.' };
   if (defender.ko) return { error: `${defender.name} ya está K.O.` };
+  if (attacker.stunned) {
+    attacker.stunned = false;
+    return { error: `⛔ ${attacker.name} está aturdido y no puede atacar.` };
+  }
 
   const aStats = getEffectiveStats(attacker);
   const dStats = getEffectiveStats(defender);

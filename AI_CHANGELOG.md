@@ -1,5 +1,18 @@
 # Registro de Cambios (AI Changelog)
 
+## [2026-06-25] — Fase 2: Auto-resolve loop + carta en blanco enforcement
+**Rama:** `AI_rolbot` | **Commit:** `cedd652`
+
+- **combatTurnManager.js (UPDATE):** `validateTurn` rechaza si `participant.stunned === true`, devuelve `autoSkip: true`. Al detectar stunned, lo limpia automáticamente e informa salto.
+- **combatEngine.js (UPDATE):** `processAttack` verifica `attacker.stunned` al inicio — si aturdido, falla automáticamente y limpia el flag.
+- **combatRefereeService.js (UPDATE):** `autoResolveStunnedOpponent` ahora maneja PvP: si el defensor aturdido es un player, devuelve `{ type: 'player_action_required' }` para que el sistema le pida usar `/rol`.
+- **rol.js (REWRITE):** Nueva función `buildMessages` con:
+  - While loop de auto-resolución enemiga (turnos enemigos consecutivos se resuelven automáticamente)
+  - Auto-skip de participantes aturdidos (limpia stunned, salta turno, lo notifica)
+  - Procesa KO intermedios y condiciones de victoria/derrota
+  - Acción libre en carta en blanco: para enemigos → auto-resuelve, para players → prompt de `/rol`
+  - Manejo de stun en validación inicial (auto-skip si el player que envió `/rol` está aturdido)
+
 ## [2026-06-25] — Fase 1: Arquitectura Narrator-as-Referee + /rol
 **Rama:** `AI_rolbot` | **Commit:** `904e697`
 

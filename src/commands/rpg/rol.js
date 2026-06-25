@@ -1,6 +1,7 @@
 const stateManager = require("../../services/rpg/combatStateManager");
 const turnManager = require("../../services/rpg/combatTurnManager");
 const combatEngine = require("../../services/rpg/combatEngine");
+const combatNarrator = require("../../services/rpg/combatNarrator");
 const combatLogger = require("../../services/rpg/combatLogger");
 const invService = require("../../services/rpg/inventoryService");
 const refereeService = require("../../services/rpg/combatRefereeService");
@@ -44,6 +45,11 @@ module.exports = {
         if (validation.reason === 'wrong_turn') {
           return ctx.reply(`⛔ No es tu turno.`);
         }
+        if (validation.reason === 'stunned') {
+          turnManager.advanceTurn(room);
+          await stateManager.updateRoom(room.id, {});
+          return ctx.reply(validation.message);
+        }
         return ctx.reply(validation.message);
       }
 
@@ -59,7 +65,9 @@ module.exports = {
         const freeActionMsg = result.cartaBlancaTarget
           ? await handleFreeAction(room, result.cartaBlancaTarget)
           : '';
-        return ctx.reply(`${result.mechanical}\n\n${result.narrative}${freeActionMsg}`);
+        turnManager.advanceTurn(room);
+        const nextTag = getNextTurnTag(room);
+        return ctx.reply(`${result.mechanical}\n\n${result.narrative}${freeActionMsg}${nextTag}`);
       }
 
       if (!result.success && result.narrative) {
@@ -78,8 +86,8 @@ module.exports = {
         }
 
         await stateManager.updateRoom(room.id, {});
-        const msg = buildTurnMessage(room, result);
-        return ctx.reply(msg);
+        const messages = buildMessages(room, result);
+        return ctx.reply(messages.join('\n'));
       }
 
       await stateManager.updateRoom(room.id, {});
@@ -91,6 +99,80 @@ module.exports = {
     }
   },
 };
+
+function buildMessages(room, result) {
+  const lines = [];
+  if (result.mechanical) lines.push(result.mechanical);
+  if (result.narrative) lines.push('', result.narrative);
+
+  const alive = turnManager.advanceTurn(room);
+  if (!alive) {
+    room.status = 'finished';
+    lines.push('', '🏁 El combate ha terminado.');
+    return lines;
+  }
+
+  const enemyMessages = [];
+  while (true) {
+    const current = turnManager.getCurrentParticipant(room);
+    if (!current) break;
+
+    if (current.stunned) {
+      current.stunned = false;
+      enemyMessages.push(`⏭️ @${current.name} está aturdido y pierde el turno.`);
+      const stillAlive = turnManager.advanceTurn(room);
+      if (!stillAlive) { room.status = 'finished'; lines.push('', '🏁 El combate ha terminado.'); return lines; }
+      continue;
+    }
+
+    if (current.team !== 'enemies') break;
+    if (current.ko) { turnManager.advanceTurn(room); continue; }
+
+    const enemyResult = processEnemyTurn(room, current);
+    if (!enemyResult) break;
+
+    enemyMessages.push(enemyResult.mechanical, '', enemyResult.narrative);
+
+    if (enemyResult.ko) {
+      const victoria = turnManager.checkVictoryConditions(room);
+      if (victoria.finished) {
+        lines.push('', ...enemyMessages, '', victoria.message);
+        return lines;
+      }
+    }
+
+    const stillAlive = turnManager.advanceTurn(room);
+    if (!stillAlive) { room.status = 'finished'; lines.push('', ...enemyMessages, '', '🏁 El combate ha terminado.'); return lines; }
+  }
+
+  if (enemyMessages.length > 0) {
+    lines.push('', ...enemyMessages);
+  }
+
+  const next = turnManager.getCurrentParticipant(room);
+  if (next) {
+    lines.push('', `► @${next.name} — Es tu turno!`);
+  }
+
+  return lines;
+}
+
+function processEnemyTurn(room, enemy) {
+  const actionResult = combatEngine.autoResolveEnemyTurn(room);
+  if (!actionResult) return null;
+
+  const narrative = combatNarrator.generateTemplateNarrative(actionResult);
+  const mechanical = combatEngine.formatActionResult(actionResult);
+
+  combatLogger.logAction(room, combatLogger.mapActionResultToLogEntry(room, actionResult, narrative));
+
+  return {
+    mechanical,
+    narrative,
+    ko: actionResult.result && actionResult.result.ko,
+    actionResult,
+  };
+}
 
 async function handleVictory(room, ctx, result, victoria) {
   room.status = 'finished';
@@ -109,8 +191,7 @@ async function handleVictory(room, ctx, result, victoria) {
       participants: room.participants.map(p => p.name), reward, duration: Date.now() - room.createdAt,
     });
     await stateManager.updateRoom(room.id, {});
-    const finalNarrative = result.narrative;
-    return ctx.reply(`${result.mechanical || ''}\n\n${finalNarrative}\n\n${victoria.message}${lootMsg}`);
+    return ctx.reply(`${result.mechanical || ''}\n\n${result.narrative}\n\n${victoria.message}${lootMsg}`);
   }
   await combatLogger.logCombatEnd(room.id, {
     winner: victoria.winner || 'enemies', rounds: room.round, totalTurns: room.turnCount,
@@ -120,30 +201,22 @@ async function handleVictory(room, ctx, result, victoria) {
   return ctx.reply(`${result.mechanical || ''}\n\n${result.narrative}\n\n${victoria.message}`);
 }
 
-function buildTurnMessage(room, result) {
-  const lines = [];
-  if (result.mechanical) lines.push(result.mechanical);
-  if (result.narrative) lines.push('', result.narrative);
-
-  const alive = turnManager.advanceTurn(room);
-  if (!alive) {
-    room.status = 'finished';
-    lines.push('', '🏁 El combate ha terminado.');
-  } else {
-    const current = turnManager.getCurrentParticipant(room);
-    if (current) {
-      lines.push('', `► @${current.name} — Es tu turno!`);
-    }
-  }
-
-  return lines.join('\n');
+function getNextTurnTag(room) {
+  const next = turnManager.getCurrentParticipant(room);
+  if (!next) return '';
+  if (next.id.startsWith('enemy:')) return '';
+  return `\n► @${next.name} — Es tu turno!`;
 }
 
 async function handleFreeAction(room, targetJid) {
   try {
     const result = await refereeService.autoResolveStunnedOpponent(room, targetJid);
-    if (result) {
-      const narrative = await require("../../services/rpg/combatNarrator").narrate(result);
+    if (!result) return '';
+    if (result.type === 'player_action_required') {
+      return `\n\n🎯 ${result.message}`;
+    }
+    if (result.action) {
+      const narrative = await combatNarrator.narrate(result);
       const mechanical = combatEngine.formatActionResult(result);
       return `\n\n*Acción libre del defensor:*\n${mechanical}\n${narrative.narrative}`;
     }

@@ -425,7 +425,7 @@ async function autoResolveStunnedOpponent(room, targetJid) {
     return await combatEngine.autoResolveEnemyTurn(room);
   }
 
-  return null;
+  return { type: 'player_action_required', target: target.name, message: `@${target.name} tiene una acción libre por carta en blanco! Usa /rol para actuar.` };
 }
 
 module.exports = {
