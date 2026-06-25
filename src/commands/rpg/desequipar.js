@@ -9,7 +9,7 @@ const SLOTS = ['arma', 'cabeza', 'cuello', 'pecho', 'espalda', 'brazo_izq',
 
 module.exports = {
   name: "desequipar",
-  aliases: ["unequip", "quitar", "sacar", "remove"],
+  aliases: ["unequip", "quitar", "remove", "desvestir"],
   description: "Desequipa un slot equipado. Usa: /desequipar arma, /desequipar pecho",
   category: "rpg",
 

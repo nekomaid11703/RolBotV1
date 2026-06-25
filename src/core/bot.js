@@ -132,7 +132,10 @@ async function startBot() {
 
         setTimeout(() => {
           cleanupSock();
-          startBot();
+startBot().catch(err => {
+  console.error('Error fatal en startBot:', err);
+  process.exit(1);
+});
         }, delay);
       }
     });
