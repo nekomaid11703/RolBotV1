@@ -1,5 +1,5 @@
 const { getActiveCharacter } = require("../../services/characterService");
-const { getCombatState } = require("../../services/rpg/combatEngine");
+const stateManager = require("../../services/rpg/combatStateManager");
 const { formatError } = require("../../utils/messageFormatUtils");
 
 module.exports = {
@@ -34,9 +34,12 @@ module.exports = {
         lines.push("Edítalas con /edit_pj_desc");
       }
 
-      const inCombat = getCombatState(ctx.sender) !== null;
-      if (inCombat) {
-        lines.push("", "⚔️ Estás en combate! Las habilidades especiales estarán disponibles en una próxima actualización.");
+      const room = stateManager.getRoomByGroup(ctx.from);
+      if (room && room.status === 'active') {
+        const participant = room.participants.find(p => p.id === ctx.sender);
+        if (participant) {
+          lines.push("", "⚔️ Estás en combate! Las habilidades especiales estarán disponibles pronto.");
+        }
       }
 
       lines.push("", "✦ ━━━━━━━━━━━━━━ ✦");

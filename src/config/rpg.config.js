@@ -40,6 +40,21 @@ const RPG_CONFIG = {
     turnTimeoutMs: 60000,
   },
 
+  combatRoom: {
+    turnTimeoutMs: 86400000,
+    fastTurnTimeoutMs: 3600000,
+    maxConsecutiveSkips: 3,
+    skipFatiguePenalty: 5,
+    autoExpelAfterSkips: true,
+    maxParticipantsPerTeam: 8,
+    incertidumbreMin: 0.85,
+    incertidumbreMax: 1.15,
+    koThreshold: 30,
+    fatigueAfterTurns: 5,
+    interceptionSpeedRatio: 0.7,
+    fleeReflexRatio: 0.7,
+  },
+
   inventory: {
     defaultCapacity: 30,
     baseWeight: 50,

@@ -41,13 +41,35 @@ function buildSceneDescription(locationId, zoneName, loreContext) {
   return base;
 }
 
-function getSceneForNarrative(locationId, zoneName, loreContext) {
-  const cached = getScene(locationId);
+const sceneVersions = new Map();
+
+function getSceneForNarrative(locationId, zoneName, loreContext, sceneVersion) {
+  const cacheKey = sceneVersion ? `${locationId}:v${sceneVersion}` : locationId;
+  const cached = getScene(cacheKey);
   if (cached) return cached;
 
   const scene = buildSceneDescription(locationId, zoneName, loreContext);
-  setScene(locationId, scene);
+
+  if (sceneVersion && sceneVersion > 1) {
+    const prevScenes = sceneVersions.get(locationId) || 0;
+    scene.description += `\n\n_El lugar muestra las marcas de batallas pasadas (versión ${sceneVersion})._`;
+    if (prevScenes > 0 && sceneVersion > prevScenes) {
+      scene.description += ` Algo ha cambiado desde la última vez que estuviste aquí.`;
+    }
+  }
+
+  setScene(cacheKey, scene);
   return scene;
+}
+
+function incrementSceneVersion(locationId) {
+  const current = sceneVersions.get(locationId) || 1;
+  sceneVersions.set(locationId, current + 1);
+  return current + 1;
+}
+
+function getSceneVersion(locationId) {
+  return sceneVersions.get(locationId) || 1;
 }
 
 function invalidateScene(locationId) {
@@ -58,6 +80,7 @@ function invalidateScene(locationId) {
 
 function invalidateAll() {
   sceneCache.clear();
+  sceneVersions.clear();
 }
 
 module.exports = {
@@ -66,6 +89,8 @@ module.exports = {
   getSceneKey,
   getSceneForNarrative,
   buildSceneDescription,
+  incrementSceneVersion,
+  getSceneVersion,
   invalidateScene,
   invalidateAll,
 };
