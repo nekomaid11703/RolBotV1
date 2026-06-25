@@ -1,5 +1,16 @@
 # Registro de Cambios (AI Changelog)
 
+## [2026-06-24] - Infraestructura Narrador + Lore Mundial + DeepSeek Provider
+**Rama:** `AI_rolbot`
+
+- **Lore mundial:** `worldLore.js` carga automáticamente archivos `.md` desde `ai-memory/world-lore/`. Sistema jerárquico: global → regiones → zonas. Cacheable con TTL 1h. Filtrable por keyword.
+- **Scene Cache:** `sceneCache.js` cachea descripciones de escenario por ubicación (TTL 30min). Permite reutilizar contexto narrativo en múltiples encuentros del mismo lugar.
+- **DeepSeek Provider:** `deepseekProvider.js` adaptador nativo para DeepSeek v4 Flash Free API. Registrado como proveedor primario de narración en el orquestador. Fallback: orquestador → templates.
+- **Narrador de combate:** `combatNarrator.js` recibe resultados estructurados del motor y genera narrativa vía IA o templates. Incluye: builder de prompt con contexto de mundo + escenario, detección de tono (ágil/épico según contexto), fallback a 15 plantillas literales.
+- **Prompts editables:** `narrativePrompts/combat.system.md` como archivo markdown independiente. Editable sin tocar código.
+- **Config:** `aiConfig.js` actualizado con `deepseek` en prioridades, capacidades y concurrencia. `DEEPSEEK_API_KEY` en `.env.example`.
+- **Validación:** 8 módulos nuevos cargan sin errores. Narrator tests: prompt builder, tone detection, templates, world lore OK.
+
 ## [2026-06-24] - Phase 11: Sistema de Combate RPG (PvE)
 **Rama:** `AI_rolbot`
 

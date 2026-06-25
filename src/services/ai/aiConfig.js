@@ -28,11 +28,17 @@ const COMPACTION_POLICY = {
 };
 
 const PROVIDER_PRIORITIES = {
-  textGeneration: ["gemini", "openrouter", "ollama", "huggingface"],
-  classification: ["gemini", "openrouter", "huggingface", "ollama"],
+  textGeneration: ["deepseek", "gemini", "openrouter", "ollama", "huggingface"],
+  classification: ["deepseek", "gemini", "openrouter", "huggingface", "ollama"],
+  narration: ["deepseek", "gemini", "openrouter", "ollama"],
 };
 
 const PROVIDER_CAPABILITIES = {
+  deepseek: {
+    quality: 0.85,
+    freePriority: 0.98,
+    strengths: ["narration", "classification", "simpleTasks", "boilerplate"],
+  },
   gemini: {
     quality: 0.92,
     freePriority: 0.78,
@@ -70,6 +76,10 @@ const TOKEN_SAVING_POLICY = {
 // ─────────────────────────────────────────────────────────────────────────────
 
 const DEFAULT_MODELS = {
+  deepseek: {
+    textGeneration: "deepseek-chat",
+    classification: "deepseek-chat",
+  },
   gemini: {
     textGeneration: "gemini-2.5-flash",
     classification: "gemini-2.0-flash",
@@ -95,6 +105,7 @@ const DEFAULT_MODELS = {
 // ─────────────────────────────────────────────────────────────────────────────
 
 const CONCURRENCY_LIMITS = {
+  deepseek: 5,      // DeepSeek free tier generoso
   gemini: 3,        // Plan gratuito: 15 RPM — máx 3 tareas simultáneas
   openrouter: 5,    // OpenRouter no tiene límite estricto en free tier
   ollama: 2,        // Limitado por los recursos locales del equipo

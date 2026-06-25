@@ -13,6 +13,7 @@ const GeminiProvider = require("./providers/geminiProvider");
 const HuggingFaceProvider = require("./providers/huggingfaceProvider");
 const OllamaProvider = require("./providers/ollamaProvider");
 const OpenRouterProvider = require("./providers/openrouterProvider");
+const DeepSeekProvider = require("./providers/deepseekProvider");
 const AiDispatcher = require("./aiDispatcher");
 const { workerPool, AiWorkerPool } = require("./aiWorkerPool");
 const memoryContextService = require("./memoryContextService");
@@ -36,10 +37,16 @@ class AiOrchestrator {
   init() {
     if (this.initialized) return;
 
+    const deepseekKey = process.env.DEEPSEEK_API_KEY;
     const geminiKey = process.env.GEMINI_API_KEY;
     const hfToken = process.env.HUGGINGFACE_TOKEN;
     const openrouterKey = process.env.OPENROUTER_API_KEY;
     const ollamaHost = process.env.OLLAMA_HOST || "http://localhost:11434";
+
+    if (deepseekKey && deepseekKey !== "tu_deepseek_api_key") {
+      this.providers.deepseek = new DeepSeekProvider(deepseekKey);
+      console.log("🧠 Orquestador de IA: Proveedor 'deepseek' registrado con éxito.");
+    }
 
     if (geminiKey && geminiKey !== "tu_api_key_de_google_ai_studio") {
       this.providers.gemini = new GeminiProvider(geminiKey);

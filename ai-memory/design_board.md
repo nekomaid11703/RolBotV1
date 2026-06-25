@@ -67,6 +67,7 @@ Instrucciones para agentes:
 
 
 ### 🟢 Tickets Activos
+- **[Ticket 017]** `@Coder` → Phase 11: Sistema de Combate PvE — implementado y en producción. Próximo: Phase 12 (Mazmorras) o extender PvP y habilidades especiales. *Estado: Pendiente.*
 
 
 ### 🔴 Tickets Completados

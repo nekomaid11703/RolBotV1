@@ -101,9 +101,9 @@ Status: In Progress
 - [x] Tests: `test_prompt_cache.js` (22/22), `test_context_compactor.js` (21/21), `test_crear_pj.js` (3/3), `command_usage_format`, `memory_context`, `token_saving_delegation` — todos verdes sin regresión.
 - [x] Memoria persistente, design_board, task.md, AI_CHANGELOG actualizados.
 
-## Phase 11 - Sistema de Combate RPG
+## Phase 11 — Sistema de Combate RPG
 
-*Status: En progreso*
+*Status: En progreso (motor base + narrador + lore listos)*
 
 ### Completado:
 - [x] `src/services/rpg/enemies.js` — 8 enemigos (Slime a Troll) con stats, nivel y recompensas
@@ -126,6 +126,7 @@ Status: In Progress
 - [ ] Combate PvP entre jugadores
 - [ ] Más enemigos por zona/región
 - [ ] Sistema de loot con objetos equipables
+- [ ] Integrar combatNarrator en los comandos de combate (cuando combatEngine entregue el formato que espera el narrador)
 
 ### Dependencias:
 - src/services/rpg/ (dataLoader, statCalculator, ruleEngine) — ✅ Listo
@@ -166,6 +167,25 @@ Status: In Progress
 - [ ] Narrativa contextual en combate (descripción de ataques)
 - [ ] Cache de clasificación de intenciones RPG
 - [ ] Moderación de contenido generado por IA
+
+---
+
+## Phase 1a — Infraestructura de Narración y Lore Mundial
+
+*Status: Completado*
+
+- [x] `src/services/rpg/worldLore.js` — Carga de lore desde `ai-memory/world-lore/*.md`, cache por TTL, filtrado por keyword
+- [x] `ai-memory/world-lore/00_global.md` — Lore global editable (historia, geografía, cosmología)
+- [x] `ai-memory/world-lore/01_regions.md` — Lore por regiones editables
+- [x] `ai-memory/world-lore/02_zones.md` — Lore por zonas específicas (mazmorras, ciudades)
+- [x] `src/services/rpg/sceneCache.js` — Cache de escenario por ubicación con TTL
+- [x] `src/services/ai/providers/deepseekProvider.js` — Adaptador DeepSeek v4 Flash Free para el orquestador
+- [x] `src/services/rpg/narrativePrompts/combat.system.md` — System prompt del narrador (editable sin tocar código)
+- [x] `src/services/rpg/narrativePrompts/combat.templates.js` — ~15 plantillas literales de respaldo (ataque, fallo, crítico, defensa, huida, KO, fatiga, entorno)
+- [x] `src/services/rpg/combatNarrator.js` — Generador narrativo: prompt builder, detección de tono, fallback template, cache de escenario
+- [x] Prioridad de proveedores: `deepseek → gemini → openrouter → ollama`
+- [x] `DEEPSEEK_API_KEY` añadido a `.env.example`
+- [x] `aiConfig.js` actualizado: providers `deepseek`, prioridad `narration`, concurrencia, models
 
 ---
 
