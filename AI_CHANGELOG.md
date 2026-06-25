@@ -1,5 +1,16 @@
 # Registro de Cambios (AI Changelog)
 
+## [2026-06-24] - Purga General y Preparación para Phase 11-13 RPG
+**Rama:** `AI_rolbot`
+
+- **Auditoría completa:** AI_CHANGELOG, NekoMemori (29 entries OK), /bugreport (todo en Supabase, OK), skills (todas dentro del proyecto), archivos de plan (implementation_plan.md, task.md, design_board.md).
+- **Eliminado:** `src/database/auth/` (~80 archivos legacy de sesión Baileys), `src/database/grupos/` (5 grupos legacy), `src/database/personajes/` (21 jugadores legacy) — todos migrados a Supabase previamente.
+- **Actualizado:** `.gitignore` (bugs/, comentarios), `README.md` (servicios actuales + tabla de comandos), `implementation_plan.md` (marcado como histórico con banner ⚠️), `task.md` (Phase 11-13 añadidos).
+- **Phase 11:** Sistema de Combate RPG planificado (PvP/PvE, turnos, stats, recompensas).
+- **Phase 12:** Mazmorras y Eventos (exploración procedural, loot, progresión).
+- **Phase 13:** Integración de IA Narrativa (escenas, diálogos, narrativa contextual).
+- **Validación:** 36 comandos cargan, sistema RPG intacto, dependencias npm ok, require() paths resuelven.
+
 ## [2026-06-24] - Separación Personalidad NekoMaid: Sistema vs Social
 **Rama:** `AI_rolbot`
 

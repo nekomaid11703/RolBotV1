@@ -101,6 +101,65 @@ Status: In Progress
 - [x] Tests: `test_prompt_cache.js` (22/22), `test_context_compactor.js` (21/21), `test_crear_pj.js` (3/3), `command_usage_format`, `memory_context`, `token_saving_delegation` — todos verdes sin regresión.
 - [x] Memoria persistente, design_board, task.md, AI_CHANGELOG actualizados.
 
+## Phase 11 - Sistema de Combate RPG
+
+*Status: Pendiente*
+
+**Objetivo:** Implementar sistema de combate por turnos entre jugadores y contra NPCs, utilizando estadísticas de personaje, dados y el sistema RPG base existente.
+
+### Features planificadas:
+
+- [ ] Motor de combate por turnos (PvP y PvE)
+- [ ] Comandos: `/atacar`, `/defender`, `/habilidad`, `/huir`
+- [ ] Cálculo de daño basado en stats del personaje (fuerza, defensa, agilidad, magia)
+- [ ] Sistema de iniciativa y turnos
+- [ ] Enemigos/NPCs básicos definidos en dataLoader
+- [ ] Recompensas: drops de stelas, objetos, XP
+- [ ] Sistema de huida con probabilidad
+- [ ] Notificaciones visuales formateadas con el estándar actual
+
+### Dependencias:
+- src/services/rpg/ (dataLoader, statCalculator, ruleEngine) — ✅ Listo
+- src/services/characterService.js — ✅ Listo
+- src/services/economyService.js — ✅ Listo
+- src/utils/messageFormatUtils.js — ✅ Listo
+
+---
+
+## Phase 12 - Mazmorras y Eventos
+
+*Status: Pendiente*
+
+**Objetivo:** Añadir contenido PvE estructurado con mazmorras generadas, oleadas de enemigos, loot y progresión.
+
+### Features planificadas:
+
+- [ ] Comandos: `/mazmorra`, `/explorar`, `/descansar`
+- [ ] Generación procedural de encuentros
+- [ ] Sistema de loot con rarezas
+- [ ] Inventario de objetos equipables
+- [ ] Progresión: XP → niveles → nuevas habilidades
+- [ ] Eventos aleatorios durante exploración (cofres, trampas, NPCs amigables)
+- [ ] Persistencia de estado de mazmorra en Supabase
+
+---
+
+## Phase 13 - Integración de IA Narrativa
+
+*Status: Pendiente*
+
+**Objetivo:** Usar el orquestador de IA para generar descripciones de escenas, diálogos de NPCs y narrativa contextual en combates y mazmorras.
+
+### Features planificadas:
+
+- [ ] Comando `/escena` — IA genera descripción inmersiva
+- [ ] Diálogos dinámicos de NPCs vía orquestador
+- [ ] Narrativa contextual en combate (descripción de ataques)
+- [ ] Cache de clasificación de intenciones RPG
+- [ ] Moderación de contenido generado por IA
+
+---
+
 ## Pending External Requirements
 
 - [ ] GitHub MCP requires Docker or Go plus a real GitHub token.

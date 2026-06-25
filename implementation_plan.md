@@ -1,5 +1,7 @@
 # Plan maestro: siguiente paso para la IA de RolBotV1
 
+> ⚠️ **ARCHIVO HISTÓRICO** — Las secciones 1-11 corresponden a la planificación original (Fase de Infraestructura, Junio 2026). Todas las secciones 1-11 fueron completadas. Para el roadmap activo, ver `task.md` (Phase 11+).
+
 ## 1. Resumen del objetivo
 
 - Definir la estrategia inmediata de la IA (Codex + Antigravity) para avanzar la evolución del bot RPG, aprovechando el ecosistema actual (supabase, memoria en NekoMemori, arquitectura modular). Queremos asegurar que la próxima iteración de trabajo responda a una visión clara antes de que Antigravity escriba código.

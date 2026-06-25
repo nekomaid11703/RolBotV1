@@ -1,13 +1,15 @@
 # Dependencias
 node_modules/
 
-# Sesiones WhatsApp
-
-
-# Bases de datos
+# Sesiones WhatsApp (migrado a Supabase)
 src/database/auth/
+
+# Datos legacy (migrados a Supabase)
 src/database/grupos/
 src/database/personajes/
+
+# Bug report media
+bugs/
 
 # Logs
 logs/
