@@ -11,6 +11,11 @@ module.exports = {
 
   async execute(ctx) {
     try {
+      const room = require("../../services/rpg/combatStateManager").getRoomByGroup(ctx.from);
+      if (room && room.status === 'active' && require("../../services/rpg/combatTurnManager").getParticipantByJid(room, ctx.sender)) {
+        return ctx.reply("⚔️ Estás en combate. Usa `/rol <texto>` para inspeccionar tu inventario mediante rol.\n\nEj: `/rol reviso mi mochila buscando algo útil`");
+      }
+
       const character = await getActiveCharacter({ creatorId: ctx.sender });
       if (!character) {
         return ctx.reply(formatError("No tienes personaje activo.", "Usa /crear_pj para crear uno."));

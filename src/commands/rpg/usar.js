@@ -34,7 +34,11 @@ module.exports = {
       if (!stack || stack.quantity < 1) return ctx.reply(`No tienes "${item.name}".`);
 
       const room = stateManager.getRoomByGroup(ctx.from);
-      const inCombat = room && turnManager.getParticipantByJid(room, ctx.sender);
+      const inCombat = room && room.status === 'active' && turnManager.getParticipantByJid(room, ctx.sender);
+
+      if (inCombat) {
+        return ctx.reply("⚔️ Estás en combate. Usa `/rol <texto>` para usar items mediante rol.\n\nEj: `/rol saco una poción de vida y la bebo`");
+      }
 
       if (item.efecto === 'cura' && item.potencia) {
         if (inCombat) {

@@ -1,5 +1,43 @@
 # Registro de Cambios (AI Changelog)
 
+## [2026-06-25] — Fase 0: Limpieza de comandos + /atacar solo inicio
+**Rama:** `AI_rolbot` | **Commit:** `c68b14c`
+
+- **defender.js, huir.js, descansar.js, habilidad.js (ELIMINADOS):** Comandos redundantes eliminados. Toda acción en combate se canaliza mediante `/rol`.
+- **atacar.js (REFACTOR):** Ahora solo inicia combate (PvE o PvP). Si ya hay combate activo, redirige a `/rol <acción>` con ejemplo del enemigo actual.
+- **combate.js (UPDATE):** Al mostrar estado, añade hint contextual (`/rol`) indicando si es el turno del usuario o de quién es el turno.
+- **usar.js, inventario.js, equipar.js, desequipar.js (UPDATE):** Bloqueados durante combate activo. Redirigen con ejemplo de cómo hacerlo mediante `/rol <texto>`.
+- **Total:** 6 archivos modificados, 4 eliminados.
+
+## [2026-06-25] — Items + Inventario + Equipar + Loot Tables (Bloque 2)
+**Rama:** `AI_rolbot` | **Commit:** `b0f39cf`
+
+- **items.js (NUEVO):** 5 items base con estructura flexible para creación dinámica futura por el narrador:
+  - `espada_corta` (arma, cortadura, 8 baseDamage, filo, resistencia 20, stats: fuerza+2)
+  - `escudo_madera` (armadura, impacto, cobertura brazo_izq, defensaBonus 3, resistencia 15)
+  - `armadura_cuero` (armadura, cobertura pecho+abdomen, defensaBonus 2, stats: resistencia_fisica+1)
+  - `poción_vida` (consumible, cura 25 HP)
+  - `venda` (consumible, estabiliza zonas amputadas)
+  - CoverageMap + helpers (getItem, findItemByName, getCoverageZones, isEquippable, getEquipSlot)
+- **inventoryService.js (NUEVO):** CRUD completo de inventario en Supabase (`bot_auth_state`, session_id='inventory'):
+  - Pesaje (peso usado vs capacidad basada en fuerza)
+  - equipar/desequipar con 15 slots (arma, cabeza, cuello, pecho, espalda, brazos, manos, piernas, pies, accesorios)
+  - Desgaste: damageEquippedItem() reduce durabilidad, rompe item si llega a 0
+  - Cálculo de equipmentBonuses y recalcStatsAfterEquip para stats del personaje
+- **combatStateManager.js (UPDATE):** `makeBaseParticipant` ahora acepta `equipped` y `equipmentBonuses` opcionales; `createCombatRoom` y `addParticipant` los propagan desde el caller.
+- **combatEngine.js (UPDATE):** Integración completa de items en combate:
+  - `calculateDamageFormula` usa `attackerItem.baseDamage + fuerzaBonus` si el atacante lleva arma, y su `damageType` (cortadura/impacto)
+  - `getArmorDefenseForZone` suma `defensaBonus` de toda armadura equipada que cubra la zona golpeada
+  - Durabilidad: arma pierde 1 de resistencia por golpe; armadura de la zona golpeada pierde 1
+  - `formatActionResult` muestra nombre del arma en el mensaje de ataque
+- **enemies.js (UPDATE):** loot tables para los 8 enemigos (probabilidades escaladas por nivel). `generateLoot()` y `generateLootForEnemies()` para drops post- combate.
+- **atacar.js (UPDATE):** Carga inventario + equipo del jugador al crear sala. Distribuye loot en ambas ramas de victoria (tanto si el player mata como si el enemigo cae en auto-resolución).
+- **inventario.js (NUEVO):** Comando `/inventario` (aliases: inv, i, inventory, mochila, bag). Muestra equipo actual (item + stats + durabilidad), mochila (items × cantidad + peso), peso total/capacidad.
+- **equipar.js (NUEVO):** Comando `/equipar <item>` (aliases: equip, wield, vestir, ponerse). Busca item por nombre parcial, verifica tenencia, equipa en slot automático, recalcula stats.
+- **desequipar.js (NUEVO):** Comando `/desequipar <slot>` (aliases: unequip, quitar, sacar, remove). Acepta nombres cortos (brazo/brazo_der, pierna/pierna_der, mano/mano_der, pie/pie_der). Devuelve item al inventario.
+- **usar.js (NUEVO):** Comando `/usar <item>` (aliases: use, consumir, drink, eat). Consumibles en/out of combat: poción de vida cura HP (respetando maxHp en combate), venda estabiliza zonas amputadas a 1 HP cada una.
+- **Total:** 11 archivos modificados, 6 nuevos, ~805 líneas añadidas, 15 eliminadas.
+
 ## [2026-06-24] - Parser Semántico + Validador Mano Blanca/Negra + Logger + Reward Fix + Descansar
 **Rama:** `AI_rolbot` | **Commit:** `9f07f8c`
 

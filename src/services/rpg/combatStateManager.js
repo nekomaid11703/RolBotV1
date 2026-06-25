@@ -13,6 +13,7 @@ function uuid() {
 
 function makeBaseParticipant(jid, name, team, charStats = {}, equipped = {}, equipmentBonuses = {}) {
   const s = charStats;
+  const b = equipmentBonuses || {};
   return {
     id: jid,
     name: name || jid.split('@')[0],
@@ -22,14 +23,14 @@ function makeBaseParticipant(jid, name, team, charStats = {}, equipped = {}, equ
     fulgor: s.fulgor_max || 50,
     maxFulgor: s.fulgor_max || 50,
     fatigue: 0,
-    fuerza: s.fuerza || 5,
-    resistencia_fisica: s.resistencia_fisica || 5,
-    resistencia_magica: s.resistencia_magica || 3,
-    reflejos: s.reflejos || 5,
-    velocidad_ataque: s.velocidad_ataque || 5,
-    precision: s.precision || 5,
-    velocidad_desplazamiento: s.velocidad_desplazamiento || 5,
-    dominio_fulgor: s.dominio_fulgor || 1,
+    fuerza: (s.fuerza || 5) + (b.fuerza || 0),
+    resistencia_fisica: (s.resistencia_fisica || 5) + (b.resistencia_fisica || 0) + (b.defensa || 0),
+    resistencia_magica: (s.resistencia_magica || 3) + (b.resistencia_magica || 0),
+    reflejos: (s.reflejos || 5) + (b.reflejos || 0) + (b.agilidad || 0),
+    velocidad_ataque: (s.velocidad_ataque || 5) + (b.velocidad_ataque || 0) + (b.agilidad || 0),
+    precision: (s.precision || 5) + (b.precision || 0),
+    velocidad_desplazamiento: (s.velocidad_desplazamiento || 5) + (b.velocidad_desplazamiento || 0) + (b.agilidad || 0),
+    dominio_fulgor: (s.dominio_fulgor || 1) + (b.dominio_fulgor || 0) + (b.magia || 0),
     defending: false,
     ko: false,
     consecutiveSkips: 0,

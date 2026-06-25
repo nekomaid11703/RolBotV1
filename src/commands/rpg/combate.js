@@ -30,7 +30,11 @@ module.exports = {
       }
 
       const status = turnManager.formatStatus(room);
-      return ctx.reply(status);
+      const current = turnManager.getCurrentParticipant(room);
+      const hint = current && current.id === ctx.sender
+        ? "\n\n👉 *Es tu turno.* Describe tu acción con `/rol <texto>`."
+        : `\n\n⏳ Turno de @${current ? current.name : '...'}. Usa \`/rol\` solo cuando sea tu turno.`;
+      return ctx.reply(status + hint);
 
     } catch (error) {
       console.error('combate error:', error);
