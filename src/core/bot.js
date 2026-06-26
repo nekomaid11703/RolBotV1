@@ -24,12 +24,30 @@ const { startMidnightReview } = require("../services/schedulerService");
 const { startDashboard, stopDashboard } = require("../services/statusDashboard");
 const { stats, addEvent, incrementErrors } = require("../services/stats");
 
+const MAX_RECONNECT_ATTEMPTS = Number(process.env.MAX_RECONNECT_ATTEMPTS) || 50;
 const RECONNECT_MAX_DELAY = 60000;
 const RECONNECT_INITIAL_DELAY = 2000;
+const CONNECT_TIMEOUT_MS = Number(process.env.CONNECT_TIMEOUT_MS) || 120000;
+const QUERY_TIMEOUT_MS = Number(process.env.QUERY_TIMEOUT_MS) || 90000;
+const WATCHDOG_INTERVAL_MS = 60000;
+const WATCHDOG_MAX_DISCONNECTED_MS = 300000;
+
 const SUPABASE_TABLE = 'bot_auth_state';
 let currentSock = null;
 let reconnectAttempts = 0;
 let restartRequiredCount = 0;
+let watchdogTimer = null;
+
+process.on('uncaughtException', async (err) => {
+  await logError({ source: 'process.uncaughtException', error: err });
+  startBot().catch(e => logError({ source: 'bot.restartAfterCrash', error: e }));
+});
+
+process.on('unhandledRejection', async (reason) => {
+  const err = reason instanceof Error ? reason : new Error(String(reason));
+  await logError({ source: 'process.unhandledRejection', error: err });
+  startBot().catch(e => logError({ source: 'bot.restartAfterRejection', error: e }));
+});
 
 async function forceNewSession() {
   const { supabase } = require('../database/supabase');
@@ -45,6 +63,29 @@ function cleanupSock() {
       currentSock.end(undefined);
     } catch {}
     currentSock = null;
+  }
+}
+
+function startWatchdog(sock) {
+  stopWatchdog();
+  watchdogTimer = setInterval(() => {
+    if (!stats.isConnected && stats.lastConnectionTime) {
+      const elapsed = Date.now() - stats.lastConnectionTime;
+      if (elapsed > WATCHDOG_MAX_DISCONNECTED_MS) {
+        addEvent("err", "Watchdog: bot desconectado >5min, reiniciando");
+        logSystem("Watchdog reiniciando bot por desconexión prolongada");
+        stopWatchdog();
+        cleanupSock();
+        startBot().catch(e => logError({ source: 'bot.watchdog', error: e }));
+      }
+    }
+  }, WATCHDOG_INTERVAL_MS);
+}
+
+function stopWatchdog() {
+  if (watchdogTimer) {
+    clearInterval(watchdogTimer);
+    watchdogTimer = null;
   }
 }
 
@@ -68,8 +109,12 @@ async function startBot() {
       auth: state,
       browser: ["NekoBot", "Chrome", "1.0.0"],
       keepAliveIntervalMs: 30000,
-      connectTimeoutMs: 60000,
-      defaultQueryTimeoutMs: 60000,
+      connectTimeoutMs: CONNECT_TIMEOUT_MS,
+      defaultQueryTimeoutMs: QUERY_TIMEOUT_MS,
+      syncFullHistory: false,
+      markOnlineOnConnect: false,
+      generateHighQualityLinkPreview: false,
+      maxMsgRetryCount: 10,
     });
 
     currentSock = sock;
@@ -99,6 +144,8 @@ async function startBot() {
         addEvent("ok", "Bot conectado correctamente");
         await logSystem("Bot conectado correctamente");
 
+        startWatchdog(sock);
+
         try {
           const lastWeek = new Date(Date.now() - 7 * 86400000).toISOString();
           const fixed = await getResolvedSince(lastWeek);
@@ -123,14 +170,17 @@ async function startBot() {
         const disconnectErr = lastDisconnect?.error;
         const reason = disconnectErr?.output?.statusCode;
 
+        const reasonName = Object.entries(DisconnectReason).find(([, v]) => v === reason)?.[0] || reason;
+
         if (disconnectErr) {
           await logError({ source: 'bot.connection.close', error: disconnectErr instanceof Error ? disconnectErr : new Error(String(disconnectErr)) });
         }
 
-        addEvent("err", `Conexión cerrada (${reason || "desconocido"})`);
-        await logSystem("Conexión cerrada", { reason: reason || null });
+        addEvent("err", `Conexión cerrada (${reasonName})`);
+        await logSystem("Conexión cerrada", { reason: reasonName });
 
         if (reason === DisconnectReason.loggedOut) {
+          stopWatchdog();
           stopDashboard();
           addEvent("err", "Sesión inválida, limpiando y generando nuevo QR");
           await logSystem("Sesión inválida — limpiando credenciales para nuevo QR");
@@ -138,7 +188,6 @@ async function startBot() {
           cleanupSock();
           startBot().catch(err => {
             logError({ source: 'bot.startBot', error: err instanceof Error ? err : new Error(String(err)) });
-            process.exit(1);
           });
           return;
         }
@@ -146,13 +195,13 @@ async function startBot() {
         if (reason === DisconnectReason.restartRequired) {
           restartRequiredCount++;
           if (restartRequiredCount >= 2) {
+            stopWatchdog();
             addEvent("err", "Sesión inválida, forzando nuevo QR");
             await logSystem("Sesión rechazada por WhatsApp — limpiando credenciales");
             await forceNewSession();
             cleanupSock();
             startBot().catch(err => {
               logError({ source: 'bot.startBot', error: err instanceof Error ? err : new Error(String(err)) });
-              process.exit(1);
             });
             return;
           }
@@ -163,12 +212,11 @@ async function startBot() {
           cleanupSock();
           startBot().catch(err => {
             logError({ source: 'bot.startBot', error: err instanceof Error ? err : new Error(String(err)) });
-            process.exit(1);
           });
           return;
         }
 
-        if (reconnectAttempts >= 5) {
+        if (reconnectAttempts >= MAX_RECONNECT_ATTEMPTS) {
           await logSystem("Máximos reintentos alcanzados, deteniendo reconexión");
           return;
         }
@@ -179,14 +227,13 @@ async function startBot() {
           RECONNECT_MAX_DELAY,
         );
 
-        addEvent("warn", `Reconectando en ${Math.round(delay / 1000)}s (intento ${reconnectAttempts})`);
-        await logSystem("Reconectando bot", { attempt: reconnectAttempts, delay });
+        addEvent("warn", `Reconectando en ${Math.round(delay / 1000)}s (intento ${reconnectAttempts}/${MAX_RECONNECT_ATTEMPTS})`);
+        await logSystem("Reconectando bot", { attempt: reconnectAttempts, max: MAX_RECONNECT_ATTEMPTS, delay });
 
         setTimeout(() => {
           cleanupSock();
           startBot().catch(err => {
             logError({ source: 'bot.startBot', error: err instanceof Error ? err : new Error(String(err)) });
-            process.exit(1);
           });
         }, delay);
       }
@@ -196,6 +243,19 @@ async function startBot() {
   } catch (error) {
     incrementErrors();
     await logError({ source: "startBot", error });
+
+    reconnectAttempts++;
+    if (reconnectAttempts <= MAX_RECONNECT_ATTEMPTS) {
+      const delay = Math.min(
+        RECONNECT_INITIAL_DELAY * Math.pow(2, reconnectAttempts - 1),
+        RECONNECT_MAX_DELAY,
+      );
+      await logSystem("Reintentando startBot por error externo", { attempt: reconnectAttempts, delay });
+      setTimeout(() => {
+        cleanupSock();
+        startBot().catch(e => logError({ source: 'bot.startBot', error: e }));
+      }, delay);
+    }
   }
 }
 
