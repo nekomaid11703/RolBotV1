@@ -1,12 +1,5 @@
 const { commands } = require("../../core/commandHandler");
 
-const BOX_W = 34;
-const CMD_PAD = 22;
-
-const TOP = `╭${"─".repeat(BOX_W)}`;
-const BTM = `╰${"─".repeat(BOX_W)}`;
-const BAR = "│ ";
-
 const COMBAT_CMDS = new Set([
   "combate", "atacar", "rendirse", "aceptar", "rechazar", "duel",
 ]);
@@ -17,12 +10,12 @@ const CAT_ORDER = [
 
 const CAT_META = {
   informacion: { emoji: "ℹ️",  label: "INFORMACIÓN" },
-  economia:     { emoji: "💰",  label: "ECONOMÍA" },
-  personajes:   { emoji: "🎭",  label: "PERSONAJES" },
-  grupo:        { emoji: "🏰",  label: "GRUPO" },
-  permisos:     { emoji: "🛡️", label: "PERMISOS" },
-  utilidades:   { emoji: "🛠️", label: "UTILIDADES" },
-  rpg:          { emoji: "⚔️", label: "ROL" },
+  economia:    { emoji: "💰",  label: "ECONOMÍA" },
+  personajes:  { emoji: "🎭",  label: "PERSONAJES" },
+  grupo:       { emoji: "🏰",  label: "GRUPO" },
+  permisos:    { emoji: "🛡️", label: "PERMISOS" },
+  utilidades:  { emoji: "🛠️", label: "UTILIDADES" },
+  rpg:         { emoji: "⚔️", label: "ROL" },
 };
 
 function normCat(c) {
@@ -38,38 +31,45 @@ function buildAliasStr(aliases) {
   if (!aliases || aliases.length === 0) return "";
   const show = aliases.slice(0, 4);
   const more = aliases.length > 4 ? ` +${aliases.length - 4}` : "";
-  return show.map(a => `/${a}`).join("  ") + more;
+  return show.map(a => `/${a}`).join(", ") + more;
 }
 
 function renderCmd(name, desc, aliases, style) {
-  const cmdTag = `/${name}`;
-  const padding = cmdTag.length < CMD_PAD ? " ".repeat(CMD_PAD - cmdTag.length) : "  ";
-  const line = `${BAR}${cmdTag}${padding}${desc}`;
-  if (!aliases || aliases.length === 0) return [line];
-  if (style === "inline") {
-    const alias = buildAliasStr(aliases);
-    return [`${line}  · ${alias}`];
+  const lines = [];
+  
+  if (style === "multi") {
+    // Diseño para comandos normales: Nombre destacado, descripción en cursiva abajo
+    lines.push(`│ ⟡ */${name}*`);
+    if (desc) lines.push(`│ ╰ 💬 _${desc}_`);
+    if (aliases && aliases.length > 0) {
+      lines.push(`│ ↳ 📎 Alias: ${buildAliasStr(aliases)}`);
+    }
+  } else {
+    // Diseño compacto para comandos de administrador
+    const alias = aliases && aliases.length > 0 ? ` (${buildAliasStr(aliases)})` : "";
+    lines.push(`│ ⚡ */${name}* - _${desc}_${alias}`);
   }
-  const alias = buildAliasStr(aliases);
-  return [line, `${BAR}${" ".repeat(CMD_PAD)}↳ ${alias}`];
+  
+  return lines;
 }
 
 function buildSection(title, normal, admin) {
-  const lines = [TOP, `${BAR}${title}`];
+  const lines = [];
+  lines.push(`╭─「 ${title} 」`);
 
   for (const cmd of normal) {
-    lines.push(...renderCmd(cmd.name, cmd.description || "", cmd.aliases, "multi"));
+    lines.push(...renderCmd(cmd.name, cmd.description || "Sin descripción", cmd.aliases, "multi"));
   }
 
   if (admin.length > 0) {
-    lines.push(BAR);
-    lines.push(`${BAR}⚡ Admin:`);
+    lines.push(`│`);
+    lines.push(`│ 🛡️ *Administración:*`);
     for (const cmd of admin) {
-      lines.push(...renderCmd(cmd.name, cmd.description || "", cmd.aliases, "inline"));
+      lines.push(...renderCmd(cmd.name, cmd.description || "Sin descripción", cmd.aliases, "inline"));
     }
   }
 
-  lines.push(BTM);
+  lines.push(`╰───────────────⟡\n`);
   return lines.join("\n");
 }
 
@@ -105,27 +105,29 @@ module.exports = {
 
     const output = [];
 
-    output.push(TOP);
-    output.push(`${BAR}          ◈ RolBot V1 ◈`);
-    output.push(`${BAR}      Centro de Comandos`);
-    output.push(BAR);
-    output.push(`${BAR}  Usa /comando para ejecutar`);
-    output.push(BTM);
+    // Encabezado principal modernizado
+    output.push(`🌟 ═══『 ◈ *RolBot V1* ◈ 』═══ 🌟`);
+    output.push(`│ 🤖 *Centro de Comandos*`);
+    output.push(`│ 💡 _Usa /comando para ejecutar_`);
+    output.push(`╰────────────────⟡\n`);
 
+    // Iteración de categorías
     for (const c of all) {
       const meta = CAT_META[c] || { emoji: "📂", label: c.toUpperCase() };
       const title = `${meta.emoji} ${meta.label}`;
+      
       const cmds = cats.get(c).sort((a, b) =>
-        a.name.localeCompare(b.name, "es"),
+        a.name.localeCompare(b.name, "es")
       );
+      
       const normal = cmds.filter(cmd => getGroup(cmd) !== "admin");
       const admin = cmds.filter(cmd => getGroup(cmd) === "admin");
+      
       output.push(buildSection(title, normal, admin));
     }
 
-    output.push(TOP);
-    output.push(`${BAR}🤖 RolBotV1  ·  ${unique.size} comandos  ·  👑 Nekomaid`);
-    output.push(BTM);
+    // Pie de página
+    output.push(`🤖 *RolBotV1*  ·  ${unique.size} comandos  ·  👑 *Nekomaid*`);
 
     await ctx.reply(output.join("\n"));
   },
