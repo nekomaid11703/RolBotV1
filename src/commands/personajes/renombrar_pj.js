@@ -19,7 +19,7 @@ const usageMessage = formatCommandUsage({
 
 module.exports = {
   name: "renombrar_pj",
-  aliases: ["rn", "rename"],
+  aliases: ["rn", "rename", "edit_pj_name", "rename_pj"],
   description: "Renombra uno de tus personajes.",
   category: "personajes",
 
