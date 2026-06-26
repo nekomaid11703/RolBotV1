@@ -31,6 +31,7 @@ const CONNECT_TIMEOUT_MS = Number(process.env.CONNECT_TIMEOUT_MS) || 120000;
 const QUERY_TIMEOUT_MS = Number(process.env.QUERY_TIMEOUT_MS) || 90000;
 const WATCHDOG_INTERVAL_MS = 60000;
 const WATCHDOG_MAX_DISCONNECTED_MS = 300000;
+const USE_PAIRING_CODE = process.argv.slice(2).includes('code');
 
 const SUPABASE_TABLE = 'bot_auth_state';
 let currentSock = null;
@@ -38,6 +39,7 @@ let reconnectAttempts = 0;
 let restartRequiredCount = 0;
 let watchdogTimer = null;
 let pairingCodeRequested = false;
+let cachedPairingPhone = null;
 
 process.on('uncaughtException', async (err) => {
   await logError({ source: 'process.uncaughtException', error: err });
@@ -93,6 +95,21 @@ function stopWatchdog() {
 async function startBot() {
   try {
     pairingCodeRequested = false;
+
+    if (USE_PAIRING_CODE && !cachedPairingPhone) {
+      cachedPairingPhone = process.env.PAIRING_PHONE_NUMBER;
+      if (!cachedPairingPhone) {
+        const readline = require('readline');
+        const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
+        cachedPairingPhone = await new Promise(resolve => {
+          rl.question('\n\x1b[1m\x1b[36mIngresa el número de teléfono para pairing code (ej: 521234567890):\x1b[0m ', answer => {
+            rl.close();
+            resolve(answer.trim());
+          });
+        });
+      }
+    }
+
     await cleanOldLogs();
 
     const { invalidateAllCache } = require("../utils/safeQuery");
@@ -133,12 +150,10 @@ async function startBot() {
       if (qr) {
         restartRequiredCount = 0;
 
-        const pairingPhone = process.env.PAIRING_PHONE_NUMBER;
-
-        if (pairingPhone && !pairingCodeRequested) {
+        if (USE_PAIRING_CODE && cachedPairingPhone && !pairingCodeRequested) {
           pairingCodeRequested = true;
           try {
-            const code = await sock.requestPairingCode(pairingPhone);
+            const code = await sock.requestPairingCode(cachedPairingPhone);
             const formattedCode = code.match(/.{1,4}/g)?.join('-') || code;
             process.stdout.write('\n\x1b[1m\x1b[36mCódigo de pareo (ingresa en WhatsApp > Dispositivos vinculados > Vincular con número de teléfono):\x1b[0m\n\n');
             process.stdout.write(`\x1b[1m\x1b[32m${formattedCode}\x1b[0m\n\n`);
