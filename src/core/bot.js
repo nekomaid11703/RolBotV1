@@ -37,6 +37,7 @@ let currentSock = null;
 let reconnectAttempts = 0;
 let restartRequiredCount = 0;
 let watchdogTimer = null;
+let pairingCodeRequested = false;
 
 process.on('uncaughtException', async (err) => {
   await logError({ source: 'process.uncaughtException', error: err });
@@ -91,6 +92,7 @@ function stopWatchdog() {
 
 async function startBot() {
   try {
+    pairingCodeRequested = false;
     await cleanOldLogs();
 
     const { invalidateAllCache } = require("../utils/safeQuery");
@@ -130,10 +132,28 @@ async function startBot() {
 
       if (qr) {
         restartRequiredCount = 0;
-        process.stdout.write('\n\x1b[1m\x1b[36mEscanea el codigo QR con WhatsApp:\x1b[0m\n\n');
-        qrcode.generate(qr, { small: true });
-        process.stdout.write('\n');
-        await logSystem("Código QR generado");
+
+        const pairingPhone = process.env.PAIRING_PHONE_NUMBER;
+
+        if (pairingPhone && !pairingCodeRequested) {
+          pairingCodeRequested = true;
+          try {
+            const code = await sock.requestPairingCode(pairingPhone);
+            const formattedCode = code.match(/.{1,4}/g)?.join('-') || code;
+            process.stdout.write('\n\x1b[1m\x1b[36mCódigo de pareo (ingresa en WhatsApp > Dispositivos vinculados > Vincular con número de teléfono):\x1b[0m\n\n');
+            process.stdout.write(`\x1b[1m\x1b[32m${formattedCode}\x1b[0m\n\n`);
+            await logSystem("Código de pareo generado");
+          } catch (err) {
+            await logError({ source: 'bot.pairingCode', error: err });
+            process.stdout.write('\n\x1b[1m\x1b[36mError al generar código de pareo — mostrando QR:\x1b[0m\n\n');
+            qrcode.generate(qr, { small: true });
+            process.stdout.write('\n');
+          }
+        } else {
+          process.stdout.write('\n\x1b[1m\x1b[36mEscanea el codigo QR con WhatsApp:\x1b[0m\n\n');
+          qrcode.generate(qr, { small: true });
+          process.stdout.write('\n');
+        }
       }
 
       if (connection === "open") {
