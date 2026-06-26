@@ -39,6 +39,7 @@ let reconnectAttempts = 0;
 let restartRequiredCount = 0;
 let watchdogTimer = null;
 let pairingCodeRequested = false;
+let pairingCodeRegistered = false;
 let cachedPairingPhone = null;
 
 process.on('uncaughtException', async (err) => {
@@ -57,6 +58,7 @@ async function forceNewSession() {
     const { supabase } = require('../database/supabase');
     await supabase.from(SUPABASE_TABLE).delete().eq('session_id', 'bot-session-1');
   } catch {}
+  pairingCodeRegistered = false;
 }
 
 function cleanupSock() {
@@ -97,6 +99,7 @@ function stopWatchdog() {
 async function startBot() {
   try {
     pairingCodeRequested = false;
+    pairingCodeRegistered = false;
 
     if (USE_PAIRING_CODE && !cachedPairingPhone) {
       cachedPairingPhone = process.env.PAIRING_PHONE_NUMBER;
@@ -152,34 +155,35 @@ async function startBot() {
 
       if (qr) {
         restartRequiredCount = 0;
-
-        if (USE_PAIRING_CODE && cachedPairingPhone && !pairingCodeRequested) {
-          pairingCodeRequested = true;
-          try {
-            const code = await sock.requestPairingCode(cachedPairingPhone);
-            const formattedCode = code.match(/.{1,4}/g)?.join('-') || code;
-            process.stdout.write(`\n\x1b[1m\x1b[36mCódigo de pareo:\x1b[0m\n`);
-            process.stdout.write(`\x1b[1m\x1b[32m${formattedCode}\x1b[0m\n\n`);
-            process.stdout.write(`\x1b[1m\x1b[36mPasos:\x1b[0m\n`);
-            process.stdout.write(`  \x1b[90m1. Abre WhatsApp en tu teléfono\x1b[0m\n`);
-            process.stdout.write(`  \x1b[90m2. Ve a Menú > Dispositivos vinculados > Vincular dispositivo\x1b[0m\n`);
-            process.stdout.write(`  \x1b[90m3. Toca "Vincular con número de teléfono"\x1b[0m\n`);
-            process.stdout.write(`  \x1b[90m4. Ingresa el código: \x1b[1m\x1b[97m${formattedCode}\x1b[0m\n\n`);
-            await logSystem("Código de pareo generado");
-          } catch (err) {
-            await logError({ source: 'bot.pairingCode', error: err });
-            process.stdout.write('\n\x1b[1m\x1b[36mError al generar código de pareo — mostrando QR:\x1b[0m\n\n');
-            qrcode.generate(qr, { small: true });
-            process.stdout.write('\n');
-          }
-        } else {
+        if (!pairingCodeRequested) {
           process.stdout.write('\n\x1b[1m\x1b[36mEscanea el codigo QR con WhatsApp:\x1b[0m\n\n');
           qrcode.generate(qr, { small: true });
           process.stdout.write('\n');
         }
       }
 
+      if (connection === 'connecting' && USE_PAIRING_CODE && cachedPairingPhone && !pairingCodeRequested && !pairingCodeRegistered) {
+        pairingCodeRequested = true;
+        setTimeout(async () => {
+          try {
+            const code = await sock.requestPairingCode(cachedPairingPhone);
+            const formattedCode = code.match(/.{1,4}/g)?.join('-') || code;
+            process.stdout.write(`\n\x1b[1m\x1b[36mCódigo de pareo:\x1b[0m\n`);
+            process.stdout.write(`\x1b[1m\x1b[32m${formattedCode}\x1b[0m\n\n`);
+            process.stdout.write(`\x1b[1m\x1b[36mPasos:\x1b[0m\n`);
+            process.stdout.write(`  \x1b[90m1. Ve a web.whatsapp.com > tres puntos > Vincular con número\x1b[0m\n`);
+            process.stdout.write(`  \x1b[90m2. O en tu teléfono: Menú > Dispositivos vinculados > Vincular\x1b[0m\n`);
+            process.stdout.write(`  \x1b[90m3. Ingresa el código: \x1b[1m\x1b[97m${formattedCode}\x1b[0m\n\n`);
+            await logSystem("Código de pareo generado");
+          } catch (err) {
+            pairingCodeRequested = false;
+            await logError({ source: 'bot.pairingCode', error: err });
+          }
+        }, 2000);
+      }
+
       if (connection === "open") {
+        pairingCodeRegistered = true;
         stats.isConnected = true;
         stats.lastConnectionTime = Date.now();
         reconnectAttempts = 0;
