@@ -1,39 +1,21 @@
-const { supabase } = require("../../database/supabase");
-const { getFirstMentionedJid } = require("../../utils/commandParseUtils");
-const { resolveTargetDisplayName } = require("../../utils/userMentionUtils");
-const { formatCommandUsage, formatError } = require("../../utils/messageFormatUtils");
-
-async function getWarns(groupId, userId) {
-  const { data } = await supabase
-    .from("bot_auth_state")
-    .select("data")
-    .eq("session_id", "warn")
-    .eq("id", `${groupId}:${userId}`)
-    .maybeSingle();
-  return data?.data || { count: 0 };
-}
-
-async function saveWarns(groupId, userId, warns) {
-  await supabase.from("bot_auth_state").upsert({
-    session_id: "warn",
-    id: `${groupId}:${userId}`,
-    data: warns,
-  }, { onConflict: "session_id,id" });
-}
-
-const usageMessage = formatCommandUsage({
-  icon: "✅",
-  title: "Quitar advertencia",
-  description: "Reduce en 1 el contador de warns de un miembro.",
-  usage: "/unwarn @usuario",
-  example: "/unwarn @Nekomaid",
-  notes: ["Solo administradores del grupo."],
-});
+const {
+  deleteWarn,
+  getWarns,
+} = require("../../utils/groupUtils");
+const {
+  getFirstMentionedJid,
+} = require("../../utils/commandParseUtils");
+const {
+  resolveTargetDisplayName,
+  formatDisplayMention,
+  withMentions,
+} = require("../../utils/userMentionUtils");
+const { formatError, box } = require("../../utils/messageFormatUtils");
 
 module.exports = {
   name: "unwarn",
-  aliases: ["quitar_warn", "delwarn", "remwarn"],
-  description: "Quita un warn a un miembro.",
+  aliases: ["quitar_warn", "disculpar"],
+  description: "Elimina el último warn de un usuario en el grupo.",
   category: "grupo",
   groupOnly: true,
   adminOnly: true,
@@ -42,34 +24,30 @@ module.exports = {
     const targetId = getFirstMentionedJid(ctx);
 
     if (!targetId) {
-      return ctx.reply(usageMessage);
+      return ctx.reply("❌ Debes mencionar al usuario.\n\nUso: /unwarn @usuario");
     }
 
-    const targetName = await resolveTargetDisplayName(ctx, targetId);
-    const warns = await getWarns(ctx.from, targetId);
+    try {
+      const currentWarns = await getWarns(ctx.from, targetId);
 
-    if (warns.count <= 0) {
-      return ctx.reply(`ℹ️ ${targetName} no tiene warns activos.`);
+      if (currentWarns <= 0) {
+        return ctx.reply("❌ Ese usuario no tiene warns activos.");
+      }
+
+      const targetName = await resolveTargetDisplayName(ctx, targetId);
+      await deleteWarn(ctx.from, targetId);
+
+      await ctx.reply(withMentions(
+        box("✅ Warn eliminado", [
+          "",
+          `👤  ${formatDisplayMention(targetId, targetName)}`,
+          "",
+          `Warns restantes: ${currentWarns - 1}`,
+        ]),
+        [targetId],
+      ));
+    } catch (error) {
+      await ctx.reply(formatError(error.message));
     }
-
-    warns.count = Math.max(0, (warns.count || 0) - 1);
-
-    if (warns.count === 0) {
-      await supabase.from("bot_auth_state").delete().eq("session_id", "warn").eq("id", `${ctx.from}:${targetId}`);
-    } else {
-      await saveWarns(ctx.from, targetId, warns);
-    }
-
-    await ctx.reply(
-      [
-        "━━━━━━━━━━━━━━━━━━━━",
-        "✅ Warn removido",
-        "",
-        `👤 ${targetName}`,
-        `⚠️ Warns restantes: ${warns.count}`,
-        "━━━━━━━━━━━━━━━━━━━━",
-      ].join("\n"),
-      { mentions: [targetId] },
-    );
   },
 };

@@ -1,20 +1,18 @@
-const { getFirstMentionedJid } = require("../../utils/commandParseUtils");
-const { resolveTargetDisplayName } = require("../../utils/userMentionUtils");
-const { formatCommandUsage, formatError } = require("../../utils/messageFormatUtils");
-
-const usageMessage = formatCommandUsage({
-  icon: "⬇️",
-  title: "Degradar admin",
-  description: "Degrada a un administrador a miembro normal.",
-  usage: "/demote @usuario",
-  example: "/demote @Nekomaid",
-  notes: ["Solo administradores del grupo."],
-});
+const { demoteFromAdmin } = require("../../utils/groupUtils");
+const {
+  getFirstMentionedJid,
+} = require("../../utils/commandParseUtils");
+const {
+  resolveTargetDisplayName,
+  formatDisplayMention,
+  withMentions,
+} = require("../../utils/userMentionUtils");
+const { formatError, box } = require("../../utils/messageFormatUtils");
 
 module.exports = {
   name: "demote",
-  aliases: ["degradar", "quitar_admin", "remadmin"],
-  description: "Degrada a un admin a miembro normal.",
+  aliases: ["desadmin", "quitar_admin"],
+  description: "Degrada a un administrador del grupo.",
   category: "grupo",
   groupOnly: true,
   adminOnly: true,
@@ -23,25 +21,24 @@ module.exports = {
     const targetId = getFirstMentionedJid(ctx);
 
     if (!targetId) {
-      return ctx.reply(usageMessage);
+      return ctx.reply("❌ Debes mencionar al administrador que deseas degradar.\n\nUso: /demote @usuario");
     }
 
-    const targetName = await resolveTargetDisplayName(ctx, targetId);
-
     try {
-      await ctx.sock.groupParticipantsUpdate(ctx.from, [targetId], 'demote');
-      await ctx.reply(
-        [
-          "━━━━━━━━━━━━━━━━━━━━",
-          "⬇️ Admin degradado",
+      const targetName = await resolveTargetDisplayName(ctx, targetId);
+      await demoteFromAdmin(ctx.sock, ctx.from, targetId);
+
+      await ctx.reply(withMentions(
+        box("⬇️ Admin degradado", [
           "",
-          `👤 ${targetName}`,
-          "━━━━━━━━━━━━━━━━━━━━",
-        ].join("\n"),
-        { mentions: [targetId] },
-      );
+          `👤  ${formatDisplayMention(targetId, targetName)}`,
+          "",
+          "Ya no es administrador del grupo.",
+        ]),
+        [targetId],
+      ));
     } catch (error) {
-      await ctx.reply(formatError(`No se pudo degradar a ${targetName}. Asegúrate de que el bot sea admin.`));
+      await ctx.reply(formatError(error.message));
     }
   },
 };

@@ -10,34 +10,8 @@ const {
   resolveTargetDisplayName,
   withMentions,
 } = require("../../utils/userMentionUtils");
-
-function formatCount(value) {
-  return String(Math.max(0, Math.floor(Number(value) || 0)));
-}
-
-function formatDate(value) {
-  if (!value) {
-    return "sin datos";
-  }
-
-  const date = new Date(value);
-
-  if (Number.isNaN(date.getTime())) {
-    return "sin datos";
-  }
-
-  return date.toLocaleString("es-CO", {
-    dateStyle: "short",
-    timeStyle: "short",
-  });
-}
-
-function medal(index) {
-  if (index === 0) return "🥇";
-  if (index === 1) return "🥈";
-  if (index === 2) return "🥉";
-  return `${index + 1}.`;
-}
+const { formatCount, formatDate, medal } = require("../../utils/activityFormatUtils");
+const { box } = require("../../utils/messageFormatUtils");
 
 module.exports = {
   name: "actividad_global",
@@ -74,59 +48,13 @@ module.exports = {
       lastCommandAt: null,
     };
 
+    const targetLabel = formatDisplayMention(targetId, targetDisplayName);
+
     if (!topUsers.length) {
-      return ctx.reply(
-        withMentions(
-          [
-            "━━━━━━━━━━━━━━━━━━━━",
-            "📊 Actividad global",
-            "",
-            `👤 Usuario: ${formatDisplayMention(targetId, targetDisplayName)}`,
-            "",
-            `💬 Mensajes: ${formatCount(activity.messages)}`,
-            `⚙️ Comandos usados: ${formatCount(activity.commands)}`,
-            `✍️ Textos: ${formatCount(activity.textMessages)}`,
-            `🖼️ Medios: ${formatCount(activity.mediaMessages)}`,
-            `⭐ Stickers: ${formatCount(activity.stickerMessages)}`,
-            `🔊 Audios: ${formatCount(activity.audioMessages)}`,
-            `🖼️ Imágenes: ${formatCount(activity.imageMessages)}`,
-            `🎥 Videos: ${formatCount(activity.videoMessages)}`,
-            `📎 Documentos: ${formatCount(activity.documentMessages)}`,
-            `💫 Reacciones: ${formatCount(activity.reactionMessages)}`,
-            "",
-            `🕒 Último mensaje: ${formatDate(activity.lastMessageAt)}`,
-            `🔎 Tipo reciente: ${activity.lastMessageType || "sin datos"}`,
-            "",
-            "🏆 Top global",
-            "",
-            "Aún no hay actividad registrada.",
-            "━━━━━━━━━━━━━━━━━━━━",
-          ].join("\n"),
-          [targetId],
-        ),
-      );
-    }
-
-    const mentions = [];
-    const lines = topUsers.map((entry, index) => {
-      if (entry?.creatorId) {
-        mentions.push(entry.creatorId);
-      }
-
-      return [
-        `${medal(index)} ${formatDisplayMention(entry.creatorId, entry.displayName)}`,
-        `   Mensajes: ${formatCount(entry.activity?.messages)}`,
-        `   Comandos: ${formatCount(entry.activity?.commands)}`,
-      ].join("\n");
-    });
-
-    await ctx.reply(
-      withMentions(
-        [
-          "━━━━━━━━━━━━━━━━━━━━",
-          "📊 Actividad global",
+      return ctx.reply(withMentions(
+        box("📊 Actividad global", [
           "",
-          `👤 Usuario: ${formatDisplayMention(targetId, targetDisplayName)}`,
+          `👤  ${targetLabel}`,
           "",
           `💬 Mensajes: ${formatCount(activity.messages)}`,
           `⚙️ Comandos usados: ${formatCount(activity.commands)}`,
@@ -144,12 +72,45 @@ module.exports = {
           "",
           "🏆 Top global",
           "",
-          ...lines,
-          "",
-          "━━━━━━━━━━━━━━━━━━━━",
-        ].join("\n"),
-        [targetId, ...mentions],
-      ),
-    );
+          "Aún no hay actividad registrada.",
+        ]),
+        [targetId],
+      ));
+    }
+
+    const mentions = [];
+    const lines = topUsers.map((entry, index) => {
+      if (entry?.creatorId) {
+        mentions.push(entry.creatorId);
+      }
+
+      return `${medal(index)} ${formatDisplayMention(entry.creatorId, entry.displayName)}\n   Mensajes: ${formatCount(entry.activity?.messages)}\n   Comandos: ${formatCount(entry.activity?.commands)}`;
+    });
+
+    await ctx.reply(withMentions(
+      box("📊 Actividad global", [
+        "",
+        `👤  ${targetLabel}`,
+        "",
+        `💬 Mensajes: ${formatCount(activity.messages)}`,
+        `⚙️ Comandos usados: ${formatCount(activity.commands)}`,
+        `✍️ Textos: ${formatCount(activity.textMessages)}`,
+        `🖼️ Medios: ${formatCount(activity.mediaMessages)}`,
+        `⭐ Stickers: ${formatCount(activity.stickerMessages)}`,
+        `🔊 Audios: ${formatCount(activity.audioMessages)}`,
+        `🖼️ Imágenes: ${formatCount(activity.imageMessages)}`,
+        `🎥 Videos: ${formatCount(activity.videoMessages)}`,
+        `📎 Documentos: ${formatCount(activity.documentMessages)}`,
+        `💫 Reacciones: ${formatCount(activity.reactionMessages)}`,
+        "",
+        `🕒 Último mensaje: ${formatDate(activity.lastMessageAt)}`,
+        `🔎 Tipo reciente: ${activity.lastMessageType || "sin datos"}`,
+        "",
+        "🏆 Top global",
+        "",
+        ...lines,
+      ]),
+      [targetId, ...mentions],
+    ));
   },
 };

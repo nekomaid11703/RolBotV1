@@ -1,4 +1,8 @@
 const { createReport } = require('../../services/bugReportService');
+const { box, formatError } = require("../../utils/messageFormatUtils");
+
+const reportCooldowns = new Map();
+const REPORT_COOLDOWN_MS = 5 * 60 * 1000;
 
 module.exports = {
   name: 'bugreport',
@@ -6,6 +10,13 @@ module.exports = {
   category: 'utilidades',
 
   async execute(ctx) {
+    const now = Date.now();
+    const lastReport = reportCooldowns.get(ctx.sender);
+    if (lastReport && now - lastReport < REPORT_COOLDOWN_MS) {
+      const remaining = Math.ceil((REPORT_COOLDOWN_MS - (now - lastReport)) / 1000);
+      return ctx.reply(`⏳ Puedes reportar otro bug en ${remaining} segundos.`);
+    }
+
     const description = ctx.args.join(' ').trim();
     if (!description && !ctx.msg?.message?.imageMessage) {
       return ctx.reply('❌ Usa: /bugreport <descripción del bug>\n\nPuedes adjuntar una imagen.');
@@ -21,16 +32,19 @@ module.exports = {
         msg: ctx.msg,
       });
 
-      const lines = [
-        `✅ Bug #${report.id.slice(0, 8)} reportado`,
-        `📋 Categoría: ${report.category}`,
-        `🏷 Prioridad: ${report.priority}`,
-        `📊 Estado: ${report.status}`,
-      ];
+      reportCooldowns.set(ctx.sender, now);
+
+      const lines = [];
+      lines.push("");
+      lines.push(`ID: #${report.id.slice(0, 8)}`);
+      lines.push(`📋 Categoría: ${report.category}`);
+      lines.push(`🏷 Prioridad: ${report.priority}`);
+      lines.push(`📊 Estado: ${report.status}`);
       if (report.mediaUrl) lines.push('🖼 Imagen adjunta guardada');
-      await ctx.reply(lines.join('\n'));
+
+      await ctx.reply(box("✅ Bug reportado", lines));
     } catch (error) {
-      await ctx.reply(`❌ ${error.message}`);
+      await ctx.reply(formatError(error.message));
     }
   },
 };

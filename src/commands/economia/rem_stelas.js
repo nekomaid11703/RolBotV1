@@ -11,6 +11,7 @@ const {
 const {
   formatCommandUsage,
   formatError,
+  box,
 } = require("../../utils/messageFormatUtils");
 
 const usageMessage = formatCommandUsage({
@@ -56,19 +57,13 @@ module.exports = {
         },
       });
 
-      await ctx.reply(
-        [
-          "━━━━━━━━━━━━━━",
-          "➖ Stelas retiradas",
-          "",
-          `👤 ${formatDisplayMention(targetId, targetName)}`,
-          "",
-          `💵 Retiradas: ${formatStelas(amount)}`,
-          `💰 Balance: ${formatStelas(balance)}`,
-          "━━━━━━━━━━━━━━",
-        ].join("\n"),
-        { mentions: [targetId] },
-      );
+      await ctx.reply(box("➖ Stelas retiradas", [
+        "",
+        `👤  ${formatDisplayMention(targetId, targetName)}`,
+        "",
+        `💵  Retiradas: ${formatStelas(amount)}`,
+        `💰  Balance: ${formatStelas(balance)}`,
+      ]), { mentions: [targetId] });
     } catch (error) {
       await ctx.reply(formatError(error.message));
     }

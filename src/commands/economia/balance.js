@@ -7,6 +7,10 @@ const {
   formatStelas,
 } = require("../../utils/economyUtils");
 
+const {
+  box,
+} = require("../../utils/messageFormatUtils");
+
 function resolveTarget(ctx) {
   const mentioned = Array.isArray(ctx.mentionedJid)
     ? ctx.mentionedJid.filter(Boolean)
@@ -62,16 +66,11 @@ module.exports = {
       profile.creatorName ||
       (target.isSelf ? ctx.userName : "usuario");
 
-    await ctx.reply(
-      [
-        "━━━━━━━━━━━━━━",
-        "💰 Balance",
-        "",
-        `👤 ${displayName}`,
-        "",
-        `💵 ${formatStelas(money)}`,
-        "━━━━━━━━━━━━━━",
-      ].join("\n")
-    );
+    await ctx.reply(box("💰 Balance", [
+      "",
+      `👤  ${displayName}`,
+      "",
+      `💵  ${formatStelas(money)}`,
+    ]));
   },
 };

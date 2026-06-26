@@ -1,43 +1,61 @@
 const { getGroupMetadata } = require("../../utils/groupUtils");
+const { formatCount } = require("../../utils/activityFormatUtils");
+const { formatRealMentionTag, withMentions } = require("../../utils/userMentionUtils");
+const { formatError, box } = require("../../utils/messageFormatUtils");
 
 module.exports = {
   name: "todos",
-  aliases: ["everyone", "all", "tagall"],
+  aliases: ["miembros", "mencionar_todos", "tagall"],
   description: "Menciona a todos los miembros del grupo.",
   category: "grupo",
   groupOnly: true,
   adminOnly: true,
 
   async execute(ctx) {
-    const metadata = await getGroupMetadata(ctx.sock, ctx.from);
-    if (!metadata) {
-      return ctx.reply("No se pudo obtener la lista de miembros.");
+    try {
+      const metadata = await getGroupMetadata(ctx.sock, ctx.from);
+      const participants = metadata?.participants || [];
+
+      if (!participants.length) {
+        return ctx.reply("❌ No se pudieron obtener los miembros del grupo.");
+      }
+
+      const memberJids = participants
+        .map(p => p.id || p.jid || "")
+        .filter(Boolean)
+        .filter(jid => jid !== ctx.sock?.user?.id);
+
+      const lines = [];
+      let chunk = "";
+      for (const jid of memberJids) {
+        const tag = formatRealMentionTag(jid);
+        const next = chunk ? `${chunk} ${tag}` : tag;
+        if (next.length > 2000) {
+          lines.push(chunk);
+          chunk = tag;
+        } else {
+          chunk = next;
+        }
+      }
+      if (chunk) lines.push(chunk);
+
+      const firstLine = lines.shift() || "";
+
+      await ctx.reply(withMentions(
+        box("👥 Miembros del grupo", [
+          "",
+          `Total: ${formatCount(memberJids.length)}`,
+          "",
+          firstLine,
+        ]),
+        memberJids,
+      ));
+
+      for (const chunk of lines) {
+        await ctx.reply(withMentions(chunk, memberJids));
+      }
+    } catch (error) {
+      await ctx.reply(formatError(error.message));
     }
-
-    const botJid = String(ctx.sock?.user?.id || "").split(":")[0] + "@s.whatsapp.net";
-
-    const participants = (metadata.participants || [])
-      .map(p => p.id)
-      .filter(jid => jid !== botJid);
-
-    if (participants.length === 0) {
-      return ctx.reply("No hay miembros para mencionar.");
-    }
-
-    const groupName = String(metadata.subject || "el grupo").trim() || "el grupo";
-
-    const customMessage = ctx.args.join(" ").trim();
-    const body = customMessage || "Mencionando a todos:";
-
-    const lines = [
-      "━━━━━━━━━━━━━━━━━━━━",
-      "📢 *ATENCIÓN*",
-      "",
-      `👥 *${groupName}* — ${participants.length} miembros`,
-      "",
-      body,
-    ];
-
-    await ctx.reply(lines.join("\n"), { mentions: participants });
   },
 };

@@ -5,10 +5,13 @@ const {
 const { isOwner } = require("../../utils/permissionUtils");
 const {
   resolveTargetDisplayName,
+  formatDisplayMention,
+  withMentions,
 } = require("../../utils/userMentionUtils");
 const {
   formatCommandUsage,
   formatError,
+  box,
 } = require("../../utils/messageFormatUtils");
 
 const usageMessage = formatCommandUsage({
@@ -53,10 +56,15 @@ module.exports = {
         },
       });
 
-      await ctx.reply(
-        `✅ Permiso de economía otorgado a ${targetName}.`,
-        { mentions: [targetId] },
-      );
+      await ctx.reply(withMentions(
+        box("🛡️ Permiso otorgado", [
+          "",
+          `👤  ${formatDisplayMention(targetId, targetName)}`,
+          "",
+          "Ahora es administrador de economia.",
+        ]),
+        [targetId],
+      ));
     } catch (error) {
       await ctx.reply(formatError(error.message));
     }

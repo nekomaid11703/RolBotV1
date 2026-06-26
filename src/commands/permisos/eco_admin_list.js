@@ -1,5 +1,6 @@
 const { listEconomyAdmins } = require("../../services/permissionService");
 const { getOwnerRecords } = require("../../utils/permissionUtils");
+const { box } = require("../../utils/messageFormatUtils");
 
 module.exports = {
   name: "eco_admin_list",
@@ -17,33 +18,33 @@ module.exports = {
       phone: owner.phone,
     }));
 
-    const lines = [
-      "━━━━━━━━━━━━━━",
-      "🛡️ Administradores de economía",
-      "",
-      "👑 Creador:",
-    ];
+    const lines = [];
+
+    lines.push("");
+    lines.push("👑 Creador:");
 
     if (!ownerNames.length) {
-      lines.push("• Creador");
+      lines.push("  • Creador");
     } else {
       ownerNames.forEach((owner) => {
-        lines.push(`• ${owner.name}`);
+        lines.push(`  • ${owner.name}`);
       });
     }
 
-    lines.push("", "💼 Permisos activos:");
+    lines.push("");
+    lines.push("💼 Permisos activos:");
 
     if (!admins.length) {
-      lines.push("• Ninguno");
+      lines.push("  • Ninguno");
     } else {
       admins.forEach((admin, index) => {
-        lines.push(`${index + 1}. ${admin.displayName}`);
+        const date = admin.grantedAt
+          ? new Date(admin.grantedAt).toLocaleString("es-CO", { dateStyle: "short", timeStyle: "short" })
+          : "fecha desconocida";
+        lines.push(`  ${index + 1}. ${admin.displayName} (${date})`);
       });
     }
 
-    lines.push("━━━━━━━━━━━━━━");
-
-    await ctx.reply(lines.join("\n"));
+    await ctx.reply(box("🛡️ Admins de economía", lines));
   },
 };

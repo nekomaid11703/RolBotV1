@@ -1,7 +1,7 @@
 const { getActiveCharacter } = require("../../services/characterService");
 const invService = require("../../services/rpg/inventoryService");
 const itemsData = require("../../services/rpg/items");
-const { formatError } = require("../../utils/messageFormatUtils");
+const { formatError, box } = require("../../utils/messageFormatUtils");
 const { logSystem, logError } = require("../../services/loggerService");
 
 module.exports = {
@@ -26,12 +26,7 @@ module.exports = {
       const pesoActual = invService.getUsedWeight(inv);
       const capacidad = invService.getCapacity(inv);
 
-      const lines = [
-        "✦ ━━━━━━━━━━━━━━ ✦",
-        `🎒 *INVENTARIO: ${character.name.toUpperCase()}*`,
-        "✦ ━━━━━━━━━━━━━━ ✦",
-        "",
-      ];
+      const lines = [];
 
       const equipped = [];
       for (const [slot, itemId] of Object.entries(inv.equipped)) {
@@ -41,33 +36,32 @@ module.exports = {
       }
 
       if (equipped.length > 0) {
-        lines.push('*EQUIPADO:*');
+        lines.push("⚔️ EQUIPADO:");
         for (const { slot, item } of equipped) {
           const dmg = item.damageType ? `(${item.damageType}, ${item.baseDamage} daño)` : '';
           const def = item.defensaBonus ? `(+${item.defensaBonus} defensa)` : '';
           const dur = item.resistencia ? ` [${item.resistencia} resistencia]` : '';
-          lines.push(`  ⚔️ ${item.name}: ${dmg}${def}${dur}`);
+          lines.push(`  • ${item.name}: ${dmg}${def}${dur}`);
         }
-        lines.push('');
+        lines.push("");
       }
 
       if (inv.items.length > 0) {
-        lines.push('*MOCHILA:*');
+        lines.push("🎒 MOCHILA:");
         for (const stack of inv.items) {
           const item = itemsData.getItem(stack.itemId);
           if (!item) continue;
           const pesoItem = (item.peso * stack.quantity).toFixed(1);
           lines.push(`  • ${item.name} ×${stack.quantity} (${pesoItem} peso)`);
         }
-        lines.push('');
+        lines.push("");
       }
 
       lines.push(`📦 Peso: ${pesoActual}/${capacidad}`);
-      lines.push('');
-      lines.push('Usa `/equipar <item>` para equipar, `/desequipar <slot>` para quitar.');
-      lines.push('', '✦ ━━━━━━━━━━━━━━ ✦');
+      lines.push("");
+      lines.push(`💡 Usa /equipar <item> para equipar, /desequipar <slot> para quitar`);
 
-      return ctx.reply(lines.join('\n'));
+      return ctx.reply(box(`🎒 ${character.name.toUpperCase()}`, lines));
 
     } catch (error) {
       logError({ source: 'inventario', error: error instanceof Error ? error : new Error(String(error)) });

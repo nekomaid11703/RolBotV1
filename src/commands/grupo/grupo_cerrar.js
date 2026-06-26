@@ -1,36 +1,23 @@
-const { formatCommandUsage, formatError } = require("../../utils/messageFormatUtils");
-
-const usageMessage = formatCommandUsage({
-  icon: "🔒",
-  title: "Cerrar grupo",
-  description: "Restringe el envío de mensajes solo a administradores.",
-  usage: "/grupo_cerrar",
-  example: "/grupo_cerrar",
-  notes: ["Solo administradores del grupo."],
-});
+const { closeGroup } = require("../../utils/groupUtils");
+const { formatError, box } = require("../../utils/messageFormatUtils");
 
 module.exports = {
   name: "grupo_cerrar",
-  aliases: ["cerrar_grupo", "close_group", "grclose"],
-  description: "Cierra el grupo para que solo admins escriban.",
+  aliases: ["cerrar", "cerrar_grupo"],
+  description: "Cierra el grupo (solo admins pueden enviar mensajes).",
   category: "grupo",
   groupOnly: true,
   adminOnly: true,
 
   async execute(ctx) {
     try {
-      await ctx.sock.groupSettingUpdate(ctx.from, 'announcement');
-      await ctx.reply(
-        [
-          "━━━━━━━━━━━━━━━━━━━━",
-          "🔒 Grupo cerrado",
-          "",
-          "Solo los administradores pueden enviar mensajes ahora.",
-          "━━━━━━━━━━━━━━━━━━━━",
-        ].join("\n"),
-      );
+      await closeGroup(ctx.sock, ctx.from);
+      await ctx.reply(box("🔒 Grupo cerrado", [
+        "",
+        "Solo admins pueden enviar mensajes.",
+      ]));
     } catch (error) {
-      await ctx.reply(formatError("No se pudo cerrar el grupo. Asegúrate de que el bot sea admin."));
+      await ctx.reply(formatError(error.message));
     }
   },
 };

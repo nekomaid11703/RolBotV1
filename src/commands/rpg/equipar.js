@@ -1,7 +1,7 @@
 const { getActiveCharacter } = require("../../services/characterService");
 const invService = require("../../services/rpg/inventoryService");
 const itemsData = require("../../services/rpg/items");
-const { formatError } = require("../../utils/messageFormatUtils");
+const { formatError, box } = require("../../utils/messageFormatUtils");
 const { logSystem, logError } = require("../../services/loggerService");
 
 module.exports = {
@@ -52,7 +52,14 @@ module.exports = {
         ? Object.entries(item.stats).map(([s, v]) => `${s}+${v}`).join(', ')
         : 'sin bonus';
 
-      return ctx.reply(`⚔️ Equipaste *${item.name}* (${slotLabel}). Stats: ${bonusText}.`);
+      await ctx.react("⚔️");
+
+      return ctx.reply(box("⚔️ Item equipado", [
+        "",
+        `${item.name}`,
+        `Slot: ${slotLabel}`,
+        `Stats: ${bonusText}`,
+      ]));
 
     } catch (error) {
       logError({ source: 'equipar', error: error instanceof Error ? error : new Error(String(error)) });

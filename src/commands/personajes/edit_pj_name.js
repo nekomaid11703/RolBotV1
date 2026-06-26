@@ -2,6 +2,7 @@ const { getActiveCharacter, editCharacter } = require("../../services/characterS
 const {
   formatCommandUsage,
   formatError,
+  box,
 } = require("../../utils/messageFormatUtils");
 
 const usageMessage = formatCommandUsage({
@@ -14,8 +15,8 @@ const usageMessage = formatCommandUsage({
 });
 
 module.exports = {
-  name: "edit_pj_name",
-  aliases: ["renombrar_pj"],
+  name: "renombrar_pj",
+  aliases: ["edit_pj_name", "rename_pj"],
   description: "Renombra tu personaje activo.",
   category: "personajes",
 
@@ -46,11 +47,11 @@ module.exports = {
 
       await ctx.react("✏️");
 
-      await ctx.reply(
-        "✏️ *PERSONAJE RENOMBRADO*\n\n" +
-          `👤 Antes: ${activeChar.name}\n` +
-          `✨ Ahora: ${character.name}`,
-      );
+      await ctx.reply(box("✏️ Personaje renombrado", [
+        "",
+        `⬆️  ${activeChar.name}`,
+        `⬇️  ${character.name}`,
+      ]));
     } catch (error) {
       await ctx.reply(formatError(error.message));
     }

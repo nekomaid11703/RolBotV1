@@ -2,6 +2,31 @@ const {
   isSameIdentity,
   normalizeJid,
 } = require("./identityUtils");
+const { supabase } = require("../database/supabase");
+
+const WARN_SESSION = "warn";
+
+async function getWarns(groupId, userId) {
+  const { data } = await supabase
+    .from("bot_auth_state")
+    .select("data")
+    .eq("session_id", WARN_SESSION)
+    .eq("id", `${groupId}:${userId}`)
+    .maybeSingle();
+  return data?.data || { count: 0 };
+}
+
+async function saveWarns(groupId, userId, warns) {
+  await supabase.from("bot_auth_state").upsert({
+    session_id: WARN_SESSION,
+    id: `${groupId}:${userId}`,
+    data: warns,
+  }, { onConflict: "session_id,id" });
+}
+
+async function deleteWarns(groupId, userId) {
+  await supabase.from("bot_auth_state").delete().eq("session_id", WARN_SESSION).eq("id", `${groupId}:${userId}`);
+}
 
 async function getGroupMetadata(sock, jid) {
   try {
@@ -87,4 +112,7 @@ module.exports = {
   isOnGroup,
   isAdmin,
   isBotAdmin,
+  getWarns,
+  saveWarns,
+  deleteWarns,
 };

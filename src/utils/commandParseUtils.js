@@ -85,6 +85,17 @@ function resolveTargetUserId(ctx, { allowSelf = true } = {}) {
   return allowSelf ? ctx.sender : null;
 }
 
+function extractPhoneFromArgs(args) {
+  if (!Array.isArray(args)) return null;
+  for (const arg of args) {
+    const cleaned = arg.replace(/[^0-9]/g, "");
+    if (cleaned.length >= 7 && cleaned.length <= 15) {
+      return cleaned + "@s.whatsapp.net";
+    }
+  }
+  return null;
+}
+
 module.exports = {
   getFirstMentionedJid,
   formatJidTag,
@@ -92,4 +103,5 @@ module.exports = {
   parsePositiveInteger,
   extractAmountFromArgs,
   resolveTargetUserId,
+  extractPhoneFromArgs,
 };

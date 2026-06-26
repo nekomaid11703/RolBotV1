@@ -1,36 +1,23 @@
-const { formatCommandUsage, formatError } = require("../../utils/messageFormatUtils");
-
-const usageMessage = formatCommandUsage({
-  icon: "🔓",
-  title: "Abrir grupo",
-  description: "Permite que todos los miembros puedan enviar mensajes.",
-  usage: "/grupo_abrir",
-  example: "/grupo_abrir",
-  notes: ["Solo administradores del grupo."],
-});
+const { openGroup } = require("../../utils/groupUtils");
+const { formatError, box } = require("../../utils/messageFormatUtils");
 
 module.exports = {
   name: "grupo_abrir",
-  aliases: ["abrir_grupo", "open_group", "gropen"],
-  description: "Abre el grupo para que todos puedan escribir.",
+  aliases: ["abrir", "abrir_grupo"],
+  description: "Abre el grupo para que todos puedan enviar mensajes.",
   category: "grupo",
   groupOnly: true,
   adminOnly: true,
 
   async execute(ctx) {
     try {
-      await ctx.sock.groupSettingUpdate(ctx.from, 'not_announcement');
-      await ctx.reply(
-        [
-          "━━━━━━━━━━━━━━━━━━━━",
-          "🔓 Grupo abierto",
-          "",
-          "Ahora todos los miembros pueden enviar mensajes.",
-          "━━━━━━━━━━━━━━━━━━━━",
-        ].join("\n"),
-      );
+      await openGroup(ctx.sock, ctx.from);
+      await ctx.reply(box("🔓 Grupo abierto", [
+        "",
+        "Todos pueden enviar mensajes.",
+      ]));
     } catch (error) {
-      await ctx.reply(formatError("No se pudo abrir el grupo. Asegúrate de que el bot sea admin."));
+      await ctx.reply(formatError(error.message));
     }
   },
 };

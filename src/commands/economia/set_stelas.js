@@ -11,6 +11,7 @@ const {
 const {
   formatCommandUsage,
   formatError,
+  box,
 } = require("../../utils/messageFormatUtils");
 
 const usageMessage = formatCommandUsage({
@@ -56,18 +57,12 @@ module.exports = {
         },
       });
 
-      await ctx.reply(
-        [
-          "━━━━━━━━━━━━━━",
-          "⚙ Balance actualizado",
-          "",
-          `👤 ${formatDisplayMention(targetId, targetName)}`,
-          "",
-          `💰 Nuevo balance: ${formatStelas(balance)}`,
-          "━━━━━━━━━━━━━━",
-        ].join("\n"),
-        { mentions: [targetId] },
-      );
+      await ctx.reply(box("⚙️ Balance actualizado", [
+        "",
+        `👤  ${formatDisplayMention(targetId, targetName)}`,
+        "",
+        `💰  Nuevo balance: ${formatStelas(balance)}`,
+      ]), { mentions: [targetId] });
     } catch (error) {
       await ctx.reply(formatError(error.message));
     }

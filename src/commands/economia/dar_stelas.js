@@ -4,7 +4,6 @@ const { formatStelas } = require("../../utils/economyUtils");
 const {
   getFirstMentionedJid,
   extractAmountFromArgs,
-  formatMentionTag,
 } = require("../../utils/commandParseUtils");
 const {
   resolveTargetDisplayName,
@@ -13,6 +12,7 @@ const {
 const {
   formatCommandUsage,
   formatError,
+  box,
 } = require("../../utils/messageFormatUtils");
 
 const usageMessage = formatCommandUsage({
@@ -68,19 +68,13 @@ module.exports = {
 
       const senderBalance = await getBalance(ctx.sender);
 
-      await ctx.reply(
-        [
-          "━━━━━━━━━━━━━━",
-          "💸 Transferencia",
-          "",
-          `👤 Destinatario: ${formatDisplayMention(targetId, targetName)}`,
-          "",
-          `💵 Enviado: ${formatStelas(amount)}`,
-          `💰 Tu balance restante: ${formatStelas(senderBalance)}`,
-          "━━━━━━━━━━━━━━",
-        ].join("\n"),
-        { mentions: [targetId] },
-      );
+      await ctx.reply(box("💸 Transferencia", [
+        "",
+        `👤  Destinatario: ${formatDisplayMention(targetId, targetName)}`,
+        "",
+        `💵  Enviado: ${formatStelas(amount)}`,
+        `💰  Tu balance: ${formatStelas(senderBalance)}`,
+      ]), { mentions: [targetId] });
     } catch (error) {
       await ctx.reply(formatError(error.message));
     }

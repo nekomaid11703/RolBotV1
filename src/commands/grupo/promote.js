@@ -1,20 +1,18 @@
-const { getFirstMentionedJid } = require("../../utils/commandParseUtils");
-const { resolveTargetDisplayName } = require("../../utils/userMentionUtils");
-const { formatCommandUsage, formatError } = require("../../utils/messageFormatUtils");
-
-const usageMessage = formatCommandUsage({
-  icon: "👑",
-  title: "Promover admin",
-  description: "Promueve a un miembro a administrador del grupo.",
-  usage: "/promote @usuario",
-  example: "/promote @Nekomaid",
-  notes: ["Solo administradores del grupo."],
-});
+const { promoteToAdmin } = require("../../utils/groupUtils");
+const {
+  getFirstMentionedJid,
+} = require("../../utils/commandParseUtils");
+const {
+  resolveTargetDisplayName,
+  formatDisplayMention,
+  withMentions,
+} = require("../../utils/userMentionUtils");
+const { formatError, box } = require("../../utils/messageFormatUtils");
 
 module.exports = {
   name: "promote",
-  aliases: ["promover", "admin", "dar_admin"],
-  description: "Promueve a un miembro a admin del grupo.",
+  aliases: ["admin", "dar_admin"],
+  description: "Promueve a un usuario a administrador del grupo.",
   category: "grupo",
   groupOnly: true,
   adminOnly: true,
@@ -23,25 +21,24 @@ module.exports = {
     const targetId = getFirstMentionedJid(ctx);
 
     if (!targetId) {
-      return ctx.reply(usageMessage);
+      return ctx.reply("❌ Debes mencionar al usuario que deseas promover.\n\nUso: /promote @usuario");
     }
 
-    const targetName = await resolveTargetDisplayName(ctx, targetId);
-
     try {
-      await ctx.sock.groupParticipantsUpdate(ctx.from, [targetId], 'promote');
-      await ctx.reply(
-        [
-          "━━━━━━━━━━━━━━━━━━━━",
-          "👑 Admin promovido",
+      const targetName = await resolveTargetDisplayName(ctx, targetId);
+      await promoteToAdmin(ctx.sock, ctx.from, targetId);
+
+      await ctx.reply(withMentions(
+        box("⭐ Admin promovido", [
           "",
-          `👤 ${targetName}`,
-          "━━━━━━━━━━━━━━━━━━━━",
-        ].join("\n"),
-        { mentions: [targetId] },
-      );
+          `👤  ${formatDisplayMention(targetId, targetName)}`,
+          "",
+          "Ahora es administrador del grupo.",
+        ]),
+        [targetId],
+      ));
     } catch (error) {
-      await ctx.reply(formatError(`No se pudo promover a ${targetName}. Asegúrate de que el bot sea admin.`));
+      await ctx.reply(formatError(error.message));
     }
   },
 };

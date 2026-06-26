@@ -16,27 +16,8 @@ const {
   resolveTargetDisplayName,
   withMentions,
 } = require("../../utils/userMentionUtils");
-
-function formatCount(value) {
-  return String(Math.max(0, Math.floor(Number(value) || 0)));
-}
-
-function formatDate(value) {
-  if (!value) {
-    return "sin datos";
-  }
-
-  const date = new Date(value);
-
-  if (Number.isNaN(date.getTime())) {
-    return "sin datos";
-  }
-
-  return date.toLocaleString("es-CO", {
-    dateStyle: "short",
-    timeStyle: "short",
-  });
-}
+const { formatCount, formatDate } = require("../../utils/activityFormatUtils");
+const { box } = require("../../utils/messageFormatUtils");
 
 module.exports = {
   name: "actividad",
@@ -81,32 +62,27 @@ module.exports = {
     const commandCount = Number(userProfile?.profile?.activity?.commands || 0);
     const targetLabel = formatDisplayMention(targetId, targetDisplayName);
 
-    await ctx.reply(
-      withMentions(
-        [
-          "━━━━━━━━━━━━━━━━━━━━",
-          "📊 Actividad",
-          "",
-          `👥 Grupo: ${groupName}`,
-          `👤 Usuario: ${targetLabel}`,
-          "",
-          `💬 Mensajes: ${formatCount(activity.messages)}`,
-          `⚙️ Comandos usados: ${formatCount(commandCount)}`,
-          `✍️ Textos: ${formatCount(activity.textMessages)}`,
-          `🖼️ Medios: ${formatCount(activity.mediaMessages)}`,
-          `⭐ Stickers: ${formatCount(activity.stickerMessages)}`,
-          `🔊 Audios: ${formatCount(activity.audioMessages)}`,
-          `🖼️ Imágenes: ${formatCount(activity.imageMessages)}`,
-          `🎥 Videos: ${formatCount(activity.videoMessages)}`,
-          `📎 Documentos: ${formatCount(activity.documentMessages)}`,
-          `💫 Reacciones: ${formatCount(activity.reactionMessages)}`,
-          "",
-          `🕒 Último mensaje: ${formatDate(activity.lastSeenAt)}`,
-          `🔎 Tipo reciente: ${activity.lastMessageType || "sin datos"}`,
-          "━━━━━━━━━━━━━━━━━━━━",
-        ].join("\n"),
-        [targetId],
-      ),
-    );
+    await ctx.reply(withMentions(
+      box("📊 Actividad", [
+        "",
+        `👥 Grupo: ${groupName}`,
+        `👤  ${targetLabel}`,
+        "",
+        `💬 Mensajes: ${formatCount(activity.messages)}`,
+        `⚙️ Comandos usados: ${formatCount(commandCount)}`,
+        `✍️ Textos: ${formatCount(activity.textMessages)}`,
+        `🖼️ Medios: ${formatCount(activity.mediaMessages)}`,
+        `⭐ Stickers: ${formatCount(activity.stickerMessages)}`,
+        `🔊 Audios: ${formatCount(activity.audioMessages)}`,
+        `🖼️ Imágenes: ${formatCount(activity.imageMessages)}`,
+        `🎥 Videos: ${formatCount(activity.videoMessages)}`,
+        `📎 Documentos: ${formatCount(activity.documentMessages)}`,
+        `💫 Reacciones: ${formatCount(activity.reactionMessages)}`,
+        "",
+        `🕒 Último mensaje: ${formatDate(activity.lastSeenAt)}`,
+        `🔎 Tipo reciente: ${activity.lastMessageType || "sin datos"}`,
+      ]),
+      [targetId],
+    ));
   },
 };

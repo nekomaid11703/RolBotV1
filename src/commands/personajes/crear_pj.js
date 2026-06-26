@@ -1,9 +1,10 @@
-const { createCharacter } = require("../../services/characterService");
+const { createCharacter, setActiveCharacter } = require("../../services/characterService");
 const { isAdmin } = require("../../utils/groupUtils");
 const { MAX_CHARACTER_NAME_LENGTH } = require("../../config/characterConfig");
 const {
   formatCommandForm,
   formatError,
+  box,
 } = require("../../utils/messageFormatUtils");
 
 module.exports = {
@@ -30,49 +31,42 @@ module.exports = {
       notes: ["El nombre debe tener entre 2 y 40 caracteres."],
     });
 
-    // =========================
-    // PLANTILLA / FORMULARIO
-    // =========================
     if (!rawText) {
       return ctx.reply(template);
     }
 
     try {
-      // =========================
-      // EXTRACCIÓN CON REGEX
-      // =========================
-      const nameMatch = rawText.match(/Nombre:\s*(.+)/i);
-      const classMatch = rawText.match(/Clase:\s*(.+)/i);
-      
-      // La historia puede ser multilinea, extraemos todo lo que hay después de "Historia:"
-      const historyMatch = rawText.match(/Historia:\s*([\s\S]+)/i);
+      const lines = rawText.split('\n');
+      let name = '';
+      let clase = '';
+      let historia = '';
 
-      if (!nameMatch) {
-        return ctx.reply(formatError("Formato incorrecto. Usa la plantilla completa.", template));
+      for (const line of lines) {
+        const trimmed = line.trim();
+        const nameCandidate = trimmed.match(/^Nombre:\s*(.+)/i);
+        const classCandidate = trimmed.match(/^Clase:\s*(.+)/i);
+        const historyCandidate = trimmed.match(/^Historia:\s*(.+)/i);
+
+        if (nameCandidate && !name) name = nameCandidate[1].trim();
+        if (classCandidate && !clase) clase = classCandidate[1].trim();
+        if (historyCandidate) {
+          historia = trimmed.replace(/^Historia:\s*/i, '').trim();
+        }
       }
 
-      const name = nameMatch[1].trim();
-      const clase = classMatch ? classMatch[1].trim() : "";
-      const historia = historyMatch ? historyMatch[1].trim() : "";
+      if (!name) {
+        return ctx.reply(formatError("Formato incorrecto. Usa la plantilla completa.", template));
+      }
 
       if (name.length < 2 || name.length > MAX_CHARACTER_NAME_LENGTH) {
         throw new Error(`El nombre debe tener entre 2 y ${MAX_CHARACTER_NAME_LENGTH} caracteres.`);
       }
 
-      // =========================
-      // ADMIN Y RANGOS (Por defecto F)
-      // =========================
       let admin = false;
       if (ctx.isGroup) {
         admin = await isAdmin(ctx.sock, ctx.from, ctx.sender);
       }
 
-      // =========================
-      // DELEGAR A LA BD
-      // =========================
-      // Enviamos solo los slots que el usuario rellenó. 
-      // Supabase inyectará por defecto 'vida:100', 'dinero:0', etc.
-      
       const slots = {};
       if (historia) slots.historia = historia;
       if (clase) slots.clase = clase;
@@ -81,24 +75,29 @@ module.exports = {
         creatorId: ctx.sender,
         creatorName: ctx.userName,
         characterName: name,
-        category: "F", // Rango inicial por defecto
-        stats: null,   // NULL para que la BD aplique sus defaults
+        category: "F",
+        stats: null,
         slots: Object.keys(slots).length > 0 ? slots : null,
         isAdmin: admin,
       });
 
-      // =========================
-      // RESPUESTA
-      // =========================
+      await setActiveCharacter({
+        targetCreatorId: ctx.sender,
+        targetCreatorName: ctx.userName,
+        characterName: name,
+        requesterId: ctx.sender,
+        requesterIsAdmin: admin,
+      });
+
       await ctx.react("🎉");
 
-      const response = 
-        "🎉 *PERSONAJE CREADO CON ÉXITO*\n\n" +
-        `👤 *${character.name.toUpperCase()}*\n` +
-        `🎖️ Rango: ${character.category}\n\n` +
-        "_Tus estadísticas base (Vida, Fuerza, etc) han sido asignadas por la base de datos. Usa_ `/ver_pj` _para ver tu perfil completo._";
-
-      await ctx.reply(response);
+      await ctx.reply(box("🎉 Personaje creado", [
+        "",
+        `👤  ${character.name.toUpperCase()}`,
+        `🎖️  Rango: ${character.category}`,
+        "",
+        `💡 Usa /ver_pj para ver tu perfil completo`,
+      ]));
     } catch (error) {
       await ctx.reply(formatError(error.message));
     }

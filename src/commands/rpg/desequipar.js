@@ -1,7 +1,7 @@
 const { getActiveCharacter } = require("../../services/characterService");
 const invService = require("../../services/rpg/inventoryService");
 const itemsData = require("../../services/rpg/items");
-const { formatError } = require("../../utils/messageFormatUtils");
+const { formatError, box } = require("../../utils/messageFormatUtils");
 const { logSystem, logError } = require("../../services/loggerService");
 
 const SLOTS = ['arma', 'cabeza', 'cuello', 'pecho', 'espalda', 'brazo_izq',
@@ -29,7 +29,10 @@ module.exports = {
       const raw = ctx.args.join(" ").trim().toLowerCase();
       if (!raw) {
         const slots = SLOTS.map(s => `• ${s.replace(/_/g, ' ')}`).join('\n');
-        return ctx.reply(`¿Qué slot quieres desequipar? Usa: \`/desequipar <slot>\`\n\nSlots disponibles:\n${slots}`);
+        return ctx.reply(box("❓ Qué slot desequipar?", [
+          "",
+          ...slots.split('\n'),
+        ]));
       }
 
       let slot = raw.replace(/\s+/g, '_');
@@ -47,7 +50,15 @@ module.exports = {
 
       await invService.recalcStatsAfterEquip(ctx.sender);
 
-      return ctx.reply(`🔄 Desequipaste *${result.item.name}* (${slot.replace(/_/g, ' ')}). Vuelve a tu inventario.`);
+      await ctx.react("🔄");
+
+      return ctx.reply(box("🔄 Item desequipado", [
+        "",
+        `${result.item.name}`,
+        `Slot: ${slot.replace(/_/g, ' ')}`,
+        "",
+        "Volvió a tu inventario.",
+      ]));
 
     } catch (error) {
       logError({ source: 'desequipar', error: error instanceof Error ? error : new Error(String(error)) });

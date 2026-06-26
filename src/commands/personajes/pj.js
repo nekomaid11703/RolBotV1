@@ -1,33 +1,5 @@
 const { getActiveCharacter } = require("../../services/characterService");
-
-function formatCharacter(character) {
-  let text = "✦ ━━━━━━━━━━━━━━ ✦\n";
-  text += `      👤 *${String(character.name).toUpperCase()}*\n`;
-  text += "✦ ━━━━━━━━━━━━━━ ✦\n\n";
-  
-  text += `🎖️ *Rango:* ${character.category}\n`;
-
-  if (character.stats && Object.keys(character.stats).length) {
-    text += "\n📊 *ATRIBUTOS*\n";
-    text += "┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈\n";
-
-    for (const [key, value] of Object.entries(character.stats)) {
-      text += ` 🔸 *${String(key).toUpperCase()}*: ${value}\n`;
-    }
-  }
-
-  if (character.slots && Object.keys(character.slots).length) {
-    text += "\n🎒 *INVENTARIO E INFO*\n";
-    text += "┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈\n";
-
-    for (const [key, value] of Object.entries(character.slots)) {
-      if (!value) continue;
-      text += ` ▫️ *${key}*\n   _${value}_\n\n`;
-    }
-  }
-
-  return text.trim();
-}
+const { formatCharacter } = require("../../utils/characterFormatUtils");
 
 module.exports = {
   name: "pj",

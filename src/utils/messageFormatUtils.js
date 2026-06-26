@@ -1,4 +1,23 @@
+const BOX_W = 34;
+
 const LINE = "✦ ━━━━━━━━━━━━━━ ✦";
+const BOX_TOP = `╭${"─".repeat(BOX_W)}`;
+const BOX_BTM = `╰${"─".repeat(BOX_W)}`;
+const BAR = "│ ";
+
+function box(title, bodyLines) {
+  const parts = [BOX_TOP, `${BAR}${title}`];
+  for (const line of bodyLines) {
+    if (line === null || line === undefined) continue;
+    if (line === "") {
+      parts.push(BAR);
+    } else {
+      parts.push(`${BAR}${String(line)}`);
+    }
+  }
+  parts.push(BOX_BTM);
+  return parts.join("\n");
+}
 
 function compactLines(lines) {
   return lines
@@ -71,6 +90,10 @@ function formatError(message, hint = null) {
 
 module.exports = {
   LINE,
+  BOX_TOP,
+  BOX_BTM,
+  BAR,
+  box,
   buildUsageBody,
   buildFormBody,
   buildFeedbackBody,

@@ -1,76 +1,65 @@
 const { setActiveCharacter } = require("../../services/characterService");
+const { getCharacterNames } = require("../../services/characterService");
 const { isAdmin } = require("../../utils/groupUtils");
 const {
   formatCommandUsage,
   formatError,
+  box,
 } = require("../../utils/messageFormatUtils");
 
 const usageMessage = formatCommandUsage({
-  icon: "🔁",
-  title: "Activar personaje",
-  description: "Selecciona el personaje que quedara activo para tus escenas.",
-  usage: "/switch_pj Nombre",
+  icon: "🔄",
+  title: "Cambiar personaje activo",
+  description: "Cambia tu personaje activo por otro de tu lista.",
+  usage: "/switch_pj NombreDelPersonaje",
   example: "/switch_pj Kael",
-  notes: ["Admin en grupo: `/switch_pj @usuario | Nombre`."],
+  notes: ["El nombre debe coincidir exactamente (sensible a mayúsculas)."],
 });
 
 module.exports = {
   name: "switch_pj",
-  aliases: ["spj", "usar_pj"],
-  description: "Activa un personaje para usarlo en tus campañas o historias. Si eres admin, puedes activar el personaje de otro usuario mencionándolo.",
+  aliases: ["activar_pj", "cambiar_pj"],
+  description: "Cambia tu personaje activo.",
   category: "personajes",
- 
 
   async execute(ctx) {
-    const payload = ctx.args.join(" ").trim();
+    const targetName = ctx.args.join(' ');
 
-    if (!payload) {
+    if (!targetName || targetName.trim() === '') {
       return ctx.reply(usageMessage);
     }
 
-    const parts = payload
-      .split("|")
-      .map((s) => s.trim())
-      .filter(Boolean);
+    const name = targetName.trim();
 
-    const mentioned = ctx.mentionedJid || [];
+    const names = await getCharacterNames({ creatorId: ctx.sender });
 
-    const admin = await isAdmin(
-      ctx.sock,
-      ctx.from,
-      ctx.sender,
-    );
-
-    let targetCreatorId = ctx.sender;
-    let targetCreatorName = ctx.userName;
-    let characterName = parts[0];
-
-    if (mentioned.length > 0 && parts.length >= 2) {
-      if (!admin) {
-        return ctx.reply(formatError("Solo un administrador puede cambiar el personaje de otro usuario."));
-      }
-
-      targetCreatorId = mentioned[0];
-      targetCreatorName = "usuario";
-      characterName = parts[1];
+    if (!names.has(name)) {
+      return ctx.reply(formatError(
+        `No tienes un personaje llamado "${name}".`,
+        `Usa /mis_pj para ver tu lista.`
+      ));
     }
 
-    try {
-      const character = await setActiveCharacter({
-        targetCreatorId,
-        targetCreatorName,
-        characterName,
-        requesterId: ctx.sender,
-        requesterIsAdmin: admin,
-      });
-
-      await ctx.react("🔁");
-
-      await ctx.reply(
-        `✅ Ahora el personaje activo es *${character.name}*`,
-      );
-    } catch (error) {
-      await ctx.reply(formatError(error.message));
+    let admin = false;
+    if (ctx.isGroup) {
+      admin = await isAdmin(ctx.sock, ctx.from, ctx.sender);
     }
+
+    await setActiveCharacter({
+      targetCreatorId: ctx.sender,
+      targetCreatorName: ctx.userName,
+      characterName: name,
+      requesterId: ctx.sender,
+      requesterIsAdmin: admin,
+    });
+
+    await ctx.react("🔄");
+
+    await ctx.reply(box("🔄 Personaje activo", [
+      "",
+      `👤  ${name.toUpperCase()}`,
+      "",
+      `💡 Usa /ver_pj para ver su perfil`,
+    ]));
   },
 };

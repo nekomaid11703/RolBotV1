@@ -97,6 +97,8 @@ async function setEconomyAdmin({
 
   const perms = await readPermissions(userId);
   perms.economyAdmin = Boolean(enabled);
+  perms.grantedAt = perms.grantedAt || (enabled ? new Date().toISOString() : undefined);
+  if (!enabled) delete perms.grantedAt;
   await writePermissions(userId, perms);
 
   return data.profile;
@@ -122,6 +124,13 @@ async function listEconomyAdmins() {
     userMap[u.profile.creatorId] = u.profile;
   }
 
+  const permData = {};
+  for (const row of rows) {
+    if (row.data && row.data.economyAdmin === true) {
+      permData[row.id] = row.data.grantedAt || null;
+    }
+  }
+
   return adminIds
     .map(id => {
       const profile = userMap[id];
@@ -129,6 +138,7 @@ async function listEconomyAdmins() {
         userId: id,
         displayName: profile ? pickDisplayName(profile, "usuario") : id,
         profile: profile || null,
+        grantedAt: permData[id] || null,
       };
     })
     .filter(a => a.userId)

@@ -1,11 +1,12 @@
 const { listCharacters } = require("../../services/characterService");
+const { box } = require("../../utils/messageFormatUtils");
 
 module.exports = {
   name: "mis_pj",
   aliases: ["pjs", "listar_pj"],
   description: "Lista tus personajes creados.",
   category: "personajes",
-  
+
   async execute(ctx) {
     const characters = await listCharacters({
       creatorId: ctx.sender,
@@ -15,21 +16,20 @@ module.exports = {
       return ctx.reply("❌ No tienes personajes todavía. Usa `/crear_pj` para empezar.");
     }
 
-    let text = "✦ ━━━━━━━━━━━━━━ ✦\n";
-    text += "     📂 *TUS PERSONAJES*\n";
-    text += "✦ ━━━━━━━━━━━━━━ ✦\n\n";
-
+    const lines = [];
     for (const character of characters) {
       if (character.active) {
-        text += `⭐ *${character.name.toUpperCase()}* _(Activo)_\n`;
+        lines.push(`⭐  ${character.name.toUpperCase()}  ·  Activo`);
       } else {
-        text += ` ▫️ *${character.name}*\n`;
+        lines.push(`▫️  ${character.name}  ·  Rango ${character.category}`);
       }
-      text += `   ↳ Rango: ${character.category}\n\n`;
     }
 
-    text += "💡 _Usa_ `/switch_pj Nombre` _para cambiar tu personaje activo._";
-
-    await ctx.reply(text.trim());
+    await ctx.reply(box("📂 Mis personajes", [
+      "",
+      ...lines,
+      "",
+      `💡 Usa /switch_pj <nombre> para cambiar`,
+    ]));
   },
 };

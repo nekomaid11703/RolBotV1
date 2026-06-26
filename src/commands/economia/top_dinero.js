@@ -10,6 +10,10 @@ const {
   TOP_DINERO_LIMIT,
 } = require("../../config/economyConfig");
 
+const {
+  box,
+} = require("../../utils/messageFormatUtils");
+
 function getMedal(index) {
   if (index === 0) return "🥇";
   if (index === 1) return "🥈";
@@ -32,30 +36,20 @@ module.exports = {
     const top = await getTopBalances(limit);
 
     if (!top.length) {
-      return ctx.reply(
-        [
-          "━━━━━━━━━━━━━━",
-          "🏆 Top de stelas",
-          "",
-          "Aún no hay usuarios registrados.",
-          "━━━━━━━━━━━━━━",
-        ].join("\n"),
-      );
+      return ctx.reply(box("🏆 Top de stelas", [
+        "",
+        "Aún no hay usuarios registrados.",
+      ]));
     }
 
     const lines = top.map((entry, index) => {
       const medal = getMedal(index);
-      return `${medal} ${entry.displayName} — ${formatStelas(entry.money)}`;
+      return `${medal}  ${entry.displayName}  —  ${formatStelas(entry.money)}`;
     });
 
-    await ctx.reply(
-      [
-        "━━━━━━━━━━━━━━",
-        "🏆 Top de stelas",
-        "",
-        ...lines,
-        "━━━━━━━━━━━━━━",
-      ].join("\n"),
-    );
+    await ctx.reply(box("🏆 Top de stelas", [
+      "",
+      ...lines,
+    ]));
   },
 };

@@ -8,10 +8,13 @@ const {
 const { isOwner } = require("../../utils/permissionUtils");
 const {
   resolveTargetDisplayName,
+  formatDisplayMention,
+  withMentions,
 } = require("../../utils/userMentionUtils");
 const {
   formatCommandUsage,
   formatError,
+  box,
 } = require("../../utils/messageFormatUtils");
 
 const usageMessage = formatCommandUsage({
@@ -45,10 +48,15 @@ module.exports = {
     const targetName = await resolveTargetDisplayName(ctx, targetId);
 
     if (!current) {
-      return ctx.reply(
-        `ℹ️ ${targetName} no tiene permisos de economía activos.`,
-        { mentions: [targetId] },
-      );
+      return ctx.reply(withMentions(
+        box("ℹ️ Sin permisos", [
+          "",
+          `👤  ${formatDisplayMention(targetId, targetName)}`,
+          "",
+          "No tiene permisos de economía activos.",
+        ]),
+        [targetId],
+      ));
     }
 
     try {
@@ -65,10 +73,15 @@ module.exports = {
         },
       });
 
-      await ctx.reply(
-        `✅ Permiso de economía retirado a ${targetName}.`,
-        { mentions: [targetId] },
-      );
+      await ctx.reply(withMentions(
+        box("🛡️ Permiso retirado", [
+          "",
+          `👤  ${formatDisplayMention(targetId, targetName)}`,
+          "",
+          "Ya no es administrador de economia.",
+        ]),
+        [targetId],
+      ));
     } catch (error) {
       await ctx.reply(formatError(error.message));
     }

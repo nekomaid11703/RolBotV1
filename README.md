@@ -23,7 +23,7 @@ Bot RPG modular para WhatsApp. Arquitectura 100% stateless con Supabase como fue
 | Categoría | Comandos |
 |-----------|----------|
 | Economía | `/balance`, `/daily`, `/dar_stelas`, `/top_dinero`, `/add_stelas`, `/rem_stelas`, `/set_stelas` |
-| Personajes | `/crear_pj`, `/ver_pj`, `/mis_pj`, `/switch_pj`, `/eliminar_pj`, `/renombrar_pj`, `/edit_pj_desc` |
+| Personajes | `/crear_pj`, `/ver_pj`, `/mis_pj`, `/switch_pj`, `/eliminar_pj`, `/renombrar_pj`, `/editar_pj_desc` |
 | Grupo | `/actividad`, `/actividad_global`, `/add`, `/ban`, `/promote`, `/demote`, `/invite`, `/todos`, `/warn`, `/unwarn`, `/grupo_abrir`, `/grupo_cerrar`, `/top_activos` |
 | Permisos | `/eco_admin_add`, `/eco_admin_rem`, `/eco_admin_list` |
 | Información | `/help`, `/hola` |

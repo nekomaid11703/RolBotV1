@@ -1,15 +1,76 @@
 const { commands } = require("../../core/commandHandler");
 
-function normalizeCategory(category) {
-  return String(category || "otros")
-    .trim()
-    .toLowerCase();
+const BOX_W = 34;
+const CMD_PAD = 22;
+
+const TOP = `╭${"─".repeat(BOX_W)}`;
+const BTM = `╰${"─".repeat(BOX_W)}`;
+const BAR = "│ ";
+
+const COMBAT_CMDS = new Set([
+  "combate", "atacar", "rendirse", "aceptar", "rechazar", "duel",
+]);
+
+const CAT_ORDER = [
+  "informacion", "economia", "personajes", "grupo", "permisos", "utilidades", "rpg",
+];
+
+const CAT_META = {
+  informacion: { emoji: "ℹ️",  label: "INFORMACIÓN" },
+  economia:     { emoji: "💰",  label: "ECONOMÍA" },
+  personajes:   { emoji: "🎭",  label: "PERSONAJES" },
+  grupo:        { emoji: "🏰",  label: "GRUPO" },
+  permisos:     { emoji: "🛡️", label: "PERMISOS" },
+  utilidades:   { emoji: "🛠️", label: "UTILIDADES" },
+  rpg:          { emoji: "⚔️", label: "ROL" },
+};
+
+function normCat(c) {
+  return String(c || "otros").trim().toLowerCase();
 }
 
-function formatCategory(category) {
-  return String(category)
-    .replace(/_/g, " ")
-    .replace(/\b\w/g, (c) => c.toUpperCase());
+function getGroup(cmd) {
+  if (cmd.adminOnly || cmd.economyAdminOnly) return "admin";
+  return "normal";
+}
+
+function buildAliasStr(aliases) {
+  if (!aliases || aliases.length === 0) return "";
+  const show = aliases.slice(0, 4);
+  const more = aliases.length > 4 ? ` +${aliases.length - 4}` : "";
+  return show.map(a => `/${a}`).join("  ") + more;
+}
+
+function renderCmd(name, desc, aliases, style) {
+  const cmdTag = `/${name}`;
+  const padding = cmdTag.length < CMD_PAD ? " ".repeat(CMD_PAD - cmdTag.length) : "  ";
+  const line = `${BAR}${cmdTag}${padding}${desc}`;
+  if (!aliases || aliases.length === 0) return [line];
+  if (style === "inline") {
+    const alias = buildAliasStr(aliases);
+    return [`${line}  · ${alias}`];
+  }
+  const alias = buildAliasStr(aliases);
+  return [line, `${BAR}${" ".repeat(CMD_PAD)}↳ ${alias}`];
+}
+
+function buildSection(title, normal, admin) {
+  const lines = [TOP, `${BAR}${title}`];
+
+  for (const cmd of normal) {
+    lines.push(...renderCmd(cmd.name, cmd.description || "", cmd.aliases, "multi"));
+  }
+
+  if (admin.length > 0) {
+    lines.push(BAR);
+    lines.push(`${BAR}⚡ Admin:`);
+    for (const cmd of admin) {
+      lines.push(...renderCmd(cmd.name, cmd.description || "", cmd.aliases, "inline"));
+    }
+  }
+
+  lines.push(BTM);
+  return lines.join("\n");
 }
 
 module.exports = {
@@ -19,79 +80,53 @@ module.exports = {
   category: "informacion",
 
   async execute(ctx) {
-    const uniqueCommands = new Map();
-
-    for (const command of commands.values()) {
-      if (!command?.name) continue;
-
-      uniqueCommands.set(
-        command.name.toLowerCase(),
-        command,
-      );
+    const unique = new Map();
+    for (const cmd of commands.values()) {
+      if (!cmd?.name) continue;
+      if (COMBAT_CMDS.has(cmd.name.toLowerCase())) continue;
+      unique.set(cmd.name.toLowerCase(), cmd);
     }
 
-    const categories = new Map();
-
-    for (const command of uniqueCommands.values()) {
-      const category = normalizeCategory(command.category);
-
-      if (!categories.has(category)) {
-        categories.set(category, []);
-      }
-
-      categories.get(category).push(command);
+    const cats = new Map();
+    for (const cmd of unique.values()) {
+      const c = normCat(cmd.category);
+      if (!cats.has(c)) cats.set(c, []);
+      cats.get(c).push(cmd);
     }
 
-    const order = [
-      "informacion",
-      "economia",
-      "personajes",
-      "grupo",
-      "permisos",
-      "utilidades",
-      "otros",
-    ];
+    const all = [];
+    const seen = new Set();
+    for (const c of CAT_ORDER) {
+      if (cats.has(c) && !seen.has(c)) { seen.add(c); all.push(c); }
+    }
+    for (const c of cats.keys()) {
+      if (!seen.has(c)) { seen.add(c); all.push(c); }
+    }
 
-    const sortedCategories = [
-      ...order.filter((c) => categories.has(c)),
-      ...[...categories.keys()].filter((c) => !order.includes(c)),
-    ];
+    const output = [];
 
-    let text = "✨ *CENTRO DE COMANDOS ROLBOT* ✨\n";
-    text += "‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n";
-    text += "💡 _Usa el prefijo_ `/` _para invocar un comando._\n\n";
+    output.push(TOP);
+    output.push(`${BAR}          ◈ RolBot V1 ◈`);
+    output.push(`${BAR}      Centro de Comandos`);
+    output.push(BAR);
+    output.push(`${BAR}  Usa /comando para ejecutar`);
+    output.push(BTM);
 
-    for (const category of sortedCategories) {
-      const commandsInCategory = categories.get(category);
-
-      commandsInCategory.sort((a, b) =>
+    for (const c of all) {
+      const meta = CAT_META[c] || { emoji: "📂", label: c.toUpperCase() };
+      const title = `${meta.emoji} ${meta.label}`;
+      const cmds = cats.get(c).sort((a, b) =>
         a.name.localeCompare(b.name, "es"),
       );
-
-      const catEmoji = category === "economia" ? "💰" : category === "personajes" ? "🎭" : category === "grupo" ? "🏰" : "📂";
-
-      text += `${catEmoji} *${formatCategory(category).toUpperCase()}*\n`;
-      text += "┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈\n";
-
-      for (const command of commandsInCategory) {
-        text += ` 🔹 */${command.name}*`;
-
-        if (Array.isArray(command.aliases) && command.aliases.length > 0) {
-          text += ` _(o /${command.aliases[0]})_`;
-        }
-
-        text += "\n";
-
-        if (command.description) {
-          text += `   ↳ _${command.description}_\n`;
-        }
-      }
-      text += "\n";
+      const normal = cmds.filter(cmd => getGroup(cmd) !== "admin");
+      const admin = cmds.filter(cmd => getGroup(cmd) === "admin");
+      output.push(buildSection(title, normal, admin));
     }
 
-    text += "────────────────────────\n";
-    text += "🤖 *RolBotV1* | 👑 _Desarrollado por Nekomaid_\n";
+    output.push(TOP);
+    output.push(`${BAR}🤖 RolBotV1  ·  ${unique.size} comandos  ·  👑 Nekomaid`);
+    output.push(BTM);
 
-    await ctx.reply(text);
+    await ctx.reply(output.join("\n"));
   },
 };
