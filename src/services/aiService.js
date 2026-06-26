@@ -5,6 +5,7 @@
  */
 
 const aiOrchestrator = require("./ai/aiOrchestrator");
+const { logSystem, logError } = require('./loggerService');
 
 /**
  * Clasifica una intención del jugador de forma natural (Zero-shot classification).
@@ -18,7 +19,7 @@ async function classifyIntent(text, candidateLabels) {
     });
     return result;
   } catch (error) {
-    console.error("❌ Error en classifyIntent (aiService):", error.message);
+    logError({ source: 'aiService', error });
     return { intent: null, confidence: 0 };
   }
 }
@@ -39,7 +40,7 @@ async function generateNPCResponse(context, prompt) {
 
     return response;
   } catch (error) {
-    console.error("❌ Error en generateNPCResponse (aiService):", error.message);
+    logError({ source: 'aiService', error });
     
     // Fallback pasivo en caso de que fallen todos los proveedores de IA
     const fallbacks = {

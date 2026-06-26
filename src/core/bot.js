@@ -1,8 +1,9 @@
-require('dotenv').config();
+require('dotenv').config({ path: require('path').join(__dirname, '../../.env.local') });
 const {
   default: makeWASocket,
   DisconnectReason,
   fetchLatestBaileysVersion,
+  initAuthCreds,
 } = require("@whiskeysockets/baileys");
 const { useSupabaseAuthState } = require("./supabaseAuthState");
 
@@ -25,8 +26,15 @@ const { stats, addEvent, incrementErrors } = require("../services/stats");
 
 const RECONNECT_MAX_DELAY = 60000;
 const RECONNECT_INITIAL_DELAY = 2000;
+const SUPABASE_TABLE = 'bot_auth_state';
 let currentSock = null;
 let reconnectAttempts = 0;
+let restartRequiredCount = 0;
+
+async function forceNewSession() {
+  const { supabase } = require('../database/supabase');
+  await supabase.from(SUPABASE_TABLE).delete().eq('session_id', 'bot-session-1');
+}
 
 function cleanupSock() {
   if (currentSock) {
@@ -55,12 +63,13 @@ async function startBot() {
 
     const sock = makeWASocket({
       version,
-      logger: P({ level: "silent" }),
+      logger: P({ level: "error" }),
       printQRInTerminal: false,
       auth: state,
       browser: ["NekoBot", "Chrome", "1.0.0"],
-      keepAliveIntervalMs: 15000,
-      connectTimeoutMs: 30000,
+      keepAliveIntervalMs: 30000,
+      connectTimeoutMs: 60000,
+      defaultQueryTimeoutMs: 60000,
     });
 
     currentSock = sock;
@@ -75,9 +84,10 @@ async function startBot() {
       const { connection, lastDisconnect, qr } = update;
 
       if (qr) {
-        console.clear();
-        console.log("\nEscanea el código QR:\n");
+        restartRequiredCount = 0;
+        process.stdout.write('\n\x1b[1m\x1b[36mEscanea el codigo QR con WhatsApp:\x1b[0m\n\n');
         qrcode.generate(qr, { small: true });
+        process.stdout.write('\n');
         await logSystem("Código QR generado");
       }
 
@@ -85,6 +95,7 @@ async function startBot() {
         stats.isConnected = true;
         stats.lastConnectionTime = Date.now();
         reconnectAttempts = 0;
+        restartRequiredCount = 0;
         addEvent("ok", "Bot conectado correctamente");
         await logSystem("Bot conectado correctamente");
 
@@ -109,15 +120,56 @@ async function startBot() {
 
       if (connection === "close") {
         stats.isConnected = false;
-        const reason = lastDisconnect?.error?.output?.statusCode;
+        const disconnectErr = lastDisconnect?.error;
+        const reason = disconnectErr?.output?.statusCode;
+
+        if (disconnectErr) {
+          await logError({ source: 'bot.connection.close', error: disconnectErr instanceof Error ? disconnectErr : new Error(String(disconnectErr)) });
+        }
 
         addEvent("err", `Conexión cerrada (${reason || "desconocido"})`);
         await logSystem("Conexión cerrada", { reason: reason || null });
 
         if (reason === DisconnectReason.loggedOut) {
           stopDashboard();
-          addEvent("err", "Sesión cerrada. Se requiere nuevo QR.");
-          await logSystem("Sesión cerrada por logout");
+          addEvent("err", "Sesión inválida, limpiando y generando nuevo QR");
+          await logSystem("Sesión inválida — limpiando credenciales para nuevo QR");
+          await forceNewSession();
+          cleanupSock();
+          startBot().catch(err => {
+            logError({ source: 'bot.startBot', error: err instanceof Error ? err : new Error(String(err)) });
+            process.exit(1);
+          });
+          return;
+        }
+
+        if (reason === DisconnectReason.restartRequired) {
+          restartRequiredCount++;
+          if (restartRequiredCount >= 2) {
+            addEvent("err", "Sesión inválida, forzando nuevo QR");
+            await logSystem("Sesión rechazada por WhatsApp — limpiando credenciales");
+            await forceNewSession();
+            cleanupSock();
+            startBot().catch(err => {
+              logError({ source: 'bot.startBot', error: err instanceof Error ? err : new Error(String(err)) });
+              process.exit(1);
+            });
+            return;
+          }
+          reconnectAttempts = 0;
+          addEvent("warn", "Pareo exitoso, reconectando...");
+          await logSystem("Reconectando tras pareo exitoso");
+          await new Promise(r => setTimeout(r, 1000));
+          cleanupSock();
+          startBot().catch(err => {
+            logError({ source: 'bot.startBot', error: err instanceof Error ? err : new Error(String(err)) });
+            process.exit(1);
+          });
+          return;
+        }
+
+        if (reconnectAttempts >= 5) {
+          await logSystem("Máximos reintentos alcanzados, deteniendo reconexión");
           return;
         }
 
@@ -132,10 +184,10 @@ async function startBot() {
 
         setTimeout(() => {
           cleanupSock();
-startBot().catch(err => {
-  console.error('Error fatal en startBot:', err);
-  process.exit(1);
-});
+          startBot().catch(err => {
+            logError({ source: 'bot.startBot', error: err instanceof Error ? err : new Error(String(err)) });
+            process.exit(1);
+          });
         }, delay);
       }
     });

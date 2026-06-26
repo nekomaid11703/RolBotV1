@@ -1,6 +1,7 @@
 const stateManager = require("../../services/rpg/combatStateManager");
 const turnManager = require("../../services/rpg/combatTurnManager");
 const { formatError } = require("../../utils/messageFormatUtils");
+const { logSystem, logError } = require("../../services/loggerService");
 
 module.exports = {
   name: "combate",
@@ -37,7 +38,7 @@ module.exports = {
       return ctx.reply(status + hint);
 
     } catch (error) {
-      console.error('combate error:', error);
+      logError({ source: 'combate', error: error instanceof Error ? error : new Error(String(error)) });
       return ctx.reply(`❌ ${error.message}`);
     }
   },

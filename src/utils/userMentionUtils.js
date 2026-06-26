@@ -162,6 +162,21 @@ async function resolveTargetDisplayName(ctx, targetId, fallback = "usuario") {
   return cleanFallback;
 }
 
+function getProfileDisplayName(profile, fallback = 'usuario') {
+  const candidates = [
+    profile?.metadata?.displayName,
+    profile?.metadata?.pushName,
+    profile?.registration?.displayName,
+    profile?.creatorName,
+  ];
+  for (const candidate of candidates) {
+    if (isMeaningfulDisplayName(candidate)) {
+      return String(candidate).trim();
+    }
+  }
+  return fallback;
+}
+
 function withMentions(text, mentions = []) {
   return {
     text,
@@ -176,4 +191,5 @@ module.exports = {
   formatRealMentionTag,
   isMeaningfulDisplayName,
   extractMentionLabelFromContext,
+  getProfileDisplayName,
 };

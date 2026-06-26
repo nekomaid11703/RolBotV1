@@ -10,6 +10,7 @@
 
 const { PROVIDER_PRIORITIES, CACHE_POLICY } = require("./aiConfig");
 const GeminiProvider = require("./providers/geminiProvider");
+const { logSystem, logError } = require('../loggerService');
 const HuggingFaceProvider = require("./providers/huggingfaceProvider");
 const OllamaProvider = require("./providers/ollamaProvider");
 const OpenRouterProvider = require("./providers/openrouterProvider");
@@ -47,39 +48,39 @@ class AiOrchestrator {
 
     if (deepseekKey && deepseekKey !== "tu_deepseek_api_key") {
       this.providers.deepseek = new DeepSeekProvider(deepseekKey);
-      console.log("🧠 Orquestador de IA: Proveedor 'deepseek' registrado con éxito.");
+      logSystem("🧠 Orquestador de IA: Proveedor 'deepseek' registrado con éxito.");
     }
 
     if (geminiKey && geminiKey !== "tu_api_key_de_google_ai_studio") {
       this.providers.gemini = new GeminiProvider(geminiKey);
-      console.log("🧠 Orquestador de IA: Proveedor 'gemini' registrado con éxito.");
+      logSystem("🧠 Orquestador de IA: Proveedor 'gemini' registrado con éxito.");
     }
 
     if (hfToken && hfToken !== "tu_token_de_hugging_face") {
       this.providers.huggingface = new HuggingFaceProvider(hfToken);
-      console.log("🧠 Orquestador de IA: Proveedor 'huggingface' registrado con éxito.");
+      logSystem("🧠 Orquestador de IA: Proveedor 'huggingface' registrado con éxito.");
     }
 
     if (openrouterKey && openrouterKey !== "tu_api_key_de_openrouter") {
       this.providers.openrouter = new OpenRouterProvider(openrouterKey);
-      console.log("🧠 Orquestador de IA: Proveedor 'openrouter' registrado con éxito.");
+      logSystem("🧠 Orquestador de IA: Proveedor 'openrouter' registrado con éxito.");
     }
 
     if (nararouterKey && nararouterKey !== "tu_api_key_de_nararouter") {
       this.providers.nararouter = new NaraRouterProvider(nararouterKey);
-      console.log("🧠 Orquestador de IA: Proveedor 'nararouter' registrado con éxito.");
+      logSystem("🧠 Orquestador de IA: Proveedor 'nararouter' registrado con éxito.");
     }
 
     if (ollamaHost) {
       this.providers.ollama = new OllamaProvider(ollamaHost);
-      console.log(`🧠 Orquestador de IA: Proveedor 'ollama' registrado en ${ollamaHost}.`);
+      logSystem(`🧠 Orquestador de IA: Proveedor 'ollama' registrado en ${ollamaHost}.`);
     }
 
     const registeredNames = Object.keys(this.providers);
     if (registeredNames.length === 0) {
-      console.warn("⚠️ Advertencia: No se detectaron APIs de IA en el .env. El orquestador operará sin proveedores.");
+      logSystem('WARN: ⚠️ Advertencia: No se detectaron APIs de IA en el .env. El orquestador operará sin proveedores.');
     } else {
-      console.log(`✅ Orquestador de IA inicializado. Proveedores disponibles: [${registeredNames.join(", ")}]`);
+      logSystem(`✅ Orquestador de IA inicializado. Proveedores disponibles: [${registeredNames.join(", ")}]`);
     }
 
     // Inicializar el Dispatcher con referencia a este orquestador
@@ -174,7 +175,7 @@ class AiOrchestrator {
         });
         const cached = cache.get(cacheKey);
         if (cached) {
-          console.log(`💫 [Cache HIT] generateText para proveedor '${providerName}'`);
+          logSystem(`💫 [Cache HIT] generateText para proveedor '${providerName}'`);
           return cached;
         }
       }
@@ -206,7 +207,7 @@ class AiOrchestrator {
         return result;
       } catch (error) {
         const errorMsg = `Error en proveedor '${providerName}': ${error.message}`;
-        console.warn(`⚠️ [AI Orchestrator Fallback] ${errorMsg}. Probando siguiente proveedor...`);
+        logSystem(`WARN: ⚠️ [AI Orchestrator Fallback] ${errorMsg}. Probando siguiente proveedor...`);
         errors.push(errorMsg);
       }
     }
@@ -236,7 +237,7 @@ class AiOrchestrator {
         const cacheKey = classificationCacheKey(minifiedText, candidateLabels, providerName, model);
         const cached = cache.get(cacheKey);
         if (cached) {
-          console.log(`💫 [Cache HIT] classifyText para proveedor '${providerName}'`);
+          logSystem(`💫 [Cache HIT] classifyText para proveedor '${providerName}'`);
           return cached;
         }
       }
@@ -258,7 +259,7 @@ class AiOrchestrator {
         return result;
       } catch (error) {
         const errorMsg = `Error en proveedor de clasificación '${providerName}': ${error.message}`;
-        console.warn(`⚠️ [AI Orchestrator Fallback] ${errorMsg}. Probando siguiente clasificador...`);
+        logSystem(`WARN: ⚠️ [AI Orchestrator Fallback] ${errorMsg}. Probando siguiente clasificador...`);
         errors.push(errorMsg);
       }
     }
@@ -313,7 +314,7 @@ class AiOrchestrator {
     }
 
     if (verbose) {
-      console.log(`\n🎯 [dispatchTasks] Clasificando ${tasks.length} tarea(s)...`);
+      logSystem(`\n🎯 [dispatchTasks] Clasificando ${tasks.length} tarea(s)...`);
     }
 
     // Fase 1: Dispatcher prepara todas las tareas (clasifica tipo y asigna modelo)
@@ -336,7 +337,7 @@ class AiOrchestrator {
 
     // Fase 3: Imprimir reporte
     if (printReport) {
-      console.log("\n" + AiWorkerPool.generateReport(results));
+      logSystem("\n" + AiWorkerPool.generateReport(results));
     }
 
     return results;

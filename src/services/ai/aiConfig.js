@@ -28,9 +28,9 @@ const COMPACTION_POLICY = {
 };
 
 const PROVIDER_PRIORITIES = {
-  textGeneration: ["deepseek", "gemini", "openrouter", "ollama", "huggingface"],
-  classification: ["deepseek", "gemini", "openrouter", "huggingface", "ollama"],
-  narration: ["deepseek", "gemini", "openrouter", "ollama"],
+  textGeneration: ["deepseek", "nararouter", "gemini", "openrouter", "ollama", "huggingface"],
+  classification: ["deepseek", "nararouter", "gemini", "openrouter", "huggingface", "ollama"],
+  narration: ["deepseek", "nararouter", "gemini", "openrouter", "ollama"],
 };
 
 const PROVIDER_CAPABILITIES = {
@@ -38,6 +38,11 @@ const PROVIDER_CAPABILITIES = {
     quality: 0.85,
     freePriority: 0.98,
     strengths: ["narration", "classification", "simpleTasks", "boilerplate"],
+  },
+  nararouter: {
+    quality: 0.88,
+    freePriority: 0.96,
+    strengths: ["narration", "classification", "simpleTasks", "boilerplate", "documentation"],
   },
   gemini: {
     quality: 0.92,
@@ -80,14 +85,17 @@ const DEFAULT_MODELS = {
     textGeneration: "deepseek-chat",
     classification: "deepseek-chat",
   },
+  nararouter: {
+    textGeneration: "deepseek-3.2",
+    classification: "deepseek-3.2",
+  },
   gemini: {
     textGeneration: "gemini-2.5-flash",
-    classification: "gemini-2.0-flash",
+    classification: "gemini-2.5-flash",
   },
   openrouter: {
-    // openrouter/auto selecciona el mejor modelo gratuito disponible automáticamente
-    textGeneration: "openrouter/auto",
-    classification: "openrouter/auto",
+    textGeneration: "google/gemma-4-31b-it:free",
+    classification: "google/gemma-4-31b-it:free",
   },
   ollama: {
     textGeneration: "qwen2.5-coder:7b",
@@ -106,6 +114,7 @@ const DEFAULT_MODELS = {
 
 const CONCURRENCY_LIMITS = {
   deepseek: 5,      // DeepSeek free tier generoso
+  nararouter: 3,    // NaraRouter free: 10 req/min — 3 simultáneas es seguro
   gemini: 3,        // Plan gratuito: 15 RPM — máx 3 tareas simultáneas
   openrouter: 5,    // OpenRouter no tiene límite estricto en free tier
   ollama: 2,        // Limitado por los recursos locales del equipo
@@ -139,7 +148,7 @@ const TASK_TIERS = {
   EASY: {
     tier: 3,
     label: "🟨 EASY",
-    geminiModel: "gemini-2.0-flash",
+    geminiModel: "gemini-2.5-flash",
     openrouterModel: "openrouter/auto",
     preferredProvider: "openrouter",    // Preferir OpenRouter para EASY (ahorra cuota de Gemini)
   },
@@ -147,7 +156,7 @@ const TASK_TIERS = {
   TRIVIAL: {
     tier: 4,
     label: "🟩 TRIVIAL",
-    geminiModel: "gemini-2.0-flash",
+    geminiModel: "gemini-2.5-flash",
     openrouterModel: "openrouter/auto",
     preferredProvider: "openrouter",
   },

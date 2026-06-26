@@ -53,6 +53,10 @@ const RPG_CONFIG = {
     fatigueAfterTurns: 5,
     interceptionSpeedRatio: 0.7,
     fleeReflexRatio: 0.7,
+    magicPrecisionDivisor: 5,
+    magicFulgorCostRatio: 0.3,
+    fuerzaBonusRatio: 0.3,
+    cortaduraMultiplier: 1.2,
   },
 
   inventory: {

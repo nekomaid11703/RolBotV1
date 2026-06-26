@@ -1,6 +1,6 @@
 const { isOwner } = require("../utils/permissionUtils");
 const {
-  isMeaningfulDisplayName,
+  getProfileDisplayName,
 } = require("../utils/userMentionUtils");
 const {
   getUserProfile,
@@ -31,20 +31,7 @@ function resolveCandidateId(candidate) {
 }
 
 function pickDisplayName(profile, fallback = "usuario") {
-  const candidates = [
-    profile?.metadata?.displayName,
-    profile?.metadata?.pushName,
-    profile?.registration?.displayName,
-    profile?.creatorName,
-  ];
-
-  for (const candidate of candidates) {
-    if (isMeaningfulDisplayName(candidate)) {
-      return String(candidate).trim();
-    }
-  }
-
-  return fallback;
+  return getProfileDisplayName(profile, fallback);
 }
 
 async function readPermissions(userId) {

@@ -49,7 +49,8 @@ function validateTurn(room, jid) {
   }
 
   const timeout = room.turnTimeoutMs || CR.turnTimeoutMs;
-  if (Date.now() - participant.lastActionAt > timeout) {
+  const lastAction = participant.lastActionAt || 0;
+  if (Date.now() - lastAction > timeout) {
     return { valid: false, reason: 'timeout', message: '⏰ Tu turno expiró por inactividad.', timedOut: true };
   }
 
@@ -60,7 +61,8 @@ function checkTimeout(room) {
   const current = getCurrentParticipant(room);
   if (!current || current.ko) return null;
   const timeout = room.turnTimeoutMs || CR.turnTimeoutMs;
-  if (Date.now() - current.lastActionAt > timeout) {
+  const lastAction = current.lastActionAt || 0;
+  if (Date.now() - lastAction > timeout) {
     return current;
   }
   return null;
@@ -94,6 +96,8 @@ async function applySkip(room, reason = 'timeout') {
 
 function advanceTurn(room) {
   room.turnCount++;
+  if (room.stateVersion === undefined) room.stateVersion = 0;
+  room.stateVersion++;
 
   const nextIdx = getNextAliveIndex(room, room.currentTurnIndex + 1);
   if (nextIdx === -1) {
@@ -109,8 +113,11 @@ function advanceTurn(room) {
   room.currentTurnIndex = nextIdx;
   room.lastActionAt = Date.now();
 
-  const nextP = getCurrentParticipant(room);
-  if (nextP) nextP.lastActionAt = Date.now();
+  const nextEntry = room.turnQueue[nextIdx];
+  if (nextEntry) {
+    const nextP = room.participants.find(p => p.id === nextEntry.participantId);
+    if (nextP) nextP.lastActionAt = Date.now();
+  }
 
   return true;
 }
@@ -145,7 +152,8 @@ function formatTimeRemaining(room) {
   const current = getCurrentParticipant(room);
   if (!current) return '—';
   const timeout = room.turnTimeoutMs || CR.turnTimeoutMs;
-  const elapsed = Date.now() - current.lastActionAt;
+  const lastAction = current.lastActionAt || 0;
+  const elapsed = Date.now() - lastAction;
   const remaining = Math.max(0, timeout - elapsed);
   const hours = Math.floor(remaining / 3600000);
   const mins = Math.floor((remaining % 3600000) / 60000);
@@ -199,6 +207,7 @@ function formatStatus(room) {
   }
 
   if (currentP && !currentP.ko) {
+    currentP.lastActionAt = Date.now();
     lines.push(`► *${currentP.name}* — Es tu turno! (timeout: ${formatTimeRemaining(room)})`);
     lines.push(`   Saltos: ${currentP.consecutiveSkips}/${CR.maxConsecutiveSkips}`);
   } else if (nextP) {
@@ -226,6 +235,14 @@ function getAliveParticipants(room, team) {
 }
 
 function checkVictoryConditions(room) {
+  if (room.startedVia === 'pvp') {
+    const challengerAlive = room.participants.filter(p => !p.ko && p.bando === 'challenger').length;
+    const targetAlive = room.participants.filter(p => !p.ko && p.bando === 'target').length;
+    if (challengerAlive === 0) return { finished: true, winner: 'target', message: '🎉 El retador ha caído. Victoria del defensor!' };
+    if (targetAlive === 0) return { finished: true, winner: 'challenger', message: '🎉 El defensor ha caído. Victoria del retador!' };
+    return { finished: false, winner: null, message: '' };
+  }
+
   const alivePlayers = getAliveParticipants(room, 'players').length;
   const aliveEnemies = getAliveParticipants(room, 'enemies').length;
 

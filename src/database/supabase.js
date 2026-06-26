@@ -1,11 +1,12 @@
-require('dotenv').config();
+require('dotenv').config({ path: require('path').join(__dirname, '../../.env.local') });
 const { createClient } = require('@supabase/supabase-js');
+const { logSystem, logError } = require('../services/loggerService');
 
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_KEY;
 
 if (!supabaseUrl || !supabaseKey) {
-  console.warn("⚠️ Advertencia: SUPABASE_URL o SUPABASE_KEY no están definidos en el archivo .env");
+  logSystem('WARN: ⚠️ Advertencia: SUPABASE_URL o SUPABASE_KEY no están definidos en el archivo .env');
 }
 
 const supabase = createClient(

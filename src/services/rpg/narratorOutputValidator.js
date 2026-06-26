@@ -31,6 +31,8 @@ const LLM_OUTPUT_SCHEMA = {
   dialogue_count: 'number',
   dialogue_as_action: 'boolean',
   narrative: 'string',
+  ability_id: 'string|null',
+  skill_effects: 'object|null',
 };
 
 function fuzzyParseJSON(raw) {
@@ -140,6 +142,14 @@ function validateOutput(data) {
     errors.push(`damage_type "${data.damage_type}" no válido.`);
   }
 
+  if (data.ability_id !== undefined && data.ability_id !== null && typeof data.ability_id !== 'string') {
+    errors.push('"ability_id" debe ser string o null.');
+  }
+
+  if (data.skill_effects !== undefined && data.skill_effects !== null && typeof data.skill_effects !== 'object') {
+    errors.push('"skill_effects" debe ser objeto o null.');
+  }
+
   if (typeof data.narrative !== 'string' || data.narrative.length < 1) {
     errors.push('"narrative" debe ser string no vacío.');
   }
@@ -168,6 +178,8 @@ function buildDefaultInfractionOutput(infractions) {
       is_attempt: false,
     },
     damage_type: null,
+    ability_id: null,
+    skill_effects: null,
     dialogue_count: 0,
     dialogue_as_action: false,
     narrative: 'Acción invalidada por infracción.',

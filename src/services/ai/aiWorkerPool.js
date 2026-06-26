@@ -11,6 +11,7 @@
  */
 
 const { CONCURRENCY_LIMITS } = require("./aiConfig");
+const { logSystem, logError } = require('../loggerService');
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Semáforo de concurrencia
@@ -61,7 +62,7 @@ class AiWorkerPool {
       const limit =
         CONCURRENCY_LIMITS[provider] ?? CONCURRENCY_LIMITS.default;
       this._semaphores[provider] = new Semaphore(limit);
-      console.log(
+      logSystem(
         `🔧 [WorkerPool] Semáforo creado para "${provider}": máx ${limit} tareas concurrentes.`
       );
     }
@@ -94,7 +95,7 @@ class AiWorkerPool {
         if (attempt > 0) {
           // Backoff exponencial: 1s, 2s, 4s...
           const delay = Math.pow(2, attempt - 1) * 1000;
-          console.log(
+          logSystem(
             `🔄 [WorkerPool] Reintentando tarea "${task.id}" (intento ${attempt + 1}) en ${delay}ms...`
           );
           await new Promise((r) => setTimeout(r, delay));
@@ -154,15 +155,15 @@ class AiWorkerPool {
     if (tasks.length === 0) return [];
 
     if (verbose) {
-      console.log(
+      logSystem(
         `\n🚀 [WorkerPool] Iniciando ${tasks.length} tarea(s) en paralelo...`
       );
       tasks.forEach((t) =>
-        console.log(
+        logSystem(
           `   📋 [${t.id}] ${t.tierLabel} → ${t.provider} (${t.model})`
         )
       );
-      console.log("");
+      logSystem("");
     }
 
     const globalStart = Date.now();
@@ -177,7 +178,7 @@ class AiWorkerPool {
       const fulfilled = results.filter((r) => r.status === "fulfilled").length;
       const rejected = results.filter((r) => r.status === "rejected").length;
 
-      console.log(
+      logSystem(
         `\n✅ [WorkerPool] Paralelo completado en ${totalMs}ms. ` +
           `✔ ${fulfilled} exitosas | ✖ ${rejected} fallidas\n`
       );
@@ -205,7 +206,7 @@ class AiWorkerPool {
     if (tasks.length === 0) return [];
 
     if (verbose) {
-      console.log(
+      logSystem(
         `\n📋 [WorkerPool] Iniciando ${tasks.length} tarea(s) en secuencia...`
       );
     }
@@ -222,7 +223,7 @@ class AiWorkerPool {
       }
 
       if (verbose) {
-        console.log(
+        logSystem(
           `   ▶ [${i + 1}/${tasks.length}] Ejecutando tarea "${task.id}"...`
         );
       }
@@ -232,8 +233,8 @@ class AiWorkerPool {
       previousResult = result.status === "fulfilled" ? result.result : null;
 
       if (verbose && result.status === "rejected") {
-        console.warn(
-          `   ⚠️ Tarea "${task.id}" falló: ${result.error}. Continuando...`
+        logSystem(
+          `WARN:    ⚠️ Tarea "${task.id}" falló: ${result.error}. Continuando...`
         );
       }
     }

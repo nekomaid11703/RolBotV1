@@ -40,7 +40,11 @@ Instrucciones para agentes:
 
 ### Tickets Activos
 
-*Ninguno activo actualmente.*
+- **[Ticket 018]** `@Coder` -> Phase 12: Mazmorras y Eventos. Generación procedural de encuentros, loot con rarezas, comandos `/mazmorra`, `/explorar`, `/descansar`, persistencia de estado en Supabase. *Estado: Pendiente.*
+- **[Ticket 019]** `@Creativo` -> Phase 13: Integración de IA Narrativa. Comando `/escena`, diálogos dinámicos de NPCs, narrativa contextual en combate, cache de clasificación de intenciones RPG, moderación de contenido generado. *Estado: Pendiente.*
+- **[Ticket 020]** `@Arquitecto` -> GitHub MCP local via Docker/Go + GITHUB_PERSONAL_ACCESS_TOKEN real. *Estado: Pendiente externo.*
+- **[Ticket 021]** `@Arquitecto` -> RAG/vector search (decisión futura). *Estado: Pendiente externo.*
+
 
 ### Tickets Completados
 
@@ -56,19 +60,8 @@ Instrucciones para agentes:
 - **[Ticket 006]** `@Arquitecto` -> Formalizar memoria persistente compartida entre Codex, Antigravity y futuros agentes. *Estado: Completado. Resultado: reglas locales `.agents`, skills adaptadas, `ai-memory/memory_protocol.md`, `task.md` y memoria durable `mem-1782239972917`. Validacion: NekoMemori MCP lista herramientas y acepta `record_memory` extendido.*
 - **[Ticket 005]** `@Arquitecto` -> Mejorar y modularizar el servidor MCP NekoMemori. *Estado: Completado. Resultado: NekoMemori v2.0.0 con 7 herramientas, arquitectura modular y soporte para design board.*
 - **[Ticket 004]** `@Coder` -> Auditar y modernizar la suite de comandos de personajes. *Estado: Completado. Resultado: 6 comandos refactorizados con UX premium, regex y personaje activo como contexto.*
+- **[Ticket 017]** `@Coder` -> Phase 11: Implementación de combate PvE con enemigos por zona, buffs/debuffs, fatiga y dataLoader. *Estado: Completado. Ver memory.jsonl para detalles.*
+- **[Ticket 016]** `@Creativo` -> Implementar sistema de Bug Report multi-agente: comando /bugreport con validación IA, límites por rol (owner/admin/user), imágenes locales, notificación DM owner, scheduler midnight review, CLI para opencode y skill bug-fixer. *Estado: Completado. Resultado: 7 archivos creados (bugReportService.js, schedulerService.js, bugreport.js, bugstatus.js, process_bugs.js, midnight_review.js, SKILL.md). bot.js modificado con startup notify + midnight scheduler.*
 - **[Ticket 003]** `@Coder` -> Migrar characterService.js a Supabase y hacer el bot 100% stateless. *Estado: Completado. Resultado: characterService ahora usa Supabase. Bot completamente stateless.*
 - **[Ticket 002]** `@Arquitecto` -> Disenar el servicio `aiService.js` para integrarse con Hugging Face. *Estado: Completado. Resultado: reemplazado por el Orquestador Modular de IA en `src/services/ai/` con soporte para Gemini, HF, Ollama y OpenRouter con fallback automatico.*
 - **[Ticket 001]** `@Creativo` -> Refactorizar la salida visual de `/help` y `/ver_pj` para usar Markdown premium. *Estado: Completado. Resultado: ambos comandos usan Markdown enriquecido con estilo tarjeta RPG.*
-
-### Pendientes Externos
-
-- GitHub MCP local requiere Docker o Go y un `GITHUB_PERSONAL_ACCESS_TOKEN` real.
-- RAG/vector search no existe aun; requiere decision futura e infraestructura explicita.
-
-
-### 🟢 Tickets Activos
-- **[Ticket 017]** `@Coder` → Phase 11: Sistema de Combate PvE — implementado y en producción. Próximo: Phase 12 (Mazmorras) o extender PvP y habilidades especiales. *Estado: Pendiente.*
-
-
-### 🔴 Tickets Completados
-- **[Ticket 016]** `@Creativo` → Implementar sistema de Bug Report multi-agente: comando /bugreport con validación IA, límites por rol (owner/admin/user), imágenes locales, notificación DM owner, scheduler midnight review, CLI para opencode y skill bug-fixer. *Estado: ✅ Completado. *Resultado: Ticket 016 completado. 7 archivos creados (bugReportService.js, schedulerService.js, bugreport.js, bugstatus.js, process_bugs.js, midnight_review.js, SKILL.md). bot.js modificado con startup notify + midnight scheduler. Todos los imports verificados.**

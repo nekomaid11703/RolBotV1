@@ -13,6 +13,7 @@ const {
   AUTO_CLASSIFY_LABELS,
   DEFAULT_MODELS,
 } = require("./aiConfig");
+const { logSystem, logError } = require('../loggerService');
 const { cache, TTLS } = require("./promptCacheService");
 
 class AiDispatcher {
@@ -96,8 +97,8 @@ class AiDispatcher {
         });
       } catch (err) {
         // Si el taskType no existe, intentar autoDispatch con el prompt como descripción
-        console.warn(
-          `⚠️ [Dispatcher] taskType "${task.taskType}" desconocido, usando autoDispatch...`
+        logSystem(
+          `WARN: ⚠️ [Dispatcher] taskType "${task.taskType}" desconocido, usando autoDispatch...`
         );
         const dispatched = await this.autoDispatch(
           task.taskType,
@@ -127,7 +128,7 @@ class AiDispatcher {
     const cacheKey = `dispatch:infer:${taskDescription.trim().toLowerCase().slice(0, 200)}`;
     const cached = cache.get(cacheKey);
     if (cached) {
-      console.log(`💫 [Cache HIT] _inferTaskType: "${cached}"`);
+      logSystem(`💫 [Cache HIT] _inferTaskType: "${cached}"`);
       return cached;
     }
 
@@ -143,20 +144,20 @@ class AiDispatcher {
       const inferred = result.intent;
 
       if (TASK_PROFILES[inferred]) {
-        console.log(
+        logSystem(
           `🧭 [Dispatcher] Tarea auto-clasificada como: "${inferred}" (confianza: ${(result.confidence * 100).toFixed(0)}%)`
         );
         cache.set(cacheKey, inferred, TTLS.classification);
         return inferred;
       }
 
-      console.warn(
-        `⚠️ [Dispatcher] Clasificación con baja confianza ("${inferred}"). Usando fallback: "implementFeature"`
+      logSystem(
+        `WARN: ⚠️ [Dispatcher] Clasificación con baja confianza ("${inferred}"). Usando fallback: "implementFeature"`
       );
       return "implementFeature";
     } catch (err) {
-      console.warn(
-        `⚠️ [Dispatcher] Error al clasificar tarea automáticamente: ${err.message}. Usando fallback: "implementFeature"`
+      logSystem(
+        `WARN: ⚠️ [Dispatcher] Error al clasificar tarea automáticamente: ${err.message}. Usando fallback: "implementFeature"`
       );
       return "implementFeature";
     }
@@ -195,8 +196,8 @@ class AiDispatcher {
     const fallbackModel =
       DEFAULT_MODELS[fallbackProvider]?.textGeneration || "openrouter/auto";
 
-    console.warn(
-      `⚠️ [Dispatcher] Proveedor preferido "${preferredProvider}" no disponible. ` +
+    logSystem(
+      `WARN: ⚠️ [Dispatcher] Proveedor preferido "${preferredProvider}" no disponible. ` +
         `Usando fallback: "${fallbackProvider}"`
     );
 

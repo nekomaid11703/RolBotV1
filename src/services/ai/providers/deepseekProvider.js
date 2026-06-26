@@ -9,14 +9,18 @@ class DeepSeekProvider {
 
   async _callAPI(model, body) {
     const url = `${this.baseUrl}/chat/completions`;
-    const response = await fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${this.apiKey}`,
-      },
-      body: JSON.stringify({ model, ...body }),
-    });
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000);
+    try {
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${this.apiKey}`,
+        },
+        body: JSON.stringify({ model, ...body }),
+        signal: controller.signal,
+      });
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
@@ -28,10 +32,12 @@ class DeepSeekProvider {
     }
 
     const data = await response.json();
-    try {
-      return data.choices[0].message.content;
+    return data.choices[0].message.content;
     } catch (e) {
-      throw new Error("Respuesta inválida de DeepSeek: " + JSON.stringify(data));
+      if (e.name === 'AbortError') throw new Error('DeepSeek API timeout after 30s');
+      throw new Error(`Respuesta inválida de DeepSeek: ${e.message}`);
+    } finally {
+      clearTimeout(timeoutId);
     }
   }
 
@@ -58,33 +64,10 @@ class DeepSeekProvider {
 
   async classifyText({ text, candidateLabels, model }) {
     const selectedModel = model || DEFAULT_MODELS.deepseek.classification;
-    const labelsStr = candidateLabels.join(", ");
-
-    const prompt = `Clasifica el siguiente texto en una de estas categorías: [${labelsStr}].
-Responde ÚNICAMENTE con el nombre exacto de la categoría, en minúsculas, sin puntuación ni texto adicional.
-
-Texto: "${text}"`;
-
-    const body = {
-      messages: [
-        {
-          role: "system",
-          content: "Eres un clasificador de texto preciso. Solo respondes con una palabra clave exacta.",
-        },
-        { role: "user", content: prompt },
-      ],
-      temperature: 0.1,
-      max_tokens: 10,
-    };
-
-    const responseText = await this._callAPI(selectedModel, body);
-    const cleanResponse = responseText.trim().toLowerCase();
-    const matchedLabel = candidateLabels.find(l => l.toLowerCase() === cleanResponse);
-
-    return {
-      intent: matchedLabel || candidateLabels[0],
-      confidence: matchedLabel ? 0.95 : 0.5,
-    };
+    const { buildClassificationMessages, parseClassificationResponse } = require('../../../utils/classifyUtils');
+    const messages = buildClassificationMessages(text, candidateLabels);
+    const responseText = await this._callAPI(selectedModel, { messages, temperature: 0.1, max_tokens: 10 });
+    return parseClassificationResponse(responseText, candidateLabels);
   }
 }
 

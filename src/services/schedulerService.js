@@ -1,4 +1,5 @@
 const { midnightReview } = require('../../scripts/midnight_review');
+const { logSystem, logError } = require('./loggerService');
 
 let midnightTimer = null;
 
@@ -29,7 +30,7 @@ function scheduleNext(sock) {
     try {
       await midnightReview(sock);
     } catch (err) {
-      console.error('Error en midnight review:', err);
+      logError({ source: 'schedulerService', error: err instanceof Error ? err : new Error(String(err)) });
     }
     scheduleNext(sock);
   }, msUntilMidnight);

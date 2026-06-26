@@ -14,12 +14,23 @@ const abilityEngine = require('./abilityEngine');
 const { getContextualLore } = require('./worldLore');
 const { getSceneWithEffects, getSceneVersion, incrementEffectBurn } = require('./sceneCache');
 const { CombatBuffer } = require('./combatBuffer');
-const fs = require('fs');
-const path = require('path');
 const crypto = require('crypto');
+const path = require('path');
+const { logSystem, logError } = require('../loggerService');
+const fs = require('fs');
 
-const CLASSIFICATION_PROMPT = fs.readFileSync(path.join(__dirname, 'narrativePrompts', 'classification.prompt.md'), 'utf8');
-const SYSTEM_PROMPT_PATH = path.join(__dirname, 'narrativePrompts', 'combat.system.md');
+const PROMPTS_DIR = path.join(__dirname, 'narrativePrompts');
+
+function loadClassificationPrompt() {
+  try {
+    return fs.readFileSync(path.join(PROMPTS_DIR, 'classification.prompt.md'), 'utf8');
+  } catch {
+    logError({ source: 'combatRefereeService', error: new Error('Failed to load classification.prompt.md') });
+    return '';
+  }
+}
+
+const CLASSIFICATION_PROMPT = loadClassificationPrompt();
 const CACHE_TTL = 30000;
 const MAX_CACHE_SIZE = 20;
 
@@ -53,7 +64,7 @@ function pruneCache() {
 
 function loadSystemPrompt() {
   try {
-    return fs.readFileSync(SYSTEM_PROMPT_PATH, 'utf8');
+    return fs.readFileSync(path.join(PROMPTS_DIR, 'combat.system.md'), 'utf8');
   } catch {
     return 'Eres el árbitro de combate. Analiza el texto de rol del jugador y determina si es válido.';
   }
@@ -209,31 +220,31 @@ function logRefereeDecision(entry) {
     entry.cartaBlanca ? `  carta_blanca: ${entry.infractionDetails}` : '',
     entry.errors ? `  errors: ${entry.errors}` : '',
   ].filter(Boolean).join('\n');
-  console.log(log);
+  logSystem(log);
 }
 
 async function processRoleplay(text, room, participant, inventory) {
   const expired = envEffects.reduceEffectDurations(room);
   if (expired.length > 0) {
     envEffects.removeExpiredEffects(room);
-    console.log(`[REFEREE] Expired effects removed: ${expired.join(', ')}`);
+    logSystem(`[REFEREE] Expired effects removed: ${expired.join(', ')}`);
   }
   const dotApplied = envEffects.applyDotToParticipants(room);
   if (dotApplied) {
-    console.log(`[REFEREE] DOT applied to all participants in room ${room.id}`);
+    logSystem(`[REFEREE] DOT applied to all participants in room ${room.id}`);
   }
   const ctx = { text, room, participant, inventory };
 
   // Feature Flag: Pipeline multi-model
   if (FEATURE_FLAG_PIPELINE) {
-    console.log(`[PIPELINE] Intentando pipeline multi-model (text: "${text.slice(0, 50)}...")`);
+    logSystem(`[PIPELINE] Intentando pipeline multi-model (text: "${text.slice(0, 50)}...")`);
     const buffer = new CombatBuffer(ctx);
     const pipelineResult = await processRoleplayPipeline(buffer);
     if (!pipelineResult.error) {
-      console.log(`[PIPELINE] Exitoso. Modelos usados: ${JSON.stringify(buffer.modelsUsed)}`);
+      logSystem(`[PIPELINE] Exitoso. Modelos usados: ${JSON.stringify(buffer.modelsUsed)}`);
       return pipelineResult;
     }
-    console.log(`[PIPELINE] Fallo completo: ${pipelineResult.error}. Cayendo a legacy.`);
+    logSystem(`[PIPELINE] Fallo completo: ${pipelineResult.error}. Cayendo a legacy.`);
   }
 
   const systemPrompt = loadSystemPrompt();
@@ -250,7 +261,7 @@ async function processRoleplay(text, room, participant, inventory) {
   }
 
   try {
-    console.log(`[REFEREE] Calling LLM (providerPreference: deepseek, text: "${ctx.text.slice(0, 50)}...")`);
+    logSystem(`[REFEREE] Calling LLM (providerPreference: deepseek, text: "${ctx.text.slice(0, 50)}...")`);
     const startTime = Date.now();
     const rawResponse = await orchestrator.generateText({
       prompt,
@@ -259,7 +270,7 @@ async function processRoleplay(text, room, participant, inventory) {
       providerPreference: 'deepseek',
       bypassCache: true,
     });
-    console.log(`[REFEREE] LLM response received in ${Date.now() - startTime}ms`);
+    logSystem(`[REFEREE] LLM response received in ${Date.now() - startTime}ms`);
 
     const parsed = parseLLMResponse(rawResponse);
     if (parsed.error) {
@@ -729,7 +740,7 @@ function applyEnvironmentalEffect(data, room, participant) {
 }
 
 async function fallbackProcess(text, room, participant) {
-  console.log(`[REFEREE] FALLBACK PATH — LLM no disponible, usando regex+parser (text: "${text.slice(0, 50)}...")`);
+  logSystem(`[REFEREE] FALLBACK PATH — LLM no disponible, usando regex+parser (text: "${text.slice(0, 50)}...")`);
   const layers = extractLayers(text);
   const actionText = layers.accion || text;
 
@@ -884,7 +895,7 @@ async function runStep1Classification(buffer) {
 }
 
 async function fallbackStep1Classification(buffer) {
-  console.log(`[PIPELINE] Step1 fallback: usando combatParser (text: "${buffer.inputText.slice(0, 50)}...")`);
+  logSystem(`[PIPELINE] Step1 fallback: usando combatParser (text: "${buffer.inputText.slice(0, 50)}...")`);
   const normalized = buffer.inputText.toLowerCase();
   let actionType = 'attack';
   let intent = 'ofensivo';
@@ -972,7 +983,7 @@ async function runStep2Mechanics(buffer) {
 }
 
 function fallbackStep2Mechanics(buffer) {
-  console.log(`[PIPELINE] Step2 fallback: usando regex extractZone/Weapon`);
+  logSystem(`[PIPELINE] Step2 fallback: usando regex extractZone/Weapon`);
   const normalized = buffer.inputText.toLowerCase();
   const zone = combatParser.extractZone(normalized);
 
@@ -1006,7 +1017,7 @@ async function runStep3Narration(buffer) {
 }
 
 function fallbackStep3Narration(buffer) {
-  console.log(`[PIPELINE] Step3 fallback: usando combatNarrator.generateTemplateNarrative`);
+  logSystem(`[PIPELINE] Step3 fallback: usando combatNarrator.generateTemplateNarrative`);
   buffer.narrative = combatNarrator.generateTemplateNarrative(buffer.actionResult, { abilityId: buffer.abilityId || undefined });
   buffer.tone = 'template';
   return { success: true, fallback: true, narrationType: 'template' };

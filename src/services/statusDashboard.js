@@ -109,7 +109,7 @@ function render() {
 function startDashboard() {
   if (dashboardTimer) return;
   render();
-  dashboardTimer = setInterval(render, 10000);
+  dashboardTimer = setInterval(render, 30000);
 }
 
 function stopDashboard() {

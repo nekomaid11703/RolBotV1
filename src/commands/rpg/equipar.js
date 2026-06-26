@@ -2,6 +2,7 @@ const { getActiveCharacter } = require("../../services/characterService");
 const invService = require("../../services/rpg/inventoryService");
 const itemsData = require("../../services/rpg/items");
 const { formatError } = require("../../utils/messageFormatUtils");
+const { logSystem, logError } = require("../../services/loggerService");
 
 module.exports = {
   name: "equipar",
@@ -54,7 +55,7 @@ module.exports = {
       return ctx.reply(`⚔️ Equipaste *${item.name}* (${slotLabel}). Stats: ${bonusText}.`);
 
     } catch (error) {
-      console.error('equipar error:', error);
+      logError({ source: 'equipar', error: error instanceof Error ? error : new Error(String(error)) });
       return ctx.reply(`❌ ${error.message}`);
     }
   },

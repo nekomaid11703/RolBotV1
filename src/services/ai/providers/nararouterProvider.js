@@ -24,34 +24,45 @@ class NaraRouterProvider {
       body.response_format = { type: "json_object" };
     }
 
-    const response = await fetch(BASE_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${this.apiKey}`,
-      },
-      body: JSON.stringify(body),
-    });
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000);
+    try {
+      const response = await fetch(BASE_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${this.apiKey}`,
+        },
+        body: JSON.stringify(body),
+        signal: controller.signal,
+      });
 
-    if (!response.ok) {
-      const errText = await response.text();
-      throw new Error(`NaraRouter API error ${response.status}: ${errText}`);
+      if (!response.ok) {
+        const errText = await response.text();
+        throw new Error(`NaraRouter API error ${response.status}: ${errText}`);
+      }
+
+      const data = await response.json();
+      return data.choices?.[0]?.message?.content ?? "";
+    } catch (e) {
+      if (e.name === 'AbortError') throw new Error('NaraRouter API timeout after 30s');
+      throw e;
+    } finally {
+      clearTimeout(timeoutId);
     }
-
-    const data = await response.json();
-    return data.choices?.[0]?.message?.content ?? "";
   }
 
-  async classifyText(text, categories) {
-    const systemInstruction = `Eres un clasificador de texto preciso. Clasifica el texto en una de las siguientes categorías exactas: ${categories.join(", ")}. Responde ÚNICAMENTE con el nombre exacto de la categoría en minúsculas. Sin puntuación ni texto adicional.`;
+  async classifyText({ text, candidateLabels, model }) {
+    const systemInstruction = `Eres un clasificador de texto preciso. Clasifica el texto en una de las siguientes categorías exactas: ${candidateLabels.join(", ")}. Responde ÚNICAMENTE con el nombre exacto de la categoría en minúsculas. Sin puntuación ni texto adicional.`;
     const result = await this.generateText({
       prompt: text,
       systemInstruction,
-      model: DEFAULT_MODEL,
+      model: model || DEFAULT_MODEL,
       temperature: 0.1,
     });
     const normalized = result.toLowerCase().trim();
-    return categories.find((c) => normalized.includes(c.toLowerCase())) || null;
+    const words = normalized.match(/\b\w+\b/g) || [];
+    return candidateLabels.find((c) => words.includes(c.toLowerCase())) || null;
   }
 }
 

@@ -2,6 +2,7 @@ const { getActiveCharacter } = require("../../services/characterService");
 const invService = require("../../services/rpg/inventoryService");
 const itemsData = require("../../services/rpg/items");
 const { formatError } = require("../../utils/messageFormatUtils");
+const { logSystem, logError } = require("../../services/loggerService");
 
 module.exports = {
   name: "inventario",
@@ -69,7 +70,7 @@ module.exports = {
       return ctx.reply(lines.join('\n'));
 
     } catch (error) {
-      console.error('inventario error:', error);
+      logError({ source: 'inventario', error: error instanceof Error ? error : new Error(String(error)) });
       return ctx.reply(`❌ ${error.message}`);
     }
   },

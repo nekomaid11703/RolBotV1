@@ -39,6 +39,8 @@ const DEFAULT_CHARACTER_SLOTS = {
 
   historia: "",
 
+  clase: "",
+
   habilidad_1: "",
 
   habilidad_2: "",

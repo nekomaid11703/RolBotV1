@@ -7,7 +7,8 @@
  *  - reporte de sincronización
  */
 const { createClient } = require('@supabase/supabase-js');
-require('dotenv').config();
+require('dotenv').config({ path: require('path').join(__dirname, '../../.env.local') });
+const { logSystem, logError } = require('./loggerService');
 
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
 
@@ -70,7 +71,7 @@ async function verifySync() {
 }
 
 async function forceSync() {
-  console.log('[SyncService] Forzando sincronización desde Supabase...');
+  logSystem('[SyncService] Forzando sincronización desde Supabase...');
 
   const supabaseSnapshot = await fetchAllFromSupabase();
 
@@ -86,7 +87,7 @@ async function forceSync() {
   }
 
   _lastSyncResult = { timestamp: new Date().toISOString(), summary, status: 'synced' };
-  console.log('[SyncService] Sincronización completada.');
+  logSystem('[SyncService] Sincronización completada.');
   return _lastSyncResult;
 }
 

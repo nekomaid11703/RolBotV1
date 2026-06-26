@@ -4,6 +4,7 @@ const itemsData = require("../../services/rpg/items");
 const turnManager = require("../../services/rpg/combatTurnManager");
 const stateManager = require("../../services/rpg/combatStateManager");
 const { formatError } = require("../../utils/messageFormatUtils");
+const { logSystem, logError } = require("../../services/loggerService");
 
 module.exports = {
   name: "usar",
@@ -91,7 +92,7 @@ module.exports = {
       return ctx.reply(`No sé cómo usar "${item.name}".`);
 
     } catch (error) {
-      console.error('usar error:', error);
+      logError({ source: 'usar', error: error instanceof Error ? error : new Error(String(error)) });
       return ctx.reply(`❌ ${error.message}`);
     }
   },

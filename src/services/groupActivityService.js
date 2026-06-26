@@ -1,4 +1,5 @@
 const { GROUP_TOP_LIMIT } = require("../config/groupConfig");
+const { supabase } = require("../database/supabase");
 const { safeSingleOrNull, groupCacheKey, topGroupMembersCacheKey, topActiveUsersCacheKey, invalidateGroupCache, invalidateTopActiveUsersCache, TTLS, cache } = require("../utils/safeQuery");
 
 function sanitizeGroupId(groupId) {

@@ -5,7 +5,22 @@ const {
   listUserProfiles,
 } = require("./userService");
 const { topBalancesCacheKey, invalidateTopBalancesCache, invalidateUserCache, TTLS, cache } = require("../utils/safeQuery");
+const { logError } = require("./loggerService");
 const { supabase } = require("../database/supabase");
+
+const userLocks = new Map();
+
+async function withUserLock(userId, fn) {
+  while (userLocks.get(userId)) {
+    await new Promise(r => setTimeout(r, 10));
+  }
+  userLocks.set(userId, true);
+  try {
+    return await fn();
+  } finally {
+    userLocks.delete(userId);
+  }
+}
 
 const {
   DAILY_BASE_REWARD,
@@ -61,26 +76,28 @@ async function addMoney(
     throw new Error("Cantidad inválida.");
   }
 
-  const data = await resolveEconomyProfile({
-    userId,
-    userName: options.userName || "usuario",
-    createIfMissing: options.createIfMissing !== false,
-    registration: options.registration || {},
+  return withUserLock(userId, async () => {
+    const data = await resolveEconomyProfile({
+      userId,
+      userName: options.userName || "usuario",
+      createIfMissing: options.createIfMissing !== false,
+      registration: options.registration || {},
+    });
+
+    if (!data) {
+      throw new Error("El usuario no tiene perfil.");
+    }
+
+    data.profile.economy.money = getMoneyValue(data.profile) + safeAmount;
+    data.profile.updatedAt = new Date().toISOString();
+
+    await saveUserProfile({
+      folder: data.folder,
+      profile: data.profile,
+    });
+
+    return data.profile.economy.money;
   });
-
-  if (!data) {
-    throw new Error("El usuario no tiene perfil.");
-  }
-
-  data.profile.economy.money = getMoneyValue(data.profile) + safeAmount;
-  data.profile.updatedAt = new Date().toISOString();
-
-  await saveUserProfile({
-    folder: data.folder,
-    profile: data.profile,
-  });
-
-  return data.profile.economy.money;
 }
 
 async function removeMoney(
@@ -94,32 +111,34 @@ async function removeMoney(
     throw new Error("Cantidad inválida.");
   }
 
-  const data = await resolveEconomyProfile({
-    userId,
-    userName: options.userName || "usuario",
-    createIfMissing: options.createIfMissing === true,
-    registration: options.registration || {},
+  return withUserLock(userId, async () => {
+    const data = await resolveEconomyProfile({
+      userId,
+      userName: options.userName || "usuario",
+      createIfMissing: options.createIfMissing === true,
+      registration: options.registration || {},
+    });
+
+    if (!data) {
+      throw new Error("El usuario no tiene perfil.");
+    }
+
+    const current = getMoneyValue(data.profile);
+
+    if (current < safeAmount) {
+      throw new Error("Dinero insuficiente.");
+    }
+
+    data.profile.economy.money = current - safeAmount;
+    data.profile.updatedAt = new Date().toISOString();
+
+    await saveUserProfile({
+      folder: data.folder,
+      profile: data.profile,
+    });
+
+    return data.profile.economy.money;
   });
-
-  if (!data) {
-    throw new Error("El usuario no tiene perfil.");
-  }
-
-  const current = getMoneyValue(data.profile);
-
-  if (current < safeAmount) {
-    throw new Error("Dinero insuficiente.");
-  }
-
-  data.profile.economy.money = current - safeAmount;
-  data.profile.updatedAt = new Date().toISOString();
-
-  await saveUserProfile({
-    folder: data.folder,
-    profile: data.profile,
-  });
-
-  return data.profile.economy.money;
 }
 
 async function setMoney(
@@ -133,26 +152,28 @@ async function setMoney(
     throw new Error("Cantidad inválida.");
   }
 
-  const data = await resolveEconomyProfile({
-    userId,
-    userName: options.userName || "usuario",
-    createIfMissing: options.createIfMissing !== false,
-    registration: options.registration || {},
+  return withUserLock(userId, async () => {
+    const data = await resolveEconomyProfile({
+      userId,
+      userName: options.userName || "usuario",
+      createIfMissing: options.createIfMissing !== false,
+      registration: options.registration || {},
+    });
+
+    if (!data) {
+      throw new Error("El usuario no tiene perfil.");
+    }
+
+    data.profile.economy.money = safeAmount;
+    data.profile.updatedAt = new Date().toISOString();
+
+    await saveUserProfile({
+      folder: data.folder,
+      profile: data.profile,
+    });
+
+    return data.profile.economy.money;
   });
-
-  if (!data) {
-    throw new Error("El usuario no tiene perfil.");
-  }
-
-  data.profile.economy.money = safeAmount;
-  data.profile.updatedAt = new Date().toISOString();
-
-  await saveUserProfile({
-    folder: data.folder,
-    profile: data.profile,
-  });
-
-  return data.profile.economy.money;
 }
 
 async function transferMoney(
@@ -205,9 +226,23 @@ async function transferMoney(
     throw new Error("El usuario destino no tiene perfil.");
   }
 
+  const now = new Date().toISOString();
+
+  const { data: rpcResult, error: rpcError } = await supabase.rpc('transfer_money', {
+    from_phone: fromUserId,
+    to_phone: toUserId,
+    amount: safeAmount,
+  });
+
+  if (!rpcError && rpcResult?.success) {
+    invalidateUserCache(fromUserId);
+    invalidateUserCache(toUserId);
+    invalidateTopBalancesCache();
+    return true;
+  }
+
   const fromNewMoney = current - safeAmount;
   const toNewMoney = getMoneyValue(toData.profile) + safeAmount;
-  const now = new Date().toISOString();
 
   const { error: fromError } = await supabase
     .from("players")
@@ -229,7 +264,8 @@ async function transferMoney(
       .update({ money: current, last_active_at: now })
       .eq("phone", fromUserId);
     if (rollbackError) {
-      console.error("❌ CRITICAL: Rollback falló en transferMoney:", rollbackError.message);
+      logError({ source: 'economyService.transferMoney.rollback', error: new Error(rollbackError.message) });
+      throw new Error(`Rollback falló: ${rollbackError.message}`);
     }
     throw new Error(`Error actualizando destinatario: ${toError.message}`);
   }

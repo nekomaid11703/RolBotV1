@@ -1,4 +1,5 @@
-const fs = require('fs');
+const fs = require('fs/promises');
+const fsSync = require('fs');
 const path = require('path');
 
 const LORE_DIR = path.join(process.cwd(), 'ai-memory', 'world-lore');
@@ -9,8 +10,8 @@ let loreCacheTime = 0;
 
 function getLoreFiles() {
   try {
-    if (!fs.existsSync(LORE_DIR)) return [];
-    return fs.readdirSync(LORE_DIR)
+    if (!fsSync.existsSync(LORE_DIR)) return [];
+    return fsSync.readdirSync(LORE_DIR)
       .filter(f => f.endsWith('.md'))
       .sort();
   } catch { return []; }
@@ -18,7 +19,7 @@ function getLoreFiles() {
 
 function readLoreFile(filename) {
   try {
-    const content = fs.readFileSync(path.join(LORE_DIR, filename), 'utf8');
+    const content = fsSync.readFileSync(path.join(LORE_DIR, filename), 'utf8');
     return { filename, content, title: extractTitle(content, filename) };
   } catch { return null; }
 }

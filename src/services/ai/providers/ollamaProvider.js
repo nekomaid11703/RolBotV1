@@ -28,46 +28,44 @@ class OllamaProvider {
       body.system = systemInstruction;
     }
 
-    const response = await fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(body)
-    });
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000);
+    try {
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(body),
+        signal: controller.signal,
+      });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`Ollama API error (${response.status}): ${errorText}`);
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Ollama API error (${response.status}): ${errorText}`);
+      }
+
+      const data = await response.json();
+      return data.response.trim();
+    } catch (e) {
+      if (e.name === 'AbortError') throw new Error('Ollama API timeout after 30s');
+      throw e;
+    } finally {
+      clearTimeout(timeoutId);
     }
-
-    const data = await response.json();
-    return data.response.trim();
   }
 
   async classifyText({ text, candidateLabels, model }) {
     const selectedModel = model || DEFAULT_MODELS.ollama.classification;
-    const labelsStr = candidateLabels.join(", ");
-    
-    const prompt = `Clasifica el siguiente texto en una de estas categorías: [${labelsStr}].
-Responde ÚNICAMENTE con el nombre de la categoría elegida, en minúsculas y sin puntuación.
-
-Texto: "${text}"`;
-
+    const { buildClassificationPrompt, CLASSIFY_SYSTEM, parseClassificationResponse } = require('../../../utils/classifyUtils');
+    const prompt = buildClassificationPrompt(text, candidateLabels);
     const responseText = await this.generateText({
       prompt,
-      systemInstruction: "Eres un clasificador rápido de texto. Solo respondes con una palabra clave exacta de la lista sugerida.",
+      systemInstruction: CLASSIFY_SYSTEM,
       temperature: 0.1,
       model: selectedModel
     });
-
-    const cleanResponse = responseText.trim().toLowerCase();
-    const matchedLabel = candidateLabels.find(l => l.toLowerCase() === cleanResponse);
-
-    return {
-      intent: matchedLabel || candidateLabels[0],
-      confidence: matchedLabel ? 0.9 : 0.5
-    };
+    return parseClassificationResponse(responseText, candidateLabels);
   }
 }
 

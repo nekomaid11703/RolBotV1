@@ -67,8 +67,6 @@ function validateRaceClassCompatibility(raceId, classId) {
 }
 
 function reload() {
-  delete require.cache[require.resolve('../../data/races')];
-  delete require.cache[require.resolve('../../data/classes')];
   loaded = false;
   buildIndex();
 }

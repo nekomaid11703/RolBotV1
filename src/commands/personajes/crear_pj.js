@@ -75,7 +75,7 @@ module.exports = {
       
       const slots = {};
       if (historia) slots.historia = historia;
-      if (clase) slots.descripcion = `Clase: ${clase}`;
+      if (clase) slots.clase = clase;
 
       const character = await createCharacter({
         creatorId: ctx.sender,

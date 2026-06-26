@@ -9,7 +9,10 @@ const enemiesLib = require("../../services/rpg/enemies");
 const { addMoney } = require("../../services/economyService");
 const { updateCharacterStats } = require("../../services/characterService");
 const itemsData = require("../../services/rpg/items");
+const abilityLib = require("../../services/rpg/abilities");
+const duelService = require("../../services/rpg/duelService");
 const { formatError } = require("../../utils/messageFormatUtils");
+const { logSystem, logError } = require("../../services/loggerService");
 
 module.exports = {
   name: "rol",
@@ -65,6 +68,7 @@ module.exports = {
         const freeActionMsg = result.cartaBlancaTarget
           ? await handleFreeAction(room, result.cartaBlancaTarget)
           : '';
+        reduceTurnCooldowns(room);
         turnManager.advanceTurn(room);
         const nextTag = getNextTurnTag(room);
         return ctx.reply(`${result.mechanical}\n\n${result.narrative}${freeActionMsg}${nextTag}`);
@@ -94,17 +98,24 @@ module.exports = {
       return ctx.reply(`${result.mechanical || ''}\n\n${result.narrative || ''}`);
 
     } catch (error) {
-      console.error('rol error:', error);
+      logError({ source: 'rol', error: error instanceof Error ? error : new Error(String(error)) });
       return ctx.reply(`❌ ${error.message}`);
     }
   },
 };
+
+function reduceTurnCooldowns(room) {
+  for (const p of room.participants) {
+    if (p.cooldowns) abilityLib.reduceCooldowns(p);
+  }
+}
 
 function buildMessages(room, result) {
   const lines = [];
   if (result.mechanical) lines.push(result.mechanical);
   if (result.narrative) lines.push('', result.narrative);
 
+  reduceTurnCooldowns(room);
   const alive = turnManager.advanceTurn(room);
   if (!alive) {
     room.status = 'finished';
@@ -151,6 +162,7 @@ function buildMessages(room, result) {
 
   const next = turnManager.getCurrentParticipant(room);
   if (next) {
+    next.lastActionAt = Date.now();
     lines.push('', `► @${next.name} — Es tu turno!`);
   }
 
@@ -161,14 +173,29 @@ function processEnemyTurn(room, enemy) {
   const actionResult = combatEngine.autoResolveEnemyTurn(room);
   if (!actionResult) return null;
 
-  const narrative = combatNarrator.generateTemplateNarrative(actionResult);
+  if (!actionResult.context) actionResult.context = {};
+  if (!actionResult.context.location) actionResult.context.location = room.location || {};
+  actionResult.context.location.activeEffects = room.activeEffects;
+
+  let narrativeText;
+  let narrationType;
+  try {
+    const narrResult = combatNarrator.narrate(actionResult, { activeEffects: room.activeEffects });
+    narrativeText = narrResult.narrative;
+    narrationType = narrResult.narrationType || 'ai';
+  } catch {
+    narrativeText = combatNarrator.generateTemplateNarrative(actionResult);
+    narrationType = 'template';
+  }
+
   const mechanical = combatEngine.formatActionResult(actionResult);
 
-  combatLogger.logAction(room, combatLogger.mapActionResultToLogEntry(room, actionResult, narrative));
+  combatLogger.logAction(room, combatLogger.mapActionResultToLogEntry(room, actionResult, narrativeText));
 
   return {
     mechanical,
-    narrative,
+    narrative: narrativeText,
+    narrationType,
     ko: actionResult.result && actionResult.result.ko,
     actionResult,
   };
@@ -176,6 +203,31 @@ function processEnemyTurn(room, enemy) {
 
 async function handleVictory(room, ctx, result, victoria) {
   room.status = 'finished';
+
+  if (room.startedVia === 'pvp') {
+    if (victoria.winner === 'players') {
+      const alive = turnManager.getAliveParticipants(room, 'players');
+      const winner = alive.length > 0 ? alive[0] : null;
+      const loser = room.participants.find(p => p.team === 'players' && (!winner || p.id !== winner.id));
+      let rewardMsg = '';
+      if (winner) {
+        rewardMsg = await duelService.handlePvPVictory(room, winner.id, loser ? loser.id : '');
+      }
+      await combatLogger.logCombatEnd(room.id, {
+        winner: winner ? winner.id : 'players', rounds: room.round, totalTurns: room.turnCount,
+        participants: room.participants.map(p => p.name), duration: Date.now() - room.createdAt,
+      });
+      await stateManager.updateRoom(room.id, {});
+      return ctx.reply(`${result.mechanical || ''}\n\n${result.narrative}\n\n${victoria.message}${rewardMsg}`);
+    }
+    await combatLogger.logCombatEnd(room.id, {
+      winner: victoria.winner || 'enemies', rounds: room.round, totalTurns: room.turnCount,
+      participants: room.participants.map(p => p.name), duration: Date.now() - room.createdAt,
+    });
+    await stateManager.updateRoom(room.id, {});
+    return ctx.reply(`${result.mechanical || ''}\n\n${result.narrative}\n\n${victoria.message}`);
+  }
+
   if (victoria.winner === 'players') {
     const reward = combatEngine.generateReward(room);
     const enemyIds = room.participants.filter(p => p.team === 'enemies').map(p => p.id.replace(/^enemy:/, '').replace(/_\d+$/, ''));
@@ -205,6 +257,7 @@ function getNextTurnTag(room) {
   const next = turnManager.getCurrentParticipant(room);
   if (!next) return '';
   if (next.id.startsWith('enemy:')) return '';
+  next.lastActionAt = Date.now();
   return `\n► @${next.name} — Es tu turno!`;
 }
 

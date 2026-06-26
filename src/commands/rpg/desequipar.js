@@ -2,6 +2,7 @@ const { getActiveCharacter } = require("../../services/characterService");
 const invService = require("../../services/rpg/inventoryService");
 const itemsData = require("../../services/rpg/items");
 const { formatError } = require("../../utils/messageFormatUtils");
+const { logSystem, logError } = require("../../services/loggerService");
 
 const SLOTS = ['arma', 'cabeza', 'cuello', 'pecho', 'espalda', 'brazo_izq',
   'brazo_der', 'mano_izq', 'mano_der', 'pierna_izq', 'pierna_der',
@@ -49,7 +50,7 @@ module.exports = {
       return ctx.reply(`🔄 Desequipaste *${result.item.name}* (${slot.replace(/_/g, ' ')}). Vuelve a tu inventario.`);
 
     } catch (error) {
-      console.error('desequipar error:', error);
+      logError({ source: 'desequipar', error: error instanceof Error ? error : new Error(String(error)) });
       return ctx.reply(`❌ ${error.message}`);
     }
   },

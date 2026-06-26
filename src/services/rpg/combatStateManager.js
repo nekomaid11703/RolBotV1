@@ -1,23 +1,26 @@
 const crypto = require('crypto');
 const { supabase } = require('../../database/supabase');
 const { getEnemy } = require('./enemies');
+const { logSystem, logError } = require('../loggerService');
 
 const SESSION_ID = 'combat';
 const rooms = new Map();
 const groupIndex = new Map();
-let loaded = false;
+let lastLoadTime = 0;
+const LOAD_TTL = 60000;
 
 function uuid() {
   return 'cmb_' + crypto.randomBytes(6).toString('hex');
 }
 
-function makeBaseParticipant(jid, name, team, charStats = {}, equipped = {}, equipmentBonuses = {}) {
+function makeBaseParticipant(jid, name, team, charStats = {}, equipped = {}, equipmentBonuses = {}, bando = null) {
   const s = charStats;
   const b = equipmentBonuses || {};
   return {
     id: jid,
     name: name || jid.split('@')[0],
     team,
+    bando,
     hp: s.vida || 100,
     maxHp: s.vida || 100,
     fulgor: s.fulgor_max || 50,
@@ -42,6 +45,10 @@ function makeBaseParticipant(jid, name, team, charStats = {}, equipped = {}, equ
       brazo_izq: 10, brazo_der: 10, mano_izq: 5, mano_der: 5,
       pierna_izq: 12, pierna_der: 12, pie_izq: 5, pie_der: 5,
     },
+    cooldowns: {},
+    buffs: [],
+    defenseMultiplier: 1,
+    shielded: 0,
   };
 }
 
@@ -73,6 +80,10 @@ function makeEnemyParticipant(enemy, index) {
       brazo_izq: 8, brazo_der: 8, mano_izq: 4, mano_der: 4,
       pierna_izq: 10, pierna_der: 10, pie_izq: 4, pie_der: 4,
     },
+    cooldowns: {},
+    buffs: [],
+    defenseMultiplier: 1,
+    shielded: 0,
   };
 }
 
@@ -85,7 +96,7 @@ async function saveToSupabase(room) {
       data,
     });
   } catch (err) {
-    console.error('combatStateManager: error guardando sala', room.id, err.message);
+    logError({ source: 'combatStateManager', error: err });
   }
 }
 
@@ -93,7 +104,7 @@ async function deleteFromSupabase(combatId) {
   try {
     await supabase.from('bot_auth_state').delete().eq('session_id', SESSION_ID).eq('id', combatId);
   } catch (err) {
-    console.error('combatStateManager: error eliminando sala', combatId, err.message);
+    logError({ source: 'combatStateManager', error: err });
   }
 }
 
@@ -123,7 +134,8 @@ function deleteRoom(combatId) {
   rooms.delete(combatId);
 }
 
-function createRoom(groupId, participants, location = {}) {
+function createRoom(groupId, participants, options = {}) {
+  const location = options.location || {};
   const room = {
     id: uuid(),
     groupId,
@@ -142,7 +154,10 @@ function createRoom(groupId, participants, location = {}) {
       sceneVersion: location.sceneVersion || 1,
     },
     createdAt: Date.now(),
-    startedVia: location.startedVia || 'pve',
+    startedVia: options.startedVia || 'pve',
+    betAmount: options.betAmount || 0,
+    challengerId: options.challengerId || null,
+    targetId: options.targetId || null,
   };
 
   for (const p of participants) {
@@ -238,9 +253,10 @@ function getActiveRooms() {
   return result;
 }
 
-async function loadActiveCombats() {
-  if (loaded) return;
-  loaded = true;
+async function loadActiveCombats(force = false) {
+  const now = Date.now();
+  if (!force && now - lastLoadTime < LOAD_TTL) return;
+  lastLoadTime = now;
   try {
     const { data, error } = await supabase
       .from('bot_auth_state')
@@ -256,9 +272,9 @@ async function loadActiveCombats() {
         setRoom(room);
       }
     }
-    console.log(`combatStateManager: ${getActiveRooms().length} salas activas cargadas desde Supabase`);
+    logSystem(`combatStateManager: ${getActiveRooms().length} salas activas cargadas desde Supabase`);
   } catch (err) {
-    console.error('combatStateManager: error cargando combates activos', err.message);
+    logError({ source: 'combatStateManager', error: err });
   }
 }
 

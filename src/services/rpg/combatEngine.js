@@ -1,14 +1,12 @@
 const { RPG_CONFIG } = require('../../config/rpg.config');
+const { roll } = require('../../utils/roll');
 const turnManager = require('./combatTurnManager');
 const stateManager = require('./combatStateManager');
 const itemsData = require('./items');
 const invService = require('./inventoryService');
+const envEffects = require('./environmentalEffects');
 
 const CR = RPG_CONFIG.combatRoom;
-
-function roll(min, max) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
 
 function clamp(v, min, max) {
   return Math.max(min, Math.min(max, v));
@@ -56,8 +54,42 @@ function getArmorDataForZone(participant, targetZone) {
   return { defense: total, armorItem: bestArmor };
 }
 
-function getEffectiveStats(participant) {
-  return applyFatigueEffect(participant, participant.fatigue);
+function getEffectiveStats(participant, activeEffects) {
+  const base = {
+    fuerza: participant.fuerza || 5,
+    reflejos: participant.reflejos || 5,
+    velocidad_ataque: participant.velocidad_ataque || 5,
+    precision: participant.precision || 5,
+    velocidad_desplazamiento: participant.velocidad_desplazamiento || 5,
+    dominio_fulgor: participant.dominio_fulgor || 1,
+    resistencia_fisica: participant.resistencia_fisica || 5,
+    resistencia_magica: participant.resistencia_magica || 3,
+  };
+  let stats = applyFatigueEffect(base, participant.fatigue);
+  if (activeEffects && activeEffects.length > 0) {
+    const envRules = envEffects.getEffectiveRules(activeEffects);
+    for (const [stat, delta] of Object.entries(envRules)) {
+      if (stats[stat] !== undefined) {
+        stats[stat] = Math.max(1, stats[stat] + delta);
+      }
+    }
+  }
+  if (participant.buffs && participant.buffs.length > 0) {
+    for (const buff of participant.buffs) {
+      if (buff.type !== 'shield' && buff.stat && stats[buff.stat] !== undefined) {
+        stats[buff.stat] += buff.value || 0;
+      }
+    }
+  }
+  return stats;
+}
+
+function reduceBuffTimers(participant) {
+  if (!participant.buffs) return;
+  participant.buffs = participant.buffs.filter(b => {
+    b.duration--;
+    return b.duration > 0;
+  });
 }
 
 function calculateHitChance(attackerStats, defenderStats) {
@@ -69,8 +101,9 @@ function calculateHitChance(attackerStats, defenderStats) {
 }
 
 function calculateDamageFormula(attacker, defender, targetZone, options = {}) {
-  const aStats = getEffectiveStats(attacker);
-  const dStats = getEffectiveStats(defender);
+  const activeEffects = options.activeEffects;
+  const aStats = getEffectiveStats(attacker, activeEffects);
+  const dStats = getEffectiveStats(defender, activeEffects);
 
   let baseDamage = 0;
   let damageType = options.damageType || 'impacto';
@@ -84,14 +117,16 @@ function calculateDamageFormula(attacker, defender, targetZone, options = {}) {
   if (isMagical) {
     const dominio = aStats.dominio_fulgor || 1;
     const precision = aStats.precision || 5;
-    baseDamage = dominio * (precision / 5);
-    const cost = Math.round(baseDamage * 0.3);
-    attacker.fulgor = Math.max(0, (attacker.fulgor || 0) - cost);
+    baseDamage = dominio * (precision / CR.magicPrecisionDivisor);
+    const cost = Math.round(baseDamage * CR.magicFulgorCostRatio);
+    if (options.consumeFulgor !== false) {
+      attacker.fulgor = Math.max(0, (attacker.fulgor || 0) - cost);
+    }
   } else if (attackerItem && attackerItem.baseDamage) {
-    const fuerzaBonus = Math.round((aStats.fuerza || 5) * 0.3);
+    const fuerzaBonus = Math.round((aStats.fuerza || 5) * CR.fuerzaBonusRatio);
     baseDamage = attackerItem.baseDamage + fuerzaBonus;
   } else if (damageType === 'cortadura') {
-    baseDamage = (aStats.fuerza || 5) * 1.2;
+    baseDamage = (aStats.fuerza || 5) * CR.cortaduraMultiplier;
   } else {
     baseDamage = (aStats.fuerza || 5);
   }
@@ -125,6 +160,10 @@ function calculateDamageFormula(attacker, defender, targetZone, options = {}) {
 
   if (defender.defending) {
     damage *= 0.4;
+  }
+
+  if (defender.defenseMultiplier && defender.defenseMultiplier > 1) {
+    damage = Math.round(damage / defender.defenseMultiplier);
   }
 
   damage = Math.round(damage);
@@ -200,7 +239,7 @@ function applyFatigue(participant) {
 }
 
 function canIntercept(attackerVel, defenderReflejos) {
-  return defenderReflejos >= attackerVel * CR.interceptionSpeedRatio;
+  return (defenderReflejos || 0) >= (attackerVel || 0) * CR.interceptionSpeedRatio;
 }
 
 function canFlee(participantReflejos, enemyVelocidad) {
@@ -220,8 +259,9 @@ async function processAttack(room, attackerJid, targetJid, targetZone = 'pecho',
     return { error: `⛔ ${attacker.name} está aturdido y no puede atacar.` };
   }
 
-  const aStats = getEffectiveStats(attacker);
-  const dStats = getEffectiveStats(defender);
+  const activeEffects = room.activeEffects;
+  const aStats = getEffectiveStats(attacker, activeEffects);
+  const dStats = getEffectiveStats(defender, activeEffects);
   const moveNumber = options.moveNumber || 1;
   const isMagical = options.isMagical || false;
   const damageType = options.damageType || (isMagical ? 'magico' : 'impacto');
@@ -252,11 +292,25 @@ async function processAttack(room, attackerJid, targetJid, targetZone = 'pecho',
         isMagical,
         crit: hitResult.crit,
         attackerItem,
+        activeEffects,
       });
 
-      hitResult.damage = formulaResult.damage;
+      let finalDamage = formulaResult.damage;
 
-      const bodyResult = applyBodyPartDamage(defender, targetZone, hitResult.damage);
+      const shieldBuff = (defender.buffs || []).find(b => b.type === 'shield' && b.duration > 0);
+      if (shieldBuff && shieldBuff.value > 0) {
+        const absorbed = Math.min(shieldBuff.value, finalDamage);
+        shieldBuff.value -= absorbed;
+        finalDamage -= absorbed;
+        hitResult.shieldAbsorbed = absorbed;
+        if (shieldBuff.value <= 0) {
+          defender.buffs = defender.buffs.filter(b => b !== shieldBuff);
+        }
+      }
+
+      hitResult.damage = finalDamage;
+
+      const bodyResult = applyBodyPartDamage(defender, targetZone, finalDamage);
       hitResult.bodyPartResult = bodyResult;
       hitResult.ko = defender.ko;
 
@@ -290,6 +344,11 @@ async function processAttack(room, attackerJid, targetJid, targetZone = 'pecho',
   }
 
   attacker.defending = false;
+
+  reduceBuffTimers(attacker);
+  reduceBuffTimers(defender);
+  attacker.defenseMultiplier = 1;
+  defender.defenseMultiplier = 1;
 
   const fatigue = applyFatigue(attacker);
 
@@ -364,7 +423,7 @@ async function processFlee(room, participantJid) {
   if (p.ko) return { error: 'Estás K.O., no puedes huir.' };
 
   const enemies = turnManager.getAliveParticipants(room, 'enemies');
-  const fastestEnemy = enemies.sort((a, b) => b.velocidad_ataque - a.velocidad_ataque)[0];
+  const fastestEnemy = [...enemies].sort((a, b) => b.velocidad_ataque - a.velocidad_ataque)[0];
 
   let success = true;
   let fleeBlocked = false;
@@ -410,7 +469,7 @@ async function autoResolveEnemyTurn(room) {
   const targets = turnManager.getAliveParticipants(room, 'players');
   if (targets.length === 0) return null;
 
-  const target = targets.sort((a, b) => a.reflejos - b.reflejos)[0];
+  const target = [...targets].sort((a, b) => a.reflejos - b.reflejos)[0];
   const zones = ['cabeza', 'pecho', 'abdomen', 'brazo_izq', 'brazo_der', 'pierna_izq', 'pierna_der'];
   const zone = zones[Math.floor(Math.random() * zones.length)];
 
@@ -501,7 +560,9 @@ module.exports = {
   applyFatigue,
   applyFatigueEffect,
   getEffectiveStats,
+  reduceBuffTimers,
   applyBodyPartDamage,
+  getZoneMultiplier,
   canIntercept,
   canFlee,
   processAttack,

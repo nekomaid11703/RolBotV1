@@ -1,9 +1,10 @@
 const fs = require('fs');
 const path = require('path');
 const orchestrator = require('../ai/aiOrchestrator');
-const { getSceneForNarrative, invalidateScene, incrementSceneVersion, getSceneVersion } = require('./sceneCache');
+const { getSceneWithEffects, getSceneVersion, incrementEffectBurn } = require('./sceneCache');
 const { getContextualLore, getLoreByKeyword } = require('./worldLore');
-const { render } = require('./narrativePrompts/combat.templates');
+const { render, renderAbility } = require('./narrativePrompts/combat.templates');
+const envEffects = require('./environmentalEffects');
 
 const SYSTEM_PROMPT_PATH = path.join(__dirname, 'narrativePrompts', 'combat.system.md');
 const NARRATION_CACHE_TTL = 300000;
@@ -26,74 +27,81 @@ function reloadSystemPrompt() {
   return loadSystemPrompt();
 }
 
-function buildNarrativePrompt(actionResult) {
+function getNarrativeContext(actionResult) {
   const { action, result, context } = actionResult;
-
   const location = context.location || {};
   const sceneVersion = location.sceneVersion || getSceneVersion(location.locationId) || 1;
 
-  const scene = getSceneForNarrative(
+  const scene = getSceneWithEffects(
     location.locationId || 'default',
     location.zone || 'desconocido',
     location.region || 'desconocido',
-    sceneVersion
+    sceneVersion,
+    location.activeEffects || []
   );
 
   const lore = getContextualLore(
     location.region,
     location.zone,
     location.locationId,
-    600
+    500
   );
 
-  const sceneDesc = typeof scene === 'string' ? scene : (scene.description || 'El escenario se extiende ante ti.');
+  const sceneDesc = typeof scene === 'string' ? scene : (scene.description || 'El escenario se extiende ante ti. El combate es inminente.');
   const loreBlock = lore || 'No hay contexto de mundo disponible.';
 
+  return { sceneDesc, loreBlock, location };
+}
+
+function buildNarrativePrompt(actionResult) {
+  const { sceneDesc, loreBlock, location } = getNarrativeContext(actionResult);
+  const { action, result, context } = actionResult;
   const aliveCount = context.participants || 2;
 
-  const prompt = `Genera una narración de combate basada en este resultado:
-
-ENTORNO: ${sceneDesc}
-
-LORE DEL MUNDO:
-${loreBlock}
-
-COMBATE: Ronda ${context.round || 1}, Turno #${context.turnCount || 1}
-PARTICIPANTES VIVOS: ${aliveCount}
-
-ACCIÓN:
-- Actor: ${action.actor} (${context.attacker.name})
-- Tipo: ${action.type}
-- Intención: ${action.intent}
-- Zona objetivo: ${result.bodyPart || action.targetZone}
-- Tipo de daño: ${result.damageType || 'físico'}
-- Movimiento #${result.moveNumber || 1}
-
-RESULTADO:
-- Acierto: ${result.hit ? 'Sí' : 'No'}
-- Daño: ${result.damage || 0} (${result.crit ? 'CRÍTICO' : 'normal'})
-- Bloqueado: ${result.blocked ? 'Sí' : 'No'}
-- Interceptado: ${result.intercepted ? 'Sí' : 'No'}
-- KO: ${result.ko ? 'Sí' : 'No'}
-${result.bodyPartStatus ? `- Estado de zona: ${result.bodyPartStatus}` : ''}
-- Fatiga atacante: ${context.attacker.fatigue || 0}/10
-- Fatiga defensor: ${context.defender ? (context.defender.fatigue || 0) + '/10' : 'N/A'}
-
-Narra el resultado en 1-2 oraciones. Sé descriptivo pero preciso.`;
+  const prompt = 'Genera una narracion de combate basada en este resultado:\n\n'
+    + 'ENTORNO: ' + sceneDesc + '\n\n'
+    + 'LORE DEL MUNDO:\n' + loreBlock + '\n\n'
+    + 'COMBATE: Ronda ' + (context.round || 1) + ', Turno #' + (context.turnCount || 1) + '\n'
+    + 'PARTICIPANTES VIVOS: ' + aliveCount + '\n\n'
+    + 'ACCION:\n'
+    + '- Actor: ' + action.actor + ' (' + (context.attacker ? context.attacker.name : action.actor) + ')\n'
+    + '- Tipo: ' + action.type + '\n'
+    + '- Intencion: ' + action.intent + '\n'
+    + '- Zona objetivo: ' + (result.bodyPart || action.targetZone) + '\n'
+    + '- Tipo de dano: ' + (result.damageType || 'fisico') + '\n'
+    + '- Movimiento #' + (result.moveNumber || 1) + '\n\n'
+    + 'RESULTADO:\n'
+    + '- Acierto: ' + (result.hit ? 'Si' : 'No') + '\n'
+    + '- Dano: ' + (result.damage || 0) + (result.crit ? ' (CRITICO)' : '') + '\n'
+    + '- Bloqueado: ' + (result.blocked ? 'Si' : 'No') + '\n'
+    + '- Interceptado: ' + (result.intercepted ? 'Si' : 'No') + '\n'
+    + '- KO: ' + (result.ko ? 'Si' : 'No') + '\n'
+    + (result.bodyPartStatus ? '- Estado de zona: ' + result.bodyPartStatus + '\n' : '')
+    + '- Fatiga atacante: ' + (context.attacker ? context.attacker.fatigue || 0 : 0) + '/10\n'
+    + (context.defender ? '- Fatiga defensor: ' + (context.defender.fatigue || 0) + '/10\n' : '');
 
   return prompt;
 }
 
-function determineTone(actionResult) {
+function determineTone(actionResult, extra = {}) {
   const { result, context } = actionResult;
+  const { abilityId, shieldAbsorbed, activeEffects } = extra;
 
   if (result.ko) return 'epic';
   if (result.crit) return 'epic';
   if (result.bodyPartStatus === 'amputated') return 'graphic';
   if (result.bodyPartStatus === 'useless') return 'graphic';
-  if ((context.attacker.fatigue || 0) >= 3 || (context.defender && context.defender.fatigue >= 3)) return 'dramatic';
+  if (abilityId === 'golpe_de_gracia') return 'epic';
+  if (abilityId === 'racha_de_golpes') return 'dynamic';
+  if (abilityId === 'defensa_total') return 'dramatic';
+  if ((context.attacker && context.attacker.fatigue >= 3) || (context.defender && context.defender.fatigue >= 3)) return 'dramatic';
   if ((result.moveNumber || 1) > 5) return 'dynamic';
   if (context.isBoss) return 'epic';
+
+  if (activeEffects && activeEffects.length > 0) {
+    const hazardEffects = activeEffects.filter(e => envEffects.getDamagePerTurn(e) > 0);
+    if (hazardEffects.length > 0) return 'grim';
+  }
 
   const location = context.location || {};
   const nsfwZones = ['burdel', 'carcel', 'prision', 'mazmorra', 'fosa', 'gueto', 'templo oscuro'];
@@ -103,27 +111,80 @@ function determineTone(actionResult) {
   return 'agile';
 }
 
-async function narrate(actionResult) {
+function generateTemplateNarrative(actionResult, extra = {}) {
+  const { action, result, context } = actionResult;
+  const { abilityId } = extra;
+  const location = context.location || {};
+  const zoneName = location.zone || '';
+  const attacker = context.attacker ? context.attacker.name : 'Alguien';
+  const defender = context.defender ? context.defender.name : 'nadie';
+
+  if (abilityId) {
+    const targets = defender !== 'nadie' ? defender : 'los enemigos';
+    const zone = result.bodyPart || action.targetZone || 'el cuerpo';
+    return renderAbility(abilityId, attacker, targets, zone);
+  }
+
+  if (result.shieldAbsorbed) {
+    return render('shield_absorb', defender, result.shieldAbsorbed);
+  }
+
+  if (action.type === 'attack' && result.hit && result.ko) {
+    return render('ko_critical', defender, result.bodyPart);
+  }
+  if (action.type === 'attack' && result.hit && result.crit) {
+    return render('attack_crit', attacker, defender, result.bodyPart, zoneName);
+  }
+  if (action.type === 'attack' && result.hit) {
+    return render('attack_hit', attacker, defender, result.bodyPart, zoneName);
+  }
+  if (action.type === 'attack' && !result.hit) {
+    return result.intercepted ? render('intercepted', attacker, defender) : render('attack_miss', attacker, defender, zoneName);
+  }
+  if (action.type === 'defend') {
+    return render('defend', attacker, zoneName);
+  }
+  if (action.type === 'flee') {
+    return result.hit ? render('flee_success', attacker, zoneName) : render('flee_fail', attacker, zoneName);
+  }
+
+  return attacker + ' realiza una accion.';
+}
+
+async function narrate(actionResult, extra = {}) {
   const systemInstruction = loadSystemPrompt();
-  const prompt = buildNarrativePrompt(actionResult);
-  const tone = determineTone(actionResult);
+  let prompt = buildNarrativePrompt(actionResult);
+  const tone = determineTone(actionResult, extra);
 
   const location = actionResult.context.location || {};
   if (location.locationId) {
-    incrementSceneVersion(location.locationId);
+    const sceneVersion = getSceneVersion(location.locationId);
+    try {
+      const scene = getSceneWithEffects(
+        location.locationId || 'default',
+        location.zone || 'desconocido',
+        location.region || 'desconocido',
+        sceneVersion || 1,
+        location.activeEffects || []
+      );
+      if (scene && scene.description) {
+        prompt = prompt.replace('ENTORNO: ', scene.description);
+      }
+    } catch {}
   }
 
   const temperature = tone === 'epic' ? 0.8 : tone === 'graphic' ? 0.75 : tone === 'dramatic' ? 0.7 : tone === 'grim' ? 0.75 : 0.6;
 
   const providerPreference = 'deepseek';
-  const cacheKey = `narration:${JSON.stringify({
+  const cacheKey = 'narration:' + JSON.stringify({
     hit: actionResult.result.hit,
     damage: actionResult.result.damage,
     bodyPart: actionResult.result.bodyPart,
     crit: actionResult.result.crit,
     blocked: actionResult.result.blocked,
     ko: actionResult.result.ko,
-  })}`;
+    abilityId: extra.abilityId || null,
+  });
 
   try {
     const narrative = await orchestrator.generateText({
@@ -135,54 +196,40 @@ async function narrate(actionResult) {
     });
 
     return {
-      narrative: narrative.trim(),
+      narrative: (narrative || '').trim(),
       narrationType: 'ai',
       tone,
       warning: null,
       infractions: [],
     };
   } catch (err) {
-    const templateNarrative = generateTemplateNarrative(actionResult);
+    const templateNarrative = generateTemplateNarrative(actionResult, extra);
     return {
       narrative: templateNarrative,
       narrationType: 'template',
       tone: 'template',
-      warning: `Narrador IA no disponible: ${err.message}`,
+      warning: 'Narrador IA no disponible: ' + err.message,
       infractions: [],
     };
   }
 }
 
-function generateTemplateNarrative(actionResult) {
-  const { action, result, context } = actionResult;
-  const isPlayerAttacker = action.actor === 'player' || action.actor === context.attacker.name || true;
-  const attacker = context.attacker ? context.attacker.name : 'Alguien';
-  const defender = context.defender ? context.defender.name : 'nadie';
-
-  if (action.type === 'attack' && result.hit && result.ko) {
-    return render('ko_critical', defender, result.bodyPart);
-  }
-  if (action.type === 'attack' && result.hit && result.crit) {
-    return render('attack_crit', attacker, defender, result.bodyPart);
-  }
-  if (action.type === 'attack' && result.hit) {
-    return render('attack_hit', attacker, defender, result.bodyPart);
-  }
-  if (action.type === 'attack' && !result.hit) {
-    return result.intercepted ? render('intercepted', attacker, defender) : render('attack_miss', attacker, defender);
-  }
-  if (action.type === 'defend') {
-    return render('defend', attacker);
-  }
-  if (action.type === 'flee') {
-    return result.hit ? render('flee_success', attacker) : render('flee_fail', attacker);
-  }
-
-  return `${attacker} realiza una acción.`;
+function invalidateSceneNarrative(locationId) {
+  const { invalidateScene } = require('./sceneCache');
+  invalidateScene(locationId);
 }
 
-function invalidateSceneNarrative(locationId) {
-  invalidateScene(locationId);
+function getToneLabel(tone) {
+  const labels = {
+    epic: 'Epico',
+    graphic: 'Grafico',
+    dramatic: 'Dramatico',
+    dynamic: 'Dinamico',
+    grim: 'Sombrrio',
+    agile: 'Agil',
+    template: 'Plantilla',
+  };
+  return labels[tone] || 'Neutral';
 }
 
 module.exports = {
@@ -193,4 +240,6 @@ module.exports = {
   loadSystemPrompt,
   reloadSystemPrompt,
   invalidateSceneNarrative,
+  getNarrativeContext,
+  getToneLabel,
 };

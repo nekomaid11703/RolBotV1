@@ -9,6 +9,7 @@
  */
 
 const { DEFAULT_MODELS } = require("../aiConfig");
+const { logSystem, logError } = require('../../loggerService');
 
 // Modelos Gemini a intentar en orden si el modelo principal falla por sobrecarga
 const GEMINI_FALLBACK_MODELS = [
@@ -31,12 +32,16 @@ class GeminiProvider {
    * Lanza error si la respuesta no es exitosa.
    */
   async _callAPI(model, body) {
-    const url = `${this.baseUrl}/models/${model}:generateContent?key=${this.apiKey}`;
-    const response = await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    });
+    const url = `${this.baseUrl}/models/${model}:generateContent`;
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000);
+    try {
+      const response = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-goog-api-key": this.apiKey },
+        body: JSON.stringify(body),
+        signal: controller.signal,
+      });
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
@@ -48,10 +53,12 @@ class GeminiProvider {
     }
 
     const data = await response.json();
-    try {
-      return data.candidates[0].content.parts[0].text;
+    return data.candidates[0].content.parts[0].text;
     } catch (e) {
-      throw new Error("Respuesta inválida de Gemini: " + JSON.stringify(data));
+      if (e.name === 'AbortError') throw new Error('Gemini API timeout after 30s');
+      throw new Error(`Respuesta inválida de Gemini: ${e.message}`);
+    } finally {
+      clearTimeout(timeoutId);
     }
   }
 
@@ -87,7 +94,7 @@ class GeminiProvider {
         const text = await this._callAPI(m, body);
         // Si no era el modelo primario, logueamos el fallback
         if (m !== primaryModel) {
-          console.warn(`⚠️ [Gemini] Usando modelo de fallback: ${m} (${primaryModel} no disponible)`);
+          logSystem(`WARN: ⚠️ [Gemini] Usando modelo de fallback: ${m} (${primaryModel} no disponible)`);
         }
         return text;
       } catch (err) {
@@ -109,30 +116,15 @@ class GeminiProvider {
    */
   async classifyText({ text, candidateLabels, model }) {
     const selectedModel = model || DEFAULT_MODELS.gemini.classification;
-    const labelsStr = candidateLabels.join(", ");
-
-    const prompt = `Clasifica el siguiente texto de un jugador en una de estas categorías: [${labelsStr}].
-Responde ÚNICAMENTE con el nombre de la categoría elegida, en minúsculas y sin puntuación ni texto adicional.
-
-Texto del jugador: "${text}"`;
-
+    const { buildClassificationPrompt, CLASSIFY_SYSTEM, parseClassificationResponse } = require('../../../utils/classifyUtils');
+    const prompt = buildClassificationPrompt(text, candidateLabels);
     const responseText = await this.generateText({
       prompt,
-      systemInstruction:
-        "Eres un clasificador de intenciones preciso para un bot de RPG. Solo respondes con una palabra clave exacta.",
+      systemInstruction: CLASSIFY_SYSTEM,
       temperature: 0.1,
       model: selectedModel,
     });
-
-    const cleanResponse = responseText.trim().toLowerCase();
-    const matchedLabel = candidateLabels.find(
-      (l) => l.toLowerCase() === cleanResponse
-    );
-
-    return {
-      intent: matchedLabel || candidateLabels[0],
-      confidence: matchedLabel ? 0.95 : 0.5,
-    };
+    return parseClassificationResponse(responseText, candidateLabels);
   }
 
   /**
@@ -140,8 +132,10 @@ Texto del jugador: "${text}"`;
    * Útil para diagnósticos.
    */
   async listAvailableModels() {
-    const url = `${this.baseUrl}/models?key=${this.apiKey}`;
-    const res = await fetch(url);
+    const url = `${this.baseUrl}/models`;
+    const res = await fetch(url, {
+      headers: { "x-goog-api-key": this.apiKey },
+    });
     const data = await res.json();
     if (!res.ok) throw new Error(`Error listando modelos: ${data?.error?.message}`);
     return (data.models || [])

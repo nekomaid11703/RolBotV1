@@ -1,5 +1,6 @@
 const { BufferJSON, initAuthCreds } = require('@whiskeysockets/baileys');
 const { supabase } = require('../database/supabase');
+const { logSystem, logError } = require('../services/loggerService');
 
 const TABLE_NAME = 'bot_auth_state';
 
@@ -80,7 +81,7 @@ async function useSupabaseAuthState(sessionId = 'default') {
                             await supabase.from(TABLE_NAME).delete().eq('session_id', sessionId).in('id', deleteData);
                         }
                     } catch (err) {
-                        console.error('Error guardando llaves en Supabase:', err);
+                        logError({ source: 'supabaseAuthState', error: err instanceof Error ? err : new Error(String(err)) });
                     }
                 }
             }

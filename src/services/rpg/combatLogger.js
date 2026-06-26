@@ -1,4 +1,5 @@
 const { supabase } = require('../../database/supabase');
+const { logSystem, logError } = require('../loggerService');
 
 const SESSION_ID = 'combat_log';
 
@@ -33,7 +34,7 @@ async function logAction(roomId, entry) {
       data,
     });
   } catch (err) {
-    console.error('combatLogger: error registrando acción', err.message);
+    logError({ source: 'combatLogger', error: err });
   }
 }
 
@@ -57,7 +58,7 @@ async function logCombatEnd(roomId, result) {
       data,
     });
   } catch (err) {
-    console.error('combatLogger: error registrando fin de combate', err.message);
+    logError({ source: 'combatLogger', error: err });
   }
 }
 
@@ -120,7 +121,7 @@ async function getCombatLog(roomId, limit = 20) {
     if (!data) return [];
     return data.map(r => r.data);
   } catch (err) {
-    console.error('combatLogger: error leyendo log', err.message);
+    logError({ source: 'combatLogger', error: err });
     return [];
   }
 }
@@ -139,7 +140,7 @@ async function getCombatsByParticipant(participantId, limit = 10) {
     if (!data) return [];
     return [...new Set(data.map(r => r.data?.roomId).filter(Boolean))];
   } catch (err) {
-    console.error('combatLogger: error buscando combates', err.message);
+    logError({ source: 'combatLogger', error: err });
     return [];
   }
 }

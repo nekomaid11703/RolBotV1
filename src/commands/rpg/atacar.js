@@ -4,6 +4,7 @@ const turnManager = require("../../services/rpg/combatTurnManager");
 const { getAllEnemies } = require("../../services/rpg/enemies");
 const invService = require("../../services/rpg/inventoryService");
 const { formatError } = require("../../utils/messageFormatUtils");
+const { logSystem, logError } = require("../../services/loggerService");
 
 module.exports = {
   name: "atacar",
@@ -70,7 +71,7 @@ module.exports = {
       return ctx.reply(turnManager.formatStatus(newRoom));
 
     } catch (error) {
-      console.error('atacar error:', error);
+      logError({ source: 'atacar', error: error instanceof Error ? error : new Error(String(error)) });
       return ctx.reply(`❌ ${error.message}`);
     }
   },
