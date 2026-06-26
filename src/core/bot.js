@@ -53,8 +53,10 @@ process.on('unhandledRejection', async (reason) => {
 });
 
 async function forceNewSession() {
-  const { supabase } = require('../database/supabase');
-  await supabase.from(SUPABASE_TABLE).delete().eq('session_id', 'bot-session-1');
+  try {
+    const { supabase } = require('../database/supabase');
+    await supabase.from(SUPABASE_TABLE).delete().eq('session_id', 'bot-session-1');
+  } catch {}
 }
 
 function cleanupSock() {
