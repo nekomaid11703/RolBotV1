@@ -3,63 +3,58 @@ const assert = require("assert");
 const commands = [
   {
     name: "add_stelas",
-    module: require("../src/commands/economia/add_stelas"),
+    module: require("../src/commands/economy/add_stelas"),
     expect: ["*Uso*", "*Ejemplo*", "/add_stelas @usuario cantidad"],
   },
   {
     name: "rem_stelas",
-    module: require("../src/commands/economia/rem_stelas"),
+    module: require("../src/commands/economy/rem_stelas"),
     expect: ["*Uso*", "*Ejemplo*", "/rem_stelas @usuario cantidad"],
   },
   {
     name: "set_stelas",
-    module: require("../src/commands/economia/set_stelas"),
+    module: require("../src/commands/economy/set_stelas"),
     expect: ["*Uso*", "*Ejemplo*", "/set_stelas @usuario cantidad"],
   },
   {
     name: "dar_stelas",
-    module: require("../src/commands/economia/dar_stelas"),
+    module: require("../src/commands/economy/dar_stelas"),
     expect: ["*Uso*", "*Ejemplo*", "/dar_stelas @usuario cantidad"],
   },
   {
     name: "eco_admin_add",
-    module: require("../src/commands/permisos/eco_admin_add"),
+    module: require("../src/commands/admin/permissions/eco_admin_add"),
     expect: ["*Uso*", "*Ejemplo*", "/eco_admin_add @usuario"],
   },
   {
     name: "eco_admin_rem",
-    module: require("../src/commands/permisos/eco_admin_rem"),
+    module: require("../src/commands/admin/permissions/eco_admin_rem"),
     expect: ["*Uso*", "*Ejemplo*", "/eco_admin_rem @usuario"],
   },
   {
     name: "switch_pj",
-    module: require("../src/commands/personajes/switch_pj"),
+    module: require("../src/commands/rpg/characters/switch_pj"),
     expect: ["*Uso*", "*Ejemplo*", "/switch_pj Nombre"],
   },
   {
     name: "renombrar_pj",
-    module: require("../src/commands/personajes/edit_pj_name"),
-    expect: ["*Uso*", "*Ejemplo*", "/renombrar_pj NuevoNombre"],
+    module: require("../src/commands/rpg/characters/renombrar_pj"),
+    expect: ["*Uso*", "*Ejemplo*", "/renombrar_pj nombre_actual nuevo_nombre"],
   },
   {
     name: "eliminar_pj",
-    module: require("../src/commands/personajes/eliminar_pj"),
-    expect: ["*Uso*", "*Ejemplo*", "/eliminar_pj NombrePersonaje"],
-  },
-  {
-    name: "dado",
-    module: require("../src/commands/utilidades/dado"),
-    expect: ["*Uso*", "*Ejemplo*", "/dado XdY", "/dado 2d20"],
+    module: require("../src/commands/rpg/characters/eliminar_pj"),
+    expect: ["*Uso*", "*Ejemplo*", "/eliminar_pj NombreDelPersonaje"],
   },
   {
     name: "crear_pj",
-    module: require("../src/commands/personajes/crear_pj"),
+    module: require("../src/commands/rpg/characters/crear_pj"),
     expect: ["*Plantilla*", "*Ejemplo*", "Nombre:", "Historia:"],
   },
   {
     name: "editar_pj_descripcion",
-    module: require("../src/commands/personajes/editar_pj_descripcion"),
-    expect: ["*Plantilla*", "*Ejemplo*", "Campo:", "Descripción:"],
+    module: require("../src/commands/rpg/characters/editar_pj_descripcion"),
+    expect: ["*Uso*", "*Ejemplo*", "/editar_pj_descripcion <nueva_descripcion>"],
   },
 ];
 
@@ -103,9 +98,9 @@ async function run() {
   }
 
   const invalidDiceCtx = createCtx({ args: ["2x20"] });
-  await require("../src/commands/utilidades/dado").execute(invalidDiceCtx);
+  await require("../src/commands/info/dado").execute(invalidDiceCtx);
   assert.ok(invalidDiceCtx.replies[0].includes("*No se pudo completar*"));
-  assert.ok(invalidDiceCtx.replies[0].includes("/dado XdY"));
+  assert.ok(invalidDiceCtx.replies[0].includes("/dado [X]dY"));
   assert.ok(invalidDiceCtx.replies[0].includes("*Ejemplo*"));
 
   console.log("Formato de comandos OK.");

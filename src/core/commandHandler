@@ -101,6 +101,21 @@ function registerCommand(command, fileName) {
   }
 }
 
+function getJsFilesRecursively(dir) {
+  let results = [];
+  const list = fs.readdirSync(dir);
+  for (const file of list) {
+    const filePath = path.join(dir, file);
+    const stat = fs.statSync(filePath);
+    if (stat && stat.isDirectory()) {
+      results = results.concat(getJsFilesRecursively(filePath));
+    } else if (file.endsWith(".js")) {
+      results.push(filePath);
+    }
+  }
+  return results;
+}
+
 function loadCommands() {
   const commandsPath = path.join(__dirname, "../commands");
 
@@ -110,33 +125,20 @@ function loadCommands() {
   let commandCount = 0;
   let aliasCount = 0;
 
-  const folders = fs.readdirSync(commandsPath);
+  const files = getJsFilesRecursively(commandsPath);
 
-  for (const folder of folders) {
-    const folderPath = path.join(commandsPath, folder);
+  for (const filePath of files) {
+    const file = path.basename(filePath);
 
-    if (!fs.statSync(folderPath).isDirectory()) {
-      continue;
-    }
+    delete require.cache[require.resolve(filePath)];
 
-    const files = fs
-      .readdirSync(folderPath)
-      .filter((file) => file.endsWith(".js"));
+    const command = require(filePath);
 
-    for (const file of files) {
-      const filePath = path.join(folderPath, file);
+    registerCommand(command, file);
+    commandCount++;
 
-      delete require.cache[require.resolve(filePath)];
-
-      const command = require(filePath);
-
-      registerCommand(command, file);
-      commandCount++;
-
-      if (Array.isArray(command.aliases)) {
-        aliasCount += command.aliases.length;
-      }
-
+    if (Array.isArray(command.aliases)) {
+      aliasCount += command.aliases.length;
     }
   }
 
