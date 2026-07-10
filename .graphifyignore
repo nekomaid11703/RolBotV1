@@ -1,0 +1,11 @@
+node_modules/
+.git/
+.agents/
+.vscode/
+.opencode/
+.roo/
+logs/
+bugs/
+*.zip
+*.log
+graphify-out/
