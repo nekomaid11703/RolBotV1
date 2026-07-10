@@ -5,22 +5,63 @@ const { logSystem, logError } = require('../services/loggerService');
 const TABLE_NAME = 'bot_auth_state';
 
 async function useSupabaseAuthState(sessionId = 'default') {
-    let supabaseAvailable = true;
+    let consecutiveFailures = 0;
+    let circuitOpen = false;
+    let nextAttemptTime = 0;
+    const COOLDOWN_MS = 30000; // 30 segundos de cooldown
+    const MAX_FAILURES = 3;
+
+    const checkCircuit = () => {
+        if (circuitOpen) {
+            if (Date.now() > nextAttemptTime) {
+                // Semi-abierto: permitir un intento de prueba
+                return true;
+            }
+            return false;
+        }
+        return true;
+    };
+
+    const recordSuccess = () => {
+        consecutiveFailures = 0;
+        circuitOpen = false;
+    };
+
+    const recordFailure = (err) => {
+        consecutiveFailures++;
+        if (consecutiveFailures >= MAX_FAILURES) {
+            if (!circuitOpen) {
+                circuitOpen = true;
+                nextAttemptTime = Date.now() + COOLDOWN_MS;
+                logError({
+                    source: "supabaseAuthState.circuitBreaker",
+                    error: new Error(`Circuito abierto para Supabase. Conexión suspendida temporalmente por ${COOLDOWN_MS / 1000}s. Detalle: ${err.message || err}`)
+                }).catch(() => {});
+            }
+        }
+    };
 
     const writeData = async (data, id) => {
-        if (!supabaseAvailable) return;
+        if (!checkCircuit()) return;
         try {
             const json = JSON.parse(JSON.stringify(data, BufferJSON.replacer));
-            await supabase
+            const { error } = await supabase
                 .from(TABLE_NAME)
                 .upsert({ session_id: sessionId, id, data: json });
+            
+            if (error) throw error;
+            recordSuccess();
         } catch (err) {
-            supabaseAvailable = false;
+            recordFailure(err);
+            await logError({
+                source: `supabaseAuthState.writeData:${id}`,
+                error: err
+            });
         }
     };
 
     const readData = async (id) => {
-        if (!supabaseAvailable) return null;
+        if (!checkCircuit()) return null;
         try {
             const { data, error } = await supabase
                 .from(TABLE_NAME)
@@ -29,24 +70,45 @@ async function useSupabaseAuthState(sessionId = 'default') {
                 .eq('id', id)
                 .single();
 
-            if (error || !data) return null;
+            if (error) {
+                if (error.code === 'PGRST116') {
+                    // Fila no encontrada, es normal al iniciar credenciales limpias
+                    recordSuccess();
+                    return null;
+                }
+                throw error;
+            }
+            if (!data) return null;
+            
+            recordSuccess();
             return JSON.parse(JSON.stringify(data.data), BufferJSON.reviver);
         } catch (err) {
-            supabaseAvailable = false;
+            recordFailure(err);
+            await logError({
+                source: `supabaseAuthState.readData:${id}`,
+                error: err
+            });
             return null;
         }
     };
 
     const removeData = async (id) => {
-        if (!supabaseAvailable) return;
+        if (!checkCircuit()) return;
         try {
-            await supabase
+            const { error } = await supabase
                 .from(TABLE_NAME)
                 .delete()
                 .eq('session_id', sessionId)
                 .eq('id', id);
+            
+            if (error) throw error;
+            recordSuccess();
         } catch (err) {
-            supabaseAvailable = false;
+            recordFailure(err);
+            await logError({
+                source: `supabaseAuthState.removeData:${id}`,
+                error: err
+            });
         }
     };
 
@@ -75,7 +137,7 @@ async function useSupabaseAuthState(sessionId = 'default') {
                     return data;
                 },
                 set: async (data) => {
-                    if (!supabaseAvailable) return;
+                    if (!checkCircuit()) return;
                     const upsertData = [];
                     const deleteData = [];
                     for (const category in data) {
@@ -93,13 +155,20 @@ async function useSupabaseAuthState(sessionId = 'default') {
                     
                     try {
                         if (upsertData.length > 0) {
-                            await supabase.from(TABLE_NAME).upsert(upsertData);
+                            const { error: upsertError } = await supabase.from(TABLE_NAME).upsert(upsertData);
+                            if (upsertError) throw upsertError;
                         }
                         if (deleteData.length > 0) {
-                            await supabase.from(TABLE_NAME).delete().eq('session_id', sessionId).in('id', deleteData);
+                            const { error: deleteError } = await supabase.from(TABLE_NAME).delete().eq('session_id', sessionId).in('id', deleteData);
+                            if (deleteError) throw deleteError;
                         }
+                        recordSuccess();
                     } catch (err) {
-                        supabaseAvailable = false;
+                        recordFailure(err);
+                        await logError({
+                            source: "supabaseAuthState.keys.set",
+                            error: err
+                        });
                     }
                 }
             }
