@@ -1,9 +1,5 @@
-// @ts-nocheck
 const { removeParticipant } = require("../../../utils/groupUtils");
-const { getFirstMentionedJid } = require("../../../utils/commandParseUtils");
-const { formatDisplayMention, withMentions } = require("../../../utils/userMentionUtils");
-const { resolveTargetDisplayName } = require("../../../services/displayNameService");
-const { formatError, box } = require("../../../utils/messageFormatUtils");
+const { executeGroupAction } = require("./_groupAdminHelper");
 
 module.exports = {
   name: "ban",
@@ -14,24 +10,10 @@ module.exports = {
   adminOnly: true,
 
   async execute(ctx) {
-    const targetId = getFirstMentionedJid(ctx);
-
-    if (!targetId) {
-      return ctx.reply("❌ Debes mencionar al usuario que deseas expulsar.\n\nUso: /ban @usuario");
-    }
-
-    try {
-      const targetName = await resolveTargetDisplayName(ctx, targetId);
-      const result = await removeParticipant(ctx.sock, ctx.from, targetId);
-
-      await ctx.reply(
-        withMentions(
-          box("🚫 Usuario expulsado", ["", `👤  ${formatDisplayMention(targetId, targetName)}`, "", result]),
-          [targetId],
-        ),
-      );
-    } catch (error) {
-      await ctx.reply(formatError(error.message));
-    }
+    await executeGroupAction(ctx, {
+      serviceFn: removeParticipant,
+      usageMessage: "❌ Debes mencionar al usuario que deseas expulsar.\n\nUso: /ban @usuario",
+      boxTitle: "🚫 Usuario expulsado",
+    });
   },
 };

@@ -1,9 +1,5 @@
-// @ts-nocheck
 const { promoteToAdmin } = require("../../../utils/groupUtils");
-const { getFirstMentionedJid } = require("../../../utils/commandParseUtils");
-const { formatDisplayMention, withMentions } = require("../../../utils/userMentionUtils");
-const { resolveTargetDisplayName } = require("../../../services/displayNameService");
-const { formatError, box } = require("../../../utils/messageFormatUtils");
+const { executeGroupAction } = require("./_groupAdminHelper");
 
 module.exports = {
   name: "promote",
@@ -14,29 +10,11 @@ module.exports = {
   adminOnly: true,
 
   async execute(ctx) {
-    const targetId = getFirstMentionedJid(ctx);
-
-    if (!targetId) {
-      return ctx.reply("❌ Debes mencionar al usuario que deseas promover.\n\nUso: /promote @usuario");
-    }
-
-    try {
-      const targetName = await resolveTargetDisplayName(ctx, targetId);
-      await promoteToAdmin(ctx.sock, ctx.from, targetId);
-
-      await ctx.reply(
-        withMentions(
-          box("⭐ Admin promovido", [
-            "",
-            `👤  ${formatDisplayMention(targetId, targetName)}`,
-            "",
-            "Ahora es administrador del grupo.",
-          ]),
-          [targetId],
-        ),
-      );
-    } catch (error) {
-      await ctx.reply(formatError(error.message));
-    }
+    await executeGroupAction(ctx, {
+      serviceFn: promoteToAdmin,
+      usageMessage: "❌ Debes mencionar al usuario que deseas promover.\n\nUso: /promote @usuario",
+      boxTitle: "⭐ Admin promovido",
+      boxMessage: "Ahora es administrador del grupo.",
+    });
   },
 };

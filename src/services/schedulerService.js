@@ -2,8 +2,6 @@
 const { midnightReview } = require("../../scripts/midnight_review");
 const { logError } = require("./loggerService");
 
-let midnightTimer = null;
-
 function startMidnightReview(sock) {
   scheduleNext(sock);
 }
@@ -20,7 +18,7 @@ function scheduleNext(sock) {
     return;
   }
 
-  midnightTimer = setTimeout(async () => {
+  setTimeout(async () => {
     try {
       await midnightReview(sock);
     } catch (err) {

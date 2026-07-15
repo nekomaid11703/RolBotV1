@@ -1,9 +1,5 @@
-// @ts-nocheck
 const { demoteFromAdmin } = require("../../../utils/groupUtils");
-const { getFirstMentionedJid } = require("../../../utils/commandParseUtils");
-const { formatDisplayMention, withMentions } = require("../../../utils/userMentionUtils");
-const { resolveTargetDisplayName } = require("../../../services/displayNameService");
-const { formatError, box } = require("../../../utils/messageFormatUtils");
+const { executeGroupAction } = require("./_groupAdminHelper");
 
 module.exports = {
   name: "demote",
@@ -14,29 +10,11 @@ module.exports = {
   adminOnly: true,
 
   async execute(ctx) {
-    const targetId = getFirstMentionedJid(ctx);
-
-    if (!targetId) {
-      return ctx.reply("❌ Debes mencionar al administrador que deseas degradar.\n\nUso: /demote @usuario");
-    }
-
-    try {
-      const targetName = await resolveTargetDisplayName(ctx, targetId);
-      await demoteFromAdmin(ctx.sock, ctx.from, targetId);
-
-      await ctx.reply(
-        withMentions(
-          box("⬇️ Admin degradado", [
-            "",
-            `👤  ${formatDisplayMention(targetId, targetName)}`,
-            "",
-            "Ya no es administrador del grupo.",
-          ]),
-          [targetId],
-        ),
-      );
-    } catch (error) {
-      await ctx.reply(formatError(error.message));
-    }
+    await executeGroupAction(ctx, {
+      serviceFn: demoteFromAdmin,
+      usageMessage: "❌ Debes mencionar al administrador que deseas degradar.\n\nUso: /demote @usuario",
+      boxTitle: "⬇️ Admin degradado",
+      boxMessage: "Ya no es administrador del grupo.",
+    });
   },
 };

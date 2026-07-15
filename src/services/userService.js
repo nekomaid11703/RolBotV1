@@ -25,18 +25,6 @@ function sanitizeName(text) {
   );
 }
 
-function creatorDigits(creatorId) {
-  return (
-    String(creatorId || "")
-      .split("@")[0]
-      .replace(/\D/g, "") || "sin_id"
-  );
-}
-
-function getCreatorFolderName(creatorName, creatorId) {
-  return `${sanitizeName(creatorName)}__${creatorDigits(creatorId)}`;
-}
-
 async function listUserProfiles(bypassCache = false, opts = {}) {
   const cacheKey = opts.offset || opts.limit ? null : "allUserProfiles";
   if (!bypassCache && cacheKey) {

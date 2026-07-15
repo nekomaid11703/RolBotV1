@@ -7,37 +7,6 @@ function getFirstMentionedJid(ctx) {
   return ctx.mentionedJid.find(Boolean) || null;
 }
 
-function cleanMentionLabel(value, fallback = "usuario") {
-  const text = String(value || "").trim();
-
-  if (!text) {
-    return fallback;
-  }
-
-  const label = text.replace(/^@+/, "").trim();
-
-  return label || fallback;
-}
-
-function formatMentionTag(value, fallback = "usuario") {
-  return `@${cleanMentionLabel(value, fallback)}`;
-}
-
-function formatJidTag(jid, displayName = null) {
-  if (displayName) {
-    return formatMentionTag(displayName);
-  }
-
-  const value = String(jid || "").trim();
-
-  if (!value) {
-    return "@usuario";
-  }
-
-  const local = value.split("@")[0] || "usuario";
-  return formatMentionTag(local);
-}
-
 function parsePositiveInteger(value) {
   const text = String(value ?? "").trim();
 

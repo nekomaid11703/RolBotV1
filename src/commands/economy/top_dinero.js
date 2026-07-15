@@ -6,13 +6,7 @@ const { formatStelas } = require("../../utils/economyUtils");
 const { TOP_DINERO_LIMIT } = require("../../config/economyConfig");
 
 const { box } = require("../../utils/messageFormatUtils");
-
-function getMedal(index) {
-  if (index === 0) return "🥇";
-  if (index === 1) return "🥈";
-  if (index === 2) return "🥉";
-  return `${index + 1}.`;
-}
+const { medal } = require("../../utils/activityFormatUtils");
 
 module.exports = {
   name: "top_dinero",
@@ -31,8 +25,7 @@ module.exports = {
     }
 
     const lines = top.map((entry, index) => {
-      const medal = getMedal(index);
-      return `${medal}  ${entry.displayName}  —  ${formatStelas(entry.money)}`;
+      return `${medal(index)}  ${entry.displayName}  —  ${formatStelas(entry.money)}`;
     });
 
     await ctx.reply(box("🏆 Top de stelas", ["", ...lines]));
