@@ -273,11 +273,6 @@ async function getUserProfile({ creatorId, bypassCache = false }) {
   return result;
 }
 
-async function isUserRegistered({ creatorId }) {
-  const profile = await getUserProfile({ creatorId });
-  return Boolean(profile);
-}
-
 async function saveUserProfile({ folder: _folder, profile }) {
   const { error } = await supabase.from("players").upsert(
     {
@@ -295,95 +290,6 @@ async function saveUserProfile({ folder: _folder, profile }) {
 
   invalidateUserCache(profile.creatorId);
   return profile;
-}
-
-async function syncUserMetadata({ creatorId, creatorName, displayName, pushName, senderJid, senderNumber }) {
-  const current = await getUserProfile({ creatorId });
-
-  if (!current) {
-    return null;
-  }
-
-  const profile = current.profile;
-  const next = {
-    ...profile,
-    metadata: {
-      ...(profile.metadata || {}),
-    },
-  };
-
-  const now = new Date().toISOString();
-  let changed = false;
-
-  if (typeof displayName === "string") {
-    const cleanDisplayName = displayName.trim() || "usuario";
-
-    if (next.metadata.displayName !== cleanDisplayName) {
-      next.metadata.displayName = cleanDisplayName;
-      changed = true;
-    }
-
-    if (next.creatorName !== cleanDisplayName) {
-      next.creatorName = cleanDisplayName;
-      changed = true;
-    }
-  }
-
-  if (typeof pushName === "string") {
-    const cleanPushName = pushName.trim() || "usuario";
-
-    if (next.metadata.pushName !== cleanPushName) {
-      next.metadata.pushName = cleanPushName;
-      changed = true;
-    }
-  }
-
-  if (typeof creatorName === "string" && !displayName) {
-    const cleanCreatorName = creatorName.trim() || "usuario";
-
-    if (next.metadata.displayName !== cleanCreatorName) {
-      next.metadata.displayName = cleanCreatorName;
-      changed = true;
-    }
-
-    if (next.creatorName !== cleanCreatorName) {
-      next.creatorName = cleanCreatorName;
-      changed = true;
-    }
-  }
-
-  if (typeof senderJid === "string") {
-    const cleanSenderJid = String(senderJid).trim() || null;
-
-    if (cleanSenderJid && next.metadata.lastKnownJid !== cleanSenderJid) {
-      next.metadata.lastKnownJid = cleanSenderJid;
-      changed = true;
-    }
-  }
-
-  if (typeof senderNumber === "string") {
-    const cleanSenderNumber = senderNumber.trim() || null;
-
-    if (cleanSenderNumber && next.metadata.lastKnownNumber !== cleanSenderNumber) {
-      next.metadata.lastKnownNumber = cleanSenderNumber;
-      changed = true;
-    }
-  }
-
-  if (next.metadata.lastSeenAt !== now) {
-    next.metadata.lastSeenAt = now;
-    changed = true;
-  }
-
-  if (changed) {
-    next.updatedAt = now;
-    await saveUserProfile({
-      folder: current.folder,
-      profile: next,
-    });
-  }
-
-  return next;
 }
 
 async function getOrCreateProfile({ creatorId, creatorName = "usuario", registration = {} }) {
@@ -594,16 +500,11 @@ async function getTopActiveUsers({ limit = 10, bypassCache = false } = {}) {
 }
 
 module.exports = {
-  stripAccents,
   sanitizeName,
-  creatorDigits,
-  getCreatorFolderName,
   listUserProfiles,
   ensureUserProfile,
   getUserProfile,
-  isUserRegistered,
   saveUserProfile,
-  syncUserMetadata,
   recordUserActivity,
   getOrCreateProfile,
   getTopActiveUsers,

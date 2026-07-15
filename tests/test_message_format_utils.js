@@ -12,17 +12,9 @@ const assert = require("assert");
 const path = require("path");
 
 const {
-  LINE,
-  BOX_TOP,
-  BOX_BTM,
-  BAR,
   box,
-  buildUsageBody,
-  buildFormBody,
-  buildFeedbackBody,
   formatCommandUsage,
   formatCommandForm,
-  formatFeedback,
   formatError,
 } = require(path.join(__dirname, "../src/utils/messageFormatUtils"));
 
@@ -53,26 +45,6 @@ function test(name, fn) {
   }
 }
 
-// ─── Constantes Exportadas ────────────────────────────────────────────────────
-console.log("\n📦 Constantes exportadas");
-
-test("LINE es un string no vacío", () => {
-  assert.strictEqual(typeof LINE, "string");
-  assert.ok(LINE.length > 0);
-});
-
-test("BOX_TOP empieza con '╭'", () => {
-  assert.ok(BOX_TOP.startsWith("╭"));
-});
-
-test("BOX_BTM empieza con '╰'", () => {
-  assert.ok(BOX_BTM.startsWith("╰"));
-});
-
-test("BAR es el prefijo de línea de caja", () => {
-  assert.ok(BAR.includes("│"));
-});
-
 // ─── box() ────────────────────────────────────────────────────────────────────
 console.log("\n📦 box()");
 
@@ -81,8 +53,9 @@ test("Genera una caja con título y líneas de cuerpo", () => {
   assert.ok(result.includes("🎲 Tirada"), "Debe contener el título");
   assert.ok(result.includes("Línea 1"));
   assert.ok(result.includes("Línea 2"));
-  assert.ok(result.startsWith(BOX_TOP));
-  assert.ok(result.endsWith(BOX_BTM));
+  assert.ok(result.trimStart().startsWith("╭"));
+  const lastLine = result.trimEnd().split("\n").pop();
+  assert.ok(lastLine.startsWith("╰"));
 });
 
 test("Ignora líneas null o undefined en el cuerpo", () => {
@@ -95,7 +68,7 @@ test("Ignora líneas null o undefined en el cuerpo", () => {
 
 test("Línea vacía '' se convierte en '│ ' vacío", () => {
   const result = box("Test", [""]);
-  assert.ok(result.includes(BAR.trimEnd() + "\n") || result.includes(`\n${BAR.trimEnd()}\n`) || result.includes(BAR));
+  assert.ok(result.includes("│"));
 });
 
 test("Funciona con cuerpo vacío (solo título)", () => {
@@ -109,75 +82,6 @@ test("Convierte valores no-string a string", () => {
   const result = box("Test", [42, true, { key: "val" }]);
   assert.ok(result.includes("42"));
   assert.ok(result.includes("true"));
-});
-
-// ─── buildUsageBody() ────────────────────────────────────────────────────────
-console.log("\n📦 buildUsageBody()");
-
-test("Genera cuerpo de uso con todos los campos", () => {
-  const body = buildUsageBody({
-    icon: "🎯",
-    title: "Atacar",
-    description: "Ataca a un enemigo",
-    usage: "/atacar @usuario",
-    example: "/atacar @Kael",
-    notes: ["Solo en combate", "Requiere arma"],
-  });
-  assert.ok(Array.isArray(body));
-  const joined = body.join("\n");
-  assert.ok(joined.includes("*ATACAR*"));
-  assert.ok(joined.includes("*Uso*"));
-  assert.ok(joined.includes("/atacar @usuario"));
-  assert.ok(joined.includes("*Ejemplo*"));
-  assert.ok(joined.includes("/atacar @Kael"));
-  assert.ok(joined.includes("*Notas*"));
-  assert.ok(joined.includes("Solo en combate"));
-});
-
-test("Funciona sin description, example y notes", () => {
-  const body = buildUsageBody({
-    title: "Minimal",
-    usage: "/min",
-  });
-  const joined = body.join("\n");
-  assert.ok(joined.includes("*Uso*"));
-  assert.ok(!joined.includes("*Ejemplo*"));
-  assert.ok(!joined.includes("*Notas*"));
-});
-
-test("Usa 'COMANDO' como título por defecto cuando no se pasa title", () => {
-  const body = buildUsageBody({ usage: "/test" });
-  assert.ok(body.join("\n").includes("*COMANDO*"));
-});
-
-// ─── buildFormBody() ─────────────────────────────────────────────────────────
-console.log("\n📦 buildFormBody()");
-
-test("Genera cuerpo de formulario con campos y ejemplo", () => {
-  const body = buildFormBody({
-    icon: "📋",
-    title: "Crear PJ",
-    description: "Crea un personaje",
-    command: "/crear_pj",
-    fields: ["Nombre", "Clase", "Historia"],
-    example: ["/crear_pj", "Nombre: Kael", "Clase: Guerrero", "Historia: Un héroe."],
-    notes: ["Nombre requerido"],
-  });
-  const joined = body.join("\n");
-  assert.ok(joined.includes("*CREAR PJ*"));
-  assert.ok(joined.includes("*Plantilla*"));
-  assert.ok(joined.includes("Nombre: "));
-  assert.ok(joined.includes("*Ejemplo*"));
-  assert.ok(joined.includes("Un héroe."));
-  assert.ok(joined.includes("*Notas*"));
-});
-
-test("Funciona con fields vacío y sin example ni notes", () => {
-  const body = buildFormBody({ title: "Vacío", command: "/vacio", fields: [] });
-  const joined = body.join("\n");
-  assert.ok(joined.includes("*Plantilla*"));
-  assert.ok(!joined.includes("*Ejemplo*"));
-  assert.ok(!joined.includes("*Notas*"));
 });
 
 // ─── formatCommandUsage() ────────────────────────────────────────────────────
@@ -215,32 +119,6 @@ test("Retorna un string que contiene '*Plantilla*'", () => {
   });
   assert.strictEqual(typeof result, "string");
   assert.ok(result.includes("*Plantilla*"));
-});
-
-// ─── formatFeedback() ────────────────────────────────────────────────────────
-console.log("\n📦 formatFeedback()");
-
-test("Contiene el título e ícono proporcionados", () => {
-  const result = formatFeedback({
-    icon: "⚠️",
-    title: "Advertencia",
-    lines: ["Esto es un aviso"],
-  });
-  assert.ok(result.includes("⚠️"));
-  assert.ok(result.includes("*Advertencia*"));
-  assert.ok(result.includes("Esto es un aviso"));
-});
-
-test("Usa valores por defecto cuando no se pasan parámetros", () => {
-  const result = formatFeedback({});
-  assert.ok(result.includes("ℹ️"));
-  assert.ok(result.includes("*Aviso*"));
-});
-
-test("Maneja array de lines vacío", () => {
-  const result = formatFeedback({ lines: [] });
-  assert.strictEqual(typeof result, "string");
-  assert.ok(result.length > 0);
 });
 
 // ─── formatError() ───────────────────────────────────────────────────────────

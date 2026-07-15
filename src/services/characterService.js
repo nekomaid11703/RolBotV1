@@ -210,34 +210,6 @@ async function setActiveCharacter({
   return normalized;
 }
 
-async function updateCharacterStats({ creatorId, characterName, patch = {} }) {
-  const slug = getCharacterSlug(characterName);
-
-  const data = await safeSingleOrNull(
-    supabase.from("characters").select("stats").eq("player_phone", creatorId).eq("slug", slug),
-  );
-
-  if (!data) return null;
-
-  const newStats = { ...data.stats, ...patch };
-
-  const { data: updated, error: updateError } = await supabase
-    .from("characters")
-    .update({ stats: newStats, updated_at: new Date().toISOString() })
-    .eq("player_phone", creatorId)
-    .eq("slug", slug)
-    .select()
-    .maybeSingle();
-
-  if (updateError || !updated) return null;
-
-  const normalized = normalizeCharacterRecord(updated);
-  normalized.active = updated.is_active;
-
-  invalidateUserCache(creatorId);
-  return normalized;
-}
-
 async function deleteCharacter({ creatorId, characterName }) {
   const slug = getCharacterSlug(characterName);
 
@@ -350,7 +322,6 @@ module.exports = {
   listCharacters,
   getActiveCharacter,
   setActiveCharacter,
-  updateCharacterStats,
   deleteCharacter,
   getCharacterNames,
   renameCharacter,

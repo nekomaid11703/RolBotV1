@@ -8,13 +8,6 @@ function startMidnightReview(sock) {
   scheduleNext(sock);
 }
 
-function stopMidnightReview() {
-  if (midnightTimer) {
-    clearTimeout(midnightTimer);
-    midnightTimer = null;
-  }
-}
-
 function scheduleNext(sock) {
   const now = new Date();
   const tomorrow = new Date(now);
@@ -37,4 +30,4 @@ function scheduleNext(sock) {
   }, msUntilMidnight);
 }
 
-module.exports = { startMidnightReview, stopMidnightReview };
+module.exports = { startMidnightReview };

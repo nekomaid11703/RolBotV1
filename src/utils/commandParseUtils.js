@@ -76,33 +76,7 @@ function extractAmountFromArgs(args, { min = 1 } = {}) {
   return null;
 }
 
-function resolveTargetUserId(ctx, { allowSelf = true } = {}) {
-  const mentioned = getFirstMentionedJid(ctx);
-
-  if (mentioned) {
-    return mentioned;
-  }
-
-  return allowSelf ? ctx.sender : null;
-}
-
-function extractPhoneFromArgs(args) {
-  if (!Array.isArray(args)) return null;
-  for (const arg of args) {
-    const cleaned = arg.replace(/[^0-9]/g, "");
-    if (cleaned.length >= 7 && cleaned.length <= 15) {
-      return cleaned + "@s.whatsapp.net";
-    }
-  }
-  return null;
-}
-
 module.exports = {
   getFirstMentionedJid,
-  formatJidTag,
-  formatMentionTag,
-  parsePositiveInteger,
   extractAmountFromArgs,
-  resolveTargetUserId,
-  extractPhoneFromArgs,
 };

@@ -69,6 +69,5 @@ const TTLS = {
 
 module.exports = {
   cache,
-  LRUCache,
   TTLS,
 };

@@ -94,22 +94,10 @@ function toIdentityCandidates(value) {
   return uniqueStrings(candidates.map(normalizeJid));
 }
 
-function getDisplayableIdentity(value) {
-  const normalized = normalizeJid(value);
-
-  if (!normalized) {
-    return "";
-  }
-
-  const phone = extractPhoneNumber(normalized);
-  return phone || normalized;
-}
-
 module.exports = {
   normalizeJid,
   extractPhoneNumber,
   uniqueStrings,
   isSameIdentity,
   toIdentityCandidates,
-  getDisplayableIdentity,
 };

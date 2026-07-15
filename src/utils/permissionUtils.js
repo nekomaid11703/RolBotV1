@@ -77,9 +77,6 @@ function getOwnerJids() {
 }
 
 module.exports = {
-  normalizeJid,
-  extractPhoneNumber,
-  isSameIdentity,
   isOwner,
   getOwnerRecords,
   getOwnerJids,

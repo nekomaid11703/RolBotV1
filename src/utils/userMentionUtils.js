@@ -92,6 +92,5 @@ module.exports = {
   withMentions,
   formatDisplayMention,
   formatRealMentionTag,
-  isMeaningfulDisplayName,
   getProfileDisplayName,
 };

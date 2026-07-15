@@ -168,8 +168,6 @@ module.exports = {
   isAdmin,
   isBotAdmin,
   getWarns,
-  saveWarns,
-  deleteWarns,
   addWarn,
   deleteWarn,
   addParticipant,

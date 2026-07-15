@@ -80,16 +80,8 @@ function formatError(message, hint = null) {
 }
 
 module.exports = {
-  LINE,
-  BOX_TOP,
-  BOX_BTM,
-  BAR,
   box,
-  buildUsageBody,
-  buildFormBody,
-  buildFeedbackBody,
   formatCommandForm,
   formatCommandUsage,
   formatError,
-  formatFeedback,
 };
