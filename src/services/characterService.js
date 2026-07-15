@@ -270,6 +270,81 @@ async function deleteCharacter({ creatorId, characterName }) {
   return true;
 }
 
+async function getCharacterNames({ creatorId }) {
+  const characters = await listCharacters({ creatorId, bypassCache: true });
+  return new Set(characters.map((c) => c.name));
+}
+
+async function renameCharacter({ characterName, newName, creatorId, requesterId, requesterIsAdmin = false }) {
+  if (requesterId !== creatorId && !requesterIsAdmin) {
+    throw new Error("Solo el creador o un admin pueden renombrar personajes.");
+  }
+
+  const slug = getCharacterSlug(characterName);
+  const newSlug = getCharacterSlug(newName);
+
+  const existing = await safeSingleOrNull(
+    supabase.from("characters").select("id").eq("player_phone", creatorId).eq("slug", newSlug),
+  );
+  if (existing) {
+    throw new Error("Ya existe un personaje con ese nombre.");
+  }
+
+  const { data: updated, error } = await supabase
+    .from("characters")
+    .update({ name: newName, slug: newSlug, updated_at: new Date().toISOString() })
+    .eq("player_phone", creatorId)
+    .eq("slug", slug)
+    .select()
+    .maybeSingle();
+
+  if (error || !updated) {
+    throw new Error(error?.message || "No se encontró el personaje para renombrar.");
+  }
+
+  const normalized = normalizeCharacterRecord(updated);
+  normalized.active = updated.is_active;
+
+  invalidateUserCache(creatorId);
+  return normalized;
+}
+
+async function updateCharacterSlots({ characterName, creatorId, slots, requesterId, requesterIsAdmin = false }) {
+  if (requesterId !== creatorId && !requesterIsAdmin) {
+    throw new Error("Solo el creador o un admin pueden editar personajes.");
+  }
+
+  const slug = getCharacterSlug(characterName);
+
+  const current = await safeSingleOrNull(
+    supabase.from("characters").select("slots").eq("player_phone", creatorId).eq("slug", slug),
+  );
+
+  if (!current) {
+    throw new Error("No existe el personaje.");
+  }
+
+  const mergedSlots = { ...DEFAULT_CHARACTER_SLOTS, ...(current.slots || {}), ...slots };
+
+  const { data: updated, error } = await supabase
+    .from("characters")
+    .update({ slots: mergedSlots, updated_at: new Date().toISOString() })
+    .eq("player_phone", creatorId)
+    .eq("slug", slug)
+    .select()
+    .maybeSingle();
+
+  if (error || !updated) {
+    throw new Error(error?.message || "Error actualizando los slots del personaje.");
+  }
+
+  const normalized = normalizeCharacterRecord(updated);
+  normalized.active = updated.is_active;
+
+  invalidateUserCache(creatorId);
+  return normalized;
+}
+
 module.exports = {
   createCharacter,
   listCharacters,
@@ -277,4 +352,7 @@ module.exports = {
   setActiveCharacter,
   updateCharacterStats,
   deleteCharacter,
+  getCharacterNames,
+  renameCharacter,
+  updateCharacterSlots,
 };
