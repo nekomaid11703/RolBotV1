@@ -1,16 +1,30 @@
-const { supabase } = require('../../database/supabase');
-const { getItem, isEquippable, getEquipSlot, getMaxWeight } = require('./items');
-const { getActiveCharacter, updateCharacterStats } = require('../characterService');
-const { logSystem, logError } = require('../loggerService');
+// @ts-nocheck
+const { supabase } = require("../../database/supabase");
+const { getItem, isEquippable, getEquipSlot } = require("./items");
+const { getActiveCharacter, updateCharacterStats } = require("../characterService");
+const { logError } = require("../loggerService");
 
-const SESSION_ID = 'inventory';
+const SESSION_ID = "inventory";
 
 const EQUIP_BONUSES_CACHE = new Map();
 
-const EQUIPPABLE_SLOTS = ['arma', 'cabeza', 'cuello', 'pecho', 'espalda',
-  'brazo_izq', 'brazo_der', 'mano_izq', 'mano_der',
-  'pierna_izq', 'pierna_der', 'pie_izq', 'pie_der',
-  'accesorio_1', 'accesorio_2'];
+const EQUIPPABLE_SLOTS = [
+  "arma",
+  "cabeza",
+  "cuello",
+  "pecho",
+  "espalda",
+  "brazo_izq",
+  "brazo_der",
+  "mano_izq",
+  "mano_der",
+  "pierna_izq",
+  "pierna_der",
+  "pie_izq",
+  "pie_der",
+  "accesorio_1",
+  "accesorio_2",
+];
 
 function emptyInventory() {
   return {
@@ -24,10 +38,10 @@ function emptyInventory() {
 async function getInventory(playerId) {
   try {
     const { data, error } = await supabase
-      .from('bot_auth_state')
-      .select('data')
-      .eq('session_id', SESSION_ID)
-      .eq('id', playerId)
+      .from("bot_auth_state")
+      .select("data")
+      .eq("session_id", SESSION_ID)
+      .eq("id", playerId)
       .single();
 
     if (error || !data) return emptyInventory();
@@ -39,18 +53,18 @@ async function getInventory(playerId) {
 
 async function saveInventory(playerId, inv) {
   try {
-    const { error } = await supabase.from('bot_auth_state').upsert({
+    const { error } = await supabase.from("bot_auth_state").upsert({
       session_id: SESSION_ID,
       id: playerId,
       data: inv,
     });
     if (error) {
-      logError({ source: 'inventoryService', error });
+      logError({ source: "inventoryService", error });
       return { success: false, error: error.message };
     }
     return { success: true };
   } catch (err) {
-    logError({ source: 'inventoryService', error: err });
+    logError({ source: "inventoryService", error: err });
     return { success: false, error: err.message };
   }
 }
@@ -61,7 +75,7 @@ async function addItem(playerId, itemId, quantity = 1) {
     const item = getItem(itemId);
     if (!item) return { error: `Item "${itemId}" no encontrado.` };
 
-    const existing = inv.items.find(i => i.itemId === itemId);
+    const existing = inv.items.find((i) => i.itemId === itemId);
     if (existing) {
       existing.quantity += quantity;
     } else {
@@ -75,7 +89,7 @@ async function addItem(playerId, itemId, quantity = 1) {
     }
 
     const saveResult = await saveInventory(playerId, inv);
-    if (!saveResult.success) return { error: 'Error de base de datos al guardar inventario.' };
+    if (!saveResult.success) return { error: "Error de base de datos al guardar inventario." };
     return { success: true, inv };
   } catch (err) {
     return { error: `Error inesperado al añadir item: ${err.message}` };
@@ -85,18 +99,18 @@ async function addItem(playerId, itemId, quantity = 1) {
 async function removeItem(playerId, itemId, quantity = 1) {
   try {
     const inv = await getInventory(playerId);
-    const existing = inv.items.find(i => i.itemId === itemId);
+    const existing = inv.items.find((i) => i.itemId === itemId);
     if (!existing || existing.quantity < quantity) {
       return { error: `No tienes suficiente "${itemId}".` };
     }
 
     existing.quantity -= quantity;
     if (existing.quantity <= 0) {
-      inv.items = inv.items.filter(i => i.itemId !== itemId);
+      inv.items = inv.items.filter((i) => i.itemId !== itemId);
     }
 
     const saveResult = await saveInventory(playerId, inv);
-    if (!saveResult.success) return { error: 'Error de base de datos al guardar inventario.' };
+    if (!saveResult.success) return { error: "Error de base de datos al guardar inventario." };
     return { success: true, inv };
   } catch (err) {
     return { error: `Error inesperado al remover item: ${err.message}` };
@@ -110,13 +124,13 @@ async function equipItem(playerId, itemId) {
     if (!item) return { error: `Item "${itemId}" no encontrado.` };
     if (!isEquippable(item)) return { error: `"${item.name}" no es equipable.` };
 
-    const stack = inv.items.find(i => i.itemId === itemId);
+    const stack = inv.items.find((i) => i.itemId === itemId);
     if (!stack || stack.quantity < 1) return { error: `No tienes "${item.name}".` };
 
     const slot = getEquipSlot(item);
     const prevItemId = inv.equipped[slot];
     if (prevItemId && prevItemId !== itemId) {
-      const prevStack = inv.items.find(i => i.itemId === prevItemId);
+      const prevStack = inv.items.find((i) => i.itemId === prevItemId);
       if (prevStack) prevStack.quantity += 1;
       else inv.items.push({ itemId: prevItemId, quantity: 1 });
     }
@@ -125,11 +139,11 @@ async function equipItem(playerId, itemId) {
 
     stack.quantity -= 1;
     if (stack.quantity <= 0) {
-      inv.items = inv.items.filter(i => i.itemId !== itemId);
+      inv.items = inv.items.filter((i) => i.itemId !== itemId);
     }
 
     const saveResult = await saveInventory(playerId, inv);
-    if (!saveResult.success) return { error: 'Error de base de datos al guardar inventario.' };
+    if (!saveResult.success) return { error: "Error de base de datos al guardar inventario." };
     invalidateEquipmentCache(playerId);
     return { success: true, slot, item, inv };
   } catch (err) {
@@ -146,12 +160,12 @@ async function unequipItem(playerId, slot) {
     const item = getItem(itemId);
     inv.equipped[slot] = null;
 
-    const existing = inv.items.find(i => i.itemId === itemId);
+    const existing = inv.items.find((i) => i.itemId === itemId);
     if (existing) existing.quantity += 1;
     else inv.items.push({ itemId, quantity: 1 });
 
     const saveResult = await saveInventory(playerId, inv);
-    if (!saveResult.success) return { error: 'Error de base de datos al guardar inventario.' };
+    if (!saveResult.success) return { error: "Error de base de datos al guardar inventario." };
     invalidateEquipmentCache(playerId);
     return { success: true, item, inv };
   } catch (err) {
@@ -171,7 +185,7 @@ async function calculateEquipmentBonuses(playerId) {
   const inv = await getInventory(playerId);
   const bonuses = {};
 
-  for (const [slot, itemId] of Object.entries(inv.equipped)) {
+  for (const [_slot, itemId] of Object.entries(inv.equipped)) {
     if (!itemId) continue;
     const item = getItem(itemId);
     if (item && item.stats) {
@@ -190,7 +204,10 @@ async function applyEquipmentBonuses(playerId) {
     const bonuses = await calculateEquipmentBonuses(playerId);
     const character = await getActiveCharacter({ creatorId: playerId });
     if (!character) {
-      logError({ source: 'inventoryService.applyEquipmentBonuses', error: new Error(`No active character for player ${playerId}`) });
+      logError({
+        source: "inventoryService.applyEquipmentBonuses",
+        error: new Error(`No active character for player ${playerId}`),
+      });
       return;
     }
 
@@ -202,7 +219,7 @@ async function applyEquipmentBonuses(playerId) {
       patch: { stats: newStats },
     });
   } catch (err) {
-    logError({ source: 'inventoryService', error: err });
+    logError({ source: "inventoryService", error: err });
   }
 }
 
@@ -219,7 +236,7 @@ function getUsedWeight(inv) {
   for (const [slot, itemId] of Object.entries(inv.equipped || {})) {
     if (!itemId) continue;
     const item = getItem(itemId);
-    if (item && slot !== 'arma') total += (item.peso || 0);
+    if (item && slot !== "arma") total += item.peso || 0;
   }
   return Math.round(total * 10) / 10;
 }
@@ -229,7 +246,7 @@ function getCapacity(inv) {
 }
 
 function getItemCount(inv, itemId) {
-  const stack = inv.items.find(i => i.itemId === itemId);
+  const stack = inv.items.find((i) => i.itemId === itemId);
   return stack ? stack.quantity : 0;
 }
 
@@ -258,7 +275,7 @@ async function damageEquippedItem(playerId, slot, damage = 1) {
     const item = getItem(itemId);
     if (!item || item.resistencia === undefined) return null;
 
-    let stack = inv.items.find(i => i.itemId === itemId);
+    let stack = inv.items.find((i) => i.itemId === itemId);
     if (!stack) return null;
 
     const currentDur = stack.durability !== undefined ? stack.durability : item.resistencia;
@@ -267,7 +284,7 @@ async function damageEquippedItem(playerId, slot, damage = 1) {
 
     if (newDur <= 0) {
       inv.equipped[slot] = null;
-      inv.items = inv.items.filter(i => i.itemId !== itemId);
+      inv.items = inv.items.filter((i) => i.itemId !== itemId);
       const saveResult = await saveInventory(playerId, inv);
       invalidateEquipmentCache(playerId);
       if (!saveResult.success) return { broken: true, item, saveError: true };
@@ -276,7 +293,8 @@ async function damageEquippedItem(playerId, slot, damage = 1) {
 
     const saveResult = await saveInventory(playerId, inv);
     invalidateEquipmentCache(playerId);
-    if (!saveResult.success) return { broken: false, item, durability: newDur, maxDurability: item.resistencia, saveError: true };
+    if (!saveResult.success)
+      return { broken: false, item, durability: newDur, maxDurability: item.resistencia, saveError: true };
     return { broken: false, item, durability: newDur, maxDurability: item.resistencia };
   } catch (err) {
     return { error: `Error inesperado al dañar item: ${err.message}` };

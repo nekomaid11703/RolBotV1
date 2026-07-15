@@ -1,120 +1,121 @@
+// @ts-nocheck
 const EFFECTS_REGISTRY = [
   {
-    id: 'viento_fuerte',
-    name: 'Viento Fuerte',
-    desc: 'Ráfagas de viento dificultan ataques a distancia y precisión.',
+    id: "viento_fuerte",
+    name: "Viento Fuerte",
+    desc: "Ráfagas de viento dificultan ataques a distancia y precisión.",
     conditions: { outdoor: true },
     rules: { precision: -2, reflejos: -1, velocidad_ataque: -1 },
     duration: 5,
   },
   {
-    id: 'lluvia_torrencial',
-    name: 'Lluvia Torrencial',
-    desc: 'El suelo resbaladizo y la lluvia densa reducen visibilidad y tracción.',
+    id: "lluvia_torrencial",
+    name: "Lluvia Torrencial",
+    desc: "El suelo resbaladizo y la lluvia densa reducen visibilidad y tracción.",
     conditions: { outdoor: true },
     rules: { precision: -3, reflejos: -2, velocidad_desplazamiento: -2 },
-    sceneEffect: 'El suelo está empapado, el barro salpica con cada pisada.',
+    sceneEffect: "El suelo está empapado, el barro salpica con cada pisada.",
     duration: 5,
   },
   {
-    id: 'oscuridad',
-    name: 'Oscuridad',
-    desc: 'Sin luz apenas se ve. Los ataques son más imprecisos y es fácil ocultarse.',
+    id: "oscuridad",
+    name: "Oscuridad",
+    desc: "Sin luz apenas se ve. Los ataques son más imprecisos y es fácil ocultarse.",
     conditions: { indoor: true, night: true },
     rules: { precision: -4, reflejos: -2, dominio_fulgor: -2 },
-    sceneEffect: 'Las sombras se alargan, apenas distingues siluetas.',
+    sceneEffect: "Las sombras se alargan, apenas distingues siluetas.",
     duration: 5,
   },
   {
-    id: 'fuego_activo',
-    name: 'Fuego Activo',
-    desc: 'Llamas abrasadoras en el entorno. Daño continuo por calor y humo.',
+    id: "fuego_activo",
+    name: "Fuego Activo",
+    desc: "Llamas abrasadoras en el entorno. Daño continuo por calor y humo.",
     conditions: { hazard: true },
     rules: {},
     damagePerTurn: 5,
-    sceneEffect: 'El fuego crepita, el humo asciende en espirales negras.',
+    sceneEffect: "El fuego crepita, el humo asciende en espirales negras.",
     duration: 4,
   },
   {
-    id: 'terreno_pantanoso',
-    name: 'Terreno Pantanoso',
-    desc: 'El barro y el agua entorpecen el movimiento. Es difícil esquivar.',
+    id: "terreno_pantanoso",
+    name: "Terreno Pantanoso",
+    desc: "El barro y el agua entorpecen el movimiento. Es difícil esquivar.",
     conditions: { outdoor: true, wet: true },
     rules: { velocidad_desplazamiento: -3, reflejos: -2, fuerza: -1 },
-    sceneEffect: 'El lodo burbujea, cada paso se hunde varios centímetros.',
+    sceneEffect: "El lodo burbujea, cada paso se hunde varios centímetros.",
     duration: 5,
   },
   {
-    id: 'terreno_elevado',
-    name: 'Terreno Elevado',
-    desc: 'Ventaja de altura. El atacante desde arriba tiene mejor alcance.',
+    id: "terreno_elevado",
+    name: "Terreno Elevado",
+    desc: "Ventaja de altura. El atacante desde arriba tiene mejor alcance.",
     conditions: { elevated: true },
     rules: { precision: +2, fuerza: +1 },
-    sceneEffect: 'La altura domina el campo de batalla, el viento azota con fuerza.',
+    sceneEffect: "La altura domina el campo de batalla, el viento azota con fuerza.",
     duration: 5,
   },
   {
-    id: 'nubes_denso',
-    name: 'Nubes de Polvo',
-    desc: 'Polvo denso en el aire. Tos y visión reducida.',
+    id: "nubes_denso",
+    name: "Nubes de Polvo",
+    desc: "Polvo denso en el aire. Tos y visión reducida.",
     conditions: { indoor: true, dry: true },
     rules: { precision: -3, reflejos: -1, resistencia_fisica: -1 },
     damagePerTurn: 3,
-    sceneEffect: 'Partículas flotan en el aire, una capa grisácea cubre todo.',
+    sceneEffect: "Partículas flotan en el aire, una capa grisácea cubre todo.",
     duration: 4,
   },
   {
-    id: 'campo_protegido',
-    name: 'Campo Protegido',
-    desc: 'Un campo de energía o barrera mágica protege una zona.',
+    id: "campo_protegido",
+    name: "Campo Protegido",
+    desc: "Un campo de energía o barrera mágica protege una zona.",
     conditions: { magical: true },
     rules: { resistencia_fisica: +3, resistencia_magica: +5 },
-    sceneEffect: 'Un brillo tenue parpadea en el aire, deformando la luz.',
+    sceneEffect: "Un brillo tenue parpadea en el aire, deformando la luz.",
     duration: 6,
   },
 ];
 
 const COMBINED_EFFECTS = {
-  'lluvia_torrencial:fuego_activo': {
-    id: 'vapor_ardiente',
-    name: 'Vapor Ardiente',
-    desc: 'El agua al contacto con el fuego genera vapor a presión. Quemaduras por vapor y visibilidad casi nula.',
+  "lluvia_torrencial:fuego_activo": {
+    id: "vapor_ardiente",
+    name: "Vapor Ardiente",
+    desc: "El agua al contacto con el fuego genera vapor a presión. Quemaduras por vapor y visibilidad casi nula.",
     rules: { precision: -5, reflejos: -3, resistencia_fisica: -2 },
     damagePerTurn: 4,
-    sceneEffect: 'Nubes de vapor silbante envuelven el campo de batalla.',
+    sceneEffect: "Nubes de vapor silbante envuelven el campo de batalla.",
     duration: 4,
   },
-  'oscuridad:terreno_pantanoso': {
-    id: 'cienaga_cegadora',
-    name: 'Ciénaga Cegadora',
-    desc: 'La oscuridad y el pantano se combinan. Es imposible ver dónde pisas.',
+  "oscuridad:terreno_pantanoso": {
+    id: "cienaga_cegadora",
+    name: "Ciénaga Cegadora",
+    desc: "La oscuridad y el pantano se combinan. Es imposible ver dónde pisas.",
     rules: { precision: -6, reflejos: -4, velocidad_desplazamiento: -4 },
     damagePerTurn: 2,
-    sceneEffect: 'La negrura del pantano oculta trampas mortales bajo la superficie.',
+    sceneEffect: "La negrura del pantano oculta trampas mortales bajo la superficie.",
     duration: 4,
   },
-  'fuego_activo:nubes_denso': {
-    id: 'humo_toxico',
-    name: 'Humo Tóxico',
-    desc: 'El polvo y el fuego generan humo venenoso. Tos asfixiante y ojos llorosos.',
+  "fuego_activo:nubes_denso": {
+    id: "humo_toxico",
+    name: "Humo Tóxico",
+    desc: "El polvo y el fuego generan humo venenoso. Tos asfixiante y ojos llorosos.",
     rules: { precision: -5, reflejos: -3, resistencia_fisica: -4 },
     damagePerTurn: 5,
-    sceneEffect: 'Una cortina de humo espeso y picante cubre el área.',
+    sceneEffect: "Una cortina de humo espeso y picante cubre el área.",
     duration: 4,
   },
-  'viento_fuerte:fuego_activo': {
-    id: 'tormenta_fuego',
-    name: 'Tormenta de Fuego',
-    desc: 'El viento aviva las llamas creando una tormenta ígnea. El fuego se extiende rápidamente.',
+  "viento_fuerte:fuego_activo": {
+    id: "tormenta_fuego",
+    name: "Tormenta de Fuego",
+    desc: "El viento aviva las llamas creando una tormenta ígnea. El fuego se extiende rápidamente.",
     rules: { precision: -4, dominio_fulgor: +3 },
     damagePerTurn: 8,
-    sceneEffect: 'El viento arrastra brasas y cenizas, el fuego baila salvajemente.',
+    sceneEffect: "El viento arrastra brasas y cenizas, el fuego baila salvajemente.",
     duration: 4,
   },
 };
 
 function getEffect(effectId) {
-  return EFFECTS_REGISTRY.find(e => e.id === effectId) || null;
+  return EFFECTS_REGISTRY.find((e) => e.id === effectId) || null;
 }
 
 function getCombinedEffect(effectId1, effectId2) {
@@ -204,9 +205,9 @@ function reduceEffectDurations(room) {
 
 function removeExpiredEffects(room) {
   if (!room.effectDurations || !room.activeEffects) return;
-  const expired = Object.keys(room.effectDurations).filter(eid => room.effectDurations[eid] <= 0);
+  const expired = Object.keys(room.effectDurations).filter((eid) => room.effectDurations[eid] <= 0);
   if (expired.length > 0) {
-    room.activeEffects = room.activeEffects.filter(eid => !expired.includes(eid));
+    room.activeEffects = room.activeEffects.filter((eid) => !expired.includes(eid));
     for (const eid of expired) {
       delete room.effectDurations[eid];
     }
@@ -244,22 +245,26 @@ function applyDotToParticipants(room) {
 }
 
 function getActiveEffectsDescription(activeEffects) {
-  if (!activeEffects || activeEffects.length === 0) return 'Ninguno';
-  const lines = activeEffects.map(eid => {
+  if (!activeEffects || activeEffects.length === 0) return "Ninguno";
+  const lines = activeEffects.map((eid) => {
     const e = getEffect(eid);
-    return e ? `- *${e.name}*: ${e.desc}${e.damagePerTurn ? ` (${e.damagePerTurn} daño/turno)` : ''}` : `- ${eid}: efecto desconocido`;
+    return e
+      ? `- *${e.name}*: ${e.desc}${e.damagePerTurn ? ` (${e.damagePerTurn} daño/turno)` : ""}`
+      : `- ${eid}: efecto desconocido`;
   });
 
   const combined = getActiveCombinedEffects(activeEffects);
   for (const ce of combined) {
-    lines.push(`  ↳ *${ce.name}* (combinado): ${ce.desc}${ce.damagePerTurn ? ` (${ce.damagePerTurn} daño/turno)` : ''}`);
+    lines.push(
+      `  ↳ *${ce.name}* (combinado): ${ce.desc}${ce.damagePerTurn ? ` (${ce.damagePerTurn} daño/turno)` : ""}`,
+    );
   }
 
-  return lines.join('\n');
+  return lines.join("\n");
 }
 
 function getSceneEffectDescriptions(activeEffects) {
-  if (!activeEffects || activeEffects.length === 0) return '';
+  if (!activeEffects || activeEffects.length === 0) return "";
   const lines = [];
   for (const eid of activeEffects) {
     const e = getEffect(eid);
@@ -269,7 +274,7 @@ function getSceneEffectDescriptions(activeEffects) {
   for (const ce of combined) {
     if (ce.sceneEffect) lines.push(ce.sceneEffect);
   }
-  return lines.join(' ');
+  return lines.join(" ");
 }
 
 function rankEffectsByLocation(activeEffects, location) {

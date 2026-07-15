@@ -1,3 +1,4 @@
+// @ts-nocheck
 function normalizeJid(value) {
   return String(value || "")
     .trim()
@@ -75,9 +76,7 @@ function toIdentityCandidates(value) {
       candidates.push(...value.aliases);
     }
 
-    return uniqueStrings(
-      candidates.flatMap((entry) => toIdentityCandidates(entry)),
-    );
+    return uniqueStrings(candidates.flatMap((entry) => toIdentityCandidates(entry)));
   }
 
   const raw = String(value || "").trim();

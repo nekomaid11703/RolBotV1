@@ -1,8 +1,9 @@
+// @ts-nocheck
 const { getActiveCharacter } = require("../../../services/characterService");
 const invService = require("../../../services/rpg/inventoryService");
 const itemsData = require("../../../services/rpg/items");
 const { formatError, box } = require("../../../utils/messageFormatUtils");
-const { logSystem, logError } = require("../../../services/loggerService");
+const { logError } = require("../../../services/loggerService");
 
 module.exports = {
   name: "equipar",
@@ -13,8 +14,14 @@ module.exports = {
   async execute(ctx) {
     try {
       const room = require("../../../services/rpg/combatStateManager").getRoomByGroup(ctx.from);
-      if (room && room.status === 'active' && require("../../../services/rpg/combatTurnManager").getParticipantByJid(room, ctx.sender)) {
-        return ctx.reply("⚔️ Estás en combate. Usa `/rol <texto>` para cambiar equipo mediante rol.\n\nEj: `/rol guardo mi arma y saco un cuchillo`");
+      if (
+        room &&
+        room.status === "active" &&
+        require("../../../services/rpg/combatTurnManager").getParticipantByJid(room, ctx.sender)
+      ) {
+        return ctx.reply(
+          "⚔️ Estás en combate. Usa `/rol <texto>` para cambiar equipo mediante rol.\n\nEj: `/rol guardo mi arma y saco un cuchillo`",
+        );
       }
 
       const character = await getActiveCharacter({ creatorId: ctx.sender });
@@ -33,7 +40,7 @@ module.exports = {
       }
 
       const inv = await invService.getInventory(ctx.sender);
-      const stack = inv.items.find(i => i.itemId === item.id);
+      const stack = inv.items.find((i) => i.itemId === item.id);
       if (!stack || stack.quantity < 1) {
         return ctx.reply(`No tienes "${item.name}" en tu inventario.`);
       }
@@ -47,22 +54,18 @@ module.exports = {
 
       await invService.recalcStatsAfterEquip(ctx.sender);
 
-      const slotLabel = result.slot.replace(/_/g, ' ');
+      const slotLabel = result.slot.replace(/_/g, " ");
       const bonusText = item.stats
-        ? Object.entries(item.stats).map(([s, v]) => `${s}+${v}`).join(', ')
-        : 'sin bonus';
+        ? Object.entries(item.stats)
+            .map(([s, v]) => `${s}+${v}`)
+            .join(", ")
+        : "sin bonus";
 
       await ctx.react("⚔️");
 
-      return ctx.reply(box("⚔️ Item equipado", [
-        "",
-        `${item.name}`,
-        `Slot: ${slotLabel}`,
-        `Stats: ${bonusText}`,
-      ]));
-
+      return ctx.reply(box("⚔️ Item equipado", ["", `${item.name}`, `Slot: ${slotLabel}`, `Stats: ${bonusText}`]));
     } catch (error) {
-      logError({ source: 'equipar', error: error instanceof Error ? error : new Error(String(error)) });
+      logError({ source: "equipar", error: error instanceof Error ? error : new Error(String(error)) });
       return ctx.reply(`❌ ${error.message}`);
     }
   },

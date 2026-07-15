@@ -36,6 +36,10 @@ yarn-error.log*
 Thumbs.db
 git_status.txt
 
+# AI Archive
+_archive/
+ai-memory/
+
 # Graphify
 graphify-out/cost.json
 graphify-out/cache/

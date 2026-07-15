@@ -1,12 +1,8 @@
+// @ts-nocheck
 const { promoteToAdmin } = require("../../../utils/groupUtils");
-const {
-  getFirstMentionedJid,
-} = require("../../../utils/commandParseUtils");
-const {
-  resolveTargetDisplayName,
-  formatDisplayMention,
-  withMentions,
-} = require("../../../utils/userMentionUtils");
+const { getFirstMentionedJid } = require("../../../utils/commandParseUtils");
+const { formatDisplayMention, withMentions } = require("../../../utils/userMentionUtils");
+const { resolveTargetDisplayName } = require("../../../services/displayNameService");
 const { formatError, box } = require("../../../utils/messageFormatUtils");
 
 module.exports = {
@@ -28,15 +24,17 @@ module.exports = {
       const targetName = await resolveTargetDisplayName(ctx, targetId);
       await promoteToAdmin(ctx.sock, ctx.from, targetId);
 
-      await ctx.reply(withMentions(
-        box("⭐ Admin promovido", [
-          "",
-          `👤  ${formatDisplayMention(targetId, targetName)}`,
-          "",
-          "Ahora es administrador del grupo.",
-        ]),
-        [targetId],
-      ));
+      await ctx.reply(
+        withMentions(
+          box("⭐ Admin promovido", [
+            "",
+            `👤  ${formatDisplayMention(targetId, targetName)}`,
+            "",
+            "Ahora es administrador del grupo.",
+          ]),
+          [targetId],
+        ),
+      );
     } catch (error) {
       await ctx.reply(formatError(error.message));
     }

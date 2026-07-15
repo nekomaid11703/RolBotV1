@@ -1,16 +1,8 @@
-const {
-  addWarn,
-  getWarns,
-  MAX_WARNS,
-} = require("../../../utils/groupUtils");
-const {
-  getFirstMentionedJid,
-} = require("../../../utils/commandParseUtils");
-const {
-  resolveTargetDisplayName,
-  formatDisplayMention,
-  withMentions,
-} = require("../../../utils/userMentionUtils");
+// @ts-nocheck
+const { addWarn, getWarns, MAX_WARNS } = require("../../../utils/groupUtils");
+const { getFirstMentionedJid } = require("../../../utils/commandParseUtils");
+const { formatDisplayMention, withMentions } = require("../../../utils/userMentionUtils");
+const { resolveTargetDisplayName } = require("../../../services/displayNameService");
 const { formatError, box } = require("../../../utils/messageFormatUtils");
 
 module.exports = {
@@ -32,6 +24,7 @@ module.exports = {
       const reason = ctx.args.slice(1).join(" ").trim() || "Sin motivo especificado";
       const targetName = await resolveTargetDisplayName(ctx, targetId);
       const currentWarns = await getWarns(ctx.from, targetId);
+      const warnCount = currentWarns.count;
 
       await addWarn(ctx.from, targetId, {
         reason,
@@ -39,29 +32,33 @@ module.exports = {
         moderatorName: ctx.userName,
       });
 
-      if (currentWarns + 1 >= MAX_WARNS) {
-        await ctx.reply(withMentions(
-          box("⚠️ Usuario advertido", [
-            "",
-            `👤  ${formatDisplayMention(targetId, targetName)}`,
-            `📋 Motivo: ${reason}`,
-            "",
-            `❗ Warn ${currentWarns + 1}/${MAX_WARNS}`,
-            `🚨 Límite alcanzado.`,
-          ]),
-          [targetId],
-        ));
+      if (warnCount + 1 >= MAX_WARNS) {
+        await ctx.reply(
+          withMentions(
+            box("⚠️ Usuario advertido", [
+              "",
+              `👤  ${formatDisplayMention(targetId, targetName)}`,
+              `📋 Motivo: ${reason}`,
+              "",
+              `❗ Warn ${warnCount + 1}/${MAX_WARNS}`,
+              `🚨 Límite alcanzado.`,
+            ]),
+            [targetId],
+          ),
+        );
       } else {
-        await ctx.reply(withMentions(
-          box("⚠️ Usuario advertido", [
-            "",
-            `👤  ${formatDisplayMention(targetId, targetName)}`,
-            `📋 Motivo: ${reason}`,
-            "",
-            `❗ Warn ${currentWarns + 1}/${MAX_WARNS}`,
-          ]),
-          [targetId],
-        ));
+        await ctx.reply(
+          withMentions(
+            box("⚠️ Usuario advertido", [
+              "",
+              `👤  ${formatDisplayMention(targetId, targetName)}`,
+              `📋 Motivo: ${reason}`,
+              "",
+              `❗ Warn ${warnCount + 1}/${MAX_WARNS}`,
+            ]),
+            [targetId],
+          ),
+        );
       }
     } catch (error) {
       await ctx.reply(formatError(error.message));

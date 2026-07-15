@@ -1,3 +1,4 @@
+// @ts-nocheck
 const { getOpenReports, getStats, markStale, resolveReport } = require('../src/services/bugReportService');
 const { getOwnerJids } = require('../src/utils/permissionUtils');
 const { logSystem, logError } = require('../src/services/loggerService');

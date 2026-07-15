@@ -1,20 +1,12 @@
-const {
-  getOrCreateProfile,
-  getUserProfile,
-} = require("../../services/userService");
+// @ts-nocheck
+const { getOrCreateProfile, getUserProfile } = require("../../services/userService");
 
-const {
-  formatStelas,
-} = require("../../utils/economyUtils");
+const { formatStelas } = require("../../utils/economyUtils");
 
-const {
-  box,
-} = require("../../utils/messageFormatUtils");
+const { box } = require("../../utils/messageFormatUtils");
 
 function resolveTarget(ctx) {
-  const mentioned = Array.isArray(ctx.mentionedJid)
-    ? ctx.mentionedJid.filter(Boolean)
-    : [];
+  const mentioned = Array.isArray(ctx.mentionedJid) ? ctx.mentionedJid.filter(Boolean) : [];
 
   if (mentioned.length > 0) {
     return {
@@ -53,24 +45,15 @@ module.exports = {
         });
 
     if (!data) {
-      return ctx.reply(
-        "❌ Ese usuario aún no tiene un perfil registrado en el bot."
-      );
+      return ctx.reply("❌ Ese usuario aún no tiene un perfil registrado en el bot.");
     }
 
     const profile = data.profile;
     const money = Number(profile.economy?.money || 0);
 
     const displayName =
-      profile.metadata?.displayName ||
-      profile.creatorName ||
-      (target.isSelf ? ctx.userName : "usuario");
+      profile.metadata?.displayName || profile.creatorName || (target.isSelf ? ctx.userName : "usuario");
 
-    await ctx.reply(box("💰 Balance", [
-      "",
-      `👤  ${displayName}`,
-      "",
-      `💵  ${formatStelas(money)}`,
-    ]));
+    await ctx.reply(box("💰 Balance", ["", `👤  ${displayName}`, "", `💵  ${formatStelas(money)}`]));
   },
 };

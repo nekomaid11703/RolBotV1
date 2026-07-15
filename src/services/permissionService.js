@@ -1,16 +1,10 @@
+// @ts-nocheck
 const { isOwner } = require("../utils/permissionUtils");
-const {
-  getProfileDisplayName,
-} = require("../utils/userMentionUtils");
-const {
-  getUserProfile,
-  getOrCreateProfile,
-  listUserProfiles,
-  saveUserProfile,
-} = require("./userService");
+const { getProfileDisplayName } = require("../utils/userMentionUtils");
+const { getUserProfile, getOrCreateProfile, listUserProfiles } = require("./userService");
 const { supabase } = require("../database/supabase");
 
-const PERMISSIONS_SESSION = 'permissions';
+const PERMISSIONS_SESSION = "permissions";
 
 function resolveCandidateId(candidate) {
   if (candidate && typeof candidate === "object") {
@@ -36,20 +30,23 @@ function pickDisplayName(profile, fallback = "usuario") {
 
 async function readPermissions(userId) {
   const { data } = await supabase
-    .from('bot_auth_state')
-    .select('data')
-    .eq('session_id', PERMISSIONS_SESSION)
-    .eq('id', userId)
+    .from("bot_auth_state")
+    .select("data")
+    .eq("session_id", PERMISSIONS_SESSION)
+    .eq("id", userId)
     .maybeSingle();
   return data?.data || {};
 }
 
 async function writePermissions(userId, permissions) {
-  await supabase.from('bot_auth_state').upsert({
-    session_id: PERMISSIONS_SESSION,
-    id: userId,
-    data: permissions,
-  }, { onConflict: 'session_id,id' });
+  await supabase.from("bot_auth_state").upsert(
+    {
+      session_id: PERMISSIONS_SESSION,
+      id: userId,
+      data: permissions,
+    },
+    { onConflict: "session_id,id" },
+  );
 }
 
 async function isEconomyAdmin(candidate) {
@@ -105,16 +102,11 @@ async function setEconomyAdmin({
 }
 
 async function listEconomyAdmins() {
-  const { data: rows } = await supabase
-    .from('bot_auth_state')
-    .select('id, data')
-    .eq('session_id', PERMISSIONS_SESSION);
+  const { data: rows } = await supabase.from("bot_auth_state").select("id, data").eq("session_id", PERMISSIONS_SESSION);
 
   if (!rows || rows.length === 0) return [];
 
-  const adminIds = rows
-    .filter(row => row.data && row.data.economyAdmin === true)
-    .map(row => row.id);
+  const adminIds = rows.filter((row) => row.data && row.data.economyAdmin === true).map((row) => row.id);
 
   if (adminIds.length === 0) return [];
 
@@ -132,7 +124,7 @@ async function listEconomyAdmins() {
   }
 
   return adminIds
-    .map(id => {
+    .map((id) => {
       const profile = userMap[id];
       return {
         userId: id,
@@ -141,10 +133,8 @@ async function listEconomyAdmins() {
         grantedAt: permData[id] || null,
       };
     })
-    .filter(a => a.userId)
-    .sort((a, b) =>
-      String(a.displayName).localeCompare(String(b.displayName), "es"),
-    );
+    .filter((a) => a.userId)
+    .sort((a, b) => String(a.displayName).localeCompare(String(b.displayName), "es"));
 }
 
 module.exports = {
@@ -152,5 +142,4 @@ module.exports = {
   hasEconomyPermission,
   setEconomyAdmin,
   listEconomyAdmins,
-  pickDisplayName,
 };

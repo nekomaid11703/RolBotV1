@@ -1,3 +1,4 @@
+// @ts-nocheck
 const { getInviteCode } = require("../../../utils/groupUtils");
 const { formatError, box } = require("../../../utils/messageFormatUtils");
 
@@ -12,10 +13,7 @@ module.exports = {
   async execute(ctx) {
     try {
       const link = await getInviteCode(ctx.sock, ctx.from);
-      await ctx.reply(box("🔗 Link de invitación", [
-        "",
-        link,
-      ]));
+      await ctx.reply(box("🔗 Link de invitación", ["", link]));
     } catch (error) {
       await ctx.reply(formatError(error.message));
     }

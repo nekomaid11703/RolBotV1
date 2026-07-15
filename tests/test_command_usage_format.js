@@ -90,10 +90,7 @@ async function run() {
     const response = ctx.replies[0];
 
     for (const expected of command.expect) {
-      assert.ok(
-        response.includes(expected),
-        `${command.name} debe incluir "${expected}" en su salida.`,
-      );
+      assert.ok(response.includes(expected), `${command.name} debe incluir "${expected}" en su salida.`);
     }
   }
 

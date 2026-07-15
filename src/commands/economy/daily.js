@@ -1,17 +1,9 @@
-const {
-  claimDaily,
-} = require("../../services/economyService");
+// @ts-nocheck
+const { claimDaily } = require("../../services/economyService");
 
-const {
-  formatStelas,
-  formatDuration,
-} = require("../../utils/economyUtils");
-const {
-  DAILY_COOLDOWN_HOURS,
-} = require("../../config/economyConfig");
-const {
-  box,
-} = require("../../utils/messageFormatUtils");
+const { formatStelas, formatDuration } = require("../../utils/economyUtils");
+const { DAILY_COOLDOWN_HOURS } = require("../../config/economyConfig");
+const { box } = require("../../utils/messageFormatUtils");
 
 function formatStreakLabel(streak) {
   const value = Math.max(0, Math.floor(Number(streak) || 0));
@@ -46,25 +38,29 @@ module.exports = {
     const totalCooldownMs = DAILY_COOLDOWN_HOURS * 60 * 60 * 1000;
 
     if (!result.claimed) {
-      await ctx.reply(box("🎁 Daily", [
-        "",
-        "❌  Ya reclamaste tu recompensa.",
-        "",
-        `⏳  Disponible en: ${formatDuration(result.remainingMs)}`,
-        `📊  ${formatProgressBar(result.remainingMs, totalCooldownMs)}`,
-        "",
-        `🔥  Racha actual: ${formatStreakLabel(result.streak)}`,
-      ]));
+      await ctx.reply(
+        box("🎁 Daily", [
+          "",
+          "❌  Ya reclamaste tu recompensa.",
+          "",
+          `⏳  Disponible en: ${formatDuration(result.remainingMs)}`,
+          `📊  ${formatProgressBar(result.remainingMs, totalCooldownMs)}`,
+          "",
+          `🔥  Racha actual: ${formatStreakLabel(result.streak)}`,
+        ]),
+      );
       return;
     }
 
     await ctx.react("🎁");
 
-    await ctx.reply(box("🎁 Daily", [
-      "",
-      `💵  Recompensa: ${formatStelas(result.reward)}`,
-      `🔥  Racha: ${formatStreakLabel(result.streak)}`,
-      `💰  Balance: ${formatStelas(result.balance)}`,
-    ]));
+    await ctx.reply(
+      box("🎁 Daily", [
+        "",
+        `💵  Recompensa: ${formatStelas(result.reward)}`,
+        `🔥  Racha: ${formatStreakLabel(result.streak)}`,
+        `💰  Balance: ${formatStelas(result.balance)}`,
+      ]),
+    );
   },
 };

@@ -4,19 +4,21 @@ Bot RPG modular para WhatsApp. Arquitectura 100% stateless con Supabase como fue
 
 ## Tecnologías Principales
 - **Baileys** (`@whiskeysockets/baileys`): Conexión con la API de WhatsApp.
-- **Supabase**: Base de datos en la nube (Arquitectura Stateless). Almacena sesiones, perfiles, personajes, economía y reportes.
+- **Supabase**: Base de datos en la nube. Almacena sesiones, perfiles, personajes, economía y reportes.
 - **Node.js**: Entorno de ejecución.
-- **Orquestador de IA multi-agente**: Gemini, OpenRouter, Hugging Face y Ollama con failover automático.
 
 ## Estructura del Proyecto
-- `/src/core`: Lógica principal del bot, manejo de sesión y contexto.
-- `/src/services`: Servicios de lectura/escritura (Economía, Usuarios, Grupos, Personajes, IA, Bug Reports, Sincronización) conectados directamente a Supabase.
-- `/src/services/rpg`: Sistema RPG base (dataLoader, statCalculator, ruleEngine).
-- `/src/commands`: 36 comandos ejecutables en 6 categorías (economía, personajes, grupo, permisos, información, utilidades).
-- `/src/database`: Cliente Supabase y scripts de migración.
-- `/src/utils`: Utilidades (safeQuery, formateo, parsing, menciones, permisos).
-- `/mcp_nekomemori`: Servidor local MCP para memoria persistente de la IA.
-- `/tests`: 9 suites de prueba (cache, context, multiagente, comandos, personajes, esquema).
+- `/src/core`: Lógica principal del bot, manejo de sesión, eventos y contexto.
+- `/src/services`: Servicios de negocio (Economía, Usuarios, Grupos, Personajes, Bug Reports, Logger).
+- `/src/services/rpg`: Sistema RPG (combatEngine, abilities, items, inventory, enemies, effects).
+- `/src/commands`: 46 comandos ejecutables en 6 categorías (economía, personajes, grupo, permisos, información, utilidades).
+- `/src/config`: Configuración centralizada (economía, grupos, personajes, permisos, RPG).
+- `/src/data`: Catálogos de clases y razas.
+- `/src/database`: Cliente Supabase.
+- `/src/utils`: Utilidades (cache, formateo, parsing, menciones, permisos, roll).
+- `/tests`: 15 suites de prueba.
+- `/adr`: Architecture Decision Records.
+- `/graphify-out`: Knowledge graph generado por AST (sin LLM).
 
 ## Comandos disponibles
 
@@ -30,7 +32,17 @@ Bot RPG modular para WhatsApp. Arquitectura 100% stateless con Supabase como fue
 | Utilidades | `/dado`, `/bugreport`, `/bugstatus` |
 
 ## Configuración y Ejecución
-1. Copia `.env.example` y renómbralo a `.env`.
-2. Llena las credenciales (`SUPABASE_URL`, `SUPABASE_KEY`, `GEMINI_API_KEY`, etc.).
+1. Copia `.env.local.example` a `.env.local`.
+2. Llena las credenciales (`SUPABASE_URL`, `SUPABASE_KEY`).
 3. Instala dependencias con `npm install`.
 4. Ejecuta el bot con `npm start` o `npm run dev` para recarga automática.
+
+## Herramientas de desarrollo
+```bash
+npm run check      # lint + typecheck + depcruise
+npm run check:all  # check + format:check + test:all
+npm run lint       # ESLint
+npm run format     # Prettier
+npm run typecheck  # TypeScript (strict)
+npm run depcruise  # dependency-cruiser
+```

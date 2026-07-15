@@ -1,4 +1,5 @@
-const { cache, memoryCacheKey, TTLS, generateCacheKey } = require("../services/ai/promptCacheService");
+// @ts-nocheck
+const { cache, TTLS } = require("./cacheService");
 
 async function safeSingle(query) {
   const { data, error } = await query.single();
@@ -9,7 +10,7 @@ async function safeSingle(query) {
 async function safeSingleOrNull(query) {
   const { data, error } = await query.single();
   if (error) {
-    if (error.code === 'PGRST116') return null;
+    if (error.code === "PGRST116") return null;
     throw error;
   }
   return data;
@@ -57,20 +58,20 @@ function topActiveUsersCacheKey(limit) {
 
 function invalidateUserCache(creatorId) {
   const key = userCacheKey(creatorId);
-  cache.invalidate(k => k === key || k.startsWith(`user:${creatorId}`) || k.startsWith(`characters:${creatorId}`));
+  cache.invalidate((k) => k === key || k.startsWith(`user:${creatorId}`) || k.startsWith(`characters:${creatorId}`));
 }
 
 function invalidateGroupCache(groupId) {
   const key = groupCacheKey(groupId);
-  cache.invalidate(k => k === key || k.startsWith(`group:${groupId}`) || k.startsWith(`topGroupMembers:${groupId}`));
+  cache.invalidate((k) => k === key || k.startsWith(`group:${groupId}`) || k.startsWith(`topGroupMembers:${groupId}`));
 }
 
 function invalidateTopBalancesCache() {
-  cache.invalidate(k => k.startsWith('topBalances:'));
+  cache.invalidate((k) => k.startsWith("topBalances:"));
 }
 
 function invalidateTopActiveUsersCache() {
-  cache.invalidate(k => k.startsWith('topActiveUsers:'));
+  cache.invalidate((k) => k.startsWith("topActiveUsers:"));
 }
 
 function invalidateAllCache() {

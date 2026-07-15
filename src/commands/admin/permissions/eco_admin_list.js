@@ -1,3 +1,4 @@
+// @ts-nocheck
 const { listEconomyAdmins } = require("../../../services/permissionService");
 const { getOwnerRecords } = require("../../../utils/permissionUtils");
 const { box } = require("../../../utils/messageFormatUtils");

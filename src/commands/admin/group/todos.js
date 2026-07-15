@@ -1,3 +1,4 @@
+// @ts-nocheck
 const { getGroupMetadata } = require("../../../utils/groupUtils");
 const { formatCount } = require("../../../utils/activityFormatUtils");
 const { formatRealMentionTag, withMentions } = require("../../../utils/userMentionUtils");
@@ -21,9 +22,9 @@ module.exports = {
       }
 
       const memberJids = participants
-        .map(p => p.id || p.jid || "")
+        .map((p) => p.id || p.jid || "")
         .filter(Boolean)
-        .filter(jid => jid !== ctx.sock?.user?.id);
+        .filter((jid) => jid !== ctx.sock?.user?.id);
 
       const lines = [];
       let chunk = "";
@@ -41,15 +42,12 @@ module.exports = {
 
       const firstLine = lines.shift() || "";
 
-      await ctx.reply(withMentions(
-        box("👥 Miembros del grupo", [
-          "",
-          `Total: ${formatCount(memberJids.length)}`,
-          "",
-          firstLine,
-        ]),
-        memberJids,
-      ));
+      await ctx.reply(
+        withMentions(
+          box("👥 Miembros del grupo", ["", `Total: ${formatCount(memberJids.length)}`, "", firstLine]),
+          memberJids,
+        ),
+      );
 
       for (const chunk of lines) {
         await ctx.reply(withMentions(chunk, memberJids));

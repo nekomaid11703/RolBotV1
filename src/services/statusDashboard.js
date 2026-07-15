@@ -1,3 +1,4 @@
+// @ts-nocheck
 const { stats, getUptime, getMemory, formatDuration } = require("./stats");
 
 let dashboardTimer = null;
@@ -47,21 +48,21 @@ function render() {
     const errL = stats.errors > 0 ? `${RE}${B}${stats.errors}${R}` : `${stats.errors}`;
     const grpB = bar(stats.groupsCount, maxGrp);
 
-    const lastMsg = stats.lastMessageTime
-      ? `hace ${Math.floor((Date.now() - stats.lastMessageTime) / 1000)}s`
-      : "---";
+    const lastMsg = stats.lastMessageTime ? `hace ${Math.floor((Date.now() - stats.lastMessageTime) / 1000)}s` : "---";
 
     const memS = `${mem} MB`;
 
-    const healthOk = !stats.lastMessageTime || (Date.now() - stats.lastMessageTime) < 30000;
+    const healthOk = !stats.lastMessageTime || Date.now() - stats.lastMessageTime < 30000;
     const healthIcon = healthOk ? `${G}[OK]${R}` : `${Y}[!!]${R}`;
     const healthTxt = healthOk ? "Normal" : "Inactivo";
 
-    const events = stats.lastEvents.map(e => {
-      const t = e.time.toLocaleTimeString("es-ES", { hour12: false });
-      const ic = e.type === "cmd" ? `${C}>${R}` : e.type === "err" ? `${RE}X${R}` : `${G}>${R}`;
-      return `  ${GR}${t}${R}  ${ic}  ${e.text.slice(0, 55)}`;
-    }).join("\n");
+    const events = stats.lastEvents
+      .map((e) => {
+        const t = e.time.toLocaleTimeString("es-ES", { hour12: false });
+        const ic = e.type === "cmd" ? `${C}>${R}` : e.type === "err" ? `${RE}X${R}` : `${G}>${R}`;
+        return `  ${GR}${t}${R}  ${ic}  ${e.text.slice(0, 55)}`;
+      })
+      .join("\n");
 
     const n = "\n";
     const sep = `${M}+----------------------------------------------------+${R}`;
@@ -101,7 +102,7 @@ function render() {
     out.push(sep);
 
     process.stdout.write("\x1b[2J\x1b[H" + out.join(n) + n);
-  } catch (e) {
+  } catch (_e) {
     // Never crash the bot due to dashboard rendering error
   }
 }

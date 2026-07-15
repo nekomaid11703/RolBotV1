@@ -1,3 +1,4 @@
+// @ts-nocheck
 const { openGroup } = require("../../../utils/groupUtils");
 const { formatError, box } = require("../../../utils/messageFormatUtils");
 
@@ -12,10 +13,7 @@ module.exports = {
   async execute(ctx) {
     try {
       await openGroup(ctx.sock, ctx.from);
-      await ctx.reply(box("🔓 Grupo abierto", [
-        "",
-        "Todos pueden enviar mensajes.",
-      ]));
+      await ctx.reply(box("🔓 Grupo abierto", ["", "Todos pueden enviar mensajes."]));
     } catch (error) {
       await ctx.reply(formatError(error.message));
     }

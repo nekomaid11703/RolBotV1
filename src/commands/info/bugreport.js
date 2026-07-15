@@ -1,13 +1,14 @@
-const { createReport } = require('../../services/bugReportService');
+// @ts-nocheck
+const { createReport } = require("../../services/bugReportService");
 const { box, formatError } = require("../../utils/messageFormatUtils");
 
 const reportCooldowns = new Map();
 const REPORT_COOLDOWN_MS = 5 * 60 * 1000;
 
 module.exports = {
-  name: 'bugreport',
-  description: 'Reportar un bug. Uso: /bugreport <descripción> [+imagen]',
-  category: 'utilidades',
+  name: "bugreport",
+  description: "Reportar un bug. Uso: /bugreport <descripción> [+imagen]",
+  category: "utilidades",
 
   async execute(ctx) {
     const now = Date.now();
@@ -17,9 +18,9 @@ module.exports = {
       return ctx.reply(`⏳ Puedes reportar otro bug en ${remaining} segundos.`);
     }
 
-    const description = ctx.args.join(' ').trim();
+    const description = ctx.args.join(" ").trim();
     if (!description && !ctx.msg?.message?.imageMessage) {
-      return ctx.reply('❌ Usa: /bugreport <descripción del bug>\n\nPuedes adjuntar una imagen.');
+      return ctx.reply("❌ Usa: /bugreport <descripción del bug>\n\nPuedes adjuntar una imagen.");
     }
 
     try {
@@ -28,7 +29,7 @@ module.exports = {
         groupId: ctx.isGroup ? ctx.from : null,
         userId: ctx.sender,
         userName: ctx.userName,
-        description: description || '(solo imagen)',
+        description: description || "(solo imagen)",
         msg: ctx.msg,
       });
 
@@ -40,7 +41,7 @@ module.exports = {
       lines.push(`📋 Categoría: ${report.category}`);
       lines.push(`🏷 Prioridad: ${report.priority}`);
       lines.push(`📊 Estado: ${report.status}`);
-      if (report.mediaUrl) lines.push('🖼 Imagen adjunta guardada');
+      if (report.mediaUrl) lines.push("🖼 Imagen adjunta guardada");
 
       await ctx.reply(box("✅ Bug reportado", lines));
     } catch (error) {

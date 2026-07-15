@@ -1,18 +1,10 @@
+// @ts-nocheck
 const { setEconomyAdmin } = require("../../../services/permissionService");
-const {
-  getFirstMentionedJid,
-} = require("../../../utils/commandParseUtils");
+const { getFirstMentionedJid } = require("../../../utils/commandParseUtils");
 const { isOwner } = require("../../../utils/permissionUtils");
-const {
-  resolveTargetDisplayName,
-  formatDisplayMention,
-  withMentions,
-} = require("../../../utils/userMentionUtils");
-const {
-  formatCommandUsage,
-  formatError,
-  box,
-} = require("../../../utils/messageFormatUtils");
+const { formatDisplayMention, withMentions } = require("../../../utils/userMentionUtils");
+const { resolveTargetDisplayName } = require("../../../services/displayNameService");
+const { formatCommandUsage, formatError, box } = require("../../../utils/messageFormatUtils");
 
 const usageMessage = formatCommandUsage({
   icon: "🛡️",
@@ -56,15 +48,17 @@ module.exports = {
         },
       });
 
-      await ctx.reply(withMentions(
-        box("🛡️ Permiso otorgado", [
-          "",
-          `👤  ${formatDisplayMention(targetId, targetName)}`,
-          "",
-          "Ahora es administrador de economia.",
-        ]),
-        [targetId],
-      ));
+      await ctx.reply(
+        withMentions(
+          box("🛡️ Permiso otorgado", [
+            "",
+            `👤  ${formatDisplayMention(targetId, targetName)}`,
+            "",
+            "Ahora es administrador de economia.",
+          ]),
+          [targetId],
+        ),
+      );
     } catch (error) {
       await ctx.reply(formatError(error.message));
     }

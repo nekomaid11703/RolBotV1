@@ -1,3 +1,4 @@
+// @ts-nocheck
 const path = require("path");
 
 const CHARACTER_ROOT = path.join(__dirname, "../database/personajes");

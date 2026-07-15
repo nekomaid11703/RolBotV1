@@ -1,3 +1,4 @@
+// @ts-nocheck
 const { formatDisplayMention } = require("../../utils/userMentionUtils");
 
 module.exports = {

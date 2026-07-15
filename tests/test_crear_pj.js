@@ -27,7 +27,7 @@ Nombre: Kevin
 Clase: Guerrero Mágico
 Historia: Vivía en una montaña lejana.
 Tenía un perro.`,
-    expected: { name: "Kevin", clase: "Guerrero Mágico", historia: "Vivía en una montaña lejana.\nTenía un perro." }
+    expected: { name: "Kevin", clase: "Guerrero Mágico", historia: "Vivía en una montaña lejana.\nTenía un perro." },
   },
   {
     desc: "Caso desordenado (espacios y mayúsculas aleatorias)",
@@ -36,13 +36,13 @@ nombre:    Aragorn
 cLAse:   Ranger
 historia:  
 El heredero de Isildur.`,
-    expected: { name: "Aragorn", clase: "Ranger", historia: "El heredero de Isildur." }
+    expected: { name: "Aragorn", clase: "Ranger", historia: "El heredero de Isildur." },
   },
   {
     desc: "Caso sin clase (Clase vacía u omitida)",
     input: `/crear_pj\nNombre: Frodo\nHistoria: Portador del anillo.`,
-    expected: { name: "Frodo", clase: "", historia: "Portador del anillo." }
-  }
+    expected: { name: "Frodo", clase: "", historia: "Portador del anillo." },
+  },
 ];
 
 let failures = 0;
@@ -52,8 +52,8 @@ console.log("🛠️ EJECUTANDO PRUEBAS DE REGEX (crear_pj)...\n");
 testCases.forEach((tc, i) => {
   try {
     const result = testParser(tc.input);
-    const pass = 
-      result.name === tc.expected.name && 
+    const pass =
+      result.name === tc.expected.name &&
       result.clase === tc.expected.clase &&
       result.historia === tc.expected.historia;
 

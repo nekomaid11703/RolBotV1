@@ -1,182 +1,195 @@
-const { BufferJSON, initAuthCreds } = require('@whiskeysockets/baileys');
-const { supabase } = require('../database/supabase');
-const { logSystem, logError } = require('../services/loggerService');
+const { BufferJSON, initAuthCreds } = require("@whiskeysockets/baileys");
+const { supabase } = require("../database/supabase");
+const { logError } = require("../services/loggerService");
 
-const TABLE_NAME = 'bot_auth_state';
+const TABLE_NAME = "bot_auth_state";
 
-async function useSupabaseAuthState(sessionId = 'default') {
-    let consecutiveFailures = 0;
-    let circuitOpen = false;
-    let nextAttemptTime = 0;
-    const COOLDOWN_MS = 30000; // 30 segundos de cooldown
-    const MAX_FAILURES = 3;
+async function useSupabaseAuthState(sessionId = "default") {
+  let consecutiveFailures = 0;
+  let circuitOpen = false;
+  let nextAttemptTime = 0;
+  const COOLDOWN_MS = 30000; // 30 segundos de cooldown
+  const MAX_FAILURES = 3;
 
-    const checkCircuit = () => {
-        if (circuitOpen) {
-            if (Date.now() > nextAttemptTime) {
-                // Semi-abierto: permitir un intento de prueba
-                return true;
-            }
-            return false;
-        }
+  const checkCircuit = () => {
+    if (circuitOpen) {
+      if (Date.now() > nextAttemptTime) {
+        // Semi-abierto: permitir un intento de prueba
         return true;
-    };
+      }
+      return false;
+    }
+    return true;
+  };
 
-    const recordSuccess = () => {
-        consecutiveFailures = 0;
-        circuitOpen = false;
-    };
+  const recordSuccess = () => {
+    consecutiveFailures = 0;
+    circuitOpen = false;
+  };
 
-    const recordFailure = (err) => {
-        consecutiveFailures++;
-        if (consecutiveFailures >= MAX_FAILURES) {
-            if (!circuitOpen) {
-                circuitOpen = true;
-                nextAttemptTime = Date.now() + COOLDOWN_MS;
-                logError({
-                    source: "supabaseAuthState.circuitBreaker",
-                    error: new Error(`Circuito abierto para Supabase. Conexión suspendida temporalmente por ${COOLDOWN_MS / 1000}s. Detalle: ${err.message || err}`)
-                }).catch(() => {});
+  /** @param {unknown} err */
+  const recordFailure = (err) => {
+    consecutiveFailures++;
+    if (consecutiveFailures >= MAX_FAILURES) {
+      if (!circuitOpen) {
+        circuitOpen = true;
+        nextAttemptTime = Date.now() + COOLDOWN_MS;
+        logError({
+          source: "supabaseAuthState.circuitBreaker",
+          error: new Error(
+            `Circuito abierto para Supabase. Conexión suspendida temporalmente por ${COOLDOWN_MS / 1000}s. Detalle: ${err instanceof Error ? err.message : String(err)}`,
+          ),
+        }).catch(() => {});
+      }
+    }
+  };
+
+  /**
+   * @param {Record<string,any>} data
+   * @param {string} id
+   */
+  const writeData = async (data, id) => {
+    if (!checkCircuit()) return;
+    try {
+      const json = JSON.parse(JSON.stringify(data, BufferJSON.replacer));
+      const { error } = await supabase.from(TABLE_NAME).upsert({ session_id: sessionId, id, data: json });
+
+      if (error) throw error;
+      recordSuccess();
+    } catch (err) {
+      recordFailure(err);
+      await logError({
+        source: `supabaseAuthState.writeData:${id}`,
+        error: err,
+      });
+    }
+  };
+
+  /** @param {string} id */
+  const readData = async (id) => {
+    if (!checkCircuit()) return null;
+    try {
+      const { data, error } = await supabase
+        .from(TABLE_NAME)
+        .select("data")
+        .eq("session_id", sessionId)
+        .eq("id", id)
+        .single();
+
+      if (error) {
+        if (error.code === "PGRST116") {
+          // Fila no encontrada, es normal al iniciar credenciales limpias
+          recordSuccess();
+          return null;
+        }
+        throw error;
+      }
+      if (!data) return null;
+
+      recordSuccess();
+      return JSON.parse(JSON.stringify(data.data), BufferJSON.reviver);
+    } catch (err) {
+      recordFailure(err);
+      await logError({
+        source: `supabaseAuthState.readData:${id}`,
+        error: err,
+      });
+      return null;
+    }
+  };
+
+  /** @param {string} id */
+  const _removeData = async (id) => {
+    if (!checkCircuit()) return;
+    try {
+      const { error } = await supabase.from(TABLE_NAME).delete().eq("session_id", sessionId).eq("id", id);
+
+      if (error) throw error;
+      recordSuccess();
+    } catch (err) {
+      recordFailure(err);
+      await logError({
+        source: `supabaseAuthState.removeData:${id}`,
+        error: err,
+      });
+    }
+  };
+
+  let creds = await readData("creds");
+  if (!creds) {
+    creds = initAuthCreds();
+    await writeData(creds, "creds");
+  }
+
+  return {
+    state: {
+      creds,
+      keys: {
+        /**
+         * @param {string} type
+         * @param {string[]} ids
+         */
+        get: async (type, ids) => {
+          /** @type {Record<string,any>} */
+          const data = {};
+          await Promise.all(
+            ids.map(async (/** @type {string} */ id) => {
+              let value = await readData(`${type}-${id}`);
+              if (type === "app-state-sync-key" && value) {
+                const { proto } = require("@whiskeysockets/baileys");
+                value = proto.Message.AppStateSyncKeyData.fromObject(value);
+              }
+              data[id] = value;
+            }),
+          );
+          return data;
+        },
+        /** @param {Record<string,Record<string,any>>} data */
+        set: async (data) => {
+          if (!checkCircuit()) return;
+          const upsertData = [];
+          const deleteData = [];
+          for (const category in data) {
+            for (const id in data[category]) {
+              const value = data[category][id];
+              const key = `${category}-${id}`;
+              if (value) {
+                const json = JSON.parse(JSON.stringify(value, BufferJSON.replacer));
+                upsertData.push({ session_id: sessionId, id: key, data: json });
+              } else {
+                deleteData.push(key);
+              }
             }
-        }
-    };
+          }
 
-    const writeData = async (data, id) => {
-        if (!checkCircuit()) return;
-        try {
-            const json = JSON.parse(JSON.stringify(data, BufferJSON.replacer));
-            const { error } = await supabase
-                .from(TABLE_NAME)
-                .upsert({ session_id: sessionId, id, data: json });
-            
-            if (error) throw error;
-            recordSuccess();
-        } catch (err) {
-            recordFailure(err);
-            await logError({
-                source: `supabaseAuthState.writeData:${id}`,
-                error: err
-            });
-        }
-    };
-
-    const readData = async (id) => {
-        if (!checkCircuit()) return null;
-        try {
-            const { data, error } = await supabase
-                .from(TABLE_NAME)
-                .select('data')
-                .eq('session_id', sessionId)
-                .eq('id', id)
-                .single();
-
-            if (error) {
-                if (error.code === 'PGRST116') {
-                    // Fila no encontrada, es normal al iniciar credenciales limpias
-                    recordSuccess();
-                    return null;
-                }
-                throw error;
+          try {
+            if (upsertData.length > 0) {
+              const { error: upsertError } = await supabase.from(TABLE_NAME).upsert(upsertData);
+              if (upsertError) throw upsertError;
             }
-            if (!data) return null;
-            
-            recordSuccess();
-            return JSON.parse(JSON.stringify(data.data), BufferJSON.reviver);
-        } catch (err) {
-            recordFailure(err);
-            await logError({
-                source: `supabaseAuthState.readData:${id}`,
-                error: err
-            });
-            return null;
-        }
-    };
-
-    const removeData = async (id) => {
-        if (!checkCircuit()) return;
-        try {
-            const { error } = await supabase
+            if (deleteData.length > 0) {
+              const { error: deleteError } = await supabase
                 .from(TABLE_NAME)
                 .delete()
-                .eq('session_id', sessionId)
-                .eq('id', id);
-            
-            if (error) throw error;
+                .eq("session_id", sessionId)
+                .in("id", deleteData);
+              if (deleteError) throw deleteError;
+            }
             recordSuccess();
-        } catch (err) {
+          } catch (err) {
             recordFailure(err);
             await logError({
-                source: `supabaseAuthState.removeData:${id}`,
-                error: err
+              source: "supabaseAuthState.keys.set",
+              error: err,
             });
-        }
-    };
-
-    let creds = await readData('creds');
-    if (!creds) {
-        creds = initAuthCreds();
-        await writeData(creds, 'creds');
-    }
-
-    return {
-        state: {
-            creds,
-            keys: {
-                get: async (type, ids) => {
-                    const data = {};
-                    await Promise.all(
-                        ids.map(async (id) => {
-                            let value = await readData(`${type}-${id}`);
-                            if (type === 'app-state-sync-key' && value) {
-                                const { proto } = require('@whiskeysockets/baileys');
-                                value = proto.Message.AppStateSyncKeyData.fromObject(value);
-                            }
-                            data[id] = value;
-                        })
-                    );
-                    return data;
-                },
-                set: async (data) => {
-                    if (!checkCircuit()) return;
-                    const upsertData = [];
-                    const deleteData = [];
-                    for (const category in data) {
-                        for (const id in data[category]) {
-                            const value = data[category][id];
-                            const key = `${category}-${id}`;
-                            if (value) {
-                                const json = JSON.parse(JSON.stringify(value, BufferJSON.replacer));
-                                upsertData.push({ session_id: sessionId, id: key, data: json });
-                            } else {
-                                deleteData.push(key);
-                            }
-                        }
-                    }
-                    
-                    try {
-                        if (upsertData.length > 0) {
-                            const { error: upsertError } = await supabase.from(TABLE_NAME).upsert(upsertData);
-                            if (upsertError) throw upsertError;
-                        }
-                        if (deleteData.length > 0) {
-                            const { error: deleteError } = await supabase.from(TABLE_NAME).delete().eq('session_id', sessionId).in('id', deleteData);
-                            if (deleteError) throw deleteError;
-                        }
-                        recordSuccess();
-                    } catch (err) {
-                        recordFailure(err);
-                        await logError({
-                            source: "supabaseAuthState.keys.set",
-                            error: err
-                        });
-                    }
-                }
-            }
+          }
         },
-        saveCreds: () => {
-            return writeData(creds, 'creds');
-        }
-    };
+      },
+    },
+    saveCreds: () => {
+      return writeData(creds, "creds");
+    },
+  };
 }
 
 module.exports = { useSupabaseAuthState };

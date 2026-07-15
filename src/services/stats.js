@@ -1,3 +1,4 @@
+/** @type {{ startTime: number, messagesReceived: number, commandsExecuted: number, errors: number, lastMessageTime: number|null, lastEvents: Array<{time: Date, type: string, text: string}>, groupsCount: number, isConnected: boolean, lastConnectionTime: number|null }} */
 const stats = {
   startTime: Date.now(),
   messagesReceived: 0,
@@ -23,6 +24,7 @@ function incrementErrors() {
   stats.errors++;
 }
 
+/** @param {string} type @param {string} text */
 function addEvent(type, text) {
   stats.lastEvents.unshift({ time: new Date(), type, text });
   if (stats.lastEvents.length > 6) stats.lastEvents.pop();
@@ -34,14 +36,15 @@ function getUptime() {
 
 function getMemory() {
   const usage = process.memoryUsage();
-  return Math.round(usage.rss / 1024 / 1024 * 10) / 10;
+  return Math.round((usage.rss / 1024 / 1024) * 10) / 10;
 }
 
+/** @param {number} ms */
 function formatDuration(ms) {
   const s = Math.floor(ms / 1000);
-  const h = String(Math.floor(s / 3600)).padStart(2, '0');
-  const m = String(Math.floor((s % 3600) / 60)).padStart(2, '0');
-  const sec = String(s % 60).padStart(2, '0');
+  const h = String(Math.floor(s / 3600)).padStart(2, "0");
+  const m = String(Math.floor((s % 3600) / 60)).padStart(2, "0");
+  const sec = String(s % 60).padStart(2, "0");
   return `${h}:${m}:${sec}`;
 }
 

@@ -1,25 +1,24 @@
+// @ts-nocheck
 const { commands } = require("../../core/commandHandler");
 
-const COMBAT_CMDS = new Set([
-  "combate", "atacar", "rendirse", "aceptar", "rechazar", "duel",
-]);
+const COMBAT_CMDS = new Set(["combate", "atacar", "rendirse", "aceptar", "rechazar", "duel"]);
 
-const CAT_ORDER = [
-  "informacion", "economia", "personajes", "grupo", "permisos", "utilidades", "rpg",
-];
+const CAT_ORDER = ["informacion", "economia", "personajes", "grupo", "permisos", "utilidades", "rpg"];
 
 const CAT_META = {
-  informacion: { emoji: "ℹ️",  label: "INFORMACIÓN" },
-  economia:    { emoji: "💰",  label: "ECONOMÍA" },
-  personajes:  { emoji: "🎭",  label: "PERSONAJES" },
-  grupo:       { emoji: "🏰",  label: "GRUPO" },
-  permisos:    { emoji: "🛡️", label: "PERMISOS" },
-  utilidades:  { emoji: "🛠️", label: "UTILIDADES" },
-  rpg:         { emoji: "⚔️", label: "ROL" },
+  informacion: { emoji: "ℹ️", label: "INFORMACIÓN" },
+  economia: { emoji: "💰", label: "ECONOMÍA" },
+  personajes: { emoji: "🎭", label: "PERSONAJES" },
+  grupo: { emoji: "🏰", label: "GRUPO" },
+  permisos: { emoji: "🛡️", label: "PERMISOS" },
+  utilidades: { emoji: "🛠️", label: "UTILIDADES" },
+  rpg: { emoji: "⚔️", label: "ROL" },
 };
 
 function normCat(c) {
-  return String(c || "otros").trim().toLowerCase();
+  return String(c || "otros")
+    .trim()
+    .toLowerCase();
 }
 
 function getGroup(cmd) {
@@ -31,12 +30,12 @@ function buildAliasStr(aliases) {
   if (!aliases || aliases.length === 0) return "";
   const show = aliases.slice(0, 4);
   const more = aliases.length > 4 ? ` +${aliases.length - 4}` : "";
-  return show.map(a => `/${a}`).join(", ") + more;
+  return show.map((a) => `/${a}`).join(", ") + more;
 }
 
 function renderCmd(name, desc, aliases, style) {
   const lines = [];
-  
+
   if (style === "multi") {
     // Diseño para comandos normales: Nombre destacado, descripción en cursiva abajo
     lines.push(`│ ⟡ */${name}*`);
@@ -49,7 +48,7 @@ function renderCmd(name, desc, aliases, style) {
     const alias = aliases && aliases.length > 0 ? ` (${buildAliasStr(aliases)})` : "";
     lines.push(`│ ⚡ */${name}* - _${desc}_${alias}`);
   }
-  
+
   return lines;
 }
 
@@ -97,10 +96,16 @@ module.exports = {
     const all = [];
     const seen = new Set();
     for (const c of CAT_ORDER) {
-      if (cats.has(c) && !seen.has(c)) { seen.add(c); all.push(c); }
+      if (cats.has(c) && !seen.has(c)) {
+        seen.add(c);
+        all.push(c);
+      }
     }
     for (const c of cats.keys()) {
-      if (!seen.has(c)) { seen.add(c); all.push(c); }
+      if (!seen.has(c)) {
+        seen.add(c);
+        all.push(c);
+      }
     }
 
     const output = [];
@@ -115,14 +120,12 @@ module.exports = {
     for (const c of all) {
       const meta = CAT_META[c] || { emoji: "📂", label: c.toUpperCase() };
       const title = `${meta.emoji} ${meta.label}`;
-      
-      const cmds = cats.get(c).sort((a, b) =>
-        a.name.localeCompare(b.name, "es")
-      );
-      
-      const normal = cmds.filter(cmd => getGroup(cmd) !== "admin");
-      const admin = cmds.filter(cmd => getGroup(cmd) === "admin");
-      
+
+      const cmds = cats.get(c).sort((a, b) => a.name.localeCompare(b.name, "es"));
+
+      const normal = cmds.filter((cmd) => getGroup(cmd) !== "admin");
+      const admin = cmds.filter((cmd) => getGroup(cmd) === "admin");
+
       output.push(buildSection(title, normal, admin));
     }
 

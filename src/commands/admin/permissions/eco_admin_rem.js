@@ -1,21 +1,10 @@
-const {
-  setEconomyAdmin,
-  isEconomyAdmin,
-} = require("../../../services/permissionService");
-const {
-  getFirstMentionedJid,
-} = require("../../../utils/commandParseUtils");
+// @ts-nocheck
+const { setEconomyAdmin, isEconomyAdmin } = require("../../../services/permissionService");
+const { getFirstMentionedJid } = require("../../../utils/commandParseUtils");
 const { isOwner } = require("../../../utils/permissionUtils");
-const {
-  resolveTargetDisplayName,
-  formatDisplayMention,
-  withMentions,
-} = require("../../../utils/userMentionUtils");
-const {
-  formatCommandUsage,
-  formatError,
-  box,
-} = require("../../../utils/messageFormatUtils");
+const { formatDisplayMention, withMentions } = require("../../../utils/userMentionUtils");
+const { resolveTargetDisplayName } = require("../../../services/displayNameService");
+const { formatCommandUsage, formatError, box } = require("../../../utils/messageFormatUtils");
 
 const usageMessage = formatCommandUsage({
   icon: "🛡️",
@@ -48,15 +37,17 @@ module.exports = {
     const targetName = await resolveTargetDisplayName(ctx, targetId);
 
     if (!current) {
-      return ctx.reply(withMentions(
-        box("ℹ️ Sin permisos", [
-          "",
-          `👤  ${formatDisplayMention(targetId, targetName)}`,
-          "",
-          "No tiene permisos de economía activos.",
-        ]),
-        [targetId],
-      ));
+      return ctx.reply(
+        withMentions(
+          box("ℹ️ Sin permisos", [
+            "",
+            `👤  ${formatDisplayMention(targetId, targetName)}`,
+            "",
+            "No tiene permisos de economía activos.",
+          ]),
+          [targetId],
+        ),
+      );
     }
 
     try {
@@ -73,15 +64,17 @@ module.exports = {
         },
       });
 
-      await ctx.reply(withMentions(
-        box("🛡️ Permiso retirado", [
-          "",
-          `👤  ${formatDisplayMention(targetId, targetName)}`,
-          "",
-          "Ya no es administrador de economia.",
-        ]),
-        [targetId],
-      ));
+      await ctx.reply(
+        withMentions(
+          box("🛡️ Permiso retirado", [
+            "",
+            `👤  ${formatDisplayMention(targetId, targetName)}`,
+            "",
+            "Ya no es administrador de economia.",
+          ]),
+          [targetId],
+        ),
+      );
     } catch (error) {
       await ctx.reply(formatError(error.message));
     }

@@ -1,11 +1,8 @@
+// @ts-nocheck
 const { createCharacter, setActiveCharacter } = require("../../../services/characterService");
 const { isAdmin } = require("../../../utils/groupUtils");
 const { MAX_CHARACTER_NAME_LENGTH } = require("../../../config/characterConfig");
-const {
-  formatCommandForm,
-  formatError,
-  box,
-} = require("../../../utils/messageFormatUtils");
+const { formatCommandForm, formatError, box } = require("../../../utils/messageFormatUtils");
 
 module.exports = {
   name: "crear_pj",
@@ -22,12 +19,7 @@ module.exports = {
       description: "Copia la plantilla, completa tus datos y enviala de vuelta.",
       command: "/crear_pj",
       fields: ["Nombre", "Clase", "Historia"],
-      example: [
-        "/crear_pj",
-        "Nombre: Kael",
-        "Clase: Explorador",
-        "Historia: Un viajero que busca reliquias antiguas.",
-      ],
+      example: ["/crear_pj", "Nombre: Kael", "Clase: Explorador", "Historia: Un viajero que busca reliquias antiguas."],
       notes: ["El nombre debe tener entre 2 y 40 caracteres."],
     });
 
@@ -36,10 +28,10 @@ module.exports = {
     }
 
     try {
-      const lines = rawText.split('\n');
-      let name = '';
-      let clase = '';
-      let historia = '';
+      const lines = rawText.split("\n");
+      let name = "";
+      let clase = "";
+      let historia = "";
 
       for (const line of lines) {
         const trimmed = line.trim();
@@ -50,7 +42,7 @@ module.exports = {
         if (nameCandidate && !name) name = nameCandidate[1].trim();
         if (classCandidate && !clase) clase = classCandidate[1].trim();
         if (historyCandidate) {
-          historia = trimmed.replace(/^Historia:\s*/i, '').trim();
+          historia = trimmed.replace(/^Historia:\s*/i, "").trim();
         }
       }
 
@@ -91,13 +83,15 @@ module.exports = {
 
       await ctx.react("🎉");
 
-      await ctx.reply(box("🎉 Personaje creado", [
-        "",
-        `👤  ${character.name.toUpperCase()}`,
-        `🎖️  Rango: ${character.category}`,
-        "",
-        `💡 Usa /ver_pj para ver tu perfil completo`,
-      ]));
+      await ctx.reply(
+        box("🎉 Personaje creado", [
+          "",
+          `👤  ${character.name.toUpperCase()}`,
+          `🎖️  Rango: ${character.category}`,
+          "",
+          `💡 Usa /ver_pj para ver tu perfil completo`,
+        ]),
+      );
     } catch (error) {
       await ctx.reply(formatError(error.message));
     }

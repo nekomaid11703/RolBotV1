@@ -1,112 +1,159 @@
-const crypto = require('crypto');
-const { supabase } = require('../../database/supabase');
-const { getEnemy } = require('./enemies');
-const { logSystem, logError } = require('../loggerService');
+// @ts-nocheck
+/**
+ * combatStateManager.js — Gestión de Estado de Salas de Combate
+ *
+ * Administra las salas de combate en memoria y Supabase.
+ * Los participantes usan la nueva ficha táctica:
+ *   - 6 stats (fuerza, velocidad, reflejos, res_fisica, res_magica, dominio_magico)
+ *   - Slots: inventario, efectos_activos, habilidades, xp, nivel
+ */
 
-const SESSION_ID = 'combat';
+const crypto = require("crypto");
+const { supabase } = require("../../database/supabase");
+const { getEnemy } = require("./enemies");
+const { logSystem, logError } = require("../loggerService");
+const { RPG_CONFIG } = require("../../config/rpg.config");
+
+const SESSION_ID = "combat";
 const rooms = new Map();
 const groupIndex = new Map();
 let lastLoadTime = 0;
 const LOAD_TTL = 60000;
 
 function uuid() {
-  return 'cmb_' + crypto.randomBytes(6).toString('hex');
+  return "cmb_" + crypto.randomBytes(6).toString("hex");
 }
 
-function makeBaseParticipant(jid, name, team, charStats = {}, equipped = {}, equipmentBonuses = {}, bando = null) {
-  const s = charStats;
-  const b = equipmentBonuses || {};
+// ═══════════════════════════════════════════════════════════════════════
+//  CREACIÓN DE PARTICIPANTES
+// ═══════════════════════════════════════════════════════════════════════
+
+/**
+ * Crea un participante jugador con la ficha táctica D20.
+ *
+ * @param {string} jid - WhatsApp JID del jugador
+ * @param {string} name - Nombre del personaje
+ * @param {string} team - Equipo ('players' o 'enemies')
+ * @param {object} charData - Datos del personaje (stats, nivel, xp, habilidades, inventario)
+ * @param {string|null} bando - Bando en PvP ('challenger' | 'target' | null)
+ * @returns {object} Participante formateado
+ */
+function makeParticipant(jid, name, team, charData = {}, bando = null) {
+  const stats = charData.stats || {};
+  const defaults = RPG_CONFIG.defaultStats;
+
   return {
     id: jid,
-    name: name || jid.split('@')[0],
+    name: name || jid.split("@")[0],
     team,
     bando,
-    hp: s.vida || 100,
-    maxHp: s.vida || 100,
-    fulgor: s.fulgor_max || 50,
-    maxFulgor: s.fulgor_max || 50,
-    fatigue: 0,
-    fuerza: (s.fuerza || 5) + (b.fuerza || 0),
-    resistencia_fisica: (s.resistencia_fisica || 5) + (b.resistencia_fisica || 0) + (b.defensa || 0),
-    resistencia_magica: (s.resistencia_magica || 3) + (b.resistencia_magica || 0),
-    reflejos: (s.reflejos || 5) + (b.reflejos || 0) + (b.agilidad || 0),
-    velocidad_ataque: (s.velocidad_ataque || 5) + (b.velocidad_ataque || 0) + (b.agilidad || 0),
-    precision: (s.precision || 5) + (b.precision || 0),
-    velocidad_desplazamiento: (s.velocidad_desplazamiento || 5) + (b.velocidad_desplazamiento || 0) + (b.agilidad || 0),
-    dominio_fulgor: (s.dominio_fulgor || 1) + (b.dominio_fulgor || 0) + (b.magia || 0),
-    defending: false,
+
+    // ── HP ──────────────────────────────────────────────────────────
+    hp: stats.vida || 100,
+    maxHp: stats.vida || 100,
+
+    // ── 6 Estadísticas (1-20) ──────────────────────────────────────
+    fuerza: clampStat(stats.fuerza || defaults.fuerza),
+    velocidad: clampStat(stats.velocidad || defaults.velocidad),
+    reflejos: clampStat(stats.reflejos || defaults.reflejos),
+    resistencia_fisica: clampStat(stats.resistencia_fisica || defaults.resistencia_fisica),
+    resistencia_magica: clampStat(stats.resistencia_magica || defaults.resistencia_magica),
+    dominio_magico: clampStat(stats.dominio_magico || defaults.dominio_magico),
+
+    // ── Slots de Ficha ─────────────────────────────────────────────
+    inventario: charData.inventario || [],
+    efectos_activos: [],
+    habilidades: charData.habilidades || [],
+    xp: charData.xp || 0,
+    nivel: charData.nivel || 1,
+
+    // ── Estado de combate ──────────────────────────────────────────
     ko: false,
+    stunned: false,
     consecutiveSkips: 0,
     lastActionAt: Date.now(),
-    equipped,
-    equipmentBonuses,
-    bodyParts: {
-      cabeza: 10, cuello: 5, pecho: 20, abdomen: 15, espalda: 15,
-      brazo_izq: 10, brazo_der: 10, mano_izq: 5, mano_der: 5,
-      pierna_izq: 12, pierna_der: 12, pie_izq: 5, pie_der: 5,
-    },
-    cooldowns: {},
-    buffs: [],
-    defenseMultiplier: 1,
-    shielded: 0,
   };
 }
 
+/**
+ * Crea un participante enemigo (NPC) con la ficha D20.
+ *
+ * @param {object} enemy - Datos del enemigo (de enemies.js)
+ * @param {number} index - Índice para enemigos duplicados
+ * @returns {object} Participante NPC formateado
+ */
 function makeEnemyParticipant(enemy, index) {
   const eId = `enemy:${enemy.id}_${index}`;
+  const stats = enemy.stats || {};
+
   return {
     id: eId,
-    name: enemy.name + (index > 0 ? ` ${index + 1}` : ''),
-    team: 'enemies',
+    name: enemy.name + (index > 0 ? ` ${index + 1}` : ""),
+    team: "enemies",
+
     hp: enemy.hp || 40,
     maxHp: enemy.hp || 40,
-    fulgor: enemy.mp || 5,
-    maxFulgor: enemy.mp || 5,
-    fatigue: 0,
-    fuerza: enemy.stats?.fuerza || 3,
-    resistencia_fisica: enemy.stats?.defensa || 2,
-    resistencia_magica: enemy.stats?.magia || 2,
-    reflejos: enemy.stats?.percepcion || 2,
-    velocidad_ataque: enemy.stats?.agilidad || 2,
-    precision: enemy.stats?.percepcion || 2,
-    velocidad_desplazamiento: enemy.stats?.agilidad || 2,
-    dominio_fulgor: 0,
-    defending: false,
+
+    fuerza: clampStat(stats.fuerza || 3),
+    velocidad: clampStat(stats.velocidad || 3),
+    reflejos: clampStat(stats.reflejos || 3),
+    resistencia_fisica: clampStat(stats.resistencia_fisica || 3),
+    resistencia_magica: clampStat(stats.resistencia_magica || 2),
+    dominio_magico: clampStat(stats.dominio_magico || 1),
+
+    inventario: [],
+    efectos_activos: [],
+    habilidades: enemy.habilidades || [],
+    xp: 0,
+    nivel: enemy.level || 1,
+
     ko: false,
+    stunned: false,
     consecutiveSkips: 0,
     lastActionAt: Date.now(),
-    bodyParts: {
-      cabeza: 8, cuello: 4, pecho: 18, abdomen: 12, espalda: 12,
-      brazo_izq: 8, brazo_der: 8, mano_izq: 4, mano_der: 4,
-      pierna_izq: 10, pierna_der: 10, pie_izq: 4, pie_der: 4,
-    },
-    cooldowns: {},
-    buffs: [],
-    defenseMultiplier: 1,
-    shielded: 0,
+
+    // Recompensas (para el cálculo al final del combate)
+    reward: enemy.reward || null,
   };
 }
+
+/**
+ * Limita una estadística al rango [1, 20].
+ * @param {number} value
+ * @returns {number}
+ */
+function clampStat(value) {
+  return Math.max(RPG_CONFIG.stats.min, Math.min(RPG_CONFIG.stats.max, value));
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  PERSISTENCIA (Supabase)
+// ═══════════════════════════════════════════════════════════════════════
 
 async function saveToSupabase(room) {
   try {
     const data = JSON.parse(JSON.stringify(room));
-    await supabase.from('bot_auth_state').upsert({
+    await supabase.from("bot_auth_state").upsert({
       session_id: SESSION_ID,
       id: room.id,
       data,
     });
   } catch (err) {
-    logError({ source: 'combatStateManager', error: err });
+    logError({ source: "combatStateManager", error: err });
   }
 }
 
 async function deleteFromSupabase(combatId) {
   try {
-    await supabase.from('bot_auth_state').delete().eq('session_id', SESSION_ID).eq('id', combatId);
+    await supabase.from("bot_auth_state").delete().eq("session_id", SESSION_ID).eq("id", combatId);
   } catch (err) {
-    logError({ source: 'combatStateManager', error: err });
+    logError({ source: "combatStateManager", error: err });
   }
 }
+
+// ═══════════════════════════════════════════════════════════════════════
+//  GESTIÓN DE SALAS (In-Memory)
+// ═══════════════════════════════════════════════════════════════════════
 
 function getRoom(combatId) {
   return rooms.get(combatId) || null;
@@ -116,7 +163,7 @@ function getRoomByGroup(groupId) {
   const combatId = groupIndex.get(groupId);
   if (!combatId) return null;
   const room = rooms.get(combatId);
-  if (!room || room.status !== 'active') {
+  if (!room || room.status !== "active") {
     groupIndex.delete(groupId);
     return null;
   }
@@ -134,76 +181,82 @@ function deleteRoom(combatId) {
   rooms.delete(combatId);
 }
 
+// ═══════════════════════════════════════════════════════════════════════
+//  CREACIÓN Y GESTIÓN DE COMBATES
+// ═══════════════════════════════════════════════════════════════════════
+
+/**
+ * Crea una sala de combate con participantes ya construidos.
+ */
 function createRoom(groupId, participants, options = {}) {
-  const location = options.location || {};
   const room = {
     id: uuid(),
     groupId,
-    status: 'active',
+    status: "active",
     round: 1,
     turnCount: 0,
     currentTurnIndex: 0,
     lastActionAt: Date.now(),
-    turnTimeoutMs: 86400000,
-    participants: [],
+    turnTimeoutMs: RPG_CONFIG.combatRoom.turnTimeoutMs,
+    participants: [...participants],
     turnQueue: [],
-    location: {
-      region: location.region || 'desconocida',
-      zone: location.zone || 'desconocida',
-      locationId: location.locationId || 'default',
-      sceneVersion: location.sceneVersion || 1,
-    },
     createdAt: Date.now(),
-    startedVia: options.startedVia || 'pve',
-    betAmount: options.betAmount || 0,
+    startedVia: options.startedVia || "pve",
     challengerId: options.challengerId || null,
     targetId: options.targetId || null,
   };
 
-  for (const p of participants) {
-    room.participants.push(p);
-  }
-
+  // Calcular orden de turnos por velocidad (mayor primero)
   room.turnQueue = participants
-    .map((p, i) => ({ participantId: p.id, order: i, vel: p.velocidad_ataque }))
+    .map((p, i) => ({ participantId: p.id, order: i, vel: p.velocidad }))
     .sort((a, b) => b.vel - a.vel);
 
   setRoom(room);
   return room;
 }
 
-async function createCombatRoom(groupId, initiator, character, enemyIds, quantity = 1, equipped = {}, equipmentBonuses = {}) {
+/**
+ * Crea una sala de combate PvE completa (jugador vs enemigos).
+ */
+async function createCombatRoom(groupId, initiatorJid, character, enemyIds, quantity = 1) {
   const participants = [];
 
-  const charStats = character.stats || {};
-  participants.push(makeBaseParticipant(initiator, character.name, 'players', charStats, equipped, equipmentBonuses));
+  // Agregar jugador
+  participants.push(makeParticipant(initiatorJid, character.name, "players", character));
 
+  // Agregar enemigos
   if (enemyIds && enemyIds.length > 0) {
     for (const eid of enemyIds) {
       const enemy = getEnemy(eid);
       if (enemy) {
-        for (let i = 0; i < quantity; i++) {
+        for (let i = 0; i < Math.min(quantity, RPG_CONFIG.combatRoom.maxParticipantsPerTeam); i++) {
           participants.push(makeEnemyParticipant(enemy, i));
         }
       }
     }
   }
 
-  const room = createRoom(groupId, participants, { startedVia: 'pve' });
+  const room = createRoom(groupId, participants, { startedVia: "pve" });
   await saveToSupabase(room);
   return room;
 }
 
-async function addParticipant(room, jid, name, charStats = {}, equipped = {}, equipmentBonuses = {}) {
-  if (room.participants.some(p => p.id === jid)) return false;
-  const p = makeBaseParticipant(jid, name, 'players', charStats, equipped, equipmentBonuses);
+/**
+ * Agrega un participante a un combate activo.
+ */
+async function addParticipant(room, jid, name, charData = {}) {
+  if (room.participants.some((p) => p.id === jid)) return false;
+  const p = makeParticipant(jid, name, "players", charData);
   room.participants.push(p);
-  room.turnQueue.push({ participantId: jid, order: room.turnQueue.length, vel: p.velocidad_ataque });
+  room.turnQueue.push({ participantId: jid, order: room.turnQueue.length, vel: p.velocidad });
   room.turnQueue.sort((a, b) => b.vel - a.vel);
   await saveToSupabase(room);
   return true;
 }
 
+/**
+ * Actualiza una sala de combate y persiste.
+ */
 async function updateRoom(combatId, patch) {
   const room = rooms.get(combatId);
   if (!room) return null;
@@ -214,15 +267,20 @@ async function updateRoom(combatId, patch) {
   return room;
 }
 
+/**
+ * Elimina un participante del combate.
+ */
 async function removeParticipant(combatId, jid) {
   const room = rooms.get(combatId);
   if (!room) return null;
-  room.participants = room.participants.filter(p => p.id !== jid);
-  room.turnQueue = room.turnQueue.filter(t => t.participantId !== jid);
+  room.participants = room.participants.filter((p) => p.id !== jid);
+  room.turnQueue = room.turnQueue.filter((t) => t.participantId !== jid);
   if (room.currentTurnIndex >= room.turnQueue.length) room.currentTurnIndex = 0;
-  if (room.participants.filter(p => p.team === 'players').length === 0 ||
-      room.participants.filter(p => p.team === 'enemies').length === 0) {
-    room.status = 'finished';
+  if (
+    room.participants.filter((p) => p.team === "players").length === 0 ||
+    room.participants.filter((p) => p.team === "enemies").length === 0
+  ) {
+    room.status = "finished";
   }
   setRoom(room);
   await saveToSupabase(room);
@@ -232,7 +290,7 @@ async function removeParticipant(combatId, jid) {
 async function finishRoom(combatId) {
   const room = rooms.get(combatId);
   if (!room) return;
-  room.status = 'finished';
+  room.status = "finished";
   setRoom(room);
   await saveToSupabase(room);
 }
@@ -240,7 +298,7 @@ async function finishRoom(combatId) {
 async function expireRoom(combatId) {
   const room = rooms.get(combatId);
   if (!room) return;
-  room.status = 'finished';
+  room.status = "finished";
   setRoom(room);
   deleteFromSupabase(combatId);
 }
@@ -248,7 +306,7 @@ async function expireRoom(combatId) {
 function getActiveRooms() {
   const result = [];
   for (const room of rooms.values()) {
-    if (room.status === 'active') result.push(room);
+    if (room.status === "active") result.push(room);
   }
   return result;
 }
@@ -258,25 +316,26 @@ async function loadActiveCombats(force = false) {
   if (!force && now - lastLoadTime < LOAD_TTL) return;
   lastLoadTime = now;
   try {
-    const { data, error } = await supabase
-      .from('bot_auth_state')
-      .select('data')
-      .eq('session_id', SESSION_ID);
+    const { data, error } = await supabase.from("bot_auth_state").select("data").eq("session_id", SESSION_ID);
 
     if (error) throw error;
     if (!data) return;
 
     for (const row of data) {
       const room = row.data;
-      if (room && room.status === 'active') {
+      if (room && room.status === "active") {
         setRoom(room);
       }
     }
     logSystem(`combatStateManager: ${getActiveRooms().length} salas activas cargadas desde Supabase`);
   } catch (err) {
-    logError({ source: 'combatStateManager', error: err });
+    logError({ source: "combatStateManager", error: err });
   }
 }
+
+// ═══════════════════════════════════════════════════════════════════════
+//  EXPORTS
+// ═══════════════════════════════════════════════════════════════════════
 
 module.exports = {
   getRoom,
@@ -290,7 +349,8 @@ module.exports = {
   expireRoom,
   getActiveRooms,
   loadActiveCombats,
-  makeBaseParticipant,
+  makeParticipant,
   makeEnemyParticipant,
   deleteRoom,
+  clampStat,
 };

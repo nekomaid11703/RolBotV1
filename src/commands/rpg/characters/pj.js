@@ -1,3 +1,4 @@
+// @ts-nocheck
 const { getActiveCharacter } = require("../../../services/characterService");
 const { formatCharacter } = require("../../../utils/characterFormatUtils");
 

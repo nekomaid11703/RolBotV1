@@ -1,4 +1,4 @@
-const path = require('path');
+const path = require("path");
 
 let passed = 0;
 let failed = 0;
@@ -9,22 +9,37 @@ function resetCounters() {
 }
 
 function assert(condition, name) {
-  if (condition) { console.log(`  \u2705 ${name}`); passed++; }
-  else { console.log(`  \u274c ${name}`); failed++; }
+  if (condition) {
+    console.log(`  \u2705 ${name}`);
+    passed++;
+  } else {
+    console.log(`  \u274c ${name}`);
+    failed++;
+  }
 }
 
 function assertEqual(a, b, name) {
   const ok = a === b;
-  if (ok) { console.log(`  \u2705 ${name}`); passed++; }
-  else { console.log(`  \u274c ${name} -- esperado ${JSON.stringify(b)}, obtenido ${JSON.stringify(a)}`); failed++; }
+  if (ok) {
+    console.log(`  \u2705 ${name}`);
+    passed++;
+  } else {
+    console.log(`  \u274c ${name} -- esperado ${JSON.stringify(b)}, obtenido ${JSON.stringify(a)}`);
+    failed++;
+  }
 }
 
 function assertDeepEqual(a, b, name) {
   const aStr = JSON.stringify(a);
   const bStr = JSON.stringify(b);
   const ok = aStr === bStr;
-  if (ok) { console.log(`  \u2705 ${name}`); passed++; }
-  else { console.log(`  \u274c ${name} -- esperado ${bStr}, obtenido ${aStr}`); failed++; }
+  if (ok) {
+    console.log(`  \u2705 ${name}`);
+    passed++;
+  } else {
+    console.log(`  \u274c ${name} -- esperado ${bStr}, obtenido ${aStr}`);
+    failed++;
+  }
 }
 
 function printResults(label) {
@@ -36,9 +51,9 @@ function printResults(label) {
 
 function createMockParticipant(overrides = {}) {
   return {
-    id: 'test-player-1',
-    name: 'TestPlayer',
-    team: 'players',
+    id: "test-player-1",
+    name: "TestPlayer",
+    team: "players",
     hp: 100,
     maxHp: 100,
     fulgor: 50,
@@ -57,9 +72,19 @@ function createMockParticipant(overrides = {}) {
     defending: false,
     defenseMultiplier: 1,
     bodyParts: {
-      cabeza: 10, cuello: 5, pecho: 20, abdomen: 15, espalda: 15,
-      brazo_izq: 10, brazo_der: 10, mano_izq: 5, mano_der: 5,
-      pierna_izq: 12, pierna_der: 12, pie_izq: 5, pie_der: 5,
+      cabeza: 10,
+      cuello: 5,
+      pecho: 20,
+      abdomen: 15,
+      espalda: 15,
+      brazo_izq: 10,
+      brazo_der: 10,
+      mano_izq: 5,
+      mano_der: 5,
+      pierna_izq: 12,
+      pierna_der: 12,
+      pie_izq: 5,
+      pie_der: 5,
     },
     equipped: {},
     buffs: [],
@@ -70,9 +95,9 @@ function createMockParticipant(overrides = {}) {
 
 function createMockEnemy(overrides = {}) {
   return createMockParticipant({
-    id: 'enemy:goblin_001',
-    name: 'Goblin',
-    team: 'enemies',
+    id: "enemy:goblin_001",
+    name: "Goblin",
+    team: "enemies",
     hp: 40,
     maxHp: 40,
     fuerza: 4,
@@ -85,13 +110,13 @@ function createMockEnemy(overrides = {}) {
 
 function createMockRoom(overrides = {}) {
   return {
-    id: 'room-test-001',
+    id: "room-test-001",
     participants: [],
     turnCount: 0,
     round: 1,
-    status: 'active',
+    status: "active",
     currentTurnIndex: 0,
-    location: { zone: 'bosque', region: 'valle_verde', locationId: 'bosque_01' },
+    location: { zone: "bosque", region: "valle_verde", locationId: "bosque_01" },
     lastActionAt: Date.now(),
     koThreshold: 30,
     activeEffects: [],
@@ -111,6 +136,13 @@ function createMockInventory(overrides = {}) {
 }
 
 module.exports = {
-  assert, assertEqual, assertDeepEqual, printResults, resetCounters,
-  createMockParticipant, createMockEnemy, createMockRoom, createMockInventory,
+  assert,
+  assertEqual,
+  assertDeepEqual,
+  printResults,
+  resetCounters,
+  createMockParticipant,
+  createMockEnemy,
+  createMockRoom,
+  createMockInventory,
 };

@@ -1,8 +1,9 @@
+// @ts-nocheck
 const { getActiveCharacter } = require("../../../services/characterService");
 const invService = require("../../../services/rpg/inventoryService");
 const itemsData = require("../../../services/rpg/items");
 const { formatError, box } = require("../../../utils/messageFormatUtils");
-const { logSystem, logError } = require("../../../services/loggerService");
+const { logError } = require("../../../services/loggerService");
 
 module.exports = {
   name: "inventario",
@@ -13,8 +14,14 @@ module.exports = {
   async execute(ctx) {
     try {
       const room = require("../../../services/rpg/combatStateManager").getRoomByGroup(ctx.from);
-      if (room && room.status === 'active' && require("../../../services/rpg/combatTurnManager").getParticipantByJid(room, ctx.sender)) {
-        return ctx.reply("⚔️ Estás en combate. Usa `/rol <texto>` para inspeccionar tu inventario mediante rol.\n\nEj: `/rol reviso mi mochila buscando algo útil`");
+      if (
+        room &&
+        room.status === "active" &&
+        require("../../../services/rpg/combatTurnManager").getParticipantByJid(room, ctx.sender)
+      ) {
+        return ctx.reply(
+          "⚔️ Estás en combate. Usa `/rol <texto>` para inspeccionar tu inventario mediante rol.\n\nEj: `/rol reviso mi mochila buscando algo útil`",
+        );
       }
 
       const character = await getActiveCharacter({ creatorId: ctx.sender });
@@ -37,10 +44,10 @@ module.exports = {
 
       if (equipped.length > 0) {
         lines.push("⚔️ EQUIPADO:");
-        for (const { slot, item } of equipped) {
-          const dmg = item.damageType ? `(${item.damageType}, ${item.baseDamage} daño)` : '';
-          const def = item.defensaBonus ? `(+${item.defensaBonus} defensa)` : '';
-          const dur = item.resistencia ? ` [${item.resistencia} resistencia]` : '';
+        for (const { item } of equipped) {
+          const dmg = item.damageType ? `(${item.damageType}, ${item.baseDamage} daño)` : "";
+          const def = item.defensaBonus ? `(+${item.defensaBonus} defensa)` : "";
+          const dur = item.resistencia ? ` [${item.resistencia} resistencia]` : "";
           lines.push(`  • ${item.name}: ${dmg}${def}${dur}`);
         }
         lines.push("");
@@ -62,9 +69,8 @@ module.exports = {
       lines.push(`💡 Usa /equipar <item> para equipar, /desequipar <slot> para quitar`);
 
       return ctx.reply(box(`🎒 ${character.name.toUpperCase()}`, lines));
-
     } catch (error) {
-      logError({ source: 'inventario', error: error instanceof Error ? error : new Error(String(error)) });
+      logError({ source: "inventario", error: error instanceof Error ? error : new Error(String(error)) });
       return ctx.reply(`❌ ${error.message}`);
     }
   },

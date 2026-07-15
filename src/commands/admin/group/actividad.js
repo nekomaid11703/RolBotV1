@@ -1,21 +1,10 @@
-const {
-  getGroupMemberActivity,
-  getGroupActivity,
-} = require("../../../services/groupActivityService");
-const {
-  getGroupMetadata,
-} = require("../../../utils/groupUtils");
-const {
-  getUserProfile,
-} = require("../../../services/userService");
-const {
-  getFirstMentionedJid,
-} = require("../../../utils/commandParseUtils");
-const {
-  formatDisplayMention,
-  resolveTargetDisplayName,
-  withMentions,
-} = require("../../../utils/userMentionUtils");
+// @ts-nocheck
+const { getGroupMemberActivity, getGroupActivity } = require("../../../services/groupActivityService");
+const { getGroupMetadata } = require("../../../utils/groupUtils");
+const { getUserProfile } = require("../../../services/userService");
+const { getFirstMentionedJid } = require("../../../utils/commandParseUtils");
+const { formatDisplayMention, withMentions } = require("../../../utils/userMentionUtils");
+const { resolveTargetDisplayName } = require("../../../services/displayNameService");
 const { formatCount, formatDate } = require("../../../utils/activityFormatUtils");
 const { box } = require("../../../utils/messageFormatUtils");
 
@@ -62,27 +51,29 @@ module.exports = {
     const commandCount = Number(userProfile?.profile?.activity?.commands || 0);
     const targetLabel = formatDisplayMention(targetId, targetDisplayName);
 
-    await ctx.reply(withMentions(
-      box("📊 Actividad", [
-        "",
-        `👥 Grupo: ${groupName}`,
-        `👤  ${targetLabel}`,
-        "",
-        `💬 Mensajes: ${formatCount(activity.messages)}`,
-        `⚙️ Comandos usados: ${formatCount(commandCount)}`,
-        `✍️ Textos: ${formatCount(activity.textMessages)}`,
-        `🖼️ Medios: ${formatCount(activity.mediaMessages)}`,
-        `⭐ Stickers: ${formatCount(activity.stickerMessages)}`,
-        `🔊 Audios: ${formatCount(activity.audioMessages)}`,
-        `🖼️ Imágenes: ${formatCount(activity.imageMessages)}`,
-        `🎥 Videos: ${formatCount(activity.videoMessages)}`,
-        `📎 Documentos: ${formatCount(activity.documentMessages)}`,
-        `💫 Reacciones: ${formatCount(activity.reactionMessages)}`,
-        "",
-        `🕒 Último mensaje: ${formatDate(activity.lastSeenAt)}`,
-        `🔎 Tipo reciente: ${activity.lastMessageType || "sin datos"}`,
-      ]),
-      [targetId],
-    ));
+    await ctx.reply(
+      withMentions(
+        box("📊 Actividad", [
+          "",
+          `👥 Grupo: ${groupName}`,
+          `👤  ${targetLabel}`,
+          "",
+          `💬 Mensajes: ${formatCount(activity.messages)}`,
+          `⚙️ Comandos usados: ${formatCount(commandCount)}`,
+          `✍️ Textos: ${formatCount(activity.textMessages)}`,
+          `🖼️ Medios: ${formatCount(activity.mediaMessages)}`,
+          `⭐ Stickers: ${formatCount(activity.stickerMessages)}`,
+          `🔊 Audios: ${formatCount(activity.audioMessages)}`,
+          `🖼️ Imágenes: ${formatCount(activity.imageMessages)}`,
+          `🎥 Videos: ${formatCount(activity.videoMessages)}`,
+          `📎 Documentos: ${formatCount(activity.documentMessages)}`,
+          `💫 Reacciones: ${formatCount(activity.reactionMessages)}`,
+          "",
+          `🕒 Último mensaje: ${formatDate(activity.lastSeenAt)}`,
+          `🔎 Tipo reciente: ${activity.lastMessageType || "sin datos"}`,
+        ]),
+        [targetId],
+      ),
+    );
   },
 };

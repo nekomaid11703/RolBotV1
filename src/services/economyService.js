@@ -1,10 +1,12 @@
+// @ts-nocheck
+const { getUserProfile, getOrCreateProfile, saveUserProfile, listUserProfiles } = require("./userService");
 const {
-  getUserProfile,
-  getOrCreateProfile,
-  saveUserProfile,
-  listUserProfiles,
-} = require("./userService");
-const { topBalancesCacheKey, invalidateTopBalancesCache, invalidateUserCache, TTLS, cache } = require("../utils/safeQuery");
+  topBalancesCacheKey,
+  invalidateTopBalancesCache,
+  invalidateUserCache,
+  TTLS,
+  cache,
+} = require("../utils/safeQuery");
 const { logError } = require("./loggerService");
 const { supabase } = require("../database/supabase");
 
@@ -12,7 +14,9 @@ const userLocks = new Map();
 
 async function withUserLock(userId, fn) {
   while (userLocks.get(userId)) {
-    await new Promise(r => setTimeout(r, 10));
+    await new Promise((r) => {
+      setTimeout(r, 10);
+    });
   }
   userLocks.set(userId, true);
   try {
@@ -30,12 +34,7 @@ const {
   DAILY_STREAK_BONUS_CAP,
 } = require("../config/economyConfig");
 
-function resolveEconomyProfile({
-  userId,
-  userName = "usuario",
-  createIfMissing = false,
-  registration = {},
-}) {
+function resolveEconomyProfile({ userId, userName = "usuario", createIfMissing = false, registration = {} }) {
   if (createIfMissing) {
     return getOrCreateProfile({
       creatorId: userId,
@@ -65,11 +64,7 @@ async function getBalance(userId) {
   return getMoneyValue(data.profile);
 }
 
-async function addMoney(
-  userId,
-  amount,
-  options = {},
-) {
+async function addMoney(userId, amount, options = {}) {
   const safeAmount = Math.floor(Number(amount));
 
   if (!Number.isFinite(safeAmount) || safeAmount <= 0) {
@@ -100,11 +95,7 @@ async function addMoney(
   });
 }
 
-async function removeMoney(
-  userId,
-  amount,
-  options = {},
-) {
+async function removeMoney(userId, amount, options = {}) {
   const safeAmount = Math.floor(Number(amount));
 
   if (!Number.isFinite(safeAmount) || safeAmount <= 0) {
@@ -141,11 +132,7 @@ async function removeMoney(
   });
 }
 
-async function setMoney(
-  userId,
-  amount,
-  options = {},
-) {
+async function setMoney(userId, amount, options = {}) {
   const safeAmount = Math.floor(Number(amount));
 
   if (!Number.isFinite(safeAmount) || safeAmount < 0) {
@@ -176,12 +163,7 @@ async function setMoney(
   });
 }
 
-async function transferMoney(
-  fromUserId,
-  toUserId,
-  amount,
-  options = {},
-) {
+async function transferMoney(fromUserId, toUserId, amount, options = {}) {
   const safeAmount = Math.floor(Number(amount));
 
   if (!Number.isFinite(safeAmount) || safeAmount <= 0) {
@@ -231,7 +213,7 @@ async function transferMoney(
 
       const now = new Date().toISOString();
 
-      const { data: rpcResult, error: rpcError } = await supabase.rpc('transfer_money', {
+      const { data: rpcResult, error: rpcError } = await supabase.rpc("transfer_money", {
         from_phone: fromUserId,
         to_phone: toUserId,
         amount: safeAmount,
@@ -267,7 +249,7 @@ async function transferMoney(
           .update({ money: current, last_active_at: now })
           .eq("phone", fromUserId);
         if (rollbackError) {
-          logError({ source: 'economyService.transferMoney.rollback', error: new Error(rollbackError.message) });
+          logError({ source: "economyService.transferMoney.rollback", error: new Error(rollbackError.message) });
           throw new Error(`Rollback falló: ${rollbackError.message}`);
         }
         throw new Error(`Error actualizando destinatario: ${toError.message}`);
@@ -278,15 +260,11 @@ async function transferMoney(
       invalidateTopBalancesCache();
 
       return true;
-    })
+    }),
   );
 }
 
-async function claimDaily({
-  userId,
-  userName = "usuario",
-  registration = {},
-}) {
+async function claimDaily({ userId, userName = "usuario", registration = {} }) {
   return withUserLock(userId, async () => {
     const data = await resolveEconomyProfile({
       userId,
@@ -310,10 +288,10 @@ async function claimDaily({
     const resetMs = DAILY_STREAK_RESET_HOURS * 60 * 60 * 1000;
 
     const { data: dailyRow, error: readError } = await supabase
-      .from('bot_auth_state')
-      .select('data')
-      .eq('session_id', 'daily')
-      .eq('id', userId)
+      .from("bot_auth_state")
+      .select("data")
+      .eq("session_id", "daily")
+      .eq("id", userId)
       .maybeSingle();
 
     if (readError) {
@@ -327,9 +305,7 @@ async function claimDaily({
       ...(dailyRow?.data || {}),
     };
 
-    const lastClaimMs = daily.lastClaim
-      ? Date.parse(daily.lastClaim)
-      : NaN;
+    const lastClaimMs = daily.lastClaim ? Date.parse(daily.lastClaim) : NaN;
 
     if (Number.isFinite(lastClaimMs)) {
       const elapsed = now - lastClaimMs;
@@ -350,10 +326,7 @@ async function claimDaily({
     }
 
     const nextStreak = Number(daily.streak || 0) + 1;
-    const bonus = Math.min(
-      Math.max(0, nextStreak - 1) * DAILY_STREAK_BONUS_PER_DAY,
-      DAILY_STREAK_BONUS_CAP,
-    );
+    const bonus = Math.min(Math.max(0, nextStreak - 1) * DAILY_STREAK_BONUS_PER_DAY, DAILY_STREAK_BONUS_CAP);
 
     const reward = DAILY_BASE_REWARD + bonus;
 
@@ -363,11 +336,14 @@ async function claimDaily({
       totalClaims: Number(daily.totalClaims || 0) + 1,
     };
 
-    const { error: upsertError } = await supabase.from('bot_auth_state').upsert({
-      session_id: 'daily',
-      id: userId,
-      data: nextDaily,
-    }, { onConflict: 'session_id,id' });
+    const { error: upsertError } = await supabase.from("bot_auth_state").upsert(
+      {
+        session_id: "daily",
+        id: userId,
+        data: nextDaily,
+      },
+      { onConflict: "session_id,id" },
+    );
 
     if (upsertError) {
       throw new Error("Error guardando racha diaria: " + upsertError.message);
@@ -406,10 +382,7 @@ async function getTopBalances(limit = 10, bypassCache = false) {
   const result = users
     .map(({ profile }) => ({
       userId: profile.creatorId,
-      displayName:
-        profile.metadata?.displayName ||
-        profile.creatorName ||
-        "usuario",
+      displayName: profile.metadata?.displayName || profile.creatorName || "usuario",
       money: getMoneyValue(profile),
       profile,
     }))
@@ -418,10 +391,7 @@ async function getTopBalances(limit = 10, bypassCache = false) {
         return b.money - a.money;
       }
 
-      return String(a.displayName).localeCompare(
-        String(b.displayName),
-        "es",
-      );
+      return String(a.displayName).localeCompare(String(b.displayName), "es");
     })
     .slice(0, safeLimit);
 

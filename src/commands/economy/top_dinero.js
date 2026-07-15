@@ -1,18 +1,11 @@
-const {
-  getTopBalances,
-} = require("../../services/economyService");
+// @ts-nocheck
+const { getTopBalances } = require("../../services/economyService");
 
-const {
-  formatStelas,
-} = require("../../utils/economyUtils");
+const { formatStelas } = require("../../utils/economyUtils");
 
-const {
-  TOP_DINERO_LIMIT,
-} = require("../../config/economyConfig");
+const { TOP_DINERO_LIMIT } = require("../../config/economyConfig");
 
-const {
-  box,
-} = require("../../utils/messageFormatUtils");
+const { box } = require("../../utils/messageFormatUtils");
 
 function getMedal(index) {
   if (index === 0) return "🥇";
@@ -29,17 +22,12 @@ module.exports = {
 
   async execute(ctx) {
     const limitArg = Number(ctx.args?.[0]);
-    const limit = Number.isFinite(limitArg) && limitArg > 0
-      ? Math.min(20, Math.floor(limitArg))
-      : TOP_DINERO_LIMIT;
+    const limit = Number.isFinite(limitArg) && limitArg > 0 ? Math.min(20, Math.floor(limitArg)) : TOP_DINERO_LIMIT;
 
     const top = await getTopBalances(limit);
 
     if (!top.length) {
-      return ctx.reply(box("🏆 Top de stelas", [
-        "",
-        "Aún no hay usuarios registrados.",
-      ]));
+      return ctx.reply(box("🏆 Top de stelas", ["", "Aún no hay usuarios registrados."]));
     }
 
     const lines = top.map((entry, index) => {
@@ -47,9 +35,6 @@ module.exports = {
       return `${medal}  ${entry.displayName}  —  ${formatStelas(entry.money)}`;
     });
 
-    await ctx.reply(box("🏆 Top de stelas", [
-      "",
-      ...lines,
-    ]));
+    await ctx.reply(box("🏆 Top de stelas", ["", ...lines]));
   },
 };

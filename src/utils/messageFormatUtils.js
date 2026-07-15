@@ -1,3 +1,4 @@
+// @ts-nocheck
 const BOX_W = 34;
 
 const LINE = "✦ ━━━━━━━━━━━━━━ ✦";
@@ -28,37 +29,27 @@ function compactLines(lines) {
 }
 
 function buildUsageBody({ icon = "📘", title, description, usage, example, notes = [] }) {
-  const body = [
-    LINE,
-    `${icon} *${String(title || "COMANDO").toUpperCase()}*`,
-    LINE,
-    "",
-  ];
+  const body = [LINE, `${icon} *${String(title || "COMANDO").toUpperCase()}*`, LINE, ""];
   if (description) body.push(description, "");
   body.push("*Uso*", `\`${usage}\``);
   if (example) body.push("", "*Ejemplo*", `\`${example}\``);
   if (notes.length > 0) {
     body.push("", "*Notas*");
-    notes.forEach(n => body.push(`• ${n}`));
+    notes.forEach((n) => body.push(`• ${n}`));
   }
   body.push("", LINE);
   return body;
 }
 
 function buildFormBody({ icon = "📋", title, description, command, fields = [], example = [], notes = [] }) {
-  const templateLines = [command, ...fields.map(f => `${f}: `)];
-  const body = [
-    LINE,
-    `${icon} *${String(title || "FORMULARIO").toUpperCase()}*`,
-    LINE,
-    "",
-  ];
+  const templateLines = [command, ...fields.map((f) => `${f}: `)];
+  const body = [LINE, `${icon} *${String(title || "FORMULARIO").toUpperCase()}*`, LINE, ""];
   if (description) body.push(description, "");
   body.push("*Plantilla*", "```", templateLines.join("\n"), "```");
   if (example.length > 0) body.push("", "*Ejemplo*", "```", example.join("\n"), "```");
   if (notes.length > 0) {
     body.push("", "*Notas*");
-    notes.forEach(n => body.push(`• ${n}`));
+    notes.forEach((n) => body.push(`• ${n}`));
   }
   body.push("", LINE);
   return body;

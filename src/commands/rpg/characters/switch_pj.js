@@ -1,11 +1,8 @@
+// @ts-nocheck
 const { setActiveCharacter } = require("../../../services/characterService");
 const { getCharacterNames } = require("../../../services/characterService");
 const { isAdmin } = require("../../../utils/groupUtils");
-const {
-  formatCommandUsage,
-  formatError,
-  box,
-} = require("../../../utils/messageFormatUtils");
+const { formatCommandUsage, formatError, box } = require("../../../utils/messageFormatUtils");
 
 const usageMessage = formatCommandUsage({
   icon: "🔄",
@@ -23,9 +20,9 @@ module.exports = {
   category: "personajes",
 
   async execute(ctx) {
-    const targetName = ctx.args.join(' ');
+    const targetName = ctx.args.join(" ");
 
-    if (!targetName || targetName.trim() === '') {
+    if (!targetName || targetName.trim() === "") {
       return ctx.reply(usageMessage);
     }
 
@@ -34,10 +31,7 @@ module.exports = {
     const names = await getCharacterNames({ creatorId: ctx.sender });
 
     if (!names.has(name)) {
-      return ctx.reply(formatError(
-        `No tienes un personaje llamado "${name}".`,
-        `Usa /mis_pj para ver tu lista.`
-      ));
+      return ctx.reply(formatError(`No tienes un personaje llamado "${name}".`, `Usa /mis_pj para ver tu lista.`));
     }
 
     let admin = false;
@@ -55,11 +49,8 @@ module.exports = {
 
     await ctx.react("🔄");
 
-    await ctx.reply(box("🔄 Personaje activo", [
-      "",
-      `👤  ${name.toUpperCase()}`,
-      "",
-      `💡 Usa /ver_pj para ver su perfil`,
-    ]));
+    await ctx.reply(
+      box("🔄 Personaje activo", ["", `👤  ${name.toUpperCase()}`, "", `💡 Usa /ver_pj para ver su perfil`]),
+    );
   },
 };

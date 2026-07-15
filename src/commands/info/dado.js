@@ -1,8 +1,5 @@
-const {
-  formatCommandUsage,
-  formatError,
-  box,
-} = require("../../utils/messageFormatUtils");
+// @ts-nocheck
+const { formatCommandUsage, formatError, box } = require("../../utils/messageFormatUtils");
 
 const usageMessage = formatCommandUsage({
   icon: "🎲",
@@ -32,9 +29,9 @@ module.exports = {
     }
 
     const hasDrop = fullMatch[4] !== undefined;
-    let cantidad = parseInt(hasDrop ? (fullMatch[1] || "1") : (fullMatch[5] || "1"));
+    let cantidad = parseInt(hasDrop ? fullMatch[1] || "1" : fullMatch[5] || "1");
     const caras = parseInt(hasDrop ? fullMatch[2] : fullMatch[6]);
-    const modifier = parseInt(hasDrop ? (fullMatch[3] || "0") : (fullMatch[7] || "0")) || 0;
+    const modifier = parseInt(hasDrop ? fullMatch[3] || "0" : fullMatch[7] || "0") || 0;
     const dropLowest = hasDrop ? parseInt(fullMatch[4]) : 0;
 
     const dadosPermitidos = [4, 6, 8, 10, 12, 20, 100];
@@ -63,13 +60,9 @@ module.exports = {
       else if (roll === 1) criticosBajos++;
     }
 
-    const lowest = dropLowest > 0
-      ? [...rolls].sort((a, b) => a - b).slice(0, dropLowest)
-      : [];
+    const lowest = dropLowest > 0 ? [...rolls].sort((a, b) => a - b).slice(0, dropLowest) : [];
 
-    const kept = dropLowest > 0
-      ? rolls.filter(r => !lowest.includes(r))
-      : rolls;
+    const kept = dropLowest > 0 ? rolls.filter((r) => !lowest.includes(r)) : rolls;
 
     if (dropLowest > 0 && kept.length === 0) {
       kept.push(Math.min(...rolls));
@@ -78,7 +71,7 @@ module.exports = {
     const rawTotal = kept.reduce((s, v) => s + v, 0);
     const total = rawTotal + modifier;
 
-    const displayRolls = rolls.map(r => {
+    const displayRolls = rolls.map((r) => {
       const isDropped = dropLowest > 0 && lowest.includes(r);
       const label = r === caras ? `🎉${r}` : r === 1 ? `💀${r}` : `${r}`;
       return isDropped ? `~${label}~` : label;
@@ -92,11 +85,11 @@ module.exports = {
     lines.push(`⭐ Total: ${total}`);
 
     if (modifier !== 0) {
-      lines.push(`(${rawTotal} ${modifier > 0 ? '+' : ''}${modifier})`);
+      lines.push(`(${rawTotal} ${modifier > 0 ? "+" : ""}${modifier})`);
     }
 
     if (dropLowest > 0) {
-      lines.push(`📉 Descartados: ${lowest.length} más bajo${lowest.length > 1 ? 's' : ''}`);
+      lines.push(`📉 Descartados: ${lowest.length} más bajo${lowest.length > 1 ? "s" : ""}`);
     }
 
     if (criticosAltos > 0 || criticosBajos > 0) {

@@ -28,15 +28,12 @@ const {
 
 // ─── Verificación de Pureza: sin importaciones de negocio ─────────────────────
 const fs = require("fs");
-const srcContent = fs.readFileSync(
-  path.join(__dirname, "../src/utils/messageFormatUtils.js"),
-  "utf8"
-);
+const srcContent = fs.readFileSync(path.join(__dirname, "../src/utils/messageFormatUtils.js"), "utf8");
 const forbiddenImports = ["supabase", "characterService", "economyService", "loggerService", "aiService"];
 for (const imp of forbiddenImports) {
   assert.ok(
     !srcContent.includes(`require`) || !srcContent.includes(imp),
-    `PUREZA VIOLADA: messageFormatUtils.js no debe importar '${imp}'`
+    `PUREZA VIOLADA: messageFormatUtils.js no debe importar '${imp}'`,
   );
 }
 

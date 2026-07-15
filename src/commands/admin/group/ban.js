@@ -1,12 +1,8 @@
+// @ts-nocheck
 const { removeParticipant } = require("../../../utils/groupUtils");
-const {
-  getFirstMentionedJid,
-} = require("../../../utils/commandParseUtils");
-const {
-  resolveTargetDisplayName,
-  formatDisplayMention,
-  withMentions,
-} = require("../../../utils/userMentionUtils");
+const { getFirstMentionedJid } = require("../../../utils/commandParseUtils");
+const { formatDisplayMention, withMentions } = require("../../../utils/userMentionUtils");
+const { resolveTargetDisplayName } = require("../../../services/displayNameService");
 const { formatError, box } = require("../../../utils/messageFormatUtils");
 
 module.exports = {
@@ -28,15 +24,12 @@ module.exports = {
       const targetName = await resolveTargetDisplayName(ctx, targetId);
       const result = await removeParticipant(ctx.sock, ctx.from, targetId);
 
-      await ctx.reply(withMentions(
-        box("🚫 Usuario expulsado", [
-          "",
-          `👤  ${formatDisplayMention(targetId, targetName)}`,
-          "",
-          result,
-        ]),
-        [targetId],
-      ));
+      await ctx.reply(
+        withMentions(
+          box("🚫 Usuario expulsado", ["", `👤  ${formatDisplayMention(targetId, targetName)}`, "", result]),
+          [targetId],
+        ),
+      );
     } catch (error) {
       await ctx.reply(formatError(error.message));
     }

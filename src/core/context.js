@@ -1,7 +1,4 @@
-const {
-  extractPhoneNumber,
-  normalizeJid,
-} = require("../utils/identityUtils");
+const { extractPhoneNumber, normalizeJid } = require("../utils/identityUtils");
 
 const TEXT_MESSAGE_TYPES = new Set([
   "conversation",
@@ -15,8 +12,9 @@ const TEXT_MESSAGE_TYPES = new Set([
   "messagecontextinfo",
 ]);
 
+/** @param {Record<string,any>|null|undefined} message */
 function unwrapMessageContent(message) {
-  if (!message) return null;
+  if (!message) return {};
 
   if (message.ephemeralMessage?.message) {
     return unwrapMessageContent(message.ephemeralMessage.message);
@@ -37,10 +35,11 @@ function unwrapMessageContent(message) {
   return message;
 }
 
+/** @param {Record<string,any>|null|undefined} message */
 function getMessageType(message) {
   const normalized = unwrapMessageContent(message);
 
-  if (!normalized || typeof normalized !== "object") {
+  if (typeof normalized !== "object") {
     return "unknown";
   }
 
@@ -70,10 +69,16 @@ function getMessageType(message) {
   return Object.keys(normalized)[0] || "unknown";
 }
 
+/** @param {string} messageType */
 function isTextLikeMessageType(messageType) {
-  return TEXT_MESSAGE_TYPES.has(String(messageType || "").trim().toLowerCase());
+  return TEXT_MESSAGE_TYPES.has(
+    String(messageType || "")
+      .trim()
+      .toLowerCase(),
+  );
 }
 
+/** @param {Record<string,any>|null|undefined} message */
 function extractText(message) {
   if (!message) return "";
 
@@ -94,21 +99,22 @@ function extractText(message) {
   return String(text).trim();
 }
 
+/**
+ * @param {Record<string,any>} sock
+ * @param {{ key: { remoteJid: string, participant?: string }, pushName?: string, participant?: string, message?: Record<string,any> }} msg
+ */
 function createContext(sock, msg) {
   const from = msg.key.remoteJid;
   const isGroup = from.endsWith("@g.us");
 
-  const senderJid = isGroup
-    ? msg.key.participant || msg.participant || from
-    : from;
+  const senderJid = isGroup ? msg.key.participant || msg.participant || from : from;
 
   const senderNumber = extractPhoneNumber(senderJid) || null;
   const senderBareJid = normalizeJid(senderJid);
 
   const userName = msg.pushName || senderNumber || senderBareJid.split("@")[0];
 
-  const mentionedJid =
-    msg.message?.extendedTextMessage?.contextInfo?.mentionedJid || [];
+  const mentionedJid = msg.message?.extendedTextMessage?.contextInfo?.mentionedJid || [];
 
   const messageType = getMessageType(msg.message);
   const text = extractText(msg.message);
@@ -131,12 +137,10 @@ function createContext(sock, msg) {
     hasText: Boolean(text),
     mentionedJid,
 
+    /** @param {string|Record<string,any>} content @param {Record<string,any>} [options] */
     async reply(content, options = {}) {
       if (content && typeof content === "object" && !Array.isArray(content)) {
-        const payload = {
-          ...content,
-          ...options,
-        };
+        const payload = { ...content, ...options };
 
         if (typeof payload.text !== "string" && typeof payload.content === "string") {
           payload.text = payload.content;
@@ -146,13 +150,10 @@ function createContext(sock, msg) {
         return sock.sendMessage(from, payload, { quoted: msg });
       }
 
-      return sock.sendMessage(
-        from,
-        { text: content, ...options },
-        { quoted: msg },
-      );
+      return sock.sendMessage(from, { text: content, ...options }, { quoted: msg });
     },
 
+    /** @param {string} emoji */
     async react(emoji) {
       return sock.sendMessage(from, {
         react: {

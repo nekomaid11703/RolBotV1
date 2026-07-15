@@ -1,11 +1,8 @@
+// @ts-nocheck
 const { deleteCharacter } = require("../../../services/characterService");
 const { getCharacterNames } = require("../../../services/characterService");
 const { isAdmin } = require("../../../utils/groupUtils");
-const {
-  formatCommandUsage,
-  formatError,
-  box,
-} = require("../../../utils/messageFormatUtils");
+const { formatCommandUsage, formatError, box } = require("../../../utils/messageFormatUtils");
 
 const usageMessage = formatCommandUsage({
   icon: "🗑️",
@@ -17,7 +14,6 @@ const usageMessage = formatCommandUsage({
 });
 
 const CONFIRM_TIMEOUT_MS = 30 * 1000;
-const confirmations = new Map();
 
 module.exports = {
   name: "eliminar_pj",
@@ -26,9 +22,9 @@ module.exports = {
   category: "personajes",
 
   async execute(ctx) {
-    const targetName = ctx.args.join(' ');
+    const targetName = ctx.args.join(" ");
 
-    if (!targetName || targetName.trim() === '') {
+    if (!targetName || targetName.trim() === "") {
       return ctx.reply(usageMessage);
     }
 
@@ -37,10 +33,7 @@ module.exports = {
     const names = await getCharacterNames({ creatorId: ctx.sender });
 
     if (!names.has(name)) {
-      return ctx.reply(formatError(
-        `No tienes un personaje llamado "${name}".`,
-        `Usa /mis_pj para ver tu lista.`
-      ));
+      return ctx.reply(formatError(`No tienes un personaje llamado "${name}".`, `Usa /mis_pj para ver tu lista.`));
     }
 
     // --- Step 1: ask for confirmation ---
@@ -55,7 +48,7 @@ module.exports = {
     }
 
     const answer = confirmation.trim().toLowerCase();
-    if (answer !== 'sí' && answer !== 'si') {
+    if (answer !== "sí" && answer !== "si") {
       return ctx.reply("❌ Confirmación cancelada.");
     }
 
@@ -75,12 +68,9 @@ module.exports = {
 
       await ctx.react("🗑️");
 
-      await ctx.reply(box("🗑️ Personaje eliminado", [
-        "",
-        `👤  ${name.toUpperCase()}`,
-        "",
-        `Ha sido eliminado permanentemente.`,
-      ]));
+      await ctx.reply(
+        box("🗑️ Personaje eliminado", ["", `👤  ${name.toUpperCase()}`, "", `Ha sido eliminado permanentemente.`]),
+      );
     } catch (error) {
       await ctx.reply(formatError(error.message));
     }

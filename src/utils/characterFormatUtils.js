@@ -1,3 +1,4 @@
+// @ts-nocheck
 const { box } = require("./messageFormatUtils");
 
 function formatCharacter(character) {

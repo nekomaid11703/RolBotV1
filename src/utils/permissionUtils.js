@@ -1,5 +1,5 @@
+// @ts-nocheck
 const { OWNERS } = require("../config/permissionsConfig");
-const { getUserProfile } = require("../services/userService");
 const {
   normalizeJid,
   extractPhoneNumber,
@@ -32,9 +32,7 @@ function normalizeOwnerRecord(owner) {
     );
     const displayName = String(owner.displayName || owner.name || owner.label || "").trim();
     const aliases = uniqueStrings(
-      (Array.isArray(owner.aliases) ? owner.aliases : [])
-        .map(normalizeJid)
-        .filter(Boolean),
+      (Array.isArray(owner.aliases) ? owner.aliases : []).map(normalizeJid).filter(Boolean),
     );
 
     return {
@@ -62,54 +60,14 @@ function ownerRecordMatches(record, candidate) {
   return candidates.some((entry) => {
     return Boolean(
       (record.jid && isSameIdentity(record.jid, entry)) ||
-        (record.phone && isSameIdentity(record.phone, entry)) ||
-        (Array.isArray(record.aliases) &&
-          record.aliases.some((alias) => isSameIdentity(alias, entry))),
+      (record.phone && isSameIdentity(record.phone, entry)) ||
+      (Array.isArray(record.aliases) && record.aliases.some((alias) => isSameIdentity(alias, entry))),
     );
   });
 }
 
 function isOwner(candidate) {
-  return getOwnerRecords().some((owner) =>
-    ownerRecordMatches(owner, candidate),
-  );
-}
-
-async function getOwnerDisplayName(candidate) {
-  const owner = getOwnerRecords().find((entry) =>
-    ownerRecordMatches(entry, candidate),
-  );
-
-  if (!owner) {
-    return "Creador";
-  }
-
-  try {
-    const lookupId = owner.jid || owner.phone;
-    const data = await getUserProfile({
-      creatorId: lookupId,
-    });
-
-    const profileName =
-      data?.profile?.metadata?.displayName ||
-      data?.profile?.creatorName;
-
-    if (profileName) {
-      const cleanProfileName = String(profileName).trim();
-
-      if (
-        cleanProfileName &&
-        !/^\d+$/.test(cleanProfileName) &&
-        !cleanProfileName.includes("@")
-      ) {
-        return cleanProfileName;
-      }
-    }
-  } catch {
-    // Fallback below
-  }
-
-  return owner.displayName || "Creador";
+  return getOwnerRecords().some((owner) => ownerRecordMatches(owner, candidate));
 }
 
 function getOwnerJids() {
@@ -124,6 +82,5 @@ module.exports = {
   isSameIdentity,
   isOwner,
   getOwnerRecords,
-  getOwnerDisplayName,
   getOwnerJids,
 };

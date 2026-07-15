@@ -1,3 +1,4 @@
+// @ts-nocheck
 function getFirstMentionedJid(ctx) {
   if (!ctx || !Array.isArray(ctx.mentionedJid)) {
     return null;

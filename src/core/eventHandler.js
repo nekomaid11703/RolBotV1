@@ -1,16 +1,13 @@
 const createContext = require("./context");
 const { handleCommand } = require("./commandHandler");
-const {
-  recordUserActivity,
-} = require("../services/userService");
-const {
-  recordGroupActivity,
-} = require("../services/groupActivityService");
-const { incrementMessages, addEvent } = require("../services/stats");
+const { recordUserActivity } = require("../services/userService");
+const { recordGroupActivity } = require("../services/groupActivityService");
+const { incrementMessages } = require("../services/stats");
 const { logError } = require("../services/loggerService");
 
+/** @param {Record<string,any>} sock */
 function registerEvents(sock) {
-  sock.ev.on("messages.upsert", async ({ messages, type }) => {
+  sock.ev.on("messages.upsert", async (/** @type {{ messages: any[], type?: string }} */ { messages, type }) => {
     try {
       if (type && type !== "notify") {
         return;

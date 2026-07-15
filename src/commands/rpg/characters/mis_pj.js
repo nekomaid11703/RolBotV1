@@ -1,3 +1,4 @@
+// @ts-nocheck
 const { listCharacters } = require("../../../services/characterService");
 const { box } = require("../../../utils/messageFormatUtils");
 
@@ -25,11 +26,6 @@ module.exports = {
       }
     }
 
-    await ctx.reply(box("📂 Mis personajes", [
-      "",
-      ...lines,
-      "",
-      `💡 Usa /switch_pj <nombre> para cambiar`,
-    ]));
+    await ctx.reply(box("📂 Mis personajes", ["", ...lines, "", `💡 Usa /switch_pj <nombre> para cambiar`]));
   },
 };

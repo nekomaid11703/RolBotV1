@@ -1,3 +1,4 @@
+// @ts-nocheck
 const DAILY_BASE_REWARD = 100;
 const DAILY_COOLDOWN_HOURS = 20;
 const DAILY_STREAK_RESET_HOURS = 48;

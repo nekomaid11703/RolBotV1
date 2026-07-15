@@ -1,18 +1,10 @@
+// @ts-nocheck
 const { addMoney } = require("../../services/economyService");
 const { formatStelas } = require("../../utils/economyUtils");
-const {
-  getFirstMentionedJid,
-  extractAmountFromArgs,
-} = require("../../utils/commandParseUtils");
-const {
-  resolveTargetDisplayName,
-  formatDisplayMention,
-} = require("../../utils/userMentionUtils");
-const {
-  formatCommandUsage,
-  formatError,
-  box,
-} = require("../../utils/messageFormatUtils");
+const { getFirstMentionedJid, extractAmountFromArgs } = require("../../utils/commandParseUtils");
+const { formatDisplayMention } = require("../../utils/userMentionUtils");
+const { resolveTargetDisplayName } = require("../../services/displayNameService");
+const { formatCommandUsage, formatError, box } = require("../../utils/messageFormatUtils");
 
 const usageMessage = formatCommandUsage({
   icon: "➕",
@@ -57,13 +49,16 @@ module.exports = {
         },
       });
 
-      await ctx.reply(box("➕ Stelas añadidas", [
-        "",
-        `👤  ${formatDisplayMention(targetId, targetName)}`,
-        "",
-        `💵  Añadidas: ${formatStelas(amount)}`,
-        `💰  Balance: ${formatStelas(balance)}`,
-      ]), { mentions: [targetId] });
+      await ctx.reply(
+        box("➕ Stelas añadidas", [
+          "",
+          `👤  ${formatDisplayMention(targetId, targetName)}`,
+          "",
+          `💵  Añadidas: ${formatStelas(amount)}`,
+          `💰  Balance: ${formatStelas(balance)}`,
+        ]),
+        { mentions: [targetId] },
+      );
     } catch (error) {
       await ctx.reply(formatError(error.message));
     }

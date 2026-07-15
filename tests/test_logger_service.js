@@ -26,16 +26,10 @@ const loggerPath = path.join(__dirname, "../src/services/loggerService");
 const logger = require(loggerPath);
 
 // ─── Verificación de Pureza: sin importaciones de negocio ─────────────────────
-const srcContent = fs.readFileSync(
-  path.join(__dirname, "../src/services/loggerService.js"),
-  "utf8"
-);
+const srcContent = fs.readFileSync(path.join(__dirname, "../src/services/loggerService.js"), "utf8");
 const forbiddenImports = ["supabase", "characterService", "economyService", "aiService", "commandHandler"];
 for (const imp of forbiddenImports) {
-  assert.ok(
-    !srcContent.includes(imp),
-    `PUREZA VIOLADA: loggerService.js no debe importar '${imp}'`
-  );
+  assert.ok(!srcContent.includes(imp), `PUREZA VIOLADA: loggerService.js no debe importar '${imp}'`);
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -96,41 +90,29 @@ console.log("\n📦 safeStringify (via logError)");
 // Verificamos que logError no lanza aunque el input sea raro
 async function runSafeStringifyTests() {
   await testAsync("logError acepta objeto Error normal", async () => {
-    await assert.doesNotReject(() =>
-      logger.logError({ source: "test", error: new Error("mensaje de prueba") })
-    );
+    await assert.doesNotReject(() => logger.logError({ source: "test", error: new Error("mensaje de prueba") }));
   });
 
   await testAsync("logError acepta string como error", async () => {
-    await assert.doesNotReject(() =>
-      logger.logError({ source: "test", error: "string de error" })
-    );
+    await assert.doesNotReject(() => logger.logError({ source: "test", error: "string de error" }));
   });
 
   await testAsync("logError acepta objeto plano como error", async () => {
-    await assert.doesNotReject(() =>
-      logger.logError({ source: "test", error: { code: 500, msg: "fatal" } })
-    );
+    await assert.doesNotReject(() => logger.logError({ source: "test", error: { code: 500, msg: "fatal" } }));
   });
 
   await testAsync("logError acepta null como error sin lanzar", async () => {
-    await assert.doesNotReject(() =>
-      logger.logError({ source: "test", error: null })
-    );
+    await assert.doesNotReject(() => logger.logError({ source: "test", error: null }));
   });
 
   await testAsync("logError acepta undefined como error sin lanzar", async () => {
-    await assert.doesNotReject(() =>
-      logger.logError({ source: "test", error: undefined })
-    );
+    await assert.doesNotReject(() => logger.logError({ source: "test", error: undefined }));
   });
 
   await testAsync("logError maneja object circular sin lanzar", async () => {
     const circular = {};
     circular.self = circular;
-    await assert.doesNotReject(() =>
-      logger.logError({ source: "test", error: circular })
-    );
+    await assert.doesNotReject(() => logger.logError({ source: "test", error: circular }));
   });
 
   await testAsync("logError con contexto adicional no lanza", async () => {
@@ -142,7 +124,7 @@ async function runSafeStringifyTests() {
         groupId: "group@g.us",
         error: new Error("contextual"),
         context: { cmd: "/test", args: ["a", "b"] },
-      })
+      }),
     );
   });
 }
@@ -152,21 +134,15 @@ async function runLogSystemTests() {
   console.log("\n📦 logSystem()");
 
   await testAsync("logSystem con mensaje simple no lanza", async () => {
-    await assert.doesNotReject(() =>
-      logger.logSystem("Sistema iniciado correctamente")
-    );
+    await assert.doesNotReject(() => logger.logSystem("Sistema iniciado correctamente"));
   });
 
   await testAsync("logSystem con details adicionales no lanza", async () => {
-    await assert.doesNotReject(() =>
-      logger.logSystem("Sistema con detalles", { version: "1.0", env: "test" })
-    );
+    await assert.doesNotReject(() => logger.logSystem("Sistema con detalles", { version: "1.0", env: "test" }));
   });
 
   await testAsync("logSystem con details vacío no lanza", async () => {
-    await assert.doesNotReject(() =>
-      logger.logSystem("Sin detalles", {})
-    );
+    await assert.doesNotReject(() => logger.logSystem("Sin detalles", {}));
   });
 }
 
@@ -185,7 +161,7 @@ async function runLogCommandTests() {
         resolvedCommand: "atacar",
         args: ["@enemy"],
         status: "success",
-      })
+      }),
     );
   });
 
@@ -200,7 +176,7 @@ async function runLogCommandTests() {
         args: [],
         status: "denied",
         reason: "No es admin",
-      })
+      }),
     );
   });
 
@@ -215,7 +191,7 @@ async function runLogCommandTests() {
         args: [],
         status: "error",
         reason: "DB timeout",
-      })
+      }),
     );
   });
 
@@ -228,7 +204,7 @@ async function runLogCommandTests() {
         inputCommand: "hola",
         resolvedCommand: "hola",
         status: "success",
-      })
+      }),
     );
   });
 }
@@ -267,12 +243,16 @@ async function runWriteQueueTests() {
       Promise.all([
         logger.logSystem("concurrent system"),
         logger.logCommand({
-          userId: "u1", userName: "U1", groupId: "g1",
-          inputCommand: "test", resolvedCommand: "test",
-          args: [], status: "success",
+          userId: "u1",
+          userName: "U1",
+          groupId: "g1",
+          inputCommand: "test",
+          resolvedCommand: "test",
+          args: [],
+          status: "success",
         }),
         logger.logError({ source: "concurrent", error: new Error("concurrent error") }),
-      ])
+      ]),
     );
   });
 }
@@ -288,7 +268,7 @@ async function runLogContentTests() {
     const today = new Date().toISOString().slice(0, 10);
     const logFile = path.join(logger.LOGS_DIR, `system-${today}.log`);
     // Esperar un tick para que el filesystem lo vacíe
-    await new Promise(r => setTimeout(r, 100));
+    await new Promise((r) => setTimeout(r, 100));
     if (fs.existsSync(logFile)) {
       const content = fs.readFileSync(logFile, "utf8");
       assert.ok(content.includes(marker), `El log debe contener el marcador '${marker}'`);
@@ -299,7 +279,7 @@ async function runLogContentTests() {
   await testAsync("logError escribe 'ERROR' y el source en el archivo", async () => {
     const source = `test-source-${Date.now()}`;
     await logger.logError({ source, error: new Error("test error content") });
-    await new Promise(r => setTimeout(r, 100));
+    await new Promise((r) => setTimeout(r, 100));
     const today = new Date().toISOString().slice(0, 10);
     const logFile = path.join(logger.LOGS_DIR, `error-${today}.log`);
     if (fs.existsSync(logFile)) {
@@ -345,7 +325,7 @@ async function run() {
   }
 }
 
-run().catch(err => {
+run().catch((err) => {
   console.error("Error fatal en la suite de pruebas:", err);
   process.exit(1);
 });

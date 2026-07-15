@@ -1,0 +1,7 @@
+node_modules/
+graphify-out/
+logs/
+bugs/
+_archive/
+ai-memory/
+.git/

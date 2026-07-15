@@ -1,4 +1,5 @@
-const { getGroupTopActiveUsers } = require("../../../services/groupActivityService");
+// @ts-nocheck
+const { getTopGroupMembers } = require("../../../services/groupActivityService");
 const { formatCount, medal } = require("../../../utils/activityFormatUtils");
 const { formatDisplayMention, withMentions } = require("../../../utils/userMentionUtils");
 const { box } = require("../../../utils/messageFormatUtils");
@@ -12,17 +13,12 @@ module.exports = {
 
   async execute(ctx) {
     const rawLimit = Number(ctx.args?.[0]);
-    const limit = Number.isFinite(rawLimit) && rawLimit > 0
-      ? Math.min(15, Math.floor(rawLimit))
-      : 10;
+    const limit = Number.isFinite(rawLimit) && rawLimit > 0 ? Math.min(15, Math.floor(rawLimit)) : 10;
 
-    const top = await getGroupTopActiveUsers({ groupId: ctx.from, limit });
+    const top = await getTopGroupMembers({ groupId: ctx.from, limit });
 
     if (!top.length) {
-      return ctx.reply(box("🏆 Top activos", [
-        "",
-        "No hay actividad registrada en este grupo.",
-      ]));
+      return ctx.reply(box("🏆 Top activos", ["", "No hay actividad registrada en este grupo."]));
     }
 
     const mentions = [];
@@ -32,12 +28,6 @@ module.exports = {
       return `${medal(index)} ${name}\n   Mensajes: ${formatCount(entry.activity?.messages)}`;
     });
 
-    await ctx.reply(withMentions(
-      box("🏆 Top activos", [
-        "",
-        ...lines,
-      ]),
-      mentions,
-    ));
+    await ctx.reply(withMentions(box("🏆 Top activos", ["", ...lines]), mentions));
   },
 };

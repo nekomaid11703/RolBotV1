@@ -1,0 +1,26 @@
+{
+  "$schema": "https://unpkg.com/knip@5/schema.json",
+  "entry": [
+    "src/core/bot.js",
+    "index.js",
+    "src/commands/**/*.js",
+    "src/data/**/*.js",
+    "src/config/**/*.js"
+  ],
+  "project": ["src/**/*.js"],
+  "ignore": [
+    "src/utils/safeQuery.js",
+    "src/core/commandHandler.js",
+    "src/services/rpg/combatLogger.js",
+    "src/services/rpg/dataLoader.js",
+    "src/services/rpg/statCalculator.js",
+    "src/services/rpg/duelService.js",
+    "src/services/syncService.js"
+  ],
+  "ignoreDependencies": ["qrcode-terminal", "pino"],
+  "rules": {
+    "files": "warn",
+    "exports": "warn"
+  },
+  "ignoreBinaries": ["echo", "cat", "dot"]
+}

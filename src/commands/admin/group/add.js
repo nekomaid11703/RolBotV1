@@ -1,3 +1,4 @@
+// @ts-nocheck
 const { addParticipant } = require("../../../utils/groupUtils");
 const { formatError, box } = require("../../../utils/messageFormatUtils");
 
@@ -18,10 +19,7 @@ module.exports = {
 
     try {
       const result = await addParticipant(ctx.sock, ctx.from, text);
-      await ctx.reply(box("➕ Usuario añadido", [
-        "",
-        result,
-      ]));
+      await ctx.reply(box("➕ Usuario añadido", ["", result]));
     } catch (error) {
       await ctx.reply(formatError(error.message));
     }
