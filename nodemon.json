@@ -8,7 +8,13 @@
     "src/database/**",
     "src/logs/**",
     ".git/**",
-    "logs/**"
+    "logs/**",
+    "ai-memory/**",
+    "bugs/**",
+    "graphify-out/**",
+    "_archive/**",
+    "*.zip",
+    "*.log"
   ],
   "ext": "js,json",
   "delay": 1000,

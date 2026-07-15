@@ -1,492 +1,270 @@
-# Graph Report - .  (2026-07-14)
+# Graph Report - C:\IA_rolbot\RolBotV1  (2026-07-14)
 
 ## Corpus Check
-- cluster-only mode — file stats not available
+- 118 files · ~40,453 words
+- Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1207 nodes · 1872 edges · 101 communities (83 shown, 18 thin omitted)
-- Extraction: 82% EXTRACTED · 18% INFERRED · 0% AMBIGUOUS · INFERRED: 340 edges (avg confidence: 0.5)
+- 811 nodes · 1660 edges · 69 communities (49 shown, 20 thin omitted)
+- Extraction: 91% EXTRACTED · 9% INFERRED · 0% AMBIGUOUS · INFERRED: 147 edges (avg confidence: 0.5)
 - Token cost: 0 input · 0 output
 
-## Graph Freshness
-- Built from commit: `00e4a7e3`
-- Run `git rev-parse HEAD` and compare to check if the graph is stale.
-- Run `graphify update .` after code changes (no API cost).
-
 ## Community Hubs (Navigation)
-- Combat Engine & Attack Execution
-- Combat Buffer & Referee (Obsolete)
-- Config & Context System
-- Test Helpers & Utilities
-- Ability Engine
-- Inventory Service
-- Character Service
-- Package & Dependencies
-- Bot Core & WebSocket
-- Combat Narrator (Obsolete)
-- Combat Parser (Obsolete)
-- Bug Report & Midnight Review
-- Rol Command (Obsolete)
-- Group Activity Service
-- User Service
-- Economy Service
-- Logger & Combat Log
-- Combat Turn Manager
-- Logger Service Tests
-- Scene Cache (Obsolete)
-- Environmental Effects
-- Combat Engine Resolver
-- Data Loader (Races/Classes)
-- Logger System
-- Permission Service
-- World Lore (Obsolete)
-- Duel PvP Service
-- Item Use Command
-- Message Format Utils
-- Status Dashboard
-- Help Command
-- Event Handler
-- Narrator Output Validator (Obsolete)
-- Audit Sync Script
-- Block Command
-- Abilities Command
-- Sync Service
-- Cache Service
-- Character Migration Script
-- Supabase Migration Script
-- Activity Command
-- Give Stelas Command
-- Command Parse Utils
-- ruleEngine.js
-- Economy Admin Add
-- Economy Admin Remove
-- Add Stelas Command
-- Daily Economy Command
-- Remove Stelas Command
-- Set Stelas Command
-- Delete Character Command
-- Rename Character Command
-- Unequip Command
-- Dodge Command
-- Message Format Tests
-- Duel Command
-- Global Activity Command
-- Top Money Command
-- Edit Character Description
-- Switch Character Command
-- Equip Command
-- Inventory Command
-- LRUCache
-- Ban Command
-- Demote Command
-- Promote Command
-- Unwarn Command
-- Warn Command
-- Warning List Command
-- Transfer Money Command
-- Pay Command
-- Shop Command
-- Admin Stats Command
-- Auto-Reply Detection
-- Kick Command
-- Antilink Command
-- Mute Command
-- Top Active Users Command
-- To-Do List Command
-- Economy Betting
-- Leaderboard Command
-- Status Command
-- Scheduler Service
-- RPG Panel Command
-- Admin Main Menu
-- Sticker Command
-- Menu Command
-- Welcome Handler
-- Delete Command
-- Force Sync Script
-- Add to Group Command
-- Close Group Command
-- Invite Command
-- Bug Status Command
-- Dice Roll Command
-- Create Character Command
+- Community 0
+- Community 1
+- Community 2
+- Community 3
+- Community 4
+- Community 5
+- Community 6
+- Community 7
+- Community 8
+- Community 9
+- Community 10
+- Community 11
+- Community 12
+- Community 13
+- Community 14
+- Community 15
+- Community 16
+- Community 17
+- Community 18
+- Community 19
+- Community 20
+- Community 21
+- Community 22
+- Community 23
+- Community 24
+- Community 25
+- Community 26
+- Community 27
+- Community 28
+- Community 29
+- Community 30
+- Community 31
+- Community 32
+- Community 33
+- Community 34
+- Community 35
+- Community 36
+- Community 37
+- Community 38
+- Community 39
+- Community 40
+- Community 41
+- Community 42
+- Community 43
+- Community 44
+- Community 45
+- Community 46
+- Community 47
+- Community 48
+- Community 49
+- Community 50
+- Community 51
+- Community 52
+- Community 53
+- Community 54
+- Community 55
+- Community 56
+- Community 57
+- Community 58
+- Community 59
+- Community 60
+- Community 61
+- Community 62
+- Community 63
+- Community 65
 
 ## God Nodes (most connected - your core abstractions)
-1. `logError()` - 26 edges
-2. `startBot()` - 18 edges
-3. `getUserProfile()` - 17 edges
-4. `normalizeCharacterRecord()` - 12 edges
-5. `logSystem()` - 12 edges
-6. `getItem()` - 12 edges
-7. `processRoleplay()` - 12 edges
-8. `invalidateUserCache()` - 12 edges
-9. `saveUserProfile()` - 11 edges
-10. `supabase` - 10 edges
+1. `box()` - 67 edges
+2. `formatError()` - 50 edges
+3. `formatDisplayMention()` - 34 edges
+4. `resolveTargetDisplayName()` - 33 edges
+5. `getFirstMentionedJid()` - 28 edges
+6. `getUserProfile()` - 23 edges
+7. `withMentions()` - 23 edges
+8. `scripts` - 22 edges
+9. `logError()` - 20 edges
+10. `startBot()` - 19 edges
 
 ## Surprising Connections (you probably didn't know these)
-- `midnightReview()` --calls--> `logError()`  [EXTRACTED]
-  scripts/midnight_review.js → src/services/loggerService.js
 - `midnightReview()` --calls--> `logSystem()`  [EXTRACTED]
+  scripts/midnight_review.js → src/services/loggerService.js
+- `midnightReview()` --calls--> `getOwnerJids()`  [EXTRACTED]
+  scripts/midnight_review.js → src/utils/permissionUtils.js
+- `runCleanOldLogsTests()` --indirect_call--> `exists()`  [INFERRED]
+  tests/test_logger_service.js → scripts/tools-list.js
+- `midnightReview()` --calls--> `logError()`  [EXTRACTED]
   scripts/midnight_review.js → src/services/loggerService.js
 - `scheduleNext()` --calls--> `midnightReview()`  [EXTRACTED]
   src/services/schedulerService.js → scripts/midnight_review.js
-- `midnightReview()` --calls--> `getOpenReports()`  [EXTRACTED]
-  scripts/midnight_review.js → src/services/bugReportService.js
-- `midnightReview()` --calls--> `getStats()`  [EXTRACTED]
-  scripts/midnight_review.js → src/services/bugReportService.js
 
 ## Import Cycles
 - None detected.
 
-## Communities (101 total, 18 thin omitted)
+## Communities (69 total, 20 thin omitted)
 
-### Community 0 - "Combat Engine & Attack Execution"
-Cohesion: 0.05
-Nodes (50): combatEngine, execute(), executeAttackInCombat(), { formatError }, { getActiveCharacter }, { getAllEnemies }, handleRewards(), { logError } (+42 more)
-
-### Community 1 - "Combat Buffer & Referee (Obsolete)"
+### Community 0 - "Community 0"
 Cohesion: 0.06
-Nodes (50): CombatBuffer, abilities, abilityEngine, applyEnvironmentalEffect(), ATTACK_VERBS, buildRefereePrompt(), CLASSIFICATION_PROMPT, { CombatBuffer } (+42 more)
+Nodes (51): { box }, execute(), { getOwnerRecords }, { listEconomyAdmins }, { box, formatError }, { createReport }, execute(), reportCooldowns (+43 more)
 
-### Community 2 - "Config & Context System"
+### Community 1 - "Community 1"
+Cohesion: 0.04
+Nodes (48): dotenv, author, dependencies, dotenv, pino, qrcode-terminal, @supabase/supabase-js, @whiskeysockets/baileys (+40 more)
+
+### Community 2 - "Community 2"
 Cohesion: 0.09
-Nodes (36): createContext(), {
-  extractPhoneNumber,
-  normalizeJid,
-}, extractText(), getMessageType(), isTextLikeMessageType(), TEXT_MESSAGE_TYPES, unwrapMessageContent(), getGroupMetadata() (+28 more)
+Nodes (32): { box }, execute(), { formatCount, formatDate }, { formatDisplayMention, withMentions }, { getFirstMentionedJid }, { getGroupMemberActivity, getGroupActivity }, { getGroupMetadata }, { getUserProfile } (+24 more)
 
-### Community 3 - "Test Helpers & Utilities"
-Cohesion: 0.08
-Nodes (34): abilities, helpers, run(), crypto, getCacheKey(), helpers, path, run() (+26 more)
+### Community 3 - "Community 3"
+Cohesion: 0.09
+Nodes (20): GROUP_ACTIVITY_ROOT, path, buildDefaultGroupRecord(), ensureGroupActivity(), getGroupActivity(), getGroupMemberActivity(), getTopGroupMembers(), { GROUP_TOP_LIMIT } (+12 more)
 
-### Community 4 - "Ability Engine"
-Cohesion: 0.06
-Nodes (23): ABILITIES_REGISTRY, applyAbilityCosts(), canUseAbility(), getAbility(), { reduceBuffTimers }, abilitiesData, applyEffect(), combatEngine (+15 more)
+### Community 4 - "Community 4"
+Cohesion: 0.10
+Nodes (25): { addParticipant }, execute(), { formatError, box }, execute(), { formatError, box }, { openGroup }, { closeGroup }, execute() (+17 more)
 
-### Community 5 - "Inventory Service"
+### Community 5 - "Community 5"
+Cohesion: 0.07
+Nodes (29): dependency-cruiser, eslint, eslint-config-prettier, @eslint/js, eslint-plugin-jsdoc, globals, husky, lint-staged (+21 more)
+
+### Community 6 - "Community 6"
+Cohesion: 0.10
+Nodes (25): { addMoney }, execute(), { formatCommandUsage, formatError, box }, { formatDisplayMention }, { formatStelas }, { getFirstMentionedJid, extractAmountFromArgs }, { resolveTargetDisplayName }, usageMessage (+17 more)
+
+### Community 7 - "Community 7"
 Cohesion: 0.11
-Nodes (32): addItem(), calculateEquipmentBonuses(), damageEquippedItem(), emptyInventory(), EQUIP_BONUSES_CACHE, equipItem(), EQUIPPABLE_SLOTS, { getActiveCharacter, updateCharacterStats } (+24 more)
+Nodes (25): check(), { execSync }, exists(), fs, path, ROOT, run(), WORKSPACE (+17 more)
 
-### Community 6 - "Character Service"
+### Community 8 - "Community 8"
+Cohesion: 0.09
+Nodes (22): _archive, bugs, graphify-out, logs, node_modules, tests, compilerOptions, allowJs (+14 more)
+
+### Community 9 - "Community 9"
+Cohesion: 0.13
+Nodes (22): cleanupSock(), { default: makeWASocket, DisconnectReason, fetchLatestBaileysVersion }, forceNewSession(), { getOwnerJids }, { getResolvedSince }, { loadCommands }, { logSystem, logError, cleanOldLogs }, P (+14 more)
+
+### Community 10 - "Community 10"
+Cohesion: 0.18
+Nodes (21): getBalance(), buildDefaultProfile(), buildRegistration(), creatorDigits(), ensureUserProfile(), getCreatorFolderName(), getTopActiveUsers(), getUserProfile() (+13 more)
+
+### Community 11 - "Community 11"
+Cohesion: 0.10
+Nodes (20): entry, ignore, ignoreBinaries, ignoreDependencies, src/**/*.js, project, rules, exports (+12 more)
+
+### Community 12 - "Community 12"
 Cohesion: 0.14
-Nodes (29): CHARACTER_CATEGORIES, CHARACTER_ROOT, DEFAULT_CHARACTER_SLOTS, DEFAULT_CHARACTER_STATS, path, VALID_CHARACTER_FIELDS, {
+Nodes (15): crypto, getCacheKey(), helpers, run(), helpers, invService, path, run() (+7 more)
+
+### Community 13 - "Community 13"
+Cohesion: 0.18
+Nodes (15): { box }, execute(), { formatStelas }, { getOrCreateProfile, getUserProfile }, resolveTarget(), { box }, { claimDaily }, { DAILY_COOLDOWN_HOURS } (+7 more)
+
+### Community 14 - "Community 14"
+Cohesion: 0.15
+Nodes (17): aliases, fs, getJsFilesRecursively(), handleCommand(), { hasEconomyPermission }, { incrementCommands, incrementErrors, addEvent }, { isAdmin, isBotAdmin, isOnGroup }, { isOwner } (+9 more)
+
+### Community 15 - "Community 15"
+Cohesion: 0.17
+Nodes (13): { getOpenReports, getStats, markStale, resolveReport }, { getOwnerJids }, { logSystem, logError }, midnightReview(), { BufferJSON, initAuthCreds }, { logError }, { supabase }, useSupabaseAuthState() (+5 more)
+
+### Community 16 - "Community 16"
+Cohesion: 0.18
+Nodes (14): { formatCommandUsage, formatError, box }, usageMessage, { createCharacter, setActiveCharacter }, execute(), { formatCommandForm, formatError, box }, { isAdmin }, { MAX_CHARACTER_NAME_LENGTH }, buildFeedbackBody() (+6 more)
+
+### Community 17 - "Community 17"
+Cohesion: 0.26
+Nodes (16): {
   CHARACTER_CATEGORIES,
   DEFAULT_CHARACTER_STATS,
   DEFAULT_CHARACTER_SLOTS,
-  MAX_CHARACTER_NAME_LENGTH,
-  MAX_SLOT_SIZE,
   MAX_CHARACTERS_PER_USER,
-}, createCharacter() (+21 more)
+}, createCharacter(), deleteCharacter(), getCharacterSlug(), { invalidateUserCache, charactersCacheKey, safeSingleOrNull, cache, TTLS }, normalizeCategory(), normalizeCharacterRecord(), normalizeStats() (+8 more)
 
-### Community 7 - "Package & Dependencies"
-Cohesion: 0.07
-Nodes (29): dotenv, nodemon, author, dependencies, dotenv, pino, qrcode-terminal, @supabase/supabase-js (+21 more)
+### Community 18 - "Community 18"
+Cohesion: 0.26
+Nodes (16): addMoney(), claimDaily(), {
+  DAILY_BASE_REWARD,
+  DAILY_COOLDOWN_HOURS,
+  DAILY_STREAK_RESET_HOURS,
+  DAILY_STREAK_BONUS_PER_DAY,
+  DAILY_STREAK_BONUS_CAP,
+}, getMoneyValue(), { getUserProfile, getOrCreateProfile, saveUserProfile }, { logError }, removeMoney(), resolveEconomyProfile() (+8 more)
 
-### Community 8 - "Bot Core & WebSocket"
-Cohesion: 0.10
-Nodes (28): cleanupSock(), {
-  default: makeWASocket,
-  DisconnectReason,
-  fetchLatestBaileysVersion,
-  initAuthCreds,
-}, forceNewSession(), { getOwnerJids }, { getResolvedSince }, { loadCommands }, {
-  logSystem,
-  logError,
-  cleanOldLogs,
-}, P (+20 more)
-
-### Community 9 - "Combat Narrator (Obsolete)"
-Cohesion: 0.12
-Nodes (23): buildNarrativePrompt(), determineTone(), envEffects, fs, generateTemplateNarrative(), { getContextualLore, getLoreByKeyword }, getNarrativeContext(), { getSceneWithEffects, getSceneVersion, incrementEffectBurn } (+15 more)
-
-### Community 10 - "Combat Parser (Obsolete)"
-Cohesion: 0.11
-Nodes (22): ATTACK_SYNONYMS, ATTEMPT_MARKERS, detectMoveNumber(), extractTarget(), extractWeapon(), extractZone(), { getAllEnemies }, isAccion() (+14 more)
-
-### Community 11 - "Bug Report & Midnight Review"
-Cohesion: 0.12
-Nodes (24): { getOpenReports, getStats, markStale, resolveReport }, { getOwnerJids }, { logSystem, logError }, midnightReview(), createReport(), crypto, determinePriority(), { downloadMediaMessage } (+16 more)
-
-### Community 12 - "Rol Command (Obsolete)"
-Cohesion: 0.11
-Nodes (22): abilityLib, { addMoney }, buildMessages(), combatEngine, combatLogger, combatNarrator, duelService, enemiesLib (+14 more)
-
-### Community 13 - "Group Activity Service"
-Cohesion: 0.16
-Nodes (18): GROUP_ACTIVITY_ROOT, path, buildDefaultGroupRecord(), ensureGroupActivity(), getGroupActivity(), getGroupMemberActivity(), getTopGroupMembers(), { GROUP_TOP_LIMIT } (+10 more)
-
-### Community 14 - "User Service"
-Cohesion: 0.19
-Nodes (20): getBalance(), buildDefaultProfile(), buildRegistration(), creatorDigits(), ensureUserProfile(), getCreatorFolderName(), getTopActiveUsers(), getUserProfile() (+12 more)
-
-### Community 15 - "Economy Service"
-Cohesion: 0.22
-Nodes (17): addMoney(), claimDaily(), {
-  DAILY_BASE_REWARD,
-  DAILY_COOLDOWN_HOURS,
-  DAILY_STREAK_RESET_HOURS,
-  DAILY_STREAK_BONUS_PER_DAY,
-  DAILY_STREAK_BONUS_CAP,
-}, getMoneyValue(), getTopBalances(), {
-  getUserProfile,
-  getOrCreateProfile,
-  saveUserProfile,
-  listUserProfiles,
-}, { logError }, removeMoney() (+9 more)
-
-### Community 16 - "Logger & Combat Log"
-Cohesion: 0.15
-Nodes (13): { createClient }, { logSystem, logError }, supabase, logError(), getCombatLog(), getCombatsByParticipant(), logAction(), logCombatEnd() (+5 more)
-
-### Community 17 - "Combat Turn Manager"
+### Community 19 - "Community 19"
 Cohesion: 0.20
-Nodes (17): advanceTurn(), applySkip(), buildTurnResponse(), checkTimeout(), checkVictoryConditions(), combatEngine, formatHPBar(), formatNextTurnMention() (+9 more)
+Nodes (14): execute(), { formatDisplayMention, withMentions }, { formatError, box }, { getFirstMentionedJid }, { removeParticipant }, { resolveTargetDisplayName }, cleanText(), extractMentionLabelFromContext() (+6 more)
 
-### Community 18 - "Logger Service Tests"
-Cohesion: 0.18
-Nodes (17): assert, forbiddenImports, fs, fsp, logger, loggerPath, path, run() (+9 more)
+### Community 20 - "Community 20"
+Cohesion: 0.19
+Nodes (13): execute(), { formatDisplayMention, withMentions }, { formatError, box }, { getFirstMentionedJid }, { promoteToAdmin }, { resolveTargetDisplayName }, execute(), { formatDisplayMention } (+5 more)
 
-### Community 19 - "Scene Cache (Obsolete)"
-Cohesion: 0.16
-Nodes (14): invalidateSceneNarrative(), buildSceneDescription(), effectBurnCounters, getBurnKey(), getEffectBurnCount(), getScene(), getSceneForNarrative(), getSceneKey() (+6 more)
+### Community 21 - "Community 21"
+Cohesion: 0.20
+Nodes (15): execute(), { addWarn, getWarns, MAX_WARNS }, execute(), { formatDisplayMention, withMentions }, { formatError, box }, { getFirstMentionedJid }, { resolveTargetDisplayName }, execute() (+7 more)
 
-### Community 20 - "Environmental Effects"
-Cohesion: 0.22
-Nodes (15): applyDotToParticipants(), applyEffectRules(), COMBINED_EFFECTS, EFFECTS_REGISTRY, getActiveCombinedEffects(), getActiveEffectsDescription(), getCombinedEffect(), getDamagePerTurn() (+7 more)
-
-### Community 21 - "Combat Engine Resolver"
-Cohesion: 0.24
-Nodes (14): getStatMultiplier(), hasEffect(), removeEffect(), resolveAbility(), resolveAttack(), resolveBlock(), resolveDodge(), resolveEnemyTurn() (+6 more)
-
-### Community 22 - "Data Loader (Races/Classes)"
-Cohesion: 0.18
-Nodes (13): races, buildIndex(), classes, classIndex, getAllClasses(), getAllRaces(), getClass(), getRace() (+5 more)
-
-### Community 23 - "Logger System"
+### Community 22 - "Community 22"
 Cohesion: 0.22
 Nodes (14): appendToLog(), ensureLogsDir(), fsp, getLogFileName(), LOG_PREFIX, logCommand(), LOGS_DIR, logSystem() (+6 more)
 
-### Community 24 - "Permission Service"
-Cohesion: 0.21
-Nodes (14): {
-  getProfileDisplayName,
-}, {
-  getUserProfile,
-  getOrCreateProfile,
-  listUserProfiles,
-  saveUserProfile,
-}, hasEconomyPermission(), isEconomyAdmin(), { isOwner }, listEconomyAdmins(), pickDisplayName(), readPermissions() (+6 more)
+### Community 23 - "Community 23"
+Cohesion: 0.14
+Nodes (13): html, progress, src/core/**/*.js, coverageAnalysis, mutate, packageManager, reporters, $schema (+5 more)
 
-### Community 25 - "World Lore (Obsolete)"
-Cohesion: 0.22
-Nodes (12): extractSectionByKeyword(), extractTitle(), fs, fsSync, getAllLore(), getContextualLore(), getLoreByKeyword(), getLoreContext() (+4 more)
+### Community 24 - "Community 24"
+Cohesion: 0.26
+Nodes (11): buildAliasStr(), buildSection(), CAT_META, CAT_ORDER, COMBAT_CMDS, { commands }, execute(), getGroup() (+3 more)
 
-### Community 26 - "Duel PvP Service"
-Cohesion: 0.21
-Nodes (11): acceptChallenge(), { addMoney, removeMoney, getBalance }, createChallenge(), getChallengeForTarget(), getChallengeKey(), handlePvPVictory(), { logError }, pendingChallenges (+3 more)
-
-### Community 27 - "Item Use Command"
-Cohesion: 0.18
-Nodes (12): combatEngine, execute(), { formatError, box }, { getActiveCharacter, updateCharacterStats }, invService, itemsData, { logError }, { RPG_CONFIG } (+4 more)
-
-### Community 28 - "Message Format Utils"
+### Community 25 - "Community 25"
 Cohesion: 0.27
-Nodes (11): { box }, formatCharacter(), box(), buildFeedbackBody(), buildFormBody(), buildUsageBody(), compactLines(), formatCommandForm() (+3 more)
+Nodes (9): execute(), { formatCharacter }, { getActiveCharacter }, execute(), { formatCharacter }, { getActiveCharacter }, getActiveCharacter(), { box } (+1 more)
 
-### Community 29 - "Status Dashboard"
-Cohesion: 0.32
+### Community 26 - "Community 26"
+Cohesion: 0.27
+Nodes (10): { getProfileDisplayName }, { getUserProfile, getOrCreateProfile, listUserProfiles }, hasEconomyPermission(), isEconomyAdmin(), { isOwner }, readPermissions(), resolveCandidateId(), setEconomyAdmin() (+2 more)
+
+### Community 27 - "Community 27"
+Cohesion: 0.36
 Nodes (9): formatDuration(), getMemory(), getUptime(), stats, bar(), pad(), render(), startDashboard() (+1 more)
 
-### Community 30 - "Help Command"
-Cohesion: 0.29
-Nodes (10): buildAliasStr(), buildSection(), CAT_META, CAT_ORDER, COMBAT_CMDS, { commands }, execute(), getGroup() (+2 more)
-
-### Community 31 - "Event Handler"
+### Community 28 - "Community 28"
 Cohesion: 0.24
-Nodes (10): createContext, { handleCommand }, { incrementMessages, addEvent }, { logError }, {
-  recordGroupActivity,
-}, {
-  recordUserActivity,
-}, registerEvents(), incrementMessages() (+2 more)
+Nodes (8): { box }, execute(), { formatStelas }, getMedal(), { getTopBalances }, { TOP_DINERO_LIMIT }, getTopBalances(), topBalancesCacheKey()
 
-### Community 32 - "Narrator Output Validator (Obsolete)"
-Cohesion: 0.29
-Nodes (8): attemptPartialRepair(), fuzzyParseJSON(), LLM_OUTPUT_SCHEMA, VALID_ACTION_TYPES, VALID_DAMAGE_TYPES, VALID_INFRACTION_TYPES, VALID_ZONES, validateOutput()
-
-### Community 33 - "Audit Sync Script"
-Cohesion: 0.27
-Nodes (9): auditDesignBoard(), auditLocalMemory(), auditSupabaseTables(), { createClient }, fs, main(), MEMORY_PATH, path (+1 more)
-
-### Community 34 - "Block Command"
+### Community 29 - "Community 29"
 Cohesion: 0.22
-Nodes (7): combatEngine, { formatError }, { logError }, { RPG_CONFIG }, stateManager, turnManager, RPG_CONFIG
+Nodes (8): { formatCommandUsage, formatError, box }, { formatDisplayMention }, { formatStelas }, { getFirstMentionedJid, extractAmountFromArgs }, { getUserProfile }, { resolveTargetDisplayName }, { transferMoney, getBalance }, usageMessage
 
-### Community 35 - "Abilities Command"
-Cohesion: 0.22
-Nodes (9): abilityLib, combatEngine, execute(), { formatError }, { logError }, { RPG_CONFIG }, showAbilities(), stateManager (+1 more)
-
-### Community 36 - "Sync Service"
-Cohesion: 0.29
-Nodes (9): clearServiceCaches(), { createClient }, fetchAllFromSupabase(), forceSync(), getSyncStatus(), { logSystem, logError }, supabase, TABLES (+1 more)
-
-### Community 37 - "Cache Service"
-Cohesion: 0.24
-Nodes (6): cache, TTLS, { cache, TTLS }, cachedRead(), invalidateAllCache(), invalidateTopBalancesCache()
-
-### Community 38 - "Character Migration Script"
-Cohesion: 0.25
-Nodes (8): CHARACTER_ROOT, { createClient }, fs, fsp, migrateCharacters(), path, readJson(), supabase
-
-### Community 39 - "Supabase Migration Script"
+### Community 30 - "Community 30"
 Cohesion: 0.28
-Nodes (8): CHARACTER_ROOT, fs, GROUP_ROOT, main(), migrateGroups(), migrateUsers(), path, { supabase }
+Nodes (8): createContext, { handleCommand }, { incrementMessages }, { logError }, { recordGroupActivity }, { recordUserActivity }, registerEvents(), incrementMessages()
 
-### Community 40 - "Activity Command"
-Cohesion: 0.22
-Nodes (7): { box }, { formatCount, formatDate }, {
-  formatDisplayMention,
-  resolveTargetDisplayName,
-  withMentions,
-}, {
-  getFirstMentionedJid,
-}, {
-  getGroupMemberActivity,
-  getGroupActivity,
-}, {
-  getGroupMetadata,
-}, {
-  getUserProfile,
-}
-
-### Community 41 - "Give Stelas Command"
-Cohesion: 0.22
-Nodes (7): {
-  formatCommandUsage,
-  formatError,
-  box,
-}, { formatStelas }, {
-  getFirstMentionedJid,
-  extractAmountFromArgs,
-}, { getUserProfile }, {
-  resolveTargetDisplayName,
-  formatDisplayMention,
-}, { transferMoney, getBalance }, usageMessage
-
-### Community 42 - "Command Parse Utils"
-Cohesion: 0.33
-Nodes (7): cleanMentionLabel(), extractAmountFromArgs(), formatJidTag(), formatMentionTag(), getFirstMentionedJid(), parsePositiveInteger(), resolveTargetUserId()
-
-### Community 44 - "Economy Admin Add"
+### Community 31 - "Community 31"
 Cohesion: 0.25
-Nodes (6): {
-  formatCommandUsage,
-  formatError,
-  box,
-}, {
-  getFirstMentionedJid,
-}, { isOwner }, {
-  resolveTargetDisplayName,
-  formatDisplayMention,
-  withMentions,
-}, { setEconomyAdmin }, usageMessage
+Nodes (6): { createClient }, { logSystem }, supabase, assert, REQUIRED_TABLES, { supabase }
 
-### Community 45 - "Economy Admin Remove"
-Cohesion: 0.25
-Nodes (6): {
-  formatCommandUsage,
-  formatError,
-  box,
-}, {
-  getFirstMentionedJid,
-}, { isOwner }, {
-  resolveTargetDisplayName,
-  formatDisplayMention,
-  withMentions,
-}, {
-  setEconomyAdmin,
-  isEconomyAdmin,
-}, usageMessage
-
-### Community 46 - "Add Stelas Command"
-Cohesion: 0.25
-Nodes (6): { addMoney }, {
-  formatCommandUsage,
-  formatError,
-  box,
-}, { formatStelas }, {
-  getFirstMentionedJid,
-  extractAmountFromArgs,
-}, {
-  resolveTargetDisplayName,
-  formatDisplayMention,
-}, usageMessage
-
-### Community 47 - "Daily Economy Command"
-Cohesion: 0.32
-Nodes (7): {
-  box,
-}, {
-  claimDaily,
-}, {
-  DAILY_COOLDOWN_HOURS,
-}, execute(), formatProgressBar(), {
-  formatStelas,
-  formatDuration,
-}, formatStreakLabel()
-
-### Community 48 - "Remove Stelas Command"
-Cohesion: 0.25
-Nodes (6): {
-  formatCommandUsage,
-  formatError,
-  box,
-}, { formatStelas }, {
-  getFirstMentionedJid,
-  extractAmountFromArgs,
-}, { removeMoney }, {
-  resolveTargetDisplayName,
-  formatDisplayMention,
-}, usageMessage
-
-### Community 49 - "Set Stelas Command"
-Cohesion: 0.25
-Nodes (6): {
-  formatCommandUsage,
-  formatError,
-  box,
-}, { formatStelas }, {
-  getFirstMentionedJid,
-  extractAmountFromArgs,
-}, {
-  resolveTargetDisplayName,
-  formatDisplayMention,
-}, { setMoney }, usageMessage
-
-### Community 50 - "Delete Character Command"
-Cohesion: 0.25
-Nodes (6): confirmations, { deleteCharacter }, {
-  formatCommandUsage,
-  formatError,
-  box,
-}, { getCharacterNames }, { isAdmin }, usageMessage
-
-### Community 51 - "Rename Character Command"
-Cohesion: 0.25
-Nodes (6): {
-  formatCommandUsage,
-  formatError,
-  box,
-}, { getCharacterNames }, { isAdmin }, { MAX_CHARACTER_NAME_LENGTH }, { renameCharacter }, usageMessage
-
-### Community 52 - "Unequip Command"
+### Community 32 - "Community 32"
 Cohesion: 0.29
-Nodes (7): execute(), { formatError, box }, { getActiveCharacter }, invService, itemsData, { logSystem, logError }, SLOTS
+Nodes (7): { demoteFromAdmin }, execute(), { formatDisplayMention, withMentions }, { formatError, box }, { getFirstMentionedJid }, { resolveTargetDisplayName }, demoteFromAdmin()
 
-### Community 53 - "Dodge Command"
+### Community 33 - "Community 33"
 Cohesion: 0.25
-Nodes (6): combatEngine, { formatError }, { logError }, { RPG_CONFIG }, stateManager, turnManager
+Nodes (7): { formatCommandUsage, formatError, box }, { formatDisplayMention, withMentions }, { getFirstMentionedJid }, { isOwner }, { resolveTargetDisplayName }, { setEconomyAdmin }, usageMessage
 
-### Community 54 - "Message Format Tests"
+### Community 34 - "Community 34"
+Cohesion: 0.25
+Nodes (7): { formatCommandUsage, formatError, box }, { formatDisplayMention, withMentions }, { getFirstMentionedJid }, { isOwner }, { resolveTargetDisplayName }, { setEconomyAdmin, isEconomyAdmin }, usageMessage
+
+### Community 35 - "Community 35"
+Cohesion: 0.25
+Nodes (7): { formatCommandUsage, formatError, box }, { formatDisplayMention }, { formatStelas }, { getFirstMentionedJid, extractAmountFromArgs }, { resolveTargetDisplayName }, { setMoney }, usageMessage
+
+### Community 36 - "Community 36"
+Cohesion: 0.29
+Nodes (7): execute(), { formatCommandUsage, formatError, box }, { getActiveCharacter }, { isAdmin }, { updateCharacterSlots }, usageMessage, isAdmin()
+
+### Community 37 - "Community 37"
 Cohesion: 0.25
 Nodes (6): assert, forbiddenImports, fs, {
   LINE,
@@ -503,194 +281,53 @@ Nodes (6): assert, forbiddenImports, fs, {
   formatError,
 }, path, srcContent
 
-### Community 55 - "Duel Command"
+### Community 38 - "Community 38"
 Cohesion: 0.29
-Nodes (5): duelService, { formatError }, { getActiveCharacter }, { getBalance }, stateManager
+Nodes (6): { formatCommandUsage, formatError, box }, { getCharacterNames }, { isAdmin }, { MAX_CHARACTER_NAME_LENGTH }, { renameCharacter }, usageMessage
 
-### Community 56 - "Global Activity Command"
+### Community 39 - "Community 39"
 Cohesion: 0.29
-Nodes (5): { box }, { formatCount, formatDate, medal }, {
-  formatDisplayMention,
-  resolveTargetDisplayName,
-  withMentions,
-}, {
-  getFirstMentionedJid,
-}, {
-  getTopActiveUsers,
-  getUserProfile,
-}
+Nodes (6): CHARACTER_CATEGORIES, CHARACTER_ROOT, DEFAULT_CHARACTER_SLOTS, DEFAULT_CHARACTER_STATS, path, VALID_CHARACTER_FIELDS
 
-### Community 57 - "Top Money Command"
+### Community 40 - "Community 40"
 Cohesion: 0.33
-Nodes (6): {
-  box,
-}, execute(), {
-  formatStelas,
-}, getMedal(), {
-  getTopBalances,
-}, {
-  TOP_DINERO_LIMIT,
-}
+Nodes (5): { deleteWarn, getWarns }, { formatDisplayMention, withMentions }, { formatError, box }, { getFirstMentionedJid }, { resolveTargetDisplayName }
 
-### Community 58 - "Edit Character Description"
-Cohesion: 0.29
-Nodes (5): {
-  formatCommandUsage,
-  formatError,
-  box,
-}, { getActiveCharacter }, { isAdmin }, { updateCharacterSlots }, usageMessage
-
-### Community 59 - "Switch Character Command"
-Cohesion: 0.29
-Nodes (5): {
-  formatCommandUsage,
-  formatError,
-  box,
-}, { getCharacterNames }, { isAdmin }, { setActiveCharacter }, usageMessage
-
-### Community 60 - "Equip Command"
-Cohesion: 0.29
-Nodes (5): { formatError, box }, { getActiveCharacter }, invService, itemsData, { logSystem, logError }
-
-### Community 61 - "Inventory Command"
-Cohesion: 0.29
-Nodes (5): { formatError, box }, { getActiveCharacter }, invService, itemsData, { logSystem, logError }
-
-### Community 63 - "Ban Command"
+### Community 41 - "Community 41"
 Cohesion: 0.33
-Nodes (4): { formatError, box }, {
-  getFirstMentionedJid,
-}, { removeParticipant }, {
-  resolveTargetDisplayName,
-  formatDisplayMention,
-  withMentions,
-}
+Nodes (5): { deleteCharacter }, { formatCommandUsage, formatError, box }, { getCharacterNames }, { isAdmin }, usageMessage
 
-### Community 64 - "Demote Command"
-Cohesion: 0.33
-Nodes (4): { demoteFromAdmin }, { formatError, box }, {
-  getFirstMentionedJid,
-}, {
-  resolveTargetDisplayName,
-  formatDisplayMention,
-  withMentions,
-}
-
-### Community 65 - "Promote Command"
-Cohesion: 0.33
-Nodes (4): { formatError, box }, {
-  getFirstMentionedJid,
-}, { promoteToAdmin }, {
-  resolveTargetDisplayName,
-  formatDisplayMention,
-  withMentions,
-}
-
-### Community 66 - "Unwarn Command"
-Cohesion: 0.33
-Nodes (4): { formatCount }, { formatError, box }, { formatRealMentionTag, withMentions }, { getGroupMetadata }
-
-### Community 67 - "Warn Command"
-Cohesion: 0.33
-Nodes (4): { box }, { formatCount, medal }, { formatDisplayMention, withMentions }, { getGroupTopActiveUsers }
-
-### Community 68 - "Warning List Command"
-Cohesion: 0.33
-Nodes (4): {
-  deleteWarn,
-  getWarns,
-}, { formatError, box }, {
-  getFirstMentionedJid,
-}, {
-  resolveTargetDisplayName,
-  formatDisplayMention,
-  withMentions,
-}
-
-### Community 69 - "Transfer Money Command"
-Cohesion: 0.33
-Nodes (4): {
-  addWarn,
-  getWarns,
-  MAX_WARNS,
-}, { formatError, box }, {
-  getFirstMentionedJid,
-}, {
-  resolveTargetDisplayName,
-  formatDisplayMention,
-  withMentions,
-}
-
-### Community 70 - "Pay Command"
+### Community 42 - "Community 42"
 Cohesion: 0.40
-Nodes (5): {
-  box,
-}, execute(), {
-  formatStelas,
-}, {
-  getOrCreateProfile,
-  getUserProfile,
-}, resolveTarget()
+Nodes (5): { box }, execute(), { listCharacters }, listCharacters(), charactersCacheKey()
 
-### Community 71 - "Shop Command"
+### Community 43 - "Community 43"
 Cohesion: 0.33
-Nodes (4): { createCharacter, setActiveCharacter }, {
-  formatCommandForm,
-  formatError,
-  box,
-}, { isAdmin }, { MAX_CHARACTER_NAME_LENGTH }
+Nodes (5): { formatCommandUsage, formatError, box }, { getCharacterNames }, { isAdmin }, { setActiveCharacter }, usageMessage
 
-### Community 72 - "Admin Stats Command"
-Cohesion: 0.40
-Nodes (4): { logSystem, logError }, { midnightReview }, scheduleNext(), startMidnightReview()
-
-### Community 73 - "Auto-Reply Detection"
-Cohesion: 0.40
-Nodes (3): duelService, { formatError }, { getActiveCharacter }
-
-### Community 74 - "Kick Command"
-Cohesion: 0.40
-Nodes (3): aiOrchestrator, fs, path
-
-### Community 75 - "Antilink Command"
-Cohesion: 0.50
-Nodes (4): args, { getOpenReports, getReport, resolveReport, getStats }, main(), printReport()
-
-### Community 76 - "Mute Command"
-Cohesion: 0.40
-Nodes (3): { box }, { getOwnerRecords }, { listEconomyAdmins }
-
-### Community 77 - "Top Active Users Command"
-Cohesion: 0.40
-Nodes (3): { box, formatError }, { createReport }, reportCooldowns
-
-### Community 78 - "To-Do List Command"
-Cohesion: 0.50
-Nodes (4): combatEngine, createMockParticipant(), helpers, run()
-
-### Community 79 - "Economy Betting"
+### Community 45 - "Community 45"
 Cohesion: 0.50
 Nodes (4): assert, commands, createCtx(), run()
 
 ## Knowledge Gaps
-- **492 isolated node(s):** `name`, `version`, `description`, `main`, `start` (+487 more)
+- **371 isolated node(s):** `husky.sh script`, `$schema`, `src/core/bot.js`, `index.js`, `src/commands/**/*.js` (+366 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **18 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **20 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `logError()` connect `Logger & Combat Log` to `Inventory Service`, `Character Service`, `Bot Core & WebSocket`, `Admin Stats Command`, `Bug Report & Midnight Review`, `Economy Service`, `Data Loader (Races/Classes)`, `Logger System`, `Duel PvP Service`, `Event Handler`?**
-  _High betweenness centrality (0.052) - this node is a cross-community bridge._
-- **Why does `supabase` connect `Logger & Combat Log` to `Config & Context System`, `Inventory Service`, `Character Service`, `Group Activity Service`, `User Service`, `Economy Service`, `Permission Service`?**
-  _High betweenness centrality (0.013) - this node is a cross-community bridge._
-- **Why does `getUserProfile()` connect `User Service` to `Permission Service`, `Config & Context System`, `Character Service`, `Economy Service`?**
-  _High betweenness centrality (0.008) - this node is a cross-community bridge._
-- **What connects `name`, `version`, `description` to the rest of the system?**
-  _492 weakly-connected nodes found - possible documentation gaps or missing edges._
-- **Should `Combat Engine & Attack Execution` be split into smaller, more focused modules?**
-  _Cohesion score 0.05136612021857923 - nodes in this community are weakly interconnected._
-- **Should `Combat Buffer & Referee (Obsolete)` be split into smaller, more focused modules?**
-  _Cohesion score 0.05584415584415584 - nodes in this community are weakly interconnected._
-- **Should `Config & Context System` be split into smaller, more focused modules?**
-  _Cohesion score 0.08880666049953746 - nodes in this community are weakly interconnected._
+- **Why does `box()` connect `Community 21` to `Community 0`, `Community 2`, `Community 4`, `Community 6`, `Community 13`, `Community 16`, `Community 19`, `Community 20`, `Community 25`, `Community 28`, `Community 29`, `Community 32`, `Community 33`, `Community 34`, `Community 35`, `Community 36`, `Community 38`, `Community 40`, `Community 41`, `Community 42`, `Community 43`?**
+  _High betweenness centrality (0.062) - this node is a cross-community bridge._
+- **Why does `formatError()` connect `Community 21` to `Community 32`, `Community 33`, `Community 2`, `Community 34`, `Community 4`, `Community 35`, `Community 6`, `Community 0`, `Community 40`, `Community 36`, `Community 41`, `Community 38`, `Community 43`, `Community 16`, `Community 19`, `Community 20`, `Community 29`?**
+  _High betweenness centrality (0.021) - this node is a cross-community bridge._
+- **Why does `logError()` connect `Community 15` to `Community 0`, `Community 9`, `Community 14`, `Community 18`, `Community 22`, `Community 30`?**
+  _High betweenness centrality (0.019) - this node is a cross-community bridge._
+- **What connects `husky.sh script`, `$schema`, `src/core/bot.js` to the rest of the system?**
+  _371 weakly-connected nodes found - possible documentation gaps or missing edges._
+- **Should `Community 0` be split into smaller, more focused modules?**
+  _Cohesion score 0.061952074810052604 - nodes in this community are weakly interconnected._
+- **Should `Community 1` be split into smaller, more focused modules?**
+  _Cohesion score 0.04081632653061224 - nodes in this community are weakly interconnected._
+- **Should `Community 2` be split into smaller, more focused modules?**
+  _Cohesion score 0.0945945945945946 - nodes in this community are weakly interconnected._

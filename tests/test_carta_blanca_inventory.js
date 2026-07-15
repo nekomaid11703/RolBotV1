@@ -1,17 +1,22 @@
 const path = require("path");
 
-let combatValidator, combatRefereeService;
+// Combat system archived — skip tests for removed modules
+let combatValidator, combatRefereeService, invService;
 try {
   combatValidator = require("../src/services/rpg/combatValidator");
 } catch {
-  /* module not available */
+  /* archived */
 }
 try {
   combatRefereeService = require("../src/services/rpg/combatRefereeService");
 } catch {
-  /* module not available */
+  /* archived */
 }
-const invService = require("../src/services/rpg/inventoryService");
+try {
+  invService = require("../src/services/rpg/inventoryService");
+} catch {
+  /* archived */
+}
 
 const helpers = require("./test_helpers");
 const {
@@ -25,8 +30,8 @@ const {
 } = helpers;
 
 async function run() {
-  if (!combatValidator) {
-    console.log("⚠ SKIP: combatValidator no disponible");
+  if (!combatValidator || !combatRefereeService || !invService) {
+    console.log("⚠ SKIP: módulos de combate archivados (no se prueba)");
     return;
   }
   console.log("=== TEST: Carta Blanca + Inventory Error Handling ===\n");

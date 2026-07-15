@@ -85,3 +85,72 @@ Este archivo registra los cambios significativos y decisiones arquitectónicas t
 2. **Escalado Lineal 500%:** La progresión se rige estrictamente por la fórmula $M(L) = 1 + (L-1) \times \frac{4}{19}$ para proyectar un incremento exacto de 5 veces en efectividad de nivel 1 a 20.
 3. **Turnos Agrupados en WhatsApp:** Para optimizar la experiencia móvil, cuando un jugador ataca o realiza una acción, los turnos de todos los NPCs que le suceden se auto-resuelven inmediatamente y se muestran en una sola burbuja. Se usa mención `@JID` al final para alertar al siguiente jugador.
 4. **Reacciones de Feedback rápido:** El bot reacciona usando la API oficial (`ctx.react`) a los mensajes del usuario usando emojis clave (⚔️, 🛡️, 💨, 🧪, 💥, 💀), reduciendo la necesidad de burbujas de texto redundantes.
+
+---
+
+## [3.0.0] - 2026-07-14
+
+### Fases 0-5: Auditoría, Rescate, Portabilidad, CI/CD, Refactor, Rendimiento y Documentación
+
+#### 🔴 FASE 0 — RESCATE (Seguridad)
+- **0.1:** `.env.example` creado con placeholders de todas las variables (SUPABASE, GITHUB_PAT, OWNER_PHONE, OWNER_ALIASES). Las keys reales deben rotarse manualmente.
+- **0.2:** PII telefónica (`573156602784`) movida de `permissionsConfig.js:4` a env var `OWNER_PHONE`.
+- **0.3:** `supabase.js` reemplaza placeholder silencioso por throw FATAL si no hay credenciales.
+- **0.4:** `.gitignore` creado en raíz del workspace. Basura documentada para eliminación manual.
+- **0.5:** `nodemon.json` ignora `ai-memory/`, `bugs/`, `graphify-out/`, `_archive/`.
+
+#### 🟠 FASE 1 — PORTABILIDAD Y ESTABILIDAD
+- **1.1:** NekoMemori portátil: `fileUtils.js` usa `PROJECT_ROOT` env var con fallback relativo desde `__dirname`.
+- **1.2:** `opencode.json` portable: rutas Windows reemplazadas por `{env:VAR}`.
+- **1.3:** Atomic writes + mutex en NekoMemori: `withLock()` basado en promesas + atomic rename a `.tmp`.
+- **1.4:** BUG-004 corregido: `lastActionAt` solo se actualiza en turno válido.
+- **1.5:** Cleanup de rooms expiradas (TTL 5min, max 100 rooms) en `combatStateManager.js`.
+
+#### 🟡 FASE 2 — CI/CD Y AUTOMATIZACIÓN
+- **2.1:** CI workflow mejorado con `npm run test:vite` en `.github/workflows/ci.yml`.
+- **2.2:** ESLint: `no-console: warn`, `no-empty` sin `allowEmptyCatch`.
+
+#### 🟢 FASE 3 — REFACTOR Y DEUDA TÉCNICA
+- **3.1:** `knip.json` limpiado (archivos eliminados ya no referenciados).
+- **3.2:** `abilityEngine.applyEffect` refactorizado: 233 líneas → 14 dispatch functions independientes (`effectDamageMultiplier`, `effectHealPercent`, `effectBuff`, etc.).
+- **3.3:** `console.log` duplicado eliminado de `commandHandler.js:133`.
+- **3.5:** `resultUtils.js` creado con `fail()`, `ok()`, `isError()`, `unwrap()`. Migrados `inventoryService.js` (17 ocurrencias) y `combatEngine.js` (2).
+- **3.6:** Saltado por decisión del usuario (`bot_auth_state` con `session_id` es suficiente).
+
+#### 🔵 FASE 4 — RENDIMIENTO Y OPTIMIZACIÓN
+- **4.2:** `listUserProfiles` acepta `{ offset, limit }` con `.range()` de Supabase.
+- **4.3:** `getTopBalances` usa `ORDER BY money DESC LIMIT X` directo en SQL (antes: `SELECT *` + sort en JS).
+- **4.4:** Cache `EQUIP_BONUSES_CACHE` ya existente en `inventoryService.js` — documentado.
+- **4.5:** NekoMemori indexado: stats pre-computados en `rolbot-memory-stats.json`. `get_memory_stats` ya no parsea el JSONL completo.
+
+#### 📘 FASE 5 — DOCUMENTACIÓN Y EXTENSIBILIDAD
+- **5.1:** README reescrito con arquitectura, MCP, toolchain, estado del proyecto y knowledge graph.
+- **5.2:** JSDoc añadido a todas las funciones exportadas en `resultUtils.js`, `abilityEngine.js`, `combatEngine.js`, `inventoryService.js`.
+- **5.3:** Capa IA eliminada (verificada: 0 archivos residuales de providers, orchestrator, referee). El proyecto es 100% code-only.
+- **5.4:** Script `npm run tools:list` creado (pre-flight check de herramientas, skills, tests, MCPs).
+- **5.5:** Skills de Antigravity migrados a `.opencode/skills/` adaptados a opencode (tool names, rutas relativas, graphify).
+- **5.6:** Este changelog actualizado.
+
+#### Archivos modificados (principales)
+- `src/config/permissionsConfig.js` — PII a env var
+- `src/database/supabase.js` — FATAL en lugar de placeholder
+- `src/services/rpg/abilityEngine.js` — Refactor completo + JSDoc
+- `src/services/rpg/combatEngine.js` — JSDoc + `fail()` de resultUtils
+- `src/services/rpg/inventoryService.js` — JSDoc + `fail()` de resultUtils
+- `src/services/rpg/combatTurnManager.js` — BUG-004 fix
+- `src/services/rpg/combatStateManager.js` — Cleanup TTL
+- `src/services/userService.js` — Paginación con range()
+- `src/services/economyService.js` — SQL directo en getTopBalances
+- `src/core/commandHandler.js` — console.log eliminado
+- `src/utils/resultUtils.js` — Nuevo helper de errores
+- `mcp_nekomemori/utils/fileUtils.js` — Portabilidad + atomic writes + stats index
+- `mcp_nekomemori/tools/memory.js` — Stats index
+- `opencode.json` — Rutas portables
+- `eslint.config.js` — no-console, no-empty rules
+- `.github/workflows/ci.yml` — test:vite añadido
+- `package.json` — tools:list script
+- `scripts/tools-list.js` — Nuevo pre-flight check
+- `.opencode/skills/` — 3 skills migrados de Antigravity
+- `AUDITORIA_COMPLETA.md` — Auditoría viva actualizada
+- `README.md` — Reescrito completo
+- `AI_CHANGELOG.md` — Esta entrada

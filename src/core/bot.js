@@ -24,7 +24,7 @@ const WATCHDOG_MAX_DISCONNECTED_MS = 300000;
 const USE_PAIRING_CODE = process.argv.slice(2).includes("code");
 
 const SUPABASE_TABLE = "bot_auth_state";
-/** @type {Record<string,any>|null} */
+/** @type {object|null} */
 let currentSock = null;
 let reconnectAttempts = 0;
 let restartRequiredCount = 0;
@@ -46,14 +46,22 @@ process.on("unhandledRejection", async (reason) => {
   startBot().catch((e) => logError({ source: "bot.restartAfterRejection", error: e }));
 });
 
+/**
+ * Force a new authentication session.
+ * @returns {Promise<void>} Promise that resolves when complete
+ */
 async function forceNewSession() {
   try {
     const { supabase } = require("../database/supabase");
     await supabase.from(SUPABASE_TABLE).delete().eq("session_id", "bot-session-1");
-  } catch {}
+  } catch { /* cleanup on error */ }
   pairingCodeRegistered = false;
 }
 
+/**
+ * Clean up the current socket connection.
+ * @returns {void}
+ */
 function cleanupSock() {
   if (currentSock) {
     try {
@@ -61,12 +69,12 @@ function cleanupSock() {
       currentSock.removeAllListeners("creds.update");
       currentSock.removeAllListeners("messages.upsert");
       currentSock.end(undefined);
-    } catch {}
+    } catch { /* cleanup on error */ }
     currentSock = null;
   }
 }
 
-/** @param {Record<string,any>} _sock */
+/** @param {object} _sock - Socket instance */
 function startWatchdog(_sock) {
   stopWatchdog();
   watchdogTimer = setInterval(() => {
@@ -83,6 +91,10 @@ function startWatchdog(_sock) {
   }, WATCHDOG_INTERVAL_MS);
 }
 
+/**
+ * Stop the watchdog timer.
+ * @returns {void}
+ */
 function stopWatchdog() {
   if (watchdogTimer) {
     clearInterval(watchdogTimer);
@@ -90,6 +102,10 @@ function stopWatchdog() {
   }
 }
 
+/**
+ * Start the bot and establish connection.
+ * @returns {Promise<void>} Promise that resolves when complete
+ */
 async function startBot() {
   try {
     pairingCodeRequested = false;
@@ -119,6 +135,11 @@ async function startBot() {
     invalidateAllCache();
 
     await logSystem("Iniciando bot");
+
+    const ownerJids = getOwnerJids();
+    if (ownerJids.length === 0) {
+      await logSystem("OWNER_PHONE no configurado — funciones de owner deshabilitadas");
+    }
 
     const { state, saveCreds } = await useSupabaseAuthState("bot-session-1");
 
@@ -221,7 +242,7 @@ async function startBot() {
       if (connection === "close") {
         stats.isConnected = false;
         const disconnectErr = lastDisconnect?.error;
-        const reason = /** @type {Record<string,any>} */ (disconnectErr)?.output?.statusCode;
+        const reason = /** @type {object} */ (disconnectErr)?.output?.statusCode;
 
         const reasonName = Object.entries(DisconnectReason).find(([, v]) => v === reason)?.[0] || reason;
 

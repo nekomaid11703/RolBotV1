@@ -7,9 +7,10 @@ const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_KEY;
 
 if (!supabaseUrl || !supabaseKey) {
-  logSystem("WARN: ⚠️ Advertencia: SUPABASE_URL o SUPABASE_KEY no están definidos en el archivo .env");
+  logSystem("FATAL: SUPABASE_URL o SUPABASE_KEY no están definidos en .env.local");
+  throw new Error("Supabase no configurado. Revisa .env.local");
 }
 
-const supabase = createClient(supabaseUrl || "https://placeholder.supabase.co", supabaseKey || "placeholder");
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 module.exports = { supabase };

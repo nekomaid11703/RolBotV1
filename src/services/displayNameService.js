@@ -2,11 +2,22 @@
 const { getGroupMetadata } = require("../utils/groupUtils");
 const { getUserProfile } = require("./userService");
 
+/**
+ * Clean and trim a text value.
+ * @param {string} value - Value to clean
+ * @param {string} fallback - Fallback value
+ * @returns {string} - Result value
+ */
 function cleanText(value, fallback = "usuario") {
   const text = String(value || "").trim();
   return text || fallback;
 }
 
+/**
+ * Check if a display name is meaningful.
+ * @param {string} value - Value to evaluate
+ * @returns {boolean} - True if condition is met
+ */
 function isMeaningfulDisplayName(value) {
   const text = String(value || "").trim();
 
@@ -31,6 +42,11 @@ function isMeaningfulDisplayName(value) {
   return true;
 }
 
+/**
+ * Find a participant display name from metadata.
+ * @param {unknown} participant - Participant object
+ * @returns {string} - Result value
+ */
 function findParticipantDisplayName(participant) {
   if (!participant || typeof participant !== "object") {
     return "";
@@ -55,6 +71,11 @@ function findParticipantDisplayName(participant) {
   return "";
 }
 
+/**
+ * Extract a mention label from command context.
+ * @param {object} ctx - Command context
+ * @returns {string} - Result value
+ */
 function extractMentionLabelFromContext(ctx) {
   const tokens = Array.isArray(ctx?.args)
     ? ctx.args
@@ -82,6 +103,13 @@ function extractMentionLabelFromContext(ctx) {
   return "";
 }
 
+/**
+ * Resolve the display name for a target user.
+ * @param {object} ctx - Command context
+ * @param {string} targetId - Target user ID
+ * @param {string} fallback - Fallback display name
+ * @returns {Promise<string>} - Promise resolving to a string
+ */
 async function resolveTargetDisplayName(ctx, targetId, fallback = "usuario") {
   const cleanFallback = cleanText(fallback, "usuario");
 
@@ -104,8 +132,7 @@ async function resolveTargetDisplayName(ctx, targetId, fallback = "usuario") {
         return String(candidate).trim();
       }
     }
-  } catch {
-  }
+  } catch { /* fallback */ }
 
   try {
     if (ctx?.sock && ctx?.from && String(ctx.from).endsWith("@g.us")) {
@@ -127,8 +154,7 @@ async function resolveTargetDisplayName(ctx, targetId, fallback = "usuario") {
         return participantName;
       }
     }
-  } catch {
-  }
+  } catch { /* fallback */ }
 
   const mentionLabel = extractMentionLabelFromContext(ctx);
 

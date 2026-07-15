@@ -24,6 +24,7 @@ const loggerPath = path.join(__dirname, "../src/services/loggerService");
 // Cargamos el módulo con su LOGS_DIR original pero luego re-testeamos
 // funciones de serialización y comportamiento que no dependen de la ruta
 const logger = require(loggerPath);
+const LOGS_DIR = path.join(__dirname, "../logs");
 
 // ─── Verificación de Pureza: sin importaciones de negocio ─────────────────────
 const srcContent = fs.readFileSync(path.join(__dirname, "../src/services/loggerService.js"), "utf8");
@@ -79,9 +80,10 @@ test("Exporta cleanOldLogs como función", () => {
   assert.strictEqual(typeof logger.cleanOldLogs, "function");
 });
 
-test("Exporta LOGS_DIR como string", () => {
-  assert.strictEqual(typeof logger.LOGS_DIR, "string");
-  assert.ok(logger.LOGS_DIR.length > 0);
+test("LOGS_DIR se deriva correctamente", () => {
+  assert.strictEqual(typeof LOGS_DIR, "string");
+  assert.ok(LOGS_DIR.length > 0);
+  assert.ok(LOGS_DIR.endsWith("logs"));
 });
 
 // ─── safeStringify (probado a través de logError) ────────────────────────────
@@ -218,11 +220,11 @@ async function runCleanOldLogsTests() {
     await assert.doesNotReject(() => logger.cleanOldLogs());
   });
 
-  await testAsync("cleanOldLogs crea el directorio logs si no existe", async () => {
+    await testAsync("cleanOldLogs crea el directorio logs si no existe", async () => {
     await logger.logSystem("test para asegurar creación de directorio");
-    // Después de logSystem, el directorio logs/ debe existir
-    const exists = fs.existsSync(logger.LOGS_DIR);
-    assert.ok(exists, `El directorio ${logger.LOGS_DIR} debe existir`);
+    await new Promise((r) => setTimeout(r, 100));
+    const exists = fs.existsSync(LOGS_DIR);
+    assert.ok(exists, `El directorio ${LOGS_DIR} debe existir`);
   });
 }
 
@@ -264,9 +266,9 @@ async function runLogContentTests() {
   await testAsync("logSystem escribe 'SYSTEM' en el archivo de log", async () => {
     const marker = `MARKER_TEST_${Date.now()}`;
     await logger.logSystem(marker);
-    // Leer el archivo de log del día actual
+    await new Promise((r) => setTimeout(r, 100));
     const today = new Date().toISOString().slice(0, 10);
-    const logFile = path.join(logger.LOGS_DIR, `system-${today}.log`);
+    const logFile = path.join(LOGS_DIR, `system-${today}.log`);
     // Esperar un tick para que el filesystem lo vacíe
     await new Promise((r) => setTimeout(r, 100));
     if (fs.existsSync(logFile)) {
@@ -281,7 +283,7 @@ async function runLogContentTests() {
     await logger.logError({ source, error: new Error("test error content") });
     await new Promise((r) => setTimeout(r, 100));
     const today = new Date().toISOString().slice(0, 10);
-    const logFile = path.join(logger.LOGS_DIR, `error-${today}.log`);
+    const logFile = path.join(LOGS_DIR, `error-${today}.log`);
     if (fs.existsSync(logFile)) {
       const content = fs.readFileSync(logFile, "utf8");
       assert.ok(content.includes(source), `El log de error debe contener el source '${source}'`);

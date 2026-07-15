@@ -1,10 +1,21 @@
 // @ts-nocheck
 
+/**
+ * Clean and trim a text value.
+ * @param {string} value - Value to clean
+ * @param {string} fallback - Fallback value
+ * @returns {string} Cleaned text
+ */
 function cleanText(value, fallback = "usuario") {
   const text = String(value || "").trim();
   return text || fallback;
 }
 
+/**
+ * Check if a display name is meaningful.
+ * @param {string} value - Value to check
+ * @returns {boolean} True if meaningful
+ */
 function isMeaningfulDisplayName(value) {
   const text = String(value || "").trim();
 

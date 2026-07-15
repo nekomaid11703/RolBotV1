@@ -166,6 +166,11 @@ async function getUserReports(userId, days = 30) {
   return (data || []).map((r) => r.data);
 }
 
+/**
+ * Get bug reports resolved since a date.
+ * @param {unknown} timestamp - ISO date string
+ * @returns {Promise<Array>} Array of resolved reports
+ */
 async function getResolvedSince(timestamp) {
   const { data, error } = await supabase
     .from("bot_auth_state")

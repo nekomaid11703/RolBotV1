@@ -1,26 +1,64 @@
-# RolBotV1
+# IA_rolbot — RolBotV1
 
-Bot RPG modular para WhatsApp. Arquitectura 100% stateless con Supabase como fuente de verdad.
+Bot RPG modular para WhatsApp. Arquitectura determinista 100% code-only (sin capa de IA externa).
 
-## Tecnologías Principales
-- **Baileys** (`@whiskeysockets/baileys`): Conexión con la API de WhatsApp.
-- **Supabase**: Base de datos en la nube. Almacena sesiones, perfiles, personajes, economía y reportes.
-- **Node.js**: Entorno de ejecución.
+## Arquitectura
 
-## Estructura del Proyecto
-- `/src/core`: Lógica principal del bot, manejo de sesión, eventos y contexto.
-- `/src/services`: Servicios de negocio (Economía, Usuarios, Grupos, Personajes, Bug Reports, Logger).
-- `/src/services/rpg`: Sistema RPG (combatEngine, abilities, items, inventory, enemies, effects).
-- `/src/commands`: 46 comandos ejecutables en 6 categorías (economía, personajes, grupo, permisos, información, utilidades).
-- `/src/config`: Configuración centralizada (economía, grupos, personajes, permisos, RPG).
-- `/src/data`: Catálogos de clases y razas.
-- `/src/database`: Cliente Supabase.
-- `/src/utils`: Utilidades (cache, formateo, parsing, menciones, permisos, roll).
-- `/tests`: 15 suites de prueba.
-- `/adr`: Architecture Decision Records.
-- `/graphify-out`: Knowledge graph generado por AST (sin LLM).
+```
+┌─────────────────────────────────────────────────┐
+│  WhatsApp (Baileys)                              │
+│  └─ Bot → EventHandler → Context → Commands      │
+│       └─ Services → Supabase (PostgreSQL)         │
+│       └─ Services/rpg → Combat Engine D20         │
+├─────────────────────────────────────────────────┤
+│  MCP Servers                                     │
+│  ├─ NekoMemori    → Memoria compartida (JSONL)   │
+│  ├─ Graphify      → Knowledge graph (AST)        │
+│  └─ GitHub        → Issues, PRs, search          │
+├─────────────────────────────────────────────────┤
+│  Toolchain                                       │
+│  ESLint · Prettier · TypeScript · Vitest         │
+│  Husky · lint-staged · Knip · Stryker            │
+│  dependency-cruiser · Nodemon                    │
+└─────────────────────────────────────────────────┘
+```
 
-## Comandos disponibles
+- **100% code-only:** Sin dependencia de LLMs externos. No hay orquestador IA, ni providers, ni prompts.
+- **Motor D20:** Sistema de combate táctico determinista basado en dado de 20 caras. Sin narrativa generada.
+- **Supabase:** Única fuente de verdad. Sesiones, perfiles, economía, inventarios, combates.
+
+## Tecnologías
+
+- **Baileys** (`@whiskeysockets/baileys`) — Conexión WhatsApp
+- **Supabase** — PostgreSQL como backend único
+- **Node.js >= 18** — Entorno de ejecución
+- **MCP** — 3 servidores (NekoMemori, Graphify, GitHub)
+
+## Estructura
+
+```
+C:\IA_rolbot/
+├── RolBotV1/                  ← Proyecto principal
+│   ├── src/
+│   │   ├── core/              ← bot.js, eventHandler, commandHandler
+│   │   ├── commands/          ← 46 comandos (6 categorías)
+│   │   ├── services/          ← Economía, usuarios, grupos, personajes
+│   │   │   └── rpg/           ← Motor de combate D20, habilidades, items
+│   │   ├── config/            ← Config centralizada
+│   │   ├── database/          ← Cliente Supabase
+│   │   ├── utils/             ← Cache, formateo, roll, permisos
+│   │   └── data/              ← Catálogos (clases, razas)
+│   ├── tests/                 ← 18+ suites de prueba
+│   ├── graphify-out/          ← Knowledge graph (1207 nodos)
+│   └── ai-memory/             ← Memoria compartida NekoMemori
+├── mcp_nekomemori/            ← Servidor MCP propio (Node.js)
+├── github-mcp-server/         ← Servidor MCP GitHub (vendorizado)
+├── opencode.json              ← Config MCP principal
+├── AUDITORIA_COMPLETA.md      ← Auditoría + roadmap vivo
+└── .agents/AGENTS.md          ← Instrucciones del agente
+```
+
+## Comandos
 
 | Categoría | Comandos |
 |-----------|----------|
@@ -31,18 +69,46 @@ Bot RPG modular para WhatsApp. Arquitectura 100% stateless con Supabase como fue
 | Información | `/help`, `/hola` |
 | Utilidades | `/dado`, `/bugreport`, `/bugstatus` |
 
-## Configuración y Ejecución
-1. Copia `.env.local.example` a `.env.local`.
-2. Llena las credenciales (`SUPABASE_URL`, `SUPABASE_KEY`).
-3. Instala dependencias con `npm install`.
-4. Ejecuta el bot con `npm start` o `npm run dev` para recarga automática.
+## Configuración
 
-## Herramientas de desarrollo
 ```bash
-npm run check      # lint + typecheck + depcruise
-npm run check:all  # check + format:check + test:all
-npm run lint       # ESLint
-npm run format     # Prettier
-npm run typecheck  # TypeScript (strict)
-npm run depcruise  # dependency-cruiser
+cp .env.local.example .env.local
+# Editar .env.local con SUPABASE_URL, SUPABASE_KEY
+npm install
+npm run dev       # Desarrollo con recarga automática
+npm start         # Producción
 ```
+
+## Toolchain
+
+```bash
+npm run check       # lint + typecheck + depcruise
+npm run check:all   # check + format:check + test:all
+npm run lint        # ESLint (0 errores)
+npm run typecheck   # TypeScript strict
+npm run test:vite   # Vitest (test runner)
+npm run format      # Prettier
+npm run depcruise   # dependency-cruiser
+npm run knip        # Dead code detection
+```
+
+## Estado del proyecto
+
+| Fase | Estado | Fecha |
+|------|--------|-------|
+| 🔴 FASE 0 — Rescate | ✅ Completado | 2026-07-14 |
+| 🟠 FASE 1 — Portabilidad | ✅ Completado | 2026-07-14 |
+| 🟡 FASE 2 — CI/CD | ⚡ Parcial | 2026-07-14 |
+| 🟢 FASE 3 — Refactor | ✅ Completado | 2026-07-14 |
+| 🔵 FASE 4 — Rendimiento | ✅ Completado | 2026-07-14 |
+| 📘 FASE 5 — Documentación | ⏳ En curso | 2026-07-14 |
+
+Ver `AUDITORIA_COMPLETA.md` para el detalle completo del roadmap y checklist.
+
+## Knowledge Graph
+
+El proyecto mantiene un grafo de conocimiento de 1207 nodos (funciones, clases, imports) generado por AST (tree-sitter). Sin LLM, 0 costo, 100% reproducible.
+
+- `graphify query "<pregunta>"` — Buscar en el grafo
+- `graphify path "<A>" "<B>"` — Relaciones entre nodos
+- `graphify explain "<concepto>"` — Explicación de un nodo

@@ -11,14 +11,20 @@ const { incrementCommands, incrementErrors, addEvent } = require("../services/st
 const commands = new Map();
 const aliases = new Map();
 
-/** @param {string} value */
+/**
+ * @param {string} value - Value to process
+ * @returns {string} - Formatted value
+ */
 function normalizeName(value) {
   return String(value || "")
     .trim()
     .toLowerCase();
 }
 
-/** @param {Record<string,any>} command @param {string} fileName */
+/**
+ * @param {object} command - Command object
+ * @param {string} fileName - File name
+ */
 function registerCommand(command, fileName) {
   if (!command?.name) {
     throw new Error(`Comando inválido (${fileName}): falta la propiedad "name".`);
@@ -87,7 +93,10 @@ function registerCommand(command, fileName) {
   }
 }
 
-/** @param {string} dir @returns {string[]} */
+/**
+ * @param {string} dir - Directory path
+ * @returns {string[]} Array of file paths
+ */
 function getJsFilesRecursively(dir) {
   /** @type {string[]} */
   let results = [];
@@ -130,15 +139,16 @@ function loadCommands() {
     }
   }
 
-  console.log(`📦 ${commandCount} comandos · ${aliasCount} aliases cargados`);
-
   void logSystem("Comandos cargados correctamente", {
     commandCount,
     aliasCount,
   });
 }
 
-/** @param {Record<string,any>} ctx */
+/**
+ * @param {object} ctx - Command context
+ * @returns {Promise<void>} Promise that resolves when complete
+ */
 async function handleCommand(ctx) {
   const prefix = "/";
 
@@ -298,7 +308,7 @@ async function handleCommand(ctx) {
         },
       });
     }
-  } catch (/** @type {any} */ error) {
+  } catch (/** @type {Error} */ error) {
     await logCommand({
       ...logBase,
       status: "error",

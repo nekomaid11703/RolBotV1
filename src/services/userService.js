@@ -37,14 +37,17 @@ function getCreatorFolderName(creatorName, creatorId) {
   return `${sanitizeName(creatorName)}__${creatorDigits(creatorId)}`;
 }
 
-async function listUserProfiles(bypassCache = false) {
-  const cacheKey = "allUserProfiles";
-  if (!bypassCache) {
+async function listUserProfiles(bypassCache = false, opts = {}) {
+  const cacheKey = opts.offset || opts.limit ? null : "allUserProfiles";
+  if (!bypassCache && cacheKey) {
     const cached = cache.get(cacheKey);
     if (cached) return cached;
   }
 
-  const { data, error } = await supabase.from("players").select("*");
+  let query = supabase.from("players").select("*");
+  if (opts.limit) query = query.range(opts.offset || 0, (opts.offset || 0) + opts.limit - 1);
+
+  const { data, error } = await query;
   if (error || !data) return [];
 
   const result = data.map((row) => {
@@ -56,7 +59,7 @@ async function listUserProfiles(bypassCache = false) {
     return { folder: "supabase", profilePath: "supabase", profile };
   });
 
-  cache.set(cacheKey, result, TTLS.memoryContext);
+  if (cacheKey) cache.set(cacheKey, result, TTLS.memoryContext);
   return result;
 }
 

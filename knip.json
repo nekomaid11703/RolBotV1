@@ -10,14 +10,9 @@
   "project": ["src/**/*.js"],
   "ignore": [
     "src/utils/safeQuery.js",
-    "src/core/commandHandler.js",
-    "src/services/rpg/combatLogger.js",
-    "src/services/rpg/dataLoader.js",
-    "src/services/rpg/statCalculator.js",
-    "src/services/rpg/duelService.js",
-    "src/services/syncService.js"
+    "src/core/commandHandler.js"
   ],
-  "ignoreDependencies": ["qrcode-terminal", "pino"],
+  "ignoreDependencies": [],
   "rules": {
     "files": "warn",
     "exports": "warn"

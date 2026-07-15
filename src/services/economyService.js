@@ -1,5 +1,5 @@
 // @ts-nocheck
-const { getUserProfile, getOrCreateProfile, saveUserProfile, listUserProfiles } = require("./userService");
+const { getUserProfile, getOrCreateProfile, saveUserProfile } = require("./userService");
 const {
   topBalancesCacheKey,
   invalidateTopBalancesCache,
@@ -376,24 +376,27 @@ async function getTopBalances(limit = 10, bypassCache = false) {
     if (cached) return cached;
   }
 
-  const safeLimit = Math.max(1, Math.floor(Number(limit) || 10));
-  const users = await listUserProfiles(bypassCache);
+  const safeLimit = Math.max(1, Math.min(50, Math.floor(Number(limit) || 10)));
 
-  const result = users
-    .map(({ profile }) => ({
-      userId: profile.creatorId,
-      displayName: profile.metadata?.displayName || profile.creatorName || "usuario",
-      money: getMoneyValue(profile),
-      profile,
-    }))
-    .sort((a, b) => {
-      if (b.money !== a.money) {
-        return b.money - a.money;
-      }
+  const { data, error } = await supabase
+    .from("players")
+    .select("phone, username, money, last_active_at")
+    .order("money", { ascending: false })
+    .range(0, safeLimit - 1);
 
-      return String(a.displayName).localeCompare(String(b.displayName), "es");
-    })
-    .slice(0, safeLimit);
+  if (error || !data) return [];
+
+  const result = data.map((row) => ({
+    userId: row.phone,
+    displayName: row.username || "usuario",
+    money: Number(row.money || 0),
+    profile: {
+      creatorId: row.phone,
+      creatorName: row.username,
+      metadata: { displayName: row.username, lastSeenAt: row.last_active_at },
+      economy: { money: Number(row.money || 0) },
+    },
+  }));
 
   cache.set(cacheKey, result, TTLS.memoryContext);
   return result;

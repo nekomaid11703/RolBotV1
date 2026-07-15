@@ -27,7 +27,7 @@ async function useSupabaseAuthState(sessionId = "default") {
     circuitOpen = false;
   };
 
-  /** @param {unknown} err */
+  /** @param {unknown} err - Error that caused the failure */
   const recordFailure = (err) => {
     consecutiveFailures++;
     if (consecutiveFailures >= MAX_FAILURES) {
@@ -45,8 +45,8 @@ async function useSupabaseAuthState(sessionId = "default") {
   };
 
   /**
-   * @param {Record<string,any>} data
-   * @param {string} id
+   * @param {object} data - Data to persist
+   * @param {string} id - Record identifier
    */
   const writeData = async (data, id) => {
     if (!checkCircuit()) return;
@@ -65,7 +65,10 @@ async function useSupabaseAuthState(sessionId = "default") {
     }
   };
 
-  /** @param {string} id */
+  /**
+   * @param {string} id - Record identifier
+   * @returns {Promise<object|null>} - Promise resolving to the data or null
+   */
   const readData = async (id) => {
     if (!checkCircuit()) return null;
     try {
@@ -98,7 +101,7 @@ async function useSupabaseAuthState(sessionId = "default") {
     }
   };
 
-  /** @param {string} id */
+  /** @param {string} id - Record identifier */
   const _removeData = async (id) => {
     if (!checkCircuit()) return;
     try {
@@ -126,25 +129,26 @@ async function useSupabaseAuthState(sessionId = "default") {
       creds,
       keys: {
         /**
-         * @param {string} type
-         * @param {string[]} ids
+         * @param {string} type - Key or event type
+         * @param {string[]} ids - Array of identifiers
+         * @returns {Promise<object>} - Promise resolving to the sent message
          */
         get: async (type, ids) => {
-          /** @type {Record<string,any>} */
+          /** @type {object} */
           const data = {};
           await Promise.all(
             ids.map(async (/** @type {string} */ id) => {
               let value = await readData(`${type}-${id}`);
               if (type === "app-state-sync-key" && value) {
                 const { proto } = require("@whiskeysockets/baileys");
-                value = proto.Message.AppStateSyncKeyData.fromObject(value);
+                value = proto.Message.AppStateSyncKeyData.fromobject(value);
               }
               data[id] = value;
             }),
           );
           return data;
         },
-        /** @param {Record<string,Record<string,any>>} data */
+        /** @param {object} data - Data payload */
         set: async (data) => {
           if (!checkCircuit()) return;
           const upsertData = [];

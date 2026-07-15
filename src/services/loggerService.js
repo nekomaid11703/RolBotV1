@@ -12,17 +12,28 @@ const LOG_PREFIX = {
 const writeQueues = new Map();
 const MAX_LOG_DAYS = 30;
 
-/** @param {keyof typeof LOG_PREFIX | string} type */
+/**
+ * @param {keyof typeof LOG_PREFIX | string} type - Key or event type
+ * @returns {string} - Formatted value
+ */
 function getLogFileName(type) {
   const date = new Date().toISOString().slice(0, 10);
   return `${LOG_PREFIX[/** @type {keyof typeof LOG_PREFIX} */ (type)] || type}-${date}.log`;
 }
 
+/**
+ * Get a formatted timestamp string.
+ * @param {unknown} date - Date to format
+ * @returns {string} - Result value
+ */
 function timestamp(date = new Date()) {
   return date.toISOString().replace("T", " ").replace("Z", " UTC");
 }
 
-/** @param {any} value */
+/**
+ * @param {unknown} value - Value to process
+ * @returns {string} - Formatted value
+ */
 function safeStringify(value) {
   if (value === undefined) return "undefined";
   if (value === null) return "null";
@@ -37,11 +48,18 @@ function safeStringify(value) {
   }
 }
 
-/** @param {string[]} lines */
+/**
+ * @param {string[]} lines - Lines of content
+ * @returns {string} - Formatted value
+ */
 function section(lines) {
   return lines.filter((l) => l !== undefined && l !== null && l !== "").join("\n");
 }
 
+/**
+ * Ensure the logs directory exists.
+ * @returns {Promise<unknown>} - Promise resolving to the result
+ */
 async function ensureLogsDir() {
   await fsp.mkdir(LOGS_DIR, { recursive: true });
 }
@@ -55,12 +73,16 @@ async function cleanOldLogs() {
       try {
         const stat = await fsp.stat(filePath);
         if (stat.mtimeMs < cutoff) await fsp.unlink(filePath);
-      } catch {}
+      } catch { /* file may not exist */ }
     }
-  } catch {}
+  } catch { /* dir may not exist */ }
 }
 
-/** @param {string} fileName @param {string} content */
+/**
+ * @param {string} fileName - File name
+ * @param {string} content - Content to write
+ * @returns {Promise<unknown>} - Promise resolving to the result
+ */
 async function appendToLog(fileName, content) {
   const filePath = path.join(LOGS_DIR, fileName);
   const previous = writeQueues.get(filePath) || Promise.resolve();
@@ -70,19 +92,27 @@ async function appendToLog(fileName, content) {
       await fsp.appendFile(filePath, content, "utf8");
     })
     .catch((/** @type {Error} */ error) => {
+      // eslint-disable-next-line no-console
       console.error(`No se pudo escribir en ${fileName}:`, error);
     });
   writeQueues.set(filePath, next);
   return next;
 }
 
-/** @param {string} type @param {string} title @param {string[]} lines */
+/**
+ * @param {string} type - Key or event type
+ * @param {string} title - Log title
+ * @param {string[]} lines - Lines of content
+ */
 async function writeLog(type, title, lines) {
   const content = `[${timestamp()}] ${title}\n${section(lines)}\n\n`;
   await appendToLog(getLogFileName(type), content);
 }
 
-/** @param {string} message @param {Record<string,any>} [details] */
+/**
+ * @param {string} message - Message to process
+ * @param {object} [details] - Additional details
+ */
 async function logSystem(message, details = {}) {
   await writeLog("system", "SYSTEM", [
     `MESSAGE: ${safeStringify(message)}`,
@@ -90,7 +120,7 @@ async function logSystem(message, details = {}) {
   ]);
 }
 
-/** @param {{ userId: string, userName: string, groupId: string, inputCommand: string, resolvedCommand: string, args?: string[], status?: string, reason?: string }} opts */
+/** @param {{ userId: string, userName: string, groupId: string, inputCommand: string, resolvedCommand: string, args?: string[], status?: string, reason?: string }} opts - Options object */
 async function logCommand({
   userId,
   userName,
@@ -113,7 +143,7 @@ async function logCommand({
   ]);
 }
 
-/** @param {{ source?: string, userId?: string|null, userName?: string|null, groupId?: string|null, error: any, context?: Record<string,any> }} opts */
+/** @param {{ source?: string, userId?: string|null, userName?: string|null, groupId?: string|null, error: unknown, context?: object }} opts - Options object */
 async function logError({ source = "unknown", userId = null, userName = null, groupId = null, error, context = {} }) {
   const normalizedError = error instanceof Error ? error : new Error(safeStringify(error));
   await writeLog("error", "ERROR", [

@@ -12,7 +12,10 @@ const TEXT_MESSAGE_TYPES = new Set([
   "messagecontextinfo",
 ]);
 
-/** @param {Record<string,any>|null|undefined} message */
+/**
+ * @param {object|null|undefined} message - Message to process
+ * @returns {object} - Context object
+ */
 function unwrapMessageContent(message) {
   if (!message) return {};
 
@@ -35,7 +38,10 @@ function unwrapMessageContent(message) {
   return message;
 }
 
-/** @param {Record<string,any>|null|undefined} message */
+/**
+ * @param {object|null|undefined} message - Message to process
+ * @returns {string} - Formatted value
+ */
 function getMessageType(message) {
   const normalized = unwrapMessageContent(message);
 
@@ -69,7 +75,10 @@ function getMessageType(message) {
   return Object.keys(normalized)[0] || "unknown";
 }
 
-/** @param {string} messageType */
+/**
+ * @param {string} messageType - Type of message
+ * @returns {boolean} - True if text-like
+ */
 function isTextLikeMessageType(messageType) {
   return TEXT_MESSAGE_TYPES.has(
     String(messageType || "")
@@ -78,7 +87,10 @@ function isTextLikeMessageType(messageType) {
   );
 }
 
-/** @param {Record<string,any>|null|undefined} message */
+/**
+ * @param {object|null|undefined} message - Message to process
+ * @returns {string} - Formatted value
+ */
 function extractText(message) {
   if (!message) return "";
 
@@ -100,8 +112,9 @@ function extractText(message) {
 }
 
 /**
- * @param {Record<string,any>} sock
- * @param {{ key: { remoteJid: string, participant?: string }, pushName?: string, participant?: string, message?: Record<string,any> }} msg
+ * @param {object} sock - Socket instance
+ * @param {{ key: { remoteJid: string, participant?: string }, pushName?: string, participant?: string, message?: object }} msg - Message object
+ * @returns {object} - Context object
  */
 function createContext(sock, msg) {
   const from = msg.key.remoteJid;
@@ -137,7 +150,11 @@ function createContext(sock, msg) {
     hasText: Boolean(text),
     mentionedJid,
 
-    /** @param {string|Record<string,any>} content @param {Record<string,any>} [options] */
+    /**
+     * @param {string|object} content - Content to write
+     * @param {object} [options] - Options object
+     * @returns {Promise<object>} - Promise resolving to the sent message
+     */
     async reply(content, options = {}) {
       if (content && typeof content === "object" && !Array.isArray(content)) {
         const payload = { ...content, ...options };
@@ -153,7 +170,10 @@ function createContext(sock, msg) {
       return sock.sendMessage(from, { text: content, ...options }, { quoted: msg });
     },
 
-    /** @param {string} emoji */
+    /**
+     * @param {string} emoji - Emoji string
+     * @returns {Promise<object>} - Promise resolving to the sent message
+     */
     async react(emoji) {
       return sock.sendMessage(from, {
         react: {

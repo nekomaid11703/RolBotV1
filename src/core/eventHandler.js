@@ -5,9 +5,9 @@ const { recordGroupActivity } = require("../services/groupActivityService");
 const { incrementMessages } = require("../services/stats");
 const { logError } = require("../services/loggerService");
 
-/** @param {Record<string,any>} sock */
+/** @param {object} sock - Socket instance */
 function registerEvents(sock) {
-  sock.ev.on("messages.upsert", async (/** @type {{ messages: any[], type?: string }} */ { messages, type }) => {
+  sock.ev.on("messages.upsert", async (/** @type {{ messages: object[], type?: string }} */ { messages, type }) => {
     try {
       if (type && type !== "notify") {
         return;
