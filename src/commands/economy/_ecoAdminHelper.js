@@ -6,6 +6,7 @@ const { formatStelas } = require("../../utils/economyUtils");
 
 const usageCache = new Map();
 
+/** @param {any} opts */
 function getUsage(opts) {
   const key = opts.title;
   if (!usageCache.has(key)) {
@@ -14,7 +15,14 @@ function getUsage(opts) {
   return usageCache.get(key);
 }
 
-async function executeEconomyAction(ctx, { serviceFn, createIfMissing = true, usage, boxTitle, amountLabel, showAmount = true, minAmount }) {
+/**
+ * @param {any} ctx
+ * @param {{ serviceFn: Function, createIfMissing?: boolean, usage: any, boxTitle: string, amountLabel: string, showAmount?: boolean, minAmount?: number }} opts
+ */
+async function executeEconomyAction(
+  ctx,
+  { serviceFn, createIfMissing = true, usage, boxTitle, amountLabel, showAmount = true, minAmount },
+) {
   const targetId = getFirstMentionedJid(ctx);
   if (!targetId) {
     return ctx.reply(getUsage(usage));
@@ -33,7 +41,12 @@ async function executeEconomyAction(ctx, { serviceFn, createIfMissing = true, us
     const balance = await serviceFn(targetId, amount, {
       createIfMissing,
       userName: targetName,
-      registration: { source: ctx.command || "economy_admin", scope: "target", createdBy: ctx.sender, displayName: targetName },
+      registration: {
+        source: ctx.command || "economy_admin",
+        scope: "target",
+        createdBy: ctx.sender,
+        displayName: targetName,
+      },
     });
 
     const lines = ["", `👤  ${formatDisplayMention(targetId, targetName)}`];
@@ -42,7 +55,7 @@ async function executeEconomyAction(ctx, { serviceFn, createIfMissing = true, us
 
     await ctx.reply(box(boxTitle, lines), { mentions: [targetId] });
   } catch (error) {
-    await ctx.reply(formatError(error.message));
+    await ctx.reply(formatError(error instanceof Error ? error.message : String(error)));
   }
 }
 

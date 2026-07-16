@@ -220,7 +220,7 @@ async function runCleanOldLogsTests() {
     await assert.doesNotReject(() => logger.cleanOldLogs());
   });
 
-    await testAsync("cleanOldLogs crea el directorio logs si no existe", async () => {
+  await testAsync("cleanOldLogs crea el directorio logs si no existe", async () => {
     await logger.logSystem("test para asegurar creación de directorio");
     await new Promise((r) => setTimeout(r, 100));
     const exists = fs.existsSync(LOGS_DIR);

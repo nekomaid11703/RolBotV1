@@ -2,20 +2,19 @@
   "$schema": "https://unpkg.com/knip@5/schema.json",
   "entry": [
     "src/core/bot.js",
-    "index.js",
     "src/commands/**/*.js",
-    "src/data/**/*.js",
     "src/config/**/*.js"
   ],
   "project": ["src/**/*.js"],
   "ignore": [
     "src/utils/safeQuery.js",
-    "src/core/commandHandler.js"
+    "src/core/commandHandler.js",
+    "tests/carta_blanca.test.js"
   ],
   "ignoreDependencies": [],
   "rules": {
     "files": "warn",
     "exports": "warn"
   },
-  "ignoreBinaries": ["echo", "cat", "dot"]
+  "ignoreBinaries": ["dot"]
 }

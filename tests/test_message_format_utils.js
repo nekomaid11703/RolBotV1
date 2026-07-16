@@ -11,12 +11,9 @@
 const assert = require("assert");
 const path = require("path");
 
-const {
-  box,
-  formatCommandUsage,
-  formatCommandForm,
-  formatError,
-} = require(path.join(__dirname, "../src/utils/messageFormatUtils"));
+const { box, formatCommandUsage, formatCommandForm, formatError } = require(
+  path.join(__dirname, "../src/utils/messageFormatUtils"),
+);
 
 // ─── Verificación de Pureza: sin importaciones de negocio ─────────────────────
 const fs = require("fs");

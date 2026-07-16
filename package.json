@@ -23,6 +23,9 @@
     "audit": "npm audit",
     "check": "npm run lint && npm run typecheck && npm run depcruise",
     "tools:list": "node scripts/tools-list.js",
+    "context": "node scripts/context.js",
+    "context:check": "node scripts/context.js --check",
+    "reset:auth": "node scripts/reset-auth.js",
     "check:all": "npm run lint && npm run typecheck && npm run depcruise && npm run format:check && npm run test:all",
     "prepare": "husky"
   },
