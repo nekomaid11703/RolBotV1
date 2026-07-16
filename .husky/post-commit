@@ -1,0 +1,4 @@
+echo "✅ post-commit: running quality verification..."
+npm run check --silent 2>/dev/null && echo "   ✅ check passed" || echo "   ⚠️ check found issues (non-blocking)"
+echo "✅ post-commit: updating graphify knowledge graph..."
+npx graphify --update . 2>/dev/null && echo "   ✅ graphify updated" || echo "   ⚠️ graphify update skipped (not available)"
