@@ -94,11 +94,11 @@ async function createReport({ sock, groupId, userId, userName, description, msg 
   if (msg && msg.message && msg.message.imageMessage) {
     try {
       const buffer = await downloadMediaMessage(msg, "buffer", {}, {});
-      const mediaDir = process.env.BUGS_MEDIA_DIR || path.join(process.cwd(), "bugs", "media");
+      const mediaDir = path.join(process.cwd(), "bugs", "media");
       await fs.mkdir(mediaDir, { recursive: true });
       const ext = (msg.message.imageMessage.mimetype || "image/png").split("/")[1] || "png";
       await fs.writeFile(path.join(mediaDir, `${id}.${ext}`), buffer);
-      mediaUrl = `${mediaDir}/${id}.${ext}`;
+      mediaUrl = `bugs/media/${id}.${ext}`;
     } catch (err) {
       await logError({ source: "bugReportService.createReport.media", error: err });
     }

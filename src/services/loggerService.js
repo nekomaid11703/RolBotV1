@@ -1,8 +1,7 @@
 const fsp = require("fs/promises");
 const path = require("path");
 
-const LOGS_DIR = process.env.LOGS_DIR || path.join(__dirname, "../../logs");
-const DISABLE_FILE_LOGGING = process.env.DISABLE_FILE_LOGGING === "true" || process.env.NODE_ENV === "production";
+const LOGS_DIR = path.join(__dirname, "../../logs");
 
 const LOG_PREFIX = {
   system: "system",
@@ -69,7 +68,6 @@ async function ensureLogsDir() {
  * Called once at bot startup.
  */
 async function cleanOldLogs() {
-  if (DISABLE_FILE_LOGGING) return;
   try {
     const files = await fsp.readdir(LOGS_DIR);
     const cutoff = Date.now() - MAX_LOG_DAYS * 86400000;
@@ -93,7 +91,6 @@ async function cleanOldLogs() {
  * @returns {Promise<unknown>} - Promise resolving to the result
  */
 async function appendToLog(fileName, content) {
-  if (DISABLE_FILE_LOGGING) return;
   const filePath = path.join(LOGS_DIR, fileName);
   const previous = writeQueues.get(filePath) || Promise.resolve();
   const next = previous
@@ -116,10 +113,6 @@ async function appendToLog(fileName, content) {
  */
 async function writeLog(type, title, lines) {
   const content = `[${timestamp()}] ${title}\n${section(lines)}\n\n`;
-  if (process.env.NODE_ENV === "production") {
-    const dest = type === "error" ? console.error : console.log;
-    dest(content.trim());
-  }
   await appendToLog(getLogFileName(type), content);
 }
 
