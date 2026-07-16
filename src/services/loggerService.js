@@ -23,7 +23,7 @@ function getLogFileName(type) {
 
 /**
  * Get a formatted timestamp string.
- * @param {unknown} date - Date to format
+ * @param {Date} date - Date to format
  * @returns {string} - Result value
  */
 function timestamp(date = new Date()) {
@@ -58,7 +58,7 @@ function section(lines) {
 
 /**
  * Ensure the logs directory exists.
- * @returns {Promise<unknown>} - Promise resolving to the result
+ * @returns {Promise<void>}
  */
 async function ensureLogsDir() {
   await fsp.mkdir(LOGS_DIR, { recursive: true });
@@ -73,9 +73,13 @@ async function cleanOldLogs() {
       try {
         const stat = await fsp.stat(filePath);
         if (stat.mtimeMs < cutoff) await fsp.unlink(filePath);
-      } catch { /* file may not exist */ }
+      } catch {
+        /* file may not exist */
+      }
     }
-  } catch { /* dir may not exist */ }
+  } catch {
+    /* dir may not exist */
+  }
 }
 
 /**

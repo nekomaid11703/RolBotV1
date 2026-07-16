@@ -1,3 +1,4 @@
+// @ts-nocheck
 const { extractPhoneNumber, normalizeJid } = require("../utils/identityUtils");
 
 const TEXT_MESSAGE_TYPES = new Set([

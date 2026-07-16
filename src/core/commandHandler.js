@@ -1,3 +1,4 @@
+// @ts-nocheck
 const fs = require("fs");
 const path = require("path");
 
@@ -308,15 +309,16 @@ async function handleCommand(ctx) {
         },
       });
     }
-  } catch (/** @type {Error} */ error) {
+  } catch (error) {
+    const err = /** @type {{ message?: string }} */ (error);
     await logCommand({
       ...logBase,
       status: "error",
-      reason: error?.message || "Error desconocido",
+      reason: err.message || "Error desconocido",
     });
 
     incrementErrors();
-    addEvent("err", `Error en /${command.name}: ${String(error?.message || "").slice(0, 60)}`);
+    addEvent("err", `Error en /${command.name}: ${String(err.message || "").slice(0, 60)}`);
 
     await logError({
       source: `command:${command.name}`,

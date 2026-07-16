@@ -5,11 +5,13 @@ const { formatStelas, formatDuration } = require("../../utils/economyUtils");
 const { DAILY_COOLDOWN_HOURS } = require("../../config/economyConfig");
 const { box } = require("../../utils/messageFormatUtils");
 
+/** @param {number} streak */
 function formatStreakLabel(streak) {
   const value = Math.max(0, Math.floor(Number(streak) || 0));
   return value === 1 ? "1 día" : `${value} días`;
 }
 
+/** @param {number} remainingMs @param {number} totalMs */
 function formatProgressBar(remainingMs, totalMs) {
   const elapsed = Math.max(0, totalMs - remainingMs);
   const pct = Math.min(100, Math.max(0, Math.floor((elapsed / totalMs) * 100)));

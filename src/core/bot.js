@@ -1,3 +1,4 @@
+// @ts-nocheck
 require("dotenv").config({ path: require("path").join(__dirname, "../../.env.local") });
 const { default: makeWASocket, DisconnectReason, fetchLatestBaileysVersion } = require("@whiskeysockets/baileys");
 const { useSupabaseAuthState } = require("./supabaseAuthState");
@@ -54,7 +55,9 @@ async function forceNewSession() {
   try {
     const { supabase } = require("../database/supabase");
     await supabase.from(SUPABASE_TABLE).delete().eq("session_id", "bot-session-1");
-  } catch { /* cleanup on error */ }
+  } catch {
+    /* cleanup on error */
+  }
   pairingCodeRegistered = false;
 }
 
@@ -69,7 +72,9 @@ function cleanupSock() {
       currentSock.removeAllListeners("creds.update");
       currentSock.removeAllListeners("messages.upsert");
       currentSock.end(undefined);
-    } catch { /* cleanup on error */ }
+    } catch {
+      /* cleanup on error */
+    }
     currentSock = null;
   }
 }

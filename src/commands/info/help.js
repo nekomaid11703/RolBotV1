@@ -15,17 +15,20 @@ const CAT_META = {
   rpg: { emoji: "⚔️", label: "ROL" },
 };
 
+/** @param {string} c */
 function normCat(c) {
   return String(c || "otros")
     .trim()
     .toLowerCase();
 }
 
+/** @param {{ adminOnly?: boolean, economyAdminOnly?: boolean }} cmd */
 function getGroup(cmd) {
   if (cmd.adminOnly || cmd.economyAdminOnly) return "admin";
   return "normal";
 }
 
+/** @param {string[]} aliases */
 function buildAliasStr(aliases) {
   if (!aliases || aliases.length === 0) return "";
   const show = aliases.slice(0, 4);
@@ -33,6 +36,7 @@ function buildAliasStr(aliases) {
   return show.map((a) => `/${a}`).join(", ") + more;
 }
 
+/** @param {string} name @param {string} desc @param {string[]} aliases @param {"multi"|"inline"} style */
 function renderCmd(name, desc, aliases, style) {
   const lines = [];
 

@@ -5,6 +5,7 @@ const { formatStelas } = require("../../utils/economyUtils");
 
 const { box } = require("../../utils/messageFormatUtils");
 
+/** @param {{ mentionedJid?: string[], sender: string }} ctx */
 function resolveTarget(ctx) {
   const mentioned = Array.isArray(ctx.mentionedJid) ? ctx.mentionedJid.filter(Boolean) : [];
 

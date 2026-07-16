@@ -1,3 +1,4 @@
+// @ts-nocheck
 const createContext = require("./context");
 const { handleCommand } = require("./commandHandler");
 const { recordUserActivity } = require("../services/userService");

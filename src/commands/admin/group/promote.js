@@ -9,6 +9,7 @@ module.exports = {
   groupOnly: true,
   adminOnly: true,
 
+  /** @param {{ sock: any, from: string, reply: Function, sender: string, userName: string }} ctx */
   async execute(ctx) {
     await executeGroupAction(ctx, {
       serviceFn: promoteToAdmin,

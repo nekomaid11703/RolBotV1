@@ -132,7 +132,9 @@ async function resolveTargetDisplayName(ctx, targetId, fallback = "usuario") {
         return String(candidate).trim();
       }
     }
-  } catch { /* fallback */ }
+  } catch {
+    /* fallback */
+  }
 
   try {
     if (ctx?.sock && ctx?.from && String(ctx.from).endsWith("@g.us")) {
@@ -154,7 +156,9 @@ async function resolveTargetDisplayName(ctx, targetId, fallback = "usuario") {
         return participantName;
       }
     }
-  } catch { /* fallback */ }
+  } catch {
+    /* fallback */
+  }
 
   const mentionLabel = extractMentionLabelFromContext(ctx);
 

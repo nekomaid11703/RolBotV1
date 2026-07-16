@@ -8,6 +8,7 @@ module.exports = {
   category: "economia",
   economyAdminOnly: true,
 
+  /** @param {{ sock: any, sender: string, userName: string, args: string[], reply: Function }} ctx */
   async execute(ctx) {
     await executeEconomyAction(ctx, {
       serviceFn: setMoney,

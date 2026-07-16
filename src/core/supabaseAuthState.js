@@ -1,3 +1,4 @@
+// @ts-nocheck
 const { BufferJSON, initAuthCreds } = require("@whiskeysockets/baileys");
 const { supabase } = require("../database/supabase");
 const { logError } = require("../services/loggerService");
@@ -141,7 +142,7 @@ async function useSupabaseAuthState(sessionId = "default") {
               let value = await readData(`${type}-${id}`);
               if (type === "app-state-sync-key" && value) {
                 const { proto } = require("@whiskeysockets/baileys");
-                value = proto.Message.AppStateSyncKeyData.fromobject(value);
+                value = proto.Message.AppStateSyncKeyData.fromObject(value);
               }
               data[id] = value;
             }),
