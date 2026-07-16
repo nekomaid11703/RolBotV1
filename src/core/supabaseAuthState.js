@@ -141,7 +141,7 @@ async function useSupabaseAuthState(sessionId = "default") {
               let value = await readData(`${type}-${id}`);
               if (type === "app-state-sync-key" && value) {
                 const { proto } = require("@whiskeysockets/baileys");
-                value = proto.Message.AppStateSyncKeyData.fromObject(value);
+                value = proto.Message.AppStateSyncKeyData.fromobject(value);
               }
               data[id] = value;
             }),

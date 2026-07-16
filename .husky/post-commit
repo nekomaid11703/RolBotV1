@@ -1,9 +1,4 @@
-echo "=== post-commit: quality verification ==="
-npm run check --silent 2>/dev/null && echo "   PASS: check" || echo "   WARN: check found issues (non-blocking)"
-echo "=== post-commit: graphify update ==="
-GRAPHIFY=$(echo $GRAPHIFY_MCP_PATH)
-if [ -n "$GRAPHIFY" ] && [ -f "$GRAPHIFY" ]; then
-  "$GRAPHIFY" --update . 2>/dev/null && echo "   PASS: graphify updated" || echo "   WARN: graphify update failed"
-else
-  echo "   SKIP: GRAPHIFY_MCP_PATH not set"
-fi
+echo "✅ post-commit: running quality verification..."
+npm run check --silent 2>/dev/null && echo "   ✅ check passed" || echo "   ⚠️ check found issues (non-blocking)"
+echo "✅ post-commit: updating graphify knowledge graph..."
+npx graphify --update . 2>/dev/null && echo "   ✅ graphify updated" || echo "   ⚠️ graphify update skipped (not available)"

@@ -3,11 +3,7 @@ const { formatDisplayMention, withMentions } = require("../../../utils/userMenti
 const { resolveTargetDisplayName } = require("../../../services/displayNameService");
 const { formatError, box } = require("../../../utils/messageFormatUtils");
 
-/**
- * @param {any} ctx
- * @param {{ serviceFn: Function, usageMessage: string, boxTitle: string, boxMessage?: string|null }} opts
- */
-async function executeGroupAction(ctx, { serviceFn, usageMessage, boxTitle, boxMessage = null }) {
+async function executeGroupAction(ctx, { serviceFn, usageMessage, boxTitle, boxMessage }) {
   const targetId = getFirstMentionedJid(ctx);
 
   if (!targetId) {
@@ -24,7 +20,7 @@ async function executeGroupAction(ctx, { serviceFn, usageMessage, boxTitle, boxM
 
     await ctx.reply(withMentions(box(boxTitle, lines), [targetId]));
   } catch (error) {
-    await ctx.reply(formatError(error instanceof Error ? error.message : String(error)));
+    await ctx.reply(formatError(error.message));
   }
 }
 

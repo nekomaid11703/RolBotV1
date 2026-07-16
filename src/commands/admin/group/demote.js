@@ -9,7 +9,6 @@ module.exports = {
   groupOnly: true,
   adminOnly: true,
 
-  /** @param {any} ctx */
   async execute(ctx) {
     await executeGroupAction(ctx, {
       serviceFn: demoteFromAdmin,

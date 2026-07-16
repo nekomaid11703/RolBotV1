@@ -21,7 +21,6 @@ tmp/
 # Variables privadas
 .env
 .env.local
-.env.production
 
 # Logs Node
 *.log

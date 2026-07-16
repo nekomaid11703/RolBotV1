@@ -39,7 +39,6 @@ Instrucciones para agentes:
 - Si hay bloqueo externo, moverlo a pendientes o memoria `pending`.
 
 ### Tickets Activos
-- **[Ticket 024]** `@Arquitecto` → Deploy Oracle Cloud 24/7: Roadmap + Checklist + Dockerfile + ecosystem + scripts + CI/CD pipeline. Implementación gratuita para bot 24/7 en Oracle Cloud Always Free. Ver ORACLE_CLOUD_ROADMAP.md y ORACLE_DEPLOY_CHECKLIST.md para detalle de fases y tareas distribuidas por rol. *Estado: Pendiente.*
 
 - **[Ticket 018]** `@Coder` -> Phase 12: Mazmorras y Eventos. Generación procedural de encuentros, loot con rarezas, comandos `/mazmorra`, `/explorar`, `/descansar`, persistencia de estado en Supabase. *Estado: Pendiente.*
 - **[Ticket 019]** `@Creativo` -> Phase 13: Integración de IA Narrativa. Comando `/escena`, diálogos dinámicos de NPCs, narrativa contextual en combate, cache de clasificación de intenciones RPG, moderación de contenido generado. *Estado: Pendiente.*

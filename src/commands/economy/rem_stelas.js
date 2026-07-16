@@ -8,7 +8,6 @@ module.exports = {
   category: "economia",
   economyAdminOnly: true,
 
-  /** @param {any} ctx */
   async execute(ctx) {
     await executeEconomyAction(ctx, {
       serviceFn: removeMoney,
