@@ -139,6 +139,13 @@ async function startBot() {
     const { invalidateAllCache } = require("../utils/safeQuery");
     invalidateAllCache();
 
+    const { verifyStartup } = require("../database/schemaValidator");
+    const { discover } = require("../database/columnRegistry");
+    const { runStartupMigration } = require("../database/schemaMigration");
+    await verifyStartup();
+    await runStartupMigration();
+    await discover(true);
+
     await logSystem("Iniciando bot");
 
     const ownerJids = getOwnerJids();

@@ -4,14 +4,21 @@ const {
   topBalancesCacheKey,
   invalidateTopBalancesCache,
   invalidateUserCache,
+  safeSelect,
   TTLS,
   cache,
 } = require("../utils/safeQuery");
 const { logError } = require("./loggerService");
 const { supabase } = require("../database/supabase");
+const { filterExisting } = require("../database/columnRegistry");
 
 const userLocks = new Map();
 
+/**
+ *
+ * @param userId
+ * @param fn
+ */
 async function withUserLock(userId, fn) {
   while (userLocks.get(userId)) {
     await new Promise((r) => {
@@ -34,6 +41,10 @@ const {
   DAILY_STREAK_BONUS_CAP,
 } = require("../config/economyConfig");
 
+/**
+ *
+ * @param root0
+ */
 function resolveEconomyProfile({ userId, userName = "usuario", createIfMissing = false, registration = {} }) {
   if (createIfMissing) {
     return getOrCreateProfile({
@@ -48,10 +59,18 @@ function resolveEconomyProfile({ userId, userName = "usuario", createIfMissing =
   });
 }
 
+/**
+ *
+ * @param profile
+ */
 function getMoneyValue(profile) {
   return Number(profile?.economy?.money || 0);
 }
 
+/**
+ *
+ * @param userId
+ */
 async function getBalance(userId) {
   const data = await getUserProfile({
     creatorId: userId,
@@ -64,6 +83,12 @@ async function getBalance(userId) {
   return getMoneyValue(data.profile);
 }
 
+/**
+ *
+ * @param userId
+ * @param amount
+ * @param options
+ */
 async function addMoney(userId, amount, options = {}) {
   const safeAmount = Math.floor(Number(amount));
 
@@ -95,6 +120,12 @@ async function addMoney(userId, amount, options = {}) {
   });
 }
 
+/**
+ *
+ * @param userId
+ * @param amount
+ * @param options
+ */
 async function removeMoney(userId, amount, options = {}) {
   const safeAmount = Math.floor(Number(amount));
 
@@ -132,6 +163,12 @@ async function removeMoney(userId, amount, options = {}) {
   });
 }
 
+/**
+ *
+ * @param userId
+ * @param amount
+ * @param options
+ */
 async function setMoney(userId, amount, options = {}) {
   const safeAmount = Math.floor(Number(amount));
 
@@ -163,6 +200,13 @@ async function setMoney(userId, amount, options = {}) {
   });
 }
 
+/**
+ *
+ * @param fromUserId
+ * @param toUserId
+ * @param amount
+ * @param options
+ */
 async function transferMoney(fromUserId, toUserId, amount, options = {}) {
   const safeAmount = Math.floor(Number(amount));
 
@@ -229,25 +273,19 @@ async function transferMoney(fromUserId, toUserId, amount, options = {}) {
       const fromNewMoney = current - safeAmount;
       const toNewMoney = getMoneyValue(toData.profile) + safeAmount;
 
-      const { error: fromError } = await supabase
-        .from("players")
-        .update({ money: fromNewMoney, last_active_at: now })
-        .eq("phone", fromUserId);
+      const fromPayload = filterExisting("players", { money: fromNewMoney, last_active_at: now });
+      const { error: fromError } = await supabase.from("players").update(fromPayload).eq("phone", fromUserId);
 
       if (fromError) {
         throw new Error(`Error actualizando remitente: ${fromError.message}`);
       }
 
-      const { error: toError } = await supabase
-        .from("players")
-        .update({ money: toNewMoney, last_active_at: now })
-        .eq("phone", toUserId);
+      const toPayload = filterExisting("players", { money: toNewMoney, last_active_at: now });
+      const { error: toError } = await supabase.from("players").update(toPayload).eq("phone", toUserId);
 
       if (toError) {
-        const { error: rollbackError } = await supabase
-          .from("players")
-          .update({ money: current, last_active_at: now })
-          .eq("phone", fromUserId);
+        const rollbackPayload = filterExisting("players", { money: current, last_active_at: now });
+        const { error: rollbackError } = await supabase.from("players").update(rollbackPayload).eq("phone", fromUserId);
         if (rollbackError) {
           logError({ source: "economyService.transferMoney.rollback", error: new Error(rollbackError.message) });
           throw new Error(`Rollback falló: ${rollbackError.message}`);
@@ -264,6 +302,10 @@ async function transferMoney(fromUserId, toUserId, amount, options = {}) {
   );
 }
 
+/**
+ *
+ * @param root0
+ */
 async function claimDaily({ userId, userName = "usuario", registration = {} }) {
   return withUserLock(userId, async () => {
     const data = await resolveEconomyProfile({
@@ -369,6 +411,11 @@ async function claimDaily({ userId, userName = "usuario", registration = {} }) {
   });
 }
 
+/**
+ *
+ * @param limit
+ * @param bypassCache
+ */
 async function getTopBalances(limit = 10, bypassCache = false) {
   const cacheKey = topBalancesCacheKey(limit);
   if (!bypassCache) {
@@ -380,7 +427,7 @@ async function getTopBalances(limit = 10, bypassCache = false) {
 
   const { data, error } = await supabase
     .from("players")
-    .select("phone, username, money, last_active_at")
+    .select(safeSelect("players", "phone, username, money, last_active_at"))
     .order("money", { ascending: false })
     .range(0, safeLimit - 1);
 

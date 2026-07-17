@@ -1,5 +1,6 @@
 // @ts-nocheck
 const { supabase } = require("../database/supabase");
+const { filterExisting } = require("../database/columnRegistry");
 const {
   safeSingleOrNull,
   userCacheKey,
@@ -9,12 +10,20 @@ const {
   topActiveUsersCacheKey,
 } = require("../utils/safeQuery");
 
+/**
+ *
+ * @param text
+ */
 function stripAccents(text) {
   return String(text || "")
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "");
 }
 
+/**
+ *
+ * @param text
+ */
 function sanitizeName(text) {
   return (
     stripAccents(text)
@@ -25,6 +34,11 @@ function sanitizeName(text) {
   );
 }
 
+/**
+ *
+ * @param bypassCache
+ * @param opts
+ */
 async function listUserProfiles(bypassCache = false, opts = {}) {
   const cacheKey = opts.offset || opts.limit ? null : "allUserProfiles";
   if (!bypassCache && cacheKey) {
@@ -51,6 +65,10 @@ async function listUserProfiles(bypassCache = false, opts = {}) {
   return result;
 }
 
+/**
+ *
+ * @param root0
+ */
 function buildRegistration({ creatorId, registration = {} }) {
   const now = new Date().toISOString();
 
@@ -62,6 +80,10 @@ function buildRegistration({ creatorId, registration = {} }) {
   };
 }
 
+/**
+ *
+ * @param root0
+ */
 function buildDefaultProfile({ creatorId, creatorName, registration = {} }) {
   const now = new Date().toISOString();
   const cleanName = String(creatorName || "usuario").trim() || "usuario";
@@ -112,6 +134,10 @@ function buildDefaultProfile({ creatorId, creatorName, registration = {} }) {
   };
 }
 
+/**
+ *
+ * @param root0
+ */
 function normalizeRegistration({ creatorId, registration = {}, fallback = {} }) {
   const base = buildRegistration({
     creatorId,
@@ -129,6 +155,10 @@ function normalizeRegistration({ creatorId, registration = {}, fallback = {} }) 
   };
 }
 
+/**
+ *
+ * @param activity
+ */
 function normalizeActivity(activity = {}) {
   return {
     messages: 0,
@@ -148,6 +178,11 @@ function normalizeActivity(activity = {}) {
   };
 }
 
+/**
+ *
+ * @param profile
+ * @param root0
+ */
 function normalizeProfile(profile, { creatorId, creatorName }) {
   const now = new Date().toISOString();
   const cleanName = String(creatorName || profile?.creatorName || "usuario").trim() || "usuario";
@@ -224,6 +259,10 @@ function normalizeProfile(profile, { creatorId, creatorName }) {
   return normalized;
 }
 
+/**
+ *
+ * @param root0
+ */
 async function ensureUserProfile({ creatorId, creatorName = "usuario", registration = {} }) {
   const existing = await getUserProfile({ creatorId });
   if (existing) return existing;
@@ -239,6 +278,10 @@ async function ensureUserProfile({ creatorId, creatorName = "usuario", registrat
   return { folder: "supabase", profilePath: "supabase", profile };
 }
 
+/**
+ *
+ * @param root0
+ */
 async function getUserProfile({ creatorId, bypassCache = false }) {
   const key = userCacheKey(creatorId);
   if (!bypassCache) {
@@ -261,18 +304,21 @@ async function getUserProfile({ creatorId, bypassCache = false }) {
   return result;
 }
 
+/**
+ *
+ * @param root0
+ */
 async function saveUserProfile({ folder: _folder, profile }) {
-  const { error } = await supabase.from("players").upsert(
-    {
-      phone: profile.creatorId,
-      username: profile.creatorName,
-      money: Number(profile.economy?.money || 0),
-      activity_messages: Number(profile.activity?.messages || 0),
-      activity_commands: Number(profile.activity?.commands || 0),
-      last_active_at: profile.metadata?.lastSeenAt || new Date().toISOString(),
-    },
-    { onConflict: "phone" },
-  );
+  const payload = filterExisting("players", {
+    phone: profile.creatorId,
+    username: profile.creatorName,
+    money: Number(profile.economy?.money || 0),
+    activity_messages: Number(profile.activity?.messages || 0),
+    activity_commands: Number(profile.activity?.commands || 0),
+    last_active_at: profile.metadata?.lastSeenAt || new Date().toISOString(),
+  });
+
+  const { error } = await supabase.from("players").upsert(payload, { onConflict: "phone" });
 
   if (error) throw new Error("Error guardando usuario: " + error.message);
 
@@ -280,6 +326,10 @@ async function saveUserProfile({ folder: _folder, profile }) {
   return profile;
 }
 
+/**
+ *
+ * @param root0
+ */
 async function getOrCreateProfile({ creatorId, creatorName = "usuario", registration = {} }) {
   const existing = await getUserProfile({
     creatorId,
@@ -296,6 +346,10 @@ async function getOrCreateProfile({ creatorId, creatorName = "usuario", registra
   });
 }
 
+/**
+ *
+ * @param messageType
+ */
 function resolveActivityBucket(messageType) {
   const normalizedType = String(messageType || "")
     .trim()
@@ -315,6 +369,10 @@ function resolveActivityBucket(messageType) {
   return null;
 }
 
+/**
+ *
+ * @param root0
+ */
 async function recordUserActivity({
   creatorId,
   creatorName = "usuario",
@@ -442,6 +500,11 @@ async function recordUserActivity({
   return next;
 }
 
+/**
+ *
+ * @param a
+ * @param b
+ */
 function sortActivityProfilesDesc(a, b) {
   const diffMessages = Number(b.activity?.messages || 0) - Number(a.activity?.messages || 0);
   if (diffMessages !== 0) return diffMessages;
@@ -455,6 +518,10 @@ function sortActivityProfilesDesc(a, b) {
   return String(a.displayName || "").localeCompare(String(b.displayName || ""), "es");
 }
 
+/**
+ *
+ * @param root0
+ */
 async function getTopActiveUsers({ limit = 10, bypassCache = false } = {}) {
   const cacheKey = topActiveUsersCacheKey(limit);
   if (!bypassCache) {

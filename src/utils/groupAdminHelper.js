@@ -1,7 +1,7 @@
-const { getFirstMentionedJid } = require("../../../utils/commandParseUtils");
-const { formatDisplayMention, withMentions } = require("../../../utils/userMentionUtils");
-const { resolveTargetDisplayName } = require("../../../services/displayNameService");
-const { formatError, box } = require("../../../utils/messageFormatUtils");
+const { getFirstMentionedJid } = require("./commandParseUtils");
+const { formatDisplayMention, withMentions } = require("./userMentionUtils");
+const { resolveTargetDisplayName } = require("../services/displayNameService");
+const { formatError, box } = require("./messageFormatUtils");
 
 /**
  * @param {{ sock: any, from: string, reply: Function }} ctx

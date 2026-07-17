@@ -1,5 +1,5 @@
 const { demoteFromAdmin } = require("../../../utils/groupUtils");
-const { executeGroupAction } = require("./_groupAdminHelper");
+const { executeGroupAction } = require("../../../utils/groupAdminHelper");
 
 module.exports = {
   name: "demote",

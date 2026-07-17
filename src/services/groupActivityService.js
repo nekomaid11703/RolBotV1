@@ -1,6 +1,7 @@
 // @ts-nocheck
 const { GROUP_TOP_LIMIT } = require("../config/groupConfig");
 const { supabase } = require("../database/supabase");
+const { filterExisting } = require("../database/columnRegistry");
 const {
   safeSingleOrNull,
   groupCacheKey,
@@ -10,6 +11,10 @@ const {
   cache,
 } = require("../utils/safeQuery");
 
+/**
+ *
+ * @param root0
+ */
 function buildDefaultGroupRecord({ groupId, groupName = "" }) {
   const now = new Date().toISOString();
 
@@ -33,6 +38,10 @@ function buildDefaultGroupRecord({ groupId, groupName = "" }) {
   };
 }
 
+/**
+ *
+ * @param messageType
+ */
 function resolveBucket(messageType) {
   const normalized = String(messageType || "")
     .trim()
@@ -48,6 +57,11 @@ function resolveBucket(messageType) {
   return null;
 }
 
+/**
+ *
+ * @param groupId
+ * @param bypassCache
+ */
 async function getGroupActivity(groupId, bypassCache = false) {
   if (!groupId) return null;
   const cacheKey = groupCacheKey(groupId);
@@ -83,6 +97,10 @@ async function getGroupActivity(groupId, bypassCache = false) {
   return record;
 }
 
+/**
+ *
+ * @param root0
+ */
 async function ensureGroupActivity({ groupId, groupName = "" }) {
   if (!groupId) throw new Error("Falta el identificador del grupo.");
   let record = await getGroupActivity(groupId);
@@ -93,18 +111,20 @@ async function ensureGroupActivity({ groupId, groupName = "" }) {
   return record;
 }
 
+/**
+ *
+ * @param record
+ */
 async function saveGroupActivity(record) {
   const { supabase } = require("../database/supabase");
+  const groupPayload = filterExisting("groups", {
+    group_jid: record.groupId,
+    group_name: record.groupName,
+    total_messages: record.totals.messages,
+  });
   const { data: group, error } = await supabase
     .from("groups")
-    .upsert(
-      {
-        group_jid: record.groupId,
-        group_name: record.groupName,
-        total_messages: record.totals.messages,
-      },
-      { onConflict: "group_jid" },
-    )
+    .upsert(groupPayload, { onConflict: "group_jid" })
     .select("id")
     .single();
 
@@ -113,17 +133,22 @@ async function saveGroupActivity(record) {
   }
 
   for (const member of Object.values(record.members)) {
-    const { error: memberError } = await supabase.from("group_members").upsert({
+    const memberPayload = filterExisting("group_members", {
       group_id: group.id,
       player_phone: member.memberId,
       messages_count: member.messages,
     });
+    const { error: memberError } = await supabase.from("group_members").upsert(memberPayload);
     if (memberError) throw new Error("Error guardando miembro: " + memberError.message);
   }
 
   invalidateGroupCache(record.groupId);
 }
 
+/**
+ *
+ * @param root0
+ */
 async function recordGroupActivity({
   groupId,
   groupName = "",
@@ -210,6 +235,10 @@ async function recordGroupActivity({
   return record;
 }
 
+/**
+ *
+ * @param root0
+ */
 async function getTopGroupMembers({ groupId, limit = GROUP_TOP_LIMIT, bypassCache = false }) {
   const cacheKey = topGroupMembersCacheKey(groupId, limit);
   if (!bypassCache) {
@@ -242,6 +271,10 @@ async function getTopGroupMembers({ groupId, limit = GROUP_TOP_LIMIT, bypassCach
   return result;
 }
 
+/**
+ *
+ * @param root0
+ */
 async function getGroupMemberActivity({ groupId, memberId }) {
   const record = await getGroupActivity(groupId);
 

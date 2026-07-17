@@ -1,5 +1,6 @@
 // @ts-nocheck
 const { supabase } = require("../database/supabase");
+const { filterExisting } = require("../database/columnRegistry");
 const { invalidateUserCache, charactersCacheKey, safeSingleOrNull, cache, TTLS } = require("../utils/safeQuery");
 const {
   CHARACTER_CATEGORIES,
@@ -10,10 +11,19 @@ const {
 
 const { sanitizeName, ensureUserProfile } = require("./userService");
 
+/**
+ *
+ * @param characterName
+ */
 function getCharacterSlug(characterName) {
   return sanitizeName(characterName).toLowerCase();
 }
 
+/**
+ *
+ * @param category
+ * @param isAdmin
+ */
 function normalizeCategory(category, isAdmin = false) {
   const normalized = String(category || "F")
     .toUpperCase()
@@ -23,10 +33,18 @@ function normalizeCategory(category, isAdmin = false) {
   return normalized;
 }
 
+/**
+ *
+ * @param stats
+ */
 function normalizeStats(stats = {}) {
   return { ...DEFAULT_CHARACTER_STATS, ...(stats || {}) };
 }
 
+/**
+ *
+ * @param character
+ */
 function normalizeCharacterRecord(character) {
   if (!character || typeof character !== "object") return character;
 
@@ -49,6 +67,10 @@ function normalizeCharacterRecord(character) {
   return normalized;
 }
 
+/**
+ *
+ * @param root0
+ */
 async function createCharacter({
   creatorId,
   creatorName,
@@ -77,16 +99,15 @@ async function createCharacter({
 
   const isActive = count === 0;
 
-  const record = {
+  const record = filterExisting("characters", {
     player_phone: creatorId,
     name: characterName,
     slug: slug,
     category: normalizeCategory(category, isAdmin),
     is_active: isActive,
-  };
-
-  if (stats && Object.keys(stats).length > 0) record.stats = normalizeStats(stats);
-  if (slots && Object.keys(slots).length > 0) record.slots = { ...DEFAULT_CHARACTER_SLOTS, ...slots };
+    stats: stats && Object.keys(stats).length > 0 ? normalizeStats(stats) : undefined,
+    slots: slots && Object.keys(slots).length > 0 ? { ...DEFAULT_CHARACTER_SLOTS, ...slots } : undefined,
+  });
 
   const { data, error } = await supabase.from("characters").insert(record).select().single();
 
@@ -105,6 +126,10 @@ async function createCharacter({
   return normalized;
 }
 
+/**
+ *
+ * @param root0
+ */
 async function listCharacters({ creatorId, bypassCache = false }) {
   const cacheKey = charactersCacheKey(creatorId);
   if (!bypassCache) {
@@ -130,6 +155,10 @@ async function listCharacters({ creatorId, bypassCache = false }) {
   return result;
 }
 
+/**
+ *
+ * @param root0
+ */
 async function getActiveCharacter({ creatorId, bypassCache = false }) {
   const cacheKey = `activeCharacter:${creatorId}`;
   if (!bypassCache) {
@@ -152,6 +181,10 @@ async function getActiveCharacter({ creatorId, bypassCache = false }) {
   return normalized;
 }
 
+/**
+ *
+ * @param root0
+ */
 async function setActiveCharacter({
   targetCreatorId,
   _targetCreatorName,
@@ -176,23 +209,25 @@ async function setActiveCharacter({
     throw new Error("No existe ese personaje.");
   }
 
+  const deactivatePayload = filterExisting("characters", {
+    is_active: false,
+    updated_at: new Date().toISOString(),
+  });
   const { error: updateError } = await supabase
     .from("characters")
-    .update({
-      is_active: false,
-      updated_at: new Date().toISOString(),
-    })
+    .update(deactivatePayload)
     .eq("player_phone", targetCreatorId)
     .neq("slug", slug);
 
   if (updateError) throw new Error("Error desactivando personajes: " + updateError.message);
 
+  const activatePayload = filterExisting("characters", {
+    is_active: true,
+    updated_at: new Date().toISOString(),
+  });
   const { data: activated, error: activateError } = await supabase
     .from("characters")
-    .update({
-      is_active: true,
-      updated_at: new Date().toISOString(),
-    })
+    .update(activatePayload)
     .eq("player_phone", targetCreatorId)
     .eq("slug", slug)
     .select()
@@ -210,6 +245,10 @@ async function setActiveCharacter({
   return normalized;
 }
 
+/**
+ *
+ * @param root0
+ */
 async function deleteCharacter({ creatorId, characterName }) {
   const slug = getCharacterSlug(characterName);
 
@@ -234,7 +273,10 @@ async function deleteCharacter({ creatorId, characterName }) {
       .limit(1);
 
     if (remaining && remaining.length > 0) {
-      await supabase.from("characters").update({ is_active: true }).eq("id", remaining[0].id);
+      await supabase
+        .from("characters")
+        .update(filterExisting("characters", { is_active: true }))
+        .eq("id", remaining[0].id);
     }
   }
 
@@ -242,11 +284,19 @@ async function deleteCharacter({ creatorId, characterName }) {
   return true;
 }
 
+/**
+ *
+ * @param root0
+ */
 async function getCharacterNames({ creatorId }) {
   const characters = await listCharacters({ creatorId, bypassCache: true });
   return new Set(characters.map((c) => c.name));
 }
 
+/**
+ *
+ * @param root0
+ */
 async function renameCharacter({ characterName, newName, creatorId, requesterId, requesterIsAdmin = false }) {
   if (requesterId !== creatorId && !requesterIsAdmin) {
     throw new Error("Solo el creador o un admin pueden renombrar personajes.");
@@ -262,9 +312,14 @@ async function renameCharacter({ characterName, newName, creatorId, requesterId,
     throw new Error("Ya existe un personaje con ese nombre.");
   }
 
+  const renamePayload = filterExisting("characters", {
+    name: newName,
+    slug: newSlug,
+    updated_at: new Date().toISOString(),
+  });
   const { data: updated, error } = await supabase
     .from("characters")
-    .update({ name: newName, slug: newSlug, updated_at: new Date().toISOString() })
+    .update(renamePayload)
     .eq("player_phone", creatorId)
     .eq("slug", slug)
     .select()
@@ -281,6 +336,10 @@ async function renameCharacter({ characterName, newName, creatorId, requesterId,
   return normalized;
 }
 
+/**
+ *
+ * @param root0
+ */
 async function updateCharacterSlots({ characterName, creatorId, slots, requesterId, requesterIsAdmin = false }) {
   if (requesterId !== creatorId && !requesterIsAdmin) {
     throw new Error("Solo el creador o un admin pueden editar personajes.");
@@ -298,9 +357,10 @@ async function updateCharacterSlots({ characterName, creatorId, slots, requester
 
   const mergedSlots = { ...DEFAULT_CHARACTER_SLOTS, ...(current.slots || {}), ...slots };
 
+  const slotsPayload = filterExisting("characters", { slots: mergedSlots, updated_at: new Date().toISOString() });
   const { data: updated, error } = await supabase
     .from("characters")
-    .update({ slots: mergedSlots, updated_at: new Date().toISOString() })
+    .update(slotsPayload)
     .eq("player_phone", creatorId)
     .eq("slug", slug)
     .select()

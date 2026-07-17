@@ -1,8 +1,8 @@
-const { getFirstMentionedJid, extractAmountFromArgs } = require("../../utils/commandParseUtils");
-const { formatDisplayMention } = require("../../utils/userMentionUtils");
-const { resolveTargetDisplayName } = require("../../services/displayNameService");
-const { formatCommandUsage, formatError, box } = require("../../utils/messageFormatUtils");
-const { formatStelas } = require("../../utils/economyUtils");
+const { getFirstMentionedJid, extractAmountFromArgs } = require("./commandParseUtils");
+const { formatDisplayMention } = require("./userMentionUtils");
+const { resolveTargetDisplayName } = require("../services/displayNameService");
+const { formatCommandUsage, formatError, box } = require("./messageFormatUtils");
+const { formatStelas } = require("./economyUtils");
 
 const usageCache = new Map();
 
