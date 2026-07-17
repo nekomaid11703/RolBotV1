@@ -1173,41 +1173,8 @@
       "why": "connects across different repos/directories"
     }
   ],
-  "questions": [
-    {
-      "type": "bridge_node",
-      "question": "Why does `box()` connect `box` to `economyService.js`, `bugReportService.js`, `groupUtils.js`, `userService.js`, `formatError`, `actividad.js`, `unwarn.js`, `resolveTargetDisplayName`, `dar_stelas.js`, `messageFormatUtils.js`, `getActiveCharacter`, `groupAdminHelper.js`, `crear_pj.js`, `eco_admin_rem.js`, `actividad_global.js`, `economyAdminHelper.js`, `editar_pj_descripcion.js`, `eliminar_pj.js`, `mis_pj.js`?",
-      "why": "High betweenness centrality (0.054) - this node is a cross-community bridge."
-    },
-    {
-      "type": "bridge_node",
-      "question": "Why does `supabase` connect `supabase.js` to `economyService.js`, `bugReportService.js`, `groupUtils.js`, `userService.js`, `characterService.js`, `groupActivityService.js`, `logError`, `schemaValidator.js`?",
-      "why": "High betweenness centrality (0.020) - this node is a cross-community bridge."
-    },
-    {
-      "type": "bridge_node",
-      "question": "Why does `logSystem()` connect `bot.js` to `bugReportService.js`, `characterService.js`, `commandHandler.js`, `logError`, `schemaValidator.js`, `safeQuery.js`, `loggerService.js`, `supabase.js`, `schemaMigration.js`?",
-      "why": "High betweenness centrality (0.019) - this node is a cross-community bridge."
-    },
-    {
-      "type": "isolated_nodes",
-      "question": "What connects `husky.sh script`, `$schema`, `src/core/bot.js` to the rest of the system?",
-      "why": "392 weakly-connected nodes found - possible documentation gaps or missing edges."
-    },
-    {
-      "type": "low_cohesion",
-      "question": "Should `economyService.js` be split into smaller, more focused modules?",
-      "why": "Cohesion score 0.06253652834599649 - nodes in this community are weakly interconnected."
-    },
-    {
-      "type": "low_cohesion",
-      "question": "Should `bugReportService.js` be split into smaller, more focused modules?",
-      "why": "Cohesion score 0.07088989441930618 - nodes in this community are weakly interconnected."
-    },
-    {
-      "type": "low_cohesion",
-      "question": "Should `scripts` be split into smaller, more focused modules?",
-      "why": "Cohesion score 0.04081632653061224 - nodes in this community are weakly interconnected."
-    }
-  ]
+  "tokens": {
+    "input": 0,
+    "output": 0
+  }
 }
