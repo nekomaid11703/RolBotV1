@@ -2,7 +2,7 @@ const { discover } = require("./columnRegistry");
 const { logSystem } = require("../services/loggerService");
 const { setStoredVersion } = require("./schemaVersion");
 
-const CURRENT_VERSION = "1.0.0";
+const CURRENT_VERSION = "2.0.0";
 
 const DESIRED_SCHEMA = {
   players: ["phone", "username", "money", "activity_messages", "activity_commands", "last_active_at"],
@@ -11,8 +11,14 @@ const DESIRED_SCHEMA = {
     "player_phone",
     "name",
     "slug",
-    "category",
+    "raza",
+    "clase",
+    "rango",
+    "nivel",
+    "xp",
+    "xp_total",
     "is_active",
+    "hp_actual",
     "stats",
     "slots",
     "created_at",
@@ -34,8 +40,14 @@ const COLUMN_TYPES = {
   "characters.player_phone": "text",
   "characters.name": "text",
   "characters.slug": "text",
-  "characters.category": "text DEFAULT 'F'",
+  "characters.raza": "text DEFAULT 'humano'",
+  "characters.clase": "text DEFAULT 'civil'",
+  "characters.rango": "text DEFAULT 'F'",
+  "characters.nivel": "integer DEFAULT 20",
+  "characters.xp": "integer DEFAULT 0",
+  "characters.xp_total": "integer DEFAULT 0",
   "characters.is_active": "boolean DEFAULT false",
+  "characters.hp_actual": "integer DEFAULT 100",
   "characters.stats": "jsonb",
   "characters.slots": "jsonb",
   "characters.created_at": "timestamptz DEFAULT now()",

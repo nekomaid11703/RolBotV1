@@ -45,17 +45,16 @@ const commands = [
     expect: ["*Uso*", "*Ejemplo*", "/eliminar_pj NombreDelPersonaje"],
   },
   {
-    name: "crear_pj",
-    module: require("../src/commands/rpg/characters/crear_pj"),
-    expect: ["*Plantilla*", "*Ejemplo*", "Nombre:", "Historia:"],
-  },
-  {
-    name: "editar_pj_descripcion",
-    module: require("../src/commands/rpg/characters/editar_pj_descripcion"),
-    expect: ["*Uso*", "*Ejemplo*", "/editar_pj_descripcion <nueva_descripcion>"],
+    name: "editar_pj",
+    module: require("../src/commands/rpg/characters/editar_pj"),
+    expect: ["*Uso*", "*Ejemplo*", "/editar_pj"],
   },
 ];
 
+/**
+ *
+ * @param overrides
+ */
 function createCtx(overrides = {}) {
   const replies = [];
   return {
@@ -97,5 +96,33 @@ describe("Formato de uso/ejemplo en comandos", () => {
     expect(ctx.replies[0].includes("*No se pudo completar*")).toBe(true);
     expect(ctx.replies[0].includes("/dado [X]dY")).toBe(true);
     expect(ctx.replies[0].includes("*Ejemplo*")).toBe(true);
+  });
+
+  describe("crear_pj — multi-step flow", () => {
+    it("sin args muestra lista de razas", async () => {
+      const crearModule = require("../src/commands/rpg/characters/crear_pj");
+      const ctx = createCtx();
+      await crearModule.execute(ctx);
+      expect(ctx.replies.length).toBe(1);
+      expect(ctx.replies[0]).toContain("raza");
+    });
+
+    it("con arg numérico 1 muestra la plantilla de la raza", async () => {
+      const crearModule = require("../src/commands/rpg/characters/crear_pj");
+      const ctx = createCtx({ text: "/crear_pj 1", args: ["1"] });
+      await crearModule.execute(ctx);
+      expect(ctx.replies.length).toBe(1);
+      expect(ctx.replies[0]).toContain("Plantilla");
+      expect(ctx.replies[0]).toContain("Nombre:");
+      expect(ctx.replies[0]).toContain("Historia");
+    });
+
+    it("con arg 'humano' muestra la plantilla de humano", async () => {
+      const crearModule = require("../src/commands/rpg/characters/crear_pj");
+      const ctx = createCtx({ text: "/crear_pj humano", args: ["humano"] });
+      await crearModule.execute(ctx);
+      expect(ctx.replies.length).toBe(1);
+      expect(ctx.replies[0]).toContain("Humano");
+    });
   });
 });

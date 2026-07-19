@@ -1,5 +1,5 @@
 // @ts-nocheck
-require("dotenv").config({ path: require("path").join(__dirname, "../../.env.local") });
+require("dotenv").config({ path: require("path").join(__dirname, "../../.env.local"), quiet: true });
 const { default: makeWASocket, DisconnectReason, fetchLatestBaileysVersion } = require("@whiskeysockets/baileys");
 const { useSupabaseAuthState } = require("./supabaseAuthState");
 
@@ -19,6 +19,9 @@ const MAX_RECONNECT_ATTEMPTS = Number(process.env.MAX_RECONNECT_ATTEMPTS) || 50;
 const RECONNECT_MAX_DELAY = 60000;
 const RECONNECT_INITIAL_DELAY = 2000;
 const CONNECT_TIMEOUT_MS = Number(process.env.CONNECT_TIMEOUT_MS) || 120000;
+
+/** @type {boolean} */
+let startupValidated = false;
 const QUERY_TIMEOUT_MS = Number(process.env.QUERY_TIMEOUT_MS) || 90000;
 const WATCHDOG_INTERVAL_MS = 60000;
 const WATCHDOG_MAX_DISCONNECTED_MS = 300000;
@@ -134,17 +137,26 @@ async function startBot() {
       cachedPairingPhone = (cachedPairingPhone || "").replace(/[^\d]/g, "");
     }
 
-    await cleanOldLogs();
+    if (!startupValidated) {
+      process.stdout.write("\x1b[90m[1/5] Limpiando logs viejos...\x1b[0m\n");
+      await cleanOldLogs();
+      process.stdout.write("\x1b[90m[1/5] ✓\x1b[0m\n");
 
-    const { invalidateAllCache } = require("../utils/safeQuery");
-    invalidateAllCache();
+      const { invalidateAllCache } = require("../utils/safeQuery");
+      invalidateAllCache();
 
-    const { verifyStartup } = require("../database/schemaValidator");
-    const { discover } = require("../database/columnRegistry");
-    const { runStartupMigration } = require("../database/schemaMigration");
-    await verifyStartup();
-    await runStartupMigration();
-    await discover(true);
+      process.stdout.write("\x1b[90m[2/5] Verificando schema de base de datos...\x1b[0m\n");
+      const { verifyStartup } = require("../database/schemaValidator");
+      await verifyStartup();
+      process.stdout.write("\x1b[90m[2/5] ✓\x1b[0m\n");
+
+      process.stdout.write("\x1b[90m[3/5] Ejecutando migraciones...\x1b[0m\n");
+      const { runStartupMigration } = require("../database/schemaMigration");
+      await runStartupMigration();
+      process.stdout.write("\x1b[90m[3/5] ✓\x1b[0m\n");
+
+      startupValidated = true;
+    }
 
     await logSystem("Iniciando bot");
 
@@ -153,8 +165,11 @@ async function startBot() {
       await logSystem("OWNER_PHONE no configurado — funciones de owner deshabilitadas");
     }
 
+    process.stdout.write("\x1b[90m[4/4] Cargando sesión de WhatsApp desde Supabase...\x1b[0m\n");
     const { state, saveCreds } = await useSupabaseAuthState("bot-session-1");
+    process.stdout.write("\x1b[90m[4/4] ✓\x1b[0m\n");
 
+    process.stdout.write("\x1b[36mConectando con WhatsApp...\x1b[0m\n");
     const { version } = await fetchLatestBaileysVersion();
 
     const sock = makeWASocket({

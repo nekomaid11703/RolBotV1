@@ -52,12 +52,16 @@ const commands = [
     expect: ["*Plantilla*", "*Ejemplo*", "Nombre:", "Historia:"],
   },
   {
-    name: "editar_pj_descripcion",
-    module: require("../src/commands/rpg/characters/editar_pj_descripcion"),
-    expect: ["*Uso*", "*Ejemplo*", "/editar_pj_descripcion <nueva_descripcion>"],
+    name: "editar_pj",
+    module: require("../src/commands/rpg/characters/editar_pj"),
+    expect: ["*Uso*", "*Ejemplo*", "/editar_pj <nueva_descripcion>"],
   },
 ];
 
+/**
+ *
+ * @param overrides
+ */
 function createCtx(overrides = {}) {
   const replies = [];
   return {
@@ -79,6 +83,9 @@ function createCtx(overrides = {}) {
   };
 }
 
+/**
+ *
+ */
 async function run() {
   console.log("Ejecutando pruebas de formato de uso/ejemplo en comandos...");
 

@@ -20,9 +20,9 @@ module.exports = {
     const lines = [];
     for (const character of characters) {
       if (character.active) {
-        lines.push(`⭐  ${character.name.toUpperCase()}  ·  Activo`);
+        lines.push(`⭐  ${character.name.toUpperCase()}  ·  ${character.clase}  ·  Nv.${character.nivel}  ·  Activo`);
       } else {
-        lines.push(`▫️  ${character.name}  ·  Rango ${character.category}`);
+        lines.push(`▫️  ${character.name}  ·  ${character.clase}  ·  Nv.${character.nivel}`);
       }
     }
 

@@ -1,12 +1,12 @@
-# Graph Report - RolBotV1  (2026-07-18)
+# Graph Report - RolBotV1  (2026-07-17)
 
 ## Corpus Check
-- 134 files · ~44,532 words
+- 127 files · ~38,228 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1119 nodes · 2083 edges · 79 communities (57 shown, 22 thin omitted)
-- Extraction: 92% EXTRACTED · 8% INFERRED · 0% AMBIGUOUS · INFERRED: 171 edges (avg confidence: 0.51)
+- 1062 nodes · 1907 edges · 80 communities (57 shown, 23 thin omitted)
+- Extraction: 92% EXTRACTED · 8% INFERRED · 0% AMBIGUOUS · INFERRED: 145 edges (avg confidence: 0.52)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
@@ -88,29 +88,30 @@
 - renombrar_pj.js
 - graphify — Knowledge Graph (Code-Only)
 - keywords
+- set_stelas.js
 - ADR-001-eliminacion-capa-ia.md
 - ADR-002-infraestructura-herramientas.md
 
 ## God Nodes (most connected - your core abstractions)
-1. `box()` - 60 edges
+1. `box()` - 59 edges
 2. `formatError()` - 42 edges
-3. `scripts` - 28 edges
+3. `scripts` - 32 edges
 4. `formatDisplayMention()` - 26 edges
 5. `resolveTargetDisplayName()` - 25 edges
 6. `logSystem()` - 23 edges
 7. `logError()` - 22 edges
-8. `filterExisting()` - 21 edges
-9. `getUserProfile()` - 21 edges
-10. `startBot()` - 19 edges
+8. `getUserProfile()` - 21 edges
+9. `startBot()` - 19 edges
+10. `getFirstMentionedJid()` - 19 edges
 
 ## Surprising Connections (you probably didn't know these)
-- `midnightReview()` --calls--> `logSystem()`  [EXTRACTED]
-  scripts/midnight_review.js → src/services/loggerService.js
 - `midnightReview()` --calls--> `getOwnerJids()`  [EXTRACTED]
   scripts/midnight_review.js → src/utils/permissionUtils.js
 - `runCleanOldLogsTests()` --indirect_call--> `exists()`  [INFERRED]
   tests/test_logger_service.js → scripts/tools-list.js
 - `midnightReview()` --calls--> `logError()`  [EXTRACTED]
+  scripts/midnight_review.js → src/services/loggerService.js
+- `midnightReview()` --calls--> `logSystem()`  [EXTRACTED]
   scripts/midnight_review.js → src/services/loggerService.js
 - `scheduleNext()` --calls--> `midnightReview()`  [EXTRACTED]
   src/services/schedulerService.js → scripts/midnight_review.js
@@ -118,27 +119,33 @@
 ## Import Cycles
 - None detected.
 
-## Communities (79 total, 22 thin omitted)
+## Communities (80 total, 23 thin omitted)
 
 ### Community 0 - "economyService.js"
-Cohesion: 0.05
-Nodes (64): { addMoney }, execute(), { executeEconomyAction }, { box }, execute(), { formatStelas }, { getOrCreateProfile, getUserProfile }, resolveTarget() (+56 more)
+Cohesion: 0.12
+Nodes (22): { addMoney }, execute(), { executeEconomyAction }, execute(), { executeEconomyAction }, { removeMoney }, addMoney(), {
+  DAILY_BASE_REWARD,
+  DAILY_COOLDOWN_HOURS,
+  DAILY_STREAK_RESET_HOURS,
+  DAILY_STREAK_BONUS_PER_DAY,
+  DAILY_STREAK_BONUS_CAP,
+} (+14 more)
 
 ### Community 1 - "bugReportService.js"
 Cohesion: 0.10
-Nodes (23): { box, formatError }, { createReport }, reportCooldowns, { box, formatError }, execute(), { getReport, getUserReports }, CATEGORY_KEYWORDS, createReport() (+15 more)
+Nodes (24): { box, formatError }, { createReport }, reportCooldowns, { box, formatError }, execute(), { getReport, getUserReports }, CATEGORY_KEYWORDS, createReport() (+16 more)
 
 ### Community 2 - "scripts"
-Cohesion: 0.07
-Nodes (28): scripts, audit, check, check:all, depcruise, depcruise:graph, dev, format (+20 more)
+Cohesion: 0.06
+Nodes (32): scripts, audit, check, check:all, depcruise, depcruise:graph, dev, dev2 (+24 more)
 
 ### Community 3 - "groupUtils.js"
-Cohesion: 0.12
-Nodes (23): { addParticipant }, execute(), { formatError, box }, execute(), { formatError, box }, { openGroup }, { closeGroup }, execute() (+15 more)
+Cohesion: 0.11
+Nodes (31): { addParticipant }, execute(), { formatError, box }, execute(), { formatError, box }, { openGroup }, { closeGroup }, execute() (+23 more)
 
 ### Community 4 - "userService.js"
-Cohesion: 0.09
-Nodes (37): { box }, execute(), { getOwnerRecords }, { listEconomyAdmins }, OWNER_ALIASES, createContext(), { extractPhoneNumber, normalizeJid }, extractText() (+29 more)
+Cohesion: 0.10
+Nodes (36): { box }, execute(), { getOwnerRecords }, { listEconomyAdmins }, OWNER_ALIASES, createContext(), { extractPhoneNumber, normalizeJid }, extractText() (+28 more)
 
 ### Community 5 - "devDependencies"
 Cohesion: 0.07
@@ -161,56 +168,57 @@ Cohesion: 0.10
 Nodes (20): entry, ignore, ignoreBinaries, ignoreDependencies, src/**/*.js, project, rules, exports (+12 more)
 
 ### Community 10 - "formatError"
-Cohesion: 0.10
-Nodes (28): { deleteCharacter }, execute(), { formatCommandUsage, formatError, box }, { getCharacterNames }, { isAdmin }, usageMessage, execute(), { formatCommandUsage, formatError, box } (+20 more)
+Cohesion: 0.17
+Nodes (14): { deleteCharacter }, execute(), { formatCommandUsage, formatError, box }, { getCharacterNames }, { isAdmin }, usageMessage, execute(), { formatCommandUsage, formatError, box } (+6 more)
 
 ### Community 11 - "actividad.js"
-Cohesion: 0.10
-Nodes (31): { box }, execute(), { formatCount, formatDate }, { formatDisplayMention, withMentions }, { getFirstMentionedJid }, { getGroupMemberActivity, getGroupActivity }, { getGroupMetadata }, { getUserProfile } (+23 more)
+Cohesion: 0.09
+Nodes (34): { box }, execute(), { formatCount, formatDate }, { formatDisplayMention, withMentions }, { getFirstMentionedJid }, { getGroupMemberActivity, getGroupActivity }, { getGroupMetadata }, { getUserProfile } (+26 more)
 
 ### Community 12 - "test_helpers.js"
 Cohesion: 0.15
 Nodes (14): crypto, getCacheKey(), helpers, run(), helpers, path, run(), assert() (+6 more)
 
 ### Community 13 - "characterService.js"
-Cohesion: 0.14
-Nodes (30): execute(), { formatCommandUsage, formatError, box }, { isAdmin }, { MAX_CHARACTER_NAME_LENGTH }, { renameCharacter, updateCharacterSlots, getActiveCharacter }, usageMessage, DEFAULT_CHARACTER_SLOTS, xpForNextLevel() (+22 more)
+Cohesion: 0.23
+Nodes (20): execute(), filterExisting(), {
+  CHARACTER_CATEGORIES,
+  DEFAULT_CHARACTER_STATS,
+  DEFAULT_CHARACTER_SLOTS,
+  MAX_CHARACTERS_PER_USER,
+}, createCharacter(), deleteCharacter(), { filterExisting }, getCharacterSlug(), { invalidateUserCache, charactersCacheKey, safeSingleOrNull, cache, TTLS } (+12 more)
 
 ### Community 14 - "groupActivityService.js"
 Cohesion: 0.07
-Nodes (28): GROUP_ACTIVITY_ROOT, path, hasColumn(), getTopBalances(), buildDefaultGroupRecord(), ensureGroupActivity(), { filterExisting }, getGroupActivity() (+20 more)
+Nodes (22): GROUP_ACTIVITY_ROOT, path, hasColumn(), buildDefaultGroupRecord(), ensureGroupActivity(), { filterExisting }, { GROUP_TOP_LIMIT }, recordGroupActivity() (+14 more)
 
 ### Community 15 - "commandHandler.js"
-Cohesion: 0.15
-Nodes (17): aliases, fs, getJsFilesRecursively(), handleCommand(), { hasEconomyPermission }, { incrementCommands, incrementErrors, addEvent }, { isAdmin, isBotAdmin, isOnGroup }, { isOwner } (+9 more)
+Cohesion: 0.13
+Nodes (20): aliases, commands, fs, getJsFilesRecursively(), handleCommand(), { hasEconomyPermission }, { incrementCommands, incrementErrors, addEvent }, { isAdmin, isBotAdmin, isOnGroup } (+12 more)
 
 ### Community 16 - "unwarn.js"
-Cohesion: 0.13
-Nodes (21): { deleteWarn, getWarns }, execute(), { formatDisplayMention, withMentions }, { formatError, box }, { getFirstMentionedJid }, { resolveTargetDisplayName }, { addWarn, getWarns, MAX_WARNS }, execute() (+13 more)
+Cohesion: 0.15
+Nodes (19): { deleteWarn, getWarns }, execute(), { formatDisplayMention, withMentions }, { formatError, box }, { getFirstMentionedJid }, { resolveTargetDisplayName }, { addWarn, getWarns, MAX_WARNS }, execute() (+11 more)
 
 ### Community 17 - "resolveTargetDisplayName"
 Cohesion: 0.18
 Nodes (15): execute(), { formatCommandUsage, formatError, box }, { formatDisplayMention, withMentions }, { getFirstMentionedJid }, { isOwner }, { resolveTargetDisplayName }, { setEconomyAdmin }, usageMessage (+7 more)
 
 ### Community 18 - "logError"
-Cohesion: 0.11
-Nodes (26): discover(), { logSystem }, { supabase }, COLUMN_TYPES, DESIRED_SCHEMA, detectMissingColumns(), { discover }, generateMigrationSQL() (+18 more)
+Cohesion: 0.05
+Nodes (58): { getOpenReports, getStats, markStale, resolveReport }, { getOwnerJids }, { logSystem, logError }, midnightReview(), { BufferJSON, initAuthCreds }, { logError }, { supabase }, useSupabaseAuthState() (+50 more)
 
 ### Community 19 - "dar_stelas.js"
-Cohesion: 0.20
-Nodes (18): maxSkillSlots(), desequiparHabilidad(), equiparHabilidad(), { filterExisting }, ganarXP(), getCharacterSlug(), { getClase }, { getHabilidad, habilidadesPorClase } (+10 more)
-
-### Community 20 - "messageFormatUtils.js"
-Cohesion: 0.14
-Nodes (19): buildRaceList(), buildRaceSummary(), buildTemplate(), { createCharacter, setActiveCharacter }, execute(), { formatCommandForm, formatError, box }, LABEL_TO_KEY, { listarClases } (+11 more)
+Cohesion: 0.22
+Nodes (8): { formatCommandUsage, formatError, box }, { formatDisplayMention }, { formatStelas }, { getFirstMentionedJid, extractAmountFromArgs }, { getUserProfile }, { resolveTargetDisplayName }, { transferMoney, getBalance }, usageMessage
 
 ### Community 21 - "schemaValidator.js"
 Cohesion: 0.05
 Nodes (40): 0.1 — Backup del grafo, 0.2 — Snapshot de tests, 0.3 — Tag pre-limpieza, 1.1 — Revisar qué hacen realmente los comandos rotos, 1.2 — Implementar `getCharacterNames` en `characterService.js`, 1.3 — Implementar `renameCharacter` en `characterService.js`, 1.4 — Implementar `updateCharacterSlots` en `characterService.js`, 1.5 — Exportar las 3 nuevas funciones (+32 more)
 
 ### Community 22 - "safeQuery.js"
-Cohesion: 0.20
-Nodes (14): appendToLog(), cleanOldLogs(), ensureLogsDir(), fsp, getLogFileName(), LOG_PREFIX, logCommand(), LOGS_DIR (+6 more)
+Cohesion: 0.31
+Nodes (9): { box }, execute(), { formatStelas }, { getOrCreateProfile, getUserProfile }, resolveTarget(), resolveEconomyProfile(), getOrCreateProfile(), getUserProfile() (+1 more)
 
 ### Community 23 - "loggerService.js"
 Cohesion: 0.05
@@ -221,12 +229,12 @@ Cohesion: 0.14
 Nodes (13): html, progress, src/core/**/*.js, coverageAnalysis, mutate, packageManager, reporters, $schema (+5 more)
 
 ### Community 25 - "help.js"
-Cohesion: 0.26
-Nodes (11): buildAliasStr(), buildSection(), CAT_META, CAT_ORDER, COMBAT_CMDS, { commands }, execute(), getGroup() (+3 more)
+Cohesion: 0.29
+Nodes (10): buildAliasStr(), buildSection(), CAT_META, CAT_ORDER, COMBAT_CMDS, { commands }, execute(), getGroup() (+2 more)
 
 ### Community 26 - "getActiveCharacter"
-Cohesion: 0.21
-Nodes (13): execute(), { formatCharacter }, { getActiveCharacter }, getHpState(), getActiveCharacter(), getCombatStats(), { box }, buildHpBar() (+5 more)
+Cohesion: 0.27
+Nodes (9): execute(), { formatCharacter }, { getActiveCharacter }, execute(), { formatCharacter }, { getActiveCharacter }, getActiveCharacter(), { box } (+1 more)
 
 ### Community 27 - "supabase.js"
 Cohesion: 0.06
@@ -237,8 +245,8 @@ Cohesion: 0.14
 Nodes (17): execute(), { executeGroupAction }, { removeParticipant }, { demoteFromAdmin }, execute(), { executeGroupAction }, execute(), { executeGroupAction } (+9 more)
 
 ### Community 29 - "crear_pj.js"
-Cohesion: 0.29
-Nodes (9): calculateLevel(), CLASSES, DEFAULT_CHARACTER_STATS, HP_THRESHOLDS, LEVELABLE_STATS, RACES, RANGOS, SKILL_SLOTS_BY_LEVEL (+1 more)
+Cohesion: 0.17
+Nodes (10): { createCharacter, setActiveCharacter }, { formatCommandForm, formatError, box }, { isAdmin }, { MAX_CHARACTER_NAME_LENGTH }, CHARACTER_CATEGORIES, CHARACTER_ROOT, DEFAULT_CHARACTER_SLOTS, DEFAULT_CHARACTER_STATS (+2 more)
 
 ### Community 30 - "schemaMigration.js"
 Cohesion: 0.09
@@ -258,7 +266,7 @@ Nodes (15): execute(), { formatCommandUsage, formatError, box }, { formatDisplay
 
 ### Community 34 - "formatDisplayMention"
 Cohesion: 0.16
-Nodes (10): { BufferJSON, initAuthCreds }, { logError }, { supabase }, useSupabaseAuthState(), { createClient }, { logSystem }, supabase, assert (+2 more)
+Nodes (15): { box }, { claimDaily }, { DAILY_COOLDOWN_HOURS }, execute(), formatProgressBar(), { formatStelas, formatDuration }, formatStreakLabel(), { box } (+7 more)
 
 ### Community 35 - "eventHandler.js"
 Cohesion: 0.28
@@ -273,28 +281,20 @@ Cohesion: 0.25
 Nodes (6): assert, { box, formatCommandUsage, formatCommandForm, formatError }, forbiddenImports, fs, path, srcContent
 
 ### Community 38 - "actividad_global.js"
-Cohesion: 0.29
-Nodes (9): { getOpenReports, getStats, markStale, resolveReport }, { getOwnerJids }, { logSystem, logError }, midnightReview(), logError(), { logError }, { midnightReview }, scheduleNext() (+1 more)
+Cohesion: 0.24
+Nodes (16): buildDefaultProfile(), buildRegistration(), ensureUserProfile(), { filterExisting }, getTopActiveUsers(), listUserProfiles(), normalizeActivity(), normalizeProfile() (+8 more)
 
 ### Community 39 - "LRUCache"
 Cohesion: 0.14
 Nodes (13): Criterios de ponderación, Dependencias entre FASE 0, Dependencias entre FASE 1, Dependencias entre FASE 2, Dependencias entre FASE 3, FASE 0 — Fundación (pre-guardarraíles), FASE 1 — Guardarraíles (prevenir regresión), FASE 2 — Calidad (métricas y testing) (+5 more)
 
 ### Community 40 - "economyAdminHelper.js"
-Cohesion: 0.13
-Nodes (20): execute(), { formatCommandUsage, formatError, box }, { formatDisplayMention }, { formatStelas }, { getFirstMentionedJid, extractAmountFromArgs }, { getUserProfile }, { resolveTargetDisplayName }, { transferMoney, getBalance } (+12 more)
+Cohesion: 0.22
+Nodes (12): execute(), extractAmountFromArgs(), getFirstMentionedJid(), parsePositiveInteger(), executeEconomyAction(), { formatCommandUsage, formatError, box }, { formatDisplayMention }, { formatStelas } (+4 more)
 
 ### Community 41 - "editar_pj_descripcion.js"
-Cohesion: 0.36
-Nodes (8): getHabilidad(), HABILIDADES, habilidadesPorClase(), habilidadesUniversales(), listarHabilidades(), TIER_MULTIPLIERS, TIERS, {
-  HABILIDADES,
-  TIERS,
-  TIER_MULTIPLIERS,
-  getHabilidad,
-  listarHabilidades,
-  habilidadesPorClase,
-  habilidadesUniversales,
-}
+Cohesion: 0.29
+Nodes (6): execute(), { formatCommandUsage, formatError, box }, { getActiveCharacter }, { isAdmin }, { updateCharacterSlots }, usageMessage
 
 ### Community 42 - "eliminar_pj.js"
 Cohesion: 0.18
@@ -305,8 +305,8 @@ Cohesion: 0.40
 Nodes (5): { box }, execute(), { listCharacters }, listCharacters(), charactersCacheKey()
 
 ### Community 44 - "resultUtils.js"
-Cohesion: 0.29
-Nodes (6): author, description, license, main, name, version
+Cohesion: 0.18
+Nodes (10): author, description, license, lint-staged, *.js, main, name, version (+2 more)
 
 ### Community 45 - "message_format.test.js"
 Cohesion: 0.40
@@ -329,8 +329,8 @@ Cohesion: 0.29
 Nodes (6): 2026-07-14 — Tooling & cleanup sprint, Added, Changelog, Fixed, Remaining debt, Removed
 
 ### Community 73 - "renombrar_pj.js"
-Cohesion: 0.50
-Nodes (4): lint-staged, *.js, eslint --fix, prettier --write
+Cohesion: 0.29
+Nodes (6): { formatCommandUsage, formatError, box }, { getCharacterNames }, { isAdmin }, { MAX_CHARACTER_NAME_LENGTH }, { renameCharacter }, usageMessage
 
 ### Community 74 - "graphify — Knowledge Graph (Code-Only)"
 Cohesion: 0.33
@@ -340,25 +340,29 @@ Nodes (5): graphify — Knowledge Graph (Code-Only), Hook post-commit:, Instalac
 Cohesion: 0.40
 Nodes (5): keywords, baileys, bot, rpg, whatsapp
 
+### Community 76 - "set_stelas.js"
+Cohesion: 0.50
+Nodes (4): execute(), { executeEconomyAction }, { setMoney }, setMoney()
+
 ## Knowledge Gaps
-- **556 isolated node(s):** `husky.sh script`, `$schema`, `src/core/bot.js`, `index.js`, `src/commands/**/*.js` (+551 more)
+- **547 isolated node(s):** `husky.sh script`, `$schema`, `src/core/bot.js`, `index.js`, `src/commands/**/*.js` (+542 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **22 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **23 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `box()` connect `groupUtils.js` to `economyService.js`, `eco_admin_rem.js`, `bugReportService.js`, `userService.js`, `economyAdminHelper.js`, `formatError`, `actividad.js`, `mis_pj.js`, `characterService.js`, `unwarn.js`, `resolveTargetDisplayName`, `messageFormatUtils.js`, `getActiveCharacter`, `groupAdminHelper.js`?**
-  _High betweenness centrality (0.041) - this node is a cross-community bridge._
-- **Why does `supabase` connect `formatDisplayMention` to `economyService.js`, `bugReportService.js`, `userService.js`, `characterService.js`, `groupActivityService.js`, `unwarn.js`, `logError`, `dar_stelas.js`?**
-  _High betweenness centrality (0.018) - this node is a cross-community bridge._
-- **Why does `formatError()` connect `groupUtils.js` to `eco_admin_rem.js`, `bugReportService.js`, `economyAdminHelper.js`, `formatError`, `actividad.js`, `characterService.js`, `unwarn.js`, `resolveTargetDisplayName`, `messageFormatUtils.js`, `groupAdminHelper.js`?**
+- **Why does `box()` connect `groupUtils.js` to `eco_admin_rem.js`, `formatDisplayMention`, `bugReportService.js`, `userService.js`, `economyAdminHelper.js`, `editar_pj_descripcion.js`, `formatError`, `actividad.js`, `mis_pj.js`, `characterService.js`, `renombrar_pj.js`, `unwarn.js`, `resolveTargetDisplayName`, `dar_stelas.js`, `safeQuery.js`, `getActiveCharacter`, `groupAdminHelper.js`, `crear_pj.js`?**
+  _High betweenness centrality (0.034) - this node is a cross-community bridge._
+- **Why does `logSystem()` connect `logError` to `bugReportService.js`, `bot.js`, `characterService.js`, `groupActivityService.js`, `commandHandler.js`?**
   _High betweenness centrality (0.017) - this node is a cross-community bridge._
+- **Why does `supabase` connect `logError` to `economyService.js`, `bugReportService.js`, `userService.js`, `actividad_global.js`, `characterService.js`, `groupActivityService.js`, `unwarn.js`?**
+  _High betweenness centrality (0.016) - this node is a cross-community bridge._
 - **What connects `husky.sh script`, `$schema`, `src/core/bot.js` to the rest of the system?**
-  _556 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _547 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `economyService.js` be split into smaller, more focused modules?**
-  _Cohesion score 0.05368382080710848 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.12333333333333334 - nodes in this community are weakly interconnected._
 - **Should `bugReportService.js` be split into smaller, more focused modules?**
-  _Cohesion score 0.10461538461538461 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.09971509971509972 - nodes in this community are weakly interconnected._
 - **Should `scripts` be split into smaller, more focused modules?**
-  _Cohesion score 0.07142857142857142 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.0625 - nodes in this community are weakly interconnected._

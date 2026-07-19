@@ -17,17 +17,21 @@ async function discover(force = false) {
   }
 
   const tables = ["bot_auth_state", "players", "groups", "group_members", "characters"];
+
+  const results = await Promise.all(
+    tables.map(async (table) => {
+      try {
+        const { data } = await supabase.from(table).select("*").limit(1);
+        return { table, keys: data && data.length > 0 ? new Set(Object.keys(data[0])) : null };
+      } catch {
+        return { table, keys: null };
+      }
+    }),
+  );
+
   /** @type {Record<string, Set<string> | null>} */
   const result = {};
-
-  for (const table of tables) {
-    try {
-      const { data } = await supabase.from(table).select("*").limit(1);
-      result[table] = data && data.length > 0 ? new Set(Object.keys(data[0])) : null;
-    } catch {
-      result[table] = null;
-    }
-  }
+  for (const r of results) result[r.table] = r.keys;
 
   cache = result;
   lastDiscovery = Date.now();

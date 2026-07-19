@@ -14,8 +14,14 @@ const SCHEMA = {
       "player_phone",
       "name",
       "slug",
-      "category",
+      "raza",
+      "clase",
+      "rango",
+      "nivel",
+      "xp",
+      "xp_total",
       "is_active",
+      "hp_actual",
       "stats",
       "slots",
       "created_at",
@@ -41,33 +47,42 @@ async function checkHealth() {
 
   await discover(true);
 
-  for (const [table, { columns }] of Object.entries(SCHEMA)) {
-    try {
-      const { data, error } = await supabase.from(table).select("*").limit(1);
-      if (error) {
-        errors.push(`Tabla "${table}" inaccesible: ${error.message}`);
-        continue;
-      }
-
-      if (data && data.length > 0) {
-        const row = data[0];
-        const missing = columns.filter((col) => !(col in row));
-        if (missing.length > 0) {
-          warnings.push(`Tabla "${table}" sin columnas esperadas: ${missing.join(", ")}`);
+  const [tableResults, colResults] = await Promise.all([
+    Promise.all(
+      Object.entries(SCHEMA).map(async ([table, { columns }]) => {
+        try {
+          const { data, error } = await supabase.from(table).select("*").limit(1);
+          if (error) return `Tabla "${table}" inaccesible: ${error.message}`;
+          if (data && data.length > 0) {
+            const missing = columns.filter((col) => !(col in data[0]));
+            if (missing.length > 0)
+              return { warn: true, msg: `Tabla "${table}" sin columnas esperadas: ${missing.join(", ")}` };
+          }
+          return null;
+        } catch (err) {
+          return `Tabla "${table}" error: ${err instanceof Error ? err.message : String(err)}`;
         }
-      }
-    } catch (err) {
-      errors.push(`Tabla "${table}" error: ${err instanceof Error ? err.message : String(err)}`);
-    }
-  }
+      }),
+    ),
+    Promise.all(
+      Object.entries(CRITICAL_EQUALS_COLUMNS).flatMap(([table, eqCols]) =>
+        eqCols.map(async (col) => {
+          const { error } = await supabase.from(table).select(col).limit(1);
+          if (error && error.code === "PGRST204")
+            return `CRÍTICO: columna "${col}" en "${table}" usada en .eq() no existe en DB`;
+          return null;
+        }),
+      ),
+    ),
+  ]);
 
-  for (const [table, eqCols] of Object.entries(CRITICAL_EQUALS_COLUMNS)) {
-    for (const col of eqCols) {
-      const { error } = await supabase.from(table).select(col).limit(1);
-      if (error && error.code === "PGRST204") {
-        warnings.push(`CRÍTICO: columna "${col}" en "${table}" usada en .eq() no existe en DB`);
-      }
-    }
+  for (const r of tableResults) {
+    if (!r) continue;
+    if (typeof r === "string") errors.push(r);
+    else warnings.push(r.msg);
+  }
+  for (const r of colResults) {
+    if (r) warnings.push(r);
   }
 
   return { errors, warnings };
