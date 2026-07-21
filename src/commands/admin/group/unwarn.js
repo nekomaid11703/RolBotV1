@@ -3,7 +3,8 @@ const { deleteWarn, getWarns } = require("../../../utils/groupUtils");
 const { getFirstMentionedJid } = require("../../../utils/commandParseUtils");
 const { formatDisplayMention, withMentions } = require("../../../utils/userMentionUtils");
 const { resolveTargetDisplayName } = require("../../../services/displayNameService");
-const { formatError, box } = require("../../../utils/messageFormatUtils");
+const { box } = require("../../../utils/boxUtils");
+const { formatError } = require("../../../utils/formatErrorUtils");
 
 module.exports = {
   name: "unwarn",

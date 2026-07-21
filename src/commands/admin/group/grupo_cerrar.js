@@ -1,6 +1,7 @@
 // @ts-nocheck
 const { closeGroup } = require("../../../utils/groupUtils");
-const { formatError, box } = require("../../../utils/messageFormatUtils");
+const { box } = require("../../../utils/boxUtils");
+const { formatError } = require("../../../utils/formatErrorUtils");
 
 module.exports = {
   name: "grupo_cerrar",

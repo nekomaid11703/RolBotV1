@@ -2,14 +2,34 @@
 const { GROUP_TOP_LIMIT } = require("../config/groupConfig");
 const { supabase } = require("../database/supabase");
 const { filterExisting } = require("../database/columnRegistry");
-const {
-  safeSingleOrNull,
-  groupCacheKey,
-  topGroupMembersCacheKey,
-  invalidateGroupCache,
-  TTLS,
-  cache,
-} = require("../utils/safeQuery");
+const { safeSingleOrNull } = require("../utils/safeQuery");
+const { cache, TTLS } = require("../utils/cacheService");
+
+/**
+ *
+ * @param groupId
+ */
+function groupCacheKey(groupId) {
+  return `group:${groupId}`;
+}
+
+/**
+ *
+ * @param groupId
+ * @param limit
+ */
+function topGroupMembersCacheKey(groupId, limit) {
+  return `topGroupMembers:${groupId}:${limit}`;
+}
+
+/**
+ *
+ * @param groupId
+ */
+function invalidateGroupCache(groupId) {
+  const key = groupCacheKey(groupId);
+  cache.invalidate((k) => k === key || k.startsWith(`group:${groupId}`) || k.startsWith(`topGroupMembers:${groupId}`));
+}
 
 /**
  *

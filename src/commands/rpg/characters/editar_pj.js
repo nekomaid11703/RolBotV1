@@ -2,7 +2,9 @@
 const { renameCharacter, updateCharacterSlots, getActiveCharacter } = require("../../../services/characterService");
 const { isAdmin } = require("../../../utils/groupUtils");
 const { MAX_CHARACTER_NAME_LENGTH } = require("../../../config/characterConfig");
-const { formatCommandUsage, formatError, box } = require("../../../utils/messageFormatUtils");
+const { box } = require("../../../utils/boxUtils");
+const { formatError } = require("../../../utils/formatErrorUtils");
+const { formatCommandUsage } = require("../../../utils/formatCommandUtils");
 
 const usageMessage = formatCommandUsage({
   icon: "📝",

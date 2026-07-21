@@ -695,12 +695,12 @@
       "readme",
       "readme_arquitectura",
       "readme_comandos",
-      "readme_configuración",
+      "readme_configuraci\u00f3n",
       "readme_estado_del_proyecto",
       "readme_estructura",
       "readme_ia_rolbot_rolbotv1",
       "readme_knowledge_graph",
-      "readme_tecnologías",
+      "readme_tecnolog\u00edas",
       "readme_toolchain"
     ],
     "25": [
@@ -844,9 +844,9 @@
       "agents",
       "agents_graphify_knowledge_graph_code_only",
       "agents_hook_post_commit",
-      "agents_instalación_y_dependencias",
+      "agents_instalaci\u00f3n_y_dependencias",
       "agents_reglas_operativas_complementan_c_ia_rolbot_agents_agents_md",
-      "agents_uso_para_auditoría_e_investigación"
+      "agents_uso_para_auditor\u00eda_e_investigaci\u00f3n"
     ],
     "39": [
       "src_commands_economy_balance",
@@ -1193,41 +1193,8 @@
       "why": "connects across different repos/directories"
     }
   ],
-  "questions": [
-    {
-      "type": "bridge_node",
-      "question": "Why does `box()` connect `box` to `groupUtils.js`, `formatError`, `economyAdminHelper.js`, `formatErrorUtils.js`, `crear_pj.js`, `characterFormatUtils.js`, `dar_stelas.js`, `eco_admin_add.js`, `eco_admin_rem.js`, `actividad.js`, `renombrar_pj.js`, `editar_pj.js`, `switch_pj.js`, `unwarn.js`, `warn.js`, `daily.js`, `todos.js`, `balance.js`, `bugreport.js`, `grupo_cerrar.js`, `invite.js`?",
-      "why": "High betweenness centrality (0.153) - this node is a cross-community bridge."
-    },
-    {
-      "type": "bridge_node",
-      "question": "Why does `formatError()` connect `formatError` to `warn.js`, `groupUtils.js`, `todos.js`, `bugreport.js`, `grupo_cerrar.js`, `invite.js`, `economyAdminHelper.js`, `formatErrorUtils.js`, `crear_pj.js`, `dar_stelas.js`, `eco_admin_add.js`, `eco_admin_rem.js`, `renombrar_pj.js`, `editar_pj.js`, `switch_pj.js`, `unwarn.js`?",
-      "why": "High betweenness centrality (0.056) - this node is a cross-community bridge."
-    },
-    {
-      "type": "bridge_node",
-      "question": "Why does `executeEconomyAction()` connect `economyAdminHelper.js` to `formatError`, `box`?",
-      "why": "High betweenness centrality (0.047) - this node is a cross-community bridge."
-    },
-    {
-      "type": "isolated_nodes",
-      "question": "What connects `husky.sh script`, `$schema`, `src/core/bot.js` to the rest of the system?",
-      "why": "381 weakly-connected nodes found - possible documentation gaps or missing edges."
-    },
-    {
-      "type": "low_cohesion",
-      "question": "Should `characterService.js` be split into smaller, more focused modules?",
-      "why": "Cohesion score 0.062456140350877196 - nodes in this community are weakly interconnected."
-    },
-    {
-      "type": "low_cohesion",
-      "question": "Should `bugReportService.js` be split into smaller, more focused modules?",
-      "why": "Cohesion score 0.05117117117117117 - nodes in this community are weakly interconnected."
-    },
-    {
-      "type": "low_cohesion",
-      "question": "Should `groupUtils.js` be split into smaller, more focused modules?",
-      "why": "Cohesion score 0.07123034227567067 - nodes in this community are weakly interconnected."
-    }
-  ]
+  "tokens": {
+    "input": 0,
+    "output": 0
+  }
 }

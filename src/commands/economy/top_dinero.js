@@ -5,7 +5,7 @@ const { formatStelas } = require("../../utils/economyUtils");
 
 const { TOP_DINERO_LIMIT } = require("../../config/economyConfig");
 
-const { box } = require("../../utils/messageFormatUtils");
+const { box } = require("../../utils/boxUtils");
 const { medal } = require("../../utils/activityFormatUtils");
 
 module.exports = {

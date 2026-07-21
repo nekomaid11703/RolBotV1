@@ -1,5 +1,5 @@
 // @ts-nocheck
-const { box } = require("./messageFormatUtils");
+const { box } = require("./boxUtils");
 const { LEVELABLE_STATS, getHpState, HP_MAX } = require("../config/characterConfig");
 
 /**

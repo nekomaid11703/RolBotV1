@@ -9,3 +9,17 @@ bugs/
 *.zip
 *.log
 graphify-out/
+
+# Docs de planificación — contaminan comunidades de código
+ROADMAP*
+CHECKLIST*
+AI_CHANGELOG.md
+CHANGELOG.md
+COMBATSISTEM.md
+adr/
+
+# Config files — crean comunidades de baja cohesión (compilerOptions, scripts)
+tsconfig.json
+jsconfig.json
+package.json
+package-lock.json

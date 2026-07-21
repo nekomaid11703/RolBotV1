@@ -3,7 +3,7 @@ const { getOrCreateProfile, getUserProfile } = require("../../services/userServi
 
 const { formatStelas } = require("../../utils/economyUtils");
 
-const { box } = require("../../utils/messageFormatUtils");
+const { box } = require("../../utils/boxUtils");
 
 /** @param {{ mentionedJid?: string[], sender: string }} ctx */
 function resolveTarget(ctx) {

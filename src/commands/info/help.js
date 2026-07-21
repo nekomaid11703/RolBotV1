@@ -1,5 +1,5 @@
 // @ts-nocheck
-const { commands } = require("../../core/commandHandler");
+const { commands } = require("../../core/commandRegistry");
 
 const COMBAT_CMDS = new Set(["combate", "atacar", "rendirse", "aceptar", "rechazar", "duel"]);
 
@@ -36,7 +36,12 @@ function buildAliasStr(aliases) {
   return show.map((a) => `/${a}`).join(", ") + more;
 }
 
-/** @param {string} name @param {string} desc @param {string[]} aliases @param {"multi"|"inline"} style */
+/**
+ * @param {string} name @param {string} desc @param {string[]} aliases @param {"multi"|"inline"} style
+ * @param desc
+ * @param aliases
+ * @param style
+ */
 function renderCmd(name, desc, aliases, style) {
   const lines = [];
 
@@ -56,6 +61,12 @@ function renderCmd(name, desc, aliases, style) {
   return lines;
 }
 
+/**
+ *
+ * @param title
+ * @param normal
+ * @param admin
+ */
 function buildSection(title, normal, admin) {
   const lines = [];
   lines.push(`╭─「 ${title} 」`);

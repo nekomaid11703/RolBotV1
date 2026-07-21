@@ -4,7 +4,7 @@ const { getFirstMentionedJid } = require("../../../utils/commandParseUtils");
 const { formatDisplayMention, withMentions } = require("../../../utils/userMentionUtils");
 const { resolveTargetDisplayName } = require("../../../services/displayNameService");
 const { formatCount, formatDate, medal } = require("../../../utils/activityFormatUtils");
-const { box } = require("../../../utils/messageFormatUtils");
+const { box } = require("../../../utils/boxUtils");
 
 module.exports = {
   name: "actividad_global",

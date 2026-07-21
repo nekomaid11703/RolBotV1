@@ -6,7 +6,9 @@ const {
   FREE_POINTS_AT_CREATION,
   RACES,
 } = require("../../../config/characterConfig");
-const { formatCommandForm, formatError, box } = require("../../../utils/messageFormatUtils");
+const { box } = require("../../../utils/boxUtils");
+const { formatError } = require("../../../utils/formatErrorUtils");
+const { formatCommandForm } = require("../../../utils/formatCommandUtils");
 const { listarClases } = require("../../../data/clases");
 
 const LABEL_TO_KEY = {};

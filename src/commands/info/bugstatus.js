@@ -1,6 +1,7 @@
 // @ts-nocheck
 const { getReport, getUserReports } = require("../../services/bugReportService");
-const { box, formatError } = require("../../utils/messageFormatUtils");
+const { box } = require("../../utils/boxUtils");
+const { formatError } = require("../../utils/formatErrorUtils");
 
 module.exports = {
   name: "bugstatus",

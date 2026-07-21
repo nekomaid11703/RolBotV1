@@ -2,7 +2,8 @@
 const { getGroupMetadata } = require("../../../utils/groupUtils");
 const { formatCount } = require("../../../utils/activityFormatUtils");
 const { formatRealMentionTag, withMentions } = require("../../../utils/userMentionUtils");
-const { formatError, box } = require("../../../utils/messageFormatUtils");
+const { box } = require("../../../utils/boxUtils");
+const { formatError } = require("../../../utils/formatErrorUtils");
 
 module.exports = {
   name: "todos",

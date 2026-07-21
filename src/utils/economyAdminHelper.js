@@ -1,7 +1,9 @@
 const { getFirstMentionedJid, extractAmountFromArgs } = require("./commandParseUtils");
 const { formatDisplayMention } = require("./userMentionUtils");
 const { resolveTargetDisplayName } = require("../services/displayNameService");
-const { formatCommandUsage, formatError, box } = require("./messageFormatUtils");
+const { box } = require("./boxUtils");
+const { formatError } = require("./formatErrorUtils");
+const { formatCommandUsage } = require("./formatCommandUtils");
 const { formatStelas } = require("./economyUtils");
 
 const usageCache = new Map();

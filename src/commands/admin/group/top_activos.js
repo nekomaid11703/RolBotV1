@@ -2,7 +2,7 @@
 const { getTopGroupMembers } = require("../../../services/groupActivityService");
 const { formatCount, medal } = require("../../../utils/activityFormatUtils");
 const { formatDisplayMention, withMentions } = require("../../../utils/userMentionUtils");
-const { box } = require("../../../utils/messageFormatUtils");
+const { box } = require("../../../utils/boxUtils");
 
 module.exports = {
   name: "top_activos",

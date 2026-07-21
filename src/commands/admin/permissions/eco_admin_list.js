@@ -1,7 +1,7 @@
 // @ts-nocheck
 const { listEconomyAdmins } = require("../../../services/permissionService");
 const { getOwnerRecords } = require("../../../utils/permissionUtils");
-const { box } = require("../../../utils/messageFormatUtils");
+const { box } = require("../../../utils/boxUtils");
 
 module.exports = {
   name: "eco_admin_list",

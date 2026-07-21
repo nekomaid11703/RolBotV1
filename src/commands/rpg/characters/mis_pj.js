@@ -1,6 +1,6 @@
 // @ts-nocheck
 const { listCharacters } = require("../../../services/characterService");
-const { box } = require("../../../utils/messageFormatUtils");
+const { box } = require("../../../utils/boxUtils");
 
 module.exports = {
   name: "mis_pj",

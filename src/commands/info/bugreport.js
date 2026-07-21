@@ -1,6 +1,7 @@
 // @ts-nocheck
 const { createReport } = require("../../services/bugReportService");
-const { box, formatError } = require("../../utils/messageFormatUtils");
+const { box } = require("../../utils/boxUtils");
+const { formatError } = require("../../utils/formatErrorUtils");
 
 const reportCooldowns = new Map();
 const REPORT_COOLDOWN_MS = 5 * 60 * 1000;

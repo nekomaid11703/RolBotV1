@@ -3,7 +3,7 @@ const { claimDaily } = require("../../services/economyService");
 
 const { formatStelas, formatDuration } = require("../../utils/economyUtils");
 const { DAILY_COOLDOWN_HOURS } = require("../../config/economyConfig");
-const { box } = require("../../utils/messageFormatUtils");
+const { box } = require("../../utils/boxUtils");
 
 /** @param {number} streak */
 function formatStreakLabel(streak) {
@@ -11,7 +11,10 @@ function formatStreakLabel(streak) {
   return value === 1 ? "1 día" : `${value} días`;
 }
 
-/** @param {number} remainingMs @param {number} totalMs */
+/**
+ * @param {number} remainingMs @param {number} totalMs
+ * @param totalMs
+ */
 function formatProgressBar(remainingMs, totalMs) {
   const elapsed = Math.max(0, totalMs - remainingMs);
   const pct = Math.min(100, Math.max(0, Math.floor((elapsed / totalMs) * 100)));
