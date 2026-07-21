@@ -15,9 +15,9 @@
     "semantic_hash": "a6cd697b8707f5506212daf484210c64"
   },
   "scripts/midnight_review.js": {
-    "mtime": 1784229571.7655044,
-    "ast_hash": "10fcd0e5337e8ac68afb8a74664b1779",
-    "semantic_hash": "10fcd0e5337e8ac68afb8a74664b1779"
+    "mtime": 1784600408.4726021,
+    "ast_hash": "fd28e41afdc72d13ed3b59542f789112",
+    "semantic_hash": "fd28e41afdc72d13ed3b59542f789112"
   },
   "src/config/characterConfig.js": {
     "mtime": 1784429867.9090545,
@@ -70,9 +70,9 @@
     "semantic_hash": "7e671c6e97121d6f8e8efa213841aef8"
   },
   "src/services/characterService.js": {
-    "mtime": 1784429867.9246888,
-    "ast_hash": "60499e61055d296f9ae8445aa768828e",
-    "semantic_hash": "60499e61055d296f9ae8445aa768828e"
+    "mtime": 1784600118.6364837,
+    "ast_hash": "d6fb10b944506e54496d66d38e50e972",
+    "semantic_hash": "d6fb10b944506e54496d66d38e50e972"
   },
   "src/services/economyService.js": {
     "mtime": 1784319127.4725564,
@@ -82,7 +82,7 @@
   "src/services/groupActivityService.js": {
     "mtime": 1784598921.1748648,
     "ast_hash": "df15740fc98527caef2863b327c24b5d",
-    "semantic_hash": ""
+    "semantic_hash": "df15740fc98527caef2863b327c24b5d"
   },
   "src/services/loggerService.js": {
     "mtime": 1784230144.6864126,
@@ -387,7 +387,7 @@
   "src/commands/economy/daily.js": {
     "mtime": 1784598921.1748648,
     "ast_hash": "fc5cdd65bb91e0d03de3e68f0c1c5401",
-    "semantic_hash": ""
+    "semantic_hash": "fc5cdd65bb91e0d03de3e68f0c1c5401"
   },
   "src/commands/economy/dar_stelas.js": {
     "mtime": 1784597844.0747094,
@@ -427,7 +427,7 @@
   "src/commands/info/help.js": {
     "mtime": 1784598921.1748648,
     "ast_hash": "b4dd0b9dc73047eb43e488fc221f1bb7",
-    "semantic_hash": ""
+    "semantic_hash": "b4dd0b9dc73047eb43e488fc221f1bb7"
   },
   "src/commands/info/hola.js": {
     "mtime": 1784073178.4851005,
@@ -602,7 +602,7 @@
   "src/core/commandHandler.js": {
     "mtime": 1784598921.1748648,
     "ast_hash": "c7438ebc156cfb58ebcfdc072eb70ed8",
-    "semantic_hash": ""
+    "semantic_hash": "c7438ebc156cfb58ebcfdc072eb70ed8"
   },
   "src/database/columnRegistry.js": {
     "mtime": 1784429856.1724744,
@@ -745,9 +745,9 @@
     "semantic_hash": "f2a4e5b23c7fa2a405db45c8cb33671c"
   },
   "src/services/characterProgressionService.js": {
-    "mtime": 1784429867.9090545,
-    "ast_hash": "84ff5027872994f4c53fd4969c2bb86a",
-    "semantic_hash": "84ff5027872994f4c53fd4969c2bb86a"
+    "mtime": 1784600282.7445838,
+    "ast_hash": "d10b9011878e45f63ef6210784c9aabc",
+    "semantic_hash": "d10b9011878e45f63ef6210784c9aabc"
   },
   "tests/character_config.test.js": {
     "mtime": 1784429857.0139568,
@@ -760,9 +760,9 @@
     "semantic_hash": "d75bf4fdd31e59954ceb60aa49909127"
   },
   "tests/character_progression.test.js": {
-    "mtime": 1784429857.1499326,
-    "ast_hash": "6c1ab5ae64f0c0008cbdc167d13a61b6",
-    "semantic_hash": "6c1ab5ae64f0c0008cbdc167d13a61b6"
+    "mtime": 1784600329.8949566,
+    "ast_hash": "81af0b8127d439a4ec196ac66e60ffbe",
+    "semantic_hash": "81af0b8127d439a4ec196ac66e60ffbe"
   },
   "tests/clases.test.js": {
     "mtime": 1784429857.2048783,
@@ -777,21 +777,31 @@
   "src/core/commandRegistry.js": {
     "mtime": 1784598921.1748648,
     "ast_hash": "b53d7c4057254574fc7757ab48eac638",
-    "semantic_hash": ""
+    "semantic_hash": "b53d7c4057254574fc7757ab48eac638"
   },
   "src/utils/boxUtils.js": {
     "mtime": 1784598921.1748648,
     "ast_hash": "32e2c9eec78c2fad245bcac7bd9918a6",
-    "semantic_hash": ""
+    "semantic_hash": "32e2c9eec78c2fad245bcac7bd9918a6"
   },
   "src/utils/formatCommandUtils.js": {
     "mtime": 1784598921.1748648,
     "ast_hash": "2f26e3c44d4c4d0a7ffc613807e3a483",
-    "semantic_hash": ""
+    "semantic_hash": "2f26e3c44d4c4d0a7ffc613807e3a483"
   },
   "src/utils/formatErrorUtils.js": {
     "mtime": 1784598921.1748648,
     "ast_hash": "d6d6bc6398a71ed1fe7a4205ecc31df9",
-    "semantic_hash": ""
+    "semantic_hash": "d6d6bc6398a71ed1fe7a4205ecc31df9"
+  },
+  "src/services/reportMaintenanceService.js": {
+    "mtime": 1784600386.7600272,
+    "ast_hash": "24fe08f835e66a94e86aed7b9ca04e04",
+    "semantic_hash": "24fe08f835e66a94e86aed7b9ca04e04"
+  },
+  "src/utils/characterSkillUtils.js": {
+    "mtime": 1784600097.4337919,
+    "ast_hash": "6eb50d02cc980967b628a7643c88ea6c",
+    "semantic_hash": "6eb50d02cc980967b628a7643c88ea6c"
   }
 }

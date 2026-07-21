@@ -1,4 +1,4 @@
-const { habilidadesDisponibles, sanitizarHabilidadesArray } = require("../src/services/characterProgressionService");
+const { habilidadesDisponibles, sanitizarHabilidadesArray } = require("../src/utils/characterSkillUtils");
 
 describe("characterProgression — habilidadesDisponibles", () => {
   it("Civil nivel 20 tiene 5 habilidades disponibles (4 universales + vendas)", () => {

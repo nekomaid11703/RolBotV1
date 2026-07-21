@@ -17,7 +17,7 @@ const {
 } = require("../config/characterConfig");
 const { getClase } = require("../data/clases");
 const { sanitizeName, ensureUserProfile } = require("./userService");
-const { sanitizarHabilidadesArray } = require("./characterProgressionService");
+const { sanitizarHabilidadesArray } = require("../utils/characterSkillUtils");
 
 /**
  *
