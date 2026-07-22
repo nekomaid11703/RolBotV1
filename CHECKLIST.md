@@ -1,118 +1,124 @@
-# Checklist de Optimización y Salud — RolBot
+# Checklist del Proyecto — RolBotV1
 
-> Marcar con `[x]` cuando esté completado.  
-> Referencia: `ROADMAP.md` para contexto de cada ítem.
-
----
-
-## FASE 0 — Correcciones críticas (ahora)
-
-### 0.1 Fix ESLint errors × 11
-- [x] `no-promise-executor-return` en `bot.js:257`
-- [x] `no-promise-executor-return` en `economyService.js:15`
-- [x] `no-useless-assignment` en `characterService.js:288`
-- [x] `no-control-regex` en `groupActivityService.js:9`
-- [x] `no-control-regex` en `userService.js:13`
-- [x] `preserve-caught-error` en `groupUtils.js:127`
-- [x] `preserve-caught-error` en `groupUtils.js:136`
-- [x] Otros errores no categorizados
-
-### 0.2 Fix tests que crashean
-- [x] `test_carta_blanca_inventory.js` — crash sin catch
-- [x] `test_combat_engine_fixes.js` — crash sin catch
-- [x] `test_combat_pipeline.js` — crash sin catch
-- [x] `test_combat_validator.js` — crash sin catch
-
-### 0.3 Fix tests con fallos
-- [x] `test_cache_state_version.js` — reducido a 6/6 pasan (tests de combate eliminados)
-- [ ] `test_combat_turn_manager.js` — 3/21 fallan (combate, se eliminará)
-
-### 0.4 Fix exports faltantes
-- [x] `characterService.js`: exportar `updateCharacterSlots`
-- [x] `characterService.js`: exportar `getCharacterNames`
-- [x] `characterService.js`: exportar `renameCharacter`
+> Estado actualizado al 21 de Julio de 2026.  
+> Leyenda: `[x]` Completado · `[/]` En progreso · `[ ]` Pendiente
 
 ---
 
-## FASE 1 — Deuda técnica de alto impacto
+## 🟢 FASE 0 — Correcciones Críticas y Fundación (COMPLETADO)
 
-### 1.1 Eliminar variables muertas
-- [x] `eliminar_pj.js`: `confirmations`
-- [x] `desequipar.js`: `itemsData`, `logSystem`
-- [x] `equipar.js`: `logSystem`
-- [x] `inventario.js`: `logSystem`, `slot`
-- [x] `bot.js`: `path`, `sock` (catch param)
-- [x] `eventHandler.js`: `addEvent`
-- [x] `supabaseAuthState.js`: `logSystem`, `removeData`
-- [x] `supabase.js`: `logError`
-- [x] `characterService.js`: `targetCreatorName`, `updated`
-- [x] `groupActivityService.js`: `topActiveUsersCacheKey`, `invalidateTopActiveUsersCache`
-- [x] `groupActivityService.js`: `sanitizeGroupId`, `normalizeGroupRecord`
-- [x] `permissionService.js`: `saveUserProfile`
-- [x] `abilityEngine.js`: `statCalc`
-- [x] `combatEngine.js`: `clamp`
-- [x] `combatLogger.js`: `logSystem` (archivo eliminado)
-- [x] `combatTurnManager.js`: `reason`
-- [x] `dataLoader.js`: `logError` (archivo eliminado)
-- [x] `duelService.js`: `getBalance`, `loserId` (archivo eliminado)
-- [x] `inventoryService.js`: `getMaxWeight`, `logSystem`, `slot`
-- [x] `schedulerService.js`: `logSystem`
-- [x] `statusDashboard.js`: `e`
-- [x] `syncService.js`: `logError`, `e` (archivo eliminado)
-- [x] `userService.js`: `folder`
-- [x] `groupUtils.js`: `normalizeJid`
-
-### 1.2 Agregar JSDoc (core/ + services/)
-- [x] `core/context.js`
-- [x] `core/eventHandler.js`
-- [x] `core/bot.js`
-- [x] `core/commandHandler.js`
-- [x] `services/loggerService.js`
-- [x] `services/stats.js`
-
-### 1.3 Formatear todo el código
-- [x] Ejecutar `npm run format` (110 archivos)
-
-### 1.4 Orphan analysis
-- [x] Revisar `src/utils/classifyUtils.js` — eliminado (AI muerto)
-- [x] Revisar `src/services/rpg/environmentalEffects.js` — sí es importado por combatEngine.js
-
-### 1.5 Fix depcruise violations
-- [ ] `userMentionUtils.js` → `userService.js`: mover lógica o crear middleware
-- [ ] `permissionUtils.js` → `userService.js`: mover lógica o crear middleware
-
-### 1.6 Graphify como dependencia
-- [ ] Instalar `graphify-cli` como devDependency (skill ya documentado en .opencode/skills/)
-- [ ] Agregar script `graph` a package.json
-
-### 1.7 .gitignore
-- [x] Agregar `graphify-out/`
-- [x] Agregar `logs/`
-- [x] Agregar `bugs/`
-- [x] Verificar `ai-memory/`
+- [x] Fix de 11 errores de ESLint (`no-promise-executor-return`, `no-useless-assignment`, `no-control-regex`, `preserve-caught-error`).
+- [x] Corrección de crash en tests sin captura de excepciones.
+- [x] Corrección de fallos en tests de caché (`test_cache_state_version.js`).
+- [x] Implementación y exportación de funciones faltantes en `characterService.js`:
+  - [x] `getCharacterNames`
+  - [x] `renameCharacter`
+  - [x] `updateCharacterSlots`
+- [x] Activación de TypeScript `strict: true` en `tsconfig.json` (0 errores).
+- [x] Integración de Knip y detección de código muerto.
+- [x] Purga y archivado de la capa de IA (Gemini, OpenRouter, referee/parser de combate).
 
 ---
 
-## FASE 2 — Arquitectura (posterior)
+## 🟢 FASE 1 — Guardarraíles, Herramientas y Limpieza (COMPLETADO)
 
-### 2.1 Test runner
-- [ ] Migrar tests a Jest o `node:test`
-- [ ] CI GitHub Actions
-- [ ] Cobertura mínima en core/
-
-### 2.2 JSDoc gradual
-- [ ] Agregar `// @ts-check` archivo por archivo
-- [ ] Tipar `safeQuery.js` y `cacheService.js`
+- [x] **Toolchain Integrado**:
+  - [x] Configuración del script `npm run check:all` (`lint` + `typecheck` + `depcruise` + `format:check` + `test`).
+  - [x] Configuración de Husky y `lint-staged` para hooks pre-commit.
+  - [x] Pipeline CI/CD en GitHub Actions (`.github/workflows/ci.yml`).
+- [x] **Migración a Vitest v4**:
+  - [x] Configuración de `vitest.config.js`.
+  - [x] 10 test suites activas (`*.test.js`).
+  - [x] 191/191 aserciones en verde, 0 tests skipped.
+- [x] **Limpieza y Formateo**:
+  - [x] Formateo 100% de archivos JS con Prettier (`npm run format`).
+  - [x] Archivado de tests obsoletos de combate IA (`tests/carta_blanca.test.js`, `tests/test_carta_blanca_inventory.js` -> `_archive/`).
+  - [x] Archivado de servicios no utilizados (`src/services/characterProgressionService.js` -> `_archive/`).
+  - [x] Limpieza de importaciones no utilizadas en `src/utils/messageFormatUtils.js`.
+- [x] **Documentación y Conocimiento**:
+  - [x] Registro de decisiones de diseño (`adr/ADR-001`, `adr/ADR-002`).
+  - [x] Skill de Graphify e integración de `npm run graphify:update` (`.opencode/skills/graphify.md`).
+  - [x] Actualización de la bitácora de problemas conocidos (`memory/known_issues.md`).
+  - [x] Registro de cambios en `AI_CHANGELOG.md` (v3.1.0).
 
 ---
 
-## Progreso
+## ✅ FASE 2 — Completar Versión 1.0: Inventario y Combate Melee (COMPLETADO)
 
-```
-FASE 0: [████] 7/7 completado ✓
-FASE 1: [████] 7/7 completado ✓
-FASE 2: [    ] 0/2 pendiente (post-combate)
-```
+### 2.1 Módulo de Inventario Básico (Consumibles)
+- [x] **Configuración y Catálogo**:
+  - [x] Crear `src/config/inventoryConfig.js` (MAX_INVENTORY_SIZE = 20, stacks de 99).
+  - [x] Crear `src/data/items.js` (catálogo precios inflados: venda=100, pocion=180, tonico=280, antidoto=200; efectos: venda=+15HP, pocion=+40HP, tonico=+80HP, antidoto=+25HP).
+- [x] **Persistencia y Lógica**:
+  - [x] Script SQL de migración (`src/database/migrations/001_create_inventory.sql`).
+  - [x] Registro de `inventory` en `src/database/schemaValidator.js` y `schemaMigration.js`.
+  - [x] Crear `src/services/rpg/inventoryService.js` con `withCharacterLock` por characterId.
+- [x] **Comandos**:
+  - [x] Crear `src/commands/rpg/inventory/inventario.js`.
+  - [x] Crear `src/commands/rpg/inventory/usar.js`.
+- [x] **Tests Unitarios**:
+  - [x] Crear `tests/inventory.test.js` (14 tests en Vitest).
 
-> **Nota**: Las FASE 0 y 1 (roadmap original) fueron completadas en la sesión del 2026-07-14.  
-> Ver `adr/ADR-002-infraestructura-herramientas.md` y `ROADMAP2.md` para el estado actual de herramientas.
+### 2.2 Motor de Combate Melee Determinista (D20-style)
+- [x] **Fundación**:
+  - [x] Crear `src/config/combatConfig.js` (timeouts: 10 min reto, 48 horas turno).
+  - [x] Crear `src/services/rpg/combatState.js` para sesiones en memoria activa.
+- [x] **Lógica Matemática del Motor**:
+  - [x] Crear `src/services/rpg/combatEngine.js` (daño = STR_atk - DEF_def, bloqueo -25%, esquiva si SPD_MOV_def > SPD_MOV_atk).
+  - [x] Penalización a stats por HP actual vía `getHpState` (Lastimado -20%, Incapacitado -50%, K.O./Muerto -100%).
+  - [x] XP = nivel_ene * 0.3 y persistencia del HP final.
+- [x] **Mensajería y Comandos**:
+  - [x] Crear `src/services/rpg/combatMessages.js`.
+  - [x] Crear `src/commands/rpg/combat/retar.js` (PvP por turnos).
+  - [x] Crear `src/commands/rpg/combat/atacar.js` (ejecuta acción de ataque).
+  - [x] Crear `src/commands/rpg/combat/estado.js`.
+  - [x] Crear `src/commands/admin/group/disolver_combate.js` (desbloqueo forzado).
+- [x] **Modo PvE / Dummy Test e IA Escalable**:
+  - [x] Crear `src/services/rpg/combatAI.js` (extensible para enemigos PvE v2.0/v3.0).
+  - [x] `generateDummyCharacter` en `combatState.js` con suma de stats igual a los puntos totales del personaje (nivel) y ligera variación aleatoria uniforme.
+  - [x] Kit de prueba de consumibles en `inventoryService.js` (`ensureTestKit`).
+  - [x] Soporte `/retar dummy` sin ejecución automática de turnos (soporte en DM).
+  - [x] Rediseño de flujo por turnos asíncronos en 1 único mensaje por evento (`formatCombatOpen`, `formatActionMenu`, `formatReactionPrompt`).
+  - [x] Submenú de reacción con nuevos comandos `/esquivar` y `/bloquear` (preparación para mecánica de fatiga).
+  - [x] Pruebas unitarias en `tests/combat_ai.test.js` y `tests/combat_messages.test.js` (232 tests pasando en Vitest).
+
+---
+
+
+## ✅ FASE 2.5 — Stats Magicas y 21 Razas Canon (COMPLETADO)
+
+- [x] **8 stats levelables**: ATK, DEF, ASPD, REF, MSPD, FULGOR, D_FULGOR, R_FULGOR
+- [x] **21 razas canon** con stats balanceadas (suma=50 c/u) y aliases multilingue
+- [x] **Razas implementadas**: Humano, Elfo, Enano, Duende, Oni, Elemental, Dragon, Yordle, No Muerto, Vampiro, Furry, Hada, Automata, Trickster, Puppet, Encarnacion, Ser del Vacio, Angel, Graviton, Sirena, Demonio
+- [x] **LEVEL_INITIAL = 100** (coincide con 50 raza + 50 libres)
+- [x] **Migracion automatica**: personajes antiguos reciben stats mágicas base de su raza al cargar
+- [x] **Sistema de desbloqueo de habilidades**: deshabilitado (todas disponibles sin restriccion)
+- [x] **XP de batallas**: deshabilitada (addXp no-op)
+- [x] **Template crear_pj**: limpio (clases en notas, historia simplificada)
+- [x] **214 tests pasando** en 14 suites Vitest
+
+---
+
+## 🟠 FASE 3 — Calidad Avanzada y Arquitectura (PENDIENTE)
+
+- [ ] **3.1 Resolver Violaciones de Capas (depcruise)**:
+  - [ ] Desacoplar `src/utils/safeQuery.js` de `loggerService.js`.
+  - [ ] Desacoplar `src/utils/groupAdminHelper.js` de `displayNameService.js`.
+  - [ ] Desacoplar `src/utils/economyAdminHelper.js` de `displayNameService.js`.
+- [ ] **3.2 Remoción Gradual de `@ts-nocheck`**:
+  - [ ] Retirar `@ts-nocheck` en `src/core/` (bot.js, commandHandler.js, context.js).
+  - [ ] Retirar `@ts-nocheck` en `src/services/` (userService.js, economyService.js, characterService.js).
+  - [ ] Retirar `@ts-nocheck` en `src/utils/`.
+- [ ] **3.3 Mutation Testing**:
+  - [ ] Ejecutar `npx stryker run` en `src/core/` y elevar cobertura de mutantes a >75%.
+- [ ] **3.4 Cobertura de JSDoc**:
+  - [ ] Añadir JSDoc `@param` y `@returns` completos en funciones exportadas de `src/utils/` y `src/services/`.
+
+---
+
+## 🔵 FASE 4 — Resiliencia y Operación (PENDIENTE)
+
+- [ ] **4.1 Reconexión Baileys**: Exponential backoff + jitter en `bot.js`.
+- [ ] **4.2 Rate Limiting**: Limitador de tasa por usuario/grupo para prevenir spam.
+- [ ] **4.3 Structured Logging**: Logs en formato JSON rotativo en `loggerService.js`.
+- [ ] **4.4 Dashboard de Monitoreo**: Métricas de uptime, RAM y tasa de errores en `statusDashboard.js`.

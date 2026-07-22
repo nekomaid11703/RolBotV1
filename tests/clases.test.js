@@ -13,44 +13,11 @@ describe("clases — Catálogo", () => {
     expect(CLASES.comerciante).toBeDefined();
   });
 
-  it("Cada clase tiene id, name, description, skillsByLevel", () => {
+  it("Cada clase tiene id, name, description", () => {
     for (const cls of Object.values(CLASES)) {
       expect(cls.id).toBeTruthy();
       expect(cls.name).toBeTruthy();
       expect(cls.description).toBeTruthy();
-      expect(cls.skillsByLevel).toBeDefined();
-    }
-  });
-
-  it("Cada clase desbloquea al menos 1 habilidad en nivel 20", () => {
-    for (const cls of Object.values(CLASES)) {
-      expect(cls.skillsByLevel[20]).toBeTruthy();
-    }
-  });
-
-  it("Cada clase desbloquea exactamente 2 habilidades (niveles 20 y 44)", () => {
-    for (const cls of Object.values(CLASES)) {
-      const levels = Object.keys(cls.skillsByLevel).map(Number);
-      expect(levels).toEqual([20, 44]);
-    }
-  });
-
-  it("Todas las habilidades referenciadas en skillsByLevel existen en el catálogo", () => {
-    const catalogIds = Object.keys(HABILIDADES);
-    for (const [clsId, cls] of Object.entries(CLASES)) {
-      for (const [level, skillId] of Object.entries(cls.skillsByLevel)) {
-        expect(catalogIds).toContain(skillId);
-      }
-    }
-  });
-
-  it("Las habilidades referenciadas en skillsByLevel pertenecen a la clase correcta", () => {
-    for (const [clsId, cls] of Object.entries(CLASES)) {
-      for (const [level, skillId] of Object.entries(cls.skillsByLevel)) {
-        const skill = HABILIDADES[skillId];
-        expect(skill).toBeDefined();
-        expect(skill.clase).toBe(clsId);
-      }
     }
   });
 });
@@ -82,7 +49,6 @@ describe("clases — listarClases", () => {
       expect(entry.id).toBeTruthy();
       expect(entry.name).toBeTruthy();
       expect(entry.description).toBeTruthy();
-      expect(entry.skillsByLevel).toBeUndefined();
     }
   });
 });

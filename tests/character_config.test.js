@@ -14,15 +14,13 @@ const {
   RANGOS,
   HP_THRESHOLDS,
   getHpState,
-  maxSkillSlots,
-  SKILL_SLOTS_BY_LEVEL,
   MAX_CHARACTER_NAME_LENGTH,
   MAX_CHARACTERS_PER_USER,
 } = require("../src/config/characterConfig");
 
 describe("characterConfig — Stats", () => {
-  it("LEVELABLE_STATS contiene 5 stats", () => {
-    expect(Object.keys(LEVELABLE_STATS)).toHaveLength(5);
+  it("LEVELABLE_STATS contiene 8 stats", () => {
+    expect(Object.keys(LEVELABLE_STATS)).toHaveLength(8);
   });
 
   it("Cada stat tiene label, name, min, max, icon", () => {
@@ -41,13 +39,16 @@ describe("characterConfig — Stats", () => {
     expect(HP_MAX).toBe(100);
   });
 
-  it("DEFAULT_CHARACTER_STATS tiene hp y las 5 stats en 0", () => {
+  it("DEFAULT_CHARACTER_STATS tiene hp y las 8 stats en 0", () => {
     expect(DEFAULT_CHARACTER_STATS.hp).toBe(HP_MAX);
-    expect(DEFAULT_CHARACTER_STATS.str).toBe(0);
+    expect(DEFAULT_CHARACTER_STATS.atk).toBe(0);
     expect(DEFAULT_CHARACTER_STATS.def).toBe(0);
-    expect(DEFAULT_CHARACTER_STATS.spd_atk).toBe(0);
+    expect(DEFAULT_CHARACTER_STATS.aspd).toBe(0);
     expect(DEFAULT_CHARACTER_STATS.ref).toBe(0);
-    expect(DEFAULT_CHARACTER_STATS.spd_mov).toBe(0);
+    expect(DEFAULT_CHARACTER_STATS.mspd).toBe(0);
+    expect(DEFAULT_CHARACTER_STATS.fulgor).toBe(0);
+    expect(DEFAULT_CHARACTER_STATS.d_fulgor).toBe(0);
+    expect(DEFAULT_CHARACTER_STATS.r_fulgor).toBe(0);
   });
 });
 
@@ -65,15 +66,15 @@ describe("characterConfig — Razas", () => {
     }
   });
 
-  it("Todas las razas tienen baseStats que suman exactamente 10", () => {
+  it("Todas las razas tienen baseStats que suman exactamente 50", () => {
     const statKeys = Object.keys(LEVELABLE_STATS);
     for (const [id, race] of Object.entries(RACES)) {
       const sum = statKeys.reduce((acc, k) => acc + (race.baseStats[k] || 0), 0);
-      expect(sum).toBe(10);
+      expect(sum).toBe(50);
     }
   });
 
-  it("Todas las razas tienen exactamente las 5 stats levelables en baseStats", () => {
+  it("Todas las razas tienen exactamente las 8 stats levelables en baseStats", () => {
     const statKeys = Object.keys(LEVELABLE_STATS);
     for (const [id, race] of Object.entries(RACES)) {
       const existing = Object.keys(race.baseStats);
@@ -92,24 +93,26 @@ describe("characterConfig — Clases", () => {
     expect(Object.keys(CLASSES)).toHaveLength(4);
   });
 
-  it("Todas las clases tienen skillsByLevel con nivel 20", () => {
+  it("Todas las clases tienen name, description, baseStats", () => {
     for (const [id, cls] of Object.entries(CLASSES)) {
-      expect(cls.skillsByLevel[20]).toBeDefined();
+      expect(cls.name).toBeTruthy();
+      expect(cls.description).toBeTruthy();
+      expect(cls.baseStats).toBeDefined();
     }
   });
 });
 
 describe("characterConfig — Niveles", () => {
-  it("LEVEL_INITIAL es 20", () => {
-    expect(LEVEL_INITIAL).toBe(20);
+  it("LEVEL_INITIAL es 100", () => {
+    expect(LEVEL_INITIAL).toBe(100);
   });
 
   it("LEVEL_MAX es 500", () => {
     expect(LEVEL_MAX).toBe(500);
   });
 
-  it("FREE_POINTS_AT_CREATION es 10", () => {
-    expect(FREE_POINTS_AT_CREATION).toBe(10);
+  it("FREE_POINTS_AT_CREATION es 50", () => {
+    expect(FREE_POINTS_AT_CREATION).toBe(50);
   });
 
   it("XP_CURVE_BASE es 10 y XP_CURVE_EXPONENT es 1.2", () => {
@@ -137,21 +140,25 @@ describe("characterConfig — xpForNextLevel", () => {
 });
 
 describe("characterConfig — calculateLevel", () => {
-  it("Suma de stats 20 da nivel 20", () => {
-    expect(calculateLevel({ str: 4, def: 4, spd_atk: 4, ref: 4, spd_mov: 4 })).toBe(20);
+  it("Suma de stats 20 da nivel minimo 100", () => {
+    expect(calculateLevel({ atk: 3, def: 3, aspd: 3, ref: 3, mspd: 3, fulgor: 2, d_fulgor: 2, r_fulgor: 1 })).toBe(100);
   });
 
-  it("Suma de stats 25 da nivel 25", () => {
-    expect(calculateLevel({ str: 5, def: 5, spd_atk: 5, ref: 5, spd_mov: 5 })).toBe(25);
+  it("Suma de stats 100 da nivel 100", () => {
+    expect(calculateLevel({ atk: 13, def: 13, aspd: 13, ref: 13, mspd: 13, fulgor: 12, d_fulgor: 12, r_fulgor: 11 })).toBe(100);
   });
 
-  it("Nunca devuelve menos de LEVEL_INITIAL (20)", () => {
-    expect(calculateLevel({ str: 0, def: 0, spd_atk: 0, ref: 0, spd_mov: 0 })).toBe(20);
-    expect(calculateLevel({})).toBe(20);
+  it("Suma de stats 150 da nivel 150", () => {
+    expect(calculateLevel({ atk: 19, def: 19, aspd: 19, ref: 19, mspd: 19, fulgor: 18, d_fulgor: 18, r_fulgor: 19 })).toBe(150);
+  });
+
+  it("Nunca devuelve menos de LEVEL_INITIAL (100)", () => {
+    expect(calculateLevel({ atk: 0, def: 0, aspd: 0, ref: 0, mspd: 0, fulgor: 0, d_fulgor: 0, r_fulgor: 0 })).toBe(100);
+    expect(calculateLevel({})).toBe(100);
   });
 
   it("Stats no definidas se tratan como 0", () => {
-    expect(calculateLevel({ str: 10 })).toBe(20);
+    expect(calculateLevel({ atk: 10 })).toBe(100);
   });
 });
 
@@ -202,40 +209,6 @@ describe("characterConfig — HP Thresholds", () => {
 
   it("HP negativo cae en Muerto (último threshold)", () => {
     expect(getHpState(-5).name).toBe("Muerto");
-  });
-});
-
-describe("characterConfig — Skill Slots", () => {
-  it("SKILL_SLOTS_BY_LEVEL tiene 9 entradas", () => {
-    expect(SKILL_SLOTS_BY_LEVEL).toHaveLength(9);
-  });
-
-  it("Nivel 20 da 2 slots", () => {
-    expect(maxSkillSlots(20)).toBe(2);
-  });
-
-  it("Nivel 48 da 3 slots", () => {
-    expect(maxSkillSlots(48)).toBe(3);
-  });
-
-  it("Nivel 76 da 4 slots", () => {
-    expect(maxSkillSlots(76)).toBe(4);
-  });
-
-  it("Nivel 105 da 5 slots", () => {
-    expect(maxSkillSlots(105)).toBe(5);
-  });
-
-  it("Nivel 250 da 10 slots (máximo)", () => {
-    expect(maxSkillSlots(250)).toBe(10);
-  });
-
-  it("Nivel menor a 20 da 1 slot", () => {
-    expect(maxSkillSlots(10)).toBe(1);
-  });
-
-  it("Nivel sobre 250 mantiene 10 slots", () => {
-    expect(maxSkillSlots(500)).toBe(10);
   });
 });
 

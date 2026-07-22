@@ -1,36 +1,31 @@
 // @ts-nocheck
 // Catálogo de clases — v1.0 Combat Update
-// Cada clase define las habilidades que desbloquea por nivel.
 // Las stats base por clase son referencia para futuras actualizaciones.
 
 const CLASES = {
   civil: {
     id: "civil",
     name: "Civil",
-    description: "Gente común con habilidades básicas.",
-    baseStats: { str: 2, def: 2, spd_atk: 2, ref: 2, spd_mov: 2 },
-    skillsByLevel: { 20: "vendas", 44: "golpe_firme" },
+    description: "Gente comun con habilidades basicas.",
+    baseStats: { atk: 6, def: 6, aspd: 6, ref: 6, mspd: 6, fulgor: 6, d_fulgor: 7, r_fulgor: 7 },
   },
   aventurero: {
     id: "aventurero",
     name: "Aventurero",
     description: "Explorador y combatiente. Velocidad y fuerza.",
-    baseStats: { str: 4, def: 1, spd_atk: 3, ref: 1, spd_mov: 1 },
-    skillsByLevel: { 20: "ataque_veloz", 44: "doble_golpe" },
+    baseStats: { atk: 10, def: 4, aspd: 8, ref: 5, mspd: 5, fulgor: 5, d_fulgor: 6, r_fulgor: 7 },
   },
   ladron: {
     id: "ladron",
-    name: "Ladrón",
+    name: "Ladron",
     description: "Especialista en velocidad y sigilo.",
-    baseStats: { str: 1, def: 1, spd_atk: 2, ref: 4, spd_mov: 2 },
-    skillsByLevel: { 20: "golpe_sombra", 44: "evasion" },
+    baseStats: { atk: 4, def: 4, aspd: 7, ref: 10, mspd: 7, fulgor: 5, d_fulgor: 6, r_fulgor: 7 },
   },
   comerciante: {
     id: "comerciante",
     name: "Comerciante",
     description: "Velocidad y astucia.",
-    baseStats: { str: 1, def: 2, spd_atk: 3, ref: 2, spd_mov: 2 },
-    skillsByLevel: { 20: "venda_rapida", 44: "golpe_astuto" },
+    baseStats: { atk: 4, def: 5, aspd: 8, ref: 7, mspd: 7, fulgor: 5, d_fulgor: 7, r_fulgor: 7 },
   },
 };
 

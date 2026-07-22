@@ -59,6 +59,21 @@ function normalizeCharacterRecord(character) {
   normalized.xp_total = Math.max(0, Number(normalized.xp_total) || 0);
 
   normalized.stats = normalizeStats(normalized.stats || {});
+
+  // Migración personajes antiguos: agregar stats mágicas base de la raza si faltan
+  if (
+    (normalized.stats.fulgor || 0) === 0 &&
+    (normalized.stats.d_fulgor || 0) === 0 &&
+    (normalized.stats.r_fulgor || 0) === 0
+  ) {
+    const raceCfg = RACES[normalized.raza];
+    if (raceCfg) {
+      normalized.stats.fulgor = (normalized.stats.fulgor || 0) + (raceCfg.baseStats.fulgor || 0);
+      normalized.stats.d_fulgor = (normalized.stats.d_fulgor || 0) + (raceCfg.baseStats.d_fulgor || 0);
+      normalized.stats.r_fulgor = (normalized.stats.r_fulgor || 0) + (raceCfg.baseStats.r_fulgor || 0);
+    }
+  }
+
   normalized.hp_actual = Math.min(
     HP_MAX,
     Math.max(0, normalized.hp_actual != null ? Number(normalized.hp_actual) : HP_MAX),
@@ -120,8 +135,8 @@ async function createCharacter({
 
   const raceStats = { ...raceConfig.baseStats };
   const totalRace = Object.values(raceStats).reduce((a, b) => a + b, 0);
-  if (totalRace !== 10) {
-    throw new Error(`La raza ${raceConfig.name} no tiene una distribución de 10 puntos.`);
+  if (totalRace !== 50) {
+    throw new Error(`La raza ${raceConfig.name} no tiene una distribucion de 50 puntos.`);
   }
 
   const assignedPoints = Object.values(statDistribution).reduce((a, b) => a + (Number(b) || 0), 0);
@@ -430,30 +445,8 @@ async function getCombatStats({ creatorId }) {
  *
  * @param root0
  */
-async function addXp({ creatorId, characterName, cantidad }) {
-  const slug = getCharacterSlug(characterName);
-  const safeXp = Math.max(0, Math.floor(Number(cantidad) || 0));
-  if (safeXp === 0) throw new Error("La cantidad de XP debe ser mayor a 0.");
-
-  const character = await safeSingleOrNull(
-    supabase.from("characters").select("*").eq("player_phone", creatorId).eq("slug", slug),
-  );
-  if (!character) throw new Error("No existe el personaje.");
-
-  const newXp = (Number(character.xp) || 0) + safeXp;
-  const newXpTotal = (Number(character.xp_total) || 0) + safeXp;
-
-  const updatePayload = filterExisting("characters", {
-    xp: newXp,
-    xp_total: newXpTotal,
-    updated_at: new Date().toISOString(),
-  });
-  const { error } = await supabase.from("characters").update(updatePayload).eq("id", character.id);
-
-  if (error) throw new Error("Error actualizando XP: " + error.message);
-
-  invalidateUserCache(creatorId);
-  return { xp: newXp, xp_total: newXpTotal };
+async function addXp() {
+  return { xp: 0, xp_total: 0 };
 }
 
 /**

@@ -37,6 +37,16 @@ function validarRaza(input) {
       .replace(/[\u0300-\u036f]/g, "")
       .replace(/\s+/g, "");
     if (normalized === raceKey || normalized === raceName) return id;
+    if (Array.isArray(race.aliases)) {
+      for (const alias of race.aliases) {
+        const normAlias = alias
+          .toLowerCase()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .replace(/\s+/g, "");
+        if (normalized === normAlias) return id;
+      }
+    }
   }
   return null;
 }
@@ -61,7 +71,7 @@ function resolverSeleccionRaza(input) {
  */
 function parseStatLine(line) {
   const trimmed = (line || "").trim();
-  const match = trimmed.match(/^(STR|SPD_ATK|SPD_MOV|REF|DEF)\s*(?:\((\d+)\))?\s*:\s*(\d+)\s*$/i);
+  const match = trimmed.match(/^(ATK|ASPD|MSPD|REF|DEF|FULGOR|D_FULGOR|R_FULGOR)\s*(?:\((\d+)\))?\s*:\s*(\d+)\s*$/i);
   if (!match) return null;
   const label = match[1].toLowerCase();
   const key = LABEL_TO_KEY[label];
@@ -90,9 +100,9 @@ function buildTemplate(raceConfig) {
   const clases = listarClases()
     .map((cls) => cls.name)
     .join(", ");
-  const camposStat = Object.entries(LEVELABLE_STATS)
-    .map(([key, cfg]) => `${cfg.label}(${c.baseStats[key] || 0}): `)
-    .join("\n");
+  const statFields = Object.entries(LEVELABLE_STATS).map(
+    ([key, cfg]) => `${cfg.label}(${c.baseStats[key] || 0})`,
+  );
   return formatCommandForm({
     icon: "🎭",
     title: "Crear personaje",
@@ -101,29 +111,33 @@ function buildTemplate(raceConfig) {
     fields: [
       "Nombre",
       `Raza: ${c.name}`,
-      "Clase (" + clases + ")",
-      camposStat,
-      "Historia y detalles: (al final, saltos de línea permitidos)",
+      "Clase",
+      ...statFields,
+      "Historia",
     ],
     example: [
       "/crear_pj",
       "Nombre: Aelin",
       `Raza: ${c.name}`,
       "Clase: Aventurero",
-      "STR(2): 2",
-      "SPD_ATK(2): 3",
-      "SPD_MOV(2): 2",
-      "REF(2): 2",
-      "DEF(2): 1",
-      "Historia y detalles: Una viajera que vaga por el mundo",
-      "nacio en las montañas nevadas y pasa sus dias vagando.",
+      "ATK(6): 8",
+      "DEF(6): 5",
+      "ASPD(6): 7",
+      "REF(6): 6",
+      "MSPD(6): 6",
+      "FULGOR(6): 7",
+      "D_FULGOR(7): 6",
+      "R_FULGOR(7): 5",
+      "Historia: Una viajera que vaga por el mundo",
+      "nacio en las montanas nevadas y pasa sus dias vagando.",
     ],
     notes: [
       `Nombre: 2-${MAX_CHARACTER_NAME_LENGTH} caracteres.`,
       `Stats base de ${c.name} (entre paréntesis): ${buildRaceSummary(c)}`,
       `Tienes ${FREE_POINTS_AT_CREATION} puntos libres para distribuir.`,
       "Stats opcionales: si no las envías, se reparten uniformemente.",
-      "Historia al final, tan larga como quieras.",
+      `Clases disponibles: ${clases}.`,
+      "Historia: al final del mensaje, tan larga como quieras.",
     ],
   });
 }
@@ -171,6 +185,7 @@ module.exports = {
 
       let name = "";
       let raza = "";
+      let rawRazaInput = "";
       let clase = "";
       const statDistribution = {};
       let hasCustomStats = false;
@@ -208,8 +223,9 @@ module.exports = {
         }
 
         const raceMatch = trimmed.match(/^Raza:\s*(.+)/i);
-        if (raceMatch && !raza) {
-          raza = validarRaza(raceMatch[1].trim());
+        if (raceMatch && !rawRazaInput) {
+          rawRazaInput = raceMatch[1].trim();
+          raza = validarRaza(rawRazaInput);
           continue;
         }
 
@@ -235,6 +251,18 @@ module.exports = {
       }
 
       const raceKeys = Object.keys(RACES);
+      if (rawRazaInput && !raza) {
+        return ctx.reply(
+          formatError(
+            `Raza "${rawRazaInput}" no válida. Razas disponibles: ` +
+              Object.values(RACES)
+                .map((r) => r.name)
+                .join(", "),
+            buildRaceList(),
+          ),
+        );
+      }
+
       const raceId = raza || raceKeys[0];
       const raceConfig = RACES[raceId];
       if (!raceConfig) {

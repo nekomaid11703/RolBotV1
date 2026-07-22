@@ -10,22 +10,28 @@
 // Stats are stored in JSONB — no schema migration needed for new keys.
 
 const LEVELABLE_STATS = {
-  str: { label: "STR", name: "Fuerza", min: 1, max: 100, icon: "⚔️" },
-  def: { label: "DEF", name: "Defensa", min: 1, max: 100, icon: "🛡️" },
-  spd_atk: { label: "SPD_ATK", name: "Vel. Ataque", min: 1, max: 100, icon: "⚡" },
+  atk: { label: "ATK", name: "Ataque", min: 1, max: 100, icon: "⚔️" },
+  def: { label: "DEF", name: "Resistencia", min: 1, max: 100, icon: "🛡️" },
+  aspd: { label: "ASPD", name: "Vel. Ataque", min: 1, max: 100, icon: "⚡" },
   ref: { label: "REF", name: "Reflejos", min: 1, max: 100, icon: "👁️" },
-  spd_mov: { label: "SPD_MOV", name: "Vel. Movimiento", min: 1, max: 100, icon: "💨" },
+  mspd: { label: "MSPD", name: "Vel. Movimiento", min: 1, max: 100, icon: "💨" },
+  fulgor: { label: "FULGOR", name: "Capacidad Magica", min: 1, max: 100, icon: "✨" },
+  d_fulgor: { label: "D_FULGOR", name: "Dominio Magico", min: 1, max: 100, icon: "🔮" },
+  r_fulgor: { label: "R_FULGOR", name: "Resistencia Magica", min: 1, max: 100, icon: "🛡️" },
 };
 
 const HP_MAX = 100;
 
 const DEFAULT_CHARACTER_STATS = {
   hp: HP_MAX,
-  str: 0,
+  atk: 0,
   def: 0,
-  spd_atk: 0,
+  aspd: 0,
   ref: 0,
-  spd_mov: 0,
+  mspd: 0,
+  fulgor: 0,
+  d_fulgor: 0,
+  r_fulgor: 0,
 };
 
 // =========================
@@ -39,16 +45,137 @@ const DEFAULT_CHARACTER_SLOTS = {
 };
 
 // =========================
-// RACES (v1.0: only Human)
+// RACES
 // =========================
 // Race baseStats add to DEFAULT_CHARACTER_STATS at creation
-// Total race contribution = sum of baseStats values = 10 points
+// Total race contribution = sum of baseStats values = 50 points
 
 const RACES = {
   humano: {
     name: "Humano",
-    description: "Versátil y equilibrado, sin debilidades ni fortalezas extremas.",
-    baseStats: { str: 2, def: 2, spd_atk: 2, ref: 2, spd_mov: 2 },
+    description: "Adaptabilidad equilibrada.",
+    aliases: ["humano", "humana", "human", "humans"],
+    baseStats: { atk: 6, def: 6, aspd: 6, ref: 6, mspd: 6, fulgor: 7, d_fulgor: 7, r_fulgor: 6 },
+  },
+  elfo: {
+    name: "Elfo",
+    description: "Especialistas magicos y agiles.",
+    aliases: ["elfo", "elfa", "elf", "elves"],
+    baseStats: { atk: 4, def: 4, aspd: 6, ref: 8, mspd: 8, fulgor: 7, d_fulgor: 6, r_fulgor: 7 },
+  },
+  enano: {
+    name: "Enano",
+    description: "Tanques resistentes y fisicos.",
+    aliases: ["enano", "enana", "dwarf", "dwarves"],
+    baseStats: { atk: 10, def: 12, aspd: 7, ref: 3, mspd: 3, fulgor: 5, d_fulgor: 4, r_fulgor: 6 },
+  },
+  duende: {
+    name: "Duende",
+    description: "Especialistas tecnicos y veloces.",
+    aliases: ["duende", "duendes", "goblin", "goblins"],
+    baseStats: { atk: 3, def: 4, aspd: 7, ref: 10, mspd: 9, fulgor: 6, d_fulgor: 6, r_fulgor: 5 },
+  },
+  oni: {
+    name: "Oni",
+    description: "Fuerza bruta extrema.",
+    aliases: ["oni", "onis", "ogro", "ogro"],
+    baseStats: { atk: 14, def: 10, aspd: 8, ref: 2, mspd: 5, fulgor: 5, d_fulgor: 3, r_fulgor: 3 },
+  },
+  elemental: {
+    name: "Elemental",
+    description: "Equilibrio fisico y magico.",
+    aliases: ["elemental", "elementales"],
+    baseStats: { atk: 5, def: 6, aspd: 5, ref: 7, mspd: 6, fulgor: 7, d_fulgor: 6, r_fulgor: 8 },
+  },
+  dragon: {
+    name: "Dragon",
+    description: "Raza superior equilibrada.",
+    aliases: ["dragon", "dragones", "draconiano", "draconian"],
+    baseStats: { atk: 11, def: 9, aspd: 6, ref: 6, mspd: 7, fulgor: 3, d_fulgor: 3, r_fulgor: 5 },
+  },
+  yordle: {
+    name: "Yordle",
+    description: "Caoticos y evasivos.",
+    aliases: ["yordle", "yordles"],
+    baseStats: { atk: 3, def: 4, aspd: 5, ref: 10, mspd: 10, fulgor: 6, d_fulgor: 7, r_fulgor: 5 },
+  },
+  no_muerto: {
+    name: "No Muerto",
+    description: "Resistencia sobre movilidad.",
+    aliases: ["no_muerto", "no_muertos", "undead", "zombie", "zombi"],
+    baseStats: { atk: 6, def: 10, aspd: 6, ref: 3, mspd: 3, fulgor: 7, d_fulgor: 7, r_fulgor: 8 },
+  },
+  vampiro: {
+    name: "Vampiro",
+    description: "Equilibrados con enfoque magico.",
+    aliases: ["vampiro", "vampiros", "vampire", "vampires"],
+    baseStats: { atk: 8, def: 6, aspd: 6, ref: 7, mspd: 8, fulgor: 5, d_fulgor: 5, r_fulgor: 5 },
+  },
+  furry: {
+    name: "Furry",
+    description: "Instinto y movilidad.",
+    aliases: ["furry", "furrys", "bestia", "beast"],
+    baseStats: { atk: 6, def: 6, aspd: 6, ref: 9, mspd: 8, fulgor: 6, d_fulgor: 5, r_fulgor: 4 },
+  },
+  hada: {
+    name: "Hada",
+    description: "Maxima velocidad y magia.",
+    aliases: ["hada", "hadas", "ninfa", "ninfa", "fairy", "nymph"],
+    baseStats: { atk: 2, def: 3, aspd: 5, ref: 10, mspd: 12, fulgor: 6, d_fulgor: 7, r_fulgor: 5 },
+  },
+  automata: {
+    name: "Automata",
+    description: "Maxima resistencia fisica.",
+    aliases: ["automata", "automatas", "robot", "constructo"],
+    baseStats: { atk: 10, def: 13, aspd: 7, ref: 3, mspd: 3, fulgor: 5, d_fulgor: 4, r_fulgor: 5 },
+  },
+  trickster: {
+    name: "Trickster",
+    description: "Especialistas en evasion y engano.",
+    aliases: ["trickster", "tricksters", "embaucador"],
+    baseStats: { atk: 2, def: 3, aspd: 5, ref: 11, mspd: 12, fulgor: 5, d_fulgor: 7, r_fulgor: 5 },
+  },
+  puppet: {
+    name: "Puppet",
+    description: "Equilibrio artificial.",
+    aliases: ["puppet", "puppets", "marioneta", "titere"],
+    baseStats: { atk: 5, def: 8, aspd: 5, ref: 7, mspd: 6, fulgor: 5, d_fulgor: 6, r_fulgor: 8 },
+  },
+  encarnacion: {
+    name: "Encarnacion",
+    description: "Poder explosivo.",
+    aliases: ["encarnacion", "encarnaciones", "incarnation"],
+    baseStats: { atk: 7, def: 7, aspd: 6, ref: 6, mspd: 6, fulgor: 6, d_fulgor: 6, r_fulgor: 6 },
+  },
+  ser_del_vacio: {
+    name: "Ser del Vacio",
+    description: "Corrupcion magica.",
+    aliases: ["ser_del_vacio", "seres_del_vacio", "void", "vacio"],
+    baseStats: { atk: 7, def: 6, aspd: 5, ref: 5, mspd: 6, fulgor: 7, d_fulgor: 6, r_fulgor: 8 },
+  },
+  angel: {
+    name: "Angel",
+    description: "Equilibrio sagrado.",
+    aliases: ["angel", "angeles", "angelical"],
+    baseStats: { atk: 8, def: 7, aspd: 6, ref: 6, mspd: 6, fulgor: 5, d_fulgor: 5, r_fulgor: 7 },
+  },
+  graviton: {
+    name: "Graviton",
+    description: "Control del campo.",
+    aliases: ["graviton", "gravitons"],
+    baseStats: { atk: 8, def: 10, aspd: 5, ref: 6, mspd: 5, fulgor: 5, d_fulgor: 5, r_fulgor: 6 },
+  },
+  sirena: {
+    name: "Sirena",
+    description: "Especialistas acuaticos.",
+    aliases: ["sirena", "sirenas", "triton", "tritones", "mermaid"],
+    baseStats: { atk: 4, def: 5, aspd: 5, ref: 9, mspd: 8, fulgor: 7, d_fulgor: 7, r_fulgor: 5 },
+  },
+  demonio: {
+    name: "Demonio",
+    description: "Poder ofensivo y magico.",
+    aliases: ["demonio", "demonios", "demon", "demons"],
+    baseStats: { atk: 8, def: 7, aspd: 7, ref: 5, mspd: 6, fulgor: 6, d_fulgor: 6, r_fulgor: 5 },
   },
 };
 
@@ -59,27 +186,23 @@ const RACES = {
 const CLASSES = {
   civil: {
     name: "Civil",
-    description: "Gente común con habilidades básicas. Sus puntos están repartidos de forma uniforme.",
-    baseStats: { str: 2, def: 2, spd_atk: 2, ref: 2, spd_mov: 2 },
-    skillsByLevel: { 20: "vendas", 44: "golpe_firme" },
+    description: "Gente comun con habilidades basicas. Sus puntos estan repartidos de forma uniforme.",
+    baseStats: { atk: 6, def: 6, aspd: 6, ref: 6, mspd: 6, fulgor: 6, d_fulgor: 7, r_fulgor: 7 },
   },
   aventurero: {
     name: "Aventurero",
-    description: "Explorador y combatiente. Sus puntos están mayormente en velocidades y fuerza.",
-    baseStats: { str: 4, def: 1, spd_atk: 3, ref: 1, spd_mov: 1 },
-    skillsByLevel: { 20: "ataque_veloz", 44: "doble_golpe" },
+    description: "Explorador y combatiente. Sus puntos estan mayormente en velocidades y fuerza.",
+    baseStats: { atk: 10, def: 4, aspd: 8, ref: 5, mspd: 5, fulgor: 5, d_fulgor: 6, r_fulgor: 7 },
   },
   ladron: {
-    name: "Ladrón",
-    description: "Especialista en velocidad y sigilo. Sus puntos están enfocados en velocidades.",
-    baseStats: { str: 1, def: 1, spd_atk: 2, ref: 4, spd_mov: 2 },
-    skillsByLevel: { 20: "golpe_sombra", 44: "evasion" },
+    name: "Ladron",
+    description: "Especialista en velocidad y sigilo. Sus puntos estan enfocados en velocidades.",
+    baseStats: { atk: 4, def: 4, aspd: 7, ref: 10, mspd: 7, fulgor: 5, d_fulgor: 6, r_fulgor: 7 },
   },
   comerciante: {
     name: "Comerciante",
-    description: "Velocidad y astucia. Sus puntos están enfocados en velocidades.",
-    baseStats: { str: 1, def: 2, spd_atk: 3, ref: 2, spd_mov: 2 },
-    skillsByLevel: { 20: "venda_rapida", 44: "golpe_astuto" },
+    description: "Velocidad y astucia. Sus puntos estan enfocados en velocidades.",
+    baseStats: { atk: 4, def: 5, aspd: 8, ref: 7, mspd: 7, fulgor: 5, d_fulgor: 7, r_fulgor: 7 },
   },
 };
 
@@ -87,9 +210,9 @@ const CLASSES = {
 // LEVEL SYSTEM
 // =========================
 
-const LEVEL_INITIAL = 20;
+const LEVEL_INITIAL = 100;
 const LEVEL_MAX = 500;
-const FREE_POINTS_AT_CREATION = 10;
+const FREE_POINTS_AT_CREATION = 50;
 
 const XP_CURVE_BASE = 10;
 const XP_CURVE_EXPONENT = 1.2;
@@ -151,34 +274,6 @@ function getHpState(hp) {
 }
 
 // =========================
-// SKILL SLOTS BY LEVEL
-// =========================
-
-const SKILL_SLOTS_BY_LEVEL = [
-  { level: 20, slots: 2 },
-  { level: 48, slots: 3 },
-  { level: 76, slots: 4 },
-  { level: 105, slots: 5 },
-  { level: 134, slots: 6 },
-  { level: 163, slots: 7 },
-  { level: 192, slots: 8 },
-  { level: 221, slots: 9 },
-  { level: 250, slots: 10 },
-];
-
-/**
- *
- * @param level
- */
-function maxSkillSlots(level) {
-  let maxSlots = 1;
-  for (const entry of SKILL_SLOTS_BY_LEVEL) {
-    if (level >= entry.level) maxSlots = entry.slots;
-  }
-  return Math.min(maxSlots, SKILL_SLOTS_BY_LEVEL[SKILL_SLOTS_BY_LEVEL.length - 1].slots);
-}
-
-// =========================
 // LIMITS
 // =========================
 
@@ -208,8 +303,6 @@ module.exports = {
   rangosDisponibles,
   HP_THRESHOLDS,
   getHpState,
-  SKILL_SLOTS_BY_LEVEL,
-  maxSkillSlots,
   MAX_CHARACTER_NAME_LENGTH,
   MAX_SLOT_SIZE,
   MAX_CHARACTERS_PER_USER,
