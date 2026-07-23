@@ -58,17 +58,3 @@ describe("items — Precios (inflados, roadmap)", () => {
     expect(ITEMS.antidoto.price).toBe(200);
   });
 });
-
-describe("item_add command", () => {
-  const itemAddCmd = require("../src/commands/rpg/inventory/item_add");
-
-  it("Comando item_add esta definido con name y aliases", () => {
-    expect(itemAddCmd.name).toBe("item_add");
-    expect(itemAddCmd.aliases).toContain("dar_item");
-    expect(itemAddCmd.aliases).toContain("giveitem");
-    expect(itemAddCmd.aliases).toContain("give_item");
-    expect(itemAddCmd.aliases).toContain("additem");
-    expect(itemAddCmd.adminPerm).toBe("items");
-    expect(typeof itemAddCmd.execute).toBe("function");
-  });
-});

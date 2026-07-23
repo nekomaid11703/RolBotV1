@@ -9,14 +9,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - **userService tests**: 14 tests for `sanitizeName` (accent stripping, whitespace normalization, forbidden chars, edge cases)
-- **characterService tests**: 2 tests for `addXp` stub behavior
 - **combatState tests**: 16 tests for `generateDummyCharacter`, `isSessionActive`, `isSessionExpired` (pure logic, no DB)
 - **permissionService tests**: 6 tests for `getCategoryLabel` (category label mapping)
-- **economyService tests**: 14 tests for config constants, `getMoneyValue` behavior, amount validation logic
+- **economyService tests**: 5 tests for config constants (`DAILY_BASE_REWARD`, `DAILY_COOLDOWN_HOURS`, etc.)
 
 ### Changed
-- Test suite expanded from 237 to 289 tests (+52 tests, +22% coverage)
-- 22 test files (up from 17)
+- Test suite expanded from 237 to 289 tests (+52 tests, +22% coverage), then cleaned to 263 tests (-26 low-value tests)
+- 19 test files (down from 22, removed 3 low-quality files)
+- `cache_state.test.js` deleted: tested local-only function, not a real module
+- `crear_pj.test.js` deleted: tested local parser reimplementation, not the actual command
+- `character_service.test.js` deleted: trivial stub returning hardcoded values
+- 5 legacy `test_*.js` files deleted (duplicates of vitest equivalents)
+- `economy_service.test.js` stripped: removed local function redefinitions (`getMoneyValue`, `validateAmount`) that bypassed the real module
+- `inventory.test.js`: removed `item_add` duplicate (covered by `item_commands.test.js`)
+- `combat_ai.test.js`: removed `generateDummyCharacter` duplicate (covered by `combat_state.test.js`)
 
 ## [1.0.0] - 2026-07-22
 
