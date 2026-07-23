@@ -19,7 +19,7 @@ module.exports = {
   name: "dado",
   aliases: ["dice"],
   description: "Lanza dados RPG. Ej: /dado 2d20, /dado 4d6d1, /dado 2d20+5",
-  category: "utilidades",
+  category: "info",
 
   async execute(ctx) {
     const input = (ctx.args[0] || "d20").toLowerCase();

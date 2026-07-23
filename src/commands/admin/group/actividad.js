@@ -12,7 +12,7 @@ module.exports = {
   name: "actividad",
   aliases: ["act", "mi_actividad"],
   description: "Muestra tu actividad dentro del grupo actual.",
-  category: "grupo",
+  category: "admin",
   groupOnly: true,
 
   async execute(ctx) {

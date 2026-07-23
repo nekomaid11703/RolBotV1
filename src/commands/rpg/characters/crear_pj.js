@@ -100,21 +100,13 @@ function buildTemplate(raceConfig) {
   const clases = listarClases()
     .map((cls) => cls.name)
     .join(", ");
-  const statFields = Object.entries(LEVELABLE_STATS).map(
-    ([key, cfg]) => `${cfg.label}(${c.baseStats[key] || 0})`,
-  );
+  const statFields = Object.entries(LEVELABLE_STATS).map(([key, cfg]) => `${cfg.label}(${c.baseStats[key] || 0})`);
   return formatCommandForm({
     icon: "🎭",
     title: "Crear personaje",
     description: `Plantilla para ${c.name}. Completa los datos y envíalos de vuelta.`,
     command: "/crear_pj",
-    fields: [
-      "Nombre",
-      `Raza: ${c.name}`,
-      "Clase",
-      ...statFields,
-      "Historia",
-    ],
+    fields: ["Nombre", `Raza: ${c.name}`, "Clase", ...statFields, "Historia"],
     example: [
       "/crear_pj",
       "Nombre: Aelin",
@@ -162,7 +154,7 @@ module.exports = {
   name: "crear_pj",
   aliases: ["cpj"],
   description: "Crea un personaje mediante un formulario simple.",
-  category: "personajes",
+  category: "rpg",
 
   async execute(ctx) {
     const fullText = ctx.text.trim();

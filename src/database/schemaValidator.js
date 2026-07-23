@@ -28,11 +28,15 @@ const SCHEMA = {
       "updated_at",
     ],
   },
+  inventory: {
+    columns: ["id", "character_id", "item_id", "quantity", "created_at", "updated_at"],
+  },
 };
 
 const CRITICAL_EQUALS_COLUMNS = {
   players: ["phone"],
   characters: ["player_phone", "slug", "is_active"],
+  inventory: ["character_id", "item_id"],
   groups: ["group_jid"],
   group_members: ["group_id", "player_phone"],
   bot_auth_state: ["session_id", "id"],

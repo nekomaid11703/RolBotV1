@@ -6,7 +6,15 @@ const { LEVELABLE_STATS, getHpState, HP_MAX } = require("../config/characterConf
  *
  * @param character
  */
-function formatCharacter(character) {
+const { getItem } = require("../data/items");
+
+/**
+ *
+ * @param character
+ * @param inventory
+ * @param inventoryParam
+ */
+function formatCharacter(character, inventoryParam = null) {
   const lines = [];
 
   const hpState = getHpState(character.hp_actual);
@@ -38,9 +46,26 @@ function formatCharacter(character) {
     }
   }
 
-  const itemCount = character.item_count || 0;
+  const inventory = Array.isArray(inventoryParam)
+    ? inventoryParam
+    : Array.isArray(character.inventory)
+      ? character.inventory
+      : null;
+
   lines.push("");
-  lines.push(`🎒  Items: ${itemCount}`);
+  if (inventory && inventory.length > 0) {
+    const totalQty = inventory.reduce((sum, i) => sum + (Number(i.quantity) || 0), 0);
+    lines.push(`🎒  Inventario (${totalQty} ítems):`);
+    for (const entry of inventory) {
+      const itemDef = getItem(entry.item_id);
+      const icon = itemDef ? itemDef.icon : "📦";
+      const name = itemDef ? itemDef.name : entry.item_id;
+      lines.push(`   · ${icon} ${name} x${entry.quantity}`);
+    }
+  } else {
+    const itemCount = character.item_count || 0;
+    lines.push(`🎒  Items: ${itemCount}`);
+  }
 
   if (character.slots?.historia) {
     lines.push("");

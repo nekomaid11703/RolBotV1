@@ -7,7 +7,7 @@ export default [
   js.configs.recommended,
   prettier,
   {
-    files: ["src/**/*.js", "tests/**/*.js", "index.js"],
+    files: ["src/**/*.js", "tests/**/*.js", "scripts/**/*.js", "index.js"],
     ...jsdoc.configs["flat/recommended"],
     languageOptions: {
       ecmaVersion: "latest",

@@ -9,7 +9,7 @@ module.exports = {
   name: "todos",
   aliases: ["miembros", "mencionar_todos", "tagall"],
   description: "Menciona a todos los miembros del grupo.",
-  category: "grupo",
+  category: "admin",
   groupOnly: true,
   adminOnly: true,
 

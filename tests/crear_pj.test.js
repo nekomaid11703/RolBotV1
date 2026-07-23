@@ -11,9 +11,36 @@ function parseCrearPj(rawText) {
   let historiaStarted = false;
   let historiaFirstLine = true;
 
-  const labelToKey = { str: "str", def: "def", spd_atk: "spd_atk", ref: "ref", spd_mov: "spd_mov" };
-  Object.assign(labelToKey, { str: "str", def: "def", spd_atk: "spd_atk", ref: "ref", spd_mov: "spd_mov" });
-  Object.entries({ STR: "str", SPD_ATK: "spd_atk", SPD_MOV: "spd_mov", REF: "ref", DEF: "def" }).forEach(([k, v]) => {
+  const labelToKey = {
+    atk: "atk",
+    def: "def",
+    aspd: "aspd",
+    ref: "ref",
+    mspd: "mspd",
+    fulgor: "fulgor",
+    d_fulgor: "d_fulgor",
+    r_fulgor: "r_fulgor",
+  };
+  Object.assign(labelToKey, {
+    atk: "atk",
+    def: "def",
+    aspd: "aspd",
+    ref: "ref",
+    mspd: "mspd",
+    fulgor: "fulgor",
+    d_fulgor: "d_fulgor",
+    r_fulgor: "r_fulgor",
+  });
+  Object.entries({
+    ATK: "atk",
+    ASPD: "aspd",
+    MSPD: "mspd",
+    REF: "ref",
+    DEF: "def",
+    FULGOR: "fulgor",
+    D_FULGOR: "d_fulgor",
+    R_FULGOR: "r_fulgor",
+  }).forEach(([k, v]) => {
     labelToKey[k.toLowerCase()] = v;
   });
 
@@ -67,7 +94,7 @@ function parseCrearPj(rawText) {
 describe("Parser de crear_pj (nuevo formato)", () => {
   it("Caso ideal completo con formato nuevo", () => {
     const result = parseCrearPj(
-      `/crear_pj\nNombre: Aelin\nRaza: Humana\nClase: Aventurero\nSTR(2): 2\nSPD_ATK(2): 3\nSPD_MOV(2): 2\nREF(2): 2\nDEF(2): 1\nHistoria y detalles: Una viajera que vaga por el mundo\nnacio en las montañas nevadas y pasa sus dias vagando por los bosques`,
+      `/crear_pj\nNombre: Aelin\nRaza: Humana\nClase: Aventurero\nATK(2): 2\nASPD(2): 3\nMSPD(2): 2\nREF(2): 2\nDEF(2): 1\nHistoria y detalles: Una viajera que vaga por el mundo\nnacio en las montañas nevadas y pasa sus dias vagando por los bosques`,
     );
     expect(result.name).toBe("Aelin");
     expect(result.raza).toBe("Humana");

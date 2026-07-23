@@ -9,7 +9,7 @@ const REPORT_COOLDOWN_MS = 5 * 60 * 1000;
 module.exports = {
   name: "bugreport",
   description: "Reportar un bug. Uso: /bugreport <descripción> [+imagen]",
-  category: "utilidades",
+  category: "info",
 
   async execute(ctx) {
     const now = Date.now();

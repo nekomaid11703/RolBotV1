@@ -8,7 +8,7 @@ module.exports = {
   name: "top_activos",
   aliases: ["rank", "ranking_grupo"],
   description: "Muestra el ranking de actividad del grupo actual.",
-  category: "grupo",
+  category: "admin",
   groupOnly: true,
 
   async execute(ctx) {

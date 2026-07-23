@@ -7,7 +7,7 @@ module.exports = {
   name: "grupo_abrir",
   aliases: ["abrir", "abrir_grupo"],
   description: "Abre el grupo para que todos puedan enviar mensajes.",
-  category: "grupo",
+  category: "admin",
   groupOnly: true,
   adminOnly: true,
 

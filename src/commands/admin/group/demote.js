@@ -5,7 +5,7 @@ module.exports = {
   name: "demote",
   aliases: ["desadmin", "quitar_admin"],
   description: "Degrada a un administrador del grupo.",
-  category: "grupo",
+  category: "admin",
   groupOnly: true,
   adminOnly: true,
 

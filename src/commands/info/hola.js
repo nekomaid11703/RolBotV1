@@ -8,7 +8,7 @@ module.exports = {
 
   description: "Saluda al usuario",
 
-  category: "informacion",
+  category: "info",
 
   async execute(ctx) {
     await ctx.react("👋");

@@ -19,7 +19,7 @@ module.exports = {
   name: "switch_pj",
   aliases: ["activar_pj", "cambiar_pj"],
   description: "Cambia tu personaje activo.",
-  category: "personajes",
+  category: "rpg",
 
   async execute(ctx) {
     const targetName = ctx.args.join(" ");

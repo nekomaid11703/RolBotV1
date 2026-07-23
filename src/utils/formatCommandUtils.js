@@ -25,7 +25,7 @@ function buildUsageBody({ icon = "📘", title, description, usage, example, not
  * @param root0
  */
 function buildFormBody({ icon = "📋", title, description, command, fields = [], example = [], notes = [] }) {
-  const templateLines = [command, ...fields.map((f) => `${f}: `)];
+  const templateLines = [command, ...fields.map((f) => (f.includes(":") ? f : `${f}: `))];
   const body = [LINE, `${icon} *${String(title || "FORMULARIO").toUpperCase()}*`, LINE, ""];
   if (description) body.push(description, "");
   body.push("*Plantilla*", "```", templateLines.join("\n"), "```");

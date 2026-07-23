@@ -1,89 +1,101 @@
 // @ts-nocheck
 const { commands } = require("../../core/commandRegistry");
 
-const COMBAT_CMDS = new Set(["combate", "atacar", "rendirse", "aceptar", "rechazar", "duel"]);
+const SECTIONS = [
+  {
+    key: "admin",
+    emoji: "\uD83D\uDD11",
+    label: "ADMINISTRADOR",
+    filter: (cmd) => cmd.adminPerm || cmd.economyAdminOnly || cmd.adminOnly,
+  },
+  {
+    key: "creator",
+    emoji: "\uD83D\uDC51",
+    label: "CREADOR",
+    filter: (cmd) => cmd.creatorOnly && !cmd.adminPerm && !cmd.economyAdminOnly && !cmd.adminOnly,
+  },
+  {
+    key: "common",
+    emoji: "\uD83D\uDCDC",
+    label: "COMUNES",
+    filter: (cmd) => !cmd.adminPerm && !cmd.economyAdminOnly && !cmd.adminOnly && !cmd.creatorOnly,
+  },
+];
 
-const CAT_ORDER = ["informacion", "economia", "personajes", "grupo", "permisos", "utilidades", "rpg"];
+const SUBCAT_ORDER = ["rpg", "economia", "grupo", "permisos", "info"];
 
-const CAT_META = {
-  informacion: { emoji: "ℹ️", label: "INFORMACIÓN" },
-  economia: { emoji: "💰", label: "ECONOMÍA" },
-  personajes: { emoji: "🎭", label: "PERSONAJES" },
-  grupo: { emoji: "🏰", label: "GRUPO" },
-  permisos: { emoji: "🛡️", label: "PERMISOS" },
-  utilidades: { emoji: "🛠️", label: "UTILIDADES" },
-  rpg: { emoji: "⚔️", label: "ROL" },
+const SUBCAT_META = {
+  rpg: { emoji: "\u2694\uFE0F", label: "RPG" },
+  economia: { emoji: "\uD83D\uDCB0", label: "ECONOM\u00cdA" },
+  grupo: { emoji: "\uD83C\uDFF0", label: "GRUPO" },
+  permisos: { emoji: "\uD83D\uDEE1\uFE0F", label: "PERMISOS" },
+  info: { emoji: "\u2139\uFE0F", label: "INFORMACI\u00d3N" },
 };
 
-/** @param {string} c */
+/**
+ *
+ * @param c
+ */
 function normCat(c) {
   return String(c || "otros")
     .trim()
     .toLowerCase();
 }
 
-/** @param {{ adminOnly?: boolean, economyAdminOnly?: boolean }} cmd */
-function getGroup(cmd) {
-  if (cmd.adminOnly || cmd.economyAdminOnly) return "admin";
-  return "normal";
+/**
+ *
+ * @param cmd
+ */
+function getSubcat(cmd) {
+  const cat = normCat(cmd.category);
+  if (cat === "admin") {
+    if (cmd.adminOnly || cmd.groupOnly) return "grupo";
+    return "permisos";
+  }
+  return cat;
 }
 
-/** @param {string[]} aliases */
+/**
+ *
+ * @param aliases
+ */
 function buildAliasStr(aliases) {
   if (!aliases || aliases.length === 0) return "";
-  const show = aliases.slice(0, 4);
-  const more = aliases.length > 4 ? ` +${aliases.length - 4}` : "";
+  const show = aliases.slice(0, 3);
+  const more = aliases.length > 3 ? ` +${aliases.length - 3}` : "";
   return show.map((a) => `/${a}`).join(", ") + more;
 }
 
 /**
- * @param {string} name @param {string} desc @param {string[]} aliases @param {"multi"|"inline"} style
+ *
+ * @param name
  * @param desc
  * @param aliases
- * @param style
  */
-function renderCmd(name, desc, aliases, style) {
+function renderCmd(name, desc, aliases) {
   const lines = [];
-
-  if (style === "multi") {
-    // Diseño para comandos normales: Nombre destacado, descripción en cursiva abajo
-    lines.push(`│ ⟡ */${name}*`);
-    if (desc) lines.push(`│ ╰ 💬 _${desc}_`);
-    if (aliases && aliases.length > 0) {
-      lines.push(`│ ↳ 📎 Alias: ${buildAliasStr(aliases)}`);
-    }
-  } else {
-    // Diseño compacto para comandos de administrador
-    const alias = aliases && aliases.length > 0 ? ` (${buildAliasStr(aliases)})` : "";
-    lines.push(`│ ⚡ */${name}* - _${desc}_${alias}`);
-  }
-
+  const alias = aliases && aliases.length > 0 ? ` \u2022 ${buildAliasStr(aliases)}` : "";
+  lines.push(`\u2502 \u27E1 */${name}* - _${desc}_${alias}`);
   return lines;
 }
 
 /**
  *
- * @param title
- * @param normal
- * @param admin
+ * @param subcatKey
+ * @param cmds
  */
-function buildSection(title, normal, admin) {
+function buildSubcatBlock(subcatKey, cmds) {
+  const meta = SUBCAT_META[subcatKey] || { emoji: "\uD83D\uDCC2", label: subcatKey.toUpperCase() };
   const lines = [];
-  lines.push(`╭─「 ${title} 」`);
+  lines.push(`\u256D\u2500\u2500 ${meta.emoji} ${meta.label} \u2500\u2500\u256E`);
 
-  for (const cmd of normal) {
-    lines.push(...renderCmd(cmd.name, cmd.description || "Sin descripción", cmd.aliases, "multi"));
+  for (const cmd of cmds) {
+    lines.push(...renderCmd(cmd.name, cmd.description || "Sin descripci\u00f3n", cmd.aliases));
   }
 
-  if (admin.length > 0) {
-    lines.push(`│`);
-    lines.push(`│ 🛡️ *Administración:*`);
-    for (const cmd of admin) {
-      lines.push(...renderCmd(cmd.name, cmd.description || "Sin descripción", cmd.aliases, "inline"));
-    }
-  }
-
-  lines.push(`╰───────────────⟡\n`);
+  lines.push(
+    `\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u253C\u2500\n`,
+  );
   return lines.join("\n");
 }
 
@@ -91,61 +103,62 @@ module.exports = {
   name: "help",
   aliases: ["menu", "comandos"],
   description: "Muestra la lista de todos los comandos",
-  category: "informacion",
+  category: "info",
 
   async execute(ctx) {
     const unique = new Map();
     for (const cmd of commands.values()) {
       if (!cmd?.name) continue;
-      if (COMBAT_CMDS.has(cmd.name.toLowerCase())) continue;
       unique.set(cmd.name.toLowerCase(), cmd);
-    }
-
-    const cats = new Map();
-    for (const cmd of unique.values()) {
-      const c = normCat(cmd.category);
-      if (!cats.has(c)) cats.set(c, []);
-      cats.get(c).push(cmd);
-    }
-
-    const all = [];
-    const seen = new Set();
-    for (const c of CAT_ORDER) {
-      if (cats.has(c) && !seen.has(c)) {
-        seen.add(c);
-        all.push(c);
-      }
-    }
-    for (const c of cats.keys()) {
-      if (!seen.has(c)) {
-        seen.add(c);
-        all.push(c);
-      }
     }
 
     const output = [];
 
-    // Encabezado principal modernizado
-    output.push(`🌟 ═══『 ◈ *RolBot V1* ◈ 』═══ 🌟`);
-    output.push(`│ 🤖 *Centro de Comandos*`);
-    output.push(`│ 💡 _Usa /comando para ejecutar_`);
-    output.push(`╰────────────────⟡\n`);
+    output.push(
+      `\uD83C\uDF1F \u2550\u2550\u2550\u2500\u300E \u25C8 *RolBot V1* \u25C8 \u3001\u2550\u2550\u2550\u2500 \uD83C\uDF1F`,
+    );
+    output.push(`\u2502 \uD83E\uDD16 *Centro de Comandos*`);
+    output.push(`\u2502 \uD83D\uDCA1 _Usa /comando para ejecutar_`);
+    output.push(
+      `\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u253C\n`,
+    );
 
-    // Iteración de categorías
-    for (const c of all) {
-      const meta = CAT_META[c] || { emoji: "📂", label: c.toUpperCase() };
-      const title = `${meta.emoji} ${meta.label}`;
+    for (const section of SECTIONS) {
+      const sectionCmds = [];
 
-      const cmds = cats.get(c).sort((a, b) => a.name.localeCompare(b.name, "es"));
+      for (const cmd of unique.values()) {
+        if (section.filter(cmd)) {
+          sectionCmds.push(cmd);
+        }
+      }
 
-      const normal = cmds.filter((cmd) => getGroup(cmd) !== "admin");
-      const admin = cmds.filter((cmd) => getGroup(cmd) === "admin");
+      if (sectionCmds.length === 0) continue;
 
-      output.push(buildSection(title, normal, admin));
+      sectionCmds.sort((a, b) => a.name.localeCompare(b.name, "es"));
+
+      output.push(`\u256D\u2500\u300C ${section.emoji} *${section.label}* \u300D`);
+      output.push(`\u2502`);
+
+      const bySubcat = new Map();
+      for (const cmd of sectionCmds) {
+        const sub = getSubcat(cmd);
+        if (!bySubcat.has(sub)) bySubcat.set(sub, []);
+        bySubcat.get(sub).push(cmd);
+      }
+
+      const subcatOrder = SUBCAT_ORDER.filter((s) => bySubcat.has(s));
+      for (const s of bySubcat.keys()) {
+        if (!subcatOrder.includes(s)) subcatOrder.push(s);
+      }
+
+      for (const sub of subcatOrder) {
+        const cmds = bySubcat.get(sub);
+        if (!cmds || cmds.length === 0) continue;
+        output.push(buildSubcatBlock(sub, cmds));
+      }
     }
 
-    // Pie de página
-    output.push(`🤖 *RolBotV1*  ·  ${unique.size} comandos  ·  👑 *Nekomaid*`);
+    output.push(`\uD83E\uDD16 *RolBotV1*  \u00B7  ${unique.size} comandos  \u00B7  \uD83D\uDC51 *Nekomaid*`);
 
     await ctx.reply(output.join("\n"));
   },

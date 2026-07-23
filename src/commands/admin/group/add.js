@@ -7,7 +7,7 @@ module.exports = {
   name: "add",
   aliases: ["agregar", "invitar"],
   description: "Agrega un usuario al grupo mediante link de invitación.",
-  category: "grupo",
+  category: "admin",
   groupOnly: true,
   adminOnly: true,
 

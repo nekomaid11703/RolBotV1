@@ -20,7 +20,7 @@ module.exports = {
   name: "eco_admin_add",
   aliases: ["eaa", "econ_admin_add"],
   description: "Otorga permiso de economía a un usuario.(Solo para el creador del bot)",
-  category: "permisos",
+  category: "admin",
   creatorOnly: true,
 
   async execute(ctx) {

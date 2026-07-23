@@ -10,7 +10,7 @@ module.exports = {
   name: "actividad_global",
   aliases: ["act_global", "actividad_total", "global_actividad"],
   description: "Muestra la actividad global de un usuario y el top general del bot.",
-  category: "grupo",
+  category: "admin",
 
   async execute(ctx) {
     const targetId = getFirstMentionedJid(ctx) || ctx.senderJid || ctx.sender;

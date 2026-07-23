@@ -6,7 +6,7 @@ module.exports = {
   name: "mis_pj",
   aliases: ["pjs", "listar_pj"],
   description: "Lista tus personajes creados.",
-  category: "personajes",
+  category: "rpg",
 
   async execute(ctx) {
     const characters = await listCharacters({

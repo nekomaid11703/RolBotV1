@@ -21,7 +21,7 @@ module.exports = {
   name: "eco_admin_rem",
   aliases: ["ear", "econ_admin_rem"],
   description: "Quita permiso de economía a un usuario.(Solo para el creador del bot)",
-  category: "permisos",
+  category: "admin",
   creatorOnly: true,
 
   async execute(ctx) {

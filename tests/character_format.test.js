@@ -6,7 +6,7 @@ const mockCharacter = {
   rango: "F",
   nivel: 25,
   hp_actual: 75,
-  stats: { str: 4, def: 1, spd_atk: 3, ref: 1, spd_mov: 1 },
+  stats: { atk: 4, def: 1, aspd: 3, ref: 1, mspd: 1 },
   slots: {
     historia: "Un viajero que busca reliquias antiguas.",
     habilidades: ["golpe_fuerte"],
@@ -71,11 +71,11 @@ describe("characterFormatUtils — formatCharacter", () => {
 
   it("Incluye todas las stats", () => {
     const output = formatCharacter(mockCharacter);
-    expect(output).toContain("STR: 4");
+    expect(output).toContain("ATK: 4");
     expect(output).toContain("DEF: 1");
-    expect(output).toContain("SPD_ATK: 3");
+    expect(output).toContain("ASPD: 3");
     expect(output).toContain("REF: 1");
-    expect(output).toContain("SPD_MOV: 1");
+    expect(output).toContain("MSPD: 1");
   });
 
   it("Incluye las habilidades equipadas", () => {

@@ -6,6 +6,10 @@ const { supabase } = require("../database/supabase");
 
 const PERMISSIONS_SESSION = "permissions";
 
+/**
+ *
+ * @param candidate
+ */
 function resolveCandidateId(candidate) {
   if (candidate && typeof candidate === "object") {
     return (
@@ -24,10 +28,19 @@ function resolveCandidateId(candidate) {
   return candidate || null;
 }
 
+/**
+ *
+ * @param profile
+ * @param fallback
+ */
 function pickDisplayName(profile, fallback = "usuario") {
   return getProfileDisplayName(profile, fallback);
 }
 
+/**
+ *
+ * @param userId
+ */
 async function readPermissions(userId) {
   const { data } = await supabase
     .from("bot_auth_state")
@@ -38,6 +51,11 @@ async function readPermissions(userId) {
   return data?.data || {};
 }
 
+/**
+ *
+ * @param userId
+ * @param permissions
+ */
 async function writePermissions(userId, permissions) {
   await supabase.from("bot_auth_state").upsert(
     {
@@ -49,6 +67,10 @@ async function writePermissions(userId, permissions) {
   );
 }
 
+/**
+ *
+ * @param candidate
+ */
 async function isEconomyAdmin(candidate) {
   if (isOwner(candidate)) {
     return true;
@@ -63,10 +85,18 @@ async function isEconomyAdmin(candidate) {
   return Boolean(perms.economyAdmin);
 }
 
+/**
+ *
+ * @param candidate
+ */
 async function hasEconomyPermission(candidate) {
   return await isEconomyAdmin(candidate);
 }
 
+/**
+ *
+ * @param root0
+ */
 async function setEconomyAdmin({
   userId,
   userName = "usuario",
@@ -101,12 +131,140 @@ async function setEconomyAdmin({
   return data.profile;
 }
 
+/**
+ *
+ */
 async function listEconomyAdmins() {
+  return listAdminsForCategory("economy");
+}
+
+const CATEGORY_LABELS = {
+  economy: "economía",
+  items: "ítems",
+};
+
+/**
+ *
+ * @param category
+ */
+function getCategoryLabel(category) {
+  return CATEGORY_LABELS[category] || category;
+}
+
+/**
+ *
+ * @param candidate
+ * @param category
+ */
+async function isAdminForCategory(candidate, category) {
+  if (isOwner(candidate)) {
+    return true;
+  }
+
+  const userId = resolveCandidateId(candidate);
+  if (!userId) {
+    return false;
+  }
+
+  const perms = await readPermissions(userId);
+
+  if (perms.categories && typeof perms.categories[category] === "string") {
+    return true;
+  }
+
+  if (category === "economy" && perms.economyAdmin) {
+    return true;
+  }
+
+  return false;
+}
+
+/**
+ *
+ * @param candidate
+ * @param category
+ */
+async function hasPermissionForCategory(candidate, category) {
+  return await isAdminForCategory(candidate, category);
+}
+
+/**
+ *
+ * @param root0
+ */
+async function setAdminForCategory({
+  userId,
+  userName = "usuario",
+  category,
+  enabled = true,
+  createIfMissing = true,
+  registration = {},
+}) {
+  if (!category || typeof category !== "string") {
+    throw new Error("Se requiere una categoría válida.");
+  }
+
+  const data = createIfMissing
+    ? await getOrCreateProfile({
+        creatorId: userId,
+        creatorName: userName,
+        registration: {
+          ...registration,
+          displayName: registration.displayName || userName,
+          source: registration.source || "permission_service",
+          scope: registration.scope || "target",
+          createdBy: registration.createdBy || userId,
+        },
+      })
+    : await getUserProfile({ creatorId: userId });
+
+  if (!data) {
+    throw new Error("El usuario no tiene perfil.");
+  }
+
+  const perms = await readPermissions(userId);
+
+  if (!perms.categories) {
+    perms.categories = {};
+  }
+
+  if (enabled) {
+    perms.categories[category] = new Date().toISOString();
+  } else {
+    delete perms.categories[category];
+  }
+
+  if (category === "economy") {
+    perms.economyAdmin = Boolean(enabled);
+    if (enabled) {
+      perms.grantedAt = perms.grantedAt || new Date().toISOString();
+    } else {
+      delete perms.grantedAt;
+    }
+  }
+
+  await writePermissions(userId, perms);
+
+  return data.profile;
+}
+
+/**
+ *
+ * @param category
+ */
+async function listAdminsForCategory(category) {
   const { data: rows } = await supabase.from("bot_auth_state").select("id, data").eq("session_id", PERMISSIONS_SESSION);
 
   if (!rows || rows.length === 0) return [];
 
-  const adminIds = rows.filter((row) => row.data && row.data.economyAdmin === true).map((row) => row.id);
+  const adminIds = rows
+    .filter((row) => {
+      if (!row.data) return false;
+      if (row.data.categories && typeof row.data.categories[category] === "string") return true;
+      if (category === "economy" && row.data.economyAdmin === true) return true;
+      return false;
+    })
+    .map((row) => row.id);
 
   if (adminIds.length === 0) return [];
 
@@ -118,7 +276,10 @@ async function listEconomyAdmins() {
 
   const permData = {};
   for (const row of rows) {
-    if (row.data && row.data.economyAdmin === true) {
+    if (!row.data) continue;
+    if (row.data.categories && typeof row.data.categories[category] === "string") {
+      permData[row.id] = row.data.categories[category];
+    } else if (category === "economy" && row.data.economyAdmin === true) {
       permData[row.id] = row.data.grantedAt || null;
     }
   }
@@ -137,9 +298,37 @@ async function listEconomyAdmins() {
     .sort((a, b) => String(a.displayName).localeCompare(String(b.displayName), "es"));
 }
 
+/**
+ *
+ */
+async function listAllCategories() {
+  const { data: rows } = await supabase.from("bot_auth_state").select("id, data").eq("session_id", PERMISSIONS_SESSION);
+
+  if (!rows || rows.length === 0) return [];
+
+  const categories = new Set();
+
+  for (const row of rows) {
+    if (!row.data) continue;
+    if (row.data.categories) {
+      for (const cat of Object.keys(row.data.categories)) {
+        categories.add(cat);
+      }
+    }
+  }
+
+  return [...categories].sort();
+}
+
 module.exports = {
   isEconomyAdmin,
   hasEconomyPermission,
   setEconomyAdmin,
   listEconomyAdmins,
+  isAdminForCategory,
+  hasPermissionForCategory,
+  setAdminForCategory,
+  listAdminsForCategory,
+  listAllCategories,
+  getCategoryLabel,
 };

@@ -4,6 +4,58 @@ Este archivo registra los cambios significativos y decisiones arquitectónicas t
 
 ---
 
+## [2.2.0] - 2026-07-21
+
+### Rediseño Completo del Sistema de Combate por Turnos y Formato Único de Mensaje
+
+**Objetivo:** Rediseñar el flujo de combate RPG para operar de forma totalmente asíncrona por turnos, eliminando la ejecución automática de turnos en `/retar`, agregando submenús de reacción (`/esquivar`, `/bloquear`), garantizando 1 único mensaje formateado por evento y permitiendo el modo entrenamiento PvE en mensajes directos (DM).
+
+#### Cambios Implementados:
+- **`src/config/combatConfig.js`**:
+  - Añadido enum `SESSION_STATES` (`WAITING_ACTION`, `WAITING_REACTION`, `COMPLETED`, `EXPIRED`).
+- **`src/services/rpg/combatState.js`**:
+  - Actualizado para inicializar sesiones en `waiting_action`.
+  - Añadidas funciones `setPendingReaction`, `clearPendingReaction` e `isSessionActive` para soportar la fase de reacción del jugador.
+  - Generación de identificadores de dummy únicos (`dummy_<timestamp>_<random>`) para prevenir colisiones entre combates.
+- **`src/services/rpg/combatEngine.js`**:
+  - Desacoplado `executeTurn` en `executeAttack`, `executeReaction` y `chooseAiReaction` manteniendo compatibilidad.
+- **`src/services/rpg/combatMessages.js`**:
+  - Diseñados formateadores de mensaje único (`formatCombatOpen`, `formatActionMenu`, `formatReactionPrompt`, `formatCombatStatus`) que devuelven la información del turno en una sola caja sin spam de mensajes.
+- **Comandos de combate (`retar.js`, `atacar.js`, `estado.js`, `esquivar.js`, `bloquear.js`)**:
+  - `/retar`: Elimina la ejecución automática de turnos. Envía un único mensaje de apertura con stats de ambos y menú de acción. Permite `/retar dummy` en mensajes privados (DM).
+  - `/atacar`: Procesa el ataque del jugador, contraataque del dummy o solicitudes de reacción en un solo mensaje. Removido `groupOnly` para soporte en DM.
+  - `/esquivar` y `/bloquear`: Creados nuevos comandos para que el jugador responda a ataques que superen la condición de reacción (REF/MSPD ≥ ASPD).
+  - `/estado`: Eliminadas respuestas dobles/contradictorias. Muestra el estado actual y el menú de acción o submenú de reacción correspondiente en un único mensaje.
+- **Pruebas unitarias**:
+  - Creado `tests/combat_messages.test.js` (4 nuevas pruebas para formateadores de mensaje único).
+  - Actualizado `tests/combat_engine.test.js` y `tests/combat_ai.test.js` (232/232 pruebas unitarias pasando en Vitest).
+
+---
+
+### Refactorización y Pulido de la Fase 2 — Sistema de Combate e Inventario
+
+**Objetivo:** Auditar y refactorizar el código implementado por el agente secundario para garantizar el anclaje de combate al personaje (`characterId`), normalización de estadísticas y alineación con las especificaciones del plan original.
+
+#### Cambios Implementados:
+- **`src/services/rpg/combatState.js`**:
+  - Refactorizado para indexar sesiones de combate por `characterId` (personaje activo) en lugar de por `userId`.
+  - Añadida función `findSessionByCharacter(characterId)` para permitir la alternancia de personajes (`/switch_pj`) y combates paralelos de un mismo usuario.
+  - Limpieza automática de temporizadores `setTimeout` al finalizar/expirar sesiones para prevenir fugas de memoria.
+- **`src/services/rpg/combatEngine.js`**:
+  - Añadido normalizador de estadísticas `normalizeStats` que soporta aliasing (`atk`/`fuerza`/`str`, `def`/`defensa`, `aspd`/`velocidad_ataque`, `ref`/`reflejos`, `mspd`/`velocidad_movimiento`).
+  - Corregida la fórmula de XP según la especificación: `50 + (nivel * 2)` para el ganador y 30% para el perdedor.
+- **`src/commands/rpg/combat/retar.js` & `atacar.js` & `estado.js`**:
+  - Actualizados para validar y operar sobre la sesión del personaje activo (`activeChar.id`).
+  - Añadida sugerencia amigable de `/switch_pj <nombre>` cuando el usuario intenta responder a un combate con un personaje activo diferente al que está en batalla.
+  - Sincronización de HP y asignación de XP en Supabase al finalizar la batalla.
+- **`src/services/rpg/inventoryService.js`**:
+  - `useItem` sincroniza inmediatamente la curación con la sesión activa en memoria si el personaje se encuentra en combate.
+- **Pruebas y Grafo**:
+  - Actualizado `tests/combat_engine.test.js` (225/225 pruebas unitarias pasando en Vitest).
+  - Grafo AST actualizado con Graphify (`951 nodos, 2108 bordes`).
+
+---
+
 ## [2.0.1] - 2026-07-11
 
 ### Operativización de Graphify como Herramienta Central
@@ -154,3 +206,29 @@ Este archivo registra los cambios significativos y decisiones arquitectónicas t
 - `AUDITORIA_COMPLETA.md` — Auditoría viva actualizada
 - `README.md` — Reescrito completo
 - `AI_CHANGELOG.md` — Esta entrada
+
+---
+
+## [3.1.0] - 2026-07-21
+
+### Auditoría de Salubridad y Mantenimiento de Limpieza (Recomendaciones 1 y 2 Aplicadas)
+
+#### Tareas Completadas
+- **Recomendación 1 — Higiene de Tests Obsoletos:** Se archivaron `tests/carta_blanca.test.js` y `tests/test_carta_blanca_inventory.js` en `_archive/` (probaban sistemas de combate de IA e inventario obsoletos y eliminados).
+- **Recomendación 2 — Purga de Código Muerto:** 
+  - Se movió `src/services/characterProgressionService.js` (233 líneas de servicio no utilizado) a `_archive/characterProgressionService.js`.
+  - Se eliminaron las importaciones no utilizadas (`formatFeedback`, `buildFeedbackBody`, `compactLines`) en `src/utils/messageFormatUtils.js`.
+- **Formateo completo:** Se corrigieron 5 archivos `.js` con problemas de formato según Prettier (`npm run format`).
+- **Actualización de problemas conocidos:** Se marcó `KI-001` en `memory/known_issues.md` como resuelto.
+- **Verificación Completa:** `npm run check:all` finalizó 100% verde (0 errores de ESLint, 0 errores de TypeScript, 10/10 test files y 191/191 tests pasados en Vitest).
+- **Actualización del Grafo:** `graphify:update` completado exitosamente (853 nodos, 1845 edges, 63 comunidades).
+
+#### Archivos modificados/archivados:
+- `tests/carta_blanca.test.js` ➔ Movido a `_archive/`
+- `tests/test_carta_blanca_inventory.js` ➔ Movido a `_archive/`
+- `src/services/characterProgressionService.js` ➔ Movido a `_archive/`
+- `src/utils/messageFormatUtils.js` ➔ Limpieza de imports no usados
+- `memory/known_issues.md` ➔ Mover KI-001 a resueltos
+- `AI_CHANGELOG.md` ➔ Esta entrada
+
+

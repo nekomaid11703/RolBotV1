@@ -10,7 +10,7 @@ module.exports = {
   name: "unwarn",
   aliases: ["quitar_warn", "disculpar"],
   description: "Elimina el último warn de un usuario en el grupo.",
-  category: "grupo",
+  category: "admin",
   groupOnly: true,
   adminOnly: true,
 

@@ -5,7 +5,7 @@ module.exports = {
   name: "promote",
   aliases: ["admin", "dar_admin"],
   description: "Promueve a un usuario a administrador del grupo.",
-  category: "grupo",
+  category: "admin",
   groupOnly: true,
   adminOnly: true,
 

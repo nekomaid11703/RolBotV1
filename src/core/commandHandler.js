@@ -3,7 +3,7 @@ const path = require("path");
 
 const { isAdmin, isBotAdmin, isOnGroup } = require("../utils/groupUtils");
 const { isOwner } = require("../utils/permissionUtils");
-const { hasEconomyPermission } = require("../services/permissionService");
+const { hasEconomyPermission, hasPermissionForCategory, getCategoryLabel } = require("../services/permissionService");
 const { recordUserActivity } = require("../services/userService");
 const { logSystem, logCommand, logError } = require("../services/loggerService");
 const { incrementCommands, incrementErrors, addEvent } = require("../services/stats");
@@ -125,6 +125,28 @@ async function handleCommand(ctx) {
       });
 
       return ctx.reply("❌ Solo los administradores de economía pueden usar este comando.");
+    }
+  }
+
+  if (command.adminPerm) {
+    const allowed = await hasPermissionForCategory(
+      {
+        jid: ctx.senderJid || ctx.sender,
+        phone: ctx.senderNumber,
+        displayName: ctx.userName,
+      },
+      command.adminPerm,
+    );
+
+    if (!allowed) {
+      const catLabel = getCategoryLabel(command.adminPerm);
+      await logCommand({
+        ...logBase,
+        status: "denied",
+        reason: `Solo los administradores de ${catLabel} pueden usar este comando.`,
+      });
+
+      return ctx.reply(`❌ Solo los administradores de ${catLabel} pueden usar este comando.`);
     }
   }
 

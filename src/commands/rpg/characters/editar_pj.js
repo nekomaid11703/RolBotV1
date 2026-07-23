@@ -22,7 +22,7 @@ module.exports = {
   name: "editar_pj",
   aliases: ["edit_pj", "editar_desc"],
   description: "Edita el nombre o historia de tu personaje activo.",
-  category: "personajes",
+  category: "rpg",
 
   async execute(ctx) {
     const rawText = ctx.args.join(" ").trim();

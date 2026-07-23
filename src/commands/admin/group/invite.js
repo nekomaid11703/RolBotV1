@@ -7,7 +7,7 @@ module.exports = {
   name: "invite",
   aliases: ["link", "invitacion"],
   description: "Obtiene el enlace de invitación del grupo.",
-  category: "grupo",
+  category: "admin",
   groupOnly: true,
   adminOnly: true,
 

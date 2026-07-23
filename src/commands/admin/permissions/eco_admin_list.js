@@ -7,7 +7,7 @@ module.exports = {
   name: "eco_admin_list",
   aliases: ["eal", "econ_admin_list"],
   description: "Lista los administradores de economía.(Solo para el creador del bot)",
-  category: "permisos",
+  category: "admin",
   creatorOnly: true,
 
   async execute(ctx) {

@@ -7,7 +7,7 @@ module.exports = {
   name: "grupo_cerrar",
   aliases: ["cerrar", "cerrar_grupo"],
   description: "Cierra el grupo (solo admins pueden enviar mensajes).",
-  category: "grupo",
+  category: "admin",
   groupOnly: true,
   adminOnly: true,
 

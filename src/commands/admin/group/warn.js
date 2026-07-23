@@ -10,7 +10,7 @@ module.exports = {
   name: "warn",
   aliases: ["advertir", "avisar"],
   description: "Añade un warn a un usuario en el grupo.",
-  category: "grupo",
+  category: "admin",
   groupOnly: true,
   adminOnly: true,
 

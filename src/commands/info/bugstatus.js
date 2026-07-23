@@ -6,7 +6,7 @@ const { formatError } = require("../../utils/formatErrorUtils");
 module.exports = {
   name: "bugstatus",
   description: "Ver estado de tus reportes. Uso: /bugstatus [id]",
-  category: "utilidades",
+  category: "info",
 
   async execute(ctx) {
     const id = ctx.args[0];

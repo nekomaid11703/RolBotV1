@@ -5,7 +5,7 @@ module.exports = {
   name: "ban",
   aliases: ["expulsar", "kick"],
   description: "Expulsa a un usuario del grupo.",
-  category: "grupo",
+  category: "admin",
   groupOnly: true,
   adminOnly: true,
 
