@@ -185,6 +185,67 @@ describe("combatEngine — calculateXpReward", () => {
   });
 });
 
+describe("combatEngine — applyPenalties con fatiga", () => {
+  const stats = { atk: 50, def: 40, aspd: 30, ref: 20, mspd: 10 };
+
+  it("fatiga 0 + HP 100 -> sin penalidades", () => {
+    const result = applyPenalties(stats, 100, 0, 50);
+    expect(result.atk).toBe(50);
+    expect(result.aspd).toBe(30);
+  });
+
+  it("fatiga alta (agitado) + HP 100 -> solo speed stats reducidas", () => {
+    const result = applyPenalties(stats, 100, 20, 50);
+    expect(result.atk).toBe(50);
+    expect(result.aspd).toBe(24);
+    expect(result.mspd).toBe(8);
+    expect(result.ref).toBe(16);
+  });
+
+  it("fatiga + HP bajo -> penalidades combinadas", () => {
+    const result = applyPenalties(stats, 50, 20, 50);
+    expect(result.atk).toBe(40);
+    expect(result.aspd).toBe(19);
+  });
+});
+
+describe("combatEngine — calculateDamage con fatiga", () => {
+  const atkStats = { atk: 50, def: 10, aspd: 30, ref: 15, mspd: 10 };
+  const defStats = { atk: 10, def: 30, aspd: 10, ref: 15, mspd: 10 };
+
+  it("fatiga en atacante reduce daño (porque aspd afecta sus penalidades)", () => {
+    const dmgNormal = calculateDamage(atkStats, defStats, 100, 100, 0, 0, 50, 50);
+    const dmgFatigued = calculateDamage(atkStats, defStats, 100, 100, 30, 0, 50, 50);
+    expect(dmgFatigued).toBe(dmgNormal);
+  });
+
+  it("fatiga en defensor puede no afectar daño (solo speed stats)", () => {
+    const dmgNormal = calculateDamage(atkStats, defStats, 100, 100, 0, 0, 50, 50);
+    const dmgDefFatigued = calculateDamage(atkStats, defStats, 100, 100, 0, 30, 50, 50);
+    expect(dmgDefFatigued).toBe(dmgNormal);
+  });
+});
+
+describe("combatEngine — canReact con fatiga", () => {
+  const defender = { atk: 10, def: 10, aspd: 10, ref: 15, mspd: 10 };
+  const fastAttacker = { atk: 10, def: 10, aspd: 20, ref: 5, mspd: 10 };
+
+  it("fatiga en defensor reduce ref -> puede impedir reaccion", () => {
+    const canReactNormal = canReact(defender, 100, fastAttacker, 100, 0, 0, 10, 10);
+    const canReactFatigued = canReact(defender, 100, fastAttacker, 100, 30, 0, 10, 10);
+    expect(canReactNormal).toBe(false);
+    expect(canReactFatigued).toBe(false);
+  });
+
+  it("fatiga alta en atacante reduce aspd -> facilita reaccion del defensor", () => {
+    const slowWithFatigue = { atk: 10, def: 10, aspd: 12, ref: 5, mspd: 10 };
+    const reactVsSlow = canReact(defender, 100, slowWithFatigue, 100, 0, 0, 10, 10);
+    const reactVsSlowFatigued = canReact(defender, 100, slowWithFatigue, 100, 0, 20, 10, 10);
+    expect(reactVsSlow).toBe(true);
+    expect(reactVsSlowFatigued).toBe(true);
+  });
+});
+
 describe("combatState — createSession", () => {
   const charA = { id: 101, name: "A", hp_actual: 100, stats: { hp: 100 } };
   const charB = { id: 102, name: "B", hp_actual: 100, stats: { hp: 100 } };

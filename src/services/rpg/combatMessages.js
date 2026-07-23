@@ -1,5 +1,6 @@
 // @ts-nocheck
 const { box } = require("../../utils/boxUtils");
+const { getFatigueLevel } = require("./fatigueEngine");
 
 /**
  * Genera una barra visual de vida.
@@ -29,6 +30,22 @@ function buildHpBar(current, max = 100) {
 function buildStatSummary(stats = {}) {
   const keys = ["atk", "def", "aspd", "ref", "mspd", "fulgor", "d_fulgor", "r_fulgor"];
   return keys.map((k) => `${k.toUpperCase()}:${stats[k] ?? 0}`).join("  ");
+}
+
+/**
+ *
+ * @param fatigue
+ * @param resistance
+ */
+function buildFatigueBar(fatigue, resistance) {
+  const { name: levelName, ratio } = getFatigueLevel(fatigue, resistance);
+  const icons = { pleno: "\uD83D\uDFE2", agitado: "\uD83D\uDFE0", cansado: "\uD83D\uDFE1", fatigado: "\uD83D\uDD34" };
+  const icon = icons[levelName] || "\u26A0\uFE0F";
+  const pct = Math.min(100, Math.round(ratio * 100));
+  const filled = Math.round(ratio * 10);
+  const empty = 10 - filled;
+  const bar = "\u2588".repeat(Math.min(10, Math.max(0, filled))) + "\u2591".repeat(Math.max(0, empty));
+  return `${icon} [${bar}] ${fatigue}/${resistance} (${pct}%) — ${levelName.charAt(0).toUpperCase() + levelName.slice(1)}`;
 }
 
 /**
@@ -148,11 +165,13 @@ function formatCombatStatus(session) {
   lines.push("── RETADOR ──");
   lines.push(`👤  *${challenger.character.name}*`);
   lines.push(`    ${buildHpBar(challenger.hp)}`);
+  lines.push(`    ${buildFatigueBar(challenger.fatigue || 0, challenger.character.stats.def || 1)}`);
   lines.push(`    ${buildStatSummary(challenger.character.stats)}`);
   lines.push("");
   lines.push("── DEFENSOR ──");
   lines.push(`👤  *${defender.character.name}*`);
   lines.push(`    ${buildHpBar(defender.hp)}`);
+  lines.push(`    ${buildFatigueBar(defender.fatigue || 0, defender.character.stats.def || 1)}`);
   lines.push(`    ${buildStatSummary(defender.character.stats)}`);
   lines.push("");
 
@@ -181,15 +200,20 @@ function formatVictory(winnerName, xpGained) {
  * @param fleerName
  * @param success
  * @param chance
+ * @param fatigue
  */
-function formatFlee(fleerName, success, chance) {
+function formatFlee(fleerName, success, chance, fatigue = 0) {
   const pct = Math.round(chance * 100);
   if (success) {
-    return box("🏃 HUIDA EXITOSA", [
-      "",
-      `✅  *${fleerName}* escapó del combate.`,
-      `📊  Probabilidad de éxito era: ${pct}%`,
-    ]);
+    return box(
+      "🏃 HUIDA EXITOSA",
+      [
+        "",
+        `✅  *${fleerName}* escapó del combate.`,
+        `📊  Probabilidad de éxito era: ${pct}%`,
+        fatigue > 0 ? `⚡ Fatiga acumulada: ${fatigue}` : "",
+      ].filter(Boolean),
+    );
   }
   return box("🏃 HUIDA FALLIDA", [
     "",
@@ -213,6 +237,7 @@ function formatCombatDisolved(adminName) {
 
 module.exports = {
   buildHpBar,
+  buildFatigueBar,
   formatActionMenu,
   formatReactionPrompt,
   formatCombatOpen,

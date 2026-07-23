@@ -8,6 +8,7 @@ const {
   setPendingReaction,
 } = require("../../../services/rpg/combatState");
 const { rollFlee, executeAttack, executeReaction } = require("../../../services/rpg/combatEngine");
+const { calcFatigueCost } = require("../../../services/rpg/fatigueEngine");
 const { formatFlee, formatActionMenu, formatReactionPrompt } = require("../../../services/rpg/combatMessages");
 const { formatError } = require("../../../utils/formatErrorUtils");
 const { box } = require("../../../utils/boxUtils");
@@ -44,18 +45,30 @@ module.exports = {
       const fleerSlot = isChallenger ? session.challenger : session.defender;
       const pursuerSlot = isChallenger ? session.defender : session.challenger;
 
+      const fleeCost = calcFatigueCost("flee");
+      fleerSlot.fatigue += fleeCost;
+
       // En PvE (Dummy), la huida siempre tiene éxito y no da recompensa
       if (session.isPvE) {
         endSession(session.id, null);
-        return ctx.reply(formatFlee(fleerSlot.character.name, true, 1.0));
+        return ctx.reply(formatFlee(fleerSlot.character.name, true, 1.0, fleerSlot.fatigue));
       }
 
       // En PvP, se evalúa la huida según MSPD comparativo
-      const fleeResult = rollFlee(fleerSlot.character.stats, fleerSlot.hp, pursuerSlot.character.stats, pursuerSlot.hp);
+      const fleeResult = rollFlee(
+        fleerSlot.character.stats,
+        fleerSlot.hp,
+        pursuerSlot.character.stats,
+        pursuerSlot.hp,
+        fleerSlot.fatigue,
+        pursuerSlot.fatigue,
+        fleerSlot.character.stats.def || 0,
+        pursuerSlot.character.stats.def || 0,
+      );
 
       if (fleeResult.success) {
         endSession(session.id, null);
-        return ctx.reply(formatFlee(fleerSlot.character.name, true, fleeResult.chance));
+        return ctx.reply(formatFlee(fleerSlot.character.name, true, fleeResult.chance, fleerSlot.fatigue));
       }
 
       // Si la huida falla, el jugador pierde el turno y sufre el ataque automático del perseguidor
@@ -63,8 +76,15 @@ module.exports = {
       lines.push("");
       lines.push(`❌  *${fleerSlot.character.name}* intentó huir pero fue alcanzado.`);
       lines.push(`📊  Probabilidad de huida: ${Math.round(fleeResult.chance * 100)}% — ¡Falló!`);
+      lines.push(`⚡ Fatiga: ${fleerSlot.fatigue} (+${fleeCost} por intento de huida)`);
 
-      const attackInfo = executeAttack(pursuerSlot.character, fleerSlot.character, fleerSlot.hp);
+      const attackInfo = executeAttack(
+        pursuerSlot.character,
+        fleerSlot.character,
+        fleerSlot.hp,
+        pursuerSlot.fatigue,
+        fleerSlot.fatigue,
+      );
 
       if (attackInfo.canReact) {
         const { evaluateDodgeFeasibility } = require("../../../services/rpg/combatEngine");
@@ -73,6 +93,10 @@ module.exports = {
           fleerSlot.hp,
           pursuerSlot.character.stats,
           pursuerSlot.character.hp_actual || 100,
+          fleerSlot.fatigue,
+          pursuerSlot.fatigue,
+          fleerSlot.character.stats.def || 0,
+          pursuerSlot.character.stats.def || 0,
         );
 
         setPendingReaction(session.id, {
@@ -102,6 +126,8 @@ module.exports = {
           fleerSlot.character,
           fleerSlot.hp,
           pursuerSlot.character,
+          fleerSlot.fatigue,
+          pursuerSlot.fatigue,
         );
 
         const newFleerHp = reactionResult.defenderHpAfter;

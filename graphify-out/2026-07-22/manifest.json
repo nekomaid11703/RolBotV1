@@ -164,6 +164,26 @@
     "ast_hash": "5c8324f2a2a80236104f198a3c1e3f9d",
     "semantic_hash": "5c8324f2a2a80236104f198a3c1e3f9d"
   },
+  "tests/test_cache_state_version.js": {
+    "mtime": 1784076343.175127,
+    "ast_hash": "9964b3c96bb8e693e2f772b122180278",
+    "semantic_hash": "9964b3c96bb8e693e2f772b122180278"
+  },
+  "tests/test_command_usage_format.js": {
+    "mtime": 1784429867.9246888,
+    "ast_hash": "f6419d9c67e795a17f0fa6c40b3ded63",
+    "semantic_hash": "f6419d9c67e795a17f0fa6c40b3ded63"
+  },
+  "tests/test_crear_pj.js": {
+    "mtime": 1784072082.656569,
+    "ast_hash": "6c61a7f5e2093594044f40598c2118fb",
+    "semantic_hash": "6c61a7f5e2093594044f40598c2118fb"
+  },
+  "tests/test_helpers.js": {
+    "mtime": 1784072082.7562737,
+    "ast_hash": "8d537a0d5e8c4d19c2ec54288acdd2ff",
+    "semantic_hash": "8d537a0d5e8c4d19c2ec54288acdd2ff"
+  },
   "tests/test_supabase_schema.js": {
     "mtime": 1784072083.2085261,
     "ast_hash": "ca50c8a899d8e5625258dcd01f487350",
@@ -439,6 +459,16 @@
     "ast_hash": "5ea926f84b1657b2ec18657db92fc246",
     "semantic_hash": ""
   },
+  "tests/test_logger_service.js": {
+    "mtime": 1784230148.6178248,
+    "ast_hash": "de62ee755939b7d8a0bc60befe10f722",
+    "semantic_hash": "de62ee755939b7d8a0bc60befe10f722"
+  },
+  "tests/test_message_format_utils.js": {
+    "mtime": 1784230149.0785303,
+    "ast_hash": "f36c7d850b09916552ba96ecaa0115ed",
+    "semantic_hash": "f36c7d850b09916552ba96ecaa0115ed"
+  },
   "COMBATSISTEM.md": {
     "mtime": 1783726672.5436168,
     "ast_hash": "40ffb97bd8fc06cd1aee6ead0605343c",
@@ -609,10 +639,20 @@
     "ast_hash": "7c5855ab7d81ad505ebf3293edf45f40",
     "semantic_hash": "7c5855ab7d81ad505ebf3293edf45f40"
   },
+  "tests/cache_state.test.js": {
+    "mtime": 1784230511.8537037,
+    "ast_hash": "92b53f53a5d01e121e8bebdc44d63136",
+    "semantic_hash": "92b53f53a5d01e121e8bebdc44d63136"
+  },
   "tests/command_format.test.js": {
     "mtime": 1784429867.9246888,
     "ast_hash": "6590fdc7c2042cc36e3fb023ebd7a8f8",
     "semantic_hash": "6590fdc7c2042cc36e3fb023ebd7a8f8"
+  },
+  "tests/crear_pj.test.js": {
+    "mtime": 1784770113.4789155,
+    "ast_hash": "4d8d57a937de089520919f9728cbee4d",
+    "semantic_hash": ""
   },
   "tests/logger.test.js": {
     "mtime": 1784230512.2619112,
@@ -810,8 +850,8 @@
     "semantic_hash": ""
   },
   "tests/inventory.test.js": {
-    "mtime": 1784773288.5508916,
-    "ast_hash": "e911cad4a6b874a9244d0bdc4d408ed8",
+    "mtime": 1784770114.3459222,
+    "ast_hash": "dca19e8f09c77cc0e43b8e3b21430ca8",
     "semantic_hash": ""
   },
   "src/services/rpg/combatAI.js": {
@@ -820,8 +860,8 @@
     "semantic_hash": ""
   },
   "tests/combat_ai.test.js": {
-    "mtime": 1784773027.0361044,
-    "ast_hash": "4686da272724baca9135d24d978e479c",
+    "mtime": 1784768820.2373984,
+    "ast_hash": "3e44fbd14711ba909431fec307ea359b",
     "semantic_hash": ""
   },
   "src/commands/rpg/combat/bloquear.js": {
@@ -894,14 +934,19 @@
     "ast_hash": "bf2824fe8fcce5524f5c9dcb0802d935",
     "semantic_hash": ""
   },
+  "tests/character_service.test.js": {
+    "mtime": 1784771548.602257,
+    "ast_hash": "cd2b30ff67fada02babce9a59d547d29",
+    "semantic_hash": ""
+  },
   "tests/combat_state.test.js": {
     "mtime": 1784771663.9310286,
     "ast_hash": "02177457d00d32b648c12c8df78b32b1",
     "semantic_hash": ""
   },
   "tests/economy_service.test.js": {
-    "mtime": 1784773054.7523742,
-    "ast_hash": "3c89ebc12e98b16aae1ba2060b9427e1",
+    "mtime": 1784772128.6087186,
+    "ast_hash": "146e4513719361a328e3bb398f94a9a6",
     "semantic_hash": ""
   },
   "tests/permission_service.test.js": {

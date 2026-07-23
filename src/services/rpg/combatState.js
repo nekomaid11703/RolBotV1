@@ -180,6 +180,7 @@ async function createSession(challengerId, defenderId, challengerChar, defenderC
       character: challengerChar,
       hp: challengerChar.hp_actual,
       isBot: false,
+      fatigue: 0,
     },
     defender: {
       userId: defenderId,
@@ -187,6 +188,7 @@ async function createSession(challengerId, defenderId, challengerChar, defenderC
       character: defenderChar,
       hp: defenderChar.hp_actual,
       isBot: false,
+      fatigue: 0,
     },
     currentTurnCharId: challengerChar.id,
     status: SESSION_STATES.WAITING_ACTION,
@@ -225,6 +227,7 @@ async function createDummySession(challengerId, challengerChar) {
       character: challengerChar,
       hp: challengerChar.hp_actual,
       isBot: false,
+      fatigue: 0,
     },
     defender: {
       userId: "bot_dummy",
@@ -232,6 +235,7 @@ async function createDummySession(challengerId, challengerChar) {
       character: dummyChar,
       hp: dummyChar.hp_actual,
       isBot: true,
+      fatigue: 0,
     },
     currentTurnCharId: challengerChar.id,
     status: SESSION_STATES.WAITING_ACTION,

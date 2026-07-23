@@ -1,6 +1,7 @@
 // @ts-nocheck
 const { DAMAGE_MIN, BLOCK_REDUCTION } = require("../../config/combatConfig");
 const { getHpState } = require("../../config/characterConfig");
+const { applyFatiguePenalties } = require("./fatigueEngine");
 
 /**
  *
@@ -23,15 +24,19 @@ function normalizeStats(stats = {}) {
  *
  * @param stats
  * @param hp
+ * @param fatigue
+ * @param resistance
  */
-function applyPenalties(stats, hp) {
+function applyPenalties(stats, hp, fatigue = 0, resistance = 0) {
+  const fatigueApplied = fatigue > 0 ? applyFatiguePenalties(stats, fatigue, resistance) : { ...normalizeStats(stats) };
+  const normalized = normalizeStats(fatigueApplied);
+
   const hpState = getHpState(hp);
-  const penalty = hpState ? hpState.penalty : 0;
-  const normalized = normalizeStats(stats);
+  const hpPenalty = hpState ? hpState.penalty : 0;
 
   const penalized = {};
   for (const key of Object.keys(normalized)) {
-    penalized[key] = Math.max(0, Math.round(normalized[key] * (1 - penalty)));
+    penalized[key] = Math.max(0, Math.round(normalized[key] * (1 - hpPenalty)));
   }
   return penalized;
 }
@@ -42,10 +47,23 @@ function applyPenalties(stats, hp) {
  * @param defenderStats
  * @param attackerHp
  * @param defenderHp
+ * @param attackerFatigue
+ * @param defenderFatigue
+ * @param attackerRes
+ * @param defenderRes
  */
-function calculateDamage(attackerStats, defenderStats, attackerHp, defenderHp) {
-  const atkPenalized = applyPenalties(attackerStats, attackerHp);
-  const defPenalized = applyPenalties(defenderStats, defenderHp);
+function calculateDamage(
+  attackerStats,
+  defenderStats,
+  attackerHp,
+  defenderHp,
+  attackerFatigue = 0,
+  defenderFatigue = 0,
+  attackerRes = 0,
+  defenderRes = 0,
+) {
+  const atkPenalized = applyPenalties(attackerStats, attackerHp, attackerFatigue, attackerRes);
+  const defPenalized = applyPenalties(defenderStats, defenderHp, defenderFatigue, defenderRes);
 
   const rawDamage = atkPenalized.atk - defPenalized.def;
   return Math.max(DAMAGE_MIN, rawDamage);
@@ -57,10 +75,23 @@ function calculateDamage(attackerStats, defenderStats, attackerHp, defenderHp) {
  * @param defenderHp
  * @param attackerStats
  * @param attackerHp
+ * @param defenderFatigue
+ * @param attackerFatigue
+ * @param defenderRes
+ * @param attackerRes
  */
-function canReact(defenderStats, defenderHp, attackerStats, attackerHp) {
-  const defPenalized = applyPenalties(defenderStats, defenderHp);
-  const atkPenalized = applyPenalties(attackerStats, attackerHp);
+function canReact(
+  defenderStats,
+  defenderHp,
+  attackerStats,
+  attackerHp,
+  defenderFatigue = 0,
+  attackerFatigue = 0,
+  defenderRes = 0,
+  attackerRes = 0,
+) {
+  const defPenalized = applyPenalties(defenderStats, defenderHp, defenderFatigue, defenderRes);
+  const atkPenalized = applyPenalties(attackerStats, attackerHp, attackerFatigue, attackerRes);
   return defPenalized.ref >= atkPenalized.aspd;
 }
 
@@ -70,11 +101,24 @@ function canReact(defenderStats, defenderHp, attackerStats, attackerHp) {
  * @param defenderHp
  * @param attackerStats
  * @param attackerHp
+ * @param defenderFatigue
+ * @param attackerFatigue
+ * @param defenderRes
+ * @param attackerRes
  * @returns {boolean} true si el jugador podrá esquivar completamente
  */
-function evaluateDodgeFeasibility(defenderStats, defenderHp, attackerStats, attackerHp) {
-  const defPenalized = applyPenalties(defenderStats, defenderHp);
-  const atkPenalized = applyPenalties(attackerStats, attackerHp);
+function evaluateDodgeFeasibility(
+  defenderStats,
+  defenderHp,
+  attackerStats,
+  attackerHp,
+  defenderFatigue = 0,
+  attackerFatigue = 0,
+  defenderRes = 0,
+  attackerRes = 0,
+) {
+  const defPenalized = applyPenalties(defenderStats, defenderHp, defenderFatigue, defenderRes);
+  const atkPenalized = applyPenalties(attackerStats, attackerHp, attackerFatigue, attackerRes);
   return defPenalized.mspd >= atkPenalized.aspd;
 }
 
@@ -84,11 +128,24 @@ function evaluateDodgeFeasibility(defenderStats, defenderHp, attackerStats, atta
  * @param fleerHp
  * @param pursuerStats
  * @param pursuerHp
+ * @param fleerFatigue
+ * @param pursuerFatigue
+ * @param fleerRes
+ * @param pursuerRes
  * @returns {{ chance: number, roll: number, success: boolean }}
  */
-function rollFlee(fleerStats, fleerHp, pursuerStats, pursuerHp) {
-  const fleerPenalized = applyPenalties(fleerStats, fleerHp);
-  const pursuerPenalized = applyPenalties(pursuerStats, pursuerHp);
+function rollFlee(
+  fleerStats,
+  fleerHp,
+  pursuerStats,
+  pursuerHp,
+  fleerFatigue = 0,
+  pursuerFatigue = 0,
+  fleerRes = 0,
+  pursuerRes = 0,
+) {
+  const fleerPenalized = applyPenalties(fleerStats, fleerHp, fleerFatigue, fleerRes);
+  const pursuerPenalized = applyPenalties(pursuerStats, pursuerHp, pursuerFatigue, pursuerRes);
 
   let chance;
   if (fleerPenalized.mspd > pursuerPenalized.mspd) {
@@ -120,10 +177,23 @@ function attemptBlock(incomingDamage) {
  * @param defenderHp
  * @param attackerStats
  * @param attackerHp
+ * @param defenderFatigue
+ * @param attackerFatigue
+ * @param defenderRes
+ * @param attackerRes
  */
-function attemptDodge(defenderStats, defenderHp, attackerStats, attackerHp) {
-  const defPenalized = applyPenalties(defenderStats, defenderHp);
-  const atkPenalized = applyPenalties(attackerStats, attackerHp);
+function attemptDodge(
+  defenderStats,
+  defenderHp,
+  attackerStats,
+  attackerHp,
+  defenderFatigue = 0,
+  attackerFatigue = 0,
+  defenderRes = 0,
+  attackerRes = 0,
+) {
+  const defPenalized = applyPenalties(defenderStats, defenderHp, defenderFatigue, defenderRes);
+  const atkPenalized = applyPenalties(attackerStats, attackerHp, attackerFatigue, attackerRes);
 
   if (defPenalized.mspd >= atkPenalized.aspd) {
     return { dodged: true, damage: 0 };
@@ -136,13 +206,35 @@ function attemptDodge(defenderStats, defenderHp, attackerStats, attackerHp) {
  * @param attackerChar
  * @param defenderChar
  * @param defenderHp
+ * @param attackerFatigue
+ * @param defenderFatigue
  */
-function executeAttack(attackerChar, defenderChar, defenderHp) {
+function executeAttack(attackerChar, defenderChar, defenderHp, attackerFatigue = 0, defenderFatigue = 0) {
   const attackerStats = attackerChar.stats || {};
   const defenderStats = defenderChar.stats || {};
+  const attackerRes = attackerStats.def || 0;
+  const defenderRes = defenderStats.def || 0;
 
-  const baseDamage = calculateDamage(attackerStats, defenderStats, attackerChar.hp_actual, defenderHp);
-  const reactPossible = canReact(defenderStats, defenderHp, attackerStats, attackerChar.hp_actual);
+  const baseDamage = calculateDamage(
+    attackerStats,
+    defenderStats,
+    attackerChar.hp_actual,
+    defenderHp,
+    attackerFatigue,
+    defenderFatigue,
+    attackerRes,
+    defenderRes,
+  );
+  const reactPossible = canReact(
+    defenderStats,
+    defenderHp,
+    attackerStats,
+    attackerChar.hp_actual,
+    defenderFatigue,
+    attackerFatigue,
+    defenderRes,
+    attackerRes,
+  );
 
   return {
     attackerName: attackerChar.name,
@@ -160,17 +252,38 @@ function executeAttack(attackerChar, defenderChar, defenderHp) {
  * @param defenderChar
  * @param defenderHp
  * @param attackerChar
+ * @param defenderFatigue
+ * @param attackerFatigue
  */
-function executeReaction(reactionType, baseDamage, defenderChar, defenderHp, attackerChar) {
+function executeReaction(
+  reactionType,
+  baseDamage,
+  defenderChar,
+  defenderHp,
+  attackerChar,
+  defenderFatigue = 0,
+  attackerFatigue = 0,
+) {
   const attackerStats = attackerChar.stats || {};
   const defenderStats = defenderChar.stats || {};
+  const attackerRes = attackerStats.def || 0;
+  const defenderRes = defenderStats.def || 0;
 
   let finalDamage;
   let reaction;
   let dodged = false;
 
   if (reactionType === "dodge") {
-    const dodgeResult = attemptDodge(defenderStats, defenderHp, attackerStats, attackerChar.hp_actual);
+    const dodgeResult = attemptDodge(
+      defenderStats,
+      defenderHp,
+      attackerStats,
+      attackerChar.hp_actual,
+      defenderFatigue,
+      attackerFatigue,
+      defenderRes,
+      attackerRes,
+    );
     if (dodgeResult.dodged) {
       finalDamage = 0;
       dodged = true;
@@ -209,17 +322,46 @@ function executeReaction(reactionType, baseDamage, defenderChar, defenderHp, att
  * @param defenderHp
  * @param attackerChar
  * @param baseDamage
+ * @param defenderFatigue
+ * @param attackerFatigue
  */
-function chooseAiReaction(defenderChar, defenderHp, attackerChar, baseDamage) {
+function chooseAiReaction(
+  defenderChar,
+  defenderHp,
+  attackerChar,
+  baseDamage,
+  defenderFatigue = 0,
+  attackerFatigue = 0,
+) {
   const attackerStats = attackerChar.stats || {};
   const defenderStats = defenderChar.stats || {};
+  const attackerRes = attackerStats.def || 0;
+  const defenderRes = defenderStats.def || 0;
 
-  const reactPossible = canReact(defenderStats, defenderHp, attackerStats, attackerChar.hp_actual);
+  const reactPossible = canReact(
+    defenderStats,
+    defenderHp,
+    attackerStats,
+    attackerChar.hp_actual,
+    defenderFatigue,
+    attackerFatigue,
+    defenderRes,
+    attackerRes,
+  );
   if (!reactPossible) {
     return "none";
   }
 
-  const dodgeCheck = attemptDodge(defenderStats, defenderHp, attackerStats, attackerChar.hp_actual);
+  const dodgeCheck = attemptDodge(
+    defenderStats,
+    defenderHp,
+    attackerStats,
+    attackerChar.hp_actual,
+    defenderFatigue,
+    attackerFatigue,
+    defenderRes,
+    attackerRes,
+  );
   if (dodgeCheck.dodged) {
     return "dodge";
   }
@@ -232,15 +374,42 @@ function chooseAiReaction(defenderChar, defenderHp, attackerChar, baseDamage) {
  * @param defenderChar
  * @param defenderHp
  * @param chosenReaction
+ * @param attackerFatigue
+ * @param defenderFatigue
  */
-function executeTurn(attackerChar, defenderChar, defenderHp, chosenReaction = null) {
-  const attackInfo = executeAttack(attackerChar, defenderChar, defenderHp);
+function executeTurn(
+  attackerChar,
+  defenderChar,
+  defenderHp,
+  chosenReaction = null,
+  attackerFatigue = 0,
+  defenderFatigue = 0,
+) {
+  const attackInfo = executeAttack(attackerChar, defenderChar, defenderHp, attackerFatigue, defenderFatigue);
   if (!attackInfo.canReact) {
-    return executeReaction("none", attackInfo.baseDamage, defenderChar, defenderHp, attackerChar);
+    return executeReaction(
+      "none",
+      attackInfo.baseDamage,
+      defenderChar,
+      defenderHp,
+      attackerChar,
+      defenderFatigue,
+      attackerFatigue,
+    );
   }
 
-  const reaction = chosenReaction || chooseAiReaction(defenderChar, defenderHp, attackerChar, attackInfo.baseDamage);
-  return executeReaction(reaction, attackInfo.baseDamage, defenderChar, defenderHp, attackerChar);
+  const reaction =
+    chosenReaction ||
+    chooseAiReaction(defenderChar, defenderHp, attackerChar, attackInfo.baseDamage, defenderFatigue, attackerFatigue);
+  return executeReaction(
+    reaction,
+    attackInfo.baseDamage,
+    defenderChar,
+    defenderHp,
+    attackerChar,
+    defenderFatigue,
+    attackerFatigue,
+  );
 }
 
 /**

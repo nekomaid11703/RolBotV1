@@ -2,6 +2,7 @@
 const { getActiveCharacter, addXp, setHp } = require("../../../services/characterService");
 const { findSessionByCharacter, advanceTurn, endSession } = require("../../../services/rpg/combatState");
 const { executeReaction, calculateXpReward } = require("../../../services/rpg/combatEngine");
+const { calcFatigueCost, calcFatigueRecovery } = require("../../../services/rpg/fatigueEngine");
 const { formatActionMenu } = require("../../../services/rpg/combatMessages");
 const { formatError } = require("../../../utils/formatErrorUtils");
 const { box } = require("../../../utils/boxUtils");
@@ -33,12 +34,22 @@ module.exports = {
         return ctx.reply("❌ No eres el defensor del ataque actual.");
       }
 
+      const isDefenderChallenger = String(session.challenger.characterId) === String(activeChar.id);
+      const defenderSlot = isDefenderChallenger ? session.challenger : session.defender;
+      const attackerSlot = isDefenderChallenger ? session.defender : session.challenger;
+
+      const blockCost = calcFatigueCost("block");
+      const blockRecovery = calcFatigueRecovery("block", defenderSlot.fatigue, defenderSlot.character.stats.def || 1);
+      defenderSlot.fatigue = Math.max(0, defenderSlot.fatigue + blockCost - blockRecovery);
+
       const reactionResult = executeReaction(
         "block",
         pending.baseDamage,
         pending.defenderChar,
         pending.defenderHp,
         pending.attackerChar,
+        defenderSlot.fatigue,
+        attackerSlot.fatigue,
       );
 
       const newAttackerHp = pending.isChallengerAttacking ? session.challenger.hp : reactionResult.defenderHpAfter;
@@ -53,6 +64,7 @@ module.exports = {
       lines.push(
         `❤️  HP de *${activeChar.name}*: ${reactionResult.defenderHpBefore} → ${reactionResult.defenderHpAfter}`,
       );
+      lines.push(`⚡ Fatiga: ${defenderSlot.fatigue} (−${blockRecovery} por bloqueo)`);
 
       if (reactionResult.ko) {
         const winnerChar = pending.attackerChar;

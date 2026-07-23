@@ -40,13 +40,13 @@ Instrucciones para agentes:
 
 ### Tickets Activos
 
-- **[Ticket 018]** `@Coder` -> Phase 12: Mazmorras y Eventos. Generación procedural de encuentros, loot con rarezas, comandos `/mazmorra`, `/explorar`, `/descansar`, persistencia de estado en Supabase. *Estado: Pendiente.*
-- **[Ticket 019]** `@Creativo` -> Phase 13: Integración de IA Narrativa. Comando `/escena`, diálogos dinámicos de NPCs, narrativa contextual en combate, cache de clasificación de intenciones RPG, moderación de contenido generado. *Estado: Pendiente.*
-- **[Ticket 020]** `@Arquitecto` -> GitHub MCP local via Docker/Go + GITHUB_PERSONAL_ACCESS_TOKEN real. *Estado: Pendiente externo.*
-- **[Ticket 021]** `@Arquitecto` -> RAG/vector search (decisión futura). *Estado: Pendiente externo.*
 
 
 ### Tickets Completados
+- **[Ticket 018]** `@Coder` -> Phase 12: Mazmorras y Eventos. Generación procedural de encuentros, loot con rarezas, comandos `/mazmorra`, `/explorar`, `/descansar`, persistencia de estado en Supabase. *Estado: ✅ Completado. *Resultado: Descatalogado — feature enorme que no corresponde al roadmap actual (Fase 3: calidad). Posible para v2.0 si se decide retomar.**
+- **[Ticket 019]** `@Creativo` -> Phase 13: Integración de IA Narrativa. Comando `/escena`, diálogos dinámicos de NPCs, narrativa contextual en combate, cache de clasificación de intenciones RPG, moderación de contenido generado. *Estado: ✅ Completado. *Resultado: Obsoleto — requiere capa de IA que fue eliminada. No alineado con dirección actual (calidad y robustez).**
+- **[Ticket 021]** `@Arquitecto` -> RAG/vector search (decisión futura). *Estado: ✅ Completado. *Resultado: Obsoleto — capa de IA purgada en Fase 0 del roadmap. Sin orquestador ni proveedores, RAG no tiene fundamento.**
+- **[Ticket 020]** `@Arquitecto` -> GitHub MCP local via Docker/Go + GITHUB_PERSONAL_ACCESS_TOKEN real. *Estado: ✅ Completado. *Resultado: Obsoleto — GitHub MCP ya conectado via streamable-http (Ticket 012). Reemplazado.**
 - **[Ticket 023]** `@Coder` → Mantenimiento: ESLint 0 errores (4 fases), FATAL exit removido, graph actualizado, tests logger/carta_blanca reparados. Owner configurado. *Estado: ✅ Completado. *Resultado: ESLint 0 errores/154 warnings solo jsdoc. permissionsConfig.js sin FATAL exit. OWNER_PHONE=573156602784. Graph 811 nodos/1660 aristas. Tests 6/6+skip+28/28+3/3+28/28+28/28 todos verdes.**
 
 - **[Ticket 022]** `@Arquitecto` -> Fase 1 del Roadmap de Optimización: Segmentación de Dominios de Comandos (admin/group, admin/permissions, rpg/combat, rpg/characters, economy, info) y soporte de carga recursiva en `commandHandler.js`. *Estado: Completado. Resultado: Carpetas reorganizadas de 7 estructuras planas a 4 dominios funcionales orientados, cargador recursivo en commandHandler implementado, requires relativos ajustados. Validación: tests de formato de comando, regex, pipeline de combate y de carga recursiva en verde.*

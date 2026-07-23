@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2026-07-23
+
+### Added
+- **Fatigue System** (`fatigueEngine.js`): Nueva mecánica de combate que evita el esquive perpetuo
+  - 4 niveles de fatiga: Pleno (0%), Agitado (-20%), Cansado (-40%), Fatigado (-60%) en velocidades (ASPD, MSPD, REF)
+  - Costos de fatiga por acción: atacar (+3), esquivar (+6), bloquear (+1), huir (+4), usar ítem (+2)
+  - Recuperación al bloquear (-3 base, escala según nivel de fatiga) y descansar (-5 base)
+  - La resistencia (DEF) determina el umbral de fatiga del personaje
+  - Penalidades de fatiga se aplican ANTES que las de HP (apilamiento progresivo)
+- **`buildFatigueBar()`**: Barra visual de fatiga con icono por nivel (🟢 Pleno, 🟠 Agitado, 🟡 Cansado, 🔴 Fatigado)
+- **29 tests** para `fatigueEngine.js` (umbrales, costos, recuperación, penalidades)
+- **7 tests adicionales** en `combat_engine.test.js` (integración fatiga+HP, fatiga en reacciones)
+
+### Changed
+- `combatEngine.js`: Todas las funciones reciben parámetros opcionales de fatiga y la integran en cálculos
+- `combatState.js`: Sesiones de combate ahora trackean `fatigue` por participante
+- `atacar.js`, `esquivar.js`, `bloquear.js`, `huir.js`: Aplican costos/recuperación de fatiga según acción
+- `combatMessages.js`: `formatCombatStatus` y `formatFlee` muestran fatiga; exporta `buildFatigueBar`
+
 ## [1.1.0] - 2026-07-22
 
 ### Added

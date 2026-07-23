@@ -13,7 +13,13 @@ const {
   chooseAiReaction,
   calculateXpReward,
 } = require("../../../services/rpg/combatEngine");
-const { formatActionMenu, formatReactionPrompt, formatVictory } = require("../../../services/rpg/combatMessages");
+const { calcFatigueCost } = require("../../../services/rpg/fatigueEngine");
+const {
+  formatActionMenu,
+  formatReactionPrompt,
+  formatVictory,
+  buildFatigueBar,
+} = require("../../../services/rpg/combatMessages");
 const { formatError } = require("../../../utils/formatErrorUtils");
 const { box } = require("../../../utils/boxUtils");
 
@@ -62,7 +68,16 @@ module.exports = {
       const attackerSlot = isChallenger ? session.challenger : session.defender;
       const defenderSlot = isChallenger ? session.defender : session.challenger;
 
-      const attackInfo = executeAttack(attackerSlot.character, defenderSlot.character, defenderSlot.hp);
+      const attackFatigueCost = calcFatigueCost("attack");
+      attackerSlot.fatigue += attackFatigueCost;
+
+      const attackInfo = executeAttack(
+        attackerSlot.character,
+        defenderSlot.character,
+        defenderSlot.hp,
+        attackerSlot.fatigue,
+        defenderSlot.fatigue,
+      );
 
       // In PvE (Dummy mode)
       if (session.isPvE) {
@@ -73,6 +88,8 @@ module.exports = {
             defenderSlot.hp,
             attackerSlot.character,
             attackInfo.baseDamage,
+            defenderSlot.fatigue,
+            attackerSlot.fatigue,
           );
         }
 
@@ -82,6 +99,8 @@ module.exports = {
           defenderSlot.character,
           defenderSlot.hp,
           attackerSlot.character,
+          defenderSlot.fatigue,
+          attackerSlot.fatigue,
         );
 
         const newAttackerHp = isChallenger ? session.challenger.hp : reactionResult.defenderHpAfter;
@@ -105,6 +124,7 @@ module.exports = {
         lines.push(
           `❤️  HP de *${defenderSlot.character.name}*: ${reactionResult.defenderHpBefore} → ${reactionResult.defenderHpAfter}`,
         );
+        lines.push(`⚡ ${buildFatigueBar(attackerSlot.fatigue, attackerSlot.character.stats.def || 1)} (Atacante)`);
 
         if (reactionResult.ko) {
           const xpReward = calculateXpReward(defenderSlot.character.nivel || 20, true);
@@ -120,7 +140,13 @@ module.exports = {
         }
 
         // Dummy counterattacks automatically in the same turn flow
-        const dummyAttack = executeAttack(defenderSlot.character, attackerSlot.character, attackerSlot.hp);
+        const dummyAttack = executeAttack(
+          defenderSlot.character,
+          attackerSlot.character,
+          attackerSlot.hp,
+          defenderSlot.fatigue,
+          attackerSlot.fatigue,
+        );
 
         if (dummyAttack.canReact) {
           const { evaluateDodgeFeasibility } = require("../../../services/rpg/combatEngine");
@@ -129,6 +155,10 @@ module.exports = {
             attackerSlot.hp,
             defenderSlot.character.stats,
             defenderSlot.character.hp_actual || 100,
+            attackerSlot.fatigue,
+            defenderSlot.fatigue,
+            attackerSlot.character.stats.def || 0,
+            defenderSlot.character.stats.def || 0,
           );
 
           // Store pending reaction for player
@@ -167,6 +197,8 @@ module.exports = {
             attackerSlot.character,
             attackerSlot.hp,
             defenderSlot.character,
+            attackerSlot.fatigue,
+            defenderSlot.fatigue,
           );
 
           const finalAttackerHp = isChallenger ? dummyReaction.defenderHpAfter : newAttackerHp;
@@ -207,6 +239,10 @@ module.exports = {
           defenderSlot.hp,
           attackerSlot.character.stats,
           attackerSlot.character.hp_actual || 100,
+          defenderSlot.fatigue,
+          attackerSlot.fatigue,
+          defenderSlot.character.stats.def || 0,
+          attackerSlot.character.stats.def || 0,
         );
 
         setPendingReaction(session.id, {
@@ -224,6 +260,7 @@ module.exports = {
           "",
           `⚔️  *${attackerSlot.character.name}* ha lanzado un ataque contra *${defenderSlot.character.name}*`,
           `💥  Daño base del ataque: ${attackInfo.baseDamage}`,
+          `⚡ ${buildFatigueBar(attackerSlot.fatigue, attackerSlot.character.stats.def || 1)} (Atacante)`,
           "",
           "✦ ━━━━━━━━━━━━━━ ✦",
           formatReactionPrompt(
@@ -242,6 +279,8 @@ module.exports = {
           defenderSlot.character,
           defenderSlot.hp,
           attackerSlot.character,
+          defenderSlot.fatigue,
+          attackerSlot.fatigue,
         );
 
         const newAttackerHp = isChallenger ? session.challenger.hp : reactionResult.defenderHpAfter;
@@ -254,6 +293,7 @@ module.exports = {
           `⚔️  *${attackerSlot.character.name}* ataca a *${defenderSlot.character.name}*`,
           `💥  Daño infligido: ${reactionResult.finalDamage}`,
           `❤️  HP de *${defenderSlot.character.name}*: ${reactionResult.defenderHpBefore} → ${reactionResult.defenderHpAfter}`,
+          `⚡ ${buildFatigueBar(attackerSlot.fatigue, attackerSlot.character.stats.def || 1)} (Atacante)`,
         ];
 
         if (reactionResult.ko) {
