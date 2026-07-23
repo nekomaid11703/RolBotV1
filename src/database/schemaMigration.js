@@ -1,8 +1,9 @@
 const { discover } = require("./columnRegistry");
+const { supabase } = require("./supabase");
 const { logSystem } = require("../services/loggerService");
 const { setStoredVersion } = require("./schemaVersion");
 
-const CURRENT_VERSION = "2.0.0";
+const CURRENT_VERSION = "2.1.0";
 
 const DESIRED_SCHEMA = {
   players: ["phone", "username", "money", "activity_messages", "activity_commands", "last_active_at"],
@@ -26,6 +27,38 @@ const DESIRED_SCHEMA = {
   ],
   groups: ["id", "group_jid", "group_name", "total_messages"],
   group_members: ["group_id", "player_phone", "messages_count"],
+  inventory: ["id", "character_id", "item_id", "quantity", "created_at", "updated_at"],
+  combat_sessions: [
+    "id",
+    "is_pve",
+    "challenger",
+    "defender",
+    "current_turn_char_id",
+    "status",
+    "pending_attack",
+    "created_at",
+    "last_turn_at",
+    "winner_id",
+    "rounds",
+  ],
+};
+
+const TABLE_CREATE_SQL = {
+  combat_sessions: `
+    CREATE TABLE IF NOT EXISTS "combat_sessions" (
+      "id" TEXT PRIMARY KEY,
+      "is_pve" BOOLEAN DEFAULT false,
+      "challenger" JSONB NOT NULL,
+      "defender" JSONB NOT NULL,
+      "current_turn_char_id" TEXT NOT NULL,
+      "status" TEXT NOT NULL DEFAULT 'waiting_action',
+      "pending_attack" JSONB,
+      "created_at" BIGINT NOT NULL,
+      "last_turn_at" BIGINT NOT NULL,
+      "winner_id" TEXT,
+      "rounds" INTEGER DEFAULT 0
+    );
+  `,
 };
 
 /** @type {Record<string, string>} */
@@ -59,6 +92,12 @@ const COLUMN_TYPES = {
   "group_members.group_id": "bigint",
   "group_members.player_phone": "text",
   "group_members.messages_count": "bigint DEFAULT 0",
+  "inventory.id": "bigint",
+  "inventory.character_id": "bigint",
+  "inventory.item_id": "text",
+  "inventory.quantity": "integer DEFAULT 0",
+  "inventory.created_at": "timestamptz DEFAULT now()",
+  "inventory.updated_at": "timestamptz DEFAULT now()",
 };
 
 /**
@@ -133,7 +172,34 @@ async function logMigrationInfo() {
 /**
  *
  */
+async function createMissingTables() {
+  const registry = await discover(true);
+  const created = [];
+
+  for (const [table, sql] of Object.entries(TABLE_CREATE_SQL)) {
+    if (registry[table] && registry[table].size > 0) continue;
+
+    try {
+      const { error } = await supabase.rpc("exec_sql", { query: sql });
+      if (error) {
+        await logSystem(`Migration: error creando tabla "${table}": ${error.message}`);
+      } else {
+        await logSystem(`Migration: tabla "${table}" creada`);
+        created.push(table);
+      }
+    } catch (err) {
+      await logSystem(`Migration: error creando tabla "${table}": ${err.message}`);
+    }
+  }
+
+  return created;
+}
+
+/**
+ *
+ */
 async function runStartupMigration() {
+  await createMissingTables();
   const result = await logMigrationInfo();
   await setStoredVersion(CURRENT_VERSION);
   return result;

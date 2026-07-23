@@ -3,11 +3,51 @@ const { logSystem } = require("../services/loggerService");
 
 const DISCOVERY_TTL = 300000;
 
+const KNOWN_SCHEMA = {
+  bot_auth_state: ["session_id", "id", "data"],
+  players: ["phone", "username", "money", "activity_messages", "activity_commands", "last_active_at"],
+  groups: ["id", "group_jid", "group_name", "total_messages"],
+  group_members: ["group_id", "player_phone", "messages_count"],
+  characters: [
+    "id",
+    "player_phone",
+    "name",
+    "slug",
+    "raza",
+    "clase",
+    "rango",
+    "nivel",
+    "xp",
+    "xp_total",
+    "is_active",
+    "hp_actual",
+    "stats",
+    "slots",
+    "created_at",
+    "updated_at",
+  ],
+  inventory: ["id", "character_id", "item_id", "quantity", "created_at", "updated_at"],
+  combat_sessions: [
+    "id",
+    "is_pve",
+    "challenger",
+    "defender",
+    "current_turn_char_id",
+    "status",
+    "pending_attack",
+    "created_at",
+    "last_turn_at",
+    "winner_id",
+    "rounds",
+  ],
+};
+
 /** @type {Record<string, Set<string> | null> | null} */
 let cache = null;
 let lastDiscovery = 0;
 
 /**
+ * Descubre dinámicamente el esquema de columnas uniendo el esquema canónico conocido con las columnas en BD.
  * @param {boolean} [force]
  * @returns {Promise<Record<string, Set<string> | null>>}
  */
@@ -16,15 +56,17 @@ async function discover(force = false) {
     return cache;
   }
 
-  const tables = ["bot_auth_state", "players", "groups", "group_members", "characters"];
+  const tables = Object.keys(KNOWN_SCHEMA);
 
   const results = await Promise.all(
     tables.map(async (table) => {
+      const knownCols = KNOWN_SCHEMA[table] || [];
       try {
         const { data } = await supabase.from(table).select("*").limit(1);
-        return { table, keys: data && data.length > 0 ? new Set(Object.keys(data[0])) : null };
+        const fetchedKeys = data && data.length > 0 ? Object.keys(data[0]) : [];
+        return { table, keys: new Set([...knownCols, ...fetchedKeys]) };
       } catch {
-        return { table, keys: null };
+        return { table, keys: new Set(knownCols) };
       }
     }),
   );
@@ -74,4 +116,4 @@ function filterExisting(table, data) {
   return filtered;
 }
 
-module.exports = { discover, hasColumn, filterExisting };
+module.exports = { discover, hasColumn, filterExisting, KNOWN_SCHEMA };

@@ -193,6 +193,10 @@ async function startBot() {
     loadCommands();
     registerEvents(sock);
 
+    const { restoreSessions, startCleanupInterval } = require("../services/rpg/combatState");
+    await restoreSessions();
+    startCleanupInterval();
+
     await logSystem("Bot inicializado y eventos registrados", { version });
 
     sock.ev.on("connection.update", async (update) => {

@@ -1,0 +1,65 @@
+const {
+  formatCombatOpen,
+  formatActionMenu,
+  formatReactionPrompt,
+  formatCombatStatus,
+  formatTurnSummary,
+} = require("../src/services/rpg/combatMessages");
+
+describe("combatMessages — Single Message Formatters", () => {
+  const session = {
+    id: "test:1",
+    rounds: 0,
+    status: "waiting_action",
+    challenger: {
+      userId: "userA",
+      characterId: 1,
+      character: { name: "Aelin", nivel: 20, stats: { hp: 100, atk: 5, def: 5, aspd: 2, ref: 2, mspd: 2 } },
+      hp: 100,
+    },
+    defender: {
+      userId: "userB",
+      characterId: 2,
+      character: {
+        name: "Maniquí de Práctica",
+        nivel: 20,
+        stats: { hp: 100, atk: 4, def: 4, aspd: 4, ref: 4, mspd: 4 },
+      },
+      hp: 100,
+    },
+    currentTurnCharId: 1,
+  };
+
+  it("formatCombatOpen genera un único mensaje con stats de ambos y menú de acción", () => {
+    const msg = formatCombatOpen(session, true);
+    expect(msg).toContain("COMBATE INICIADO");
+    expect(msg).toContain("Aelin");
+    expect(msg).toContain("Maniquí de Práctica");
+    expect(msg).toContain("Consumibles de prueba añadidos");
+    expect(msg).toContain("/atacar");
+  });
+
+  it("formatActionMenu muestra las opciones atómicas disponibles", () => {
+    const menu = formatActionMenu("Aelin");
+    expect(menu).toContain("Turno de *Aelin*");
+    expect(menu).toContain("/atacar");
+    expect(menu).toContain("/inventario");
+    expect(menu).toContain("/huir");
+  });
+
+  it("formatReactionPrompt genera submenú de esquivar / bloquear", () => {
+    const prompt = formatReactionPrompt("Aelin", "Maniquí de Práctica", 10, false);
+    expect(prompt).toContain("/esquivar");
+    expect(prompt).toContain("/bloquear");
+    expect(prompt).toContain("Daño base: *10*");
+  });
+
+  it("formatCombatStatus incluye ronda, vida de ambos y menú", () => {
+    const status = formatCombatStatus(session);
+    expect(status).toContain("ESTADO DEL COMBATE");
+    expect(status).toContain("Ronda: 1");
+    expect(status).toContain("Aelin");
+    expect(status).toContain("Maniquí de Práctica");
+    expect(status).toContain("/atacar");
+  });
+});
