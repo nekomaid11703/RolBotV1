@@ -1,5 +1,5 @@
 // @ts-nocheck
-// TODO: Evaluar si 48h es excesivo — cada sesión inactiva retiene ~5KB en memoria por 2 días
+// 48h — retención aceptable dado que ~10 sesiones simultáneas = ~50KB. Decisión: mantener para UX.
 const TURN_TIMEOUT_MS = 48 * 60 * 60 * 1000;
 const DAMAGE_MIN = 1;
 const BLOCK_REDUCTION = 0.25;
