@@ -11,7 +11,7 @@ const { registerEvents } = require("./eventHandler");
 const { logSystem, logError, cleanOldLogs } = require("../services/loggerService");
 const { getResolvedSince } = require("../services/bugReportService");
 const { getOwnerJids } = require("../utils/permissionUtils");
-const { startMidnightReview } = require("../services/schedulerService");
+const { startMidnightReview, stopMidnightReview } = require("../services/schedulerService");
 const { startDashboard, stopDashboard } = require("../services/statusDashboard");
 const { stats, addEvent, incrementErrors } = require("../services/stats");
 
@@ -38,16 +38,31 @@ let pairingCodeRequested = false;
 let pairingCodeRegistered = false;
 /** @type {string|null} */
 let cachedPairingPhone = null;
+/** @type {boolean} */
+let isStarting = false;
+/** @type {number} */
+let consecutiveCrashes = 0;
+const MAX_CONSECUTIVE_CRASHES = 5;
 
 process.on("uncaughtException", async (err) => {
   await logError({ source: "process.uncaughtException", error: err });
-  startBot().catch((e) => logError({ source: "bot.restartAfterCrash", error: e }));
+  consecutiveCrashes++;
+  if (consecutiveCrashes > MAX_CONSECUTIVE_CRASHES) {
+    await logSystem(`Bot crashó ${MAX_CONSECUTIVE_CRASHES} veces seguidas, abortando`);
+    process.exit(1);
+  }
+  if (!isStarting) startBot().catch((e) => logError({ source: "bot.restartAfterCrash", error: e }));
 });
 
 process.on("unhandledRejection", async (reason) => {
   const err = reason instanceof Error ? reason : new Error(String(reason));
   await logError({ source: "process.unhandledRejection", error: err });
-  startBot().catch((e) => logError({ source: "bot.restartAfterRejection", error: e }));
+  consecutiveCrashes++;
+  if (consecutiveCrashes > MAX_CONSECUTIVE_CRASHES) {
+    await logSystem(`Bot crashó ${MAX_CONSECUTIVE_CRASHES} veces seguidas, abortando`);
+    process.exit(1);
+  }
+  if (!isStarting) startBot().catch((e) => logError({ source: "bot.restartAfterRejection", error: e }));
 });
 
 /**
@@ -69,6 +84,7 @@ async function forceNewSession() {
  * @returns {void}
  */
 function cleanupSock() {
+  stopMidnightReview();
   if (currentSock) {
     try {
       currentSock.removeAllListeners("connection.update");
@@ -93,6 +109,7 @@ function startWatchdog(_sock) {
         logSystem("Watchdog reiniciando bot por desconexión prolongada");
         stopWatchdog();
         cleanupSock();
+        isStarting = false;
         startBot().catch((e) => logError({ source: "bot.watchdog", error: e }));
       }
     }
@@ -115,6 +132,8 @@ function stopWatchdog() {
  * @returns {Promise<void>} Promise that resolves when complete
  */
 async function startBot() {
+  if (isStarting) return;
+  isStarting = true;
   try {
     pairingCodeRequested = false;
     pairingCodeRegistered = false;
@@ -268,6 +287,7 @@ async function startBot() {
 
         startDashboard();
         startMidnightReview(sock);
+        isStarting = false;
       }
 
       if (connection === "close") {
@@ -294,6 +314,7 @@ async function startBot() {
           await logSystem("Sesión inválida — limpiando credenciales para nuevo QR");
           await forceNewSession();
           cleanupSock();
+          isStarting = false;
           startBot().catch((err) => {
             logError({ source: "bot.startBot", error: err instanceof Error ? err : new Error(String(err)) });
           });
@@ -308,6 +329,7 @@ async function startBot() {
             await logSystem("Sesión rechazada por WhatsApp — limpiando credenciales");
             await forceNewSession();
             cleanupSock();
+            isStarting = false;
             startBot().catch((err) => {
               logError({ source: "bot.startBot", error: err instanceof Error ? err : new Error(String(err)) });
             });
@@ -320,6 +342,7 @@ async function startBot() {
             setTimeout(r, 1000);
           });
           cleanupSock();
+          isStarting = false;
           startBot().catch((err) => {
             logError({ source: "bot.startBot", error: err instanceof Error ? err : new Error(String(err)) });
           });
@@ -342,6 +365,7 @@ async function startBot() {
 
         setTimeout(() => {
           cleanupSock();
+          isStarting = false;
           startBot().catch((err) => {
             logError({ source: "bot.startBot", error: err instanceof Error ? err : new Error(String(err)) });
           });
@@ -360,8 +384,11 @@ async function startBot() {
       await logSystem("Reintentando startBot por error externo", { attempt: reconnectAttempts, delay });
       setTimeout(() => {
         cleanupSock();
+        isStarting = false;
         startBot().catch((e) => logError({ source: "bot.startBot", error: e }));
       }, delay);
+    } else {
+      isStarting = false;
     }
   }
 }

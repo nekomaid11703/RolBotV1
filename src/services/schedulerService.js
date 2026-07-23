@@ -2,10 +2,36 @@
 const { midnightReview } = require("../../scripts/midnight_review");
 const { logError } = require("./loggerService");
 
+/** @type {ReturnType<typeof setTimeout>|null} */
+let pendingTimer = null;
+/** @type {object|null} */
+let currentSock = null;
+
+/**
+ *
+ */
+function stopMidnightReview() {
+  if (pendingTimer) {
+    clearTimeout(pendingTimer);
+    pendingTimer = null;
+  }
+  currentSock = null;
+}
+
+/**
+ *
+ * @param sock
+ */
 function startMidnightReview(sock) {
+  stopMidnightReview();
+  currentSock = sock;
   scheduleNext(sock);
 }
 
+/**
+ *
+ * @param sock
+ */
 function scheduleNext(sock) {
   const now = new Date();
   const tomorrow = new Date(now);
@@ -18,14 +44,18 @@ function scheduleNext(sock) {
     return;
   }
 
-  setTimeout(async () => {
+  pendingTimer = setTimeout(async () => {
+    pendingTimer = null;
+    if (sock !== currentSock) return;
     try {
       await midnightReview(sock);
     } catch (err) {
       logError({ source: "schedulerService", error: err instanceof Error ? err : new Error(String(err)) });
     }
-    scheduleNext(sock);
+    if (sock === currentSock) {
+      scheduleNext(sock);
+    }
   }, msUntilMidnight);
 }
 
-module.exports = { startMidnightReview };
+module.exports = { startMidnightReview, stopMidnightReview };
