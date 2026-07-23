@@ -14,12 +14,7 @@ const {
   calculateXpReward,
 } = require("../../../services/rpg/combatEngine");
 const { calcFatigueCost } = require("../../../services/rpg/fatigueEngine");
-const {
-  formatActionMenu,
-  formatReactionPrompt,
-  formatVictory,
-  buildFatigueBar,
-} = require("../../../services/rpg/combatMessages");
+const { formatActionMenu, formatReactionPrompt, buildFatigueBar } = require("../../../services/rpg/combatMessages");
 const { formatError } = require("../../../utils/formatErrorUtils");
 const { box } = require("../../../utils/boxUtils");
 
@@ -33,7 +28,7 @@ module.exports = {
     try {
       const activeChar = await getActiveCharacter({ creatorId: ctx.sender });
       if (!activeChar) {
-        return ctx.reply("❌ No tienes un personaje activo. Usa `/crear_pj` o `/switch_pj`.");
+        return ctx.reply("\u274C No tienes un personaje activo. Usa `/crear_pj` o `/switch_pj`.");
       }
 
       const session = findSessionByCharacter(activeChar.id);
@@ -47,21 +42,21 @@ module.exports = {
               : userSession.defender.character.name;
 
           return ctx.reply(
-            `⚔️ Tu personaje activo (**${activeChar.name}**) no está en combate.\n\n` +
-              `💡 Tu personaje **${charInCombatName}** tiene un combate activo.\n` +
+            `\u2694\uFE0F Tu personaje activo (**${activeChar.name}**) no est\u00E1 en combate.\n\n` +
+              `\uD83D\uDCA1 Tu personaje **${charInCombatName}** tiene un combate activo.\n` +
               `Usa \`/switch_pj ${charInCombatName}\` para retomar su turno.`,
           );
         }
 
-        return ctx.reply("❌ Tu personaje activo no está en un combate. Usa `/retar @usuario` o `/retar dummy`.");
+        return ctx.reply("\u274C No est\u00E1s en combate. Usa `/retar @usuario` o `/retar dummy`.");
       }
 
       if (session.status === "waiting_reaction") {
-        return ctx.reply("❌ Hay un ataque en curso pendiente de reacción. Usa `/esquivar` o `/bloquear`.");
+        return ctx.reply("\u274C Hay ataque pendiente. Usa `/esquivar` o `/bloquear`.");
       }
 
       if (String(session.currentTurnCharId) !== String(activeChar.id)) {
-        return ctx.reply(`❌ No es el turno de **${activeChar.name}**. Espera a que tu oponente tome su acción.`);
+        return ctx.reply(`\u274C No es tu turno. Espera.`);
       }
 
       const isChallenger = String(session.challenger.characterId) === String(activeChar.id);
@@ -79,7 +74,6 @@ module.exports = {
         defenderSlot.fatigue,
       );
 
-      // In PvE (Dummy mode)
       if (session.isPvE) {
         let aiReaction = "none";
         if (attackInfo.canReact) {
@@ -110,21 +104,21 @@ module.exports = {
 
         const lines = [];
         lines.push("");
-        lines.push(`⚔️  *${attackerSlot.character.name}* ataca a *${defenderSlot.character.name}*`);
+        lines.push(`\u2694\uFE0F *${attackerSlot.character.name}* \u2192 *${defenderSlot.character.name}*`);
 
         if (reactionResult.reaction === "dodge") {
-          lines.push(`💨  ¡*${defenderSlot.character.name}* esquivó el ataque! (Daño: 0)`);
+          lines.push(`\uD83D\uDCA8 *${defenderSlot.character.name}* esquiv\u00F3 (0)`);
         } else if (reactionResult.reaction === "block") {
           lines.push(
-            `🛡️  ¡*${defenderSlot.character.name}* bloqueó! Daño: ${attackInfo.baseDamage} → ${reactionResult.finalDamage}`,
+            `\uD83D\uDEE1\uFE0F *${defenderSlot.character.name}* bloque\u00F3 ${attackInfo.baseDamage}\u2192${reactionResult.finalDamage}`,
           );
         } else {
-          lines.push(`💥  Daño infligido: ${reactionResult.finalDamage}`);
+          lines.push(`\uD83D\uDCA5 Da\u00F1o: ${reactionResult.finalDamage}`);
         }
         lines.push(
-          `❤️  HP de *${defenderSlot.character.name}*: ${reactionResult.defenderHpBefore} → ${reactionResult.defenderHpAfter}`,
+          `\u2764\uFE0F *${defenderSlot.character.name}*: ${reactionResult.defenderHpBefore}\u2192${reactionResult.defenderHpAfter}`,
         );
-        lines.push(`⚡ ${buildFatigueBar(attackerSlot.fatigue, attackerSlot.character.stats.def || 1)} (Atacante)`);
+        lines.push(`\u26A1 ${buildFatigueBar(attackerSlot.fatigue, attackerSlot.character.stats.def || 1)}`);
 
         if (reactionResult.ko) {
           const xpReward = calculateXpReward(defenderSlot.character.nivel || 20, true);
@@ -134,12 +128,11 @@ module.exports = {
           } catch (_e) {}
 
           lines.push("");
-          lines.push(`💀  ¡*${defenderSlot.character.name}* ha caído!`);
-          lines.push(`🏆  ¡*${attackerSlot.character.name}* gana el combate! (+${xpReward} XP)`);
-          return ctx.reply(box("⚔️ RESUMEN DE TURNO", lines));
+          lines.push(`\uD83D\uDC80 *${defenderSlot.character.name}* cay\u00F3`);
+          lines.push(`\uD83C\uDFC6 +${xpReward} XP`);
+          return ctx.reply(box("\u2694\uFE0F ATAQUE", lines));
         }
 
-        // Dummy counterattacks automatically in the same turn flow
         const dummyAttack = executeAttack(
           defenderSlot.character,
           attackerSlot.character,
@@ -161,7 +154,6 @@ module.exports = {
             defenderSlot.character.stats.def || 0,
           );
 
-          // Store pending reaction for player
           setPendingReaction(session.id, {
             attackerChar: defenderSlot.character,
             defenderChar: attackerSlot.character,
@@ -174,11 +166,9 @@ module.exports = {
           });
 
           lines.push("");
-          lines.push(
-            `🤖  *${defenderSlot.character.name}* se prepara para contraatacar (Daño base: ${dummyAttack.baseDamage})`,
-          );
+          lines.push(`\uD83E\uDD16 Contraataque (${dummyAttack.baseDamage})`);
           lines.push("");
-          lines.push("✦ ━━━━━━━━━━━━━━ ✦");
+          lines.push("\u2726 \u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501 \u2726");
           lines.push(
             formatReactionPrompt(
               defenderSlot.character.name,
@@ -188,50 +178,48 @@ module.exports = {
             ),
           );
 
-          return ctx.reply(box("⚔️ CONTRAATAQUE DEL MANIQUÍ", lines));
-        } else {
-          // Dummy counterattacks without player reaction
-          const dummyReaction = executeReaction(
-            "none",
-            dummyAttack.baseDamage,
-            attackerSlot.character,
-            attackerSlot.hp,
-            defenderSlot.character,
-            attackerSlot.fatigue,
-            defenderSlot.fatigue,
-          );
-
-          const finalAttackerHp = isChallenger ? dummyReaction.defenderHpAfter : newAttackerHp;
-          const finalDefenderHp = isChallenger ? newDefenderHp : dummyReaction.defenderHpAfter;
-
-          advanceTurn(session.id, finalAttackerHp, finalDefenderHp);
-
-          lines.push("");
-          lines.push(`🤖  *${defenderSlot.character.name}* contraataca a *${attackerSlot.character.name}*`);
-          lines.push(`💥  Daño recibido: ${dummyReaction.finalDamage}`);
-          lines.push(
-            `❤️  HP de *${attackerSlot.character.name}*: ${dummyReaction.defenderHpBefore} → ${dummyReaction.defenderHpAfter}`,
-          );
-
-          if (dummyReaction.ko) {
-            endSession(session.id, defenderSlot.character.id);
-            try {
-              await setHp({ creatorId: ctx.sender, characterName: attackerSlot.character.name, hp: 0 });
-            } catch (_e) {}
-            lines.push("");
-            lines.push(`💀  ¡*${attackerSlot.character.name}* ha sido derrotado por el maniquí!`);
-            return ctx.reply(box("⚔️ RESUMEN DE TURNO", lines));
-          }
-
-          lines.push("");
-          lines.push("✦ ━━━━━━━━━━━━━━ ✦");
-          lines.push(formatActionMenu(attackerSlot.character.name));
-
-          return ctx.reply(box("⚔️ RESUMEN DE TURNO", lines));
+          return ctx.reply(box("\uD83E\uDD16 CONTRAATAQUE", lines));
         }
+
+        const dummyReaction = executeReaction(
+          "none",
+          dummyAttack.baseDamage,
+          attackerSlot.character,
+          attackerSlot.hp,
+          defenderSlot.character,
+          attackerSlot.fatigue,
+          defenderSlot.fatigue,
+        );
+
+        const finalAttackerHp = isChallenger ? dummyReaction.defenderHpAfter : newAttackerHp;
+        const finalDefenderHp = isChallenger ? newDefenderHp : dummyReaction.defenderHpAfter;
+
+        advanceTurn(session.id, finalAttackerHp, finalDefenderHp);
+
+        lines.push("");
+        lines.push(`\uD83E\uDD16 *${defenderSlot.character.name}* contraataca`);
+        lines.push(`\uD83D\uDCA5 Da\u00F1o: ${dummyReaction.finalDamage}`);
+        lines.push(
+          `\u2764\uFE0F *${attackerSlot.character.name}*: ${dummyReaction.defenderHpBefore}\u2192${dummyReaction.defenderHpAfter}`,
+        );
+
+        if (dummyReaction.ko) {
+          endSession(session.id, defenderSlot.character.id);
+          try {
+            await setHp({ creatorId: ctx.sender, characterName: attackerSlot.character.name, hp: 0 });
+          } catch (_e) {}
+          lines.push("");
+          lines.push(`\uD83D\uDC80 *${attackerSlot.character.name}* cay\u00F3`);
+          return ctx.reply(box("\u2694\uFE0F ATAQUE", lines));
+        }
+
+        lines.push("");
+        lines.push("\u2726 \u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501 \u2726");
+        lines.push(formatActionMenu(attackerSlot.character.name));
+
+        return ctx.reply(box("\u2694\uFE0F ATAQUE", lines));
       }
 
-      // In PvP mode
       if (attackInfo.canReact) {
         const { evaluateDodgeFeasibility } = require("../../../services/rpg/combatEngine");
         const canDodge = evaluateDodgeFeasibility(
@@ -258,11 +246,11 @@ module.exports = {
 
         const lines = [
           "",
-          `⚔️  *${attackerSlot.character.name}* ha lanzado un ataque contra *${defenderSlot.character.name}*`,
-          `💥  Daño base del ataque: ${attackInfo.baseDamage}`,
-          `⚡ ${buildFatigueBar(attackerSlot.fatigue, attackerSlot.character.stats.def || 1)} (Atacante)`,
+          `\u2694\uFE0F *${attackerSlot.character.name}* \u2192 *${defenderSlot.character.name}*`,
+          `\uD83D\uDCA5 Base: ${attackInfo.baseDamage}`,
+          `\u26A1 ${buildFatigueBar(attackerSlot.fatigue, attackerSlot.character.stats.def || 1)}`,
           "",
-          "✦ ━━━━━━━━━━━━━━ ✦",
+          "\u2726 \u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501 \u2726",
           formatReactionPrompt(
             attackerSlot.character.name,
             defenderSlot.character.name,
@@ -271,55 +259,55 @@ module.exports = {
           ),
         ];
 
-        return ctx.reply(box("⚡ ATAQUE EN CURSO", lines));
-      } else {
-        const reactionResult = executeReaction(
-          "none",
-          attackInfo.baseDamage,
-          defenderSlot.character,
-          defenderSlot.hp,
-          attackerSlot.character,
-          defenderSlot.fatigue,
-          attackerSlot.fatigue,
-        );
+        return ctx.reply(box("\u2694\uFE0F ATAQUE", lines));
+      }
 
-        const newAttackerHp = isChallenger ? session.challenger.hp : reactionResult.defenderHpAfter;
-        const newDefenderHp = isChallenger ? reactionResult.defenderHpAfter : session.defender.hp;
+      const reactionResult = executeReaction(
+        "none",
+        attackInfo.baseDamage,
+        defenderSlot.character,
+        defenderSlot.hp,
+        attackerSlot.character,
+        defenderSlot.fatigue,
+        attackerSlot.fatigue,
+      );
 
-        advanceTurn(session.id, newAttackerHp, newDefenderHp);
+      const newAttackerHp = isChallenger ? session.challenger.hp : reactionResult.defenderHpAfter;
+      const newDefenderHp = isChallenger ? reactionResult.defenderHpAfter : session.defender.hp;
 
-        const lines = [
-          "",
-          `⚔️  *${attackerSlot.character.name}* ataca a *${defenderSlot.character.name}*`,
-          `💥  Daño infligido: ${reactionResult.finalDamage}`,
-          `❤️  HP de *${defenderSlot.character.name}*: ${reactionResult.defenderHpBefore} → ${reactionResult.defenderHpAfter}`,
-          `⚡ ${buildFatigueBar(attackerSlot.fatigue, attackerSlot.character.stats.def || 1)} (Atacante)`,
-        ];
+      advanceTurn(session.id, newAttackerHp, newDefenderHp);
 
-        if (reactionResult.ko) {
-          const xpReward = calculateXpReward(defenderSlot.character.nivel || 1, true);
-          endSession(session.id, attackerSlot.character.id);
-          try {
-            await addXp({
-              creatorId: attackerSlot.userId,
-              characterName: attackerSlot.character.name,
-              cantidad: xpReward,
-            });
-            await setHp({ creatorId: defenderSlot.userId, characterName: defenderSlot.character.name, hp: 0 });
-          } catch (_e) {}
+      const lines = [
+        "",
+        `\u2694\uFE0F *${attackerSlot.character.name}* \u2192 *${defenderSlot.character.name}*`,
+        `\uD83D\uDCA5 Da\u00F1o: ${reactionResult.finalDamage}`,
+        `\u2764\uFE0F *${defenderSlot.character.name}*: ${reactionResult.defenderHpBefore}\u2192${reactionResult.defenderHpAfter}`,
+        `\u26A1 ${buildFatigueBar(attackerSlot.fatigue, attackerSlot.character.stats.def || 1)}`,
+      ];
 
-          lines.push("");
-          lines.push(`💀  ¡*${defenderSlot.character.name}* ha caído!`);
-          lines.push(`🏆  ¡*${attackerSlot.character.name}* gana el combate! (+${xpReward} XP)`);
-          return ctx.reply(box("⚔️ RESUMEN DE TURNO", lines));
-        }
+      if (reactionResult.ko) {
+        const xpReward = calculateXpReward(defenderSlot.character.nivel || 1, true);
+        endSession(session.id, attackerSlot.character.id);
+        try {
+          await addXp({
+            creatorId: attackerSlot.userId,
+            characterName: attackerSlot.character.name,
+            cantidad: xpReward,
+          });
+          await setHp({ creatorId: defenderSlot.userId, characterName: defenderSlot.character.name, hp: 0 });
+        } catch (_e) {}
 
         lines.push("");
-        lines.push("✦ ━━━━━━━━━━━━━━ ✦");
-        lines.push(formatActionMenu(defenderSlot.character.name));
-
-        return ctx.reply(box("⚔️ RESUMEN DE TURNO", lines));
+        lines.push(`\uD83D\uDC80 *${defenderSlot.character.name}* cay\u00F3`);
+        lines.push(`\uD83C\uDFC6 +${xpReward} XP`);
+        return ctx.reply(box("\u2694\uFE0F ATAQUE", lines));
       }
+
+      lines.push("");
+      lines.push("\u2726 \u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501 \u2726");
+      lines.push(formatActionMenu(defenderSlot.character.name));
+
+      return ctx.reply(box("\u2694\uFE0F ATAQUE", lines));
     } catch (error) {
       return ctx.reply(formatError(error.message));
     }

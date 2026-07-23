@@ -3,8 +3,7 @@ const { box } = require("../../utils/boxUtils");
 const { getFatigueLevel } = require("./fatigueEngine");
 
 /**
- * Genera una barra visual de vida.
- * Ej: [████████░░] 80/100 HP
+ *
  * @param current
  * @param max
  */
@@ -12,15 +11,15 @@ function buildHpBar(current, max = 100) {
   const pct = Math.max(0, Math.min(1, current / max));
   const filled = Math.round(pct * 10);
   const empty = 10 - filled;
-  const bar = "█".repeat(filled) + "░".repeat(empty);
+  const bar = "\u2588".repeat(filled) + "\u2591".repeat(empty);
 
   let icon;
-  if (pct > 0.6) icon = "🟢";
-  else if (pct > 0.3) icon = "🟡";
-  else if (pct > 0) icon = "🔴";
-  else icon = "💀";
+  if (pct > 0.6) icon = "\uD83D\uDFE2";
+  else if (pct > 0.3) icon = "\uD83D\uDFE1";
+  else if (pct > 0) icon = "\uD83D\uDD34";
+  else icon = "\uD83D\uDC80";
 
-  return `${icon} [${bar}] ${current}/${max} HP`;
+  return `${icon} [${bar}] ${current}/${max}`;
 }
 
 /**
@@ -28,8 +27,10 @@ function buildHpBar(current, max = 100) {
  * @param stats
  */
 function buildStatSummary(stats = {}) {
-  const keys = ["atk", "def", "aspd", "ref", "mspd", "fulgor", "d_fulgor", "r_fulgor"];
-  return keys.map((k) => `${k.toUpperCase()}:${stats[k] ?? 0}`).join("  ");
+  return [
+    `ATK${stats.atk ?? 0} DEF${stats.def ?? 0} ASP${stats.asp ?? 0}`,
+    `REF${stats.ref ?? 0} MSP${stats.mspd ?? 0} FUL${stats.fulgor ?? 0}`,
+  ];
 }
 
 /**
@@ -39,13 +40,12 @@ function buildStatSummary(stats = {}) {
  */
 function buildFatigueBar(fatigue, resistance) {
   const { name: levelName, ratio } = getFatigueLevel(fatigue, resistance);
-  const icons = { pleno: "\uD83D\uDFE2", agitado: "\uD83D\uDFE0", cansado: "\uD83D\uDFE1", fatigado: "\uD83D\uDD34" };
+  const icons = { pleno: "\uD83D\uDFE2", agitado: "\uD83D\uDFE1", cansado: "\uD83D\uDD34", fatigado: "\uD83D\uDD34" };
   const icon = icons[levelName] || "\u26A0\uFE0F";
-  const pct = Math.min(100, Math.round(ratio * 100));
   const filled = Math.round(ratio * 10);
   const empty = 10 - filled;
   const bar = "\u2588".repeat(Math.min(10, Math.max(0, filled))) + "\u2591".repeat(Math.max(0, empty));
-  return `${icon} [${bar}] ${fatigue}/${resistance} (${pct}%) — ${levelName.charAt(0).toUpperCase() + levelName.slice(1)}`;
+  return `${icon} ${bar} ${fatigue}/${resistance}`;
 }
 
 /**
@@ -54,30 +54,31 @@ function buildFatigueBar(fatigue, resistance) {
  */
 function formatActionMenu(characterName) {
   return [
-    `⚔️ Turno de *${characterName}* — elige tu acción:`,
-    "  • `/atacar` — Realizar un ataque cuerpo a cuerpo",
-    "  • `/inventario` / `/usar <item>` — Usar consumible",
-    "  • `/huir` — Intentar escapar del combate",
+    `\u2694\uFE0F Turno de *${characterName}*`,
+    "  \u2022 `/atacar` \u2014 Ataque",
+    "  \u2022 `/usar <item>` \u2014 Consumible",
+    "  \u2022 `/descansar` \u2014 Fatiga -5",
+    "  \u2022 `/huir` \u2014 Escapar",
   ].join("\n");
 }
 
 /**
- * Genera el submenú de reacción con indicador claro de si el dodge tendrá éxito.
- * @param {string} attackerName
- * @param {string} defenderName
- * @param {number} baseDamage
- * @param {boolean} canDodgeSuccessfully - pre-calculado por el motor
+ *
+ * @param attackerName
+ * @param defenderName
+ * @param baseDamage
+ * @param canDodgeSuccessfully
  */
 function formatReactionPrompt(attackerName, defenderName, baseDamage, canDodgeSuccessfully = false) {
   const dodgeLine = canDodgeSuccessfully
-    ? "  • `/esquivar` — ✅ ¡Puedes esquivar! Evitarás todo el daño."
-    : "  • `/esquivar` — ❌ No puedes esquivar actualmente (tu MSPD < ASPD oponente). Sufrirás el daño completo.";
+    ? "  \u2022 `/esquivar` \u2192 \u2705 Da\u00F1o: 0"
+    : "  \u2022 `/esquivar` \u2192 \u274C Da\u00F1o: " + baseDamage;
 
   return [
-    `⚡ *${attackerName}* te ha atacado (Daño base: *${baseDamage}*)`,
-    `💡 *${defenderName}*, ¿cómo reaccionas?`,
+    `\u26A1 *${attackerName}* ataca (${baseDamage})`,
+    `\uD83D\uDCA1 *${defenderName}* reacciona:`,
     dodgeLine,
-    "  • `/bloquear` — 🛡️ Reduce el daño un 25% de forma segura.",
+    "  \u2022 `/bloquear` \u2192 \uD83D\uDEE1\uFE0F Da\u00F1o: " + Math.max(1, Math.round(baseDamage * 0.75)),
   ].join("\n");
 }
 
@@ -87,30 +88,39 @@ function formatReactionPrompt(attackerName, defenderName, baseDamage, canDodgeSu
  * @param hasTestKit
  */
 function formatCombatOpen(session, hasTestKit = false) {
-  const challenger = session.challenger;
-  const defender = session.defender;
+  const c = session.challenger;
+  const d = session.defender;
+
+  const cStats = buildStatSummary(c.character.stats);
+  const dStats = buildStatSummary(d.character.stats);
 
   const lines = [
     "",
-    `👤 *${challenger.character.name}* (Nivel ${challenger.character.nivel || 20})`,
-    `   ${buildHpBar(challenger.hp)}`,
-    `   ${buildStatSummary(challenger.character.stats)}`,
+    `*${c.character.name}* Nv.${c.character.nivel || 20}`,
+    `HP ${buildHpBar(c.hp)}`,
+    `Fat ${buildFatigueBar(c.fatigue || 0, c.character.stats.def || 1)}`,
+    cStats[0],
+    cStats[1],
     "",
-    `🤖 *${defender.character.name}* (Nivel ${defender.character.nivel || 20})`,
-    `   ${buildHpBar(defender.hp)}`,
-    `   ${buildStatSummary(defender.character.stats)}`,
+    "      \u2694\uFE0F VS \u2694\uFE0F",
+    "",
+    `*${d.character.name}* Nv.${d.character.nivel || 20}`,
+    `HP ${buildHpBar(d.hp)}`,
+    `Fat ${buildFatigueBar(d.fatigue || 0, d.character.stats.def || 1)}`,
+    dStats[0],
+    dStats[1],
     "",
   ];
 
   if (hasTestKit) {
-    lines.push("🎒 *Consumibles de prueba añadidos: venda, poción, tónico, antídoto.*");
+    lines.push("\uD83C\uDF92 Consumibles de prueba");
     lines.push("");
   }
 
-  lines.push("✦ ━━━━━━━━━━━━━━ ✦");
-  lines.push(formatActionMenu(challenger.character.name));
+  lines.push("\u2726 \u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501 \u2726");
+  lines.push(formatActionMenu(c.character.name));
 
-  return box("⚔️ COMBATE INICIADO", lines);
+  return box("\u2694\uFE0F COMBATE INICIADO", lines);
 }
 
 /**
@@ -121,28 +131,28 @@ function formatTurnSummary(result) {
   const lines = [];
 
   lines.push("");
-  lines.push(`⚔️  *${result.attackerName}* ataca a *${result.defenderName}*`);
+  lines.push(`\u2694\uFE0F *${result.attackerName}* \u2192 *${result.defenderName}*`);
 
   if (result.reaction === "dodge") {
-    lines.push(`💨  ¡*${result.defenderName}* esquivó el ataque! Daño: 0`);
+    lines.push(`\uD83D\uDCA8 *${result.defenderName}* esquiv\u00F3 (0)`);
   } else if (result.reaction === "dodge_failed") {
-    lines.push(`❌  *${result.defenderName}* intentó esquivar pero falló.`);
-    lines.push(`💥  Daño: ${result.finalDamage}`);
+    lines.push(`\u274C *${result.defenderName}* fall\u00F3 esquiva`);
+    lines.push(`\uD83D\uDCA5 Da\u00F1o: ${result.finalDamage}`);
   } else if (result.reaction === "block") {
-    lines.push(`🛡️  *${result.defenderName}* bloqueó el ataque.`);
-    lines.push(`💥  Daño: ${result.baseDamage} → ${result.finalDamage} (−25%)`);
+    lines.push(`\uD83D\uDEE1\uFE0F *${result.defenderName}* bloque\u00F3`);
+    lines.push(`\uD83D\uDCA5 ${result.baseDamage} \u2192 ${result.finalDamage}`);
   } else {
-    lines.push(`💥  Daño: ${result.finalDamage}`);
+    lines.push(`\uD83D\uDCA5 Da\u00F1o: ${result.finalDamage}`);
   }
 
-  lines.push(`❤️  *${result.defenderName}*: ${result.defenderHpBefore} → ${result.defenderHpAfter} HP`);
+  lines.push(`\u2764\uFE0F *${result.defenderName}*: ${result.defenderHpBefore} \u2192 ${result.defenderHpAfter}`);
 
   if (result.ko) {
     lines.push("");
-    lines.push(`💀  ¡*${result.defenderName}* ha caído!`);
+    lines.push(`\uD83D\uDC80 *${result.defenderName}* ha ca\u00EDdo`);
   }
 
-  return box("⚔️ RESUMEN DE ATAQUE", lines);
+  return box("\u2694\uFE0F TURNO", lines);
 }
 
 /**
@@ -151,39 +161,41 @@ function formatTurnSummary(result) {
  */
 function formatCombatStatus(session) {
   const lines = [];
-  const challenger = session.challenger;
-  const defender = session.defender;
+  const c = session.challenger;
+  const d = session.defender;
 
-  const currentTurnCharName =
-    String(session.currentTurnCharId) === String(challenger.characterId)
-      ? challenger.character.name
-      : defender.character.name;
+  const currentName = String(session.currentTurnCharId) === String(c.characterId) ? c.character.name : d.character.name;
+
+  const cStats = buildStatSummary(c.character.stats);
+  const dStats = buildStatSummary(d.character.stats);
 
   lines.push("");
-  lines.push(`📅  Ronda: ${session.rounds + 1}  |  🔄 Turno de: *${currentTurnCharName}*`);
+  lines.push(`R${session.rounds + 1} Turno *${currentName}*`);
   lines.push("");
-  lines.push("── RETADOR ──");
-  lines.push(`👤  *${challenger.character.name}*`);
-  lines.push(`    ${buildHpBar(challenger.hp)}`);
-  lines.push(`    ${buildFatigueBar(challenger.fatigue || 0, challenger.character.stats.def || 1)}`);
-  lines.push(`    ${buildStatSummary(challenger.character.stats)}`);
+  lines.push("\u2500\u2500 RETADOR \u2500\u2500");
+  lines.push(`*${c.character.name}* Nv.${c.character.nivel || 20}`);
+  lines.push(`HP ${buildHpBar(c.hp)}`);
+  lines.push(`Fat ${buildFatigueBar(c.fatigue || 0, c.character.stats.def || 1)}`);
+  lines.push(cStats[0]);
+  lines.push(cStats[1]);
   lines.push("");
-  lines.push("── DEFENSOR ──");
-  lines.push(`👤  *${defender.character.name}*`);
-  lines.push(`    ${buildHpBar(defender.hp)}`);
-  lines.push(`    ${buildFatigueBar(defender.fatigue || 0, defender.character.stats.def || 1)}`);
-  lines.push(`    ${buildStatSummary(defender.character.stats)}`);
+  lines.push("\u2500\u2500 DEFENSOR \u2500\u2500");
+  lines.push(`*${d.character.name}* Nv.${d.character.nivel || 20}`);
+  lines.push(`HP ${buildHpBar(d.hp)}`);
+  lines.push(`Fat ${buildFatigueBar(d.fatigue || 0, d.character.stats.def || 1)}`);
+  lines.push(dStats[0]);
+  lines.push(dStats[1]);
   lines.push("");
 
-  lines.push("✦ ━━━━━━━━━━━━━━ ✦");
+  lines.push("\u2726 \u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501 \u2726");
   if (session.status === "waiting_reaction" && session.pendingAttack) {
     const p = session.pendingAttack;
     lines.push(formatReactionPrompt(p.attackerName, p.defenderName, p.baseDamage, p.canDodgeSuccessfully ?? false));
   } else {
-    lines.push(formatActionMenu(currentTurnCharName));
+    lines.push(formatActionMenu(currentName));
   }
 
-  return box("📊 ESTADO DEL COMBATE", lines);
+  return box("\uD83D\uDCCA ESTADO", lines);
 }
 
 /**
@@ -192,7 +204,7 @@ function formatCombatStatus(session) {
  * @param xpGained
  */
 function formatVictory(winnerName, xpGained) {
-  return box("🎉 VICTORIA", ["", `🏆  ¡*${winnerName}* ha ganado el combate!`, `✨  XP ganada: +${xpGained}`]);
+  return box("\uD83C\uDF89 VICTORIA", ["", `\uD83C\uDFC6 *${winnerName}* gan\u00F3`, `\u2728 +${xpGained} XP`]);
 }
 
 /**
@@ -206,20 +218,20 @@ function formatFlee(fleerName, success, chance, fatigue = 0) {
   const pct = Math.round(chance * 100);
   if (success) {
     return box(
-      "🏃 HUIDA EXITOSA",
+      "\uD83C\uDFC3 HUIDA",
       [
         "",
-        `✅  *${fleerName}* escapó del combate.`,
-        `📊  Probabilidad de éxito era: ${pct}%`,
-        fatigue > 0 ? `⚡ Fatiga acumulada: ${fatigue}` : "",
+        `\u2705 *${fleerName}* escap\u00F3`,
+        `Prob: ${pct}%`,
+        fatigue > 0 ? `Fat ${buildFatigueBar(fatigue, 50)}` : "",
       ].filter(Boolean),
     );
   }
-  return box("🏃 HUIDA FALLIDA", [
+  return box("\uD83C\uDFC3 HUIDA", [
     "",
-    `❌  *${fleerName}* intentó huir pero fue interceptado.`,
-    `📊  Probabilidad de éxito era: ${pct}% — ¡Mala suerte!`,
-    `⚔️  El oponente aprovecha y realiza un contraataque.`,
+    `\u274C *${fleerName}* interceptado`,
+    `Prob: ${pct}%`,
+    "\u2694\uFE0F Contraataque",
   ]);
 }
 
@@ -228,16 +240,13 @@ function formatFlee(fleerName, success, chance, fatigue = 0) {
  * @param adminName
  */
 function formatCombatDisolved(adminName) {
-  return box("🔓 COMBATE DISUELTO", [
-    "",
-    `El administrador ${adminName} ha disuelto el combate.`,
-    "Los personajes involucrados han sido desbloqueados.",
-  ]);
+  return box("\uD83D\uDD13 DISUELTO", ["", `${adminName} disolvi\u00F3 el combate`, "Personajes desbloqueados"]);
 }
 
 module.exports = {
   buildHpBar,
   buildFatigueBar,
+  buildStatSummary,
   formatActionMenu,
   formatReactionPrompt,
   formatCombatOpen,

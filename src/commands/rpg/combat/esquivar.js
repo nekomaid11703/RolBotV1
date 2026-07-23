@@ -3,7 +3,7 @@ const { getActiveCharacter, addXp, setHp } = require("../../../services/characte
 const { findSessionByCharacter, advanceTurn, endSession } = require("../../../services/rpg/combatState");
 const { executeReaction, calculateXpReward } = require("../../../services/rpg/combatEngine");
 const { calcFatigueCost } = require("../../../services/rpg/fatigueEngine");
-const { formatActionMenu } = require("../../../services/rpg/combatMessages");
+const { formatActionMenu, buildFatigueBar } = require("../../../services/rpg/combatMessages");
 const { formatError } = require("../../../utils/formatErrorUtils");
 const { box } = require("../../../utils/boxUtils");
 
@@ -22,16 +22,16 @@ module.exports = {
 
       const session = findSessionByCharacter(activeChar.id);
       if (!session) {
-        return ctx.reply("❌ Tu personaje no está en un combate activo.");
+        return ctx.reply("\u274C No est\u00E1s en combate.");
       }
 
       if (session.status !== "waiting_reaction" || !session.pendingAttack) {
-        return ctx.reply("❌ No hay ningún ataque pendiente al que debas reaccionar. Usa `/estado`.");
+        return ctx.reply("\u274C No hay ataque pendiente. Usa `/estado`.");
       }
 
       const pending = session.pendingAttack;
       if (String(pending.defenderChar.id) !== String(activeChar.id)) {
-        return ctx.reply("❌ No eres el defensor del ataque actual.");
+        return ctx.reply("\u274C No eres el defensor.");
       }
 
       const isDefenderChallenger = String(session.challenger.characterId) === String(activeChar.id);
@@ -59,16 +59,15 @@ module.exports = {
       const lines = [];
       lines.push("");
       if (reactionResult.dodged) {
-        lines.push(`💨  ¡*${activeChar.name}* esquivó exitosamente el ataque de *${pending.attackerChar.name}*!`);
-        lines.push(`💥  Daño recibido: 0`);
+        lines.push(`\uD83D\uDCA8 *${activeChar.name}* esquiv\u00F3 (0)`);
       } else {
-        lines.push(`❌  *${activeChar.name}* intentó esquivar a *${pending.attackerChar.name}* pero falló.`);
-        lines.push(`💥  Daño recibido: ${reactionResult.finalDamage}`);
+        lines.push(`\u274C *${activeChar.name}* fall\u00F3 esquiva`);
+        lines.push(`\uD83D\uDCA5 Da\u00F1o: ${reactionResult.finalDamage}`);
       }
       lines.push(
-        `❤️  HP de *${activeChar.name}*: ${reactionResult.defenderHpBefore} → ${reactionResult.defenderHpAfter}`,
+        `\u2764\uFE0F *${activeChar.name}*: ${reactionResult.defenderHpBefore}\u2192${reactionResult.defenderHpAfter}`,
       );
-      lines.push(`⚡ Fatiga: ${defenderSlot.fatigue} (+${dodgeFatigueCost} por esquivar)`);
+      lines.push(`\u26A1 ${buildFatigueBar(defenderSlot.fatigue, defenderSlot.character.stats.def || 1)}`);
 
       if (reactionResult.ko) {
         const winnerChar = pending.attackerChar;
@@ -81,9 +80,9 @@ module.exports = {
         } catch (_e) {}
 
         lines.push("");
-        lines.push(`💀  ¡*${activeChar.name}* ha caído en combate!`);
-        lines.push(`🏆  ¡*${winnerChar.name}* gana el combate! (+${xpReward} XP)`);
-        return ctx.reply(box("⚔️ REACCIÓN DE COMBATE", lines));
+        lines.push(`\uD83D\uDC80 *${activeChar.name}* cay\u00F3`);
+        lines.push(`\uD83C\uDFC6 +${xpReward} XP`);
+        return ctx.reply(box("\uD83D\uDCA8 ESQUIVA", lines));
       }
 
       const nextTurnCharName =
@@ -91,10 +90,10 @@ module.exports = {
           ? session.challenger.character.name
           : session.defender.character.name;
       lines.push("");
-      lines.push("✦ ━━━━━━━━━━━━━━ ✦");
+      lines.push("\u2726 \u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501 \u2726");
       lines.push(formatActionMenu(nextTurnCharName));
 
-      return ctx.reply(box("⚔️ REACCIÓN DE COMBATE", lines));
+      return ctx.reply(box("\uD83D\uDCA8 ESQUIVA", lines));
     } catch (error) {
       return ctx.reply(formatError(error.message));
     }

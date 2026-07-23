@@ -9,7 +9,12 @@ const {
 } = require("../../../services/rpg/combatState");
 const { rollFlee, executeAttack, executeReaction } = require("../../../services/rpg/combatEngine");
 const { calcFatigueCost } = require("../../../services/rpg/fatigueEngine");
-const { formatFlee, formatActionMenu, formatReactionPrompt } = require("../../../services/rpg/combatMessages");
+const {
+  formatFlee,
+  formatActionMenu,
+  formatReactionPrompt,
+  buildFatigueBar,
+} = require("../../../services/rpg/combatMessages");
 const { formatError } = require("../../../utils/formatErrorUtils");
 const { box } = require("../../../utils/boxUtils");
 
@@ -23,22 +28,20 @@ module.exports = {
     try {
       const activeChar = await getActiveCharacter({ creatorId: ctx.sender });
       if (!activeChar) {
-        return ctx.reply("❌ No tienes un personaje activo.");
+        return ctx.reply("\u274C No tienes un personaje activo.");
       }
 
       const session = findSessionByCharacter(activeChar.id);
       if (!session) {
-        return ctx.reply("❌ Tu personaje no está en un combate activo.");
+        return ctx.reply("\u274C No est\u00E1s en combate.");
       }
 
       if (session.status === "waiting_reaction") {
-        return ctx.reply(
-          "❌ Hay un ataque en curso pendiente de respuesta. Primero debes resolverlo con `/esquivar` o `/bloquear`.",
-        );
+        return ctx.reply("\u274C Hay ataque pendiente. Usa `/esquivar` o `/bloquear`.");
       }
 
       if (String(session.currentTurnCharId) !== String(activeChar.id)) {
-        return ctx.reply(`❌ No es el turno de **${activeChar.name}**. No puedes huir en el turno del oponente.`);
+        return ctx.reply("\u274C No es tu turno.");
       }
 
       const isChallenger = String(session.challenger.characterId) === String(activeChar.id);
@@ -74,9 +77,9 @@ module.exports = {
       // Si la huida falla, el jugador pierde el turno y sufre el ataque automático del perseguidor
       const lines = [];
       lines.push("");
-      lines.push(`❌  *${fleerSlot.character.name}* intentó huir pero fue alcanzado.`);
-      lines.push(`📊  Probabilidad de huida: ${Math.round(fleeResult.chance * 100)}% — ¡Falló!`);
-      lines.push(`⚡ Fatiga: ${fleerSlot.fatigue} (+${fleeCost} por intento de huida)`);
+      lines.push(`\u274C *${fleerSlot.character.name}* interceptado`);
+      lines.push(`Prob: ${Math.round(fleeResult.chance * 100)}%`);
+      lines.push(`\u26A1 ${buildFatigueBar(fleerSlot.fatigue, fleerSlot.character.stats.def || 1)}`);
 
       const attackInfo = executeAttack(
         pursuerSlot.character,
@@ -111,48 +114,48 @@ module.exports = {
         });
 
         lines.push("");
-        lines.push(`⚔️  *${pursuerSlot.character.name}* aprovecha y te ataca (Daño base: ${attackInfo.baseDamage})`);
+        lines.push(`\u2694\uFE0F Contraataque (${attackInfo.baseDamage})`);
         lines.push("");
-        lines.push("✦ ━━━━━━━━━━━━━━ ✦");
+        lines.push("\u2726 \u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501 \u2726");
         lines.push(
           formatReactionPrompt(pursuerSlot.character.name, fleerSlot.character.name, attackInfo.baseDamage, canDodge),
         );
 
-        return ctx.reply(box("🏃 HUIDA FALLIDA", lines));
-      } else {
-        const reactionResult = executeReaction(
-          "none",
-          attackInfo.baseDamage,
-          fleerSlot.character,
-          fleerSlot.hp,
-          pursuerSlot.character,
-          fleerSlot.fatigue,
-          pursuerSlot.fatigue,
-        );
-
-        const newFleerHp = reactionResult.defenderHpAfter;
-        const newAttackerHp = pursuerSlot.hp;
-
-        advanceTurn(session.id, isChallenger ? newFleerHp : newAttackerHp, isChallenger ? newAttackerHp : newFleerHp);
-
-        lines.push("");
-        lines.push(`⚔️  *${pursuerSlot.character.name}* te golpea al intentar escapar.`);
-        lines.push(`💥  Daño recibido: ${reactionResult.finalDamage}`);
-        lines.push(`❤️  HP de *${fleerSlot.character.name}*: ${reactionResult.defenderHpBefore} → ${newFleerHp}`);
-
-        if (reactionResult.ko) {
-          endSession(session.id, pursuerSlot.character.id);
-          lines.push("");
-          lines.push(`💀  ¡*${fleerSlot.character.name}* ha caído intentando huir!`);
-          return ctx.reply(box("🏃 HUIDA FALLIDA", lines));
-        }
-
-        lines.push("");
-        lines.push("✦ ━━━━━━━━━━━━━━ ✦");
-        lines.push(formatActionMenu(pursuerSlot.character.name));
-
-        return ctx.reply(box("🏃 HUIDA FALLIDA", lines));
+        return ctx.reply(box("\uD83C\uDFC3 HUIDA", lines));
       }
+
+      const reactionResult = executeReaction(
+        "none",
+        attackInfo.baseDamage,
+        fleerSlot.character,
+        fleerSlot.hp,
+        pursuerSlot.character,
+        fleerSlot.fatigue,
+        pursuerSlot.fatigue,
+      );
+
+      const newFleerHp = reactionResult.defenderHpAfter;
+      const newAttackerHp = pursuerSlot.hp;
+
+      advanceTurn(session.id, isChallenger ? newFleerHp : newAttackerHp, isChallenger ? newAttackerHp : newFleerHp);
+
+      lines.push("");
+      lines.push(`\u2694\uFE0F *${pursuerSlot.character.name}* golpea`);
+      lines.push(`\uD83D\uDCA5 Da\u00F1o: ${reactionResult.finalDamage}`);
+      lines.push(`\u2764\uFE0F *${fleerSlot.character.name}*: ${reactionResult.defenderHpBefore}\u2192${newFleerHp}`);
+
+      if (reactionResult.ko) {
+        endSession(session.id, pursuerSlot.character.id);
+        lines.push("");
+        lines.push(`\uD83D\uDC80 *${fleerSlot.character.name}* cay\u00F3`);
+        return ctx.reply(box("\uD83C\uDFC3 HUIDA", lines));
+      }
+
+      lines.push("");
+      lines.push("\u2726 \u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501 \u2726");
+      lines.push(formatActionMenu(pursuerSlot.character.name));
+
+      return ctx.reply(box("\uD83C\uDFC3 HUIDA", lines));
     } catch (error) {
       return ctx.reply(formatError(error.message));
     }

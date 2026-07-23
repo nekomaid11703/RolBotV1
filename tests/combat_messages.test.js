@@ -3,7 +3,8 @@ const {
   formatActionMenu,
   formatReactionPrompt,
   formatCombatStatus,
-  formatTurnSummary,
+  buildStatSummary,
+  buildFatigueBar,
 } = require("../src/services/rpg/combatMessages");
 
 describe("combatMessages — Single Message Formatters", () => {
@@ -35,31 +36,50 @@ describe("combatMessages — Single Message Formatters", () => {
     expect(msg).toContain("COMBATE INICIADO");
     expect(msg).toContain("Aelin");
     expect(msg).toContain("Maniquí de Práctica");
-    expect(msg).toContain("Consumibles de prueba añadidos");
+    expect(msg).toContain("Consumibles de prueba");
     expect(msg).toContain("/atacar");
   });
 
-  it("formatActionMenu muestra las opciones atómicas disponibles", () => {
+  it("formatActionMenu muestra las opciones disponibles", () => {
     const menu = formatActionMenu("Aelin");
     expect(menu).toContain("Turno de *Aelin*");
     expect(menu).toContain("/atacar");
-    expect(menu).toContain("/inventario");
+    expect(menu).toContain("/usar");
     expect(menu).toContain("/huir");
+    expect(menu).toContain("/descansar");
   });
 
   it("formatReactionPrompt genera submenú de esquivar / bloquear", () => {
     const prompt = formatReactionPrompt("Aelin", "Maniquí de Práctica", 10, false);
     expect(prompt).toContain("/esquivar");
     expect(prompt).toContain("/bloquear");
-    expect(prompt).toContain("Daño base: *10*");
+    expect(prompt).toContain("10");
   });
 
   it("formatCombatStatus incluye ronda, vida de ambos y menú", () => {
     const status = formatCombatStatus(session);
-    expect(status).toContain("ESTADO DEL COMBATE");
-    expect(status).toContain("Ronda: 1");
+    expect(status).toContain("ESTADO");
+    expect(status).toContain("R1");
     expect(status).toContain("Aelin");
     expect(status).toContain("Maniquí de Práctica");
     expect(status).toContain("/atacar");
+  });
+
+  it("buildStatSummary retorna array de 2 filas", () => {
+    const stats = buildStatSummary({ atk: 5, def: 5, asp: 2, ref: 2, mspd: 2, fulgor: 3 });
+    expect(Array.isArray(stats)).toBe(true);
+    expect(stats).toHaveLength(2);
+    expect(stats[0]).toContain("ATK5");
+    expect(stats[0]).toContain("DEF5");
+    expect(stats[0]).toContain("ASP2");
+    expect(stats[1]).toContain("REF2");
+    expect(stats[1]).toContain("MSP2");
+    expect(stats[1]).toContain("FUL3");
+  });
+
+  it("buildFatigueBar retorna string con formato compacto", () => {
+    const bar = buildFatigueBar(10, 50);
+    expect(typeof bar).toBe("string");
+    expect(bar).toContain("10/50");
   });
 });

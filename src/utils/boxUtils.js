@@ -1,5 +1,5 @@
 // @ts-nocheck
-const BOX_W = 34;
+const BOX_W = 20;
 
 const LINE = "✦ ━━━━━━━━━━━━━━ ✦";
 const BOX_TOP = `╭${"─".repeat(BOX_W)}`;
