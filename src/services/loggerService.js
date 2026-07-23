@@ -64,6 +64,9 @@ async function ensureLogsDir() {
   await fsp.mkdir(LOGS_DIR, { recursive: true });
 }
 
+/**
+ *
+ */
 async function cleanOldLogs() {
   try {
     const files = await fsp.readdir(LOGS_DIR);
@@ -124,10 +127,11 @@ async function logSystem(message, details = {}) {
   ]);
 }
 
-/** @param {{ userId: string, userName: string, groupId: string, inputCommand: string, resolvedCommand: string, args?: string[], status?: string, reason?: string }} opts - Options object */
+/** @param {{ userId: string, userName: string, userPhone?: string|null, groupId: string, inputCommand: string, resolvedCommand: string, args?: string[], status?: string, reason?: string }} opts - Options object */
 async function logCommand({
   userId,
   userName,
+  userPhone = null,
   groupId,
   inputCommand,
   resolvedCommand,
@@ -139,6 +143,7 @@ async function logCommand({
     `STATUS: ${String(status).toUpperCase()}`,
     `USER_ID: ${safeStringify(userId)}`,
     `USER_NAME: ${safeStringify(userName)}`,
+    userPhone ? `USER_PHONE: ${safeStringify(userPhone)}` : "",
     `GROUP_ID: ${safeStringify(groupId)}`,
     `INPUT_COMMAND: ${safeStringify(inputCommand)}`,
     `RESOLVED_COMMAND: ${safeStringify(resolvedCommand)}`,
@@ -162,9 +167,75 @@ async function logError({ source = "unknown", userId = null, userName = null, gr
   ]);
 }
 
+/**
+ * Parse error entries from log content.
+ * @param {string} content - Raw log file content
+ * @param {number} limit - Max entries to return
+ * @returns {Array<{time: string, source: string, message: string}>}
+ */
+function parseErrorEntries(content, limit = 5) {
+  const entries = [];
+  const blocks = content.split(/\n\n+/);
+
+  for (const block of blocks) {
+    if (!block.includes("] ERROR")) continue;
+
+    const timeMatch = block.match(/^\[(.+?)\]/);
+    const sourceMatch = block.match(/SOURCE:\s*(.+)/);
+    const messageMatch = block.match(/MESSAGE:\s*(.+)/);
+
+    if (timeMatch) {
+      entries.push({
+        time: timeMatch[1],
+        source: sourceMatch ? sourceMatch[1].trim() : "unknown",
+        message: messageMatch ? messageMatch[1].trim().slice(0, 80) : "(sin mensaje)",
+      });
+    }
+
+    if (entries.length >= limit) break;
+  }
+
+  return entries;
+}
+
+/**
+ * Get recent errors from today's error log.
+ * @param {number} limit - Max errors to return
+ * @returns {Promise<Array<{time: string, source: string, message: string}>>}
+ */
+async function getRecentErrors(limit = 5) {
+  try {
+    const fileName = getLogFileName("error");
+    const filePath = path.join(LOGS_DIR, fileName);
+    const content = await fsp.readFile(filePath, "utf8");
+    return parseErrorEntries(content, limit);
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Get recent errors from a specific date's log.
+ * @param {string} dateStr - Date in YYYY-MM-DD format
+ * @param {number} limit - Max errors to return
+ * @returns {Promise<Array<{time: string, source: string, message: string}>>}
+ */
+async function getErrorsByDate(dateStr, limit = 10) {
+  try {
+    const fileName = `error-${dateStr}.log`;
+    const filePath = path.join(LOGS_DIR, fileName);
+    const content = await fsp.readFile(filePath, "utf8");
+    return parseErrorEntries(content, limit);
+  } catch {
+    return [];
+  }
+}
+
 module.exports = {
   logSystem,
   logCommand,
   logError,
   cleanOldLogs,
+  getRecentErrors,
+  getErrorsByDate,
 };

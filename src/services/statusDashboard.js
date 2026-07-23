@@ -1,7 +1,12 @@
 // @ts-nocheck
 const { stats, getUptime, getMemory, formatDuration } = require("./stats");
+const { getRecentErrors } = require("./loggerService");
 
 let dashboardTimer = null;
+/** @type {Array<{time: string, source: string, message: string}>} */
+let cachedErrors = [];
+let lastErrorFetch = 0;
+const ERROR_CACHE_MS = 15000;
 
 const B = "\x1b[1m";
 const R = "\x1b[0m";
@@ -14,6 +19,12 @@ const W = "\x1b[37m";
 const D = "\x1b[2m";
 const GR = "\x1b[90m";
 
+/**
+ *
+ * @param val
+ * @param max
+ * @param w
+ */
 function bar(val, max, w) {
   w = w || 12;
   max = Math.max(max || 1, 1);
@@ -22,12 +33,36 @@ function bar(val, max, w) {
   return "#".repeat(filled) + ".".repeat(w - filled);
 }
 
+/**
+ *
+ * @param s
+ * @param n
+ */
 function pad(s, n) {
   return String(s).padEnd(n);
 }
 
-function render() {
+/**
+ *
+ */
+async function refreshErrors() {
+  const now = Date.now();
+  if (now - lastErrorFetch < ERROR_CACHE_MS) return;
+  lastErrorFetch = now;
   try {
+    cachedErrors = await getRecentErrors(5);
+  } catch {
+    cachedErrors = [];
+  }
+}
+
+/**
+ *
+ */
+async function render() {
+  try {
+    await refreshErrors();
+
     const uptime = formatDuration(getUptime());
     const mem = getMemory();
     const now = new Date();
@@ -40,13 +75,11 @@ function render() {
     const maxMsg = Math.max(stats.messagesReceived, 100);
     const maxCmd = Math.max(stats.commandsExecuted, 50);
     const maxErr = Math.max(stats.errors, 10);
-    const maxGrp = Math.max(stats.groupsCount, 10);
 
     const msgB = bar(stats.messagesReceived, maxMsg);
     const cmdB = bar(stats.commandsExecuted, maxCmd);
     const errB = bar(stats.errors, maxErr);
     const errL = stats.errors > 0 ? `${RE}${B}${stats.errors}${R}` : `${stats.errors}`;
-    const grpB = bar(stats.groupsCount, maxGrp);
 
     const lastMsg = stats.lastMessageTime ? `hace ${Math.floor((Date.now() - stats.lastMessageTime) / 1000)}s` : "---";
 
@@ -80,7 +113,6 @@ function render() {
       `${M}|${R}  ${pad("Mensajes", 12)} ${msgB}  ${B}${W}${String(stats.messagesReceived).padStart(5)}${R}  ${M}|${R}`,
       `${M}|${R}  ${pad("Comandos", 12)} ${cmdB}  ${B}${W}${String(stats.commandsExecuted).padStart(5)}${R}  ${M}|${R}`,
       `${M}|${R}  ${pad("Errores", 12)} ${errB}  ${errL.padStart(5)}  ${M}|${R}`,
-      `${M}|${R}  ${pad("Grupos", 12)} ${grpB}  ${B}${W}${String(stats.groupsCount).padStart(5)}${R}  ${M}|${R}`,
       `${M}|${R}  ${pad("Ultimo msg", 12)} ${bar(0, 0)}  ${pad(lastMsg, 6)}  ${M}|${R}`,
       `${M}|${R}  ${pad("Memoria", 12)} ${bar(parseFloat(mem), 200)}  ${pad(memS, 6)}  ${M}|${R}`,
       `${M}|${R}  ${pad("Salud", 12)}              ${healthIcon} ${healthTxt}  ${M}|${R}`,
@@ -101,18 +133,41 @@ function render() {
 
     out.push(sep);
 
+    out.push(`${M}|${R}  ${B}${W}ULTIMOS ERRORES (LOG)${R}                        ${M}|${R}`);
+    out.push(`${M}|${R}  ${D}----------------------------------------------${R}  ${M}|${R}`);
+
+    if (cachedErrors.length > 0) {
+      for (const err of cachedErrors) {
+        const timeShort = err.time ? err.time.slice(11, 19) : "??:??:??";
+        const src = err.source ? err.source.slice(0, 12) : "unknown";
+        const msg = err.message ? err.message.slice(0, 30) : "(sin msg)";
+        out.push(`${M}|${R}  ${GR}${timeShort}${R} ${RE}${pad(src, 14)}${R} ${msg}`);
+      }
+    } else {
+      out.push(`${M}|${R}  ${GR}(sin errores recientes)${R}                   ${M}|${R}`);
+    }
+
+    out.push(`${M}|${R}`);
+    out.push(sep);
+
     process.stdout.write("\x1b[2J\x1b[H" + out.join(n) + n);
   } catch (_e) {
     // Never crash the bot due to dashboard rendering error
   }
 }
 
+/**
+ *
+ */
 function startDashboard() {
   if (dashboardTimer) return;
   render();
   dashboardTimer = setInterval(render, 30000);
 }
 
+/**
+ *
+ */
 function stopDashboard() {
   if (dashboardTimer) {
     clearInterval(dashboardTimer);
