@@ -1,34 +1,54 @@
 # Changelog
 
-## 2026-07-14 — Tooling & cleanup sprint
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [1.1.0] - 2026-07-22
 
 ### Added
-- TypeScript strict mode (`strict: true`) — 1069→0 errors in src/
-- Knip (dead code analysis) — 5 dead files deleted
-- `npm run check:all` (lint + typecheck + depcruise + format:check + test:all)
-- Husky + lint-staged (pre-commit lint + format)
-- GitHub Actions CI (lint, typecheck, depcruise, format:check)
-- eslint-plugin-jsdoc (flat config, warn level)
-- Vitest 4 + config (tests not yet migrated)
-- Stryker 9 + config (mutates src/core/, break:50)
-- ADR records: ADR-001 (IA elimination), ADR-002 (tooling infrastructure)
-- Graphify skill workflow documented (.opencode/skills/graphify.md)
-- `src/services/displayNameService.js` — extracted from userMentionUtils for architecture compliance
+- **userService tests**: 14 tests for `sanitizeName` (accent stripping, whitespace normalization, forbidden chars, edge cases)
+- **characterService tests**: 2 tests for `addXp` stub behavior
+- **combatState tests**: 16 tests for `generateDummyCharacter`, `isSessionActive`, `isSessionExpired` (pure logic, no DB)
+- **permissionService tests**: 6 tests for `getCategoryLabel` (category label mapping)
+- **economyService tests**: 14 tests for config constants, `getMoneyValue` behavior, amount validation logic
+
+### Changed
+- Test suite expanded from 237 to 289 tests (+52 tests, +22% coverage)
+- 22 test files (up from 17)
+
+## [1.0.0] - 2026-07-22
+
+### Added
+- **Help System**: Reorganized into 3 sections (Administrador/Creador/Comunes) with subcategories (RPG, Economía, Grupo, Permisos, Info)
+- **Permission System**: Generic extensible permission system with `adminPerm` flag on commands. Categories stored in `bot_auth_state.data.categories` map
+- **Permission Commands**: `admin_perm_add`, `admin_perm_rem`, `admin_perm_list` for managing category-based admin permissions
+- **Item Commands**: `item_add` (renamed from `dar_item`) and `item_rem` for inventory management
+- **Combat System**: PvE/PvP combat with Supabase persistence
+  - Sessions stored in `combat_sessions` table
+  - Timer-based expiry (48h turn timeout) instead of setTimeout
+  - Auto-cleanup every 5 minutes
+  - Max 50 active sessions limit
+- **Inventory System**: Items, consumables, and equipment management
+- **Character System**: 21 canon races, character progression
+- **Schema Migration**: Version 2.1.0 with `combat_sessions` table creation
+
+### Changed
+- Help command reorganized from 4 flat categories to 3 permission-based sections
+- All 33 command `category:` strings updated (rpg, admin, info)
+- `dar_item` renamed to `item_add` (alias preserved for backward compatibility)
+- `combatConfig.js`: Added `MAX_ACTIVE_SESSIONS=50`, `CLEANUP_INTERVAL_MS=300000`
+- `combatConfig.js`: Removed `CHALLENGE_TIMEOUT_MS` (was dead code)
+- `combatState.js`: Complete rewrite with Supabase persistence
+- `bot.js`: Added `restoreSessions()` and `startCleanupInterval()` on startup
 
 ### Fixed
-- 35 unused vars removed across 23 files (ESLint clean: 0 errors, 0 warnings)
-- 110 files formatted with Prettier
-- 12 dead exports removed (characterService, bugReportService, loggerService, permissionService)
-- 2 `utils-not-to-services` depcruise violations eliminated
-- `test_cache_state_version.js` — 5 combat-specific tests removed, 6/6 pass
-- README.md — AI layer references removed, tooling badges added
+- Combat session persistence across bot restarts
+- Timer-based combat expiry using verification instead of setTimeout
+- Auto-cleanup of expired combat sessions
 
-### Removed
-- AI orchestrator layer (Gemini, OpenRouter, HuggingFace, Ollama)
-- `classifyUtils.js`, `combatLogger.js`, `dataLoader.js`, `statCalculator.js`, `duelService.js`, `syncService.js`
-- `getOwnerDisplayName` (dead export from permissionUtils)
-
-### Remaining debt
-- depcruise: 3 warnings (2 data/ orphans, 1 combat circular)
-- 11 test failures (8 combat-related, 3 missing npm modules)
-- Knip: ~139 "unused exports" mostly false positives (dynamic require)
+### Technical
+- 17 test files with 237 passing tests
+- ESLint configuration updated for scripts directory
+- Supabase RPC integration for table creation
