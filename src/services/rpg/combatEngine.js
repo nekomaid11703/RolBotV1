@@ -65,7 +65,7 @@ function calculateDamage(
   const atkPenalized = applyPenalties(attackerStats, attackerHp, attackerFatigue, attackerRes);
   const defPenalized = applyPenalties(defenderStats, defenderHp, defenderFatigue, defenderRes);
 
-  const rawDamage = atkPenalized.atk - defPenalized.def;
+  const rawDamage = Math.floor(atkPenalized.atk ** 2 / (atkPenalized.atk + defPenalized.def * 2));
   return Math.max(DAMAGE_MIN, rawDamage);
 }
 
@@ -92,7 +92,7 @@ function canReact(
 ) {
   const defPenalized = applyPenalties(defenderStats, defenderHp, defenderFatigue, defenderRes);
   const atkPenalized = applyPenalties(attackerStats, attackerHp, attackerFatigue, attackerRes);
-  return defPenalized.ref >= atkPenalized.aspd;
+  return defPenalized.ref > atkPenalized.aspd;
 }
 
 /**
@@ -119,7 +119,7 @@ function evaluateDodgeFeasibility(
 ) {
   const defPenalized = applyPenalties(defenderStats, defenderHp, defenderFatigue, defenderRes);
   const atkPenalized = applyPenalties(attackerStats, attackerHp, attackerFatigue, attackerRes);
-  return defPenalized.mspd >= atkPenalized.aspd;
+  return defPenalized.mspd > atkPenalized.aspd;
 }
 
 /**
@@ -195,7 +195,7 @@ function attemptDodge(
   const defPenalized = applyPenalties(defenderStats, defenderHp, defenderFatigue, defenderRes);
   const atkPenalized = applyPenalties(attackerStats, attackerHp, attackerFatigue, attackerRes);
 
-  if (defPenalized.mspd >= atkPenalized.aspd) {
+  if (defPenalized.mspd > atkPenalized.aspd) {
     return { dodged: true, damage: 0 };
   }
   return { dodged: false, damage: null };

@@ -22,7 +22,7 @@ const FATIGUE_THRESHOLDS = [
 
 const FATIGUE_COSTS = {
   attack: 3,
-  dodge: 6,
+  dodge: 4,
   block: 1,
   flee: 4,
   useItem: 2,
@@ -30,7 +30,7 @@ const FATIGUE_COSTS = {
 };
 
 const FATIGUE_RECOVERY = {
-  block: 3,
+  block: 1,
   rest: 5,
 };
 

@@ -95,9 +95,9 @@ describe("combatEngine — calculateDamage", () => {
   const highDef = { atk: 10, def: 50, aspd: 10, ref: 10, mspd: 10 };
   const equal = { atk: 30, def: 30, aspd: 20, ref: 20, mspd: 20 };
 
-  it("ATK igual a DEF da daño mínimo (DAMAGE_MIN)", () => {
+  it("ATK=50, DEF=50 produce daño moderado con fórmula cuadrática", () => {
     const dmg = calculateDamage(highAtk, highDef, 100, 100);
-    expect(dmg).toBe(DAMAGE_MIN);
+    expect(dmg).toBe(16);
   });
 
   it("Daño mínimo es 1 incluso si ATK <= DEF", () => {
