@@ -36,7 +36,7 @@ module.exports = {
 
       if (isDummy) {
         await ensureTestKit(challengerChar.id);
-        const session = createDummySession(ctx.sender, challengerChar);
+        const session = await createDummySession(ctx.sender, challengerChar);
         return ctx.reply(formatCombatOpen(session, true));
       }
 
@@ -57,7 +57,7 @@ module.exports = {
         );
       }
 
-      const session = createSession(ctx.sender, targetId, challengerChar, defenderChar);
+      const session = await createSession(ctx.sender, targetId, challengerChar, defenderChar);
       return ctx.reply(formatCombatOpen(session, false));
     } catch (error) {
       return ctx.reply(formatError(error.message));
