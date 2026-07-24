@@ -11,7 +11,7 @@ const { getItem } = require("../data/items");
  */
 function formatCharacter(character, inventoryParam = null) {
   const lines = [];
-  const maxHp = character.stats?.hp ?? HP_MAX;
+  const maxHp = Math.max(1, (character.stats?.hp ?? 1) * 2);
 
   const hpBar = buildHpBar(character.hp_actual, maxHp);
 
@@ -77,7 +77,7 @@ function formatCharacter(character, inventoryParam = null) {
  */
 function buildHpBar(hp, max) {
   const barLength = 10;
-  const filled = Math.round((hp / max) * barLength);
+  const filled = Math.min(barLength, Math.round((hp / max) * barLength));
   const empty = barLength - filled;
   const filledChar = "█";
   const emptyChar = "░";

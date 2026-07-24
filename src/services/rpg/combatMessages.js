@@ -99,7 +99,7 @@ function formatCombatOpen(session, hasTestKit = false) {
   const lines = [
     "",
     `*${c.character.name}* Nv.${c.character.nivel || 20}`,
-    `HP ${buildHpBar(c.hp, c.character.stats?.hp ?? HP_MAX)}`,
+    `HP ${buildHpBar(c.hp, (c.character.stats?.hp ?? 1) * 2)}`,
     `Fat ${buildFatigueBar(c.fatigue || 0, c.character.stats.def || 1)}`,
     cStats[0],
     cStats[1],
@@ -107,7 +107,7 @@ function formatCombatOpen(session, hasTestKit = false) {
     "      \u2694\uFE0F VS \u2694\uFE0F",
     "",
     `*${d.character.name}* Nv.${d.character.nivel || 20}`,
-    `HP ${buildHpBar(d.hp, d.character.stats?.hp ?? HP_MAX)}`,
+    `HP ${buildHpBar(d.hp, (d.character.stats?.hp ?? 1) * 2)}`,
     `Fat ${buildFatigueBar(d.fatigue || 0, d.character.stats.def || 1)}`,
     dStats[0],
     dStats[1],
@@ -176,14 +176,14 @@ function formatCombatStatus(session) {
   lines.push("");
   lines.push("\u2500\u2500 RETADOR \u2500\u2500");
   lines.push(`*${c.character.name}* Nv.${c.character.nivel || 20}`);
-  lines.push(`HP ${buildHpBar(c.hp, c.character.stats?.hp ?? HP_MAX)}`);
+  lines.push(`HP ${buildHpBar(c.hp, (c.character.stats?.hp ?? 1) * 2)}`);
   lines.push(`Fat ${buildFatigueBar(c.fatigue || 0, c.character.stats.def || 1)}`);
   lines.push(cStats[0]);
   lines.push(cStats[1]);
   lines.push("");
   lines.push("\u2500\u2500 DEFENSOR \u2500\u2500");
   lines.push(`*${d.character.name}* Nv.${d.character.nivel || 20}`);
-  lines.push(`HP ${buildHpBar(d.hp, d.character.stats?.hp ?? HP_MAX)}`);
+  lines.push(`HP ${buildHpBar(d.hp, (d.character.stats?.hp ?? 1) * 2)}`);
   lines.push(`Fat ${buildFatigueBar(d.fatigue || 0, d.character.stats.def || 1)}`);
   lines.push(dStats[0]);
   lines.push(dStats[1]);

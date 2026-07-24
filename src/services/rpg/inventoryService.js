@@ -6,7 +6,6 @@ const { logError } = require("../loggerService");
 const { getItem } = require("../../data/items");
 const { getActiveCharacter, setHp } = require("../characterService");
 const { MAX_INVENTORY_SIZE, MAX_STACK_SIZE } = require("../../config/inventoryConfig");
-const { HP_MAX } = require("../../config/characterConfig");
 
 const characterLocks = new Map();
 
@@ -179,7 +178,7 @@ async function useItem(creatorId, itemId) {
       : character.hp_actual;
 
     const healAmount = Number(item.healHp) || 0;
-    const maxHp = character.stats?.hp || HP_MAX;
+    const maxHp = (character.stats?.hp || 1) * 2;
 
     if (currentHp >= maxHp && healAmount > 0) {
       throw new Error("Tu personaje ya tiene la vida al máximo.");

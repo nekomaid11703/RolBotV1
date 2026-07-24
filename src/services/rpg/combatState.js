@@ -41,7 +41,7 @@ function generateDummyCharacter(challengerChar) {
     id: `dummy_${Date.now()}_${Math.floor(Math.random() * 1000)}`,
     name: "Maniqu\u00ed de Pr\u00e1ctica",
     nivel: totalPoints,
-    hp_actual: dummyHp,
+    hp_actual: dummyHp * 2,
     stats: {
       hp: dummyHp,
       ...dummyStats,

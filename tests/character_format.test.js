@@ -6,7 +6,7 @@ const mockCharacter = {
   rango: "F",
   nivel: 25,
   hp_actual: 75,
-  stats: { atk: 4, def: 1, aspd: 3, ref: 1, mspd: 1 },
+  stats: { hp: 50, atk: 4, def: 1, aspd: 3, ref: 1, mspd: 1 },
   slots: {
     historia: "Un viajero que busca reliquias antiguas.",
     habilidades: ["golpe_fuerte"],

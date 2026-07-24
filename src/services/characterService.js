@@ -12,7 +12,6 @@ const {
   calculateLevel,
   xpForNextLevel,
   RANGOS,
-  HP_MAX,
 } = require("../config/characterConfig");
 const { getClase } = require("../data/clases");
 const { sanitizeName, ensureUserProfile } = require("./userService");
@@ -59,24 +58,29 @@ function normalizeCharacterRecord(character) {
 
   normalized.stats = normalizeStats(normalized.stats || {});
 
-  // Migración personajes antiguos: agregar stats mágicas base de la raza si faltan
-  if (
-    (normalized.stats.fulgor || 0) === 0 &&
-    (normalized.stats.d_fulgor || 0) === 0 &&
-    (normalized.stats.r_fulgor || 0) === 0
-  ) {
-    const raceCfg = RACES[normalized.raza];
-    if (raceCfg) {
+  // Migración personajes antiguos: asegurar stats base de la raza
+  const raceCfg = RACES[normalized.raza];
+  if (raceCfg) {
+    if (
+      (normalized.stats.fulgor || 0) === 0 &&
+      (normalized.stats.d_fulgor || 0) === 0 &&
+      (normalized.stats.r_fulgor || 0) === 0
+    ) {
       normalized.stats.fulgor = (normalized.stats.fulgor || 0) + (raceCfg.baseStats.fulgor || 0);
       normalized.stats.d_fulgor = (normalized.stats.d_fulgor || 0) + (raceCfg.baseStats.d_fulgor || 0);
       normalized.stats.r_fulgor = (normalized.stats.r_fulgor || 0) + (raceCfg.baseStats.r_fulgor || 0);
     }
+    // Migrar HP: si stats.hp es 0 o undefined, usar base de raza
+    if (!normalized.stats.hp || normalized.stats.hp < 1) {
+      normalized.stats.hp = raceCfg.baseStats.hp || 1;
+      normalized.nivel = calculateLevel(normalized.stats);
+    }
   }
 
-  const defaultHp = normalized.stats.hp || 1;
-  normalized.hp_actual = Math.min(
-    defaultHp,
-    Math.max(0, normalized.hp_actual != null ? Number(normalized.hp_actual) : defaultHp),
+  const maxHp = (normalized.stats.hp || 1) * 2;
+  normalized.hp_actual = Math.max(
+    0,
+    Math.min(maxHp, normalized.hp_actual != null ? Number(normalized.hp_actual) : maxHp),
   );
 
   normalized.slots = {
@@ -166,7 +170,7 @@ async function createCharacter({
     xp: 0,
     xp_total: 0,
     is_active: isActive,
-    hp_actual: finalStats.hp,
+    hp_actual: finalStats.hp * 2,
     stats: finalStats,
     slots: { ...DEFAULT_CHARACTER_SLOTS, historia, habilidades: [] },
   });
@@ -429,7 +433,7 @@ async function getCombatStats({ creatorId }) {
   const character = await getActiveCharacter({ creatorId });
   if (!character) return null;
 
-  const maxHp = character.stats?.hp || HP_MAX;
+  const maxHp = (character.stats?.hp || 1) * 2;
   const combatStats = { hp: character.hp_actual, hp_max: maxHp };
   for (const key of Object.keys(LEVELABLE_STATS)) {
     const baseVal = Number(character.stats[key]) || 0;
@@ -484,7 +488,7 @@ async function setHp({ creatorId, characterName, hp }) {
   const character = await safeSingleOrNull(
     supabase.from("characters").select("stats").eq("player_phone", creatorId).eq("slug", slug),
   );
-  const maxHp = character?.stats?.hp ?? 1;
+  const maxHp = (character?.stats?.hp ?? 1) * 2;
   const safeHp = Math.max(0, Math.min(maxHp, Math.floor(Number(hp) || 0)));
 
   const updatePayload = filterExisting("characters", { hp_actual: safeHp, updated_at: new Date().toISOString() });
@@ -511,7 +515,7 @@ async function restaurarHp({ creatorId, characterName }) {
   const character = await safeSingleOrNull(
     supabase.from("characters").select("stats").eq("player_phone", creatorId).eq("slug", slug),
   );
-  const maxHp = character?.stats?.hp ?? 1;
+  const maxHp = (character?.stats?.hp ?? 1) * 2;
   return setHp({ creatorId, characterName, hp: maxHp });
 }
 
