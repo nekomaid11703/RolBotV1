@@ -1,19 +1,21 @@
-class BuffCategory {
-  static type = "buff";
-  static triggers = ["onUse"];
+const ModuleBase = require("../../modules/ModuleBase");
 
-  onUse({ character, config }) {
+class BuffModule extends ModuleBase {
+  static type = "buff";
+  static triggers = ["Use"];
+
+  onUse() {
     return {
       type: "buff",
       effect: {
         id: `eff_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
         module: "buff",
-        stat: config.stat,
-        amount: config.amount,
-        remainingTurns: config.durationTurns,
+        stat: this.config.stat,
+        amount: this.config.amount,
+        remainingTurns: this.config.durationTurns,
       },
     };
   }
 }
 
-module.exports = BuffCategory;
+module.exports = BuffModule;

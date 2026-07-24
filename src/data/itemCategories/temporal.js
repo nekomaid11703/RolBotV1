@@ -1,10 +1,8 @@
-class TemporalCategory {
+const ModuleBase = require("../../modules/ModuleBase");
+
+class TemporalModule extends ModuleBase {
   static type = "temporal";
   static triggers = [];
-
-  onUse() {
-    return null;
-  }
 }
 
-module.exports = TemporalCategory;
+module.exports = TemporalModule;

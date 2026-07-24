@@ -90,7 +90,7 @@ function generateFighter(personalityKey, raceKey) {
     nivel,
     race: rKey,
     personality: pKey,
-    hp: stats.hp,
+    hp: stats.hp * 2,
   };
 }
 

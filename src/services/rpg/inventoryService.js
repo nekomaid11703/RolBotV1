@@ -169,9 +169,9 @@ async function useItem(creatorId, itemId) {
     }
 
     const item = createItem(itemId);
-    const results = item.use({ character, creatorId });
+    const results = item.trigger("Use", { character, creatorId });
 
-    const healResult = results.find((r) => r.moduleType === "heal");
+    const healResult = results.find((r) => r.type === "heal");
     const healAmount = healResult?.result?.amount || 0;
     const maxHp = (character.stats?.hp || 1) * 2;
 
@@ -190,12 +190,12 @@ async function useItem(creatorId, itemId) {
     let hpBefore = character.hp_actual;
     let hpAfter = character.hp_actual;
 
-    for (const { moduleType, result } of results) {
-      if (moduleType === "heal" && result?.amount > 0) {
+    for (const { type, result } of results) {
+      if (type === "heal" && result?.amount > 0) {
         hpAfter = Math.min(maxHp, character.hp_actual + result.amount);
         await setHp({ creatorId, characterName: character.name, hp: hpAfter });
       }
-      if (moduleType === "buff" && result) {
+      if (type === "buff" && result) {
         const { addEffect } = require("./statusService");
         await addEffect(character, result);
       }
@@ -240,6 +240,11 @@ async function ensureTestKit(characterId, creatorId) {
   return added;
 }
 
+/**
+ *
+ * @param characterId
+ * @param creatorId
+ */
 async function ensureTempTestKit(characterId, creatorId) {
   const tempItems = ["venda_temp", "pocion_temp", "tonico_temp"];
   const inv = await getInventory(characterId);
@@ -260,24 +265,24 @@ async function ensureTempTestKit(characterId, creatorId) {
   return added;
 }
 
+/**
+ *
+ * @param characterId
+ */
 async function cleanupTemporalItems(characterId) {
   const inv = await getInventory(characterId);
   const toRemove = [];
 
   for (const entry of inv) {
     const item = createItem(entry.item_id);
-    if (item && item.modules.some((m) => m.type === "temporal")) {
+    if (item && item.modules.some((m) => m.constructor.type === "temporal")) {
       toRemove.push(entry.item_id);
     }
   }
 
   if (toRemove.length === 0) return [];
 
-  const { error } = await supabase
-    .from("inventory")
-    .delete()
-    .eq("character_id", characterId)
-    .in("item_id", toRemove);
+  const { error } = await supabase.from("inventory").delete().eq("character_id", characterId).in("item_id", toRemove);
 
   if (error) {
     logError({ source: "inventoryService.cleanupTemporalItems", error, characterId });

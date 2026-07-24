@@ -1,13 +1,16 @@
-class HealCategory {
-  static type = "heal";
-  static triggers = ["onUse"];
+const ModuleBase = require("../../modules/ModuleBase");
 
-  onUse({ character, config }) {
+class HealModule extends ModuleBase {
+  static type = "heal";
+  static triggers = ["Use"];
+
+  onUse({ character }) {
     const maxHp = (character.stats?.hp || 1) * 2;
-    const newHp = Math.min(maxHp, character.hp_actual + config.amount);
+    const amount = this.config.amount || 0;
+    const newHp = Math.min(maxHp, character.hp_actual + amount);
     return {
       type: "heal",
-      amount: config.amount,
+      amount,
       hpBefore: character.hp_actual,
       hpAfter: newHp,
       delta: newHp - character.hp_actual,
@@ -16,4 +19,4 @@ class HealCategory {
   }
 }
 
-module.exports = HealCategory;
+module.exports = HealModule;

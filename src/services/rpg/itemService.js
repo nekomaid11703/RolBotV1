@@ -1,43 +1,46 @@
+require("../../data/itemCategories");
 const { ITEMS, getItem: getRawItem } = require("../../data/items");
-const { getCategory } = require("../../data/itemCategories");
+const { createEntity } = require("../../modules/entityFactory");
 
+/**
+ *
+ * @param itemId
+ */
 function createItem(itemId) {
   const def = getRawItem(itemId);
   if (!def) return null;
 
-  const modules = [];
-  for (const [type, config] of Object.entries(def.modules || {})) {
-    const CategoryClass = getCategory(type);
-    if (CategoryClass) {
-      modules.push({ instance: new CategoryClass(), config, type });
-    }
-  }
-
-  return {
+  const entity = createEntity({
     id: def.id,
+    type: "item",
     name: def.name,
-    description: def.description,
     icon: def.icon,
-    categories: def.categories || [],
-    basePrice: def.basePrice || 0,
+    description: def.description,
     rarity: def.rarity || "common",
+    price: def.basePrice || 0,
     maxStack: def.maxStack || 99,
-    modules,
-    use(context) {
-      return this.modules
-        .filter((m) => m.instance.constructor.triggers.includes("onUse"))
-        .map((m) => ({
-          moduleType: m.type,
-          result: m.instance.onUse({ ...context, config: m.config }),
-        }));
-    },
+    categories: def.categories || [],
+    modules: def.modules || {},
+  });
+
+  entity.use = function use(context) {
+    return this.trigger("Use", context);
   };
+
+  return entity;
 }
 
+/**
+ *
+ * @param itemId
+ */
 function getItem(itemId) {
   return getRawItem(itemId);
 }
 
+/**
+ *
+ */
 function getDisplayList() {
   return Object.values(ITEMS).map((item) => ({
     id: item.id,

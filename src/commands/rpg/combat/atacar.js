@@ -128,7 +128,9 @@ module.exports = {
           endSession(session.id, attackerSlot.character.id);
           try {
             await addXp({ creatorId: ctx.sender, characterName: attackerSlot.character.name, cantidad: xpReward });
-          } catch (_e) {}
+          } catch (_e) {
+            // XP reward failure is non-critical
+          }
 
           lines.push("");
           lines.push(`\uD83D\uDC80 *${defenderSlot.character.name}* cay\u00F3`);
@@ -212,7 +214,9 @@ module.exports = {
           endSession(session.id, defenderSlot.character.id);
           try {
             await setHp({ creatorId: ctx.sender, characterName: attackerSlot.character.name, hp: 0 });
-          } catch (_e) {}
+          } catch (_e) {
+            // HP reset failure is non-critical on KO
+          }
           lines.push("");
           lines.push(`\uD83D\uDC80 *${attackerSlot.character.name}* cay\u00F3`);
           return ctx.reply(box("\u2694\uFE0F ATAQUE", lines));
@@ -301,7 +305,9 @@ module.exports = {
             cantidad: xpReward,
           });
           await setHp({ creatorId: defenderSlot.userId, characterName: defenderSlot.character.name, hp: 0 });
-        } catch (_e) {}
+        } catch (_e) {
+          // XP/HP update failure is non-critical on KO
+        }
 
         lines.push("");
         lines.push(`\uD83D\uDC80 *${defenderSlot.character.name}* cay\u00F3`);

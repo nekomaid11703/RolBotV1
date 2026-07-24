@@ -1,22 +1,17 @@
-const HealCategory = require("./heal");
-const BuffCategory = require("./buff");
-const DamageCategory = require("./damage");
-const EquipableCategory = require("./equipable");
-const TemporalCategory = require("./temporal");
+const moduleRegistry = require("../../modules/moduleRegistry");
+const HealModule = require("./heal");
+const BuffModule = require("./buff");
+const DamageModule = require("./damage");
+const EquipableModule = require("./equipable");
+const TemporalModule = require("./temporal");
 
-const REGISTRY = new Map();
-REGISTRY.set(HealCategory.type, HealCategory);
-REGISTRY.set(BuffCategory.type, BuffCategory);
-REGISTRY.set(DamageCategory.type, DamageCategory);
-REGISTRY.set(EquipableCategory.type, EquipableCategory);
-REGISTRY.set(TemporalCategory.type, TemporalCategory);
+moduleRegistry.register(HealModule);
+moduleRegistry.register(BuffModule);
+moduleRegistry.register(DamageModule);
+moduleRegistry.register(EquipableModule);
+moduleRegistry.register(TemporalModule);
 
-function getCategory(type) {
-  return REGISTRY.get(type) || null;
-}
-
-function getCategories() {
-  return Array.from(REGISTRY.keys());
-}
-
-module.exports = { getCategory, getCategories, REGISTRY };
+module.exports = {
+  getCategory: (type) => moduleRegistry.get(type),
+  getCategories: () => moduleRegistry.getAll(),
+};

@@ -76,7 +76,7 @@ const PERSONALITIES = {
 
 const DEFAULT_NUM_SIMS = 100;
 const MAX_ROUNDS = 50;
-const HP_MAX = 100;
+const HP_MAX = 200; // max HP = 2 × hp_stat (clamped 100) → 200
 const LEVEL_MIN = 100;
 const LEVEL_MAX = 500;
 const LEVEL_DIFF_MAX_PCT = 0.5;

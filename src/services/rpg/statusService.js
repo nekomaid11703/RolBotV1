@@ -1,15 +1,29 @@
 const { supabase } = require("../../database/supabase");
 const { filterExisting } = require("../../database/columnRegistry");
 const { logError } = require("../loggerService");
+const moduleRegistry = require("../../modules/moduleRegistry");
 
+/**
+ *
+ * @param character
+ */
 function getActiveEffects(character) {
   return character.slots?.active_effects || [];
 }
 
+/**
+ *
+ * @param character
+ */
 function getCooldowns(character) {
   return character.slots?.cooldowns || {};
 }
 
+/**
+ *
+ * @param characterId
+ * @param slots
+ */
 async function saveSlots(characterId, slots) {
   const payload = filterExisting("characters", { slots, updated_at: new Date().toISOString() });
   const { error } = await supabase.from("characters").update(payload).eq("id", characterId);
@@ -19,6 +33,11 @@ async function saveSlots(characterId, slots) {
   }
 }
 
+/**
+ *
+ * @param character
+ * @param effect
+ */
 async function addEffect(character, effect) {
   const effects = getActiveEffects(character);
   effects.push(effect);
@@ -28,6 +47,11 @@ async function addEffect(character, effect) {
   return effect;
 }
 
+/**
+ *
+ * @param characterId
+ * @param character
+ */
 async function tickEffects(characterId, character) {
   if (!character) return [];
   const effects = getActiveEffects(character);
@@ -38,7 +62,14 @@ async function tickEffects(characterId, character) {
 
   for (const eff of effects) {
     eff.remainingTurns -= 1;
+    const mod = eff.module ? moduleRegistry.createInstance(eff.module, eff) : null;
+    if (mod && mod.constructor.triggers.includes("EffectTick")) {
+      mod.onEffectTick({ character, effect: eff });
+    }
     if (eff.remainingTurns <= 0) {
+      if (mod && mod.constructor.triggers.includes("EffectExpire")) {
+        mod.onEffectExpire({ character, effect: eff });
+      }
       expired.push(eff);
     } else {
       remaining.push(eff);
@@ -52,12 +83,22 @@ async function tickEffects(characterId, character) {
   return expired;
 }
 
+/**
+ *
+ * @param characterId
+ * @param character
+ */
 async function clearEffects(characterId, character) {
   const slots = { ...(character.slots || {}), active_effects: [] };
   await saveSlots(characterId, slots);
   if (character) character.slots = slots;
 }
 
+/**
+ *
+ * @param character
+ * @param itemId
+ */
 function getCooldown(character, itemId) {
   const cooldowns = getCooldowns(character);
   const lastUsed = cooldowns[itemId];
@@ -69,6 +110,11 @@ function getCooldown(character, itemId) {
   return elapsed;
 }
 
+/**
+ *
+ * @param character
+ * @param itemId
+ */
 async function cleanCooldown(character, itemId) {
   const cooldowns = { ...getCooldowns(character) };
   delete cooldowns[itemId];
@@ -77,6 +123,11 @@ async function cleanCooldown(character, itemId) {
   character.slots = slots;
 }
 
+/**
+ *
+ * @param character
+ * @param itemId
+ */
 async function setCooldown(character, itemId) {
   const cooldowns = { ...getCooldowns(character), [itemId]: Date.now() };
   const slots = { ...(character.slots || {}), cooldowns };
@@ -84,6 +135,10 @@ async function setCooldown(character, itemId) {
   character.slots = slots;
 }
 
+/**
+ *
+ * @param character
+ */
 async function cleanExpiredCooldowns(character) {
   const cooldowns = getCooldowns(character);
   let changed = false;

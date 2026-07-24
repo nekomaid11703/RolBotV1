@@ -1,6 +1,7 @@
 // @ts-nocheck
 const { DAMAGE_MIN, BLOCK_REDUCTION } = require("../../config/combatConfig");
 const { applyFatiguePenalties } = require("./fatigueEngine");
+const moduleRegistry = require("../../modules/moduleRegistry");
 
 /**
  *
@@ -443,6 +444,52 @@ function calculateXpReward(enemyLevel = 1, isWinner = true) {
   return isWinner ? baseXp : Math.round(baseXp * 0.3);
 }
 
+/**
+ *
+ * @param character
+ * @param baseDamage
+ * @param context
+ */
+function applyAttackModifiers(character, baseDamage, context = {}) {
+  const modules = character.slots?.modules;
+  if (!modules) return baseDamage;
+
+  let modified = baseDamage;
+  for (const [type, config] of Object.entries(modules)) {
+    const mod = moduleRegistry.createInstance(type, config);
+    if (mod && mod.constructor.triggers.includes("Attack")) {
+      const result = mod.onAttack({ ...context, baseDamage, character });
+      if (result && typeof result.damageMod === "number") {
+        modified = Math.max(0, modified + result.damageMod);
+      }
+    }
+  }
+  return modified;
+}
+
+/**
+ *
+ * @param character
+ * @param incomingDamage
+ * @param context
+ */
+function applyHitModifiers(character, incomingDamage, context = {}) {
+  const modules = character.slots?.modules;
+  if (!modules) return incomingDamage;
+
+  let modified = incomingDamage;
+  for (const [type, config] of Object.entries(modules)) {
+    const mod = moduleRegistry.createInstance(type, config);
+    if (mod && mod.constructor.triggers.includes("Hit")) {
+      const result = mod.onHit({ ...context, incomingDamage, character });
+      if (result && typeof result.damageMod === "number") {
+        modified = Math.max(0, modified + result.damageMod);
+      }
+    }
+  }
+  return modified;
+}
+
 module.exports = {
   normalizeStats,
   applyPenalties,
@@ -457,4 +504,6 @@ module.exports = {
   chooseAiReaction,
   executeTurn,
   calculateXpReward,
+  applyAttackModifiers,
+  applyHitModifiers,
 };

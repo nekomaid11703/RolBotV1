@@ -1,10 +1,12 @@
-class DamageCategory {
-  static type = "damage";
-  static triggers = ["onAttack"];
+const ModuleBase = require("../../modules/ModuleBase");
 
-  onUse() {
+class DamageModule extends ModuleBase {
+  static type = "damage";
+  static triggers = ["Attack"];
+
+  onAttack() {
     return { type: "damage" };
   }
 }
 
-module.exports = DamageCategory;
+module.exports = DamageModule;

@@ -2,6 +2,7 @@
 const { TURN_TIMEOUT_MS, MAX_ACTIVE_SESSIONS, SESSION_STATES } = require("../../config/combatConfig");
 const { supabase } = require("../../database/supabase");
 const { logError, logSystem } = require("../loggerService");
+const moduleRegistry = require("../../modules/moduleRegistry");
 
 const sessions = new Map();
 let cleanupInterval = null;
@@ -310,10 +311,44 @@ function findSessionByUser(userId) {
  * @param newAttackerHp
  * @param newDefenderHp
  * @param skipRound
+ * @param session
+ * @param event
+ * @param context
+ */
+function triggerModuleEvent(session, event, context = {}) {
+  const slots = [session.challenger, session.defender];
+  const results = [];
+  for (const slot of slots) {
+    const charModules = slot.character?.slots?.modules;
+    if (!charModules) continue;
+    for (const [type, config] of Object.entries(charModules)) {
+      const mod = moduleRegistry.createInstance(type, config);
+      if (mod && mod.constructor.triggers.includes(event)) {
+        const method = `on${event.charAt(0).toUpperCase()}${event.slice(1)}`;
+        if (typeof mod[method] === "function") {
+          results.push({ characterId: slot.characterId, type, result: mod[method](context) });
+        }
+      }
+    }
+  }
+  return results;
+}
+
+/**
+ *
+ * @param sessionId
+ * @param newAttackerHp
+ * @param newDefenderHp
+ * @param skipRound
  */
 async function advanceTurn(sessionId, newAttackerHp, newDefenderHp, skipRound = false) {
   const session = sessions.get(sessionId);
   if (!session || !isSessionActive(session)) return null;
+
+  triggerModuleEvent(session, "TurnEnd", {
+    session,
+    actor: session.currentTurnCharId,
+  });
 
   session.challenger.hp = newAttackerHp;
   session.defender.hp = newDefenderHp;
@@ -326,6 +361,11 @@ async function advanceTurn(sessionId, newAttackerHp, newDefenderHp, skipRound = 
     session.currentTurnCharId === session.challenger.characterId
       ? session.defender.characterId
       : session.challenger.characterId;
+
+  triggerModuleEvent(session, "TurnStart", {
+    session,
+    actor: session.currentTurnCharId,
+  });
 
   await saveSession(session);
 
@@ -372,6 +412,8 @@ async function endSession(sessionId, winnerCharId) {
 
   session.status = SESSION_STATES.COMPLETED;
   session.winnerId = winnerCharId;
+
+  triggerModuleEvent(session, "CombatEnd", { session, winnerId: winnerCharId });
 
   await saveSession(session);
 
