@@ -6,15 +6,21 @@ const { formatCharacter } = require("../../../utils/characterFormatUtils");
 module.exports = {
   name: "ver_pj",
   aliases: ["vistazo", "vista_pj"],
-  description: "Muestra en detalle tu personaje activo.",
+  description: "Muestra en detalle tu personaje activo. Menciona a otro usuario para ver el suyo.",
   category: "rpg",
 
   async execute(ctx) {
+    const mentioned = Array.isArray(ctx.mentionedJid) ? ctx.mentionedJid.filter(Boolean) : [];
+    const targetId = mentioned.length > 0 ? mentioned[0] : ctx.sender;
+
     const character = await getActiveCharacter({
-      creatorId: ctx.sender,
+      creatorId: targetId,
     });
 
     if (!character) {
+      if (mentioned.length > 0) {
+        return ctx.reply("❌ Ese usuario no tiene un personaje activo.");
+      }
       return ctx.reply("❌ No tienes un personaje activo. Usa `/crear_pj` o `/switch_pj`.");
     }
 
