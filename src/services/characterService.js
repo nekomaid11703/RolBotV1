@@ -58,25 +58,6 @@ function normalizeCharacterRecord(character) {
 
   normalized.stats = normalizeStats(normalized.stats || {});
 
-  // Migración personajes antiguos: asegurar stats base de la raza
-  const raceCfg = RACES[normalized.raza];
-  if (raceCfg) {
-    if (
-      (normalized.stats.fulgor || 0) === 0 &&
-      (normalized.stats.d_fulgor || 0) === 0 &&
-      (normalized.stats.r_fulgor || 0) === 0
-    ) {
-      normalized.stats.fulgor = (normalized.stats.fulgor || 0) + (raceCfg.baseStats.fulgor || 0);
-      normalized.stats.d_fulgor = (normalized.stats.d_fulgor || 0) + (raceCfg.baseStats.d_fulgor || 0);
-      normalized.stats.r_fulgor = (normalized.stats.r_fulgor || 0) + (raceCfg.baseStats.r_fulgor || 0);
-    }
-    // Migrar HP: si stats.hp es 0, undefined, o excesivo (>20, viejo formato usaba 100 plano)
-    if (!normalized.stats.hp || normalized.stats.hp < 1 || normalized.stats.hp > 20) {
-      normalized.stats.hp = raceCfg.baseStats.hp || 1;
-      normalized.nivel = calculateLevel(normalized.stats);
-    }
-  }
-
   const maxHp = (normalized.stats.hp || 1) * 2;
   normalized.hp_actual = Math.max(
     0,
