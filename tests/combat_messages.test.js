@@ -65,10 +65,21 @@ describe("combatMessages — Single Message Formatters", () => {
     expect(status).toContain("/atacar");
   });
 
-  it("buildStatSummary retorna array de 3 filas", () => {
-    const stats = buildStatSummary({ atk: 5, def: 5, aspd: 2, ref: 2, mspd: 2, fulgor: 3, d_fulgor: 4, r_fulgor: 1 });
+  it("buildStatSummary retorna array de 3 filas con HP", () => {
+    const stats = buildStatSummary({
+      hp: 100,
+      atk: 5,
+      def: 5,
+      aspd: 2,
+      ref: 2,
+      mspd: 2,
+      fulgor: 3,
+      d_fulgor: 4,
+      r_fulgor: 1,
+    });
     expect(Array.isArray(stats)).toBe(true);
     expect(stats).toHaveLength(3);
+    expect(stats[0]).toContain("HP100");
     expect(stats[0]).toContain("ATK5");
     expect(stats[0]).toContain("DEF5");
     expect(stats[0]).toContain("ASPD2");

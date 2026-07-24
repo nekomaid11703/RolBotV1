@@ -71,7 +71,7 @@ function resolverSeleccionRaza(input) {
  */
 function parseStatLine(line) {
   const trimmed = (line || "").trim();
-  const match = trimmed.match(/^(ATK|ASPD|MSPD|REF|DEF|FULGOR|D_FULGOR|R_FULGOR)\s*(?:\((\d+)\))?\s*:\s*(\d+)\s*$/i);
+  const match = trimmed.match(/^(HP|ATK|ASPD|MSPD|REF|DEF|FULGOR|D_FULGOR|R_FULGOR)\s*(?:\((\d+)\))?\s*:\s*(\d+)\s*$/i);
   if (!match) return null;
   const label = match[1].toLowerCase();
   const key = LABEL_TO_KEY[label];
@@ -112,6 +112,7 @@ function buildTemplate(raceConfig) {
       "Nombre: Aelin",
       `Raza: ${c.name}`,
       "Clase: Aventurero",
+      "HP(10): 5",
       "ATK(6): 8",
       "DEF(6): 5",
       "ASPD(6): 7",
