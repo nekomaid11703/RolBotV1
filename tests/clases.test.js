@@ -1,4 +1,3 @@
-const { HABILIDADES } = require("../src/data/habilidades");
 const { CLASES, getClase, listarClases, validarClase } = require("../src/data/clases");
 
 describe("clases — Catálogo", () => {

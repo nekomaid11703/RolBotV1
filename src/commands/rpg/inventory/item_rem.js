@@ -4,6 +4,7 @@ const { removeItem } = require("../../../services/rpg/inventoryService");
 const { getItem, ITEMS } = require("../../../data/items");
 const { formatError } = require("../../../utils/formatErrorUtils");
 const { box } = require("../../../utils/boxUtils");
+const { parseQuantity } = require("../../../utils/quantityUtils");
 
 module.exports = {
   name: "item_rem",
@@ -32,8 +33,7 @@ module.exports = {
     }
 
     const itemIdInput = ctx.args[0].toLowerCase();
-    const qtyInput = ctx.args[1] ? parseInt(ctx.args[1], 10) : 1;
-    const quantity = Math.max(1, isNaN(qtyInput) ? 1 : qtyInput);
+    const quantity = parseQuantity(ctx.args[1]);
 
     try {
       const activeChar = await getActiveCharacter({ creatorId: ctx.sender });

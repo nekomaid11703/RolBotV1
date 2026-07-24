@@ -9,7 +9,6 @@ const mockCharacter = {
   stats: { hp: 50, atk: 4, def: 1, aspd: 3, ref: 1, mspd: 1 },
   slots: {
     historia: "Un viajero que busca reliquias antiguas.",
-    habilidades: ["golpe_fuerte"],
   },
   item_count: 3,
 };
@@ -63,11 +62,6 @@ describe("characterFormatUtils — formatCharacter", () => {
     expect(output).toContain("MSPD: 1");
   });
 
-  it("Incluye las habilidades equipadas", () => {
-    const output = formatCharacter(mockCharacter);
-    expect(output).toContain("golpe_fuerte");
-  });
-
   it("Incluye el conteo de items", () => {
     const output = formatCharacter(mockCharacter);
     expect(output).toContain("Items: 3");
@@ -92,12 +86,6 @@ describe("characterFormatUtils — formatCharacter", () => {
     const output = formatCharacter(minimal);
     expect(output).toContain("TEST");
     expect(output).toContain("Civil");
-  });
-
-  it("Maneja personaje sin habilidades", () => {
-    const noSkills = { ...mockCharacter, slots: { ...mockCharacter.slots, habilidades: [] } };
-    const output = formatCharacter(noSkills);
-    expect(output).not.toContain("⭐ Habilidades");
   });
 
   it("Maneja personaje sin historia", () => {

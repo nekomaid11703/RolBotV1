@@ -1,7 +1,7 @@
 // @ts-nocheck
 const { getActiveCharacter } = require("../../../services/characterService");
 const { getInventory } = require("../../../services/rpg/inventoryService");
-const { getItem, ITEMS } = require("../../../data/items");
+const { getItem } = require("../../../data/items");
 const { box } = require("../../../utils/boxUtils");
 
 module.exports = {

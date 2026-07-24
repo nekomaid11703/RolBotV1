@@ -33,15 +33,6 @@ function formatCharacter(character, inventoryParam = null, maxHpOverride) {
     }
   }
 
-  const habilidades = Array.isArray(character.slots?.habilidades) ? character.slots.habilidades : [];
-  if (habilidades.length > 0) {
-    lines.push("");
-    lines.push("⭐ Habilidades:");
-    for (const h of habilidades) {
-      lines.push(`   · ${h}`);
-    }
-  }
-
   const inventory = Array.isArray(inventoryParam)
     ? inventoryParam
     : Array.isArray(character.inventory)

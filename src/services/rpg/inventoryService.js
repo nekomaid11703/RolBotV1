@@ -6,6 +6,9 @@ const { logError } = require("../loggerService");
 const { getItem } = require("../../data/items");
 const { getActiveCharacter, setHp } = require("../characterService");
 const { MAX_INVENTORY_SIZE, MAX_STACK_SIZE } = require("../../config/inventoryConfig");
+const { parseQuantity } = require("../../utils/quantityUtils");
+const { createItem } = require("./itemService");
+const { setCooldown } = require("./statusService");
 
 const characterLocks = new Map();
 
@@ -56,19 +59,16 @@ async function getInventory(characterId) {
  */
 async function addItem(characterId, creatorId, itemId, quantity = 1) {
   return withCharacterLock(characterId, async () => {
-    const safeQty = Math.max(1, Math.floor(Number(quantity) || 1));
+    const safeQty = parseQuantity(quantity);
 
     const item = getItem(itemId);
     if (!item) throw new Error(`El ítem "${itemId}" no existe.`);
 
     const inv = await getInventory(characterId);
-    const totalItems = inv.reduce((acc, row) => acc + row.quantity, 0);
     const existing = inv.find((row) => row.item_id === itemId);
 
-    const newTotal = existing ? totalItems : totalItems + safeQty;
-
-    if (newTotal > MAX_INVENTORY_SIZE) {
-      throw new Error(`Inventario lleno (máx. ${MAX_INVENTORY_SIZE} slots ocupados).`);
+    if (!existing && inv.length >= MAX_INVENTORY_SIZE) {
+      throw new Error(`Inventario lleno (máx. ${MAX_INVENTORY_SIZE} tipos de items distintos).`);
     }
 
     if (existing) {
@@ -113,7 +113,7 @@ async function addItem(characterId, creatorId, itemId, quantity = 1) {
  */
 async function removeItem(characterId, creatorId, itemId, quantity = 1) {
   return withCharacterLock(characterId, async () => {
-    const safeQty = Math.max(1, Math.floor(Number(quantity) || 1));
+    const safeQty = parseQuantity(quantity);
 
     const inv = await getInventory(characterId);
     const existing = inv.find((row) => row.item_id === itemId);
@@ -153,10 +153,10 @@ async function useItem(creatorId, itemId) {
   const character = await getActiveCharacter({ creatorId });
   if (!character) throw new Error("No tienes un personaje activo.");
 
-  const item = getItem(itemId);
-  if (!item) throw new Error(`El ítem "${itemId}" no existe.`);
+  const itemDef = getItem(itemId);
+  if (!itemDef) throw new Error(`El ítem "${itemId}" no existe.`);
 
-  if (item.category !== "consumable") {
+  if (!(itemDef.categories || []).includes("consumable")) {
     throw new Error("Solo puedes usar ítems consumibles.");
   }
 
@@ -165,26 +165,19 @@ async function useItem(creatorId, itemId) {
     const entry = inv.find((row) => row.item_id === itemId);
 
     if (!entry || entry.quantity < 1) {
-      throw new Error(`No tienes "${item.name}" en tu inventario.`);
+      throw new Error(`No tienes "${itemDef.name}" en tu inventario.`);
     }
 
-    const { findSessionByCharacter } = require("./combatState");
-    const activeCombat = findSessionByCharacter(character.id);
+    const item = createItem(itemId);
+    const results = item.use({ character, creatorId });
 
-    const currentHp = activeCombat
-      ? activeCombat.challenger.characterId === character.id
-        ? activeCombat.challenger.hp
-        : activeCombat.defender.hp
-      : character.hp_actual;
-
-    const healAmount = Number(item.healHp) || 0;
+    const healResult = results.find((r) => r.moduleType === "heal");
+    const healAmount = healResult?.result?.amount || 0;
     const maxHp = (character.stats?.hp || 1) * 2;
 
-    if (currentHp >= maxHp && healAmount > 0) {
+    if (healAmount > 0 && character.hp_actual >= maxHp) {
       throw new Error("Tu personaje ya tiene la vida al máximo.");
     }
-
-    const newHp = Math.min(maxHp, currentHp + healAmount);
 
     const payload = filterExisting("inventory", { quantity: entry.quantity - 1, updated_at: new Date().toISOString() });
 
@@ -194,24 +187,30 @@ async function useItem(creatorId, itemId) {
       await supabase.from("inventory").update(payload).eq("character_id", character.id).eq("item_id", itemId);
     }
 
-    await setHp({ creatorId, characterName: character.name, hp: newHp });
+    let hpBefore = character.hp_actual;
+    let hpAfter = character.hp_actual;
 
-    if (activeCombat) {
-      if (activeCombat.challenger.characterId === character.id) {
-        activeCombat.challenger.hp = newHp;
-      } else {
-        activeCombat.defender.hp = newHp;
+    for (const { moduleType, result } of results) {
+      if (moduleType === "heal" && result?.amount > 0) {
+        hpAfter = Math.min(maxHp, character.hp_actual + result.amount);
+        await setHp({ creatorId, characterName: character.name, hp: hpAfter });
+      }
+      if (moduleType === "buff" && result) {
+        const { addEffect } = require("./statusService");
+        await addEffect(character, result);
       }
     }
 
+    await setCooldown(character, itemId);
     invalidateUserCache(creatorId);
 
     return {
-      itemName: item.name,
-      icon: item.icon,
-      healHp: item.healHp,
-      hpBefore: currentHp,
-      hpAfter: newHp,
+      characterId: character.id,
+      itemName: itemDef.name,
+      icon: itemDef.icon,
+      modules: itemDef.modules || {},
+      hpBefore,
+      hpAfter,
     };
   });
 }
@@ -225,20 +224,23 @@ async function ensureTestKit(characterId, creatorId) {
   const testItems = ["venda", "pocion", "tonico", "antidoto"];
   const inv = await getInventory(characterId);
   const existingIds = new Set(inv.map((row) => row.item_id));
+  const added = [];
 
   for (const itemId of testItems) {
     if (!existingIds.has(itemId)) {
       try {
         await addItem(characterId, creatorId, itemId, 1);
-      } catch (_err) {
-        logError({ source: "inventoryService.ensureTestKit", error: _err });
+        added.push(itemId);
+      } catch (err) {
+        logError({ source: "inventoryService.ensureTestKit", error: err, characterId, itemId });
       }
     }
   }
+
+  return added;
 }
 
 module.exports = {
-  withCharacterLock,
   getInventory,
   addItem,
   removeItem,

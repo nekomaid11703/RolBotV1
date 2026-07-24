@@ -35,9 +35,13 @@ module.exports = {
       }
 
       if (isDummy) {
-        await ensureTestKit(challengerChar.id, challengerChar.creator_id);
+        const added = await ensureTestKit(challengerChar.id, challengerChar.creator_id);
         const session = await createDummySession(ctx.sender, challengerChar);
-        return ctx.reply(formatCombatOpen(session, true));
+        let msg = formatCombatOpen(session, true);
+        if (added.length > 0) {
+          msg += `\n\n🎒 Se añadió kit médico a tu inventario: ${added.join(", ")}.`;
+        }
+        return ctx.reply(msg);
       }
 
       const targetId = mentioned[0];

@@ -2,6 +2,7 @@
 const { getActiveCharacter } = require("../../../services/characterService");
 const { getInventory } = require("../../../services/rpg/inventoryService");
 const { formatCharacter } = require("../../../utils/characterFormatUtils");
+const { logError } = require("../../../services/loggerService");
 
 module.exports = {
   name: "ver_pj",
@@ -27,7 +28,9 @@ module.exports = {
     let inventory = [];
     try {
       inventory = await getInventory(character.id);
-    } catch (_err) {}
+    } catch (err) {
+      logError({ source: "ver_pj.getInventory", error: err });
+    }
 
     await ctx.reply(formatCharacter(character, inventory));
   },

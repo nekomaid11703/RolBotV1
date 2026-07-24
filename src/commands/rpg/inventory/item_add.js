@@ -4,6 +4,7 @@ const { addItem } = require("../../../services/rpg/inventoryService");
 const { getItem, ITEMS } = require("../../../data/items");
 const { formatError } = require("../../../utils/formatErrorUtils");
 const { box } = require("../../../utils/boxUtils");
+const { parseQuantity } = require("../../../utils/quantityUtils");
 
 module.exports = {
   name: "item_add",
@@ -15,7 +16,7 @@ module.exports = {
   async execute(ctx) {
     if (ctx.args.length === 0) {
       const availableItems = Object.values(ITEMS)
-        .map((item) => `\u2022 \`${item.id}\` \u2014 ${item.icon} ${item.name} (+${item.healHp} HP)`)
+        .map((item) => `\u2022 \`${item.id}\` \u2014 ${item.icon} ${item.name} (+${item.modules?.heal?.amount || 0} HP)`)
         .join("\n");
 
       return ctx.reply(
@@ -32,8 +33,7 @@ module.exports = {
     }
 
     const itemIdInput = ctx.args[0].toLowerCase();
-    const qtyInput = ctx.args[1] ? parseInt(ctx.args[1], 10) : 1;
-    const quantity = Math.max(1, isNaN(qtyInput) ? 1 : qtyInput);
+    const quantity = parseQuantity(ctx.args[1]);
 
     try {
       const activeChar = await getActiveCharacter({ creatorId: ctx.sender });

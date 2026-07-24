@@ -15,7 +15,7 @@ const {
 } = require("../config/characterConfig");
 const { getClase } = require("../data/clases");
 const { sanitizeName, ensureUserProfile } = require("./userService");
-const { sanitizarHabilidadesArray } = require("../utils/characterSkillUtils");
+
 
 /**
  *
@@ -68,12 +68,6 @@ function normalizeCharacterRecord(character) {
     ...DEFAULT_CHARACTER_SLOTS,
     ...(normalized.slots || {}),
   };
-
-  normalized.slots.habilidades = sanitizarHabilidadesArray(
-    normalized.slots.habilidades,
-    normalized.clase,
-    normalized.nivel,
-  );
 
   if (normalized.description !== undefined && !String(normalized.slots.descripcion || "").trim()) {
     normalized.slots.descripcion = String(normalized.description).trim();

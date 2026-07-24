@@ -71,5 +71,10 @@
   "69": "schemaMigration.js",
   "70": "admin_perm_rem.js",
   "71": "inventoryService.js",
-  "73": "inventory_service.test.js"
+  "72": "logError",
+  "73": "inventory_service.test.js",
+  "74": "context.js",
+  "75": "eco_admin_list.js",
+  "76": "inventario.js",
+  "77": "schedulerService.js"
 }

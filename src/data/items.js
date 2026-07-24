@@ -4,42 +4,50 @@ const ITEMS = {
     id: "venda",
     name: "Venda",
     description: "Venda básica para curar heridas superficiales.",
-    price: 100,
-    healHp: 15,
-    category: "consumable",
     icon: "🩹",
+    categories: ["consumable"],
+    basePrice: 100,
+    maxStack: 99,
+    rarity: "common",
+    modules: { heal: { amount: 15 } },
   },
   pocion: {
     id: "pocion",
     name: "Poción",
     description: "Poción de recuperación que restaura una cantidad moderada de HP.",
-    price: 180,
-    healHp: 40,
-    category: "consumable",
     icon: "🧪",
+    categories: ["consumable"],
+    basePrice: 180,
+    maxStack: 99,
+    rarity: "common",
+    modules: { heal: { amount: 40 } },
   },
   tonico: {
     id: "tonico",
     name: "Tónico",
     description: "Tónico revitalizante de alta calidad que restaura gran cantidad de HP.",
-    price: 280,
-    healHp: 80,
-    category: "consumable",
     icon: "⚗️",
+    categories: ["consumable"],
+    basePrice: 280,
+    maxStack: 99,
+    rarity: "common",
+    modules: { heal: { amount: 80 } },
   },
   antidoto: {
     id: "antidoto",
     name: "Antídoto",
     description: "Antídoto de amplio espectro. Cura estados alterados y restaura 25 HP.",
-    price: 200,
-    healHp: 25,
-    category: "consumable",
     icon: "💊",
+    categories: ["consumable"],
+    basePrice: 200,
+    maxStack: 99,
+    rarity: "common",
+    modules: { heal: { amount: 25 } },
   },
 };
 
 /**
- *
+
  * @param itemId
  */
 function getItem(itemId) {
@@ -51,7 +59,7 @@ function getItem(itemId) {
  * @param category
  */
 function getItemsByCategory(category) {
-  return Object.values(ITEMS).filter((item) => item.category === category);
+  return Object.values(ITEMS).filter((item) => (item.categories || []).includes(category));
 }
 
 module.exports = {
