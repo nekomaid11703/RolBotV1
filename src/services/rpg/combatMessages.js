@@ -1,13 +1,14 @@
 // @ts-nocheck
 const { box } = require("../../utils/boxUtils");
 const { getFatigueLevel } = require("./fatigueEngine");
+const { HP_MAX } = require("../../config/characterConfig");
 
 /**
  *
  * @param current
  * @param max
  */
-function buildHpBar(current, max = 100) {
+function buildHpBar(current, max = HP_MAX) {
   const pct = Math.max(0, Math.min(1, current / max));
   const filled = Math.round(pct * 10);
   const empty = 10 - filled;
@@ -98,7 +99,7 @@ function formatCombatOpen(session, hasTestKit = false) {
   const lines = [
     "",
     `*${c.character.name}* Nv.${c.character.nivel || 20}`,
-    `HP ${buildHpBar(c.hp)}`,
+    `HP ${buildHpBar(c.hp, c.character.stats?.hp ?? HP_MAX)}`,
     `Fat ${buildFatigueBar(c.fatigue || 0, c.character.stats.def || 1)}`,
     cStats[0],
     cStats[1],
@@ -106,7 +107,7 @@ function formatCombatOpen(session, hasTestKit = false) {
     "      \u2694\uFE0F VS \u2694\uFE0F",
     "",
     `*${d.character.name}* Nv.${d.character.nivel || 20}`,
-    `HP ${buildHpBar(d.hp)}`,
+    `HP ${buildHpBar(d.hp, d.character.stats?.hp ?? HP_MAX)}`,
     `Fat ${buildFatigueBar(d.fatigue || 0, d.character.stats.def || 1)}`,
     dStats[0],
     dStats[1],
@@ -175,14 +176,14 @@ function formatCombatStatus(session) {
   lines.push("");
   lines.push("\u2500\u2500 RETADOR \u2500\u2500");
   lines.push(`*${c.character.name}* Nv.${c.character.nivel || 20}`);
-  lines.push(`HP ${buildHpBar(c.hp)}`);
+  lines.push(`HP ${buildHpBar(c.hp, c.character.stats?.hp ?? HP_MAX)}`);
   lines.push(`Fat ${buildFatigueBar(c.fatigue || 0, c.character.stats.def || 1)}`);
   lines.push(cStats[0]);
   lines.push(cStats[1]);
   lines.push("");
   lines.push("\u2500\u2500 DEFENSOR \u2500\u2500");
   lines.push(`*${d.character.name}* Nv.${d.character.nivel || 20}`);
-  lines.push(`HP ${buildHpBar(d.hp)}`);
+  lines.push(`HP ${buildHpBar(d.hp, d.character.stats?.hp ?? HP_MAX)}`);
   lines.push(`Fat ${buildFatigueBar(d.fatigue || 0, d.character.stats.def || 1)}`);
   lines.push(dStats[0]);
   lines.push(dStats[1]);

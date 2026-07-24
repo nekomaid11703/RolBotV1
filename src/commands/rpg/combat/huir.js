@@ -1,5 +1,5 @@
 // @ts-nocheck
-const { getActiveCharacter } = require("../../../services/characterService");
+const { getActiveCharacter, setHp } = require("../../../services/characterService");
 const {
   findSessionByCharacter,
   findSessionByUser,
@@ -8,7 +8,7 @@ const {
   setPendingReaction,
 } = require("../../../services/rpg/combatState");
 const { rollFlee, executeAttack, executeReaction } = require("../../../services/rpg/combatEngine");
-const { calcFatigueCost } = require("../../../services/rpg/fatigueEngine");
+const { calcFatigueCost, capFatigue } = require("../../../services/rpg/fatigueEngine");
 const {
   formatFlee,
   formatActionMenu,
@@ -49,7 +49,7 @@ module.exports = {
       const pursuerSlot = isChallenger ? session.defender : session.challenger;
 
       const fleeCost = calcFatigueCost("flee", fleerSlot.character.stats);
-      fleerSlot.fatigue += fleeCost;
+      fleerSlot.fatigue = capFatigue(fleerSlot.fatigue + fleeCost);
 
       // En PvE (Dummy), la huida siempre tiene éxito y no da recompensa
       if (session.isPvE) {
@@ -95,6 +95,7 @@ module.exports = {
         pursuerSlot.character,
         fleerSlot.character,
         fleerSlot.hp,
+        pursuerSlot.hp,
         pursuerSlot.fatigue,
         fleerSlot.fatigue,
       );
@@ -105,14 +106,14 @@ module.exports = {
           fleerSlot.character.stats,
           fleerSlot.hp,
           pursuerSlot.character.stats,
-          pursuerSlot.character.hp_actual || 100,
+          pursuerSlot.hp,
           fleerSlot.fatigue,
           pursuerSlot.fatigue,
           fleerSlot.character.stats.def || 0,
           pursuerSlot.character.stats.def || 0,
         );
 
-        setPendingReaction(session.id, {
+        await setPendingReaction(session.id, {
           attackerChar: pursuerSlot.character,
           defenderChar: fleerSlot.character,
           attackerUserId: pursuerSlot.userId,
@@ -140,6 +141,7 @@ module.exports = {
         fleerSlot.character,
         fleerSlot.hp,
         pursuerSlot.character,
+        pursuerSlot.hp,
         fleerSlot.fatigue,
         pursuerSlot.fatigue,
       );
@@ -156,6 +158,9 @@ module.exports = {
 
       if (reactionResult.ko) {
         endSession(session.id, pursuerSlot.character.id);
+        try {
+          await setHp({ creatorId: ctx.sender, characterName: fleerSlot.character.name, hp: 0 });
+        } catch (_e) {}
         lines.push("");
         lines.push(`\uD83D\uDC80 *${fleerSlot.character.name}* cay\u00F3`);
         return ctx.reply(box("\uD83C\uDFC3 HUIDA", lines));

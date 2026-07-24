@@ -51,10 +51,11 @@ async function getInventory(characterId) {
 /**
  *
  * @param characterId
+ * @param creatorId
  * @param itemId
  * @param quantity
  */
-async function addItem(characterId, itemId, quantity = 1) {
+async function addItem(characterId, creatorId, itemId, quantity = 1) {
   return withCharacterLock(characterId, async () => {
     const safeQty = Math.max(1, Math.floor(Number(quantity) || 1));
 
@@ -72,7 +73,10 @@ async function addItem(characterId, itemId, quantity = 1) {
     }
 
     if (existing) {
-      const newQty = Math.min(existing.quantity + safeQty, MAX_STACK_SIZE);
+      if (existing.quantity + safeQty > MAX_STACK_SIZE) {
+        throw new Error(`No puedes tener más de ${MAX_STACK_SIZE} unidades del mismo ítem por ranura.`);
+      }
+      const newQty = existing.quantity + safeQty;
       const payload = filterExisting("inventory", { quantity: newQty, updated_at: new Date().toISOString() });
       const { error } = await supabase
         .from("inventory")
@@ -92,11 +96,11 @@ async function addItem(characterId, itemId, quantity = 1) {
       if (error) throw new Error(`Error añadiendo ítem: ${error.message}`);
     }
 
-    invalidateUserCache(characterId);
+    invalidateUserCache(creatorId);
     return {
       itemId,
       quantity: safeQty,
-      total: existing ? Math.min(existing.quantity + safeQty, MAX_STACK_SIZE) : safeQty,
+      total: existing ? existing.quantity + safeQty : safeQty,
     };
   });
 }
@@ -104,10 +108,11 @@ async function addItem(characterId, itemId, quantity = 1) {
 /**
  *
  * @param characterId
+ * @param creatorId
  * @param itemId
  * @param quantity
  */
-async function removeItem(characterId, itemId, quantity = 1) {
+async function removeItem(characterId, creatorId, itemId, quantity = 1) {
   return withCharacterLock(characterId, async () => {
     const safeQty = Math.max(1, Math.floor(Number(quantity) || 1));
 
@@ -135,7 +140,7 @@ async function removeItem(characterId, itemId, quantity = 1) {
       if (error) throw new Error(`Error actualizando cantidad: ${error.message}`);
     }
 
-    invalidateUserCache(characterId);
+    invalidateUserCache(creatorId);
     return { itemId, removed: safeQty, remaining: Math.max(0, newQty) };
   });
 }
@@ -173,11 +178,14 @@ async function useItem(creatorId, itemId) {
         : activeCombat.defender.hp
       : character.hp_actual;
 
-    if (currentHp >= HP_MAX && item.healHp > 0) {
+    const healAmount = Number(item.healHp) || 0;
+    const maxHp = character.stats?.hp || HP_MAX;
+
+    if (currentHp >= maxHp && healAmount > 0) {
       throw new Error("Tu personaje ya tiene la vida al máximo.");
     }
 
-    const newHp = Math.min(HP_MAX, currentHp + item.healHp);
+    const newHp = Math.min(maxHp, currentHp + healAmount);
 
     const payload = filterExisting("inventory", { quantity: entry.quantity - 1, updated_at: new Date().toISOString() });
 
@@ -212,8 +220,9 @@ async function useItem(creatorId, itemId) {
 /**
  *
  * @param characterId
+ * @param creatorId
  */
-async function ensureTestKit(characterId) {
+async function ensureTestKit(characterId, creatorId) {
   const testItems = ["venda", "pocion", "tonico", "antidoto"];
   const inv = await getInventory(characterId);
   const existingIds = new Set(inv.map((row) => row.item_id));
@@ -221,7 +230,7 @@ async function ensureTestKit(characterId) {
   for (const itemId of testItems) {
     if (!existingIds.has(itemId)) {
       try {
-        await addItem(characterId, itemId, 1);
+        await addItem(characterId, creatorId, itemId, 1);
       } catch (_err) {
         logError({ source: "inventoryService.ensureTestKit", error: _err });
       }

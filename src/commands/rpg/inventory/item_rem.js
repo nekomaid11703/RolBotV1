@@ -51,7 +51,7 @@ module.exports = {
         );
       }
 
-      const result = await removeItem(activeChar.id, item.id, quantity);
+      const result = await removeItem(activeChar.id, activeChar.creator_id, item.id, quantity);
 
       const lines = [
         "",

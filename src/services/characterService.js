@@ -12,7 +12,6 @@ const {
   calculateLevel,
   xpForNextLevel,
   RANGOS,
-  getHpState,
   HP_MAX,
 } = require("../config/characterConfig");
 const { getClase } = require("../data/clases");
@@ -74,9 +73,10 @@ function normalizeCharacterRecord(character) {
     }
   }
 
+  const defaultHp = normalized.stats.hp || 1;
   normalized.hp_actual = Math.min(
-    HP_MAX,
-    Math.max(0, normalized.hp_actual != null ? Number(normalized.hp_actual) : HP_MAX),
+    defaultHp,
+    Math.max(0, normalized.hp_actual != null ? Number(normalized.hp_actual) : defaultHp),
   );
 
   normalized.slots = {
@@ -166,7 +166,7 @@ async function createCharacter({
     xp: 0,
     xp_total: 0,
     is_active: isActive,
-    hp_actual: HP_MAX,
+    hp_actual: finalStats.hp,
     stats: finalStats,
     slots: { ...DEFAULT_CHARACTER_SLOTS, historia, habilidades: [] },
   });
@@ -429,13 +429,11 @@ async function getCombatStats({ creatorId }) {
   const character = await getActiveCharacter({ creatorId });
   if (!character) return null;
 
-  const hpState = getHpState(character.hp_actual);
-  const penalty = hpState.penalty;
-
-  const combatStats = { hp: character.hp_actual, hp_max: HP_MAX, hpState: hpState.name };
+  const maxHp = character.stats?.hp || HP_MAX;
+  const combatStats = { hp: character.hp_actual, hp_max: maxHp };
   for (const key of Object.keys(LEVELABLE_STATS)) {
     const baseVal = Number(character.stats[key]) || 0;
-    combatStats[key] = Math.max(0, Math.round(baseVal * (1 - penalty)));
+    combatStats[key] = Math.max(0, Math.round(baseVal));
   }
 
   return combatStats;
@@ -445,8 +443,35 @@ async function getCombatStats({ creatorId }) {
  *
  * @param root0
  */
-async function addXp() {
-  return { xp: 0, xp_total: 0 };
+async function addXp({ creatorId, characterName, cantidad }) {
+  const slug = getCharacterSlug(characterName);
+  const safeXp = Math.max(1, Math.floor(Number(cantidad) || 0));
+
+  const character = await safeSingleOrNull(
+    supabase.from("characters").select("xp, xp_total").eq("player_phone", creatorId).eq("slug", slug),
+  );
+  if (!character) throw new Error("No existe el personaje.");
+
+  const newXp = (Number(character.xp) || 0) + safeXp;
+  const newXpTotal = (Number(character.xp_total) || 0) + safeXp;
+
+  const updatePayload = filterExisting("characters", {
+    xp: newXp,
+    xp_total: newXpTotal,
+    updated_at: new Date().toISOString(),
+  });
+  const { data, error } = await supabase
+    .from("characters")
+    .update(updatePayload)
+    .eq("player_phone", creatorId)
+    .eq("slug", slug)
+    .select()
+    .maybeSingle();
+
+  if (error || !data) throw new Error("Error actualizando XP.");
+
+  invalidateUserCache(creatorId);
+  return { xp: newXp, xp_total: newXpTotal };
 }
 
 /**
@@ -455,7 +480,12 @@ async function addXp() {
  */
 async function setHp({ creatorId, characterName, hp }) {
   const slug = getCharacterSlug(characterName);
-  const safeHp = Math.max(0, Math.min(HP_MAX, Math.floor(Number(hp) || 0)));
+
+  const character = await safeSingleOrNull(
+    supabase.from("characters").select("stats").eq("player_phone", creatorId).eq("slug", slug),
+  );
+  const maxHp = character?.stats?.hp ?? 1;
+  const safeHp = Math.max(0, Math.min(maxHp, Math.floor(Number(hp) || 0)));
 
   const updatePayload = filterExisting("characters", { hp_actual: safeHp, updated_at: new Date().toISOString() });
   const { data, error } = await supabase
@@ -477,7 +507,12 @@ async function setHp({ creatorId, characterName, hp }) {
  * @param root0
  */
 async function restaurarHp({ creatorId, characterName }) {
-  return setHp({ creatorId, characterName, hp: HP_MAX });
+  const slug = getCharacterSlug(characterName);
+  const character = await safeSingleOrNull(
+    supabase.from("characters").select("stats").eq("player_phone", creatorId).eq("slug", slug),
+  );
+  const maxHp = character?.stats?.hp ?? 1;
+  return setHp({ creatorId, characterName, hp: maxHp });
 }
 
 /**
@@ -516,7 +551,6 @@ async function distribuirPunto({ creatorId, characterName, stat }) {
     stats,
     nivel: newLevel,
     xp: remainingXp,
-    hp_actual: HP_MAX,
     updated_at: new Date().toISOString(),
   });
 

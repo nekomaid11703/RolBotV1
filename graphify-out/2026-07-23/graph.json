@@ -866,536 +866,6 @@
       "norm_label": "cols"
     },
     {
-      "label": "simulate_combat.js",
-      "file_type": "code",
-      "source_file": "scripts/simulate_combat.js",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "scripts_simulate_combat",
-      "community": 9,
-      "norm_label": "simulate_combat.js"
-    },
-    {
-      "label": "path",
-      "file_type": "code",
-      "source_file": "scripts/simulate_combat.js",
-      "source_location": "L5",
-      "_origin": "ast",
-      "id": "scripts_simulate_combat_path",
-      "community": 9,
-      "norm_label": "path"
-    },
-    {
-      "label": "fs",
-      "file_type": "code",
-      "source_file": "scripts/simulate_combat.js",
-      "source_location": "L6",
-      "_origin": "ast",
-      "id": "scripts_simulate_combat_fs",
-      "community": 9,
-      "norm_label": "fs"
-    },
-    {
-      "label": "{ parseArgs, printUsage }",
-      "file_type": "code",
-      "source_file": "scripts/simulate_combat.js",
-      "source_location": "L7",
-      "_origin": "ast",
-      "id": "scripts_simulate_combat_parseargs_printusage",
-      "community": 9,
-      "norm_label": "{ parseargs, printusage }"
-    },
-    {
-      "label": "{ generateFighterPair }",
-      "file_type": "code",
-      "source_file": "scripts/simulate_combat.js",
-      "source_location": "L8",
-      "_origin": "ast",
-      "id": "scripts_simulate_combat_generatefighterpair",
-      "community": 9,
-      "norm_label": "{ generatefighterpair }"
-    },
-    {
-      "label": "{ simulateCombat }",
-      "file_type": "code",
-      "source_file": "scripts/simulate_combat.js",
-      "source_location": "L9",
-      "_origin": "ast",
-      "id": "scripts_simulate_combat_simulatecombat",
-      "community": 9,
-      "norm_label": "{ simulatecombat }"
-    },
-    {
-      "label": "{ collectMetrics }",
-      "file_type": "code",
-      "source_file": "scripts/simulate_combat.js",
-      "source_location": "L10",
-      "_origin": "ast",
-      "id": "scripts_simulate_combat_collectmetrics",
-      "community": 9,
-      "norm_label": "{ collectmetrics }"
-    },
-    {
-      "label": "{ aggregate }",
-      "file_type": "code",
-      "source_file": "scripts/simulate_combat.js",
-      "source_location": "L11",
-      "_origin": "ast",
-      "id": "scripts_simulate_combat_aggregate",
-      "community": 9,
-      "norm_label": "{ aggregate }"
-    },
-    {
-      "label": "{ formatMarkdownReport }",
-      "file_type": "code",
-      "source_file": "scripts/simulate_combat.js",
-      "source_location": "L12",
-      "_origin": "ast",
-      "id": "scripts_simulate_combat_formatmarkdownreport",
-      "community": 9,
-      "norm_label": "{ formatmarkdownreport }"
-    },
-    {
-      "label": "main()",
-      "file_type": "code",
-      "source_file": "scripts/simulate_combat.js",
-      "source_location": "L17",
-      "_origin": "ast",
-      "id": "scripts_simulate_combat_main",
-      "community": 9,
-      "norm_label": "main()"
-    },
-    {
-      "label": "aggregator.js",
-      "file_type": "code",
-      "source_file": "scripts/simulate_combat/aggregator.js",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "scripts_simulate_combat_aggregator",
-      "community": 9,
-      "norm_label": "aggregator.js"
-    },
-    {
-      "label": "{ PERSONALITIES, FATIGUE_SNAPSHOT_TURNS, PHYSICAL_STATS }",
-      "file_type": "code",
-      "source_file": "scripts/simulate_combat/aggregator.js",
-      "source_location": "L4",
-      "_origin": "ast",
-      "id": "scripts_simulate_combat_aggregator_personalities_fatigue_snapshot_turns_physical_stats",
-      "community": 9,
-      "norm_label": "{ personalities, fatigue_snapshot_turns, physical_stats }"
-    },
-    {
-      "label": "PERSONALITY_KEYS",
-      "file_type": "code",
-      "source_file": "scripts/simulate_combat/aggregator.js",
-      "source_location": "L6",
-      "_origin": "ast",
-      "id": "scripts_simulate_combat_aggregator_personality_keys",
-      "community": 9,
-      "norm_label": "personality_keys"
-    },
-    {
-      "label": "mean()",
-      "file_type": "code",
-      "source_file": "scripts/simulate_combat/aggregator.js",
-      "source_location": "L12",
-      "_origin": "ast",
-      "id": "scripts_simulate_combat_aggregator_mean",
-      "community": 9,
-      "norm_label": "mean()"
-    },
-    {
-      "label": "percentile()",
-      "file_type": "code",
-      "source_file": "scripts/simulate_combat/aggregator.js",
-      "source_location": "L22",
-      "_origin": "ast",
-      "id": "scripts_simulate_combat_aggregator_percentile",
-      "community": 9,
-      "norm_label": "percentile()"
-    },
-    {
-      "label": "initPersonalityMap()",
-      "file_type": "code",
-      "source_file": "scripts/simulate_combat/aggregator.js",
-      "source_location": "L32",
-      "_origin": "ast",
-      "id": "scripts_simulate_combat_aggregator_initpersonalitymap",
-      "community": 9,
-      "norm_label": "initpersonalitymap()"
-    },
-    {
-      "label": "aggregate()",
-      "file_type": "code",
-      "source_file": "scripts/simulate_combat/aggregator.js",
-      "source_location": "L45",
-      "_origin": "ast",
-      "id": "scripts_simulate_combat_aggregator_aggregate",
-      "community": 9,
-      "norm_label": "aggregate()"
-    },
-    {
-      "label": "combatLoop.js",
-      "file_type": "code",
-      "source_file": "scripts/simulate_combat/combatLoop.js",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "scripts_simulate_combat_combatloop",
-      "community": 22,
-      "norm_label": "combatloop.js"
-    },
-    {
-      "label": "{ executeTurn, executeAttack }",
-      "file_type": "code",
-      "source_file": "scripts/simulate_combat/combatLoop.js",
-      "source_location": "L4",
-      "_origin": "ast",
-      "id": "scripts_simulate_combat_combatloop_executeturn_executeattack",
-      "community": 22,
-      "norm_label": "{ executeturn, executeattack }"
-    },
-    {
-      "label": "{ calcFatigueRecovery, calcFatigueCost, getFatigueLevel }",
-      "file_type": "code",
-      "source_file": "scripts/simulate_combat/combatLoop.js",
-      "source_location": "L5",
-      "_origin": "ast",
-      "id": "scripts_simulate_combat_combatloop_calcfatiguerecovery_calcfatiguecost_getfatiguelevel",
-      "community": 22,
-      "norm_label": "{ calcfatiguerecovery, calcfatiguecost, getfatiguelevel }"
-    },
-    {
-      "label": "{ MAX_ROUNDS, FATIGUE_SNAPSHOT_TURNS }",
-      "file_type": "code",
-      "source_file": "scripts/simulate_combat/combatLoop.js",
-      "source_location": "L6",
-      "_origin": "ast",
-      "id": "scripts_simulate_combat_combatloop_max_rounds_fatigue_snapshot_turns",
-      "community": 22,
-      "norm_label": "{ max_rounds, fatigue_snapshot_turns }"
-    },
-    {
-      "label": "characterShape()",
-      "file_type": "code",
-      "source_file": "scripts/simulate_combat/combatLoop.js",
-      "source_location": "L13",
-      "_origin": "ast",
-      "id": "scripts_simulate_combat_combatloop_charactershape",
-      "community": 22,
-      "norm_label": "charactershape()"
-    },
-    {
-      "label": "applyReactionFatigue()",
-      "file_type": "code",
-      "source_file": "scripts/simulate_combat/combatLoop.js",
-      "source_location": "L22",
-      "_origin": "ast",
-      "id": "scripts_simulate_combat_combatloop_applyreactionfatigue",
-      "community": 22,
-      "norm_label": "applyreactionfatigue()"
-    },
-    {
-      "label": "shouldRest()",
-      "file_type": "code",
-      "source_file": "scripts/simulate_combat/combatLoop.js",
-      "source_location": "L36",
-      "_origin": "ast",
-      "id": "scripts_simulate_combat_combatloop_shouldrest",
-      "community": 22,
-      "norm_label": "shouldrest()"
-    },
-    {
-      "label": "executeRestTurn()",
-      "file_type": "code",
-      "source_file": "scripts/simulate_combat/combatLoop.js",
-      "source_location": "L51",
-      "_origin": "ast",
-      "id": "scripts_simulate_combat_combatloop_executerestturn",
-      "community": 22,
-      "norm_label": "executerestturn()"
-    },
-    {
-      "label": "simulateCombat()",
-      "file_type": "code",
-      "source_file": "scripts/simulate_combat/combatLoop.js",
-      "source_location": "L105",
-      "_origin": "ast",
-      "id": "scripts_simulate_combat_combatloop_simulatecombat",
-      "community": 22,
-      "norm_label": "simulatecombat()"
-    },
-    {
-      "label": "config.js",
-      "file_type": "code",
-      "source_file": "scripts/simulate_combat/config.js",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "scripts_simulate_combat_config",
-      "community": 9,
-      "norm_label": "config.js"
-    },
-    {
-      "label": "PERSONALITIES",
-      "file_type": "code",
-      "source_file": "scripts/simulate_combat/config.js",
-      "source_location": "L4",
-      "_origin": "ast",
-      "id": "scripts_simulate_combat_config_personalities",
-      "community": 9,
-      "norm_label": "personalities"
-    },
-    {
-      "label": "PHYSICAL_STATS",
-      "file_type": "code",
-      "source_file": "scripts/simulate_combat/config.js",
-      "source_location": "L84",
-      "_origin": "ast",
-      "id": "scripts_simulate_combat_config_physical_stats",
-      "community": 9,
-      "norm_label": "physical_stats"
-    },
-    {
-      "label": "MAGIC_STATS",
-      "file_type": "code",
-      "source_file": "scripts/simulate_combat/config.js",
-      "source_location": "L85",
-      "_origin": "ast",
-      "id": "scripts_simulate_combat_config_magic_stats",
-      "community": 9,
-      "norm_label": "magic_stats"
-    },
-    {
-      "label": "FATIGUE_SNAPSHOT_TURNS",
-      "file_type": "code",
-      "source_file": "scripts/simulate_combat/config.js",
-      "source_location": "L86",
-      "_origin": "ast",
-      "id": "scripts_simulate_combat_config_fatigue_snapshot_turns",
-      "community": 9,
-      "norm_label": "fatigue_snapshot_turns"
-    },
-    {
-      "label": "parseArgs()",
-      "file_type": "code",
-      "source_file": "scripts/simulate_combat/config.js",
-      "source_location": "L92",
-      "_origin": "ast",
-      "id": "scripts_simulate_combat_config_parseargs",
-      "community": 9,
-      "norm_label": "parseargs()"
-    },
-    {
-      "label": "printUsage()",
-      "file_type": "code",
-      "source_file": "scripts/simulate_combat/config.js",
-      "source_location": "L125",
-      "_origin": "ast",
-      "id": "scripts_simulate_combat_config_printusage",
-      "community": 9,
-      "norm_label": "printusage()"
-    },
-    {
-      "label": "fighterGenerator.js",
-      "file_type": "code",
-      "source_file": "scripts/simulate_combat/fighterGenerator.js",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "scripts_simulate_combat_fightergenerator",
-      "community": 9,
-      "norm_label": "fightergenerator.js"
-    },
-    {
-      "label": "{ RACES }",
-      "file_type": "code",
-      "source_file": "scripts/simulate_combat/fighterGenerator.js",
-      "source_location": "L4",
-      "_origin": "ast",
-      "id": "scripts_simulate_combat_fightergenerator_races",
-      "community": 9,
-      "norm_label": "{ races }"
-    },
-    {
-      "label": "{\n  PERSONALITIES,\n  FREE_POINTS,\n  PHYSICAL_STATS,\n  MAGIC_STATS,\n  HP_MAX,\n  LEVEL_MIN,\n  LEVEL_MAX,\n  LEVEL_DIFF_MAX_PCT,\n}",
-      "file_type": "code",
-      "source_file": "scripts/simulate_combat/fighterGenerator.js",
-      "source_location": "L5",
-      "_origin": "ast",
-      "id": "scripts_simulate_combat_fightergenerator_personalities_free_points_physical_stats_magic_stats_hp_max_level_min_level_max_level_diff_max_pct",
-      "community": 9,
-      "norm_label": "{\n  personalities,\n  free_points,\n  physical_stats,\n  magic_stats,\n  hp_max,\n  level_min,\n  level_max,\n  level_diff_max_pct,\n}"
-    },
-    {
-      "label": "RACE_KEYS",
-      "file_type": "code",
-      "source_file": "scripts/simulate_combat/fighterGenerator.js",
-      "source_location": "L16",
-      "_origin": "ast",
-      "id": "scripts_simulate_combat_fightergenerator_race_keys",
-      "community": 9,
-      "norm_label": "race_keys"
-    },
-    {
-      "label": "PERSONALITY_KEYS",
-      "file_type": "code",
-      "source_file": "scripts/simulate_combat/fighterGenerator.js",
-      "source_location": "L17",
-      "_origin": "ast",
-      "id": "scripts_simulate_combat_fightergenerator_personality_keys",
-      "community": 9,
-      "norm_label": "personality_keys"
-    },
-    {
-      "label": "randomRace()",
-      "file_type": "code",
-      "source_file": "scripts/simulate_combat/fighterGenerator.js",
-      "source_location": "L22",
-      "_origin": "ast",
-      "id": "scripts_simulate_combat_fightergenerator_randomrace",
-      "community": 9,
-      "norm_label": "randomrace()"
-    },
-    {
-      "label": "randomPersonality()",
-      "file_type": "code",
-      "source_file": "scripts/simulate_combat/fighterGenerator.js",
-      "source_location": "L29",
-      "_origin": "ast",
-      "id": "scripts_simulate_combat_fightergenerator_randompersonality",
-      "community": 9,
-      "norm_label": "randompersonality()"
-    },
-    {
-      "label": "clamp()",
-      "file_type": "code",
-      "source_file": "scripts/simulate_combat/fighterGenerator.js",
-      "source_location": "L39",
-      "_origin": "ast",
-      "id": "scripts_simulate_combat_fightergenerator_clamp",
-      "community": 9,
-      "norm_label": "clamp()"
-    },
-    {
-      "label": "generateFighter()",
-      "file_type": "code",
-      "source_file": "scripts/simulate_combat/fighterGenerator.js",
-      "source_location": "L55",
-      "_origin": "ast",
-      "id": "scripts_simulate_combat_fightergenerator_generatefighter",
-      "community": 9,
-      "norm_label": "generatefighter()"
-    },
-    {
-      "label": "scaleToLevel()",
-      "file_type": "code",
-      "source_file": "scripts/simulate_combat/fighterGenerator.js",
-      "source_location": "L103",
-      "_origin": "ast",
-      "id": "scripts_simulate_combat_fightergenerator_scaletolevel",
-      "community": 9,
-      "norm_label": "scaletolevel()"
-    },
-    {
-      "label": "generateFighterPair()",
-      "file_type": "code",
-      "source_file": "scripts/simulate_combat/fighterGenerator.js",
-      "source_location": "L130",
-      "_origin": "ast",
-      "id": "scripts_simulate_combat_fightergenerator_generatefighterpair",
-      "community": 9,
-      "norm_label": "generatefighterpair()"
-    },
-    {
-      "label": "formatters.js",
-      "file_type": "code",
-      "source_file": "scripts/simulate_combat/formatters.js",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "scripts_simulate_combat_formatters",
-      "community": 9,
-      "norm_label": "formatters.js"
-    },
-    {
-      "label": "{ PERSONALITIES, FATIGUE_SNAPSHOT_TURNS, PHYSICAL_STATS }",
-      "file_type": "code",
-      "source_file": "scripts/simulate_combat/formatters.js",
-      "source_location": "L4",
-      "_origin": "ast",
-      "id": "scripts_simulate_combat_formatters_personalities_fatigue_snapshot_turns_physical_stats",
-      "community": 9,
-      "norm_label": "{ personalities, fatigue_snapshot_turns, physical_stats }"
-    },
-    {
-      "label": "PERSONALITY_KEYS",
-      "file_type": "code",
-      "source_file": "scripts/simulate_combat/formatters.js",
-      "source_location": "L6",
-      "_origin": "ast",
-      "id": "scripts_simulate_combat_formatters_personality_keys",
-      "community": 9,
-      "norm_label": "personality_keys"
-    },
-    {
-      "label": "pct()",
-      "file_type": "code",
-      "source_file": "scripts/simulate_combat/formatters.js",
-      "source_location": "L12",
-      "_origin": "ast",
-      "id": "scripts_simulate_combat_formatters_pct",
-      "community": 9,
-      "norm_label": "pct()"
-    },
-    {
-      "label": "num()",
-      "file_type": "code",
-      "source_file": "scripts/simulate_combat/formatters.js",
-      "source_location": "L21",
-      "_origin": "ast",
-      "id": "scripts_simulate_combat_formatters_num",
-      "community": 9,
-      "norm_label": "num()"
-    },
-    {
-      "label": "formatMarkdownReport()",
-      "file_type": "code",
-      "source_file": "scripts/simulate_combat/formatters.js",
-      "source_location": "L31",
-      "_origin": "ast",
-      "id": "scripts_simulate_combat_formatters_formatmarkdownreport",
-      "community": 9,
-      "norm_label": "formatmarkdownreport()"
-    },
-    {
-      "label": "metricsCollector.js",
-      "file_type": "code",
-      "source_file": "scripts/simulate_combat/metricsCollector.js",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "scripts_simulate_combat_metricscollector",
-      "community": 9,
-      "norm_label": "metricscollector.js"
-    },
-    {
-      "label": "collectMetrics()",
-      "file_type": "code",
-      "source_file": "scripts/simulate_combat/metricsCollector.js",
-      "source_location": "L8",
-      "_origin": "ast",
-      "id": "scripts_simulate_combat_metricscollector_collectmetrics",
-      "community": 9,
-      "norm_label": "collectmetrics()"
-    },
-    {
-      "label": "trackReaction()",
-      "file_type": "code",
-      "source_file": "scripts/simulate_combat/metricsCollector.js",
-      "source_location": "L71",
-      "_origin": "ast",
-      "id": "scripts_simulate_combat_metricscollector_trackreaction",
-      "community": 9,
-      "norm_label": "trackreaction()"
-    },
-    {
       "label": "tools-list.js",
       "file_type": "code",
       "source_file": "scripts/tools-list.js",
@@ -1672,7 +1142,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_commands_admin_group_add",
-      "community": 68,
+      "community": 18,
       "norm_label": "add.js"
     },
     {
@@ -1682,7 +1152,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_commands_admin_group_add_addparticipant",
-      "community": 68,
+      "community": 18,
       "norm_label": "{ addparticipant }"
     },
     {
@@ -1692,7 +1162,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_commands_admin_group_add_box",
-      "community": 68,
+      "community": 18,
       "norm_label": "{ box }"
     },
     {
@@ -1702,7 +1172,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_commands_admin_group_add_formaterror",
-      "community": 68,
+      "community": 18,
       "norm_label": "{ formaterror }"
     },
     {
@@ -1712,7 +1182,7 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "src_commands_admin_group_add_execute",
-      "community": 68,
+      "community": 18,
       "norm_label": "execute()"
     },
     {
@@ -1762,7 +1232,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_commands_admin_group_demote",
-      "community": 39,
+      "community": 78,
       "norm_label": "demote.js"
     },
     {
@@ -1772,7 +1242,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_commands_admin_group_demote_demotefromadmin",
-      "community": 39,
+      "community": 78,
       "norm_label": "{ demotefromadmin }"
     },
     {
@@ -1782,7 +1252,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_commands_admin_group_demote_executegroupaction",
-      "community": 39,
+      "community": 78,
       "norm_label": "{ executegroupaction }"
     },
     {
@@ -1792,7 +1262,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "src_commands_admin_group_demote_execute",
-      "community": 39,
+      "community": 78,
       "norm_label": "execute()"
     },
     {
@@ -1802,7 +1272,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_commands_admin_group_disolver_combate",
-      "community": 38,
+      "community": 35,
       "norm_label": "disolver_combate.js"
     },
     {
@@ -1812,7 +1282,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_commands_admin_group_disolver_combate_findsessionbyuser_removesession",
-      "community": 38,
+      "community": 35,
       "norm_label": "{ findsessionbyuser, removesession }"
     },
     {
@@ -1822,7 +1292,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_commands_admin_group_disolver_combate_formatcombatdisolved",
-      "community": 38,
+      "community": 35,
       "norm_label": "{ formatcombatdisolved }"
     },
     {
@@ -1832,7 +1302,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "src_commands_admin_group_disolver_combate_execute",
-      "community": 38,
+      "community": 35,
       "norm_label": "execute()"
     },
     {
@@ -1892,7 +1362,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_commands_admin_group_grupo_cerrar",
-      "community": 68,
+      "community": 70,
       "norm_label": "grupo_cerrar.js"
     },
     {
@@ -1902,7 +1372,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_commands_admin_group_grupo_cerrar_closegroup",
-      "community": 68,
+      "community": 70,
       "norm_label": "{ closegroup }"
     },
     {
@@ -1912,7 +1382,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_commands_admin_group_grupo_cerrar_box",
-      "community": 68,
+      "community": 70,
       "norm_label": "{ box }"
     },
     {
@@ -1922,7 +1392,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_commands_admin_group_grupo_cerrar_formaterror",
-      "community": 68,
+      "community": 70,
       "norm_label": "{ formaterror }"
     },
     {
@@ -1932,7 +1402,7 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "src_commands_admin_group_grupo_cerrar_execute",
-      "community": 68,
+      "community": 70,
       "norm_label": "execute()"
     },
     {
@@ -1942,7 +1412,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_commands_admin_group_invite",
-      "community": 68,
+      "community": 72,
       "norm_label": "invite.js"
     },
     {
@@ -1952,7 +1422,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_commands_admin_group_invite_getinvitecode",
-      "community": 68,
+      "community": 72,
       "norm_label": "{ getinvitecode }"
     },
     {
@@ -1962,7 +1432,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_commands_admin_group_invite_box",
-      "community": 68,
+      "community": 72,
       "norm_label": "{ box }"
     },
     {
@@ -1972,7 +1442,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_commands_admin_group_invite_formaterror",
-      "community": 68,
+      "community": 72,
       "norm_label": "{ formaterror }"
     },
     {
@@ -1982,7 +1452,7 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "src_commands_admin_group_invite_execute",
-      "community": 68,
+      "community": 72,
       "norm_label": "execute()"
     },
     {
@@ -1992,7 +1462,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_commands_admin_group_promote",
-      "community": 39,
+      "community": 79,
       "norm_label": "promote.js"
     },
     {
@@ -2002,7 +1472,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_commands_admin_group_promote_promotetoadmin",
-      "community": 39,
+      "community": 79,
       "norm_label": "{ promotetoadmin }"
     },
     {
@@ -2012,7 +1482,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_commands_admin_group_promote_executegroupaction",
-      "community": 39,
+      "community": 79,
       "norm_label": "{ executegroupaction }"
     },
     {
@@ -2022,7 +1492,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "src_commands_admin_group_promote_execute",
-      "community": 39,
+      "community": 79,
       "norm_label": "execute()"
     },
     {
@@ -2162,7 +1632,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_commands_admin_group_unwarn",
-      "community": 6,
+      "community": 23,
       "norm_label": "unwarn.js"
     },
     {
@@ -2172,7 +1642,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_commands_admin_group_unwarn_deletewarn_getwarns",
-      "community": 6,
+      "community": 23,
       "norm_label": "{ deletewarn, getwarns }"
     },
     {
@@ -2182,7 +1652,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_commands_admin_group_unwarn_getfirstmentionedjid",
-      "community": 6,
+      "community": 23,
       "norm_label": "{ getfirstmentionedjid }"
     },
     {
@@ -2192,7 +1662,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_commands_admin_group_unwarn_formatdisplaymention_withmentions",
-      "community": 6,
+      "community": 23,
       "norm_label": "{ formatdisplaymention, withmentions }"
     },
     {
@@ -2202,7 +1672,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "src_commands_admin_group_unwarn_resolvetargetdisplayname",
-      "community": 6,
+      "community": 23,
       "norm_label": "{ resolvetargetdisplayname }"
     },
     {
@@ -2212,7 +1682,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "src_commands_admin_group_unwarn_box",
-      "community": 6,
+      "community": 23,
       "norm_label": "{ box }"
     },
     {
@@ -2222,7 +1692,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "src_commands_admin_group_unwarn_formaterror",
-      "community": 6,
+      "community": 23,
       "norm_label": "{ formaterror }"
     },
     {
@@ -2232,7 +1702,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "src_commands_admin_group_unwarn_execute",
-      "community": 6,
+      "community": 23,
       "norm_label": "execute()"
     },
     {
@@ -2242,7 +1712,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_commands_admin_group_warn",
-      "community": 6,
+      "community": 9,
       "norm_label": "warn.js"
     },
     {
@@ -2252,7 +1722,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_commands_admin_group_warn_addwarn_getwarns_max_warns",
-      "community": 6,
+      "community": 9,
       "norm_label": "{ addwarn, getwarns, max_warns }"
     },
     {
@@ -2262,7 +1732,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_commands_admin_group_warn_getfirstmentionedjid",
-      "community": 6,
+      "community": 9,
       "norm_label": "{ getfirstmentionedjid }"
     },
     {
@@ -2272,7 +1742,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_commands_admin_group_warn_formatdisplaymention_withmentions",
-      "community": 6,
+      "community": 9,
       "norm_label": "{ formatdisplaymention, withmentions }"
     },
     {
@@ -2282,7 +1752,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "src_commands_admin_group_warn_resolvetargetdisplayname",
-      "community": 6,
+      "community": 9,
       "norm_label": "{ resolvetargetdisplayname }"
     },
     {
@@ -2292,7 +1762,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "src_commands_admin_group_warn_box",
-      "community": 6,
+      "community": 9,
       "norm_label": "{ box }"
     },
     {
@@ -2302,7 +1772,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "src_commands_admin_group_warn_formaterror",
-      "community": 6,
+      "community": 9,
       "norm_label": "{ formaterror }"
     },
     {
@@ -2312,7 +1782,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "src_commands_admin_group_warn_execute",
-      "community": 7,
+      "community": 9,
       "norm_label": "execute()"
     },
     {
@@ -2442,7 +1912,7 @@
       "source_location": "L33",
       "_origin": "ast",
       "id": "src_commands_admin_permissions_admin_perm_add_execute",
-      "community": 7,
+      "community": 26,
       "norm_label": "execute()"
     },
     {
@@ -2532,7 +2002,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_commands_admin_permissions_admin_perm_rem",
-      "community": 18,
+      "community": 25,
       "norm_label": "admin_perm_rem.js"
     },
     {
@@ -2542,7 +2012,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_commands_admin_permissions_admin_perm_rem_setadminforcategory_isadminforcategory",
-      "community": 18,
+      "community": 25,
       "norm_label": "{ setadminforcategory, isadminforcategory }"
     },
     {
@@ -2552,7 +2022,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_commands_admin_permissions_admin_perm_rem_getfirstmentionedjid",
-      "community": 18,
+      "community": 25,
       "norm_label": "{ getfirstmentionedjid }"
     },
     {
@@ -2562,7 +2032,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_commands_admin_permissions_admin_perm_rem_isowner",
-      "community": 18,
+      "community": 25,
       "norm_label": "{ isowner }"
     },
     {
@@ -2572,7 +2042,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "src_commands_admin_permissions_admin_perm_rem_formatdisplaymention_withmentions",
-      "community": 18,
+      "community": 25,
       "norm_label": "{ formatdisplaymention, withmentions }"
     },
     {
@@ -2582,7 +2052,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "src_commands_admin_permissions_admin_perm_rem_resolvetargetdisplayname",
-      "community": 18,
+      "community": 25,
       "norm_label": "{ resolvetargetdisplayname }"
     },
     {
@@ -2592,7 +2062,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "src_commands_admin_permissions_admin_perm_rem_box",
-      "community": 18,
+      "community": 25,
       "norm_label": "{ box }"
     },
     {
@@ -2602,7 +2072,7 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "src_commands_admin_permissions_admin_perm_rem_formaterror",
-      "community": 18,
+      "community": 25,
       "norm_label": "{ formaterror }"
     },
     {
@@ -2612,7 +2082,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "src_commands_admin_permissions_admin_perm_rem_formatcommandusage",
-      "community": 18,
+      "community": 25,
       "norm_label": "{ formatcommandusage }"
     },
     {
@@ -2622,7 +2092,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "src_commands_admin_permissions_admin_perm_rem_categories",
-      "community": 18,
+      "community": 25,
       "norm_label": "categories"
     },
     {
@@ -2632,7 +2102,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "src_commands_admin_permissions_admin_perm_rem_category_display",
-      "community": 18,
+      "community": 25,
       "norm_label": "category_display"
     },
     {
@@ -2642,7 +2112,7 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "src_commands_admin_permissions_admin_perm_rem_usagemessage",
-      "community": 18,
+      "community": 25,
       "norm_label": "usagemessage"
     },
     {
@@ -2652,7 +2122,7 @@
       "source_location": "L33",
       "_origin": "ast",
       "id": "src_commands_admin_permissions_admin_perm_rem_execute",
-      "community": 7,
+      "community": 26,
       "norm_label": "execute()"
     },
     {
@@ -2762,7 +2232,7 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "src_commands_admin_permissions_eco_admin_add_execute",
-      "community": 7,
+      "community": 26,
       "norm_label": "execute()"
     },
     {
@@ -2772,7 +2242,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_commands_admin_permissions_eco_admin_list",
-      "community": 26,
+      "community": 11,
       "norm_label": "eco_admin_list.js"
     },
     {
@@ -2782,7 +2252,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_commands_admin_permissions_eco_admin_list_listeconomyadmins",
-      "community": 26,
+      "community": 11,
       "norm_label": "{ listeconomyadmins }"
     },
     {
@@ -2792,7 +2262,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_commands_admin_permissions_eco_admin_list_getownerrecords",
-      "community": 26,
+      "community": 11,
       "norm_label": "{ getownerrecords }"
     },
     {
@@ -2802,7 +2272,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_commands_admin_permissions_eco_admin_list_box",
-      "community": 26,
+      "community": 11,
       "norm_label": "{ box }"
     },
     {
@@ -2812,7 +2282,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "src_commands_admin_permissions_eco_admin_list_execute",
-      "community": 26,
+      "community": 11,
       "norm_label": "execute()"
     },
     {
@@ -2822,7 +2292,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_commands_admin_permissions_eco_admin_rem",
-      "community": 23,
+      "community": 26,
       "norm_label": "eco_admin_rem.js"
     },
     {
@@ -2832,7 +2302,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_commands_admin_permissions_eco_admin_rem_seteconomyadmin_iseconomyadmin",
-      "community": 23,
+      "community": 26,
       "norm_label": "{ seteconomyadmin, iseconomyadmin }"
     },
     {
@@ -2842,7 +2312,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_commands_admin_permissions_eco_admin_rem_getfirstmentionedjid",
-      "community": 23,
+      "community": 26,
       "norm_label": "{ getfirstmentionedjid }"
     },
     {
@@ -2852,7 +2322,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_commands_admin_permissions_eco_admin_rem_isowner",
-      "community": 23,
+      "community": 26,
       "norm_label": "{ isowner }"
     },
     {
@@ -2862,7 +2332,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "src_commands_admin_permissions_eco_admin_rem_formatdisplaymention_withmentions",
-      "community": 23,
+      "community": 26,
       "norm_label": "{ formatdisplaymention, withmentions }"
     },
     {
@@ -2872,7 +2342,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "src_commands_admin_permissions_eco_admin_rem_resolvetargetdisplayname",
-      "community": 23,
+      "community": 26,
       "norm_label": "{ resolvetargetdisplayname }"
     },
     {
@@ -2882,7 +2352,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "src_commands_admin_permissions_eco_admin_rem_box",
-      "community": 23,
+      "community": 26,
       "norm_label": "{ box }"
     },
     {
@@ -2892,7 +2362,7 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "src_commands_admin_permissions_eco_admin_rem_formaterror",
-      "community": 23,
+      "community": 26,
       "norm_label": "{ formaterror }"
     },
     {
@@ -2902,7 +2372,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "src_commands_admin_permissions_eco_admin_rem_formatcommandusage",
-      "community": 23,
+      "community": 26,
       "norm_label": "{ formatcommandusage }"
     },
     {
@@ -2912,7 +2382,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "src_commands_admin_permissions_eco_admin_rem_usagemessage",
-      "community": 23,
+      "community": 26,
       "norm_label": "usagemessage"
     },
     {
@@ -2922,7 +2392,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "src_commands_admin_permissions_eco_admin_rem_execute",
-      "community": 7,
+      "community": 26,
       "norm_label": "execute()"
     },
     {
@@ -2972,7 +2442,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_commands_economy_balance",
-      "community": 24,
+      "community": 76,
       "norm_label": "balance.js"
     },
     {
@@ -2982,7 +2452,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_commands_economy_balance_getorcreateprofile_getuserprofile",
-      "community": 24,
+      "community": 76,
       "norm_label": "{ getorcreateprofile, getuserprofile }"
     },
     {
@@ -2992,7 +2462,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_commands_economy_balance_formatstelas",
-      "community": 24,
+      "community": 76,
       "norm_label": "{ formatstelas }"
     },
     {
@@ -3002,7 +2472,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "src_commands_economy_balance_box",
-      "community": 24,
+      "community": 76,
       "norm_label": "{ box }"
     },
     {
@@ -3012,7 +2482,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "src_commands_economy_balance_resolvetarget",
-      "community": 24,
+      "community": 76,
       "norm_label": "resolvetarget()"
     },
     {
@@ -3022,7 +2492,7 @@
       "source_location": "L31",
       "_origin": "ast",
       "id": "src_commands_economy_balance_execute",
-      "community": 24,
+      "community": 76,
       "norm_label": "execute()"
     },
     {
@@ -3112,7 +2582,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_commands_economy_dar_stelas",
-      "community": 71,
+      "community": 10,
       "norm_label": "dar_stelas.js"
     },
     {
@@ -3122,7 +2592,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_commands_economy_dar_stelas_transfermoney_getbalance",
-      "community": 71,
+      "community": 10,
       "norm_label": "{ transfermoney, getbalance }"
     },
     {
@@ -3132,7 +2602,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_commands_economy_dar_stelas_getuserprofile",
-      "community": 71,
+      "community": 10,
       "norm_label": "{ getuserprofile }"
     },
     {
@@ -3142,7 +2612,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_commands_economy_dar_stelas_formatstelas",
-      "community": 71,
+      "community": 10,
       "norm_label": "{ formatstelas }"
     },
     {
@@ -3152,7 +2622,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "src_commands_economy_dar_stelas_getfirstmentionedjid_extractamountfromargs",
-      "community": 71,
+      "community": 10,
       "norm_label": "{ getfirstmentionedjid, extractamountfromargs }"
     },
     {
@@ -3162,7 +2632,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "src_commands_economy_dar_stelas_formatdisplaymention",
-      "community": 71,
+      "community": 10,
       "norm_label": "{ formatdisplaymention }"
     },
     {
@@ -3172,7 +2642,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "src_commands_economy_dar_stelas_resolvetargetdisplayname",
-      "community": 71,
+      "community": 10,
       "norm_label": "{ resolvetargetdisplayname }"
     },
     {
@@ -3182,7 +2652,7 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "src_commands_economy_dar_stelas_box",
-      "community": 71,
+      "community": 10,
       "norm_label": "{ box }"
     },
     {
@@ -3192,7 +2662,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "src_commands_economy_dar_stelas_formaterror",
-      "community": 71,
+      "community": 10,
       "norm_label": "{ formaterror }"
     },
     {
@@ -3202,7 +2672,7 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "src_commands_economy_dar_stelas_formatcommandusage",
-      "community": 71,
+      "community": 10,
       "norm_label": "{ formatcommandusage }"
     },
     {
@@ -3212,7 +2682,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "src_commands_economy_dar_stelas_usagemessage",
-      "community": 71,
+      "community": 10,
       "norm_label": "usagemessage"
     },
     {
@@ -3222,7 +2692,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "src_commands_economy_dar_stelas_execute",
-      "community": 7,
+      "community": 10,
       "norm_label": "execute()"
     },
     {
@@ -3272,7 +2742,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_commands_economy_set_stelas",
-      "community": 48,
+      "community": 15,
       "norm_label": "set_stelas.js"
     },
     {
@@ -3282,7 +2752,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_commands_economy_set_stelas_setmoney",
-      "community": 48,
+      "community": 15,
       "norm_label": "{ setmoney }"
     },
     {
@@ -3292,7 +2762,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_commands_economy_set_stelas_executeeconomyaction",
-      "community": 48,
+      "community": 15,
       "norm_label": "{ executeeconomyaction }"
     },
     {
@@ -3302,7 +2772,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "src_commands_economy_set_stelas_execute",
-      "community": 48,
+      "community": 15,
       "norm_label": "execute()"
     },
     {
@@ -3432,7 +2902,7 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "src_commands_info_bugreport_execute",
-      "community": 68,
+      "community": 1,
       "norm_label": "execute()"
     },
     {
@@ -3662,7 +3132,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_commands_info_hola",
-      "community": 7,
+      "community": 23,
       "norm_label": "hola.js"
     },
     {
@@ -3672,7 +3142,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_commands_info_hola_formatdisplaymention",
-      "community": 7,
+      "community": 23,
       "norm_label": "{ formatdisplaymention }"
     },
     {
@@ -3682,7 +3152,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "src_commands_info_hola_execute",
-      "community": 7,
+      "community": 23,
       "norm_label": "execute()"
     },
     {
@@ -3922,7 +3392,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "src_commands_rpg_characters_editar_pj_execute",
-      "community": 68,
+      "community": 5,
       "norm_label": "execute()"
     },
     {
@@ -3932,7 +3402,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_commands_rpg_characters_eliminar_pj",
-      "community": 35,
+      "community": 18,
       "norm_label": "eliminar_pj.js"
     },
     {
@@ -3942,7 +3412,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_commands_rpg_characters_eliminar_pj_listcharacters_deletecharacter",
-      "community": 35,
+      "community": 18,
       "norm_label": "{ listcharacters, deletecharacter }"
     },
     {
@@ -3952,7 +3422,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_commands_rpg_characters_eliminar_pj_box",
-      "community": 35,
+      "community": 18,
       "norm_label": "{ box }"
     },
     {
@@ -3962,7 +3432,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_commands_rpg_characters_eliminar_pj_formaterror",
-      "community": 35,
+      "community": 18,
       "norm_label": "{ formaterror }"
     },
     {
@@ -3972,7 +3442,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "src_commands_rpg_characters_eliminar_pj_formatcommandusage",
-      "community": 35,
+      "community": 18,
       "norm_label": "{ formatcommandusage }"
     },
     {
@@ -3982,7 +3452,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "src_commands_rpg_characters_eliminar_pj_usagemessage",
-      "community": 35,
+      "community": 18,
       "norm_label": "usagemessage"
     },
     {
@@ -3992,7 +3462,7 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "src_commands_rpg_characters_eliminar_pj_pendingconfirmations",
-      "community": 35,
+      "community": 18,
       "norm_label": "pendingconfirmations"
     },
     {
@@ -4002,7 +3472,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "src_commands_rpg_characters_eliminar_pj_execute",
-      "community": 68,
+      "community": 18,
       "norm_label": "execute()"
     },
     {
@@ -4012,7 +3482,7 @@
       "source_location": "L93",
       "_origin": "ast",
       "id": "src_commands_rpg_characters_eliminar_pj_executedeletion",
-      "community": 68,
+      "community": 18,
       "norm_label": "executedeletion()"
     },
     {
@@ -4062,7 +3532,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_commands_rpg_characters_renombrar_pj",
-      "community": 34,
+      "community": 28,
       "norm_label": "renombrar_pj.js"
     },
     {
@@ -4072,7 +3542,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_commands_rpg_characters_renombrar_pj_renamecharacter",
-      "community": 34,
+      "community": 28,
       "norm_label": "{ renamecharacter }"
     },
     {
@@ -4082,7 +3552,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_commands_rpg_characters_renombrar_pj_getcharacternames",
-      "community": 34,
+      "community": 28,
       "norm_label": "{ getcharacternames }"
     },
     {
@@ -4092,7 +3562,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_commands_rpg_characters_renombrar_pj_isadmin",
-      "community": 34,
+      "community": 28,
       "norm_label": "{ isadmin }"
     },
     {
@@ -4102,7 +3572,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "src_commands_rpg_characters_renombrar_pj_max_character_name_length",
-      "community": 34,
+      "community": 28,
       "norm_label": "{ max_character_name_length }"
     },
     {
@@ -4112,7 +3582,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "src_commands_rpg_characters_renombrar_pj_box",
-      "community": 34,
+      "community": 28,
       "norm_label": "{ box }"
     },
     {
@@ -4122,7 +3592,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "src_commands_rpg_characters_renombrar_pj_formaterror",
-      "community": 34,
+      "community": 28,
       "norm_label": "{ formaterror }"
     },
     {
@@ -4132,7 +3602,7 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "src_commands_rpg_characters_renombrar_pj_formatcommandusage",
-      "community": 34,
+      "community": 28,
       "norm_label": "{ formatcommandusage }"
     },
     {
@@ -4142,7 +3612,7 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "src_commands_rpg_characters_renombrar_pj_usagemessage",
-      "community": 34,
+      "community": 28,
       "norm_label": "usagemessage"
     },
     {
@@ -4252,7 +3722,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_commands_rpg_characters_ver_pj",
-      "community": 43,
+      "community": 31,
       "norm_label": "ver_pj.js"
     },
     {
@@ -4262,7 +3732,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_commands_rpg_characters_ver_pj_getactivecharacter",
-      "community": 43,
+      "community": 31,
       "norm_label": "{ getactivecharacter }"
     },
     {
@@ -4272,7 +3742,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_commands_rpg_characters_ver_pj_getinventory",
-      "community": 43,
+      "community": 31,
       "norm_label": "{ getinventory }"
     },
     {
@@ -4282,7 +3752,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_commands_rpg_characters_ver_pj_formatcharacter",
-      "community": 43,
+      "community": 31,
       "norm_label": "{ formatcharacter }"
     },
     {
@@ -4292,7 +3762,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "src_commands_rpg_characters_ver_pj_execute",
-      "community": 43,
+      "community": 31,
       "norm_label": "execute()"
     },
     {
@@ -4302,7 +3772,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_commands_rpg_combat_atacar",
-      "community": 28,
+      "community": 37,
       "norm_label": "atacar.js"
     },
     {
@@ -4312,7 +3782,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_commands_rpg_combat_atacar_getactivecharacter_addxp_sethp",
-      "community": 28,
+      "community": 37,
       "norm_label": "{ getactivecharacter, addxp, sethp }"
     },
     {
@@ -4322,7 +3792,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_commands_rpg_combat_atacar_findsessionbycharacter_findsessionbyuser_advanceturn_setpendingreaction_endsession",
-      "community": 28,
+      "community": 37,
       "norm_label": "{\n  findsessionbycharacter,\n  findsessionbyuser,\n  advanceturn,\n  setpendingreaction,\n  endsession,\n}"
     },
     {
@@ -4332,7 +3802,7 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "src_commands_rpg_combat_atacar_executeattack_executereaction_chooseaireaction_calculatexpreward",
-      "community": 28,
+      "community": 37,
       "norm_label": "{\n  executeattack,\n  executereaction,\n  chooseaireaction,\n  calculatexpreward,\n}"
     },
     {
@@ -4342,7 +3812,7 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "src_commands_rpg_combat_atacar_calcfatiguecost",
-      "community": 28,
+      "community": 37,
       "norm_label": "{ calcfatiguecost }"
     },
     {
@@ -4352,7 +3822,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "src_commands_rpg_combat_atacar_formatactionmenu_formatreactionprompt_buildfatiguebar",
-      "community": 28,
+      "community": 37,
       "norm_label": "{ formatactionmenu, formatreactionprompt, buildfatiguebar }"
     },
     {
@@ -4362,7 +3832,7 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "src_commands_rpg_combat_atacar_formaterror",
-      "community": 28,
+      "community": 37,
       "norm_label": "{ formaterror }"
     },
     {
@@ -4372,7 +3842,7 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "src_commands_rpg_combat_atacar_box",
-      "community": 28,
+      "community": 37,
       "norm_label": "{ box }"
     },
     {
@@ -4392,7 +3862,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_commands_rpg_combat_bloquear",
-      "community": 37,
+      "community": 48,
       "norm_label": "bloquear.js"
     },
     {
@@ -4402,7 +3872,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_commands_rpg_combat_bloquear_getactivecharacter_addxp_sethp",
-      "community": 37,
+      "community": 48,
       "norm_label": "{ getactivecharacter, addxp, sethp }"
     },
     {
@@ -4412,7 +3882,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_commands_rpg_combat_bloquear_findsessionbycharacter_advanceturn_endsession",
-      "community": 37,
+      "community": 48,
       "norm_label": "{ findsessionbycharacter, advanceturn, endsession }"
     },
     {
@@ -4422,7 +3892,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_commands_rpg_combat_bloquear_executereaction_calculatexpreward",
-      "community": 37,
+      "community": 48,
       "norm_label": "{ executereaction, calculatexpreward }"
     },
     {
@@ -4432,7 +3902,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "src_commands_rpg_combat_bloquear_calcfatiguecost_calcfatiguerecovery",
-      "community": 37,
+      "community": 48,
       "norm_label": "{ calcfatiguecost, calcfatiguerecovery }"
     },
     {
@@ -4442,7 +3912,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "src_commands_rpg_combat_bloquear_formatactionmenu_buildfatiguebar",
-      "community": 37,
+      "community": 48,
       "norm_label": "{ formatactionmenu, buildfatiguebar }"
     },
     {
@@ -4452,7 +3922,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "src_commands_rpg_combat_bloquear_formaterror",
-      "community": 37,
+      "community": 48,
       "norm_label": "{ formaterror }"
     },
     {
@@ -4462,7 +3932,7 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "src_commands_rpg_combat_bloquear_box",
-      "community": 37,
+      "community": 48,
       "norm_label": "{ box }"
     },
     {
@@ -4562,7 +4032,7 @@
       "source_location": "L21",
       "_origin": "ast",
       "id": "src_commands_rpg_combat_descansar_execute",
-      "community": 37,
+      "community": 16,
       "norm_label": "execute()"
     },
     {
@@ -4712,7 +4182,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "src_commands_rpg_combat_estado_execute",
-      "community": 37,
+      "community": 38,
       "norm_label": "execute()"
     },
     {
@@ -5002,7 +4472,7 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "src_commands_rpg_inventory_item_add_execute",
-      "community": 43,
+      "community": 38,
       "norm_label": "execute()"
     },
     {
@@ -5072,7 +4542,7 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "src_commands_rpg_inventory_item_rem_execute",
-      "community": 43,
+      "community": 38,
       "norm_label": "execute()"
     },
     {
@@ -5082,7 +4552,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_commands_rpg_inventory_usar",
-      "community": 43,
+      "community": 74,
       "norm_label": "usar.js"
     },
     {
@@ -5092,7 +4562,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_commands_rpg_inventory_usar_useitem",
-      "community": 43,
+      "community": 74,
       "norm_label": "{ useitem }"
     },
     {
@@ -5102,7 +4572,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_commands_rpg_inventory_usar_formaterror",
-      "community": 43,
+      "community": 74,
       "norm_label": "{ formaterror }"
     },
     {
@@ -5112,7 +4582,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_commands_rpg_inventory_usar_box",
-      "community": 43,
+      "community": 74,
       "norm_label": "{ box }"
     },
     {
@@ -5122,7 +4592,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "src_commands_rpg_inventory_usar_execute",
-      "community": 68,
+      "community": 74,
       "norm_label": "execute()"
     },
     {
@@ -5162,7 +4632,7 @@
       "source_location": "L41",
       "_origin": "ast",
       "id": "src_config_characterconfig_default_character_slots",
-      "community": 77,
+      "community": 3,
       "norm_label": "default_character_slots"
     },
     {
@@ -5242,7 +4712,7 @@
       "source_location": "L269",
       "_origin": "ast",
       "id": "src_config_characterconfig_gethpstate",
-      "community": 43,
+      "community": 3,
       "norm_label": "gethpstate()"
     },
     {
@@ -5289,7 +4759,7 @@
       "label": "FATIGUE_RECOVERY",
       "file_type": "code",
       "source_file": "src/config/combatConfig.js",
-      "source_location": "L39",
+      "source_location": "L32",
       "_origin": "ast",
       "id": "src_config_combatconfig_fatigue_recovery",
       "community": 22,
@@ -5299,7 +4769,7 @@
       "label": "FATIGUE_SPEED_STATS",
       "file_type": "code",
       "source_file": "src/config/combatConfig.js",
-      "source_location": "L44",
+      "source_location": "L37",
       "_origin": "ast",
       "id": "src_config_combatconfig_fatigue_speed_stats",
       "community": 22,
@@ -5662,7 +5132,7 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "src_core_commandhandler_loadcommands",
-      "community": 0,
+      "community": 17,
       "norm_label": "loadcommands()"
     },
     {
@@ -5682,7 +5152,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_core_commandregistry",
-      "community": 17,
+      "community": 4,
       "norm_label": "commandregistry.js"
     },
     {
@@ -5692,7 +5162,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_core_commandregistry_fs",
-      "community": 17,
+      "community": 4,
       "norm_label": "fs"
     },
     {
@@ -5702,7 +5172,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_core_commandregistry_path",
-      "community": 17,
+      "community": 4,
       "norm_label": "path"
     },
     {
@@ -5712,7 +5182,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "src_core_commandregistry_commands",
-      "community": 17,
+      "community": 4,
       "norm_label": "commands"
     },
     {
@@ -5722,7 +5192,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "src_core_commandregistry_aliases",
-      "community": 17,
+      "community": 4,
       "norm_label": "aliases"
     },
     {
@@ -5732,7 +5202,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "src_core_commandregistry_normalizename",
-      "community": 17,
+      "community": 4,
       "norm_label": "normalizename()"
     },
     {
@@ -5742,7 +5212,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "src_core_commandregistry_registercommand",
-      "community": 17,
+      "community": 4,
       "norm_label": "registercommand()"
     },
     {
@@ -5922,7 +5392,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_core_supabaseauthstate",
-      "community": 69,
+      "community": 0,
       "norm_label": "supabaseauthstate.js"
     },
     {
@@ -5932,7 +5402,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_core_supabaseauthstate_bufferjson_initauthcreds",
-      "community": 69,
+      "community": 0,
       "norm_label": "{ bufferjson, initauthcreds }"
     },
     {
@@ -5942,7 +5412,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_core_supabaseauthstate_supabase",
-      "community": 69,
+      "community": 0,
       "norm_label": "{ supabase }"
     },
     {
@@ -5952,7 +5422,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_core_supabaseauthstate_logerror",
-      "community": 69,
+      "community": 0,
       "norm_label": "{ logerror }"
     },
     {
@@ -5972,7 +5442,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_data_clases",
-      "community": 31,
+      "community": 2,
       "norm_label": "clases.js"
     },
     {
@@ -5982,7 +5452,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "src_data_clases_clases",
-      "community": 31,
+      "community": 2,
       "norm_label": "clases"
     },
     {
@@ -5992,7 +5462,7 @@
       "source_location": "L36",
       "_origin": "ast",
       "id": "src_data_clases_getclase",
-      "community": 31,
+      "community": 2,
       "norm_label": "getclase()"
     },
     {
@@ -6002,7 +5472,7 @@
       "source_location": "L43",
       "_origin": "ast",
       "id": "src_data_clases_listarclases",
-      "community": 31,
+      "community": 2,
       "norm_label": "listarclases()"
     },
     {
@@ -6012,7 +5482,7 @@
       "source_location": "L55",
       "_origin": "ast",
       "id": "src_data_clases_validarclase",
-      "community": 31,
+      "community": 2,
       "norm_label": "validarclase()"
     },
     {
@@ -6022,7 +5492,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_data_habilidades",
-      "community": 10,
+      "community": 2,
       "norm_label": "habilidades.js"
     },
     {
@@ -6032,7 +5502,7 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "src_data_habilidades_habilidades",
-      "community": 10,
+      "community": 2,
       "norm_label": "habilidades"
     },
     {
@@ -6042,7 +5512,7 @@
       "source_location": "L196",
       "_origin": "ast",
       "id": "src_data_habilidades_tiers",
-      "community": 10,
+      "community": 2,
       "norm_label": "tiers"
     },
     {
@@ -6052,7 +5522,7 @@
       "source_location": "L206",
       "_origin": "ast",
       "id": "src_data_habilidades_tier_multipliers",
-      "community": 10,
+      "community": 2,
       "norm_label": "tier_multipliers"
     },
     {
@@ -6062,7 +5532,7 @@
       "source_location": "L219",
       "_origin": "ast",
       "id": "src_data_habilidades_gethabilidad",
-      "community": 10,
+      "community": 2,
       "norm_label": "gethabilidad()"
     },
     {
@@ -6072,7 +5542,7 @@
       "source_location": "L226",
       "_origin": "ast",
       "id": "src_data_habilidades_listarhabilidades",
-      "community": 10,
+      "community": 2,
       "norm_label": "listarhabilidades()"
     },
     {
@@ -6082,7 +5552,7 @@
       "source_location": "L234",
       "_origin": "ast",
       "id": "src_data_habilidades_habilidadesporclase",
-      "community": 10,
+      "community": 2,
       "norm_label": "habilidadesporclase()"
     },
     {
@@ -6092,7 +5562,7 @@
       "source_location": "L241",
       "_origin": "ast",
       "id": "src_data_habilidades_habilidadesuniversales",
-      "community": 10,
+      "community": 2,
       "norm_label": "habilidadesuniversales()"
     },
     {
@@ -6662,7 +6132,7 @@
       "source_location": "L54",
       "_origin": "ast",
       "id": "src_services_bugreportservice_getrole",
-      "community": 1,
+      "community": 6,
       "norm_label": "getrole()"
     },
     {
@@ -6722,7 +6192,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_services_characterservice",
-      "community": 77,
+      "community": 3,
       "norm_label": "characterservice.js"
     },
     {
@@ -6732,7 +6202,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_services_characterservice_supabase",
-      "community": 77,
+      "community": 3,
       "norm_label": "{ supabase }"
     },
     {
@@ -6742,7 +6212,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_services_characterservice_filterexisting",
-      "community": 77,
+      "community": 3,
       "norm_label": "{ filterexisting }"
     },
     {
@@ -6752,7 +6222,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_services_characterservice_invalidateusercache_characterscachekey_safesingleornull_cache_ttls",
-      "community": 77,
+      "community": 3,
       "norm_label": "{ invalidateusercache, characterscachekey, safesingleornull, cache, ttls }"
     },
     {
@@ -6762,7 +6232,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "src_services_characterservice_default_character_stats_default_character_slots_races_levelable_stats_level_initial_free_points_at_creation_calculatelevel_xpfornextlevel_rangos_gethpstate_hp_max",
-      "community": 77,
+      "community": 3,
       "norm_label": "{\n  default_character_stats,\n  default_character_slots,\n  races,\n  levelable_stats,\n  level_initial,\n  free_points_at_creation,\n  calculatelevel,\n  xpfornextlevel,\n  rangos,\n  gethpstate,\n  hp_max,\n}"
     },
     {
@@ -6772,7 +6242,7 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "src_services_characterservice_getclase",
-      "community": 77,
+      "community": 3,
       "norm_label": "{ getclase }"
     },
     {
@@ -6782,7 +6252,7 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "src_services_characterservice_sanitizename_ensureuserprofile",
-      "community": 77,
+      "community": 3,
       "norm_label": "{ sanitizename, ensureuserprofile }"
     },
     {
@@ -6792,7 +6262,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "src_services_characterservice_sanitizarhabilidadesarray",
-      "community": 77,
+      "community": 3,
       "norm_label": "{ sanitizarhabilidadesarray }"
     },
     {
@@ -6812,7 +6282,7 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "src_services_characterservice_normalizestats",
-      "community": 77,
+      "community": 3,
       "norm_label": "normalizestats()"
     },
     {
@@ -6852,7 +6322,7 @@
       "source_location": "L222",
       "_origin": "ast",
       "id": "src_services_characterservice_getactivecharacter",
-      "community": 37,
+      "community": 38,
       "norm_label": "getactivecharacter()"
     },
     {
@@ -6912,7 +6382,7 @@
       "source_location": "L428",
       "_origin": "ast",
       "id": "src_services_characterservice_getcombatstats",
-      "community": 43,
+      "community": 3,
       "norm_label": "getcombatstats()"
     },
     {
@@ -6932,7 +6402,7 @@
       "source_location": "L456",
       "_origin": "ast",
       "id": "src_services_characterservice_sethp",
-      "community": 37,
+      "community": 5,
       "norm_label": "sethp()"
     },
     {
@@ -6942,7 +6412,7 @@
       "source_location": "L479",
       "_origin": "ast",
       "id": "src_services_characterservice_restaurarhp",
-      "community": 77,
+      "community": 3,
       "norm_label": "restaurarhp()"
     },
     {
@@ -7142,7 +6612,7 @@
       "source_location": "L48",
       "_origin": "ast",
       "id": "src_services_economyservice_resolveeconomyprofile",
-      "community": 26,
+      "community": 15,
       "norm_label": "resolveeconomyprofile()"
     },
     {
@@ -7162,7 +6632,7 @@
       "source_location": "L74",
       "_origin": "ast",
       "id": "src_services_economyservice_getbalance",
-      "community": 15,
+      "community": 10,
       "norm_label": "getbalance()"
     },
     {
@@ -7192,7 +6662,7 @@
       "source_location": "L172",
       "_origin": "ast",
       "id": "src_services_economyservice_setmoney",
-      "community": 48,
+      "community": 15,
       "norm_label": "setmoney()"
     },
     {
@@ -7212,7 +6682,7 @@
       "source_location": "L309",
       "_origin": "ast",
       "id": "src_services_economyservice_claimdaily",
-      "community": 15,
+      "community": 24,
       "norm_label": "claimdaily()"
     },
     {
@@ -7512,7 +6982,7 @@
       "source_location": "L70",
       "_origin": "ast",
       "id": "src_services_loggerservice_cleanoldlogs",
-      "community": 0,
+      "community": 40,
       "norm_label": "cleanoldlogs()"
     },
     {
@@ -7542,7 +7012,7 @@
       "source_location": "L123",
       "_origin": "ast",
       "id": "src_services_loggerservice_logsystem",
-      "community": 41,
+      "community": 69,
       "norm_label": "logsystem()"
     },
     {
@@ -7562,7 +7032,7 @@
       "source_location": "L156",
       "_origin": "ast",
       "id": "src_services_loggerservice_logerror",
-      "community": 0,
+      "community": 41,
       "norm_label": "logerror()"
     },
     {
@@ -7662,7 +7132,7 @@
       "source_location": "L36",
       "_origin": "ast",
       "id": "src_services_permissionservice_pickdisplayname",
-      "community": 26,
+      "community": 11,
       "norm_label": "pickdisplayname()"
     },
     {
@@ -7702,7 +7172,7 @@
       "source_location": "L92",
       "_origin": "ast",
       "id": "src_services_permissionservice_haseconomypermission",
-      "community": 26,
+      "community": 17,
       "norm_label": "haseconomypermission()"
     },
     {
@@ -7722,7 +7192,7 @@
       "source_location": "L137",
       "_origin": "ast",
       "id": "src_services_permissionservice_listeconomyadmins",
-      "community": 26,
+      "community": 11,
       "norm_label": "listeconomyadmins()"
     },
     {
@@ -7742,7 +7212,7 @@
       "source_location": "L150",
       "_origin": "ast",
       "id": "src_services_permissionservice_getcategorylabel",
-      "community": 11,
+      "community": 17,
       "norm_label": "getcategorylabel()"
     },
     {
@@ -7762,7 +7232,7 @@
       "source_location": "L187",
       "_origin": "ast",
       "id": "src_services_permissionservice_haspermissionforcategory",
-      "community": 26,
+      "community": 17,
       "norm_label": "haspermissionforcategory()"
     },
     {
@@ -7782,7 +7252,7 @@
       "source_location": "L255",
       "_origin": "ast",
       "id": "src_services_permissionservice_listadminsforcategory",
-      "community": 26,
+      "community": 11,
       "norm_label": "listadminsforcategory()"
     },
     {
@@ -7916,46 +7386,6 @@
       "norm_label": ".executeaiturn()"
     },
     {
-      "label": "combatEngine.backup.js",
-      "file_type": "code",
-      "source_file": "src/services/rpg/combatEngine.backup.js",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "src_services_rpg_combatengine_backup",
-      "community": 14,
-      "norm_label": "combatengine.backup.js"
-    },
-    {
-      "label": "{ DAMAGE_MIN }",
-      "file_type": "code",
-      "source_file": "src/services/rpg/combatEngine.backup.js",
-      "source_location": "L4",
-      "_origin": "ast",
-      "id": "src_services_rpg_combatengine_backup_damage_min",
-      "community": 14,
-      "norm_label": "{ damage_min }"
-    },
-    {
-      "label": "{ applyPenalties }",
-      "file_type": "code",
-      "source_file": "src/services/rpg/combatEngine.backup.js",
-      "source_location": "L5",
-      "_origin": "ast",
-      "id": "src_services_rpg_combatengine_backup_applypenalties",
-      "community": 14,
-      "norm_label": "{ applypenalties }"
-    },
-    {
-      "label": "calculateDamageBackup()",
-      "file_type": "code",
-      "source_file": "src/services/rpg/combatEngine.backup.js",
-      "source_location": "L18",
-      "_origin": "ast",
-      "id": "src_services_rpg_combatengine_backup_calculatedamagebackup",
-      "community": 14,
-      "norm_label": "calculatedamagebackup()"
-    },
-    {
       "label": "combatEngine.js",
       "file_type": "code",
       "source_file": "src/services/rpg/combatEngine.js",
@@ -8029,7 +7459,7 @@
       "label": "canReact()",
       "file_type": "code",
       "source_file": "src/services/rpg/combatEngine.js",
-      "source_location": "L85",
+      "source_location": "L83",
       "_origin": "ast",
       "id": "src_services_rpg_combatengine_canreact",
       "community": 14,
@@ -8039,7 +7469,7 @@
       "label": "evaluateDodgeFeasibility()",
       "file_type": "code",
       "source_file": "src/services/rpg/combatEngine.js",
-      "source_location": "L112",
+      "source_location": "L110",
       "_origin": "ast",
       "id": "src_services_rpg_combatengine_evaluatedodgefeasibility",
       "community": 14,
@@ -8049,7 +7479,7 @@
       "label": "rollFlee()",
       "file_type": "code",
       "source_file": "src/services/rpg/combatEngine.js",
-      "source_location": "L139",
+      "source_location": "L137",
       "_origin": "ast",
       "id": "src_services_rpg_combatengine_rollflee",
       "community": 14,
@@ -8059,7 +7489,7 @@
       "label": "attemptBlock()",
       "file_type": "code",
       "source_file": "src/services/rpg/combatEngine.js",
-      "source_location": "L169",
+      "source_location": "L167",
       "_origin": "ast",
       "id": "src_services_rpg_combatengine_attemptblock",
       "community": 14,
@@ -8069,7 +7499,7 @@
       "label": "attemptDodge()",
       "file_type": "code",
       "source_file": "src/services/rpg/combatEngine.js",
-      "source_location": "L187",
+      "source_location": "L185",
       "_origin": "ast",
       "id": "src_services_rpg_combatengine_attemptdodge",
       "community": 14,
@@ -8079,7 +7509,7 @@
       "label": "executeAttack()",
       "file_type": "code",
       "source_file": "src/services/rpg/combatEngine.js",
-      "source_location": "L214",
+      "source_location": "L212",
       "_origin": "ast",
       "id": "src_services_rpg_combatengine_executeattack",
       "community": 14,
@@ -8089,7 +7519,7 @@
       "label": "executeReaction()",
       "file_type": "code",
       "source_file": "src/services/rpg/combatEngine.js",
-      "source_location": "L260",
+      "source_location": "L258",
       "_origin": "ast",
       "id": "src_services_rpg_combatengine_executereaction",
       "community": 14,
@@ -8099,7 +7529,7 @@
       "label": "chooseAiReaction()",
       "file_type": "code",
       "source_file": "src/services/rpg/combatEngine.js",
-      "source_location": "L330",
+      "source_location": "L328",
       "_origin": "ast",
       "id": "src_services_rpg_combatengine_chooseaireaction",
       "community": 14,
@@ -8109,7 +7539,7 @@
       "label": "executeTurn()",
       "file_type": "code",
       "source_file": "src/services/rpg/combatEngine.js",
-      "source_location": "L382",
+      "source_location": "L380",
       "_origin": "ast",
       "id": "src_services_rpg_combatengine_executeturn",
       "community": 14,
@@ -8119,7 +7549,7 @@
       "label": "calculateXpReward()",
       "file_type": "code",
       "source_file": "src/services/rpg/combatEngine.js",
-      "source_location": "L422",
+      "source_location": "L420",
       "_origin": "ast",
       "id": "src_services_rpg_combatengine_calculatexpreward",
       "community": 37,
@@ -8179,7 +7609,7 @@
       "label": "buildFatigueBar()",
       "file_type": "code",
       "source_file": "src/services/rpg/combatMessages.js",
-      "source_location": "L42",
+      "source_location": "L41",
       "_origin": "ast",
       "id": "src_services_rpg_combatmessages_buildfatiguebar",
       "community": 16,
@@ -8189,7 +7619,7 @@
       "label": "formatActionMenu()",
       "file_type": "code",
       "source_file": "src/services/rpg/combatMessages.js",
-      "source_location": "L56",
+      "source_location": "L55",
       "_origin": "ast",
       "id": "src_services_rpg_combatmessages_formatactionmenu",
       "community": 16,
@@ -8199,7 +7629,7 @@
       "label": "formatReactionPrompt()",
       "file_type": "code",
       "source_file": "src/services/rpg/combatMessages.js",
-      "source_location": "L73",
+      "source_location": "L72",
       "_origin": "ast",
       "id": "src_services_rpg_combatmessages_formatreactionprompt",
       "community": 16,
@@ -8209,7 +7639,7 @@
       "label": "formatCombatOpen()",
       "file_type": "code",
       "source_file": "src/services/rpg/combatMessages.js",
-      "source_location": "L91",
+      "source_location": "L90",
       "_origin": "ast",
       "id": "src_services_rpg_combatmessages_formatcombatopen",
       "community": 16,
@@ -8219,7 +7649,7 @@
       "label": "formatTurnSummary()",
       "file_type": "code",
       "source_file": "src/services/rpg/combatMessages.js",
-      "source_location": "L131",
+      "source_location": "L130",
       "_origin": "ast",
       "id": "src_services_rpg_combatmessages_formatturnsummary",
       "community": 16,
@@ -8229,7 +7659,7 @@
       "label": "formatCombatStatus()",
       "file_type": "code",
       "source_file": "src/services/rpg/combatMessages.js",
-      "source_location": "L163",
+      "source_location": "L162",
       "_origin": "ast",
       "id": "src_services_rpg_combatmessages_formatcombatstatus",
       "community": 16,
@@ -8239,7 +7669,7 @@
       "label": "formatVictory()",
       "file_type": "code",
       "source_file": "src/services/rpg/combatMessages.js",
-      "source_location": "L207",
+      "source_location": "L206",
       "_origin": "ast",
       "id": "src_services_rpg_combatmessages_formatvictory",
       "community": 16,
@@ -8249,7 +7679,7 @@
       "label": "formatFlee()",
       "file_type": "code",
       "source_file": "src/services/rpg/combatMessages.js",
-      "source_location": "L219",
+      "source_location": "L217",
       "_origin": "ast",
       "id": "src_services_rpg_combatmessages_formatflee",
       "community": 16,
@@ -8259,10 +7689,10 @@
       "label": "formatCombatDisolved()",
       "file_type": "code",
       "source_file": "src/services/rpg/combatMessages.js",
-      "source_location": "L244",
+      "source_location": "L242",
       "_origin": "ast",
       "id": "src_services_rpg_combatmessages_formatcombatdisolved",
-      "community": 38,
+      "community": 16,
       "norm_label": "formatcombatdisolved()"
     },
     {
@@ -8332,7 +7762,7 @@
       "source_location": "L54",
       "_origin": "ast",
       "id": "src_services_rpg_combatstate_savesession",
-      "community": 37,
+      "community": 38,
       "norm_label": "savesession()"
     },
     {
@@ -8372,7 +7802,7 @@
       "source_location": "L144",
       "_origin": "ast",
       "id": "src_services_rpg_combatstate_issessionactive",
-      "community": 37,
+      "community": 38,
       "norm_label": "issessionactive()"
     },
     {
@@ -8422,7 +7852,7 @@
       "source_location": "L267",
       "_origin": "ast",
       "id": "src_services_rpg_combatstate_findsessionbycharacter",
-      "community": 37,
+      "community": 38,
       "norm_label": "findsessionbycharacter()"
     },
     {
@@ -8452,7 +7882,7 @@
       "source_location": "L337",
       "_origin": "ast",
       "id": "src_services_rpg_combatstate_setpendingreaction",
-      "community": 37,
+      "community": 38,
       "norm_label": "setpendingreaction()"
     },
     {
@@ -8462,7 +7892,7 @@
       "source_location": "L351",
       "_origin": "ast",
       "id": "src_services_rpg_combatstate_clearpendingreaction",
-      "community": 37,
+      "community": 38,
       "norm_label": "clearpendingreaction()"
     },
     {
@@ -8492,7 +7922,7 @@
       "source_location": "L398",
       "_origin": "ast",
       "id": "src_services_rpg_combatstate_removesession",
-      "community": 38,
+      "community": 35,
       "norm_label": "removesession()"
     },
     {
@@ -8546,20 +7976,20 @@
       "norm_label": "fatigueengine.js"
     },
     {
-      "label": "{\n  FATIGUE_THRESHOLDS,\n  FATIGUE_SPEED_STATS,\n  FATIGUE_COSTS,\n  FATIGUE_RECOVERY,\n  FATIGUE_ATK_COST_SCALE,\n  FATIGUE_DEF_REDUCTION_SCALE,\n  FATIGUE_DODGE_MSPD_REDUCTION,\n  FATIGUE_REST_DEF_SCALE,\n  FATIGUE_COST_MIN,\n  FATIGUE_RECOVERY_MAX,\n}",
+      "label": "{ FATIGUE_THRESHOLDS, FATIGUE_SPEED_STATS }",
       "file_type": "code",
       "source_file": "src/services/rpg/fatigueEngine.js",
       "source_location": "L2",
       "_origin": "ast",
-      "id": "src_services_rpg_fatigueengine_fatigue_thresholds_fatigue_speed_stats_fatigue_costs_fatigue_recovery_fatigue_atk_cost_scale_fatigue_def_reduction_scale_fatigue_dodge_mspd_reduction_fatigue_rest_def_scale_fatigue_cost_min_fatigue_recovery_max",
+      "id": "src_services_rpg_fatigueengine_fatigue_thresholds_fatigue_speed_stats",
       "community": 22,
-      "norm_label": "{\n  fatigue_thresholds,\n  fatigue_speed_stats,\n  fatigue_costs,\n  fatigue_recovery,\n  fatigue_atk_cost_scale,\n  fatigue_def_reduction_scale,\n  fatigue_dodge_mspd_reduction,\n  fatigue_rest_def_scale,\n  fatigue_cost_min,\n  fatigue_recovery_max,\n}"
+      "norm_label": "{ fatigue_thresholds, fatigue_speed_stats }"
     },
     {
       "label": "getFatigueLevel()",
       "file_type": "code",
       "source_file": "src/services/rpg/fatigueEngine.js",
-      "source_location": "L20",
+      "source_location": "L9",
       "_origin": "ast",
       "id": "src_services_rpg_fatigueengine_getfatiguelevel",
       "community": 22,
@@ -8569,7 +7999,7 @@
       "label": "applyFatiguePenalties()",
       "file_type": "code",
       "source_file": "src/services/rpg/fatigueEngine.js",
-      "source_location": "L38",
+      "source_location": "L27",
       "_origin": "ast",
       "id": "src_services_rpg_fatigueengine_applyfatiguepenalties",
       "community": 22,
@@ -8579,17 +8009,17 @@
       "label": "calcFatigueCost()",
       "file_type": "code",
       "source_file": "src/services/rpg/fatigueEngine.js",
-      "source_location": "L56",
+      "source_location": "L45",
       "_origin": "ast",
       "id": "src_services_rpg_fatigueengine_calcfatiguecost",
-      "community": 22,
+      "community": 37,
       "norm_label": "calcfatiguecost()"
     },
     {
       "label": "calcFatigueRecovery()",
       "file_type": "code",
       "source_file": "src/services/rpg/fatigueEngine.js",
-      "source_location": "L81",
+      "source_location": "L56",
       "_origin": "ast",
       "id": "src_services_rpg_fatigueengine_calcfatiguerecovery",
       "community": 22,
@@ -8602,7 +8032,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_services_rpg_inventoryservice",
-      "community": 43,
+      "community": 74,
       "norm_label": "inventoryservice.js"
     },
     {
@@ -8612,7 +8042,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_services_rpg_inventoryservice_supabase",
-      "community": 43,
+      "community": 74,
       "norm_label": "{ supabase }"
     },
     {
@@ -8622,7 +8052,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_services_rpg_inventoryservice_filterexisting",
-      "community": 43,
+      "community": 74,
       "norm_label": "{ filterexisting }"
     },
     {
@@ -8632,7 +8062,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_services_rpg_inventoryservice_invalidateusercache",
-      "community": 43,
+      "community": 74,
       "norm_label": "{ invalidateusercache }"
     },
     {
@@ -8642,7 +8072,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "src_services_rpg_inventoryservice_logerror",
-      "community": 43,
+      "community": 74,
       "norm_label": "{ logerror }"
     },
     {
@@ -8652,7 +8082,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "src_services_rpg_inventoryservice_getitem",
-      "community": 43,
+      "community": 74,
       "norm_label": "{ getitem }"
     },
     {
@@ -8662,7 +8092,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "src_services_rpg_inventoryservice_getactivecharacter_sethp",
-      "community": 43,
+      "community": 74,
       "norm_label": "{ getactivecharacter, sethp }"
     },
     {
@@ -8672,7 +8102,7 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "src_services_rpg_inventoryservice_max_inventory_size_max_stack_size",
-      "community": 43,
+      "community": 74,
       "norm_label": "{ max_inventory_size, max_stack_size }"
     },
     {
@@ -8682,7 +8112,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "src_services_rpg_inventoryservice_hp_max",
-      "community": 43,
+      "community": 74,
       "norm_label": "{ hp_max }"
     },
     {
@@ -8692,7 +8122,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "src_services_rpg_inventoryservice_characterlocks",
-      "community": 43,
+      "community": 74,
       "norm_label": "characterlocks"
     },
     {
@@ -8702,7 +8132,7 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "src_services_rpg_inventoryservice_withcharacterlock",
-      "community": 43,
+      "community": 74,
       "norm_label": "withcharacterlock()"
     },
     {
@@ -8712,7 +8142,7 @@
       "source_location": "L36",
       "_origin": "ast",
       "id": "src_services_rpg_inventoryservice_getinventory",
-      "community": 43,
+      "community": 74,
       "norm_label": "getinventory()"
     },
     {
@@ -8722,7 +8152,7 @@
       "source_location": "L57",
       "_origin": "ast",
       "id": "src_services_rpg_inventoryservice_additem",
-      "community": 43,
+      "community": 74,
       "norm_label": "additem()"
     },
     {
@@ -8732,7 +8162,7 @@
       "source_location": "L110",
       "_origin": "ast",
       "id": "src_services_rpg_inventoryservice_removeitem",
-      "community": 43,
+      "community": 74,
       "norm_label": "removeitem()"
     },
     {
@@ -8742,7 +8172,7 @@
       "source_location": "L148",
       "_origin": "ast",
       "id": "src_services_rpg_inventoryservice_useitem",
-      "community": 43,
+      "community": 74,
       "norm_label": "useitem()"
     },
     {
@@ -8752,7 +8182,7 @@
       "source_location": "L216",
       "_origin": "ast",
       "id": "src_services_rpg_inventoryservice_ensuretestkit",
-      "community": 43,
+      "community": 74,
       "norm_label": "ensuretestkit()"
     },
     {
@@ -8762,7 +8192,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_services_schedulerservice",
-      "community": 0,
+      "community": 41,
       "norm_label": "schedulerservice.js"
     },
     {
@@ -8772,7 +8202,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_services_schedulerservice_midnightreview",
-      "community": 0,
+      "community": 41,
       "norm_label": "{ midnightreview }"
     },
     {
@@ -8782,7 +8212,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_services_schedulerservice_logerror",
-      "community": 0,
+      "community": 41,
       "norm_label": "{ logerror }"
     },
     {
@@ -8792,7 +8222,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "src_services_schedulerservice_stopmidnightreview",
-      "community": 0,
+      "community": 41,
       "norm_label": "stopmidnightreview()"
     },
     {
@@ -8802,7 +8232,7 @@
       "source_location": "L25",
       "_origin": "ast",
       "id": "src_services_schedulerservice_startmidnightreview",
-      "community": 0,
+      "community": 41,
       "norm_label": "startmidnightreview()"
     },
     {
@@ -8812,7 +8242,7 @@
       "source_location": "L35",
       "_origin": "ast",
       "id": "src_services_schedulerservice_schedulenext",
-      "community": 0,
+      "community": 41,
       "norm_label": "schedulenext()"
     },
     {
@@ -9142,7 +8572,7 @@
       "source_location": "L285",
       "_origin": "ast",
       "id": "src_services_userservice_getuserprofile",
-      "community": 26,
+      "community": 10,
       "norm_label": "getuserprofile()"
     },
     {
@@ -9162,7 +8592,7 @@
       "source_location": "L333",
       "_origin": "ast",
       "id": "src_services_userservice_getorcreateprofile",
-      "community": 26,
+      "community": 76,
       "norm_label": "getorcreateprofile()"
     },
     {
@@ -9252,7 +8682,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_utils_boxutils",
-      "community": 43,
+      "community": 18,
       "norm_label": "boxutils.js"
     },
     {
@@ -9262,7 +8692,7 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "src_utils_boxutils_box",
-      "community": 7,
+      "community": 16,
       "norm_label": "box()"
     },
     {
@@ -9372,7 +8802,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_utils_characterformatutils",
-      "community": 43,
+      "community": 31,
       "norm_label": "characterformatutils.js"
     },
     {
@@ -9382,7 +8812,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_utils_characterformatutils_box",
-      "community": 43,
+      "community": 31,
       "norm_label": "{ box }"
     },
     {
@@ -9392,7 +8822,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_utils_characterformatutils_levelable_stats_gethpstate_hp_max",
-      "community": 43,
+      "community": 31,
       "norm_label": "{ levelable_stats, gethpstate, hp_max }"
     },
     {
@@ -9402,7 +8832,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "src_utils_characterformatutils_getitem",
-      "community": 43,
+      "community": 31,
       "norm_label": "{ getitem }"
     },
     {
@@ -9412,7 +8842,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "src_utils_characterformatutils_formatcharacter",
-      "community": 43,
+      "community": 31,
       "norm_label": "formatcharacter()"
     },
     {
@@ -9422,7 +8852,7 @@
       "source_location": "L83",
       "_origin": "ast",
       "id": "src_utils_characterformatutils_buildhpbar",
-      "community": 43,
+      "community": 31,
       "norm_label": "buildhpbar()"
     },
     {
@@ -9432,7 +8862,7 @@
       "source_location": "L96",
       "_origin": "ast",
       "id": "src_utils_characterformatutils_formathpstate",
-      "community": 43,
+      "community": 31,
       "norm_label": "formathpstate()"
     },
     {
@@ -9442,7 +8872,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_utils_characterskillutils",
-      "community": 10,
+      "community": 2,
       "norm_label": "characterskillutils.js"
     },
     {
@@ -9452,7 +8882,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_utils_characterskillutils_gethabilidad_habilidadesporclase",
-      "community": 10,
+      "community": 2,
       "norm_label": "{ gethabilidad, habilidadesporclase }"
     },
     {
@@ -9462,7 +8892,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_utils_characterskillutils_habilidadesdisponibles",
-      "community": 10,
+      "community": 2,
       "norm_label": "habilidadesdisponibles()"
     },
     {
@@ -9472,7 +8902,7 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "src_utils_characterskillutils_sanitizarhabilidadesarray",
-      "community": 10,
+      "community": 2,
       "norm_label": "sanitizarhabilidadesarray()"
     },
     {
@@ -9492,7 +8922,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_utils_commandparseutils_getfirstmentionedjid",
-      "community": 7,
+      "community": 26,
       "norm_label": "getfirstmentionedjid()"
     },
     {
@@ -9752,7 +9182,7 @@
       "source_location": "L37",
       "_origin": "ast",
       "id": "src_utils_formaterrorutils_formaterror",
-      "community": 68,
+      "community": 18,
       "norm_label": "formaterror()"
     },
     {
@@ -9762,7 +9192,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_utils_groupadminhelper",
-      "community": 39,
+      "community": 6,
       "norm_label": "groupadminhelper.js"
     },
     {
@@ -9772,7 +9202,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_utils_groupadminhelper_getfirstmentionedjid",
-      "community": 39,
+      "community": 6,
       "norm_label": "{ getfirstmentionedjid }"
     },
     {
@@ -9782,7 +9212,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_utils_groupadminhelper_formatdisplaymention_withmentions",
-      "community": 39,
+      "community": 6,
       "norm_label": "{ formatdisplaymention, withmentions }"
     },
     {
@@ -9792,7 +9222,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_utils_groupadminhelper_resolvetargetdisplayname",
-      "community": 39,
+      "community": 6,
       "norm_label": "{ resolvetargetdisplayname }"
     },
     {
@@ -9802,7 +9232,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_utils_groupadminhelper_box",
-      "community": 39,
+      "community": 6,
       "norm_label": "{ box }"
     },
     {
@@ -9812,7 +9242,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "src_utils_groupadminhelper_formaterror",
-      "community": 39,
+      "community": 6,
       "norm_label": "{ formaterror }"
     },
     {
@@ -9822,7 +9252,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "src_utils_groupadminhelper_executegroupaction",
-      "community": 39,
+      "community": 6,
       "norm_label": "executegroupaction()"
     },
     {
@@ -9832,7 +9262,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_utils_grouputils",
-      "community": 34,
+      "community": 75,
       "norm_label": "grouputils.js"
     },
     {
@@ -9842,7 +9272,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_utils_grouputils_issameidentity",
-      "community": 34,
+      "community": 75,
       "norm_label": "{ issameidentity }"
     },
     {
@@ -9852,7 +9282,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_utils_grouputils_supabase",
-      "community": 34,
+      "community": 75,
       "norm_label": "{ supabase }"
     },
     {
@@ -9862,7 +9292,7 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "src_utils_grouputils_getwarns",
-      "community": 6,
+      "community": 75,
       "norm_label": "getwarns()"
     },
     {
@@ -9872,7 +9302,7 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "src_utils_grouputils_savewarns",
-      "community": 6,
+      "community": 75,
       "norm_label": "savewarns()"
     },
     {
@@ -9882,7 +9312,7 @@
       "source_location": "L29",
       "_origin": "ast",
       "id": "src_utils_grouputils_deletewarns",
-      "community": 6,
+      "community": 75,
       "norm_label": "deletewarns()"
     },
     {
@@ -9892,7 +9322,7 @@
       "source_location": "L33",
       "_origin": "ast",
       "id": "src_utils_grouputils_addwarn",
-      "community": 6,
+      "community": 75,
       "norm_label": "addwarn()"
     },
     {
@@ -9902,7 +9332,7 @@
       "source_location": "L40",
       "_origin": "ast",
       "id": "src_utils_grouputils_getgroupmetadata",
-      "community": 34,
+      "community": 6,
       "norm_label": "getgroupmetadata()"
     },
     {
@@ -9942,7 +9372,7 @@
       "source_location": "L92",
       "_origin": "ast",
       "id": "src_utils_grouputils_isbotadmin",
-      "community": 34,
+      "community": 17,
       "norm_label": "isbotadmin()"
     },
     {
@@ -9952,7 +9382,7 @@
       "source_location": "L114",
       "_origin": "ast",
       "id": "src_utils_grouputils_addparticipant",
-      "community": 68,
+      "community": 18,
       "norm_label": "addparticipant()"
     },
     {
@@ -9972,7 +9402,7 @@
       "source_location": "L132",
       "_origin": "ast",
       "id": "src_utils_grouputils_promotetoadmin",
-      "community": 39,
+      "community": 79,
       "norm_label": "promotetoadmin()"
     },
     {
@@ -9982,7 +9412,7 @@
       "source_location": "L136",
       "_origin": "ast",
       "id": "src_utils_grouputils_demotefromadmin",
-      "community": 39,
+      "community": 78,
       "norm_label": "demotefromadmin()"
     },
     {
@@ -9992,7 +9422,7 @@
       "source_location": "L140",
       "_origin": "ast",
       "id": "src_utils_grouputils_getinvitecode",
-      "community": 68,
+      "community": 72,
       "norm_label": "getinvitecode()"
     },
     {
@@ -10012,7 +9442,7 @@
       "source_location": "L149",
       "_origin": "ast",
       "id": "src_utils_grouputils_closegroup",
-      "community": 68,
+      "community": 70,
       "norm_label": "closegroup()"
     },
     {
@@ -10022,7 +9452,7 @@
       "source_location": "L153",
       "_origin": "ast",
       "id": "src_utils_grouputils_deletewarn",
-      "community": 6,
+      "community": 75,
       "norm_label": "deletewarn()"
     },
     {
@@ -10202,7 +9632,7 @@
       "source_location": "L73",
       "_origin": "ast",
       "id": "src_utils_permissionutils_getownerjids",
-      "community": 41,
+      "community": 1,
       "norm_label": "getownerjids()"
     },
     {
@@ -10412,7 +9842,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_utils_usermentionutils",
-      "community": 7,
+      "community": 23,
       "norm_label": "usermentionutils.js"
     },
     {
@@ -10422,7 +9852,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "src_utils_usermentionutils_cleantext",
-      "community": 7,
+      "community": 23,
       "norm_label": "cleantext()"
     },
     {
@@ -10432,7 +9862,7 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "src_utils_usermentionutils_ismeaningfuldisplayname",
-      "community": 7,
+      "community": 23,
       "norm_label": "ismeaningfuldisplayname()"
     },
     {
@@ -10442,7 +9872,7 @@
       "source_location": "L43",
       "_origin": "ast",
       "id": "src_utils_usermentionutils_formatrealmentiontag",
-      "community": 7,
+      "community": 23,
       "norm_label": "formatrealmentiontag()"
     },
     {
@@ -10452,7 +9882,7 @@
       "source_location": "L58",
       "_origin": "ast",
       "id": "src_utils_usermentionutils_formatdisplaymention",
-      "community": 7,
+      "community": 23,
       "norm_label": "formatdisplaymention()"
     },
     {
@@ -10462,7 +9892,7 @@
       "source_location": "L69",
       "_origin": "ast",
       "id": "src_utils_usermentionutils_getprofiledisplayname",
-      "community": 7,
+      "community": 23,
       "norm_label": "getprofiledisplayname()"
     },
     {
@@ -10682,7 +10112,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_character_format_test",
-      "community": 43,
+      "community": 31,
       "norm_label": "character_format.test.js"
     },
     {
@@ -10692,7 +10122,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_character_format_test_formatcharacter_buildhpbar_formathpstate",
-      "community": 43,
+      "community": 31,
       "norm_label": "{ formatcharacter, buildhpbar, formathpstate }"
     },
     {
@@ -10702,7 +10132,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "tests_character_format_test_mockcharacter",
-      "community": 43,
+      "community": 31,
       "norm_label": "mockcharacter"
     },
     {
@@ -10712,7 +10142,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_character_progression_test",
-      "community": 10,
+      "community": 2,
       "norm_label": "character_progression.test.js"
     },
     {
@@ -10722,7 +10152,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_character_progression_test_habilidadesdisponibles_sanitizarhabilidadesarray",
-      "community": 10,
+      "community": 2,
       "norm_label": "{ habilidadesdisponibles, sanitizarhabilidadesarray }"
     },
     {
@@ -10732,7 +10162,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "tests_character_progression_test_cuantasdeclase",
-      "community": 10,
+      "community": 2,
       "norm_label": "cuantasdeclase()"
     },
     {
@@ -10742,7 +10172,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "tests_character_progression_test_contaruniversales",
-      "community": 10,
+      "community": 2,
       "norm_label": "contaruniversales()"
     },
     {
@@ -10752,7 +10182,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_clases_test",
-      "community": 31,
+      "community": 2,
       "norm_label": "clases.test.js"
     },
     {
@@ -10762,7 +10192,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_clases_test_habilidades",
-      "community": 31,
+      "community": 2,
       "norm_label": "{ habilidades }"
     },
     {
@@ -10772,7 +10202,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "tests_clases_test_clases_getclase_listarclases_validarclase",
-      "community": 31,
+      "community": 2,
       "norm_label": "{ clases, getclase, listarclases, validarclase }"
     },
     {
@@ -10782,7 +10212,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_combat_ai_test",
-      "community": 38,
+      "community": 35,
       "norm_label": "combat_ai.test.js"
     },
     {
@@ -10792,7 +10222,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_combat_ai_test_createdummysession_removesession",
-      "community": 38,
+      "community": 35,
       "norm_label": "{ createdummysession, removesession }"
     },
     {
@@ -10802,7 +10232,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "tests_combat_ai_test_combatai",
-      "community": 38,
+      "community": 35,
       "norm_label": "combatai"
     },
     {
@@ -10982,7 +10412,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_habilidades_test",
-      "community": 10,
+      "community": 2,
       "norm_label": "habilidades.test.js"
     },
     {
@@ -10992,7 +10422,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_habilidades_test_habilidades_tiers_tier_multipliers_gethabilidad_listarhabilidades_habilidadesporclase_habilidadesuniversales",
-      "community": 10,
+      "community": 2,
       "norm_label": "{\n  habilidades,\n  tiers,\n  tier_multipliers,\n  gethabilidad,\n  listarhabilidades,\n  habilidadesporclase,\n  habilidadesuniversales,\n}"
     },
     {
@@ -11002,7 +10432,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_help_test",
-      "community": 17,
+      "community": 4,
       "norm_label": "help.test.js"
     },
     {
@@ -11012,7 +10442,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_help_test_helpmodule",
-      "community": 17,
+      "community": 4,
       "norm_label": "helpmodule"
     },
     {
@@ -11022,7 +10452,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "tests_help_test_commands_aliases_registercommand",
-      "community": 17,
+      "community": 4,
       "norm_label": "{ commands, aliases, registercommand }"
     },
     {
@@ -11032,7 +10462,7 @@
       "source_location": "L61",
       "_origin": "ast",
       "id": "tests_help_test_exechelp",
-      "community": 17,
+      "community": 4,
       "norm_label": "exechelp()"
     },
     {
@@ -11232,7 +10662,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_permission_service_test",
-      "community": 11,
+      "community": 17,
       "norm_label": "permission_service.test.js"
     },
     {
@@ -11242,7 +10672,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_permission_service_test_getcategorylabel",
-      "community": 11,
+      "community": 17,
       "norm_label": "{ getcategorylabel }"
     },
     {
@@ -11564,96 +10994,6 @@
       "id": "readme_knowledge_graph",
       "community": 27,
       "norm_label": "knowledge graph"
-    },
-    {
-      "label": "report.md",
-      "file_type": "document",
-      "source_file": "scripts/simulation_output/report.md",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "scripts_simulation_output_report",
-      "community": 25,
-      "norm_label": "report.md"
-    },
-    {
-      "label": "Combat Simulation Report",
-      "file_type": "document",
-      "source_file": "scripts/simulation_output/report.md",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "scripts_simulation_output_report_combat_simulation_report",
-      "community": 25,
-      "norm_label": "combat simulation report"
-    },
-    {
-      "label": "Overview",
-      "file_type": "document",
-      "source_file": "scripts/simulation_output/report.md",
-      "source_location": "L5",
-      "_origin": "ast",
-      "id": "scripts_simulation_output_report_overview",
-      "community": 25,
-      "norm_label": "overview"
-    },
-    {
-      "label": "Win Rates by Personality",
-      "file_type": "document",
-      "source_file": "scripts/simulation_output/report.md",
-      "source_location": "L14",
-      "_origin": "ast",
-      "id": "scripts_simulation_output_report_win_rates_by_personality",
-      "community": 25,
-      "norm_label": "win rates by personality"
-    },
-    {
-      "label": "Average Damage Per Attack",
-      "file_type": "document",
-      "source_file": "scripts/simulation_output/report.md",
-      "source_location": "L32",
-      "_origin": "ast",
-      "id": "scripts_simulation_output_report_average_damage_per_attack",
-      "community": 25,
-      "norm_label": "average damage per attack"
-    },
-    {
-      "label": "Dodge Effectiveness",
-      "file_type": "document",
-      "source_file": "scripts/simulation_output/report.md",
-      "source_location": "L50",
-      "_origin": "ast",
-      "id": "scripts_simulation_output_report_dodge_effectiveness",
-      "community": 25,
-      "norm_label": "dodge effectiveness"
-    },
-    {
-      "label": "Block Effectiveness",
-      "file_type": "document",
-      "source_file": "scripts/simulation_output/report.md",
-      "source_location": "L68",
-      "_origin": "ast",
-      "id": "scripts_simulation_output_report_block_effectiveness",
-      "community": 25,
-      "norm_label": "block effectiveness"
-    },
-    {
-      "label": "Fatigue Progression (Avg)",
-      "file_type": "document",
-      "source_file": "scripts/simulation_output/report.md",
-      "source_location": "L86",
-      "_origin": "ast",
-      "id": "scripts_simulation_output_report_fatigue_progression_avg",
-      "community": 25,
-      "norm_label": "fatigue progression (avg)"
-    },
-    {
-      "label": "Personality Matchup Matrix",
-      "file_type": "document",
-      "source_file": "scripts/simulation_output/report.md",
-      "source_location": "L99",
-      "_origin": "ast",
-      "id": "scripts_simulation_output_report_personality_matchup_matrix",
-      "community": 25,
-      "norm_label": "personality matchup matrix"
     }
   ],
   "links": [
@@ -12429,1248 +11769,6 @@
       "weight": 1.0,
       "source": "scripts_simulate_balance_printtable",
       "target": "scripts_simulate_balance_pad",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/simulate_combat.js",
-      "source_location": "L11",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat",
-      "target": "scripts_simulate_combat_aggregate",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/simulate_combat.js",
-      "source_location": "L11",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat",
-      "target": "scripts_simulate_combat_aggregator",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/simulate_combat.js",
-      "source_location": "L11",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat",
-      "target": "scripts_simulate_combat_aggregator_aggregate",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/simulate_combat.js",
-      "source_location": "L10",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat",
-      "target": "scripts_simulate_combat_collectmetrics",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/simulate_combat.js",
-      "source_location": "L9",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat",
-      "target": "scripts_simulate_combat_combatloop",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/simulate_combat.js",
-      "source_location": "L9",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat",
-      "target": "scripts_simulate_combat_combatloop_simulatecombat",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/simulate_combat.js",
-      "source_location": "L7",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat",
-      "target": "scripts_simulate_combat_config",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/simulate_combat.js",
-      "source_location": "L7",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat",
-      "target": "scripts_simulate_combat_config_parseargs",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/simulate_combat.js",
-      "source_location": "L7",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat",
-      "target": "scripts_simulate_combat_config_printusage",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/simulate_combat.js",
-      "source_location": "L8",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat",
-      "target": "scripts_simulate_combat_fightergenerator",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/simulate_combat.js",
-      "source_location": "L8",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat",
-      "target": "scripts_simulate_combat_fightergenerator_generatefighterpair",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/simulate_combat.js",
-      "source_location": "L12",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat",
-      "target": "scripts_simulate_combat_formatmarkdownreport",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/simulate_combat.js",
-      "source_location": "L12",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat",
-      "target": "scripts_simulate_combat_formatters",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/simulate_combat.js",
-      "source_location": "L12",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat",
-      "target": "scripts_simulate_combat_formatters_formatmarkdownreport",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/simulate_combat.js",
-      "source_location": "L6",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat",
-      "target": "scripts_simulate_combat_fs",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/simulate_combat.js",
-      "source_location": "L8",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat",
-      "target": "scripts_simulate_combat_generatefighterpair",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/simulate_combat.js",
-      "source_location": "L17",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat",
-      "target": "scripts_simulate_combat_main",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/simulate_combat.js",
-      "source_location": "L10",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat",
-      "target": "scripts_simulate_combat_metricscollector",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/simulate_combat.js",
-      "source_location": "L10",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat",
-      "target": "scripts_simulate_combat_metricscollector_collectmetrics",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/simulate_combat.js",
-      "source_location": "L7",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat",
-      "target": "scripts_simulate_combat_parseargs_printusage",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/simulate_combat.js",
-      "source_location": "L5",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat",
-      "target": "scripts_simulate_combat_path",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/simulate_combat.js",
-      "source_location": "L9",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat",
-      "target": "scripts_simulate_combat_simulatecombat",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "scripts/simulate_combat.js",
-      "source_location": "L43",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat_main",
-      "target": "scripts_simulate_combat_aggregator_aggregate"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "scripts/simulate_combat.js",
-      "source_location": "L29",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat_main",
-      "target": "scripts_simulate_combat_combatloop_simulatecombat"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "scripts/simulate_combat.js",
-      "source_location": "L18",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat_main",
-      "target": "scripts_simulate_combat_config_parseargs"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "scripts/simulate_combat.js",
-      "source_location": "L20",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat_main",
-      "target": "scripts_simulate_combat_config_printusage"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "scripts/simulate_combat.js",
-      "source_location": "L28",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat_main",
-      "target": "scripts_simulate_combat_fightergenerator_generatefighterpair"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "scripts/simulate_combat.js",
-      "source_location": "L60",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat_main",
-      "target": "scripts_simulate_combat_formatters_formatmarkdownreport"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "scripts/simulate_combat.js",
-      "source_location": "L30",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat_main",
-      "target": "scripts_simulate_combat_metricscollector_collectmetrics"
-    },
-    {
-      "relation": "indirect_call",
-      "confidence": "INFERRED",
-      "source_file": "scripts/simulate_combat/aggregator.js",
-      "source_location": "L296",
-      "weight": 1.0,
-      "context": "collection",
-      "source": "scripts_simulate_combat_aggregator",
-      "target": "scripts_simulate_combat_aggregator_aggregate",
-      "confidence_score": 0.5
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/simulate_combat/aggregator.js",
-      "source_location": "L32",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat_aggregator",
-      "target": "scripts_simulate_combat_aggregator_initpersonalitymap",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/simulate_combat/aggregator.js",
-      "source_location": "L12",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat_aggregator",
-      "target": "scripts_simulate_combat_aggregator_mean",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/simulate_combat/aggregator.js",
-      "source_location": "L22",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat_aggregator",
-      "target": "scripts_simulate_combat_aggregator_percentile",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/simulate_combat/aggregator.js",
-      "source_location": "L4",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat_aggregator",
-      "target": "scripts_simulate_combat_aggregator_personalities_fatigue_snapshot_turns_physical_stats",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/simulate_combat/aggregator.js",
-      "source_location": "L6",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat_aggregator",
-      "target": "scripts_simulate_combat_aggregator_personality_keys",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/simulate_combat/aggregator.js",
-      "source_location": "L4",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat_aggregator",
-      "target": "scripts_simulate_combat_config",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/simulate_combat/aggregator.js",
-      "source_location": "L4",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat_aggregator",
-      "target": "scripts_simulate_combat_config_fatigue_snapshot_turns",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/simulate_combat/aggregator.js",
-      "source_location": "L4",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat_aggregator",
-      "target": "scripts_simulate_combat_config_personalities",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/simulate_combat/aggregator.js",
-      "source_location": "L4",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat_aggregator",
-      "target": "scripts_simulate_combat_config_physical_stats",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/simulate_combat/aggregator.js",
-      "source_location": "L211",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat_aggregator_aggregate",
-      "target": "scripts_simulate_combat_aggregator_mean",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/simulate_combat/aggregator.js",
-      "source_location": "L231",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat_aggregator_aggregate",
-      "target": "scripts_simulate_combat_aggregator_percentile",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/simulate_combat/aggregator.js",
-      "source_location": "L62",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat_aggregator_aggregate",
-      "target": "scripts_simulate_combat_aggregator_initpersonalitymap",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/simulate_combat/combatLoop.js",
-      "source_location": "L22",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat_combatloop",
-      "target": "scripts_simulate_combat_combatloop_applyreactionfatigue",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/simulate_combat/combatLoop.js",
-      "source_location": "L5",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat_combatloop",
-      "target": "scripts_simulate_combat_combatloop_calcfatiguerecovery_calcfatiguecost_getfatiguelevel",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "indirect_call",
-      "confidence": "INFERRED",
-      "source_file": "scripts/simulate_combat/combatLoop.js",
-      "source_location": "L229",
-      "weight": 1.0,
-      "context": "collection",
-      "source": "scripts_simulate_combat_combatloop",
-      "target": "scripts_simulate_combat_combatloop_charactershape",
-      "confidence_score": 0.5
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/simulate_combat/combatLoop.js",
-      "source_location": "L51",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat_combatloop",
-      "target": "scripts_simulate_combat_combatloop_executerestturn",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/simulate_combat/combatLoop.js",
-      "source_location": "L4",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat_combatloop",
-      "target": "scripts_simulate_combat_combatloop_executeturn_executeattack",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/simulate_combat/combatLoop.js",
-      "source_location": "L6",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat_combatloop",
-      "target": "scripts_simulate_combat_combatloop_max_rounds_fatigue_snapshot_turns",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/simulate_combat/combatLoop.js",
-      "source_location": "L36",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat_combatloop",
-      "target": "scripts_simulate_combat_combatloop_shouldrest",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "indirect_call",
-      "confidence": "INFERRED",
-      "source_file": "scripts/simulate_combat/combatLoop.js",
-      "source_location": "L229",
-      "weight": 1.0,
-      "context": "collection",
-      "source": "scripts_simulate_combat_combatloop",
-      "target": "scripts_simulate_combat_combatloop_simulatecombat",
-      "confidence_score": 0.5
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/simulate_combat/combatLoop.js",
-      "source_location": "L6",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat_combatloop",
-      "target": "scripts_simulate_combat_config",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/simulate_combat/combatLoop.js",
-      "source_location": "L6",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat_combatloop",
-      "target": "scripts_simulate_combat_config_fatigue_snapshot_turns",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/simulate_combat/combatLoop.js",
-      "source_location": "L4",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat_combatloop",
-      "target": "src_services_rpg_combatengine",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/simulate_combat/combatLoop.js",
-      "source_location": "L4",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat_combatloop",
-      "target": "src_services_rpg_combatengine_executeattack",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/simulate_combat/combatLoop.js",
-      "source_location": "L4",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat_combatloop",
-      "target": "src_services_rpg_combatengine_executeturn",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/simulate_combat/combatLoop.js",
-      "source_location": "L5",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat_combatloop",
-      "target": "src_services_rpg_fatigueengine",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/simulate_combat/combatLoop.js",
-      "source_location": "L5",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat_combatloop",
-      "target": "src_services_rpg_fatigueengine_calcfatiguecost",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/simulate_combat/combatLoop.js",
-      "source_location": "L5",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat_combatloop",
-      "target": "src_services_rpg_fatigueengine_calcfatiguerecovery",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/simulate_combat/combatLoop.js",
-      "source_location": "L5",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat_combatloop",
-      "target": "src_services_rpg_fatigueengine_getfatiguelevel",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/simulate_combat/combatLoop.js",
-      "source_location": "L69",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat_combatloop_executerestturn",
-      "target": "scripts_simulate_combat_combatloop_charactershape",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/simulate_combat/combatLoop.js",
-      "source_location": "L132",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat_combatloop_simulatecombat",
-      "target": "scripts_simulate_combat_combatloop_charactershape",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "scripts/simulate_combat/combatLoop.js",
-      "source_location": "L24",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat_combatloop_applyreactionfatigue",
-      "target": "src_services_rpg_fatigueengine_calcfatiguecost"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "scripts/simulate_combat/combatLoop.js",
-      "source_location": "L27",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat_combatloop_applyreactionfatigue",
-      "target": "src_services_rpg_fatigueengine_calcfatiguerecovery"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/simulate_combat/combatLoop.js",
-      "source_location": "L83",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat_combatloop_executerestturn",
-      "target": "scripts_simulate_combat_combatloop_applyreactionfatigue",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/simulate_combat/combatLoop.js",
-      "source_location": "L136",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat_combatloop_simulatecombat",
-      "target": "scripts_simulate_combat_combatloop_applyreactionfatigue",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "scripts/simulate_combat/combatLoop.js",
-      "source_location": "L38",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat_combatloop_shouldrest",
-      "target": "src_services_rpg_fatigueengine_getfatiguelevel"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/simulate_combat/combatLoop.js",
-      "source_location": "L123",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat_combatloop_simulatecombat",
-      "target": "scripts_simulate_combat_combatloop_shouldrest",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "scripts/simulate_combat/combatLoop.js",
-      "source_location": "L74",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat_combatloop_executerestturn",
-      "target": "src_services_rpg_combatengine_executeturn"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "scripts/simulate_combat/combatLoop.js",
-      "source_location": "L72",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat_combatloop_executerestturn",
-      "target": "src_services_rpg_fatigueengine_calcfatiguecost"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "scripts/simulate_combat/combatLoop.js",
-      "source_location": "L54",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat_combatloop_executerestturn",
-      "target": "src_services_rpg_fatigueengine_calcfatiguerecovery"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/simulate_combat/combatLoop.js",
-      "source_location": "L124",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat_combatloop_simulatecombat",
-      "target": "scripts_simulate_combat_combatloop_executerestturn",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "references",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "scripts/simulate_combat/combatLoop.js",
-      "source_location": "L155",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat_combatloop_simulatecombat",
-      "target": "scripts_simulate_combat_config_fatigue_snapshot_turns"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "scripts/simulate_combat/combatLoop.js",
-      "source_location": "L134",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat_combatloop_simulatecombat",
-      "target": "src_services_rpg_combatengine_executeturn"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "scripts/simulate_combat/combatLoop.js",
-      "source_location": "L135",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat_combatloop_simulatecombat",
-      "target": "src_services_rpg_fatigueengine_calcfatiguecost"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/simulate_combat/config.js",
-      "source_location": "L86",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat_config",
-      "target": "scripts_simulate_combat_config_fatigue_snapshot_turns",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/simulate_combat/config.js",
-      "source_location": "L85",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat_config",
-      "target": "scripts_simulate_combat_config_magic_stats",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "indirect_call",
-      "confidence": "INFERRED",
-      "source_file": "scripts/simulate_combat/config.js",
-      "source_location": "L153",
-      "weight": 1.0,
-      "context": "collection",
-      "source": "scripts_simulate_combat_config",
-      "target": "scripts_simulate_combat_config_parseargs",
-      "confidence_score": 0.5
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/simulate_combat/config.js",
-      "source_location": "L4",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat_config",
-      "target": "scripts_simulate_combat_config_personalities",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/simulate_combat/config.js",
-      "source_location": "L84",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat_config",
-      "target": "scripts_simulate_combat_config_physical_stats",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "indirect_call",
-      "confidence": "INFERRED",
-      "source_file": "scripts/simulate_combat/config.js",
-      "source_location": "L154",
-      "weight": 1.0,
-      "context": "collection",
-      "source": "scripts_simulate_combat_config",
-      "target": "scripts_simulate_combat_config_printusage",
-      "confidence_score": 0.5
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/simulate_combat/fighterGenerator.js",
-      "source_location": "L5",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat_fightergenerator",
-      "target": "scripts_simulate_combat_config",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/simulate_combat/formatters.js",
-      "source_location": "L4",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat_formatters",
-      "target": "scripts_simulate_combat_config",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/simulate_combat/fighterGenerator.js",
-      "source_location": "L5",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat_fightergenerator",
-      "target": "scripts_simulate_combat_config_personalities",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/simulate_combat/formatters.js",
-      "source_location": "L4",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat_formatters",
-      "target": "scripts_simulate_combat_config_personalities",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/simulate_combat/fighterGenerator.js",
-      "source_location": "L5",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat_fightergenerator",
-      "target": "scripts_simulate_combat_config_physical_stats",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/simulate_combat/formatters.js",
-      "source_location": "L4",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat_formatters",
-      "target": "scripts_simulate_combat_config_physical_stats",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/simulate_combat/fighterGenerator.js",
-      "source_location": "L5",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat_fightergenerator",
-      "target": "scripts_simulate_combat_config_magic_stats",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/simulate_combat/formatters.js",
-      "source_location": "L4",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat_formatters",
-      "target": "scripts_simulate_combat_config_fatigue_snapshot_turns",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/simulate_combat/fighterGenerator.js",
-      "source_location": "L39",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat_fightergenerator",
-      "target": "scripts_simulate_combat_fightergenerator_clamp",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "indirect_call",
-      "confidence": "INFERRED",
-      "source_file": "scripts/simulate_combat/fighterGenerator.js",
-      "source_location": "L145",
-      "weight": 1.0,
-      "context": "collection",
-      "source": "scripts_simulate_combat_fightergenerator",
-      "target": "scripts_simulate_combat_fightergenerator_generatefighter",
-      "confidence_score": 0.5
-    },
-    {
-      "relation": "indirect_call",
-      "confidence": "INFERRED",
-      "source_file": "scripts/simulate_combat/fighterGenerator.js",
-      "source_location": "L145",
-      "weight": 1.0,
-      "context": "collection",
-      "source": "scripts_simulate_combat_fightergenerator",
-      "target": "scripts_simulate_combat_fightergenerator_generatefighterpair",
-      "confidence_score": 0.5
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/simulate_combat/fighterGenerator.js",
-      "source_location": "L5",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat_fightergenerator",
-      "target": "scripts_simulate_combat_fightergenerator_personalities_free_points_physical_stats_magic_stats_hp_max_level_min_level_max_level_diff_max_pct",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/simulate_combat/fighterGenerator.js",
-      "source_location": "L17",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat_fightergenerator",
-      "target": "scripts_simulate_combat_fightergenerator_personality_keys",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/simulate_combat/fighterGenerator.js",
-      "source_location": "L16",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat_fightergenerator",
-      "target": "scripts_simulate_combat_fightergenerator_race_keys",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/simulate_combat/fighterGenerator.js",
-      "source_location": "L4",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat_fightergenerator",
-      "target": "scripts_simulate_combat_fightergenerator_races",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "indirect_call",
-      "confidence": "INFERRED",
-      "source_file": "scripts/simulate_combat/fighterGenerator.js",
-      "source_location": "L145",
-      "weight": 1.0,
-      "context": "collection",
-      "source": "scripts_simulate_combat_fightergenerator",
-      "target": "scripts_simulate_combat_fightergenerator_randompersonality",
-      "confidence_score": 0.5
-    },
-    {
-      "relation": "indirect_call",
-      "confidence": "INFERRED",
-      "source_file": "scripts/simulate_combat/fighterGenerator.js",
-      "source_location": "L145",
-      "weight": 1.0,
-      "context": "collection",
-      "source": "scripts_simulate_combat_fightergenerator",
-      "target": "scripts_simulate_combat_fightergenerator_randomrace",
-      "confidence_score": 0.5
-    },
-    {
-      "relation": "indirect_call",
-      "confidence": "INFERRED",
-      "source_file": "scripts/simulate_combat/fighterGenerator.js",
-      "source_location": "L145",
-      "weight": 1.0,
-      "context": "collection",
-      "source": "scripts_simulate_combat_fightergenerator",
-      "target": "scripts_simulate_combat_fightergenerator_scaletolevel",
-      "confidence_score": 0.5
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/simulate_combat/fighterGenerator.js",
-      "source_location": "L4",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat_fightergenerator",
-      "target": "src_config_characterconfig",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/simulate_combat/fighterGenerator.js",
-      "source_location": "L4",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat_fightergenerator",
-      "target": "src_config_characterconfig_races",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/simulate_combat/fighterGenerator.js",
-      "source_location": "L57",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat_fightergenerator_generatefighter",
-      "target": "scripts_simulate_combat_fightergenerator_randomrace",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/simulate_combat/fighterGenerator.js",
-      "source_location": "L56",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat_fightergenerator_generatefighter",
-      "target": "scripts_simulate_combat_fightergenerator_randompersonality",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/simulate_combat/fighterGenerator.js",
-      "source_location": "L74",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat_fightergenerator_generatefighter",
-      "target": "scripts_simulate_combat_fightergenerator_clamp",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/simulate_combat/fighterGenerator.js",
-      "source_location": "L111",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat_fightergenerator_scaletolevel",
-      "target": "scripts_simulate_combat_fightergenerator_clamp",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/simulate_combat/fighterGenerator.js",
-      "source_location": "L131",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat_fightergenerator_generatefighterpair",
-      "target": "scripts_simulate_combat_fightergenerator_generatefighter",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/simulate_combat/fighterGenerator.js",
-      "source_location": "L133",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat_fightergenerator_generatefighterpair",
-      "target": "scripts_simulate_combat_fightergenerator_scaletolevel",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "indirect_call",
-      "confidence": "INFERRED",
-      "source_file": "scripts/simulate_combat/formatters.js",
-      "source_location": "L118",
-      "weight": 1.0,
-      "context": "collection",
-      "source": "scripts_simulate_combat_formatters",
-      "target": "scripts_simulate_combat_formatters_formatmarkdownreport",
-      "confidence_score": 0.5
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/simulate_combat/formatters.js",
-      "source_location": "L21",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat_formatters",
-      "target": "scripts_simulate_combat_formatters_num",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/simulate_combat/formatters.js",
-      "source_location": "L12",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat_formatters",
-      "target": "scripts_simulate_combat_formatters_pct",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/simulate_combat/formatters.js",
-      "source_location": "L4",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat_formatters",
-      "target": "scripts_simulate_combat_formatters_personalities_fatigue_snapshot_turns_physical_stats",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/simulate_combat/formatters.js",
-      "source_location": "L6",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat_formatters",
-      "target": "scripts_simulate_combat_formatters_personality_keys",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/simulate_combat/formatters.js",
-      "source_location": "L45",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat_formatters_formatmarkdownreport",
-      "target": "scripts_simulate_combat_formatters_pct",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/simulate_combat/formatters.js",
-      "source_location": "L47",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat_formatters_formatmarkdownreport",
-      "target": "scripts_simulate_combat_formatters_num",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "indirect_call",
-      "confidence": "INFERRED",
-      "source_file": "scripts/simulate_combat/metricsCollector.js",
-      "source_location": "L86",
-      "weight": 1.0,
-      "context": "collection",
-      "source": "scripts_simulate_combat_metricscollector",
-      "target": "scripts_simulate_combat_metricscollector_collectmetrics",
-      "confidence_score": 0.5
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/simulate_combat/metricsCollector.js",
-      "source_location": "L71",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat_metricscollector",
-      "target": "scripts_simulate_combat_metricscollector_trackreaction",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/simulate_combat/metricsCollector.js",
-      "source_location": "L28",
-      "weight": 1.0,
-      "source": "scripts_simulate_combat_metricscollector_collectmetrics",
-      "target": "scripts_simulate_combat_metricscollector_trackreaction",
       "confidence_score": 1.0
     },
     {
@@ -23789,7 +21887,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/commands/rpg/combat/descansar.js",
-      "source_location": "L119",
+      "source_location": "L117",
       "weight": 1.0,
       "source": "src_commands_rpg_combat_descansar_execute",
       "target": "src_services_rpg_combatengine_executereaction"
@@ -23811,7 +21909,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/commands/rpg/combat/descansar.js",
-      "source_location": "L151",
+      "source_location": "L149",
       "weight": 1.0,
       "source": "src_commands_rpg_combat_descansar_execute",
       "target": "src_services_rpg_combatmessages_formatactionmenu"
@@ -23822,7 +21920,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/commands/rpg/combat/descansar.js",
-      "source_location": "L107",
+      "source_location": "L105",
       "weight": 1.0,
       "source": "src_commands_rpg_combat_descansar_execute",
       "target": "src_services_rpg_combatmessages_formatreactionprompt"
@@ -23833,7 +21931,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/commands/rpg/combat/descansar.js",
-      "source_location": "L89",
+      "source_location": "L130",
       "weight": 1.0,
       "source": "src_commands_rpg_combat_descansar_execute",
       "target": "src_services_rpg_combatstate_advanceturn"
@@ -23844,7 +21942,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/commands/rpg/combat/descansar.js",
-      "source_location": "L145",
+      "source_location": "L143",
       "weight": 1.0,
       "source": "src_commands_rpg_combat_descansar_execute",
       "target": "src_services_rpg_combatstate_endsession"
@@ -23877,7 +21975,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/commands/rpg/combat/descansar.js",
-      "source_location": "L91",
+      "source_location": "L89",
       "weight": 1.0,
       "source": "src_commands_rpg_combat_descansar_execute",
       "target": "src_services_rpg_combatstate_setpendingreaction"
@@ -23899,7 +21997,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/commands/rpg/combat/descansar.js",
-      "source_location": "L115",
+      "source_location": "L113",
       "weight": 1.0,
       "source": "src_commands_rpg_combat_descansar_execute",
       "target": "src_utils_boxutils_box"
@@ -23910,7 +22008,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/commands/rpg/combat/descansar.js",
-      "source_location": "L169",
+      "source_location": "L167",
       "weight": 1.0,
       "source": "src_commands_rpg_combat_descansar_execute",
       "target": "src_utils_formaterrorutils_formaterror"
@@ -24912,7 +23010,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/commands/rpg/combat/huir.js",
-      "source_location": "L104",
+      "source_location": "L94",
       "weight": 1.0,
       "source": "src_commands_rpg_combat_huir_execute",
       "target": "src_services_rpg_combatengine_evaluatedodgefeasibility"
@@ -24923,7 +23021,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/commands/rpg/combat/huir.js",
-      "source_location": "L94",
+      "source_location": "L84",
       "weight": 1.0,
       "source": "src_commands_rpg_combat_huir_execute",
       "target": "src_services_rpg_combatengine_executeattack"
@@ -24934,7 +23032,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/commands/rpg/combat/huir.js",
-      "source_location": "L137",
+      "source_location": "L127",
       "weight": 1.0,
       "source": "src_commands_rpg_combat_huir_execute",
       "target": "src_services_rpg_combatengine_executereaction"
@@ -24945,7 +23043,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/commands/rpg/combat/huir.js",
-      "source_location": "L63",
+      "source_location": "L61",
       "weight": 1.0,
       "source": "src_commands_rpg_combat_huir_execute",
       "target": "src_services_rpg_combatengine_rollflee"
@@ -24956,7 +23054,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/commands/rpg/combat/huir.js",
-      "source_location": "L92",
+      "source_location": "L82",
       "weight": 1.0,
       "source": "src_commands_rpg_combat_huir_execute",
       "target": "src_services_rpg_combatmessages_buildfatiguebar"
@@ -24967,7 +23065,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/commands/rpg/combat/huir.js",
-      "source_location": "L166",
+      "source_location": "L156",
       "weight": 1.0,
       "source": "src_commands_rpg_combat_huir_execute",
       "target": "src_services_rpg_combatmessages_formatactionmenu"
@@ -24978,7 +23076,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/commands/rpg/combat/huir.js",
-      "source_location": "L58",
+      "source_location": "L57",
       "weight": 1.0,
       "source": "src_commands_rpg_combat_huir_execute",
       "target": "src_services_rpg_combatmessages_formatflee"
@@ -24989,7 +23087,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/commands/rpg/combat/huir.js",
-      "source_location": "L131",
+      "source_location": "L121",
       "weight": 1.0,
       "source": "src_commands_rpg_combat_huir_execute",
       "target": "src_services_rpg_combatmessages_formatreactionprompt"
@@ -25000,7 +23098,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/commands/rpg/combat/huir.js",
-      "source_location": "L150",
+      "source_location": "L140",
       "weight": 1.0,
       "source": "src_commands_rpg_combat_huir_execute",
       "target": "src_services_rpg_combatstate_advanceturn"
@@ -25033,7 +23131,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/commands/rpg/combat/huir.js",
-      "source_location": "L115",
+      "source_location": "L105",
       "weight": 1.0,
       "source": "src_commands_rpg_combat_huir_execute",
       "target": "src_services_rpg_combatstate_setpendingreaction"
@@ -25055,7 +23153,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/commands/rpg/combat/huir.js",
-      "source_location": "L134",
+      "source_location": "L124",
       "weight": 1.0,
       "source": "src_commands_rpg_combat_huir_execute",
       "target": "src_utils_boxutils_box"
@@ -25066,7 +23164,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/commands/rpg/combat/huir.js",
-      "source_location": "L170",
+      "source_location": "L160",
       "weight": 1.0,
       "source": "src_commands_rpg_combat_huir_execute",
       "target": "src_utils_formaterrorutils_formaterror"
@@ -26668,7 +24766,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/config/combatConfig.js",
-      "source_location": "L39",
+      "source_location": "L32",
       "weight": 1.0,
       "source": "src_config_combatconfig",
       "target": "src_config_combatconfig_fatigue_recovery",
@@ -26678,7 +24776,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/config/combatConfig.js",
-      "source_location": "L44",
+      "source_location": "L37",
       "weight": 1.0,
       "source": "src_config_combatconfig",
       "target": "src_config_combatconfig_fatigue_speed_stats",
@@ -26712,17 +24810,6 @@
       "source_location": "L2",
       "weight": 1.0,
       "source": "src_services_rpg_combatengine",
-      "target": "src_config_combatconfig",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/services/rpg/combatEngine.backup.js",
-      "source_location": "L4",
-      "weight": 1.0,
-      "source": "src_services_rpg_combatengine_backup",
       "target": "src_config_combatconfig",
       "confidence_score": 1.0
     },
@@ -26829,33 +24916,11 @@
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/services/rpg/fatigueEngine.js",
-      "source_location": "L2",
-      "weight": 1.0,
-      "source": "src_services_rpg_fatigueengine",
-      "target": "src_config_combatconfig_fatigue_costs",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
       "source_file": "tests/fatigue_engine.test.js",
       "source_location": "L1",
       "weight": 1.0,
       "source": "tests_fatigue_engine_test",
       "target": "src_config_combatconfig_fatigue_costs",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/services/rpg/fatigueEngine.js",
-      "source_location": "L2",
-      "weight": 1.0,
-      "source": "src_services_rpg_fatigueengine",
-      "target": "src_config_combatconfig_fatigue_recovery",
       "confidence_score": 1.0
     },
     {
@@ -34690,70 +32755,6 @@
       "target": "src_services_rpg_combatstate_issessionactive"
     },
     {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/services/rpg/combatEngine.backup.js",
-      "source_location": "L5",
-      "weight": 1.0,
-      "source": "src_services_rpg_combatengine_backup",
-      "target": "src_services_rpg_combatengine",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/services/rpg/combatEngine.backup.js",
-      "source_location": "L5",
-      "weight": 1.0,
-      "source": "src_services_rpg_combatengine_backup",
-      "target": "src_services_rpg_combatengine_applypenalties",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/services/rpg/combatEngine.backup.js",
-      "source_location": "L5",
-      "weight": 1.0,
-      "source": "src_services_rpg_combatengine_backup",
-      "target": "src_services_rpg_combatengine_backup_applypenalties",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "indirect_call",
-      "confidence": "INFERRED",
-      "source_file": "src/services/rpg/combatEngine.backup.js",
-      "source_location": "L35",
-      "weight": 1.0,
-      "context": "collection",
-      "source": "src_services_rpg_combatengine_backup",
-      "target": "src_services_rpg_combatengine_backup_calculatedamagebackup",
-      "confidence_score": 0.5
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/services/rpg/combatEngine.backup.js",
-      "source_location": "L4",
-      "weight": 1.0,
-      "source": "src_services_rpg_combatengine_backup",
-      "target": "src_services_rpg_combatengine_backup_damage_min",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "src/services/rpg/combatEngine.backup.js",
-      "source_location": "L28",
-      "weight": 1.0,
-      "source": "src_services_rpg_combatengine_backup_calculatedamagebackup",
-      "target": "src_services_rpg_combatengine_applypenalties"
-    },
-    {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/services/rpg/combatEngine.js",
@@ -34767,7 +32768,7 @@
       "relation": "indirect_call",
       "confidence": "INFERRED",
       "source_file": "src/services/rpg/combatEngine.js",
-      "source_location": "L430",
+      "source_location": "L428",
       "weight": 1.0,
       "context": "collection",
       "source": "src_services_rpg_combatengine",
@@ -34778,7 +32779,7 @@
       "relation": "indirect_call",
       "confidence": "INFERRED",
       "source_file": "src/services/rpg/combatEngine.js",
-      "source_location": "L435",
+      "source_location": "L433",
       "weight": 1.0,
       "context": "collection",
       "source": "src_services_rpg_combatengine",
@@ -34789,7 +32790,7 @@
       "relation": "indirect_call",
       "confidence": "INFERRED",
       "source_file": "src/services/rpg/combatEngine.js",
-      "source_location": "L436",
+      "source_location": "L434",
       "weight": 1.0,
       "context": "collection",
       "source": "src_services_rpg_combatengine",
@@ -34800,7 +32801,7 @@
       "relation": "indirect_call",
       "confidence": "INFERRED",
       "source_file": "src/services/rpg/combatEngine.js",
-      "source_location": "L431",
+      "source_location": "L429",
       "weight": 1.0,
       "context": "collection",
       "source": "src_services_rpg_combatengine",
@@ -34811,7 +32812,7 @@
       "relation": "indirect_call",
       "confidence": "INFERRED",
       "source_file": "src/services/rpg/combatEngine.js",
-      "source_location": "L441",
+      "source_location": "L439",
       "weight": 1.0,
       "context": "collection",
       "source": "src_services_rpg_combatengine",
@@ -34822,7 +32823,7 @@
       "relation": "indirect_call",
       "confidence": "INFERRED",
       "source_file": "src/services/rpg/combatEngine.js",
-      "source_location": "L432",
+      "source_location": "L430",
       "weight": 1.0,
       "context": "collection",
       "source": "src_services_rpg_combatengine",
@@ -34833,7 +32834,7 @@
       "relation": "indirect_call",
       "confidence": "INFERRED",
       "source_file": "src/services/rpg/combatEngine.js",
-      "source_location": "L439",
+      "source_location": "L437",
       "weight": 1.0,
       "context": "collection",
       "source": "src_services_rpg_combatengine",
@@ -34854,7 +32855,7 @@
       "relation": "indirect_call",
       "confidence": "INFERRED",
       "source_file": "src/services/rpg/combatEngine.js",
-      "source_location": "L433",
+      "source_location": "L431",
       "weight": 1.0,
       "context": "collection",
       "source": "src_services_rpg_combatengine",
@@ -34865,7 +32866,7 @@
       "relation": "indirect_call",
       "confidence": "INFERRED",
       "source_file": "src/services/rpg/combatEngine.js",
-      "source_location": "L437",
+      "source_location": "L435",
       "weight": 1.0,
       "context": "collection",
       "source": "src_services_rpg_combatengine",
@@ -34876,7 +32877,7 @@
       "relation": "indirect_call",
       "confidence": "INFERRED",
       "source_file": "src/services/rpg/combatEngine.js",
-      "source_location": "L438",
+      "source_location": "L436",
       "weight": 1.0,
       "context": "collection",
       "source": "src_services_rpg_combatengine",
@@ -34887,7 +32888,7 @@
       "relation": "indirect_call",
       "confidence": "INFERRED",
       "source_file": "src/services/rpg/combatEngine.js",
-      "source_location": "L440",
+      "source_location": "L438",
       "weight": 1.0,
       "context": "collection",
       "source": "src_services_rpg_combatengine",
@@ -34908,7 +32909,7 @@
       "relation": "indirect_call",
       "confidence": "INFERRED",
       "source_file": "src/services/rpg/combatEngine.js",
-      "source_location": "L429",
+      "source_location": "L427",
       "weight": 1.0,
       "context": "collection",
       "source": "src_services_rpg_combatengine",
@@ -34919,7 +32920,7 @@
       "relation": "indirect_call",
       "confidence": "INFERRED",
       "source_file": "src/services/rpg/combatEngine.js",
-      "source_location": "L434",
+      "source_location": "L432",
       "weight": 1.0,
       "context": "collection",
       "source": "src_services_rpg_combatengine",
@@ -34976,7 +32977,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/services/rpg/combatEngine.js",
-      "source_location": "L32",
+      "source_location": "L31",
       "weight": 1.0,
       "source": "src_services_rpg_combatengine_applypenalties",
       "target": "src_services_rpg_fatigueengine_applyfatiguepenalties"
@@ -34986,7 +32987,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/services/rpg/combatEngine.js",
-      "source_location": "L197",
+      "source_location": "L195",
       "weight": 1.0,
       "source": "src_services_rpg_combatengine_attemptdodge",
       "target": "src_services_rpg_combatengine_applypenalties",
@@ -35008,7 +33009,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/services/rpg/combatEngine.js",
-      "source_location": "L95",
+      "source_location": "L93",
       "weight": 1.0,
       "source": "src_services_rpg_combatengine_canreact",
       "target": "src_services_rpg_combatengine_applypenalties",
@@ -35019,7 +33020,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/services/rpg/combatEngine.js",
-      "source_location": "L122",
+      "source_location": "L120",
       "weight": 1.0,
       "source": "src_services_rpg_combatengine_evaluatedodgefeasibility",
       "target": "src_services_rpg_combatengine_applypenalties",
@@ -35030,7 +33031,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/services/rpg/combatEngine.js",
-      "source_location": "L149",
+      "source_location": "L147",
       "weight": 1.0,
       "source": "src_services_rpg_combatengine_rollflee",
       "target": "src_services_rpg_combatengine_applypenalties",
@@ -35052,7 +33053,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/services/rpg/combatEngine.js",
-      "source_location": "L220",
+      "source_location": "L218",
       "weight": 1.0,
       "source": "src_services_rpg_combatengine_executeattack",
       "target": "src_services_rpg_combatengine_calculatedamage",
@@ -35074,7 +33075,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/services/rpg/combatEngine.js",
-      "source_location": "L343",
+      "source_location": "L341",
       "weight": 1.0,
       "source": "src_services_rpg_combatengine_chooseaireaction",
       "target": "src_services_rpg_combatengine_canreact",
@@ -35085,7 +33086,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/services/rpg/combatEngine.js",
-      "source_location": "L230",
+      "source_location": "L228",
       "weight": 1.0,
       "source": "src_services_rpg_combatengine_executeattack",
       "target": "src_services_rpg_combatengine_canreact",
@@ -35107,7 +33108,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/services/rpg/combatEngine.js",
-      "source_location": "L298",
+      "source_location": "L296",
       "weight": 1.0,
       "source": "src_services_rpg_combatengine_executereaction",
       "target": "src_services_rpg_combatengine_attemptblock",
@@ -35129,7 +33130,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/services/rpg/combatEngine.js",
-      "source_location": "L357",
+      "source_location": "L355",
       "weight": 1.0,
       "source": "src_services_rpg_combatengine_chooseaireaction",
       "target": "src_services_rpg_combatengine_attemptdodge",
@@ -35140,7 +33141,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/services/rpg/combatEngine.js",
-      "source_location": "L279",
+      "source_location": "L277",
       "weight": 1.0,
       "source": "src_services_rpg_combatengine_executereaction",
       "target": "src_services_rpg_combatengine_attemptdodge",
@@ -35162,7 +33163,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/services/rpg/combatEngine.js",
-      "source_location": "L390",
+      "source_location": "L388",
       "weight": 1.0,
       "source": "src_services_rpg_combatengine_executeturn",
       "target": "src_services_rpg_combatengine_executeattack",
@@ -35173,7 +33174,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/services/rpg/combatEngine.js",
-      "source_location": "L392",
+      "source_location": "L390",
       "weight": 1.0,
       "source": "src_services_rpg_combatengine_executeturn",
       "target": "src_services_rpg_combatengine_executereaction",
@@ -35184,7 +33185,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/services/rpg/combatEngine.js",
-      "source_location": "L405",
+      "source_location": "L403",
       "weight": 1.0,
       "source": "src_services_rpg_combatengine_executeturn",
       "target": "src_services_rpg_combatengine_chooseaireaction",
@@ -35226,7 +33227,7 @@
       "relation": "indirect_call",
       "confidence": "INFERRED",
       "source_file": "src/services/rpg/combatMessages.js",
-      "source_location": "L250",
+      "source_location": "L248",
       "weight": 1.0,
       "context": "collection",
       "source": "src_services_rpg_combatmessages",
@@ -35237,7 +33238,7 @@
       "relation": "indirect_call",
       "confidence": "INFERRED",
       "source_file": "src/services/rpg/combatMessages.js",
-      "source_location": "L249",
+      "source_location": "L247",
       "weight": 1.0,
       "context": "collection",
       "source": "src_services_rpg_combatmessages",
@@ -35248,7 +33249,7 @@
       "relation": "indirect_call",
       "confidence": "INFERRED",
       "source_file": "src/services/rpg/combatMessages.js",
-      "source_location": "L251",
+      "source_location": "L249",
       "weight": 1.0,
       "context": "collection",
       "source": "src_services_rpg_combatmessages",
@@ -35259,7 +33260,7 @@
       "relation": "indirect_call",
       "confidence": "INFERRED",
       "source_file": "src/services/rpg/combatMessages.js",
-      "source_location": "L252",
+      "source_location": "L250",
       "weight": 1.0,
       "context": "collection",
       "source": "src_services_rpg_combatmessages",
@@ -35270,7 +33271,7 @@
       "relation": "indirect_call",
       "confidence": "INFERRED",
       "source_file": "src/services/rpg/combatMessages.js",
-      "source_location": "L259",
+      "source_location": "L257",
       "weight": 1.0,
       "context": "collection",
       "source": "src_services_rpg_combatmessages",
@@ -35281,7 +33282,7 @@
       "relation": "indirect_call",
       "confidence": "INFERRED",
       "source_file": "src/services/rpg/combatMessages.js",
-      "source_location": "L254",
+      "source_location": "L252",
       "weight": 1.0,
       "context": "collection",
       "source": "src_services_rpg_combatmessages",
@@ -35292,7 +33293,7 @@
       "relation": "indirect_call",
       "confidence": "INFERRED",
       "source_file": "src/services/rpg/combatMessages.js",
-      "source_location": "L256",
+      "source_location": "L254",
       "weight": 1.0,
       "context": "collection",
       "source": "src_services_rpg_combatmessages",
@@ -35303,7 +33304,7 @@
       "relation": "indirect_call",
       "confidence": "INFERRED",
       "source_file": "src/services/rpg/combatMessages.js",
-      "source_location": "L258",
+      "source_location": "L256",
       "weight": 1.0,
       "context": "collection",
       "source": "src_services_rpg_combatmessages",
@@ -35314,7 +33315,7 @@
       "relation": "indirect_call",
       "confidence": "INFERRED",
       "source_file": "src/services/rpg/combatMessages.js",
-      "source_location": "L253",
+      "source_location": "L251",
       "weight": 1.0,
       "context": "collection",
       "source": "src_services_rpg_combatmessages",
@@ -35325,7 +33326,7 @@
       "relation": "indirect_call",
       "confidence": "INFERRED",
       "source_file": "src/services/rpg/combatMessages.js",
-      "source_location": "L255",
+      "source_location": "L253",
       "weight": 1.0,
       "context": "collection",
       "source": "src_services_rpg_combatmessages",
@@ -35336,7 +33337,7 @@
       "relation": "indirect_call",
       "confidence": "INFERRED",
       "source_file": "src/services/rpg/combatMessages.js",
-      "source_location": "L257",
+      "source_location": "L255",
       "weight": 1.0,
       "context": "collection",
       "source": "src_services_rpg_combatmessages",
@@ -35413,7 +33414,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/services/rpg/combatMessages.js",
-      "source_location": "L101",
+      "source_location": "L100",
       "weight": 1.0,
       "source": "src_services_rpg_combatmessages_formatcombatopen",
       "target": "src_services_rpg_combatmessages_buildhpbar",
@@ -35424,7 +33425,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/services/rpg/combatMessages.js",
-      "source_location": "L178",
+      "source_location": "L177",
       "weight": 1.0,
       "source": "src_services_rpg_combatmessages_formatcombatstatus",
       "target": "src_services_rpg_combatmessages_buildhpbar",
@@ -35435,7 +33436,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/services/rpg/combatMessages.js",
-      "source_location": "L95",
+      "source_location": "L94",
       "weight": 1.0,
       "source": "src_services_rpg_combatmessages_formatcombatopen",
       "target": "src_services_rpg_combatmessages_buildstatsummary",
@@ -35446,7 +33447,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/services/rpg/combatMessages.js",
-      "source_location": "L170",
+      "source_location": "L169",
       "weight": 1.0,
       "source": "src_services_rpg_combatmessages_formatcombatstatus",
       "target": "src_services_rpg_combatmessages_buildstatsummary",
@@ -35469,7 +33470,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/services/rpg/combatMessages.js",
-      "source_location": "L43",
+      "source_location": "L42",
       "weight": 1.0,
       "source": "src_services_rpg_combatmessages_buildfatiguebar",
       "target": "src_services_rpg_fatigueengine_getfatiguelevel"
@@ -35479,7 +33480,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/services/rpg/combatMessages.js",
-      "source_location": "L102",
+      "source_location": "L101",
       "weight": 1.0,
       "source": "src_services_rpg_combatmessages_formatcombatopen",
       "target": "src_services_rpg_combatmessages_buildfatiguebar",
@@ -35490,7 +33491,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/services/rpg/combatMessages.js",
-      "source_location": "L179",
+      "source_location": "L178",
       "weight": 1.0,
       "source": "src_services_rpg_combatmessages_formatcombatstatus",
       "target": "src_services_rpg_combatmessages_buildfatiguebar",
@@ -35501,7 +33502,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/services/rpg/combatMessages.js",
-      "source_location": "L228",
+      "source_location": "L226",
       "weight": 1.0,
       "source": "src_services_rpg_combatmessages_formatflee",
       "target": "src_services_rpg_combatmessages_buildfatiguebar",
@@ -35523,7 +33524,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/services/rpg/combatMessages.js",
-      "source_location": "L122",
+      "source_location": "L121",
       "weight": 1.0,
       "source": "src_services_rpg_combatmessages_formatcombatopen",
       "target": "src_services_rpg_combatmessages_formatactionmenu",
@@ -35534,7 +33535,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/services/rpg/combatMessages.js",
-      "source_location": "L196",
+      "source_location": "L195",
       "weight": 1.0,
       "source": "src_services_rpg_combatmessages_formatcombatstatus",
       "target": "src_services_rpg_combatmessages_formatactionmenu",
@@ -35556,7 +33557,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/services/rpg/combatMessages.js",
-      "source_location": "L194",
+      "source_location": "L193",
       "weight": 1.0,
       "source": "src_services_rpg_combatmessages_formatcombatstatus",
       "target": "src_services_rpg_combatmessages_formatreactionprompt",
@@ -35579,7 +33580,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/services/rpg/combatMessages.js",
-      "source_location": "L124",
+      "source_location": "L123",
       "weight": 1.0,
       "source": "src_services_rpg_combatmessages_formatcombatopen",
       "target": "src_utils_boxutils_box"
@@ -35601,7 +33602,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/services/rpg/combatMessages.js",
-      "source_location": "L156",
+      "source_location": "L155",
       "weight": 1.0,
       "source": "src_services_rpg_combatmessages_formatturnsummary",
       "target": "src_utils_boxutils_box"
@@ -35612,7 +33613,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/services/rpg/combatMessages.js",
-      "source_location": "L199",
+      "source_location": "L198",
       "weight": 1.0,
       "source": "src_services_rpg_combatmessages_formatcombatstatus",
       "target": "src_utils_boxutils_box"
@@ -35634,7 +33635,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/services/rpg/combatMessages.js",
-      "source_location": "L208",
+      "source_location": "L207",
       "weight": 1.0,
       "source": "src_services_rpg_combatmessages_formatvictory",
       "target": "src_utils_boxutils_box"
@@ -35645,7 +33646,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/services/rpg/combatMessages.js",
-      "source_location": "L222",
+      "source_location": "L220",
       "weight": 1.0,
       "source": "src_services_rpg_combatmessages_formatflee",
       "target": "src_utils_boxutils_box"
@@ -35656,7 +33657,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/services/rpg/combatMessages.js",
-      "source_location": "L245",
+      "source_location": "L243",
       "weight": 1.0,
       "source": "src_services_rpg_combatmessages_formatcombatdisolved",
       "target": "src_utils_boxutils_box"
@@ -36449,7 +34450,7 @@
       "relation": "indirect_call",
       "confidence": "INFERRED",
       "source_file": "src/services/rpg/fatigueEngine.js",
-      "source_location": "L93",
+      "source_location": "L66",
       "weight": 1.0,
       "context": "collection",
       "source": "src_services_rpg_fatigueengine",
@@ -36460,7 +34461,7 @@
       "relation": "indirect_call",
       "confidence": "INFERRED",
       "source_file": "src/services/rpg/fatigueEngine.js",
-      "source_location": "L94",
+      "source_location": "L67",
       "weight": 1.0,
       "context": "collection",
       "source": "src_services_rpg_fatigueengine",
@@ -36471,7 +34472,7 @@
       "relation": "indirect_call",
       "confidence": "INFERRED",
       "source_file": "src/services/rpg/fatigueEngine.js",
-      "source_location": "L95",
+      "source_location": "L68",
       "weight": 1.0,
       "context": "collection",
       "source": "src_services_rpg_fatigueengine",
@@ -36485,14 +34486,14 @@
       "source_location": "L2",
       "weight": 1.0,
       "source": "src_services_rpg_fatigueengine",
-      "target": "src_services_rpg_fatigueengine_fatigue_thresholds_fatigue_speed_stats_fatigue_costs_fatigue_recovery_fatigue_atk_cost_scale_fatigue_def_reduction_scale_fatigue_dodge_mspd_reduction_fatigue_rest_def_scale_fatigue_cost_min_fatigue_recovery_max",
+      "target": "src_services_rpg_fatigueengine_fatigue_thresholds_fatigue_speed_stats",
       "confidence_score": 1.0
     },
     {
       "relation": "indirect_call",
       "confidence": "INFERRED",
       "source_file": "src/services/rpg/fatigueEngine.js",
-      "source_location": "L92",
+      "source_location": "L65",
       "weight": 1.0,
       "context": "collection",
       "source": "src_services_rpg_fatigueengine",
@@ -36515,7 +34516,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/services/rpg/fatigueEngine.js",
-      "source_location": "L39",
+      "source_location": "L28",
       "weight": 1.0,
       "source": "src_services_rpg_fatigueengine_applyfatiguepenalties",
       "target": "src_services_rpg_fatigueengine_getfatiguelevel",
@@ -36526,7 +34527,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/services/rpg/fatigueEngine.js",
-      "source_location": "L84",
+      "source_location": "L60",
       "weight": 1.0,
       "source": "src_services_rpg_fatigueengine_calcfatiguerecovery",
       "target": "src_services_rpg_fatigueengine_getfatiguelevel",
@@ -40960,88 +38961,8 @@
       "source": "readme_ia_rolbot_rolbotv1",
       "target": "readme_toolchain",
       "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/simulation_output/report.md",
-      "source_location": "L1",
-      "weight": 1.0,
-      "source": "scripts_simulation_output_report",
-      "target": "scripts_simulation_output_report_combat_simulation_report",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/simulation_output/report.md",
-      "source_location": "L32",
-      "weight": 1.0,
-      "source": "scripts_simulation_output_report_combat_simulation_report",
-      "target": "scripts_simulation_output_report_average_damage_per_attack",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/simulation_output/report.md",
-      "source_location": "L68",
-      "weight": 1.0,
-      "source": "scripts_simulation_output_report_combat_simulation_report",
-      "target": "scripts_simulation_output_report_block_effectiveness",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/simulation_output/report.md",
-      "source_location": "L50",
-      "weight": 1.0,
-      "source": "scripts_simulation_output_report_combat_simulation_report",
-      "target": "scripts_simulation_output_report_dodge_effectiveness",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/simulation_output/report.md",
-      "source_location": "L86",
-      "weight": 1.0,
-      "source": "scripts_simulation_output_report_combat_simulation_report",
-      "target": "scripts_simulation_output_report_fatigue_progression_avg",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/simulation_output/report.md",
-      "source_location": "L5",
-      "weight": 1.0,
-      "source": "scripts_simulation_output_report_combat_simulation_report",
-      "target": "scripts_simulation_output_report_overview",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/simulation_output/report.md",
-      "source_location": "L99",
-      "weight": 1.0,
-      "source": "scripts_simulation_output_report_combat_simulation_report",
-      "target": "scripts_simulation_output_report_personality_matchup_matrix",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "scripts/simulation_output/report.md",
-      "source_location": "L14",
-      "weight": 1.0,
-      "source": "scripts_simulation_output_report_combat_simulation_report",
-      "target": "scripts_simulation_output_report_win_rates_by_personality",
-      "confidence_score": 1.0
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "99139c097e517a81fecd0384507aaf4859327695"
+  "built_at_commit": "f4606006cd989aaaaafc41a399f684120b093b14"
 }

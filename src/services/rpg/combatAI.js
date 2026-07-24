@@ -22,7 +22,15 @@ class CombatAI {
     const aiSlot = isChallengerAi ? session.challenger : session.defender;
     const playerSlot = isChallengerAi ? session.defender : session.challenger;
 
-    const turnResult = executeTurn(aiSlot.character, playerSlot.character, playerSlot.hp);
+    const turnResult = executeTurn(
+      aiSlot.character,
+      playerSlot.character,
+      playerSlot.hp,
+      aiSlot.hp,
+      null,
+      aiSlot.fatigue,
+      playerSlot.fatigue,
+    );
 
     const newAttackerHp = isChallengerAi ? turnResult.defenderHpAfter : session.challenger.hp;
     const newDefenderHp = isChallengerAi ? session.defender.hp : turnResult.defenderHpAfter;

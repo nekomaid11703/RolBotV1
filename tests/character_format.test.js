@@ -33,20 +33,6 @@ describe("characterFormatUtils — buildHpBar", () => {
   });
 });
 
-describe("characterFormatUtils — formatHpState", () => {
-  it("HP 75 muestra Óptimas", () => {
-    expect(formatHpState(75)).toMatch(/Óptimas/);
-  });
-
-  it("HP 45 muestra Lastimado", () => {
-    expect(formatHpState(45)).toMatch(/Lastimado/);
-  });
-
-  it("HP 10 muestra K.O.", () => {
-    expect(formatHpState(10)).toMatch(/K\.O\./);
-  });
-});
-
 describe("characterFormatUtils — formatCharacter", () => {
   it("Incluye el nombre del personaje en mayúsculas", () => {
     const output = formatCharacter(mockCharacter);
@@ -66,7 +52,6 @@ describe("characterFormatUtils — formatCharacter", () => {
   it("Incluye la barra de HP", () => {
     const output = formatCharacter(mockCharacter);
     expect(output).toContain("75/100");
-    expect(output).toContain("Óptimas");
   });
 
   it("Incluye todas las stats", () => {

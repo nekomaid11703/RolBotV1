@@ -10,6 +10,7 @@ const {
   FATIGUE_REST_DEF_SCALE,
   FATIGUE_COST_MIN,
   FATIGUE_RECOVERY_MAX,
+  FATIGUE_MAX,
 } = require("../../config/combatConfig");
 
 /**
@@ -69,6 +70,10 @@ function calcFatigueCost(actionName, stats = {}) {
     const scaled = base - mspd * FATIGUE_DODGE_MSPD_REDUCTION - def * FATIGUE_DEF_REDUCTION_SCALE;
     return Math.max(FATIGUE_COST_MIN, Math.round(scaled));
   }
+  if (actionName === "flee") {
+    const scaled = base - mspd * FATIGUE_DODGE_MSPD_REDUCTION - def * FATIGUE_DEF_REDUCTION_SCALE;
+    return Math.max(FATIGUE_COST_MIN, Math.round(scaled));
+  }
   return Math.max(FATIGUE_COST_MIN, base);
 }
 
@@ -88,9 +93,18 @@ function calcFatigueRecovery(method, fatigue, resistance) {
   return Math.max(0, Math.floor(total * recoveryMult));
 }
 
+/**
+ *
+ * @param fatigue
+ */
+function capFatigue(fatigue) {
+  return Math.min(FATIGUE_MAX, Math.max(0, Number(fatigue) || 0));
+}
+
 module.exports = {
   getFatigueLevel,
   applyFatiguePenalties,
   calcFatigueCost,
   calcFatigueRecovery,
+  capFatigue,
 };

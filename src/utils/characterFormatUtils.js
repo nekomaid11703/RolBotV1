@@ -1,31 +1,26 @@
 // @ts-nocheck
 const { box } = require("./boxUtils");
-const { LEVELABLE_STATS, getHpState, HP_MAX } = require("../config/characterConfig");
+const { LEVELABLE_STATS, HP_MAX } = require("../config/characterConfig");
 
-/**
- *
- * @param character
- */
 const { getItem } = require("../data/items");
 
 /**
  *
  * @param character
- * @param inventory
  * @param inventoryParam
  */
 function formatCharacter(character, inventoryParam = null) {
   const lines = [];
+  const maxHp = character.stats?.hp ?? HP_MAX;
 
-  const hpState = getHpState(character.hp_actual);
-  const hpBar = buildHpBar(character.hp_actual, HP_MAX);
+  const hpBar = buildHpBar(character.hp_actual, maxHp);
 
   lines.push("");
   lines.push(`👤  ${String(character.name || "").toUpperCase()}`);
   lines.push(`🎖️  ${character.clase || "?"}  ·  Rango ${character.rango || "F"}`);
   lines.push(`📖  Nivel ${character.nivel || 20}`);
   lines.push("");
-  lines.push(`${hpBar}  ${character.hp_actual}/${HP_MAX}  (${hpState.name})`);
+  lines.push(`${hpBar}  ${character.hp_actual}/${maxHp}`);
 
   if (character.stats) {
     lines.push("");
@@ -92,10 +87,10 @@ function buildHpBar(hp, max) {
 /**
  *
  * @param hp
+ * @param max
  */
-function formatHpState(hp) {
-  const state = getHpState(hp);
-  return `${hp}/${HP_MAX}  (${state.name})`;
+function formatHpState(hp, max = HP_MAX) {
+  return `${hp}/${max}`;
 }
 
 module.exports = { formatCharacter, buildHpBar, formatHpState };

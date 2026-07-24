@@ -2,7 +2,7 @@
 const { getActiveCharacter, addXp, setHp } = require("../../../services/characterService");
 const { findSessionByCharacter, advanceTurn, endSession } = require("../../../services/rpg/combatState");
 const { executeReaction, calculateXpReward } = require("../../../services/rpg/combatEngine");
-const { calcFatigueCost, calcFatigueRecovery } = require("../../../services/rpg/fatigueEngine");
+const { calcFatigueCost, calcFatigueRecovery, capFatigue } = require("../../../services/rpg/fatigueEngine");
 const { formatActionMenu, buildFatigueBar } = require("../../../services/rpg/combatMessages");
 const { formatError } = require("../../../utils/formatErrorUtils");
 const { box } = require("../../../utils/boxUtils");
@@ -40,7 +40,7 @@ module.exports = {
 
       const blockCost = calcFatigueCost("block", defenderSlot.character.stats);
       const blockRecovery = calcFatigueRecovery("block", defenderSlot.fatigue, defenderSlot.character.stats.def || 1);
-      defenderSlot.fatigue = Math.max(0, defenderSlot.fatigue + blockCost - blockRecovery);
+      defenderSlot.fatigue = capFatigue(defenderSlot.fatigue + blockCost - blockRecovery);
 
       const reactionResult = executeReaction(
         "block",
@@ -48,6 +48,7 @@ module.exports = {
         pending.defenderChar,
         pending.defenderHp,
         pending.attackerChar,
+        attackerSlot.hp,
         defenderSlot.fatigue,
         attackerSlot.fatigue,
       );

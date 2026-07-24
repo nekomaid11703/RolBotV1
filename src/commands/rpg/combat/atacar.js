@@ -13,7 +13,7 @@ const {
   chooseAiReaction,
   calculateXpReward,
 } = require("../../../services/rpg/combatEngine");
-const { calcFatigueCost } = require("../../../services/rpg/fatigueEngine");
+const { calcFatigueCost, calcFatigueRecovery, capFatigue } = require("../../../services/rpg/fatigueEngine");
 const { formatActionMenu, formatReactionPrompt, buildFatigueBar } = require("../../../services/rpg/combatMessages");
 const { formatError } = require("../../../utils/formatErrorUtils");
 const { box } = require("../../../utils/boxUtils");
@@ -64,12 +64,13 @@ module.exports = {
       const defenderSlot = isChallenger ? session.defender : session.challenger;
 
       const attackFatigueCost = calcFatigueCost("attack", attackerSlot.character.stats);
-      attackerSlot.fatigue += attackFatigueCost;
+      attackerSlot.fatigue = capFatigue(attackerSlot.fatigue + attackFatigueCost);
 
       const attackInfo = executeAttack(
         attackerSlot.character,
         defenderSlot.character,
         defenderSlot.hp,
+        attackerSlot.hp,
         attackerSlot.fatigue,
         defenderSlot.fatigue,
       );
@@ -82,6 +83,7 @@ module.exports = {
             defenderSlot.hp,
             attackerSlot.character,
             attackInfo.baseDamage,
+            attackerSlot.hp,
             defenderSlot.fatigue,
             attackerSlot.fatigue,
           );
@@ -93,6 +95,7 @@ module.exports = {
           defenderSlot.character,
           defenderSlot.hp,
           attackerSlot.character,
+          attackerSlot.hp,
           defenderSlot.fatigue,
           attackerSlot.fatigue,
         );
@@ -100,7 +103,7 @@ module.exports = {
         const newAttackerHp = isChallenger ? session.challenger.hp : reactionResult.defenderHpAfter;
         const newDefenderHp = isChallenger ? reactionResult.defenderHpAfter : session.defender.hp;
 
-        advanceTurn(session.id, newAttackerHp, newDefenderHp);
+        advanceTurn(session.id, newAttackerHp, newDefenderHp, session.isPvE);
 
         const lines = [];
         lines.push("");
@@ -121,7 +124,7 @@ module.exports = {
         lines.push(`\u26A1 ${buildFatigueBar(attackerSlot.fatigue, attackerSlot.character.stats.def || 1)}`);
 
         if (reactionResult.ko) {
-          const xpReward = calculateXpReward(defenderSlot.character.nivel || 20, true);
+          const xpReward = calculateXpReward(defenderSlot.character.nivel || 1, true);
           endSession(session.id, attackerSlot.character.id);
           try {
             await addXp({ creatorId: ctx.sender, characterName: attackerSlot.character.name, cantidad: xpReward });
@@ -137,6 +140,7 @@ module.exports = {
           defenderSlot.character,
           attackerSlot.character,
           attackerSlot.hp,
+          defenderSlot.hp,
           defenderSlot.fatigue,
           attackerSlot.fatigue,
         );
@@ -147,14 +151,14 @@ module.exports = {
             attackerSlot.character.stats,
             attackerSlot.hp,
             defenderSlot.character.stats,
-            defenderSlot.character.hp_actual || 100,
+            defenderSlot.hp,
             attackerSlot.fatigue,
             defenderSlot.fatigue,
             attackerSlot.character.stats.def || 0,
             defenderSlot.character.stats.def || 0,
           );
 
-          setPendingReaction(session.id, {
+          await setPendingReaction(session.id, {
             attackerChar: defenderSlot.character,
             defenderChar: attackerSlot.character,
             attackerUserId: defenderSlot.userId,
@@ -187,6 +191,7 @@ module.exports = {
           attackerSlot.character,
           attackerSlot.hp,
           defenderSlot.character,
+          defenderSlot.hp,
           attackerSlot.fatigue,
           defenderSlot.fatigue,
         );
@@ -226,14 +231,14 @@ module.exports = {
           defenderSlot.character.stats,
           defenderSlot.hp,
           attackerSlot.character.stats,
-          attackerSlot.character.hp_actual || 100,
+          attackerSlot.hp,
           defenderSlot.fatigue,
           attackerSlot.fatigue,
           defenderSlot.character.stats.def || 0,
           attackerSlot.character.stats.def || 0,
         );
 
-        setPendingReaction(session.id, {
+        await setPendingReaction(session.id, {
           attackerChar: attackerSlot.character,
           defenderChar: defenderSlot.character,
           attackerUserId: attackerSlot.userId,
@@ -268,6 +273,7 @@ module.exports = {
         defenderSlot.character,
         defenderSlot.hp,
         attackerSlot.character,
+        attackerSlot.hp,
         defenderSlot.fatigue,
         attackerSlot.fatigue,
       );

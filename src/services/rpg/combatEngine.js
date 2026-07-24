@@ -1,6 +1,5 @@
 // @ts-nocheck
 const { DAMAGE_MIN, BLOCK_REDUCTION } = require("../../config/combatConfig");
-const { getHpState } = require("../../config/characterConfig");
 const { applyFatiguePenalties } = require("./fatigueEngine");
 
 /**
@@ -9,14 +8,14 @@ const { applyFatiguePenalties } = require("./fatigueEngine");
  */
 function normalizeStats(stats = {}) {
   return {
-    atk: Number(stats.atk ?? stats.fuerza ?? stats.str ?? 0),
-    def: Number(stats.def ?? stats.defensa ?? 0),
-    aspd: Number(stats.aspd ?? stats.velocidad_ataque ?? 0),
-    ref: Number(stats.ref ?? stats.reflejos ?? 0),
-    mspd: Number(stats.mspd ?? stats.velocidad_movimiento ?? 0),
-    fulgor: Number(stats.fulgor ?? stats.capacidad_magica ?? stats.magic ?? 0),
-    d_fulgor: Number(stats.d_fulgor ?? stats.dominio_magico ?? stats.dmagic ?? 0),
-    r_fulgor: Number(stats.r_fulgor ?? stats.resistencia_magica ?? stats.rmagic ?? 0),
+    atk: Number(stats.atk ?? stats.fuerza ?? stats.str ?? 1),
+    def: Number(stats.def ?? stats.defensa ?? 1),
+    aspd: Number(stats.aspd ?? stats.velocidad_ataque ?? 1),
+    ref: Number(stats.ref ?? stats.reflejos ?? 1),
+    mspd: Number(stats.mspd ?? stats.velocidad_movimiento ?? 1),
+    fulgor: Number(stats.fulgor ?? stats.capacidad_magica ?? stats.magic ?? 1),
+    d_fulgor: Number(stats.d_fulgor ?? stats.dominio_magico ?? stats.dmagic ?? 1),
+    r_fulgor: Number(stats.r_fulgor ?? stats.resistencia_magica ?? stats.rmagic ?? 1),
   };
 }
 
@@ -31,12 +30,9 @@ function applyPenalties(stats, hp, fatigue = 0, resistance = 0) {
   const normalized = normalizeStats(stats);
   const fatigueApplied = fatigue > 0 ? applyFatiguePenalties(normalized, fatigue, resistance) : normalized;
 
-  const hpState = getHpState(hp);
-  const hpPenalty = hpState ? hpState.penalty : 0;
-
   const penalized = {};
   for (const key of Object.keys(fatigueApplied)) {
-    penalized[key] = Math.max(0, Math.round(fatigueApplied[key] * (1 - hpPenalty)));
+    penalized[key] = Math.max(0, Math.round(fatigueApplied[key]));
   }
   return penalized;
 }
@@ -65,10 +61,8 @@ function calculateDamage(
   const atkPenalized = applyPenalties(attackerStats, attackerHp, attackerFatigue, attackerRes);
   const defPenalized = applyPenalties(defenderStats, defenderHp, defenderFatigue, defenderRes);
 
-  const rawDamage = Math.floor(
-    (atkPenalized.atk ** 2 / (atkPenalized.atk + defPenalized.def)) * ((atkPenalized.atk + 20) / 200),
-  );
-  return Math.max(DAMAGE_MIN, rawDamage);
+  const rawDamage = Math.floor(atkPenalized.atk * (100 / (100 + defPenalized.def)));
+  return Number.isFinite(rawDamage) ? Math.max(DAMAGE_MIN, rawDamage) : DAMAGE_MIN;
 }
 
 /**
@@ -208,10 +202,11 @@ function attemptDodge(
  * @param attackerChar
  * @param defenderChar
  * @param defenderHp
+ * @param attackerHp
  * @param attackerFatigue
  * @param defenderFatigue
  */
-function executeAttack(attackerChar, defenderChar, defenderHp, attackerFatigue = 0, defenderFatigue = 0) {
+function executeAttack(attackerChar, defenderChar, defenderHp, attackerHp, attackerFatigue = 0, defenderFatigue = 0) {
   const attackerStats = attackerChar.stats || {};
   const defenderStats = defenderChar.stats || {};
   const attackerRes = attackerStats.def || 0;
@@ -220,7 +215,7 @@ function executeAttack(attackerChar, defenderChar, defenderHp, attackerFatigue =
   const baseDamage = calculateDamage(
     attackerStats,
     defenderStats,
-    attackerChar.hp_actual,
+    attackerHp,
     defenderHp,
     attackerFatigue,
     defenderFatigue,
@@ -231,7 +226,7 @@ function executeAttack(attackerChar, defenderChar, defenderHp, attackerFatigue =
     defenderStats,
     defenderHp,
     attackerStats,
-    attackerChar.hp_actual,
+    attackerHp,
     defenderFatigue,
     attackerFatigue,
     defenderRes,
@@ -254,6 +249,7 @@ function executeAttack(attackerChar, defenderChar, defenderHp, attackerFatigue =
  * @param defenderChar
  * @param defenderHp
  * @param attackerChar
+ * @param attackerHp
  * @param defenderFatigue
  * @param attackerFatigue
  */
@@ -263,6 +259,7 @@ function executeReaction(
   defenderChar,
   defenderHp,
   attackerChar,
+  attackerHp,
   defenderFatigue = 0,
   attackerFatigue = 0,
 ) {
@@ -280,7 +277,7 @@ function executeReaction(
       defenderStats,
       defenderHp,
       attackerStats,
-      attackerChar.hp_actual,
+      attackerHp,
       defenderFatigue,
       attackerFatigue,
       defenderRes,
@@ -324,6 +321,7 @@ function executeReaction(
  * @param defenderHp
  * @param attackerChar
  * @param baseDamage
+ * @param attackerHp
  * @param defenderFatigue
  * @param attackerFatigue
  */
@@ -332,6 +330,7 @@ function chooseAiReaction(
   defenderHp,
   attackerChar,
   baseDamage,
+  attackerHp,
   defenderFatigue = 0,
   attackerFatigue = 0,
 ) {
@@ -344,7 +343,7 @@ function chooseAiReaction(
     defenderStats,
     defenderHp,
     attackerStats,
-    attackerChar.hp_actual,
+    attackerHp,
     defenderFatigue,
     attackerFatigue,
     defenderRes,
@@ -358,7 +357,7 @@ function chooseAiReaction(
     defenderStats,
     defenderHp,
     attackerStats,
-    attackerChar.hp_actual,
+    attackerHp,
     defenderFatigue,
     attackerFatigue,
     defenderRes,
@@ -375,6 +374,7 @@ function chooseAiReaction(
  * @param attackerChar
  * @param defenderChar
  * @param defenderHp
+ * @param attackerHp
  * @param chosenReaction
  * @param attackerFatigue
  * @param defenderFatigue
@@ -383,11 +383,19 @@ function executeTurn(
   attackerChar,
   defenderChar,
   defenderHp,
+  attackerHp,
   chosenReaction = null,
   attackerFatigue = 0,
   defenderFatigue = 0,
 ) {
-  const attackInfo = executeAttack(attackerChar, defenderChar, defenderHp, attackerFatigue, defenderFatigue);
+  const attackInfo = executeAttack(
+    attackerChar,
+    defenderChar,
+    defenderHp,
+    attackerHp,
+    attackerFatigue,
+    defenderFatigue,
+  );
   if (!attackInfo.canReact) {
     return executeReaction(
       "none",
@@ -395,6 +403,7 @@ function executeTurn(
       defenderChar,
       defenderHp,
       attackerChar,
+      attackerHp,
       defenderFatigue,
       attackerFatigue,
     );
@@ -402,13 +411,22 @@ function executeTurn(
 
   const reaction =
     chosenReaction ||
-    chooseAiReaction(defenderChar, defenderHp, attackerChar, attackInfo.baseDamage, defenderFatigue, attackerFatigue);
+    chooseAiReaction(
+      defenderChar,
+      defenderHp,
+      attackerChar,
+      attackInfo.baseDamage,
+      attackerHp,
+      defenderFatigue,
+      attackerFatigue,
+    );
   return executeReaction(
     reaction,
     attackInfo.baseDamage,
     defenderChar,
     defenderHp,
     attackerChar,
+    attackerHp,
     defenderFatigue,
     attackerFatigue,
   );

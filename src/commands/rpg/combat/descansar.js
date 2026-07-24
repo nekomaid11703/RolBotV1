@@ -1,13 +1,14 @@
 // @ts-nocheck
-const { getActiveCharacter } = require("../../../services/characterService");
+const { getActiveCharacter, setHp } = require("../../../services/characterService");
 const {
   findSessionByCharacter,
   findSessionByUser,
   advanceTurn,
   setPendingReaction,
+  endSession,
 } = require("../../../services/rpg/combatState");
 const { executeAttack, executeReaction } = require("../../../services/rpg/combatEngine");
-const { calcFatigueRecovery } = require("../../../services/rpg/fatigueEngine");
+const { calcFatigueRecovery, capFatigue } = require("../../../services/rpg/fatigueEngine");
 const { formatActionMenu, formatReactionPrompt, buildFatigueBar } = require("../../../services/rpg/combatMessages");
 const { formatError } = require("../../../utils/formatErrorUtils");
 const { box } = require("../../../utils/boxUtils");
@@ -55,7 +56,7 @@ module.exports = {
       const opponentSlot = isChallenger ? session.defender : session.challenger;
 
       const recovery = calcFatigueRecovery("rest", resterSlot.fatigue, resterSlot.character.stats.def || 1);
-      resterSlot.fatigue = Math.max(0, resterSlot.fatigue - recovery);
+      resterSlot.fatigue = capFatigue(resterSlot.fatigue - recovery);
 
       const lines = [];
       lines.push("");
@@ -69,6 +70,7 @@ module.exports = {
           opponentSlot.character,
           resterSlot.character,
           resterSlot.hp,
+          opponentSlot.hp,
           opponentSlot.fatigue,
           resterSlot.fatigue,
         );
@@ -79,7 +81,7 @@ module.exports = {
             resterSlot.character.stats,
             resterSlot.hp,
             opponentSlot.character.stats,
-            opponentSlot.character.hp_actual || 100,
+            opponentSlot.hp,
             resterSlot.fatigue,
             opponentSlot.fatigue,
             resterSlot.character.stats.def || 0,
@@ -88,7 +90,7 @@ module.exports = {
 
           advanceTurn(session.id, resterSlot.hp, opponentSlot.hp);
 
-          setPendingReaction(session.id, {
+          await setPendingReaction(session.id, {
             attackerChar: opponentSlot.character,
             defenderChar: resterSlot.character,
             attackerUserId: opponentSlot.userId,
@@ -122,6 +124,7 @@ module.exports = {
           resterSlot.character,
           resterSlot.hp,
           opponentSlot.character,
+          opponentSlot.hp,
           resterSlot.fatigue,
           opponentSlot.fatigue,
         );
@@ -141,8 +144,10 @@ module.exports = {
         if (dummyReaction.ko) {
           lines.push("");
           lines.push(`\uD83D\uDC80 *${resterSlot.character.name}* cay\u00F3`);
-          const { endSession } = require("../../../services/rpg/combatState");
           endSession(session.id, opponentSlot.character.id);
+          try {
+            await setHp({ creatorId: ctx.sender, characterName: resterSlot.character.name, hp: 0 });
+          } catch (_e) {}
           return ctx.reply(box("\uD83D\uDCA4 DESCANSO", lines));
         }
 

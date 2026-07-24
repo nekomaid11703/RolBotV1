@@ -209,6 +209,56 @@ Este archivo registra los cambios significativos y decisiones arquitectónicas t
 
 ---
 
+## [3.2.0] - 2026-07-23
+
+### Refactor Completo del Sistema de Estadísticas (HP, Stats Base, Fórmula DEF)
+
+**Objetivo:** Eliminar mecánicas de % de HP obsoletas, convertir HP en un stat leveleable, unificar stats base=1 y reemplazar la fórmula de daño cuadrática por una fórmula DEF basada en `ATK × (100/(100+DEF))`.
+
+#### Fase 1 — Eliminar HP % Mechanics
+- **`src/config/characterConfig.js`**: Eliminados `HP_THRESHOLDS`, `getHpState` y su exportación.
+- **`src/services/rpg/combatEngine.js`**: Eliminada penalización por HP en `applyPenalties`.
+- **`src/services/characterService.js`**: Eliminada penalización HP en `getCombatStats`.
+- **`src/utils/characterFormatUtils.js`**: Eliminado `formatHpState` con estados de color (verde/amarillo/rojo).
+- **Tests**: Eliminados 11 tests de HP thresholds/states (304 → 293).
+
+#### Fase 2 — HP como Stat Leveleable
+- **`src/config/characterConfig.js`**: `HP` añadido a `LEVELABLE_STATS` (9 stats, icon ❤️); `DEFAULT_CHARACTER_STATS.hp = 1`; 21 razas actualizadas con `hp` en `baseStats` (suma 50 pts c/u, HP range: 4-Elfo → 10-Oni).
+- **Consumer code**: `crear_pj.js` → `hp_actual = finalStats.hp`; `setHp()` clamp a `stats.hp`; `restaurarHp()` obtiene max desde stats; `distribuirPunto()` no modifica `hp_actual`; `useItem()` tope en `stats.hp`; `normalizeCharacterRecord` clamp a `stats.hp`; `formatCharacter` barra usa `stats.hp`.
+- **`src/services/rpg/combatMessages.js`**: `buildHpBar` usa `character.stats.hp` como max.
+- **`src/services/rpg/combatState.js`**: Dummy HP basado en `totalPoints`.
+- **Tests**: 26 tests de config validan 9 stats, DEFAULT=1, race sums=50.
+
+#### Fase 3 — Stats Base = 1
+- **`src/config/characterConfig.js`**: Todos los `DEFAULT_CHARACTER_STATS` en 1.
+- **`src/services/rpg/combatEngine.js`**: `normalizeStats` defaults `?? 1`.
+- **Tests**: Actualizados asserts de DEFAULT_CHARACTER_STATS.
+
+#### Fase 4 — Nueva Fórmula DEF
+- **`src/services/rpg/combatEngine.js`**: `calculateDamage` reemplazado: `Math.floor(atk × 100 / (100 + def))`.
+- **Tests**: Valor esperado actualizado (ATK=50, DEF=50 → 33).
+
+#### Limpieza de Código
+- **`src/services/rpg/combatState.js`**: Eliminado import no usado de `HP_MAX`.
+- **`src/utils/boxUtils.js`**: Eliminada constante `LINE` no usada.
+- **`scripts/simulate_combat/fighterGenerator.js`**: Eliminado `HP_MAX` import, fighters usan `race.baseStats.hp`.
+
+#### Archivos modificados:
+- `src/config/characterConfig.js` — HP_THRESHOLDS/getHpState removidos, HP en LEVELABLE_STATS y razas
+- `src/services/rpg/combatEngine.js` — Penalización HP removida, fórmula DEF nueva
+- `src/services/rpg/combatState.js` — HP_MAX import removido
+- `src/services/rpg/combatMessages.js` — HP bar usa stats.hp
+- `src/services/rpg/inventoryService.js` — useItem tope en stats.hp
+- `src/services/characterService.js` — HP penalty removido, setHp/restaurarHp/useItem actualizados
+- `src/utils/characterFormatUtils.js` — formatHpState sin state name
+- `src/utils/boxUtils.js` — LINE removida
+- `scripts/simulate_combat/fighterGenerator.js` — HP desde race.baseStats
+- `tests/character_config.test.js` — 9 stats, DEFAULT=1, race sums=50
+- `tests/combat_engine.test.js` — Nueva fórmula DEF, sin HP penalty
+- `tests/character_format.test.js` — Tests de HP state removidos
+
+---
+
 ## [3.1.0] - 2026-07-21
 
 ### Auditoría de Salubridad y Mantenimiento de Limpieza (Recomendaciones 1 y 2 Aplicadas)

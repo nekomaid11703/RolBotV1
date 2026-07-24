@@ -3,7 +3,6 @@ const {
   HP_MAX,
   DEFAULT_CHARACTER_STATS,
   RACES,
-  CLASSES,
   LEVEL_INITIAL,
   LEVEL_MAX,
   FREE_POINTS_AT_CREATION,
@@ -12,15 +11,15 @@ const {
   xpForNextLevel,
   calculateLevel,
   RANGOS,
-  HP_THRESHOLDS,
-  getHpState,
+
   MAX_CHARACTER_NAME_LENGTH,
   MAX_CHARACTERS_PER_USER,
 } = require("../src/config/characterConfig");
+const { CLASES } = require("../src/data/clases");
 
 describe("characterConfig — Stats", () => {
-  it("LEVELABLE_STATS contiene 8 stats", () => {
-    expect(Object.keys(LEVELABLE_STATS)).toHaveLength(8);
+  it("LEVELABLE_STATS contiene 9 stats", () => {
+    expect(Object.keys(LEVELABLE_STATS)).toHaveLength(9);
   });
 
   it("Cada stat tiene label, name, min, max, icon", () => {
@@ -39,16 +38,16 @@ describe("characterConfig — Stats", () => {
     expect(HP_MAX).toBe(100);
   });
 
-  it("DEFAULT_CHARACTER_STATS tiene hp y las 8 stats en 0", () => {
-    expect(DEFAULT_CHARACTER_STATS.hp).toBe(HP_MAX);
-    expect(DEFAULT_CHARACTER_STATS.atk).toBe(0);
-    expect(DEFAULT_CHARACTER_STATS.def).toBe(0);
-    expect(DEFAULT_CHARACTER_STATS.aspd).toBe(0);
-    expect(DEFAULT_CHARACTER_STATS.ref).toBe(0);
-    expect(DEFAULT_CHARACTER_STATS.mspd).toBe(0);
-    expect(DEFAULT_CHARACTER_STATS.fulgor).toBe(0);
-    expect(DEFAULT_CHARACTER_STATS.d_fulgor).toBe(0);
-    expect(DEFAULT_CHARACTER_STATS.r_fulgor).toBe(0);
+  it("DEFAULT_CHARACTER_STATS tiene todas las stats en 1", () => {
+    expect(DEFAULT_CHARACTER_STATS.hp).toBe(1);
+    expect(DEFAULT_CHARACTER_STATS.atk).toBe(1);
+    expect(DEFAULT_CHARACTER_STATS.def).toBe(1);
+    expect(DEFAULT_CHARACTER_STATS.aspd).toBe(1);
+    expect(DEFAULT_CHARACTER_STATS.ref).toBe(1);
+    expect(DEFAULT_CHARACTER_STATS.mspd).toBe(1);
+    expect(DEFAULT_CHARACTER_STATS.fulgor).toBe(1);
+    expect(DEFAULT_CHARACTER_STATS.d_fulgor).toBe(1);
+    expect(DEFAULT_CHARACTER_STATS.r_fulgor).toBe(1);
   });
 });
 
@@ -74,7 +73,7 @@ describe("characterConfig — Razas", () => {
     }
   });
 
-  it("Todas las razas tienen exactamente las 8 stats levelables en baseStats", () => {
+  it("Todas las razas tienen exactamente las 9 stats levelables en baseStats", () => {
     const statKeys = Object.keys(LEVELABLE_STATS);
     for (const [id, race] of Object.entries(RACES)) {
       const existing = Object.keys(race.baseStats);
@@ -88,13 +87,13 @@ describe("characterConfig — Razas", () => {
   });
 });
 
-describe("characterConfig — Clases", () => {
+describe("data/clases — Clases", () => {
   it("Existen 4 clases", () => {
-    expect(Object.keys(CLASSES)).toHaveLength(4);
+    expect(Object.keys(CLASES)).toHaveLength(4);
   });
 
   it("Todas las clases tienen name, description, baseStats", () => {
-    for (const [id, cls] of Object.entries(CLASSES)) {
+    for (const [id, cls] of Object.entries(CLASES)) {
       expect(cls.name).toBeTruthy();
       expect(cls.description).toBeTruthy();
       expect(cls.baseStats).toBeDefined();
@@ -145,11 +144,15 @@ describe("characterConfig — calculateLevel", () => {
   });
 
   it("Suma de stats 100 da nivel 100", () => {
-    expect(calculateLevel({ atk: 13, def: 13, aspd: 13, ref: 13, mspd: 13, fulgor: 12, d_fulgor: 12, r_fulgor: 11 })).toBe(100);
+    expect(
+      calculateLevel({ atk: 13, def: 13, aspd: 13, ref: 13, mspd: 13, fulgor: 12, d_fulgor: 12, r_fulgor: 11 }),
+    ).toBe(100);
   });
 
   it("Suma de stats 150 da nivel 150", () => {
-    expect(calculateLevel({ atk: 19, def: 19, aspd: 19, ref: 19, mspd: 19, fulgor: 18, d_fulgor: 18, r_fulgor: 19 })).toBe(150);
+    expect(
+      calculateLevel({ atk: 19, def: 19, aspd: 19, ref: 19, mspd: 19, fulgor: 18, d_fulgor: 18, r_fulgor: 19 }),
+    ).toBe(150);
   });
 
   it("Nunca devuelve menos de LEVEL_INITIAL (100)", () => {
@@ -165,50 +168,6 @@ describe("characterConfig — calculateLevel", () => {
 describe("characterConfig — Rango", () => {
   it("RANGOS tiene 7 categorías", () => {
     expect(RANGOS).toEqual(["F", "E", "D", "C", "B", "A", "S"]);
-  });
-});
-
-describe("characterConfig — HP Thresholds", () => {
-  it("HP 100 es Óptimas con penalización 0", () => {
-    const state = getHpState(100);
-    expect(state.name).toBe("Óptimas");
-    expect(state.penalty).toBe(0);
-  });
-
-  it("HP 50 es Lastimado con penalización 0.2", () => {
-    const state = getHpState(50);
-    expect(state.name).toBe("Lastimado");
-    expect(state.penalty).toBe(0.2);
-  });
-
-  it("HP 30 es Incapacitado con penalización 0.5", () => {
-    const state = getHpState(30);
-    expect(state.name).toBe("Incapacitado");
-    expect(state.penalty).toBe(0.5);
-  });
-
-  it("HP 10 es K.O. con penalización 1.0", () => {
-    const state = getHpState(10);
-    expect(state.name).toBe("K.O.");
-    expect(state.penalty).toBe(1.0);
-  });
-
-  it("HP 0 es Muerto", () => {
-    const state = getHpState(0);
-    expect(state.name).toBe("Muerto");
-  });
-
-  it("Cubre todos los rangos de 0 a 100 sin huecos", () => {
-    for (let hp = 0; hp <= 100; hp++) {
-      const state = getHpState(hp);
-      expect(state).toBeDefined();
-      expect(state.name).toBeTruthy();
-      expect(typeof state.penalty).toBe("number");
-    }
-  });
-
-  it("HP negativo cae en Muerto (último threshold)", () => {
-    expect(getHpState(-5).name).toBe("Muerto");
   });
 });
 

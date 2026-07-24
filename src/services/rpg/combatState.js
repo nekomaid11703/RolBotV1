@@ -35,13 +35,15 @@ function generateDummyCharacter(challengerChar) {
   const diff = totalPoints - currentSum;
   dummyStats.atk = Math.max(1, dummyStats.atk + diff);
 
+  const dummyHp = Math.max(1, Math.floor(totalPoints / keys.length));
+
   return {
     id: `dummy_${Date.now()}_${Math.floor(Math.random() * 1000)}`,
     name: "Maniqu\u00ed de Pr\u00e1ctica",
     nivel: totalPoints,
-    hp_actual: 100,
+    hp_actual: dummyHp,
     stats: {
-      hp: 100,
+      hp: dummyHp,
       ...dummyStats,
     },
   };
@@ -307,15 +309,16 @@ function findSessionByUser(userId) {
  * @param sessionId
  * @param newAttackerHp
  * @param newDefenderHp
+ * @param skipRound
  */
-async function advanceTurn(sessionId, newAttackerHp, newDefenderHp) {
+async function advanceTurn(sessionId, newAttackerHp, newDefenderHp, skipRound = false) {
   const session = sessions.get(sessionId);
   if (!session || !isSessionActive(session)) return null;
 
   session.challenger.hp = newAttackerHp;
   session.defender.hp = newDefenderHp;
   session.lastTurnAt = Date.now();
-  session.rounds += 1;
+  if (!skipRound) session.rounds += 1;
   session.pendingAttack = null;
   session.status = SESSION_STATES.WAITING_ACTION;
 
@@ -334,13 +337,13 @@ async function advanceTurn(sessionId, newAttackerHp, newDefenderHp) {
  * @param sessionId
  * @param pendingData
  */
-function setPendingReaction(sessionId, pendingData) {
+async function setPendingReaction(sessionId, pendingData) {
   const session = sessions.get(sessionId);
   if (!session || !isSessionActive(session)) return null;
 
   session.status = SESSION_STATES.WAITING_REACTION;
   session.pendingAttack = pendingData;
-  saveSession(session);
+  await saveSession(session);
   return session;
 }
 
@@ -348,13 +351,13 @@ function setPendingReaction(sessionId, pendingData) {
  *
  * @param sessionId
  */
-function clearPendingReaction(sessionId) {
+async function clearPendingReaction(sessionId) {
   const session = sessions.get(sessionId);
   if (!session || !isSessionActive(session)) return null;
 
   session.status = SESSION_STATES.WAITING_ACTION;
   session.pendingAttack = null;
-  saveSession(session);
+  await saveSession(session);
   return session;
 }
 

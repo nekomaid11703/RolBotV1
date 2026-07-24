@@ -1,7 +1,6 @@
 // @ts-nocheck
 const BOX_W = 20;
 
-const LINE = "✦ ━━━━━━━━━━━━━━ ✦";
 const BOX_TOP = `╭${"─".repeat(BOX_W)}`;
 const BOX_BTM = `╰${"─".repeat(BOX_W)}`;
 const BAR = "│ ";

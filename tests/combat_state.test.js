@@ -41,10 +41,11 @@ describe("combatState — generateDummyCharacter", () => {
     expect(dummy.nivel).toBe(34);
   });
 
-  it("hp_actual es 100", () => {
+  it("hp_actual coincide con hp del dummy", () => {
     const challenger = { stats: { atk: 10, def: 8, aspd: 6, ref: 5, mspd: 5 } };
     const dummy = generateDummyCharacter(challenger);
-    expect(dummy.hp_actual).toBe(100);
+    expect(dummy.hp_actual).toBe(dummy.stats.hp);
+    expect(dummy.hp_actual).toBeGreaterThan(0);
   });
 
   it("todos los stats son >= 1", () => {

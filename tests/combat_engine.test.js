@@ -71,22 +71,16 @@ describe("combatEngine — applyPenalties", () => {
     expect(result.def).toBe(40);
   });
 
-  it("HP 50 aplica penalización 0.2 (Lastimado)", () => {
+  it("HP bajo no aplica penalización (eliminada)", () => {
     const result = applyPenalties(sampleStats, 50);
-    expect(result.atk).toBe(40);
-    expect(result.def).toBe(32);
+    expect(result.atk).toBe(50);
+    expect(result.def).toBe(40);
   });
 
-  it("HP 30 aplica penalización 0.5 (Incapacitado)", () => {
-    const result = applyPenalties(sampleStats, 30);
-    expect(result.atk).toBe(25);
-    expect(result.def).toBe(20);
-  });
-
-  it("HP 10 aplica penalización 1.0 (K.O.)", () => {
+  it("HP 10 tampoco aplica penalización", () => {
     const result = applyPenalties(sampleStats, 10);
-    expect(result.atk).toBe(0);
-    expect(result.def).toBe(0);
+    expect(result.atk).toBe(50);
+    expect(result.def).toBe(40);
   });
 });
 
@@ -95,9 +89,9 @@ describe("combatEngine — calculateDamage", () => {
   const highDef = { atk: 10, def: 50, aspd: 10, ref: 10, mspd: 10 };
   const equal = { atk: 30, def: 30, aspd: 20, ref: 20, mspd: 20 };
 
-  it("ATK=50, DEF=50 produce daño moderado con fórmula cuadrática", () => {
+  it("ATK=50, DEF=50 produce daño moderado con nueva fórmula DEF", () => {
     const dmg = calculateDamage(highAtk, highDef, 100, 100);
-    expect(dmg).toBe(8);
+    expect(dmg).toBe(33);
   });
 
   it("Daño mínimo es 1 incluso si ATK <= DEF", () => {
@@ -202,10 +196,10 @@ describe("combatEngine — applyPenalties con fatiga", () => {
     expect(result.ref).toBe(16);
   });
 
-  it("fatiga + HP bajo -> penalidades combinadas", () => {
+  it("fatiga + HP bajo -> solo penalidad por fatiga", () => {
     const result = applyPenalties(stats, 50, 20, 50);
-    expect(result.atk).toBe(40);
-    expect(result.aspd).toBe(19);
+    expect(result.atk).toBe(50);
+    expect(result.aspd).toBe(24);
   });
 });
 

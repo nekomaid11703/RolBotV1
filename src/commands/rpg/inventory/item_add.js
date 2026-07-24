@@ -51,7 +51,7 @@ module.exports = {
         );
       }
 
-      const result = await addItem(activeChar.id, item.id, quantity);
+      const result = await addItem(activeChar.id, activeChar.creator_id, item.id, quantity);
 
       const lines = [
         "",

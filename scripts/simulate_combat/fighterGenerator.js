@@ -7,7 +7,6 @@ const {
   FREE_POINTS,
   PHYSICAL_STATS,
   MAGIC_STATS,
-  HP_MAX,
   LEVEL_MIN,
   LEVEL_MAX,
   LEVEL_DIFF_MAX_PCT,
@@ -78,6 +77,8 @@ function generateFighter(personalityKey, raceKey) {
     stats[key] = clamp(raceStats[key] || 0, 1, 100);
   }
 
+  stats.hp = raceStats.hp || 1;
+
   const nivel = Math.max(
     100,
     Object.values(stats).reduce((a, b) => a + b, 0),
@@ -89,7 +90,7 @@ function generateFighter(personalityKey, raceKey) {
     nivel,
     race: rKey,
     personality: pKey,
-    hp: HP_MAX,
+    hp: stats.hp,
   };
 }
 
@@ -107,7 +108,7 @@ function scaleToLevel(fighter, targetLevel) {
   const ratio = targetLevel / currentLevel;
   const newStats = {};
 
-  for (const key of [...PHYSICAL_STATS, ...MAGIC_STATS]) {
+  for (const key of [...PHYSICAL_STATS, ...MAGIC_STATS, "hp"]) {
     newStats[key] = clamp(Math.round(fighter.stats[key] * ratio), 1, 100);
   }
 

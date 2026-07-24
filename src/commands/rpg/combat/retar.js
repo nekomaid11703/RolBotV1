@@ -35,7 +35,7 @@ module.exports = {
       }
 
       if (isDummy) {
-        await ensureTestKit(challengerChar.id);
+        await ensureTestKit(challengerChar.id, challengerChar.creator_id);
         const session = await createDummySession(ctx.sender, challengerChar);
         return ctx.reply(formatCombatOpen(session, true));
       }
