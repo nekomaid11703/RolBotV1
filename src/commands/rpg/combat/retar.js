@@ -1,7 +1,7 @@
 // @ts-nocheck
 const { getActiveCharacter } = require("../../../services/characterService");
 const { createSession, createDummySession, findSessionByCharacter } = require("../../../services/rpg/combatState");
-const { ensureTestKit } = require("../../../services/rpg/inventoryService");
+const { ensureTempTestKit } = require("../../../services/rpg/inventoryService");
 const { formatCombatOpen } = require("../../../services/rpg/combatMessages");
 const { formatError } = require("../../../utils/formatErrorUtils");
 
@@ -35,11 +35,11 @@ module.exports = {
       }
 
       if (isDummy) {
-        const added = await ensureTestKit(challengerChar.id, challengerChar.creator_id);
+        const added = await ensureTempTestKit(challengerChar.id, challengerChar.creator_id);
         const session = await createDummySession(ctx.sender, challengerChar);
         let msg = formatCombatOpen(session, true);
         if (added.length > 0) {
-          msg += `\n\n🎒 Se añadió kit médico a tu inventario: ${added.join(", ")}.`;
+          msg += `\n\n🎒 Se añadieron items de prueba: ${added.join(", ")}.`;
         }
         return ctx.reply(msg);
       }

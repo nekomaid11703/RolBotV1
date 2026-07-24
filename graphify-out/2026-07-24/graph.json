@@ -1492,7 +1492,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_commands_admin_group_actividad",
-      "community": 7,
+      "community": 24,
       "norm_label": "actividad.js"
     },
     {
@@ -1502,7 +1502,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_commands_admin_group_actividad_getgroupmemberactivity_getgroupactivity",
-      "community": 7,
+      "community": 24,
       "norm_label": "{ getgroupmemberactivity, getgroupactivity }"
     },
     {
@@ -1512,7 +1512,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_commands_admin_group_actividad_getgroupmetadata",
-      "community": 7,
+      "community": 24,
       "norm_label": "{ getgroupmetadata }"
     },
     {
@@ -1522,7 +1522,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_commands_admin_group_actividad_getuserprofile",
-      "community": 7,
+      "community": 24,
       "norm_label": "{ getuserprofile }"
     },
     {
@@ -1532,7 +1532,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "src_commands_admin_group_actividad_getfirstmentionedjid",
-      "community": 7,
+      "community": 24,
       "norm_label": "{ getfirstmentionedjid }"
     },
     {
@@ -1542,7 +1542,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "src_commands_admin_group_actividad_formatdisplaymention_withmentions",
-      "community": 7,
+      "community": 24,
       "norm_label": "{ formatdisplaymention, withmentions }"
     },
     {
@@ -1552,7 +1552,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "src_commands_admin_group_actividad_resolvetargetdisplayname",
-      "community": 7,
+      "community": 24,
       "norm_label": "{ resolvetargetdisplayname }"
     },
     {
@@ -1562,7 +1562,7 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "src_commands_admin_group_actividad_formatcount_formatdate",
-      "community": 7,
+      "community": 24,
       "norm_label": "{ formatcount, formatdate }"
     },
     {
@@ -1572,7 +1572,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "src_commands_admin_group_actividad_box",
-      "community": 7,
+      "community": 24,
       "norm_label": "{ box }"
     },
     {
@@ -1672,7 +1672,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_commands_admin_group_add",
-      "community": 68,
+      "community": 39,
       "norm_label": "add.js"
     },
     {
@@ -1682,7 +1682,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_commands_admin_group_add_addparticipant",
-      "community": 68,
+      "community": 39,
       "norm_label": "{ addparticipant }"
     },
     {
@@ -1692,7 +1692,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_commands_admin_group_add_box",
-      "community": 68,
+      "community": 39,
       "norm_label": "{ box }"
     },
     {
@@ -1702,7 +1702,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_commands_admin_group_add_formaterror",
-      "community": 68,
+      "community": 39,
       "norm_label": "{ formaterror }"
     },
     {
@@ -1712,7 +1712,7 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "src_commands_admin_group_add_execute",
-      "community": 68,
+      "community": 39,
       "norm_label": "execute()"
     },
     {
@@ -1802,7 +1802,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_commands_admin_group_disolver_combate",
-      "community": 38,
+      "community": 41,
       "norm_label": "disolver_combate.js"
     },
     {
@@ -1812,7 +1812,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_commands_admin_group_disolver_combate_findsessionbyuser_removesession",
-      "community": 38,
+      "community": 41,
       "norm_label": "{ findsessionbyuser, removesession }"
     },
     {
@@ -1822,7 +1822,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_commands_admin_group_disolver_combate_formatcombatdisolved",
-      "community": 38,
+      "community": 41,
       "norm_label": "{ formatcombatdisolved }"
     },
     {
@@ -1832,7 +1832,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "src_commands_admin_group_disolver_combate_execute",
-      "community": 38,
+      "community": 41,
       "norm_label": "execute()"
     },
     {
@@ -1842,7 +1842,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_commands_admin_group_grupo_abrir",
-      "community": 11,
+      "community": 24,
       "norm_label": "grupo_abrir.js"
     },
     {
@@ -1852,7 +1852,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_commands_admin_group_grupo_abrir_opengroup",
-      "community": 11,
+      "community": 24,
       "norm_label": "{ opengroup }"
     },
     {
@@ -1862,7 +1862,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_commands_admin_group_grupo_abrir_box",
-      "community": 11,
+      "community": 24,
       "norm_label": "{ box }"
     },
     {
@@ -1872,7 +1872,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_commands_admin_group_grupo_abrir_formaterror",
-      "community": 11,
+      "community": 24,
       "norm_label": "{ formaterror }"
     },
     {
@@ -1882,7 +1882,7 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "src_commands_admin_group_grupo_abrir_execute",
-      "community": 11,
+      "community": 24,
       "norm_label": "execute()"
     },
     {
@@ -1942,7 +1942,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_commands_admin_group_invite",
-      "community": 68,
+      "community": 47,
       "norm_label": "invite.js"
     },
     {
@@ -1952,7 +1952,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_commands_admin_group_invite_getinvitecode",
-      "community": 68,
+      "community": 47,
       "norm_label": "{ getinvitecode }"
     },
     {
@@ -1962,7 +1962,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_commands_admin_group_invite_box",
-      "community": 68,
+      "community": 47,
       "norm_label": "{ box }"
     },
     {
@@ -1972,7 +1972,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_commands_admin_group_invite_formaterror",
-      "community": 68,
+      "community": 47,
       "norm_label": "{ formaterror }"
     },
     {
@@ -1982,7 +1982,7 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "src_commands_admin_group_invite_execute",
-      "community": 68,
+      "community": 47,
       "norm_label": "execute()"
     },
     {
@@ -2232,7 +2232,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "src_commands_admin_group_unwarn_execute",
-      "community": 6,
+      "community": 7,
       "norm_label": "execute()"
     },
     {
@@ -2312,7 +2312,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "src_commands_admin_group_warn_execute",
-      "community": 6,
+      "community": 7,
       "norm_label": "execute()"
     },
     {
@@ -2532,7 +2532,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_commands_admin_permissions_admin_perm_rem",
-      "community": 18,
+      "community": 10,
       "norm_label": "admin_perm_rem.js"
     },
     {
@@ -2542,7 +2542,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_commands_admin_permissions_admin_perm_rem_setadminforcategory_isadminforcategory",
-      "community": 18,
+      "community": 10,
       "norm_label": "{ setadminforcategory, isadminforcategory }"
     },
     {
@@ -2552,7 +2552,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_commands_admin_permissions_admin_perm_rem_getfirstmentionedjid",
-      "community": 18,
+      "community": 10,
       "norm_label": "{ getfirstmentionedjid }"
     },
     {
@@ -2562,7 +2562,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_commands_admin_permissions_admin_perm_rem_isowner",
-      "community": 18,
+      "community": 10,
       "norm_label": "{ isowner }"
     },
     {
@@ -2572,7 +2572,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "src_commands_admin_permissions_admin_perm_rem_formatdisplaymention_withmentions",
-      "community": 18,
+      "community": 10,
       "norm_label": "{ formatdisplaymention, withmentions }"
     },
     {
@@ -2582,7 +2582,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "src_commands_admin_permissions_admin_perm_rem_resolvetargetdisplayname",
-      "community": 18,
+      "community": 10,
       "norm_label": "{ resolvetargetdisplayname }"
     },
     {
@@ -2592,7 +2592,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "src_commands_admin_permissions_admin_perm_rem_box",
-      "community": 18,
+      "community": 10,
       "norm_label": "{ box }"
     },
     {
@@ -2602,7 +2602,7 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "src_commands_admin_permissions_admin_perm_rem_formaterror",
-      "community": 18,
+      "community": 10,
       "norm_label": "{ formaterror }"
     },
     {
@@ -2612,7 +2612,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "src_commands_admin_permissions_admin_perm_rem_formatcommandusage",
-      "community": 18,
+      "community": 10,
       "norm_label": "{ formatcommandusage }"
     },
     {
@@ -2622,7 +2622,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "src_commands_admin_permissions_admin_perm_rem_categories",
-      "community": 18,
+      "community": 10,
       "norm_label": "categories"
     },
     {
@@ -2632,7 +2632,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "src_commands_admin_permissions_admin_perm_rem_category_display",
-      "community": 18,
+      "community": 10,
       "norm_label": "category_display"
     },
     {
@@ -2642,7 +2642,7 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "src_commands_admin_permissions_admin_perm_rem_usagemessage",
-      "community": 18,
+      "community": 10,
       "norm_label": "usagemessage"
     },
     {
@@ -2652,7 +2652,7 @@
       "source_location": "L33",
       "_origin": "ast",
       "id": "src_commands_admin_permissions_admin_perm_rem_execute",
-      "community": 7,
+      "community": 10,
       "norm_label": "execute()"
     },
     {
@@ -2662,7 +2662,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_commands_admin_permissions_eco_admin_add",
-      "community": 24,
+      "community": 18,
       "norm_label": "eco_admin_add.js"
     },
     {
@@ -2672,7 +2672,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_commands_admin_permissions_eco_admin_add_seteconomyadmin",
-      "community": 24,
+      "community": 18,
       "norm_label": "{ seteconomyadmin }"
     },
     {
@@ -2682,7 +2682,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_commands_admin_permissions_eco_admin_add_getfirstmentionedjid",
-      "community": 24,
+      "community": 18,
       "norm_label": "{ getfirstmentionedjid }"
     },
     {
@@ -2692,7 +2692,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_commands_admin_permissions_eco_admin_add_isowner",
-      "community": 24,
+      "community": 18,
       "norm_label": "{ isowner }"
     },
     {
@@ -2702,7 +2702,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "src_commands_admin_permissions_eco_admin_add_formatdisplaymention_withmentions",
-      "community": 24,
+      "community": 18,
       "norm_label": "{ formatdisplaymention, withmentions }"
     },
     {
@@ -2712,7 +2712,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "src_commands_admin_permissions_eco_admin_add_resolvetargetdisplayname",
-      "community": 24,
+      "community": 18,
       "norm_label": "{ resolvetargetdisplayname }"
     },
     {
@@ -2722,7 +2722,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "src_commands_admin_permissions_eco_admin_add_box",
-      "community": 24,
+      "community": 18,
       "norm_label": "{ box }"
     },
     {
@@ -2732,7 +2732,7 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "src_commands_admin_permissions_eco_admin_add_formaterror",
-      "community": 24,
+      "community": 18,
       "norm_label": "{ formaterror }"
     },
     {
@@ -2742,7 +2742,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "src_commands_admin_permissions_eco_admin_add_formatcommandusage",
-      "community": 24,
+      "community": 18,
       "norm_label": "{ formatcommandusage }"
     },
     {
@@ -2752,7 +2752,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "src_commands_admin_permissions_eco_admin_add_usagemessage",
-      "community": 24,
+      "community": 18,
       "norm_label": "usagemessage"
     },
     {
@@ -2772,7 +2772,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_commands_admin_permissions_eco_admin_list",
-      "community": 75,
+      "community": 26,
       "norm_label": "eco_admin_list.js"
     },
     {
@@ -2782,7 +2782,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_commands_admin_permissions_eco_admin_list_listeconomyadmins",
-      "community": 75,
+      "community": 26,
       "norm_label": "{ listeconomyadmins }"
     },
     {
@@ -2792,7 +2792,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_commands_admin_permissions_eco_admin_list_getownerrecords",
-      "community": 75,
+      "community": 26,
       "norm_label": "{ getownerrecords }"
     },
     {
@@ -2802,7 +2802,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_commands_admin_permissions_eco_admin_list_box",
-      "community": 75,
+      "community": 26,
       "norm_label": "{ box }"
     },
     {
@@ -2812,7 +2812,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "src_commands_admin_permissions_eco_admin_list_execute",
-      "community": 75,
+      "community": 26,
       "norm_label": "execute()"
     },
     {
@@ -2822,7 +2822,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_commands_admin_permissions_eco_admin_rem",
-      "community": 23,
+      "community": 10,
       "norm_label": "eco_admin_rem.js"
     },
     {
@@ -2832,7 +2832,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_commands_admin_permissions_eco_admin_rem_seteconomyadmin_iseconomyadmin",
-      "community": 23,
+      "community": 10,
       "norm_label": "{ seteconomyadmin, iseconomyadmin }"
     },
     {
@@ -2842,7 +2842,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_commands_admin_permissions_eco_admin_rem_getfirstmentionedjid",
-      "community": 23,
+      "community": 10,
       "norm_label": "{ getfirstmentionedjid }"
     },
     {
@@ -2852,7 +2852,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_commands_admin_permissions_eco_admin_rem_isowner",
-      "community": 23,
+      "community": 10,
       "norm_label": "{ isowner }"
     },
     {
@@ -2862,7 +2862,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "src_commands_admin_permissions_eco_admin_rem_formatdisplaymention_withmentions",
-      "community": 23,
+      "community": 10,
       "norm_label": "{ formatdisplaymention, withmentions }"
     },
     {
@@ -2872,7 +2872,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "src_commands_admin_permissions_eco_admin_rem_resolvetargetdisplayname",
-      "community": 23,
+      "community": 10,
       "norm_label": "{ resolvetargetdisplayname }"
     },
     {
@@ -2882,7 +2882,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "src_commands_admin_permissions_eco_admin_rem_box",
-      "community": 23,
+      "community": 10,
       "norm_label": "{ box }"
     },
     {
@@ -2892,7 +2892,7 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "src_commands_admin_permissions_eco_admin_rem_formaterror",
-      "community": 23,
+      "community": 10,
       "norm_label": "{ formaterror }"
     },
     {
@@ -2902,7 +2902,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "src_commands_admin_permissions_eco_admin_rem_formatcommandusage",
-      "community": 23,
+      "community": 10,
       "norm_label": "{ formatcommandusage }"
     },
     {
@@ -2912,7 +2912,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "src_commands_admin_permissions_eco_admin_rem_usagemessage",
-      "community": 23,
+      "community": 10,
       "norm_label": "usagemessage"
     },
     {
@@ -2922,7 +2922,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "src_commands_admin_permissions_eco_admin_rem_execute",
-      "community": 7,
+      "community": 10,
       "norm_label": "execute()"
     },
     {
@@ -3222,7 +3222,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "src_commands_economy_dar_stelas_execute",
-      "community": 17,
+      "community": 7,
       "norm_label": "execute()"
     },
     {
@@ -3312,7 +3312,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_commands_economy_top_dinero",
-      "community": 2,
+      "community": 35,
       "norm_label": "top_dinero.js"
     },
     {
@@ -3322,7 +3322,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_commands_economy_top_dinero_gettopbalances",
-      "community": 2,
+      "community": 35,
       "norm_label": "{ gettopbalances }"
     },
     {
@@ -3332,7 +3332,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_commands_economy_top_dinero_formatstelas",
-      "community": 2,
+      "community": 35,
       "norm_label": "{ formatstelas }"
     },
     {
@@ -3342,7 +3342,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "src_commands_economy_top_dinero_top_dinero_limit",
-      "community": 2,
+      "community": 35,
       "norm_label": "{ top_dinero_limit }"
     },
     {
@@ -3352,7 +3352,7 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "src_commands_economy_top_dinero_box",
-      "community": 2,
+      "community": 35,
       "norm_label": "{ box }"
     },
     {
@@ -3362,7 +3362,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "src_commands_economy_top_dinero_medal",
-      "community": 2,
+      "community": 35,
       "norm_label": "{ medal }"
     },
     {
@@ -3372,7 +3372,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "src_commands_economy_top_dinero_execute",
-      "community": 7,
+      "community": 35,
       "norm_label": "execute()"
     },
     {
@@ -3432,7 +3432,7 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "src_commands_info_bugreport_execute",
-      "community": 68,
+      "community": 18,
       "norm_label": "execute()"
     },
     {
@@ -3442,7 +3442,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_commands_info_bugstatus",
-      "community": 1,
+      "community": 44,
       "norm_label": "bugstatus.js"
     },
     {
@@ -3452,7 +3452,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_commands_info_bugstatus_getreport_getuserreports",
-      "community": 1,
+      "community": 44,
       "norm_label": "{ getreport, getuserreports }"
     },
     {
@@ -3462,7 +3462,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_commands_info_bugstatus_box",
-      "community": 1,
+      "community": 44,
       "norm_label": "{ box }"
     },
     {
@@ -3472,7 +3472,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_commands_info_bugstatus_formaterror",
-      "community": 1,
+      "community": 44,
       "norm_label": "{ formaterror }"
     },
     {
@@ -3482,7 +3482,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "src_commands_info_bugstatus_execute",
-      "community": 1,
+      "community": 44,
       "norm_label": "execute()"
     },
     {
@@ -3932,7 +3932,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_commands_rpg_characters_eliminar_pj",
-      "community": 68,
+      "community": 18,
       "norm_label": "eliminar_pj.js"
     },
     {
@@ -3942,7 +3942,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_commands_rpg_characters_eliminar_pj_listcharacters_deletecharacter",
-      "community": 68,
+      "community": 18,
       "norm_label": "{ listcharacters, deletecharacter }"
     },
     {
@@ -3952,7 +3952,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_commands_rpg_characters_eliminar_pj_box",
-      "community": 68,
+      "community": 18,
       "norm_label": "{ box }"
     },
     {
@@ -3962,7 +3962,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_commands_rpg_characters_eliminar_pj_formaterror",
-      "community": 68,
+      "community": 18,
       "norm_label": "{ formaterror }"
     },
     {
@@ -3972,7 +3972,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "src_commands_rpg_characters_eliminar_pj_formatcommandusage",
-      "community": 68,
+      "community": 18,
       "norm_label": "{ formatcommandusage }"
     },
     {
@@ -3982,7 +3982,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "src_commands_rpg_characters_eliminar_pj_usagemessage",
-      "community": 68,
+      "community": 18,
       "norm_label": "usagemessage"
     },
     {
@@ -3992,7 +3992,7 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "src_commands_rpg_characters_eliminar_pj_pendingconfirmations",
-      "community": 68,
+      "community": 18,
       "norm_label": "pendingconfirmations"
     },
     {
@@ -4002,7 +4002,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "src_commands_rpg_characters_eliminar_pj_execute",
-      "community": 68,
+      "community": 18,
       "norm_label": "execute()"
     },
     {
@@ -4012,7 +4012,7 @@
       "source_location": "L93",
       "_origin": "ast",
       "id": "src_commands_rpg_characters_eliminar_pj_executedeletion",
-      "community": 68,
+      "community": 18,
       "norm_label": "executedeletion()"
     },
     {
@@ -4252,7 +4252,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_commands_rpg_characters_ver_pj",
-      "community": 72,
+      "community": 31,
       "norm_label": "ver_pj.js"
     },
     {
@@ -4262,7 +4262,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_commands_rpg_characters_ver_pj_getactivecharacter",
-      "community": 72,
+      "community": 31,
       "norm_label": "{ getactivecharacter }"
     },
     {
@@ -4272,7 +4272,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_commands_rpg_characters_ver_pj_getinventory",
-      "community": 72,
+      "community": 31,
       "norm_label": "{ getinventory }"
     },
     {
@@ -4282,7 +4282,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_commands_rpg_characters_ver_pj_formatcharacter",
-      "community": 72,
+      "community": 31,
       "norm_label": "{ formatcharacter }"
     },
     {
@@ -4292,7 +4292,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "src_commands_rpg_characters_ver_pj_logerror",
-      "community": 72,
+      "community": 31,
       "norm_label": "{ logerror }"
     },
     {
@@ -4302,7 +4302,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "src_commands_rpg_characters_ver_pj_execute",
-      "community": 72,
+      "community": 31,
       "norm_label": "execute()"
     },
     {
@@ -4572,7 +4572,7 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "src_commands_rpg_combat_descansar_execute",
-      "community": 37,
+      "community": 38,
       "norm_label": "execute()"
     },
     {
@@ -4812,7 +4812,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "src_commands_rpg_combat_huir_execute",
-      "community": 37,
+      "community": 16,
       "norm_label": "execute()"
     },
     {
@@ -4892,7 +4892,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_commands_rpg_inventory_inventario",
-      "community": 76,
+      "community": 28,
       "norm_label": "inventario.js"
     },
     {
@@ -4902,7 +4902,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_commands_rpg_inventory_inventario_getactivecharacter",
-      "community": 76,
+      "community": 28,
       "norm_label": "{ getactivecharacter }"
     },
     {
@@ -4912,7 +4912,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_commands_rpg_inventory_inventario_getinventory",
-      "community": 76,
+      "community": 28,
       "norm_label": "{ getinventory }"
     },
     {
@@ -4922,7 +4922,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_commands_rpg_inventory_inventario_getitem",
-      "community": 76,
+      "community": 28,
       "norm_label": "{ getitem }"
     },
     {
@@ -4932,7 +4932,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "src_commands_rpg_inventory_inventario_box",
-      "community": 76,
+      "community": 28,
       "norm_label": "{ box }"
     },
     {
@@ -4942,7 +4942,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "src_commands_rpg_inventory_inventario_execute",
-      "community": 76,
+      "community": 28,
       "norm_label": "execute()"
     },
     {
@@ -5032,7 +5032,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_commands_rpg_inventory_item_rem",
-      "community": 70,
+      "community": 43,
       "norm_label": "item_rem.js"
     },
     {
@@ -5042,7 +5042,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_commands_rpg_inventory_item_rem_getactivecharacter",
-      "community": 70,
+      "community": 43,
       "norm_label": "{ getactivecharacter }"
     },
     {
@@ -5052,7 +5052,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_commands_rpg_inventory_item_rem_removeitem",
-      "community": 70,
+      "community": 43,
       "norm_label": "{ removeitem }"
     },
     {
@@ -5062,7 +5062,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_commands_rpg_inventory_item_rem_getitem_items",
-      "community": 70,
+      "community": 43,
       "norm_label": "{ getitem, items }"
     },
     {
@@ -5072,7 +5072,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "src_commands_rpg_inventory_item_rem_formaterror",
-      "community": 70,
+      "community": 43,
       "norm_label": "{ formaterror }"
     },
     {
@@ -5082,7 +5082,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "src_commands_rpg_inventory_item_rem_box",
-      "community": 70,
+      "community": 43,
       "norm_label": "{ box }"
     },
     {
@@ -5092,7 +5092,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "src_commands_rpg_inventory_item_rem_parsequantity",
-      "community": 70,
+      "community": 43,
       "norm_label": "{ parsequantity }"
     },
     {
@@ -5342,7 +5342,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_config_economyconfig",
-      "community": 2,
+      "community": 35,
       "norm_label": "economyconfig.js"
     },
     {
@@ -5392,7 +5392,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_config_permissionsconfig",
-      "community": 35,
+      "community": 26,
       "norm_label": "permissionsconfig.js"
     },
     {
@@ -5402,7 +5402,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "src_config_permissionsconfig_owner_aliases",
-      "community": 35,
+      "community": 26,
       "norm_label": "owner_aliases"
     },
     {
@@ -5692,7 +5692,7 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "src_core_commandhandler_loadcommands",
-      "community": 4,
+      "community": 48,
       "norm_label": "loadcommands()"
     },
     {
@@ -5792,7 +5792,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_core_context",
-      "community": 74,
+      "community": 26,
       "norm_label": "context.js"
     },
     {
@@ -5802,7 +5802,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_core_context_extractphonenumber_normalizejid",
-      "community": 74,
+      "community": 26,
       "norm_label": "{ extractphonenumber, normalizejid }"
     },
     {
@@ -5812,7 +5812,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_core_context_text_message_types",
-      "community": 74,
+      "community": 26,
       "norm_label": "text_message_types"
     },
     {
@@ -5822,7 +5822,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "src_core_context_unwrapmessagecontent",
-      "community": 74,
+      "community": 26,
       "norm_label": "unwrapmessagecontent()"
     },
     {
@@ -5832,7 +5832,7 @@
       "source_location": "L46",
       "_origin": "ast",
       "id": "src_core_context_getmessagetype",
-      "community": 74,
+      "community": 26,
       "norm_label": "getmessagetype()"
     },
     {
@@ -5842,7 +5842,7 @@
       "source_location": "L83",
       "_origin": "ast",
       "id": "src_core_context_istextlikemessagetype",
-      "community": 74,
+      "community": 26,
       "norm_label": "istextlikemessagetype()"
     },
     {
@@ -5852,7 +5852,7 @@
       "source_location": "L95",
       "_origin": "ast",
       "id": "src_core_context_extracttext",
-      "community": 74,
+      "community": 26,
       "norm_label": "extracttext()"
     },
     {
@@ -5862,7 +5862,7 @@
       "source_location": "L120",
       "_origin": "ast",
       "id": "src_core_context_createcontext",
-      "community": 74,
+      "community": 26,
       "norm_label": "createcontext()"
     },
     {
@@ -5952,7 +5952,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_core_supabaseauthstate",
-      "community": 41,
+      "community": 0,
       "norm_label": "supabaseauthstate.js"
     },
     {
@@ -5962,7 +5962,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_core_supabaseauthstate_bufferjson_initauthcreds",
-      "community": 41,
+      "community": 0,
       "norm_label": "{ bufferjson, initauthcreds }"
     },
     {
@@ -5972,7 +5972,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_core_supabaseauthstate_supabase",
-      "community": 41,
+      "community": 0,
       "norm_label": "{ supabase }"
     },
     {
@@ -5982,7 +5982,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_core_supabaseauthstate_logerror",
-      "community": 41,
+      "community": 0,
       "norm_label": "{ logerror }"
     },
     {
@@ -5992,7 +5992,7 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "src_core_supabaseauthstate_usesupabaseauthstate",
-      "community": 41,
+      "community": 0,
       "norm_label": "usesupabaseauthstate()"
     },
     {
@@ -6046,13 +6046,213 @@
       "norm_label": "validarclase()"
     },
     {
+      "label": "buff.js",
+      "file_type": "code",
+      "source_file": "src/data/itemCategories/buff.js",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_data_itemcategories_buff",
+      "community": 23,
+      "norm_label": "buff.js"
+    },
+    {
+      "label": "BuffCategory",
+      "file_type": "code",
+      "source_file": "src/data/itemCategories/buff.js",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_data_itemcategories_buff_buffcategory",
+      "community": 23,
+      "norm_label": "buffcategory"
+    },
+    {
+      "label": ".onUse()",
+      "file_type": "code",
+      "source_file": "src/data/itemCategories/buff.js",
+      "source_location": "L5",
+      "_origin": "ast",
+      "id": "src_data_itemcategories_buff_buffcategory_onuse",
+      "community": 23,
+      "norm_label": ".onuse()"
+    },
+    {
+      "label": "damage.js",
+      "file_type": "code",
+      "source_file": "src/data/itemCategories/damage.js",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_data_itemcategories_damage",
+      "community": 23,
+      "norm_label": "damage.js"
+    },
+    {
+      "label": "DamageCategory",
+      "file_type": "code",
+      "source_file": "src/data/itemCategories/damage.js",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_data_itemcategories_damage_damagecategory",
+      "community": 23,
+      "norm_label": "damagecategory"
+    },
+    {
+      "label": ".onUse()",
+      "file_type": "code",
+      "source_file": "src/data/itemCategories/damage.js",
+      "source_location": "L5",
+      "_origin": "ast",
+      "id": "src_data_itemcategories_damage_damagecategory_onuse",
+      "community": 23,
+      "norm_label": ".onuse()"
+    },
+    {
+      "label": "equipable.js",
+      "file_type": "code",
+      "source_file": "src/data/itemCategories/equipable.js",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_data_itemcategories_equipable",
+      "community": 23,
+      "norm_label": "equipable.js"
+    },
+    {
+      "label": "EquipableCategory",
+      "file_type": "code",
+      "source_file": "src/data/itemCategories/equipable.js",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_data_itemcategories_equipable_equipablecategory",
+      "community": 23,
+      "norm_label": "equipablecategory"
+    },
+    {
+      "label": ".onUse()",
+      "file_type": "code",
+      "source_file": "src/data/itemCategories/equipable.js",
+      "source_location": "L5",
+      "_origin": "ast",
+      "id": "src_data_itemcategories_equipable_equipablecategory_onuse",
+      "community": 23,
+      "norm_label": ".onuse()"
+    },
+    {
+      "label": "heal.js",
+      "file_type": "code",
+      "source_file": "src/data/itemCategories/heal.js",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_data_itemcategories_heal",
+      "community": 23,
+      "norm_label": "heal.js"
+    },
+    {
+      "label": "HealCategory",
+      "file_type": "code",
+      "source_file": "src/data/itemCategories/heal.js",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_data_itemcategories_heal_healcategory",
+      "community": 23,
+      "norm_label": "healcategory"
+    },
+    {
+      "label": ".onUse()",
+      "file_type": "code",
+      "source_file": "src/data/itemCategories/heal.js",
+      "source_location": "L5",
+      "_origin": "ast",
+      "id": "src_data_itemcategories_heal_healcategory_onuse",
+      "community": 23,
+      "norm_label": ".onuse()"
+    },
+    {
+      "label": "index.js",
+      "file_type": "code",
+      "source_file": "src/data/itemCategories/index.js",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_data_itemcategories_index",
+      "community": 23,
+      "norm_label": "index.js"
+    },
+    {
+      "label": "HealCategory",
+      "file_type": "code",
+      "source_file": "src/data/itemCategories/index.js",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_data_itemcategories_index_healcategory",
+      "community": 23,
+      "norm_label": "healcategory"
+    },
+    {
+      "label": "BuffCategory",
+      "file_type": "code",
+      "source_file": "src/data/itemCategories/index.js",
+      "source_location": "L2",
+      "_origin": "ast",
+      "id": "src_data_itemcategories_index_buffcategory",
+      "community": 23,
+      "norm_label": "buffcategory"
+    },
+    {
+      "label": "DamageCategory",
+      "file_type": "code",
+      "source_file": "src/data/itemCategories/index.js",
+      "source_location": "L3",
+      "_origin": "ast",
+      "id": "src_data_itemcategories_index_damagecategory",
+      "community": 23,
+      "norm_label": "damagecategory"
+    },
+    {
+      "label": "EquipableCategory",
+      "file_type": "code",
+      "source_file": "src/data/itemCategories/index.js",
+      "source_location": "L4",
+      "_origin": "ast",
+      "id": "src_data_itemcategories_index_equipablecategory",
+      "community": 23,
+      "norm_label": "equipablecategory"
+    },
+    {
+      "label": "REGISTRY",
+      "file_type": "code",
+      "source_file": "src/data/itemCategories/index.js",
+      "source_location": "L6",
+      "_origin": "ast",
+      "id": "src_data_itemcategories_index_registry",
+      "community": 23,
+      "norm_label": "registry"
+    },
+    {
+      "label": "getCategory()",
+      "file_type": "code",
+      "source_file": "src/data/itemCategories/index.js",
+      "source_location": "L12",
+      "_origin": "ast",
+      "id": "src_data_itemcategories_index_getcategory",
+      "community": 23,
+      "norm_label": "getcategory()"
+    },
+    {
+      "label": "getCategories()",
+      "file_type": "code",
+      "source_file": "src/data/itemCategories/index.js",
+      "source_location": "L16",
+      "_origin": "ast",
+      "id": "src_data_itemcategories_index_getcategories",
+      "community": 23,
+      "norm_label": "getcategories()"
+    },
+    {
       "label": "items.js",
       "file_type": "code",
       "source_file": "src/data/items.js",
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_data_items",
-      "community": 28,
+      "community": 70,
       "norm_label": "items.js"
     },
     {
@@ -6062,27 +6262,27 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_data_items_items",
-      "community": 28,
+      "community": 70,
       "norm_label": "items"
     },
     {
       "label": "getItem()",
       "file_type": "code",
       "source_file": "src/data/items.js",
-      "source_location": "L45",
+      "source_location": "L53",
       "_origin": "ast",
       "id": "src_data_items_getitem",
-      "community": 28,
+      "community": 43,
       "norm_label": "getitem()"
     },
     {
       "label": "getItemsByCategory()",
       "file_type": "code",
       "source_file": "src/data/items.js",
-      "source_location": "L53",
+      "source_location": "L61",
       "_origin": "ast",
       "id": "src_data_items_getitemsbycategory",
-      "community": 28,
+      "community": 70,
       "norm_label": "getitemsbycategory()"
     },
     {
@@ -6092,7 +6292,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_database_columnregistry",
-      "community": 47,
+      "community": 69,
       "norm_label": "columnregistry.js"
     },
     {
@@ -6102,7 +6302,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_database_columnregistry_supabase",
-      "community": 47,
+      "community": 69,
       "norm_label": "{ supabase }"
     },
     {
@@ -6112,7 +6312,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_database_columnregistry_logsystem",
-      "community": 47,
+      "community": 69,
       "norm_label": "{ logsystem }"
     },
     {
@@ -6122,7 +6322,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "src_database_columnregistry_known_schema",
-      "community": 47,
+      "community": 69,
       "norm_label": "known_schema"
     },
     {
@@ -6292,7 +6492,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_database_schemavalidator",
-      "community": 44,
+      "community": 69,
       "norm_label": "schemavalidator.js"
     },
     {
@@ -6302,7 +6502,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_database_schemavalidator_supabase",
-      "community": 44,
+      "community": 69,
       "norm_label": "{ supabase }"
     },
     {
@@ -6312,7 +6512,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_database_schemavalidator_logsystem_logerror",
-      "community": 44,
+      "community": 69,
       "norm_label": "{ logsystem, logerror }"
     },
     {
@@ -6322,7 +6522,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_database_schemavalidator_discover",
-      "community": 44,
+      "community": 69,
       "norm_label": "{ discover }"
     },
     {
@@ -6332,7 +6532,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_database_schemavalidator_checkversion",
-      "community": 44,
+      "community": 69,
       "norm_label": "{ checkversion }"
     },
     {
@@ -6342,7 +6542,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "src_database_schemavalidator_schema",
-      "community": 44,
+      "community": 69,
       "norm_label": "schema"
     },
     {
@@ -6352,7 +6552,7 @@
       "source_location": "L36",
       "_origin": "ast",
       "id": "src_database_schemavalidator_critical_equals_columns",
-      "community": 44,
+      "community": 69,
       "norm_label": "critical_equals_columns"
     },
     {
@@ -6372,7 +6572,7 @@
       "source_location": "L98",
       "_origin": "ast",
       "id": "src_database_schemavalidator_verifystartup",
-      "community": 44,
+      "community": 69,
       "norm_label": "verifystartup()"
     },
     {
@@ -6382,7 +6582,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_database_schemaversion",
-      "community": 44,
+      "community": 69,
       "norm_label": "schemaversion.js"
     },
     {
@@ -6392,7 +6592,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_database_schemaversion_supabase",
-      "community": 44,
+      "community": 69,
       "norm_label": "{ supabase }"
     },
     {
@@ -6402,7 +6602,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_database_schemaversion_logsystem",
-      "community": 44,
+      "community": 69,
       "norm_label": "{ logsystem }"
     },
     {
@@ -6412,7 +6612,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "src_database_schemaversion_getstoredversion",
-      "community": 44,
+      "community": 69,
       "norm_label": "getstoredversion()"
     },
     {
@@ -6422,7 +6622,7 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "src_database_schemaversion_setstoredversion",
-      "community": 44,
+      "community": 69,
       "norm_label": "setstoredversion()"
     },
     {
@@ -6432,7 +6632,7 @@
       "source_location": "L46",
       "_origin": "ast",
       "id": "src_database_schemaversion_checkversion",
-      "community": 44,
+      "community": 69,
       "norm_label": "checkversion()"
     },
     {
@@ -6442,7 +6642,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_database_supabase",
-      "community": 47,
+      "community": 69,
       "norm_label": "supabase.js"
     },
     {
@@ -6452,7 +6652,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_database_supabase_createclient",
-      "community": 47,
+      "community": 69,
       "norm_label": "{ createclient }"
     },
     {
@@ -6462,7 +6662,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_database_supabase_logsystem",
-      "community": 47,
+      "community": 69,
       "norm_label": "{ logsystem }"
     },
     {
@@ -6472,7 +6672,7 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "src_database_supabase_supabase",
-      "community": 47,
+      "community": 69,
       "norm_label": "supabase"
     },
     {
@@ -6642,7 +6842,7 @@
       "source_location": "L145",
       "_origin": "ast",
       "id": "src_services_bugreportservice_getreport",
-      "community": 1,
+      "community": 44,
       "norm_label": "getreport()"
     },
     {
@@ -6652,7 +6852,7 @@
       "source_location": "L156",
       "_origin": "ast",
       "id": "src_services_bugreportservice_getuserreports",
-      "community": 1,
+      "community": 44,
       "norm_label": "getuserreports()"
     },
     {
@@ -6792,7 +6992,7 @@
       "source_location": "L201",
       "_origin": "ast",
       "id": "src_services_characterservice_getactivecharacter",
-      "community": 37,
+      "community": 38,
       "norm_label": "getactivecharacter()"
     },
     {
@@ -6912,7 +7112,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_services_displaynameservice",
-      "community": 17,
+      "community": 6,
       "norm_label": "displaynameservice.js"
     },
     {
@@ -6922,7 +7122,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_services_displaynameservice_getgroupmetadata",
-      "community": 17,
+      "community": 6,
       "norm_label": "{ getgroupmetadata }"
     },
     {
@@ -6932,7 +7132,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_services_displaynameservice_getuserprofile",
-      "community": 17,
+      "community": 6,
       "norm_label": "{ getuserprofile }"
     },
     {
@@ -6942,7 +7142,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "src_services_displaynameservice_cleantext",
-      "community": 17,
+      "community": 6,
       "norm_label": "cleantext()"
     },
     {
@@ -6952,7 +7152,7 @@
       "source_location": "L21",
       "_origin": "ast",
       "id": "src_services_displaynameservice_ismeaningfuldisplayname",
-      "community": 17,
+      "community": 6,
       "norm_label": "ismeaningfuldisplayname()"
     },
     {
@@ -6962,7 +7162,7 @@
       "source_location": "L50",
       "_origin": "ast",
       "id": "src_services_displaynameservice_findparticipantdisplayname",
-      "community": 17,
+      "community": 6,
       "norm_label": "findparticipantdisplayname()"
     },
     {
@@ -6972,7 +7172,7 @@
       "source_location": "L79",
       "_origin": "ast",
       "id": "src_services_displaynameservice_extractmentionlabelfromcontext",
-      "community": 17,
+      "community": 6,
       "norm_label": "extractmentionlabelfromcontext()"
     },
     {
@@ -6982,7 +7182,7 @@
       "source_location": "L113",
       "_origin": "ast",
       "id": "src_services_displaynameservice_resolvetargetdisplayname",
-      "community": 17,
+      "community": 6,
       "norm_label": "resolvetargetdisplayname()"
     },
     {
@@ -7152,7 +7352,7 @@
       "source_location": "L309",
       "_origin": "ast",
       "id": "src_services_economyservice_claimdaily",
-      "community": 15,
+      "community": 2,
       "norm_label": "claimdaily()"
     },
     {
@@ -7162,7 +7362,7 @@
       "source_location": "L419",
       "_origin": "ast",
       "id": "src_services_economyservice_gettopbalances",
-      "community": 32,
+      "community": 35,
       "norm_label": "gettopbalances()"
     },
     {
@@ -7482,7 +7682,7 @@
       "source_location": "L123",
       "_origin": "ast",
       "id": "src_services_loggerservice_logsystem",
-      "community": 44,
+      "community": 48,
       "norm_label": "logsystem()"
     },
     {
@@ -7502,7 +7702,7 @@
       "source_location": "L156",
       "_origin": "ast",
       "id": "src_services_loggerservice_logerror",
-      "community": 72,
+      "community": 0,
       "norm_label": "logerror()"
     },
     {
@@ -7522,7 +7722,7 @@
       "source_location": "L206",
       "_origin": "ast",
       "id": "src_services_loggerservice_getrecenterrors",
-      "community": 40,
+      "community": 30,
       "norm_label": "getrecenterrors()"
     },
     {
@@ -7602,7 +7802,7 @@
       "source_location": "L36",
       "_origin": "ast",
       "id": "src_services_permissionservice_pickdisplayname",
-      "community": 13,
+      "community": 7,
       "norm_label": "pickdisplayname()"
     },
     {
@@ -7642,7 +7842,7 @@
       "source_location": "L92",
       "_origin": "ast",
       "id": "src_services_permissionservice_haseconomypermission",
-      "community": 10,
+      "community": 3,
       "norm_label": "haseconomypermission()"
     },
     {
@@ -7662,7 +7862,7 @@
       "source_location": "L137",
       "_origin": "ast",
       "id": "src_services_permissionservice_listeconomyadmins",
-      "community": 75,
+      "community": 26,
       "norm_label": "listeconomyadmins()"
     },
     {
@@ -7702,7 +7902,7 @@
       "source_location": "L187",
       "_origin": "ast",
       "id": "src_services_permissionservice_haspermissionforcategory",
-      "community": 10,
+      "community": 3,
       "norm_label": "haspermissionforcategory()"
     },
     {
@@ -7722,7 +7922,7 @@
       "source_location": "L255",
       "_origin": "ast",
       "id": "src_services_permissionservice_listadminsforcategory",
-      "community": 13,
+      "community": 26,
       "norm_label": "listadminsforcategory()"
     },
     {
@@ -7972,7 +8172,7 @@
       "source_location": "L106",
       "_origin": "ast",
       "id": "src_services_rpg_combatengine_evaluatedodgefeasibility",
-      "community": 37,
+      "community": 14,
       "norm_label": "evaluatedodgefeasibility()"
     },
     {
@@ -8022,7 +8222,7 @@
       "source_location": "L256",
       "_origin": "ast",
       "id": "src_services_rpg_combatengine_executereaction",
-      "community": 37,
+      "community": 14,
       "norm_label": "executereaction()"
     },
     {
@@ -8202,7 +8402,7 @@
       "source_location": "L245",
       "_origin": "ast",
       "id": "src_services_rpg_combatmessages_formatcombatdisolved",
-      "community": 38,
+      "community": 41,
       "norm_label": "formatcombatdisolved()"
     },
     {
@@ -8432,7 +8632,7 @@
       "source_location": "L401",
       "_origin": "ast",
       "id": "src_services_rpg_combatstate_removesession",
-      "community": 38,
+      "community": 41,
       "norm_label": "removesession()"
     },
     {
@@ -8636,10 +8836,30 @@
       "norm_label": "{ parsequantity }"
     },
     {
-      "label": "characterLocks",
+      "label": "{ createItem }",
+      "file_type": "code",
+      "source_file": "src/services/rpg/inventoryService.js",
+      "source_location": "L10",
+      "_origin": "ast",
+      "id": "src_services_rpg_inventoryservice_createitem",
+      "community": 71,
+      "norm_label": "{ createitem }"
+    },
+    {
+      "label": "{ setCooldown }",
       "file_type": "code",
       "source_file": "src/services/rpg/inventoryService.js",
       "source_location": "L11",
+      "_origin": "ast",
+      "id": "src_services_rpg_inventoryservice_setcooldown",
+      "community": 71,
+      "norm_label": "{ setcooldown }"
+    },
+    {
+      "label": "characterLocks",
+      "file_type": "code",
+      "source_file": "src/services/rpg/inventoryService.js",
+      "source_location": "L13",
       "_origin": "ast",
       "id": "src_services_rpg_inventoryservice_characterlocks",
       "community": 71,
@@ -8649,7 +8869,7 @@
       "label": "withCharacterLock()",
       "file_type": "code",
       "source_file": "src/services/rpg/inventoryService.js",
-      "source_location": "L18",
+      "source_location": "L20",
       "_origin": "ast",
       "id": "src_services_rpg_inventoryservice_withcharacterlock",
       "community": 43,
@@ -8659,17 +8879,17 @@
       "label": "getInventory()",
       "file_type": "code",
       "source_file": "src/services/rpg/inventoryService.js",
-      "source_location": "L36",
+      "source_location": "L38",
       "_origin": "ast",
       "id": "src_services_rpg_inventoryservice_getinventory",
-      "community": 72,
+      "community": 28,
       "norm_label": "getinventory()"
     },
     {
       "label": "addItem()",
       "file_type": "code",
       "source_file": "src/services/rpg/inventoryService.js",
-      "source_location": "L58",
+      "source_location": "L60",
       "_origin": "ast",
       "id": "src_services_rpg_inventoryservice_additem",
       "community": 43,
@@ -8679,7 +8899,7 @@
       "label": "removeItem()",
       "file_type": "code",
       "source_file": "src/services/rpg/inventoryService.js",
-      "source_location": "L112",
+      "source_location": "L114",
       "_origin": "ast",
       "id": "src_services_rpg_inventoryservice_removeitem",
       "community": 43,
@@ -8689,7 +8909,7 @@
       "label": "useItem()",
       "file_type": "code",
       "source_file": "src/services/rpg/inventoryService.js",
-      "source_location": "L150",
+      "source_location": "L152",
       "_origin": "ast",
       "id": "src_services_rpg_inventoryservice_useitem",
       "community": 28,
@@ -8699,11 +8919,211 @@
       "label": "ensureTestKit()",
       "file_type": "code",
       "source_file": "src/services/rpg/inventoryService.js",
-      "source_location": "L206",
+      "source_location": "L223",
       "_origin": "ast",
       "id": "src_services_rpg_inventoryservice_ensuretestkit",
-      "community": 72,
+      "community": 38,
       "norm_label": "ensuretestkit()"
+    },
+    {
+      "label": "itemService.js",
+      "file_type": "code",
+      "source_file": "src/services/rpg/itemService.js",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_services_rpg_itemservice",
+      "community": 23,
+      "norm_label": "itemservice.js"
+    },
+    {
+      "label": "{ ITEMS, getItem: getRawItem }",
+      "file_type": "code",
+      "source_file": "src/services/rpg/itemService.js",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_services_rpg_itemservice_items_getitem_getrawitem",
+      "community": 23,
+      "norm_label": "{ items, getitem: getrawitem }"
+    },
+    {
+      "label": "{ getCategory }",
+      "file_type": "code",
+      "source_file": "src/services/rpg/itemService.js",
+      "source_location": "L2",
+      "_origin": "ast",
+      "id": "src_services_rpg_itemservice_getcategory",
+      "community": 23,
+      "norm_label": "{ getcategory }"
+    },
+    {
+      "label": "createItem()",
+      "file_type": "code",
+      "source_file": "src/services/rpg/itemService.js",
+      "source_location": "L4",
+      "_origin": "ast",
+      "id": "src_services_rpg_itemservice_createitem",
+      "community": 23,
+      "norm_label": "createitem()"
+    },
+    {
+      "label": "getItem()",
+      "file_type": "code",
+      "source_file": "src/services/rpg/itemService.js",
+      "source_location": "L37",
+      "_origin": "ast",
+      "id": "src_services_rpg_itemservice_getitem",
+      "community": 23,
+      "norm_label": "getitem()"
+    },
+    {
+      "label": "getDisplayList()",
+      "file_type": "code",
+      "source_file": "src/services/rpg/itemService.js",
+      "source_location": "L41",
+      "_origin": "ast",
+      "id": "src_services_rpg_itemservice_getdisplaylist",
+      "community": 23,
+      "norm_label": "getdisplaylist()"
+    },
+    {
+      "label": "statusService.js",
+      "file_type": "code",
+      "source_file": "src/services/rpg/statusService.js",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_services_rpg_statusservice",
+      "community": 69,
+      "norm_label": "statusservice.js"
+    },
+    {
+      "label": "{ supabase }",
+      "file_type": "code",
+      "source_file": "src/services/rpg/statusService.js",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_services_rpg_statusservice_supabase",
+      "community": 69,
+      "norm_label": "{ supabase }"
+    },
+    {
+      "label": "{ filterExisting }",
+      "file_type": "code",
+      "source_file": "src/services/rpg/statusService.js",
+      "source_location": "L2",
+      "_origin": "ast",
+      "id": "src_services_rpg_statusservice_filterexisting",
+      "community": 69,
+      "norm_label": "{ filterexisting }"
+    },
+    {
+      "label": "{ logError }",
+      "file_type": "code",
+      "source_file": "src/services/rpg/statusService.js",
+      "source_location": "L3",
+      "_origin": "ast",
+      "id": "src_services_rpg_statusservice_logerror",
+      "community": 69,
+      "norm_label": "{ logerror }"
+    },
+    {
+      "label": "getActiveEffects()",
+      "file_type": "code",
+      "source_file": "src/services/rpg/statusService.js",
+      "source_location": "L5",
+      "_origin": "ast",
+      "id": "src_services_rpg_statusservice_getactiveeffects",
+      "community": 69,
+      "norm_label": "getactiveeffects()"
+    },
+    {
+      "label": "getCooldowns()",
+      "file_type": "code",
+      "source_file": "src/services/rpg/statusService.js",
+      "source_location": "L9",
+      "_origin": "ast",
+      "id": "src_services_rpg_statusservice_getcooldowns",
+      "community": 69,
+      "norm_label": "getcooldowns()"
+    },
+    {
+      "label": "saveSlots()",
+      "file_type": "code",
+      "source_file": "src/services/rpg/statusService.js",
+      "source_location": "L13",
+      "_origin": "ast",
+      "id": "src_services_rpg_statusservice_saveslots",
+      "community": 69,
+      "norm_label": "saveslots()"
+    },
+    {
+      "label": "addEffect()",
+      "file_type": "code",
+      "source_file": "src/services/rpg/statusService.js",
+      "source_location": "L22",
+      "_origin": "ast",
+      "id": "src_services_rpg_statusservice_addeffect",
+      "community": 69,
+      "norm_label": "addeffect()"
+    },
+    {
+      "label": "tickEffects()",
+      "file_type": "code",
+      "source_file": "src/services/rpg/statusService.js",
+      "source_location": "L31",
+      "_origin": "ast",
+      "id": "src_services_rpg_statusservice_tickeffects",
+      "community": 69,
+      "norm_label": "tickeffects()"
+    },
+    {
+      "label": "clearEffects()",
+      "file_type": "code",
+      "source_file": "src/services/rpg/statusService.js",
+      "source_location": "L55",
+      "_origin": "ast",
+      "id": "src_services_rpg_statusservice_cleareffects",
+      "community": 69,
+      "norm_label": "cleareffects()"
+    },
+    {
+      "label": "getCooldown()",
+      "file_type": "code",
+      "source_file": "src/services/rpg/statusService.js",
+      "source_location": "L61",
+      "_origin": "ast",
+      "id": "src_services_rpg_statusservice_getcooldown",
+      "community": 69,
+      "norm_label": "getcooldown()"
+    },
+    {
+      "label": "cleanCooldown()",
+      "file_type": "code",
+      "source_file": "src/services/rpg/statusService.js",
+      "source_location": "L72",
+      "_origin": "ast",
+      "id": "src_services_rpg_statusservice_cleancooldown",
+      "community": 69,
+      "norm_label": "cleancooldown()"
+    },
+    {
+      "label": "setCooldown()",
+      "file_type": "code",
+      "source_file": "src/services/rpg/statusService.js",
+      "source_location": "L80",
+      "_origin": "ast",
+      "id": "src_services_rpg_statusservice_setcooldown",
+      "community": 69,
+      "norm_label": "setcooldown()"
+    },
+    {
+      "label": "cleanExpiredCooldowns()",
+      "file_type": "code",
+      "source_file": "src/services/rpg/statusService.js",
+      "source_location": "L87",
+      "_origin": "ast",
+      "id": "src_services_rpg_statusservice_cleanexpiredcooldowns",
+      "community": 69,
+      "norm_label": "cleanexpiredcooldowns()"
     },
     {
       "label": "schedulerService.js",
@@ -8712,7 +9132,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_services_schedulerservice",
-      "community": 77,
+      "community": 0,
       "norm_label": "schedulerservice.js"
     },
     {
@@ -8722,7 +9142,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_services_schedulerservice_midnightreview",
-      "community": 77,
+      "community": 0,
       "norm_label": "{ midnightreview }"
     },
     {
@@ -8732,7 +9152,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_services_schedulerservice_logerror",
-      "community": 77,
+      "community": 0,
       "norm_label": "{ logerror }"
     },
     {
@@ -8752,7 +9172,7 @@
       "source_location": "L25",
       "_origin": "ast",
       "id": "src_services_schedulerservice_startmidnightreview",
-      "community": 77,
+      "community": 0,
       "norm_label": "startmidnightreview()"
     },
     {
@@ -8762,7 +9182,7 @@
       "source_location": "L35",
       "_origin": "ast",
       "id": "src_services_schedulerservice_schedulenext",
-      "community": 77,
+      "community": 0,
       "norm_label": "schedulenext()"
     },
     {
@@ -8822,7 +9242,7 @@
       "source_location": "L44",
       "_origin": "ast",
       "id": "src_services_stats_addevent",
-      "community": 3,
+      "community": 0,
       "norm_label": "addevent()"
     },
     {
@@ -9102,7 +9522,7 @@
       "source_location": "L311",
       "_origin": "ast",
       "id": "src_services_userservice_saveuserprofile",
-      "community": 15,
+      "community": 13,
       "norm_label": "saveuserprofile()"
     },
     {
@@ -9112,7 +9532,7 @@
       "source_location": "L333",
       "_origin": "ast",
       "id": "src_services_userservice_getorcreateprofile",
-      "community": 10,
+      "community": 13,
       "norm_label": "getorcreateprofile()"
     },
     {
@@ -9122,7 +9542,7 @@
       "source_location": "L353",
       "_origin": "ast",
       "id": "src_services_userservice_resolveactivitybucket",
-      "community": 19,
+      "community": 13,
       "norm_label": "resolveactivitybucket()"
     },
     {
@@ -9132,7 +9552,7 @@
       "source_location": "L376",
       "_origin": "ast",
       "id": "src_services_userservice_recorduseractivity",
-      "community": 19,
+      "community": 13,
       "norm_label": "recorduseractivity()"
     },
     {
@@ -9202,7 +9622,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_utils_boxutils",
-      "community": 11,
+      "community": 24,
       "norm_label": "boxutils.js"
     },
     {
@@ -9662,7 +10082,7 @@
       "source_location": "L37",
       "_origin": "ast",
       "id": "src_utils_formaterrorutils_formaterror",
-      "community": 68,
+      "community": 18,
       "norm_label": "formaterror()"
     },
     {
@@ -9672,7 +10092,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_utils_groupadminhelper",
-      "community": 39,
+      "community": 7,
       "norm_label": "groupadminhelper.js"
     },
     {
@@ -9682,7 +10102,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_utils_groupadminhelper_getfirstmentionedjid",
-      "community": 39,
+      "community": 7,
       "norm_label": "{ getfirstmentionedjid }"
     },
     {
@@ -9692,7 +10112,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_utils_groupadminhelper_formatdisplaymention_withmentions",
-      "community": 39,
+      "community": 7,
       "norm_label": "{ formatdisplaymention, withmentions }"
     },
     {
@@ -9702,7 +10122,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_utils_groupadminhelper_resolvetargetdisplayname",
-      "community": 39,
+      "community": 7,
       "norm_label": "{ resolvetargetdisplayname }"
     },
     {
@@ -9712,7 +10132,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_utils_groupadminhelper_box",
-      "community": 39,
+      "community": 7,
       "norm_label": "{ box }"
     },
     {
@@ -9722,7 +10142,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "src_utils_groupadminhelper_formaterror",
-      "community": 39,
+      "community": 7,
       "norm_label": "{ formaterror }"
     },
     {
@@ -9732,7 +10152,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "src_utils_groupadminhelper_executegroupaction",
-      "community": 39,
+      "community": 7,
       "norm_label": "executegroupaction()"
     },
     {
@@ -9742,7 +10162,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_utils_grouputils",
-      "community": 6,
+      "community": 39,
       "norm_label": "grouputils.js"
     },
     {
@@ -9752,7 +10172,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_utils_grouputils_issameidentity",
-      "community": 6,
+      "community": 39,
       "norm_label": "{ issameidentity }"
     },
     {
@@ -9762,7 +10182,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_utils_grouputils_supabase",
-      "community": 6,
+      "community": 39,
       "norm_label": "{ supabase }"
     },
     {
@@ -9792,7 +10212,7 @@
       "source_location": "L29",
       "_origin": "ast",
       "id": "src_utils_grouputils_deletewarns",
-      "community": 6,
+      "community": 39,
       "norm_label": "deletewarns()"
     },
     {
@@ -9812,7 +10232,7 @@
       "source_location": "L40",
       "_origin": "ast",
       "id": "src_utils_grouputils_getgroupmetadata",
-      "community": 7,
+      "community": 39,
       "norm_label": "getgroupmetadata()"
     },
     {
@@ -9832,7 +10252,7 @@
       "source_location": "L59",
       "_origin": "ast",
       "id": "src_utils_grouputils_participantmatches",
-      "community": 3,
+      "community": 39,
       "norm_label": "participantmatches()"
     },
     {
@@ -9842,7 +10262,7 @@
       "source_location": "L72",
       "_origin": "ast",
       "id": "src_utils_grouputils_isadmin",
-      "community": 3,
+      "community": 39,
       "norm_label": "isadmin()"
     },
     {
@@ -9852,7 +10272,7 @@
       "source_location": "L92",
       "_origin": "ast",
       "id": "src_utils_grouputils_isbotadmin",
-      "community": 3,
+      "community": 39,
       "norm_label": "isbotadmin()"
     },
     {
@@ -9862,7 +10282,7 @@
       "source_location": "L114",
       "_origin": "ast",
       "id": "src_utils_grouputils_addparticipant",
-      "community": 68,
+      "community": 39,
       "norm_label": "addparticipant()"
     },
     {
@@ -9902,7 +10322,7 @@
       "source_location": "L140",
       "_origin": "ast",
       "id": "src_utils_grouputils_getinvitecode",
-      "community": 68,
+      "community": 47,
       "norm_label": "getinvitecode()"
     },
     {
@@ -9912,7 +10332,7 @@
       "source_location": "L145",
       "_origin": "ast",
       "id": "src_utils_grouputils_opengroup",
-      "community": 11,
+      "community": 24,
       "norm_label": "opengroup()"
     },
     {
@@ -9942,7 +10362,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_utils_identityutils",
-      "community": 35,
+      "community": 26,
       "norm_label": "identityutils.js"
     },
     {
@@ -9952,7 +10372,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_utils_identityutils_normalizejid",
-      "community": 35,
+      "community": 26,
       "norm_label": "normalizejid()"
     },
     {
@@ -9962,7 +10382,7 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "src_utils_identityutils_extractphonenumber",
-      "community": 35,
+      "community": 26,
       "norm_label": "extractphonenumber()"
     },
     {
@@ -9972,7 +10392,7 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "src_utils_identityutils_uniquestrings",
-      "community": 35,
+      "community": 26,
       "norm_label": "uniquestrings()"
     },
     {
@@ -9982,7 +10402,7 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "src_utils_identityutils_issameidentity",
-      "community": 35,
+      "community": 26,
       "norm_label": "issameidentity()"
     },
     {
@@ -9992,7 +10412,7 @@
       "source_location": "L37",
       "_origin": "ast",
       "id": "src_utils_identityutils_toidentitycandidates",
-      "community": 35,
+      "community": 26,
       "norm_label": "toidentitycandidates()"
     },
     {
@@ -10042,7 +10462,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_utils_permissionutils",
-      "community": 35,
+      "community": 26,
       "norm_label": "permissionutils.js"
     },
     {
@@ -10052,7 +10472,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_utils_permissionutils_owners",
-      "community": 35,
+      "community": 26,
       "norm_label": "{ owners }"
     },
     {
@@ -10062,7 +10482,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_utils_permissionutils_normalizejid_extractphonenumber_issameidentity_toidentitycandidates_uniquestrings",
-      "community": 35,
+      "community": 26,
       "norm_label": "{\n  normalizejid,\n  extractphonenumber,\n  issameidentity,\n  toidentitycandidates,\n  uniquestrings,\n}"
     },
     {
@@ -10072,7 +10492,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "src_utils_permissionutils_normalizeownerrecord",
-      "community": 35,
+      "community": 26,
       "norm_label": "normalizeownerrecord()"
     },
     {
@@ -10082,7 +10502,7 @@
       "source_location": "L49",
       "_origin": "ast",
       "id": "src_utils_permissionutils_getownerrecords",
-      "community": 35,
+      "community": 26,
       "norm_label": "getownerrecords()"
     },
     {
@@ -10092,7 +10512,7 @@
       "source_location": "L53",
       "_origin": "ast",
       "id": "src_utils_permissionutils_ownerrecordmatches",
-      "community": 35,
+      "community": 26,
       "norm_label": "ownerrecordmatches()"
     },
     {
@@ -10102,7 +10522,7 @@
       "source_location": "L69",
       "_origin": "ast",
       "id": "src_utils_permissionutils_isowner",
-      "community": 35,
+      "community": 10,
       "norm_label": "isowner()"
     },
     {
@@ -10222,7 +10642,7 @@
       "source_location": "L57",
       "_origin": "ast",
       "id": "src_utils_safequery_usercachekey",
-      "community": 13,
+      "community": 32,
       "norm_label": "usercachekey()"
     },
     {
@@ -10232,7 +10652,7 @@
       "source_location": "L65",
       "_origin": "ast",
       "id": "src_utils_safequery_topbalancescachekey",
-      "community": 32,
+      "community": 35,
       "norm_label": "topbalancescachekey()"
     },
     {
@@ -10672,7 +11092,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_combat_ai_test",
-      "community": 38,
+      "community": 41,
       "norm_label": "combat_ai.test.js"
     },
     {
@@ -10682,7 +11102,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_combat_ai_test_createdummysession_removesession",
-      "community": 38,
+      "community": 41,
       "norm_label": "{ createdummysession, removesession }"
     },
     {
@@ -10692,7 +11112,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "tests_combat_ai_test_combatai",
-      "community": 38,
+      "community": 41,
       "norm_label": "combatai"
     },
     {
@@ -10822,7 +11242,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_economy_service_test",
-      "community": 2,
+      "community": 35,
       "norm_label": "economy_service.test.js"
     },
     {
@@ -10832,7 +11252,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_economy_service_test_daily_base_reward_daily_cooldown_hours_daily_streak_reset_hours_daily_streak_bonus_per_day_daily_streak_bonus_cap",
-      "community": 2,
+      "community": 35,
       "norm_label": "{\n  daily_base_reward,\n  daily_cooldown_hours,\n  daily_streak_reset_hours,\n  daily_streak_bonus_per_day,\n  daily_streak_bonus_cap,\n}"
     },
     {
@@ -10912,7 +11332,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_inventory_test",
-      "community": 28,
+      "community": 70,
       "norm_label": "inventory.test.js"
     },
     {
@@ -10922,7 +11342,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_inventory_test_max_inventory_size_max_stack_size",
-      "community": 28,
+      "community": 70,
       "norm_label": "{ max_inventory_size, max_stack_size }"
     },
     {
@@ -10932,7 +11352,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "tests_inventory_test_items_getitem_getitemsbycategory",
-      "community": 28,
+      "community": 70,
       "norm_label": "{ items, getitem, getitemsbycategory }"
     },
     {
@@ -11012,7 +11432,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_item_commands_test",
-      "community": 70,
+      "community": 43,
       "norm_label": "item_commands.test.js"
     },
     {
@@ -11022,7 +11442,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_item_commands_test_itemaddmodule",
-      "community": 70,
+      "community": 43,
       "norm_label": "itemaddmodule"
     },
     {
@@ -11032,7 +11452,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "tests_item_commands_test_itemremmodule",
-      "community": 70,
+      "community": 43,
       "norm_label": "itemremmodule"
     },
     {
@@ -11192,7 +11612,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_test_supabase_schema",
-      "community": 47,
+      "community": 69,
       "norm_label": "test_supabase_schema.js"
     },
     {
@@ -11202,7 +11622,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "tests_test_supabase_schema_assert",
-      "community": 47,
+      "community": 69,
       "norm_label": "assert"
     },
     {
@@ -11212,7 +11632,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "tests_test_supabase_schema_supabase",
-      "community": 47,
+      "community": 69,
       "norm_label": "{ supabase }"
     },
     {
@@ -11222,7 +11642,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "tests_test_supabase_schema_required_tables",
-      "community": 47,
+      "community": 69,
       "norm_label": "required_tables"
     },
     {
@@ -11232,7 +11652,7 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "tests_test_supabase_schema_run",
-      "community": 47,
+      "community": 69,
       "norm_label": "run()"
     },
     {
@@ -29319,10 +29739,261 @@
       "confidence_score": 1.0
     },
     {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/data/itemCategories/buff.js",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "src_data_itemcategories_buff",
+      "target": "src_data_itemcategories_buff_buffcategory",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/data/itemCategories/index.js",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "src_data_itemcategories_index",
+      "target": "src_data_itemcategories_buff",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src/data/itemCategories/buff.js",
+      "source_location": "L5",
+      "weight": 1.0,
+      "source": "src_data_itemcategories_buff_buffcategory",
+      "target": "src_data_itemcategories_buff_buffcategory_onuse",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/data/itemCategories/damage.js",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "src_data_itemcategories_damage",
+      "target": "src_data_itemcategories_damage_damagecategory",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/data/itemCategories/index.js",
+      "source_location": "L3",
+      "weight": 1.0,
+      "source": "src_data_itemcategories_index",
+      "target": "src_data_itemcategories_damage",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src/data/itemCategories/damage.js",
+      "source_location": "L5",
+      "weight": 1.0,
+      "source": "src_data_itemcategories_damage_damagecategory",
+      "target": "src_data_itemcategories_damage_damagecategory_onuse",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/data/itemCategories/equipable.js",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "src_data_itemcategories_equipable",
+      "target": "src_data_itemcategories_equipable_equipablecategory",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/data/itemCategories/index.js",
+      "source_location": "L4",
+      "weight": 1.0,
+      "source": "src_data_itemcategories_index",
+      "target": "src_data_itemcategories_equipable",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src/data/itemCategories/equipable.js",
+      "source_location": "L5",
+      "weight": 1.0,
+      "source": "src_data_itemcategories_equipable_equipablecategory",
+      "target": "src_data_itemcategories_equipable_equipablecategory_onuse",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/data/itemCategories/heal.js",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "src_data_itemcategories_heal",
+      "target": "src_data_itemcategories_heal_healcategory",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/data/itemCategories/index.js",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "src_data_itemcategories_index",
+      "target": "src_data_itemcategories_heal",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src/data/itemCategories/heal.js",
+      "source_location": "L5",
+      "weight": 1.0,
+      "source": "src_data_itemcategories_heal_healcategory",
+      "target": "src_data_itemcategories_heal_healcategory_onuse",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/data/itemCategories/index.js",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "src_data_itemcategories_index",
+      "target": "src_data_itemcategories_index_buffcategory",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/data/itemCategories/index.js",
+      "source_location": "L3",
+      "weight": 1.0,
+      "source": "src_data_itemcategories_index",
+      "target": "src_data_itemcategories_index_damagecategory",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/data/itemCategories/index.js",
+      "source_location": "L4",
+      "weight": 1.0,
+      "source": "src_data_itemcategories_index",
+      "target": "src_data_itemcategories_index_equipablecategory",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "indirect_call",
+      "confidence": "INFERRED",
+      "source_file": "src/data/itemCategories/index.js",
+      "source_location": "L20",
+      "weight": 1.0,
+      "context": "collection",
+      "source": "src_data_itemcategories_index",
+      "target": "src_data_itemcategories_index_getcategories",
+      "confidence_score": 0.5
+    },
+    {
+      "relation": "indirect_call",
+      "confidence": "INFERRED",
+      "source_file": "src/data/itemCategories/index.js",
+      "source_location": "L20",
+      "weight": 1.0,
+      "context": "collection",
+      "source": "src_data_itemcategories_index",
+      "target": "src_data_itemcategories_index_getcategory",
+      "confidence_score": 0.5
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/data/itemCategories/index.js",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "src_data_itemcategories_index",
+      "target": "src_data_itemcategories_index_healcategory",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/data/itemCategories/index.js",
+      "source_location": "L6",
+      "weight": 1.0,
+      "source": "src_data_itemcategories_index",
+      "target": "src_data_itemcategories_index_registry",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/services/rpg/itemService.js",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "src_services_rpg_itemservice",
+      "target": "src_data_itemcategories_index",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/data/itemCategories/index.js",
+      "source_location": "L17",
+      "weight": 1.0,
+      "source": "src_data_itemcategories_index_getcategories",
+      "target": "src_data_itemcategories_index_registry"
+    },
+    {
+      "relation": "references",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/data/itemCategories/index.js",
+      "source_location": "L13",
+      "weight": 1.0,
+      "source": "src_data_itemcategories_index_getcategory",
+      "target": "src_data_itemcategories_index_registry"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/services/rpg/itemService.js",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "src_services_rpg_itemservice",
+      "target": "src_data_itemcategories_index_getcategory",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/services/rpg/itemService.js",
+      "source_location": "L10",
+      "weight": 1.0,
+      "source": "src_services_rpg_itemservice_createitem",
+      "target": "src_data_itemcategories_index_getcategory"
+    },
+    {
       "relation": "indirect_call",
       "confidence": "INFERRED",
       "source_file": "src/data/items.js",
-      "source_location": "L59",
+      "source_location": "L67",
       "weight": 1.0,
       "context": "collection",
       "source": "src_data_items",
@@ -29333,7 +30004,7 @@
       "relation": "indirect_call",
       "confidence": "INFERRED",
       "source_file": "src/data/items.js",
-      "source_location": "L60",
+      "source_location": "L68",
       "weight": 1.0,
       "context": "collection",
       "source": "src_data_items",
@@ -29365,6 +30036,17 @@
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
+      "source_file": "src/services/rpg/itemService.js",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "src_services_rpg_itemservice",
+      "target": "src_data_items",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
       "source_file": "src/utils/characterFormatUtils.js",
       "source_location": "L5",
       "weight": 1.0,
@@ -29381,6 +30063,17 @@
       "weight": 1.0,
       "source": "tests_inventory_test",
       "target": "src_data_items",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/services/rpg/itemService.js",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "src_services_rpg_itemservice",
+      "target": "src_data_items_items",
       "confidence_score": 1.0
     },
     {
@@ -29411,7 +30104,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/services/rpg/inventoryService.js",
-      "source_location": "L62",
+      "source_location": "L64",
       "weight": 1.0,
       "source": "src_services_rpg_inventoryservice_additem",
       "target": "src_data_items_getitem"
@@ -29422,10 +30115,21 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/services/rpg/inventoryService.js",
-      "source_location": "L154",
+      "source_location": "L156",
       "weight": 1.0,
       "source": "src_services_rpg_inventoryservice_useitem",
       "target": "src_data_items_getitem"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/services/rpg/itemService.js",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "src_services_rpg_itemservice",
+      "target": "src_data_items_getitem",
+      "confidence_score": 1.0
     },
     {
       "relation": "imports",
@@ -29641,6 +30345,17 @@
       "source_location": "L3",
       "weight": 1.0,
       "source": "src_services_rpg_inventoryservice",
+      "target": "src_database_columnregistry",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/services/rpg/statusService.js",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "src_services_rpg_statusservice",
       "target": "src_database_columnregistry",
       "confidence_score": 1.0
     },
@@ -29914,7 +30629,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/services/rpg/inventoryService.js",
-      "source_location": "L77",
+      "source_location": "L79",
       "weight": 1.0,
       "source": "src_services_rpg_inventoryservice_additem",
       "target": "src_database_columnregistry_filterexisting"
@@ -29925,7 +30640,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/services/rpg/inventoryService.js",
-      "source_location": "L130",
+      "source_location": "L132",
       "weight": 1.0,
       "source": "src_services_rpg_inventoryservice_removeitem",
       "target": "src_database_columnregistry_filterexisting"
@@ -29936,9 +30651,31 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/services/rpg/inventoryService.js",
-      "source_location": "L178",
+      "source_location": "L182",
       "weight": 1.0,
       "source": "src_services_rpg_inventoryservice_useitem",
+      "target": "src_database_columnregistry_filterexisting"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/services/rpg/statusService.js",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "src_services_rpg_statusservice",
+      "target": "src_database_columnregistry_filterexisting",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/services/rpg/statusService.js",
+      "source_location": "L14",
+      "weight": 1.0,
+      "source": "src_services_rpg_statusservice_saveslots",
       "target": "src_database_columnregistry_filterexisting"
     },
     {
@@ -30707,6 +31444,17 @@
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
+      "source_file": "src/services/rpg/statusService.js",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "src_services_rpg_statusservice",
+      "target": "src_database_supabase",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
       "source_file": "src/services/userService.js",
       "source_location": "L2",
       "weight": 1.0,
@@ -30821,6 +31569,17 @@
       "source_location": "L2",
       "weight": 1.0,
       "source": "src_services_rpg_inventoryservice",
+      "target": "src_database_supabase_supabase",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/services/rpg/statusService.js",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "src_services_rpg_statusservice",
       "target": "src_database_supabase_supabase",
       "confidence_score": 1.0
     },
@@ -31874,7 +32633,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/services/rpg/inventoryService.js",
-      "source_location": "L151",
+      "source_location": "L153",
       "weight": 1.0,
       "source": "src_services_rpg_inventoryservice_useitem",
       "target": "src_services_characterservice_getactivecharacter"
@@ -32072,7 +32831,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/services/rpg/inventoryService.js",
-      "source_location": "L186",
+      "source_location": "L196",
       "weight": 1.0,
       "source": "src_services_rpg_inventoryservice_useitem",
       "target": "src_services_characterservice_sethp"
@@ -33593,6 +34352,17 @@
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
+      "source_file": "src/services/rpg/statusService.js",
+      "source_location": "L3",
+      "weight": 1.0,
+      "source": "src_services_rpg_statusservice",
+      "target": "src_services_loggerservice",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
       "source_file": "src/services/schedulerService.js",
       "source_location": "L3",
       "weight": 1.0,
@@ -33892,7 +34662,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/services/rpg/inventoryService.js",
-      "source_location": "L218",
+      "source_location": "L235",
       "weight": 1.0,
       "source": "src_services_rpg_inventoryservice_ensuretestkit",
       "target": "src_services_loggerservice_logerror"
@@ -33903,9 +34673,31 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/services/rpg/inventoryService.js",
-      "source_location": "L44",
+      "source_location": "L46",
       "weight": 1.0,
       "source": "src_services_rpg_inventoryservice_getinventory",
+      "target": "src_services_loggerservice_logerror"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/services/rpg/statusService.js",
+      "source_location": "L3",
+      "weight": 1.0,
+      "source": "src_services_rpg_statusservice",
+      "target": "src_services_loggerservice_logerror",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/services/rpg/statusService.js",
+      "source_location": "L17",
+      "weight": 1.0,
+      "source": "src_services_rpg_statusservice_saveslots",
       "target": "src_services_loggerservice_logerror"
     },
     {
@@ -36663,7 +37455,7 @@
       "relation": "indirect_call",
       "confidence": "INFERRED",
       "source_file": "src/services/rpg/inventoryService.js",
-      "source_location": "L228",
+      "source_location": "L245",
       "weight": 1.0,
       "context": "collection",
       "source": "src_services_rpg_inventoryservice",
@@ -36674,17 +37466,27 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/services/rpg/inventoryService.js",
-      "source_location": "L11",
+      "source_location": "L13",
       "weight": 1.0,
       "source": "src_services_rpg_inventoryservice",
       "target": "src_services_rpg_inventoryservice_characterlocks",
       "confidence_score": 1.0
     },
     {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/services/rpg/inventoryService.js",
+      "source_location": "L10",
+      "weight": 1.0,
+      "source": "src_services_rpg_inventoryservice",
+      "target": "src_services_rpg_inventoryservice_createitem",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "indirect_call",
       "confidence": "INFERRED",
       "source_file": "src/services/rpg/inventoryService.js",
-      "source_location": "L231",
+      "source_location": "L248",
       "weight": 1.0,
       "context": "collection",
       "source": "src_services_rpg_inventoryservice",
@@ -36715,7 +37517,7 @@
       "relation": "indirect_call",
       "confidence": "INFERRED",
       "source_file": "src/services/rpg/inventoryService.js",
-      "source_location": "L227",
+      "source_location": "L244",
       "weight": 1.0,
       "context": "collection",
       "source": "src_services_rpg_inventoryservice",
@@ -36776,12 +37578,22 @@
       "relation": "indirect_call",
       "confidence": "INFERRED",
       "source_file": "src/services/rpg/inventoryService.js",
-      "source_location": "L229",
+      "source_location": "L246",
       "weight": 1.0,
       "context": "collection",
       "source": "src_services_rpg_inventoryservice",
       "target": "src_services_rpg_inventoryservice_removeitem",
       "confidence_score": 0.5
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/services/rpg/inventoryService.js",
+      "source_location": "L11",
+      "weight": 1.0,
+      "source": "src_services_rpg_inventoryservice",
+      "target": "src_services_rpg_inventoryservice_setcooldown",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -36797,7 +37609,7 @@
       "relation": "indirect_call",
       "confidence": "INFERRED",
       "source_file": "src/services/rpg/inventoryService.js",
-      "source_location": "L230",
+      "source_location": "L247",
       "weight": 1.0,
       "context": "collection",
       "source": "src_services_rpg_inventoryservice",
@@ -36808,10 +37620,54 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/services/rpg/inventoryService.js",
-      "source_location": "L18",
+      "source_location": "L20",
       "weight": 1.0,
       "source": "src_services_rpg_inventoryservice",
       "target": "src_services_rpg_inventoryservice_withcharacterlock",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/services/rpg/inventoryService.js",
+      "source_location": "L10",
+      "weight": 1.0,
+      "source": "src_services_rpg_inventoryservice",
+      "target": "src_services_rpg_itemservice",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/services/rpg/inventoryService.js",
+      "source_location": "L10",
+      "weight": 1.0,
+      "source": "src_services_rpg_inventoryservice",
+      "target": "src_services_rpg_itemservice_createitem",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/services/rpg/inventoryService.js",
+      "source_location": "L11",
+      "weight": 1.0,
+      "source": "src_services_rpg_inventoryservice",
+      "target": "src_services_rpg_statusservice",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/services/rpg/inventoryService.js",
+      "source_location": "L11",
+      "weight": 1.0,
+      "source": "src_services_rpg_inventoryservice",
+      "target": "src_services_rpg_statusservice_setcooldown",
       "confidence_score": 1.0
     },
     {
@@ -36863,7 +37719,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/services/rpg/inventoryService.js",
-      "source_location": "L59",
+      "source_location": "L61",
       "weight": 1.0,
       "source": "src_services_rpg_inventoryservice_additem",
       "target": "src_services_rpg_inventoryservice_withcharacterlock",
@@ -36874,7 +37730,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/services/rpg/inventoryService.js",
-      "source_location": "L113",
+      "source_location": "L115",
       "weight": 1.0,
       "source": "src_services_rpg_inventoryservice_removeitem",
       "target": "src_services_rpg_inventoryservice_withcharacterlock",
@@ -36885,7 +37741,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/services/rpg/inventoryService.js",
-      "source_location": "L161",
+      "source_location": "L163",
       "weight": 1.0,
       "source": "src_services_rpg_inventoryservice_useitem",
       "target": "src_services_rpg_inventoryservice_withcharacterlock",
@@ -36896,7 +37752,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/services/rpg/inventoryService.js",
-      "source_location": "L65",
+      "source_location": "L67",
       "weight": 1.0,
       "source": "src_services_rpg_inventoryservice_additem",
       "target": "src_services_rpg_inventoryservice_getinventory",
@@ -36907,7 +37763,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/services/rpg/inventoryService.js",
-      "source_location": "L208",
+      "source_location": "L225",
       "weight": 1.0,
       "source": "src_services_rpg_inventoryservice_ensuretestkit",
       "target": "src_services_rpg_inventoryservice_getinventory",
@@ -36918,7 +37774,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/services/rpg/inventoryService.js",
-      "source_location": "L116",
+      "source_location": "L118",
       "weight": 1.0,
       "source": "src_services_rpg_inventoryservice_removeitem",
       "target": "src_services_rpg_inventoryservice_getinventory",
@@ -36929,7 +37785,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/services/rpg/inventoryService.js",
-      "source_location": "L162",
+      "source_location": "L164",
       "weight": 1.0,
       "source": "src_services_rpg_inventoryservice_useitem",
       "target": "src_services_rpg_inventoryservice_getinventory",
@@ -36941,7 +37797,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/services/rpg/inventoryService.js",
-      "source_location": "L60",
+      "source_location": "L62",
       "weight": 1.0,
       "source": "src_services_rpg_inventoryservice_additem",
       "target": "src_utils_quantityutils_parsequantity"
@@ -36952,7 +37808,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/services/rpg/inventoryService.js",
-      "source_location": "L96",
+      "source_location": "L98",
       "weight": 1.0,
       "source": "src_services_rpg_inventoryservice_additem",
       "target": "src_utils_safequery_invalidateusercache"
@@ -36962,7 +37818,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/services/rpg/inventoryService.js",
-      "source_location": "L215",
+      "source_location": "L232",
       "weight": 1.0,
       "source": "src_services_rpg_inventoryservice_ensuretestkit",
       "target": "src_services_rpg_inventoryservice_additem",
@@ -36974,7 +37830,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/services/rpg/inventoryService.js",
-      "source_location": "L114",
+      "source_location": "L116",
       "weight": 1.0,
       "source": "src_services_rpg_inventoryservice_removeitem",
       "target": "src_utils_quantityutils_parsequantity"
@@ -36985,7 +37841,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/services/rpg/inventoryService.js",
-      "source_location": "L140",
+      "source_location": "L142",
       "weight": 1.0,
       "source": "src_services_rpg_inventoryservice_removeitem",
       "target": "src_utils_safequery_invalidateusercache"
@@ -36996,10 +37852,367 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/services/rpg/inventoryService.js",
-      "source_location": "L188",
+      "source_location": "L171",
+      "weight": 1.0,
+      "source": "src_services_rpg_inventoryservice_useitem",
+      "target": "src_services_rpg_itemservice_createitem"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/services/rpg/inventoryService.js",
+      "source_location": "L200",
+      "weight": 1.0,
+      "source": "src_services_rpg_inventoryservice_useitem",
+      "target": "src_services_rpg_statusservice_addeffect"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/services/rpg/inventoryService.js",
+      "source_location": "L204",
+      "weight": 1.0,
+      "source": "src_services_rpg_inventoryservice_useitem",
+      "target": "src_services_rpg_statusservice_setcooldown"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/services/rpg/inventoryService.js",
+      "source_location": "L205",
       "weight": 1.0,
       "source": "src_services_rpg_inventoryservice_useitem",
       "target": "src_utils_safequery_invalidateusercache"
+    },
+    {
+      "relation": "indirect_call",
+      "confidence": "INFERRED",
+      "source_file": "src/services/rpg/itemService.js",
+      "source_location": "L53",
+      "weight": 1.0,
+      "context": "collection",
+      "source": "src_services_rpg_itemservice",
+      "target": "src_services_rpg_itemservice_createitem",
+      "confidence_score": 0.5
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/services/rpg/itemService.js",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "src_services_rpg_itemservice",
+      "target": "src_services_rpg_itemservice_getcategory",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "indirect_call",
+      "confidence": "INFERRED",
+      "source_file": "src/services/rpg/itemService.js",
+      "source_location": "L53",
+      "weight": 1.0,
+      "context": "collection",
+      "source": "src_services_rpg_itemservice",
+      "target": "src_services_rpg_itemservice_getdisplaylist",
+      "confidence_score": 0.5
+    },
+    {
+      "relation": "indirect_call",
+      "confidence": "INFERRED",
+      "source_file": "src/services/rpg/itemService.js",
+      "source_location": "L53",
+      "weight": 1.0,
+      "context": "collection",
+      "source": "src_services_rpg_itemservice",
+      "target": "src_services_rpg_itemservice_getitem",
+      "confidence_score": 0.5
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/services/rpg/itemService.js",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "src_services_rpg_itemservice",
+      "target": "src_services_rpg_itemservice_items_getitem_getrawitem",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "indirect_call",
+      "confidence": "INFERRED",
+      "source_file": "src/services/rpg/statusService.js",
+      "source_location": "L104",
+      "weight": 1.0,
+      "context": "collection",
+      "source": "src_services_rpg_statusservice",
+      "target": "src_services_rpg_statusservice_addeffect",
+      "confidence_score": 0.5
+    },
+    {
+      "relation": "indirect_call",
+      "confidence": "INFERRED",
+      "source_file": "src/services/rpg/statusService.js",
+      "source_location": "L108",
+      "weight": 1.0,
+      "context": "collection",
+      "source": "src_services_rpg_statusservice",
+      "target": "src_services_rpg_statusservice_cleancooldown",
+      "confidence_score": 0.5
+    },
+    {
+      "relation": "indirect_call",
+      "confidence": "INFERRED",
+      "source_file": "src/services/rpg/statusService.js",
+      "source_location": "L110",
+      "weight": 1.0,
+      "context": "collection",
+      "source": "src_services_rpg_statusservice",
+      "target": "src_services_rpg_statusservice_cleanexpiredcooldowns",
+      "confidence_score": 0.5
+    },
+    {
+      "relation": "indirect_call",
+      "confidence": "INFERRED",
+      "source_file": "src/services/rpg/statusService.js",
+      "source_location": "L106",
+      "weight": 1.0,
+      "context": "collection",
+      "source": "src_services_rpg_statusservice",
+      "target": "src_services_rpg_statusservice_cleareffects",
+      "confidence_score": 0.5
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/services/rpg/statusService.js",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "src_services_rpg_statusservice",
+      "target": "src_services_rpg_statusservice_filterexisting",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "indirect_call",
+      "confidence": "INFERRED",
+      "source_file": "src/services/rpg/statusService.js",
+      "source_location": "L111",
+      "weight": 1.0,
+      "context": "collection",
+      "source": "src_services_rpg_statusservice",
+      "target": "src_services_rpg_statusservice_getactiveeffects",
+      "confidence_score": 0.5
+    },
+    {
+      "relation": "indirect_call",
+      "confidence": "INFERRED",
+      "source_file": "src/services/rpg/statusService.js",
+      "source_location": "L107",
+      "weight": 1.0,
+      "context": "collection",
+      "source": "src_services_rpg_statusservice",
+      "target": "src_services_rpg_statusservice_getcooldown",
+      "confidence_score": 0.5
+    },
+    {
+      "relation": "indirect_call",
+      "confidence": "INFERRED",
+      "source_file": "src/services/rpg/statusService.js",
+      "source_location": "L112",
+      "weight": 1.0,
+      "context": "collection",
+      "source": "src_services_rpg_statusservice",
+      "target": "src_services_rpg_statusservice_getcooldowns",
+      "confidence_score": 0.5
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/services/rpg/statusService.js",
+      "source_location": "L3",
+      "weight": 1.0,
+      "source": "src_services_rpg_statusservice",
+      "target": "src_services_rpg_statusservice_logerror",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/services/rpg/statusService.js",
+      "source_location": "L13",
+      "weight": 1.0,
+      "source": "src_services_rpg_statusservice",
+      "target": "src_services_rpg_statusservice_saveslots",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "indirect_call",
+      "confidence": "INFERRED",
+      "source_file": "src/services/rpg/statusService.js",
+      "source_location": "L109",
+      "weight": 1.0,
+      "context": "collection",
+      "source": "src_services_rpg_statusservice",
+      "target": "src_services_rpg_statusservice_setcooldown",
+      "confidence_score": 0.5
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/services/rpg/statusService.js",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "src_services_rpg_statusservice",
+      "target": "src_services_rpg_statusservice_supabase",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "indirect_call",
+      "confidence": "INFERRED",
+      "source_file": "src/services/rpg/statusService.js",
+      "source_location": "L105",
+      "weight": 1.0,
+      "context": "collection",
+      "source": "src_services_rpg_statusservice",
+      "target": "src_services_rpg_statusservice_tickeffects",
+      "confidence_score": 0.5
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/services/rpg/statusService.js",
+      "source_location": "L23",
+      "weight": 1.0,
+      "source": "src_services_rpg_statusservice_addeffect",
+      "target": "src_services_rpg_statusservice_getactiveeffects",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/services/rpg/statusService.js",
+      "source_location": "L33",
+      "weight": 1.0,
+      "source": "src_services_rpg_statusservice_tickeffects",
+      "target": "src_services_rpg_statusservice_getactiveeffects",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/services/rpg/statusService.js",
+      "source_location": "L73",
+      "weight": 1.0,
+      "source": "src_services_rpg_statusservice_cleancooldown",
+      "target": "src_services_rpg_statusservice_getcooldowns",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/services/rpg/statusService.js",
+      "source_location": "L88",
+      "weight": 1.0,
+      "source": "src_services_rpg_statusservice_cleanexpiredcooldowns",
+      "target": "src_services_rpg_statusservice_getcooldowns",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/services/rpg/statusService.js",
+      "source_location": "L62",
+      "weight": 1.0,
+      "source": "src_services_rpg_statusservice_getcooldown",
+      "target": "src_services_rpg_statusservice_getcooldowns",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/services/rpg/statusService.js",
+      "source_location": "L81",
+      "weight": 1.0,
+      "source": "src_services_rpg_statusservice_setcooldown",
+      "target": "src_services_rpg_statusservice_getcooldowns",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/services/rpg/statusService.js",
+      "source_location": "L26",
+      "weight": 1.0,
+      "source": "src_services_rpg_statusservice_addeffect",
+      "target": "src_services_rpg_statusservice_saveslots",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/services/rpg/statusService.js",
+      "source_location": "L76",
+      "weight": 1.0,
+      "source": "src_services_rpg_statusservice_cleancooldown",
+      "target": "src_services_rpg_statusservice_saveslots",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/services/rpg/statusService.js",
+      "source_location": "L98",
+      "weight": 1.0,
+      "source": "src_services_rpg_statusservice_cleanexpiredcooldowns",
+      "target": "src_services_rpg_statusservice_saveslots",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/services/rpg/statusService.js",
+      "source_location": "L57",
+      "weight": 1.0,
+      "source": "src_services_rpg_statusservice_cleareffects",
+      "target": "src_services_rpg_statusservice_saveslots",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/services/rpg/statusService.js",
+      "source_location": "L83",
+      "weight": 1.0,
+      "source": "src_services_rpg_statusservice_setcooldown",
+      "target": "src_services_rpg_statusservice_saveslots",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/services/rpg/statusService.js",
+      "source_location": "L49",
+      "weight": 1.0,
+      "source": "src_services_rpg_statusservice_tickeffects",
+      "target": "src_services_rpg_statusservice_saveslots",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",

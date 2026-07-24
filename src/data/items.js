@@ -44,6 +44,40 @@ const ITEMS = {
     rarity: "common",
     modules: { heal: { amount: 25 } },
   },
+  // Temp items for dummy combat — cleaned up on session end
+  pocion_temp: {
+    id: "pocion_temp",
+    name: "Poción de Prueba",
+    description: "Ítem temporal de entrenamiento. Se elimina al terminar el combate.",
+    icon: "🧪",
+    categories: ["consumable"],
+    basePrice: 0,
+    maxStack: 5,
+    rarity: "common",
+    modules: { heal: { amount: 40 }, temporal: {} },
+  },
+  tonico_temp: {
+    id: "tonico_temp",
+    name: "Tónico de Prueba",
+    description: "Ítem temporal de entrenamiento. Se elimina al terminar el combate.",
+    icon: "⚗️",
+    categories: ["consumable"],
+    basePrice: 0,
+    maxStack: 5,
+    rarity: "common",
+    modules: { heal: { amount: 80 }, temporal: {} },
+  },
+  venda_temp: {
+    id: "venda_temp",
+    name: "Venda de Prueba",
+    description: "Ítem temporal de entrenamiento. Se elimina al terminar el combate.",
+    icon: "🩹",
+    categories: ["consumable"],
+    basePrice: 0,
+    maxStack: 5,
+    rarity: "common",
+    modules: { heal: { amount: 15 }, temporal: {} },
+  },
 };
 
 /**

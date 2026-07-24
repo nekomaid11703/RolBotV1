@@ -71,5 +71,17 @@
   "69": "schemaMigration.js",
   "70": "admin_perm_rem.js",
   "71": "inventoryService.js",
-  "73": "inventory_service.test.js"
+  "72": "supabase.js",
+  "73": "inventory_service.test.js",
+  "74": "formatDisplayMention",
+  "75": "schemaMigration.js",
+  "76": "statusService.js",
+  "77": "dar_stelas.js",
+  "78": "eco_admin_rem.js",
+  "79": "dado.js",
+  "80": "editar_pj.js",
+  "81": "atacar.js",
+  "82": "resolveTargetDisplayName",
+  "83": "itemService.js",
+  "84": "ban.js"
 }

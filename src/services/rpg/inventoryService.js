@@ -240,10 +240,58 @@ async function ensureTestKit(characterId, creatorId) {
   return added;
 }
 
+async function ensureTempTestKit(characterId, creatorId) {
+  const tempItems = ["venda_temp", "pocion_temp", "tonico_temp"];
+  const inv = await getInventory(characterId);
+  const existingIds = new Set(inv.map((row) => row.item_id));
+  const added = [];
+
+  for (const itemId of tempItems) {
+    if (!existingIds.has(itemId)) {
+      try {
+        await addItem(characterId, creatorId, itemId, 3);
+        added.push(itemId);
+      } catch (err) {
+        logError({ source: "inventoryService.ensureTempTestKit", error: err, characterId, itemId });
+      }
+    }
+  }
+
+  return added;
+}
+
+async function cleanupTemporalItems(characterId) {
+  const inv = await getInventory(characterId);
+  const toRemove = [];
+
+  for (const entry of inv) {
+    const item = createItem(entry.item_id);
+    if (item && item.modules.some((m) => m.type === "temporal")) {
+      toRemove.push(entry.item_id);
+    }
+  }
+
+  if (toRemove.length === 0) return [];
+
+  const { error } = await supabase
+    .from("inventory")
+    .delete()
+    .eq("character_id", characterId)
+    .in("item_id", toRemove);
+
+  if (error) {
+    logError({ source: "inventoryService.cleanupTemporalItems", error, characterId });
+  }
+
+  return toRemove;
+}
+
 module.exports = {
   getInventory,
   addItem,
   removeItem,
   useItem,
   ensureTestKit,
+  ensureTempTestKit,
+  cleanupTemporalItems,
 };

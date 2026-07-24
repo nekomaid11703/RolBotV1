@@ -375,6 +375,14 @@ async function endSession(sessionId, winnerCharId) {
 
   await saveSession(session);
 
+  const { cleanupTemporalItems } = require("./inventoryService");
+  const challengerId = session.challenger.characterId;
+  const defenderId = session.defender.characterId;
+  await Promise.all([
+    cleanupTemporalItems(challengerId).catch(() => {}),
+    cleanupTemporalItems(defenderId).catch(() => {}),
+  ]);
+
   return session;
 }
 

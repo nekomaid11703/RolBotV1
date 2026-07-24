@@ -725,8 +725,8 @@
     "semantic_hash": ""
   },
   "src/commands/rpg/combat/retar.js": {
-    "mtime": 1784910359.0452247,
-    "ast_hash": "0ec16b07fb030abc6412ba8177057e9c",
+    "mtime": 1784922553.545704,
+    "ast_hash": "1fde2e40cfe1ce4b37020dfd7231a851",
     "semantic_hash": ""
   },
   "src/commands/rpg/inventory/inventario.js": {
@@ -750,8 +750,8 @@
     "semantic_hash": ""
   },
   "src/data/items.js": {
-    "mtime": 1784918032.3120444,
-    "ast_hash": "ad1b518592d036d8b1aa3790152d4915",
+    "mtime": 1784922783.22065,
+    "ast_hash": "9fd53793f6c94297934cf49f1ab869c5",
     "semantic_hash": ""
   },
   "src/database/migrations/001_create_inventory.sql": {
@@ -775,13 +775,13 @@
     "semantic_hash": ""
   },
   "src/services/rpg/combatState.js": {
-    "mtime": 1784903981.7287996,
-    "ast_hash": "134c3fca74a27c6d1ea87da68334afbd",
+    "mtime": 1784922523.495945,
+    "ast_hash": "02f9d35a4cea26a35dc76a5249d7ed41",
     "semantic_hash": ""
   },
   "src/services/rpg/inventoryService.js": {
-    "mtime": 1784915870.1344109,
-    "ast_hash": "7b84b65c251bdf8c23c9b84a9044c58a",
+    "mtime": 1784922503.1923733,
+    "ast_hash": "8fc8799a8364e28419adadd5221caad4",
     "semantic_hash": ""
   },
   "tests/combat_engine.test.js": {
@@ -790,8 +790,8 @@
     "semantic_hash": ""
   },
   "tests/inventory.test.js": {
-    "mtime": 1784915738.8779752,
-    "ast_hash": "7ca5d87e7d444e93af84aede963aee19",
+    "mtime": 1784922707.4469573,
+    "ast_hash": "eaea7ed666f514138e6742821ea69005",
     "semantic_hash": ""
   },
   "src/services/rpg/combatAI.js": {
@@ -990,8 +990,8 @@
     "semantic_hash": ""
   },
   "src/data/itemCategories/index.js": {
-    "mtime": 1784915131.4143298,
-    "ast_hash": "abb65595f47f89a8d579de1fa40dcd8e",
+    "mtime": 1784922438.5515542,
+    "ast_hash": "91e09e9bdfa938b20b09b1c106895265",
     "semantic_hash": ""
   },
   "src/services/rpg/itemService.js": {
@@ -1002,6 +1002,11 @@
   "src/services/rpg/statusService.js": {
     "mtime": 1784915291.2108026,
     "ast_hash": "b65f730cf25e319aa1769bc4bbf3e497",
+    "semantic_hash": ""
+  },
+  "src/data/itemCategories/temporal.js": {
+    "mtime": 1784922421.9368718,
+    "ast_hash": "0c0379861d1cf53c38b95d9e352a89ac",
     "semantic_hash": ""
   }
 }
