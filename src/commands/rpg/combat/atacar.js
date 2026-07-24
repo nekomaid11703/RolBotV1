@@ -63,7 +63,7 @@ module.exports = {
       const attackerSlot = isChallenger ? session.challenger : session.defender;
       const defenderSlot = isChallenger ? session.defender : session.challenger;
 
-      const attackFatigueCost = calcFatigueCost("attack");
+      const attackFatigueCost = calcFatigueCost("attack", attackerSlot.character.stats);
       attackerSlot.fatigue += attackFatigueCost;
 
       const attackInfo = executeAttack(

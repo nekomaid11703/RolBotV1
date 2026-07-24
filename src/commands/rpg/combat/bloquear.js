@@ -38,7 +38,7 @@ module.exports = {
       const defenderSlot = isDefenderChallenger ? session.challenger : session.defender;
       const attackerSlot = isDefenderChallenger ? session.defender : session.challenger;
 
-      const blockCost = calcFatigueCost("block");
+      const blockCost = calcFatigueCost("block", defenderSlot.character.stats);
       const blockRecovery = calcFatigueRecovery("block", defenderSlot.fatigue, defenderSlot.character.stats.def || 1);
       defenderSlot.fatigue = Math.max(0, defenderSlot.fatigue + blockCost - blockRecovery);
 

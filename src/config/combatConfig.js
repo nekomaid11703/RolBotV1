@@ -21,13 +21,20 @@ const FATIGUE_THRESHOLDS = [
 ];
 
 const FATIGUE_COSTS = {
-  attack: 3,
+  attack: 1,
   dodge: 4,
-  block: 1,
-  flee: 4,
-  useItem: 2,
+  block: 0,
+  flee: 3,
+  useItem: 1,
   receiveHit: 1,
 };
+
+const FATIGUE_ATK_COST_SCALE = 0.05;
+const FATIGUE_DEF_REDUCTION_SCALE = 0.01;
+const FATIGUE_DODGE_MSPD_REDUCTION = 0.03;
+const FATIGUE_REST_DEF_SCALE = 0.2;
+const FATIGUE_COST_MIN = 1;
+const FATIGUE_RECOVERY_MAX = 15;
 
 const FATIGUE_RECOVERY = {
   block: 1,
@@ -47,4 +54,10 @@ module.exports = {
   FATIGUE_COSTS,
   FATIGUE_RECOVERY,
   FATIGUE_SPEED_STATS,
+  FATIGUE_ATK_COST_SCALE,
+  FATIGUE_DEF_REDUCTION_SCALE,
+  FATIGUE_DODGE_MSPD_REDUCTION,
+  FATIGUE_REST_DEF_SCALE,
+  FATIGUE_COST_MIN,
+  FATIGUE_RECOVERY_MAX,
 };

@@ -38,7 +38,7 @@ module.exports = {
       const defenderSlot = isDefenderChallenger ? session.challenger : session.defender;
       const attackerSlot = isDefenderChallenger ? session.defender : session.challenger;
 
-      const dodgeFatigueCost = calcFatigueCost("dodge");
+      const dodgeFatigueCost = calcFatigueCost("dodge", defenderSlot.character.stats);
       defenderSlot.fatigue += dodgeFatigueCost;
 
       const reactionResult = executeReaction(

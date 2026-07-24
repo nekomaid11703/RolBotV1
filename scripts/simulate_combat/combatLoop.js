@@ -2,8 +2,7 @@
 "use strict";
 
 const { executeTurn, executeAttack } = require("../../src/services/rpg/combatEngine");
-const { calcFatigueRecovery, getFatigueLevel } = require("../../src/services/rpg/fatigueEngine");
-const { FATIGUE_COSTS } = require("../../src/config/combatConfig");
+const { calcFatigueRecovery, calcFatigueCost, getFatigueLevel } = require("../../src/services/rpg/fatigueEngine");
 const { MAX_ROUNDS, FATIGUE_SNAPSHOT_TURNS } = require("./config");
 
 /**
@@ -22,9 +21,9 @@ function characterShape(fighter, currentHp) {
  */
 function applyReactionFatigue(reaction, defenderState) {
   if (reaction === "dodge") {
-    defenderState.fatigue += FATIGUE_COSTS.dodge;
+    defenderState.fatigue += calcFatigueCost("dodge", defenderState.fighter.stats);
   } else if (reaction === "block") {
-    defenderState.fatigue += FATIGUE_COSTS.block;
+    defenderState.fatigue += calcFatigueCost("block", defenderState.fighter.stats);
     const recovery = calcFatigueRecovery("block", defenderState.fatigue, defenderState.fighter.stats.def || 1);
     defenderState.fatigue = Math.max(0, defenderState.fatigue - recovery);
   }
@@ -70,7 +69,7 @@ function executeRestTurn(resterState, attackerState, resterIsA, roundNum) {
   const attackerChar = characterShape(attackerState.fighter, attackerState.hp);
   const resterChar = characterShape(resterState.fighter, resterState.hp);
 
-  attackerState.fatigue += FATIGUE_COSTS.attack;
+  attackerState.fatigue += calcFatigueCost("attack", attackerState.fighter.stats);
 
   const reactionResult = executeTurn(
     attackerChar,
@@ -133,7 +132,7 @@ function simulateCombat(fighterA, fighterB) {
       const attackerCharA = characterShape(stateA.fighter, stateA.hp);
       const defenderCharB = characterShape(stateB.fighter, stateB.hp);
       const result1 = executeTurn(attackerCharA, defenderCharB, stateB.hp, null, stateA.fatigue, stateB.fatigue);
-      stateA.fatigue += FATIGUE_COSTS.attack;
+      stateA.fatigue += calcFatigueCost("attack", stateA.fighter.stats);
       applyReactionFatigue(result1.reaction, stateB);
       stateB.hp = result1.defenderHpAfter;
       log.push({
@@ -171,7 +170,7 @@ function simulateCombat(fighterA, fighterB) {
       const attackerCharB = characterShape(stateB.fighter, stateB.hp);
       const defenderCharA = characterShape(stateA.fighter, stateA.hp);
       const result2 = executeTurn(attackerCharB, defenderCharA, stateA.hp, null, stateB.fatigue, stateA.fatigue);
-      stateB.fatigue += FATIGUE_COSTS.attack;
+      stateB.fatigue += calcFatigueCost("attack", stateB.fighter.stats);
       applyReactionFatigue(result2.reaction, stateA);
       stateA.hp = result2.defenderHpAfter;
       log.push({

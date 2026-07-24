@@ -1,5 +1,16 @@
 // @ts-nocheck
-const { FATIGUE_THRESHOLDS, FATIGUE_SPEED_STATS } = require("../../config/combatConfig");
+const {
+  FATIGUE_THRESHOLDS,
+  FATIGUE_SPEED_STATS,
+  FATIGUE_COSTS,
+  FATIGUE_RECOVERY,
+  FATIGUE_ATK_COST_SCALE,
+  FATIGUE_DEF_REDUCTION_SCALE,
+  FATIGUE_DODGE_MSPD_REDUCTION,
+  FATIGUE_REST_DEF_SCALE,
+  FATIGUE_COST_MIN,
+  FATIGUE_RECOVERY_MAX,
+} = require("../../config/combatConfig");
 
 /**
  *
@@ -43,8 +54,22 @@ function applyFatiguePenalties(stats, fatigue, resistance) {
  * @param stats
  */
 function calcFatigueCost(actionName, stats = {}) {
-  const { FATIGUE_COSTS } = require("../../config/combatConfig");
-  return FATIGUE_COSTS[actionName] || 0;
+  const base = FATIGUE_COSTS[actionName] || 0;
+  if (base === 0) return 0;
+
+  const atk = Number(stats.atk) || 0;
+  const def = Number(stats.def) || 0;
+  const mspd = Number(stats.mspd) || 0;
+
+  if (actionName === "attack") {
+    const scaled = base + atk * FATIGUE_ATK_COST_SCALE - def * FATIGUE_DEF_REDUCTION_SCALE;
+    return Math.max(FATIGUE_COST_MIN, Math.round(scaled));
+  }
+  if (actionName === "dodge") {
+    const scaled = base - mspd * FATIGUE_DODGE_MSPD_REDUCTION - def * FATIGUE_DEF_REDUCTION_SCALE;
+    return Math.max(FATIGUE_COST_MIN, Math.round(scaled));
+  }
+  return Math.max(FATIGUE_COST_MIN, base);
 }
 
 /**
@@ -54,11 +79,13 @@ function calcFatigueCost(actionName, stats = {}) {
  * @param resistance
  */
 function calcFatigueRecovery(method, fatigue, resistance) {
-  const { FATIGUE_RECOVERY } = require("../../config/combatConfig");
   const base = FATIGUE_RECOVERY[method] || 0;
   if (base === 0) return 0;
   const { recoveryMult } = getFatigueLevel(fatigue, resistance);
-  return Math.max(0, Math.floor(base * recoveryMult));
+  const def = Number(resistance) || 0;
+  const defBonus = Math.floor(def * FATIGUE_REST_DEF_SCALE);
+  const total = Math.min(FATIGUE_RECOVERY_MAX, base + defBonus);
+  return Math.max(0, Math.floor(total * recoveryMult));
 }
 
 module.exports = {

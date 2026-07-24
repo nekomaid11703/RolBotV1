@@ -33,24 +33,24 @@ describe("FATIGUE_THRESHOLDS", () => {
 });
 
 describe("FATIGUE_COSTS", () => {
-  it("attack cuesta 3", () => {
-    expect(FATIGUE_COSTS.attack).toBe(3);
+  it("attack cuesta 1", () => {
+    expect(FATIGUE_COSTS.attack).toBe(1);
   });
 
   it("dodge cuesta 4", () => {
     expect(FATIGUE_COSTS.dodge).toBe(4);
   });
 
-  it("block cuesta 1", () => {
-    expect(FATIGUE_COSTS.block).toBe(1);
+  it("block cuesta 0", () => {
+    expect(FATIGUE_COSTS.block).toBe(0);
   });
 
-  it("flee cuesta 4", () => {
-    expect(FATIGUE_COSTS.flee).toBe(4);
+  it("flee cuesta 3", () => {
+    expect(FATIGUE_COSTS.flee).toBe(3);
   });
 
-  it("useItem cuesta 2", () => {
-    expect(FATIGUE_COSTS.useItem).toBe(2);
+  it("useItem cuesta 1", () => {
+    expect(FATIGUE_COSTS.useItem).toBe(1);
   });
 });
 
@@ -135,39 +135,54 @@ describe("applyFatiguePenalties", () => {
 });
 
 describe("calcFatigueCost", () => {
-  it("retorna costo de dodge", () => {
+  it("retorna costo base de dodge sin stats", () => {
     expect(calcFatigueCost("dodge")).toBe(4);
   });
 
   it("retorna 0 para accion desconocida", () => {
     expect(calcFatigueCost("unknown")).toBe(0);
   });
+
+  it("attack con ATK=50 escala el costo", () => {
+    const cost = calcFatigueCost("attack", { atk: 50, def: 20 });
+    expect(cost).toBeGreaterThanOrEqual(1);
+  });
+
+  it("dodge con MSPD=30 reduce el costo", () => {
+    const cost = calcFatigueCost("dodge", { atk: 10, def: 10, mspd: 30 });
+    expect(cost).toBeGreaterThanOrEqual(1);
+  });
 });
 
 describe("calcFatigueRecovery", () => {
-  it("block en pleno recupera 1", () => {
+  it("block en pleno con res=50 recupera 11 (1 base + 10 DEF bonus)", () => {
     const recovery = calcFatigueRecovery("block", 5, 50);
+    expect(recovery).toBe(11);
+  });
+
+  it("block en agitado con res=50 recupera 5 (11 * 0.5 = 5.5 -> 5)", () => {
+    const recovery = calcFatigueRecovery("block", 20, 50);
+    expect(recovery).toBe(5);
+  });
+
+  it("block en cansado con res=50 recupera 2 (11 * 0.25 = 2.75 -> 2)", () => {
+    const recovery = calcFatigueRecovery("block", 40, 50);
+    expect(recovery).toBe(2);
+  });
+
+  it("block en fatigado con res=50 recupera 1 (11 * 0.125 = 1.375 -> 1)", () => {
+    const recovery = calcFatigueRecovery("block", 48, 50);
     expect(recovery).toBe(1);
   });
 
-  it("block en agitado recupera 0 (1 * 0.5 = 0.5 -> 0)", () => {
-    const recovery = calcFatigueRecovery("block", 20, 50);
-    expect(recovery).toBe(0);
-  });
-
-  it("block en cansado recupera 0 (3 * 0.25 = 0.75 -> 0)", () => {
-    const recovery = calcFatigueRecovery("block", 40, 50);
-    expect(recovery).toBe(0);
-  });
-
-  it("block en fatigado recupera 0 (3 * 0.125 = 0.375 -> 0)", () => {
-    const recovery = calcFatigueRecovery("block", 48, 50);
-    expect(recovery).toBe(0);
-  });
-
-  it("rest en pleno recupera 5", () => {
-    const recovery = calcFatigueRecovery("rest", 0, 50);
+  it("rest en pleno sin DEF recupera 5", () => {
+    const recovery = calcFatigueRecovery("rest", 0, 1);
     expect(recovery).toBe(5);
+  });
+
+  it("rest en pleno con DEF alto recupera 15 (max)", () => {
+    const recovery = calcFatigueRecovery("rest", 0, 50);
+    expect(recovery).toBe(15);
   });
 
   it("retorna 0 para metodo desconocido", () => {

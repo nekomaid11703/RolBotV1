@@ -28,8 +28,9 @@ function buildHpBar(current, max = 100) {
  */
 function buildStatSummary(stats = {}) {
   return [
-    `ATK${stats.atk ?? 0} DEF${stats.def ?? 0} ASP${stats.asp ?? 0}`,
+    `ATK${stats.atk ?? 0} DEF${stats.def ?? 0} ASPD${stats.aspd ?? 0}`,
     `REF${stats.ref ?? 0} MSP${stats.mspd ?? 0} FUL${stats.fulgor ?? 0}`,
+    `DF${stats.d_fulgor ?? 0} RF${stats.r_fulgor ?? 0}`,
   ];
 }
 
@@ -213,8 +214,9 @@ function formatVictory(winnerName, xpGained) {
  * @param success
  * @param chance
  * @param fatigue
+ * @param resistance
  */
-function formatFlee(fleerName, success, chance, fatigue = 0) {
+function formatFlee(fleerName, success, chance, fatigue = 0, resistance = 50) {
   const pct = Math.round(chance * 100);
   if (success) {
     return box(
@@ -223,7 +225,7 @@ function formatFlee(fleerName, success, chance, fatigue = 0) {
         "",
         `\u2705 *${fleerName}* escap\u00F3`,
         `Prob: ${pct}%`,
-        fatigue > 0 ? `Fat ${buildFatigueBar(fatigue, 50)}` : "",
+        fatigue > 0 ? `Fat ${buildFatigueBar(fatigue, resistance)}` : "",
       ].filter(Boolean),
     );
   }

@@ -48,13 +48,15 @@ module.exports = {
       const fleerSlot = isChallenger ? session.challenger : session.defender;
       const pursuerSlot = isChallenger ? session.defender : session.challenger;
 
-      const fleeCost = calcFatigueCost("flee");
+      const fleeCost = calcFatigueCost("flee", fleerSlot.character.stats);
       fleerSlot.fatigue += fleeCost;
 
       // En PvE (Dummy), la huida siempre tiene éxito y no da recompensa
       if (session.isPvE) {
         endSession(session.id, null);
-        return ctx.reply(formatFlee(fleerSlot.character.name, true, 1.0, fleerSlot.fatigue));
+        return ctx.reply(
+          formatFlee(fleerSlot.character.name, true, 1.0, fleerSlot.fatigue, fleerSlot.character.stats.def || 1),
+        );
       }
 
       // En PvP, se evalúa la huida según MSPD comparativo
@@ -71,7 +73,15 @@ module.exports = {
 
       if (fleeResult.success) {
         endSession(session.id, null);
-        return ctx.reply(formatFlee(fleerSlot.character.name, true, fleeResult.chance, fleerSlot.fatigue));
+        return ctx.reply(
+          formatFlee(
+            fleerSlot.character.name,
+            true,
+            fleeResult.chance,
+            fleerSlot.fatigue,
+            fleerSlot.character.stats.def || 1,
+          ),
+        );
       }
 
       // Si la huida falla, el jugador pierde el turno y sufre el ataque automático del perseguidor

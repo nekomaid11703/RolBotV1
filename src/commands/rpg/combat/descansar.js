@@ -86,6 +86,8 @@ module.exports = {
             opponentSlot.character.stats.def || 0,
           );
 
+          advanceTurn(session.id, resterSlot.hp, opponentSlot.hp);
+
           setPendingReaction(session.id, {
             attackerChar: opponentSlot.character,
             defenderChar: resterSlot.character,
@@ -124,8 +126,8 @@ module.exports = {
           opponentSlot.fatigue,
         );
 
-        const finalAttackerHp = isChallenger ? opponentSlot.hp : dummyReaction.defenderHpAfter;
-        const finalDefenderHp = isChallenger ? dummyReaction.defenderHpAfter : opponentSlot.hp;
+        const finalAttackerHp = isChallenger ? dummyReaction.defenderHpAfter : opponentSlot.hp;
+        const finalDefenderHp = isChallenger ? opponentSlot.hp : dummyReaction.defenderHpAfter;
 
         advanceTurn(session.id, finalAttackerHp, finalDefenderHp);
 

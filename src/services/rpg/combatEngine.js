@@ -28,15 +28,15 @@ function normalizeStats(stats = {}) {
  * @param resistance
  */
 function applyPenalties(stats, hp, fatigue = 0, resistance = 0) {
-  const fatigueApplied = fatigue > 0 ? applyFatiguePenalties(stats, fatigue, resistance) : { ...normalizeStats(stats) };
-  const normalized = normalizeStats(fatigueApplied);
+  const normalized = normalizeStats(stats);
+  const fatigueApplied = fatigue > 0 ? applyFatiguePenalties(normalized, fatigue, resistance) : normalized;
 
   const hpState = getHpState(hp);
   const hpPenalty = hpState ? hpState.penalty : 0;
 
   const penalized = {};
-  for (const key of Object.keys(normalized)) {
-    penalized[key] = Math.max(0, Math.round(normalized[key] * (1 - hpPenalty)));
+  for (const key of Object.keys(fatigueApplied)) {
+    penalized[key] = Math.max(0, Math.round(fatigueApplied[key] * (1 - hpPenalty)));
   }
   return penalized;
 }
@@ -65,7 +65,9 @@ function calculateDamage(
   const atkPenalized = applyPenalties(attackerStats, attackerHp, attackerFatigue, attackerRes);
   const defPenalized = applyPenalties(defenderStats, defenderHp, defenderFatigue, defenderRes);
 
-  const rawDamage = Math.floor(atkPenalized.atk ** 2 / (atkPenalized.atk + defPenalized.def * 2));
+  const rawDamage = Math.floor(
+    (atkPenalized.atk ** 2 / (atkPenalized.atk + defPenalized.def)) * ((atkPenalized.atk + 20) / 200),
+  );
   return Math.max(DAMAGE_MIN, rawDamage);
 }
 
