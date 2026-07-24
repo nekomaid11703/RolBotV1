@@ -58,11 +58,11 @@ function normalizeCharacterRecord(character) {
 
   normalized.stats = normalizeStats(normalized.stats || {});
 
-  const maxHp = (normalized.stats.hp || 1) * 2;
-  normalized.hp_actual = Math.max(
-    0,
-    Math.min(maxHp, normalized.hp_actual != null ? Number(normalized.hp_actual) : maxHp),
-  );
+  if (normalized.hp_actual == null || Number.isNaN(Number(normalized.hp_actual))) {
+    normalized.hp_actual = (normalized.stats.hp || 1) * 2;
+  } else {
+    normalized.hp_actual = Math.max(0, Math.floor(Number(normalized.hp_actual)));
+  }
 
   normalized.slots = {
     ...DEFAULT_CHARACTER_SLOTS,
@@ -410,12 +410,12 @@ async function updateCharacterSlots({ characterName, creatorId, slots, requester
  *
  * @param root0
  */
-async function getCombatStats({ creatorId }) {
+async function getCombatStats({ creatorId, maxHp }) {
   const character = await getActiveCharacter({ creatorId });
   if (!character) return null;
 
-  const maxHp = (character.stats?.hp || 1) * 2;
-  const combatStats = { hp: character.hp_actual, hp_max: maxHp };
+  const baseMaxHp = (character.stats?.hp || 1) * 2;
+  const combatStats = { hp: character.hp_actual, hp_max: maxHp ?? baseMaxHp };
   for (const key of Object.keys(LEVELABLE_STATS)) {
     const baseVal = Number(character.stats[key]) || 0;
     combatStats[key] = Math.max(0, Math.round(baseVal));
@@ -463,14 +463,15 @@ async function addXp({ creatorId, characterName, cantidad }) {
  *
  * @param root0
  */
-async function setHp({ creatorId, characterName, hp }) {
+async function setHp({ creatorId, characterName, hp, maxHp }) {
   const slug = getCharacterSlug(characterName);
 
   const character = await safeSingleOrNull(
     supabase.from("characters").select("stats").eq("player_phone", creatorId).eq("slug", slug),
   );
-  const maxHp = (character?.stats?.hp ?? 1) * 2;
-  const safeHp = Math.max(0, Math.min(maxHp, Math.floor(Number(hp) || 0)));
+  const baseMaxHp = (character?.stats?.hp ?? 1) * 2;
+  const maxHpOverride = maxHp ?? baseMaxHp;
+  const safeHp = Math.max(0, Math.min(maxHpOverride, Math.floor(Number(hp) || 0)));
 
   const updatePayload = filterExisting("characters", { hp_actual: safeHp, updated_at: new Date().toISOString() });
   const { data, error } = await supabase
@@ -491,13 +492,14 @@ async function setHp({ creatorId, characterName, hp }) {
  *
  * @param root0
  */
-async function restaurarHp({ creatorId, characterName }) {
+async function restaurarHp({ creatorId, characterName, maxHp }) {
   const slug = getCharacterSlug(characterName);
   const character = await safeSingleOrNull(
     supabase.from("characters").select("stats").eq("player_phone", creatorId).eq("slug", slug),
   );
-  const maxHp = (character?.stats?.hp ?? 1) * 2;
-  return setHp({ creatorId, characterName, hp: maxHp });
+  const baseMaxHp = (character?.stats?.hp ?? 1) * 2;
+  const maxHpOverride = maxHp ?? baseMaxHp;
+  return setHp({ creatorId, characterName, hp: maxHpOverride, maxHp: maxHpOverride });
 }
 
 /**

@@ -8,10 +8,11 @@ const { getItem } = require("../data/items");
  *
  * @param character
  * @param inventoryParam
+ * @param maxHpOverride
  */
-function formatCharacter(character, inventoryParam = null) {
+function formatCharacter(character, inventoryParam = null, maxHpOverride) {
   const lines = [];
-  const maxHp = Math.max(1, (character.stats?.hp ?? 1) * 2);
+  const maxHp = maxHpOverride ?? Math.max(1, (character.stats?.hp ?? 1) * 2);
 
   const hpBar = buildHpBar(character.hp_actual, maxHp);
 
