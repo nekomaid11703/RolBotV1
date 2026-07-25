@@ -83,5 +83,10 @@
   "81": "atacar.js",
   "82": "resolveTargetDisplayName",
   "83": "itemService.js",
-  "84": "ban.js"
+  "84": "ban.js",
+  "85": "equipable.js",
+  "86": "schedulerService.js",
+  "87": "heal.js",
+  "88": "groupConfig.js",
+  "89": "ConditionalMod"
 }
