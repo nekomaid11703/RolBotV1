@@ -101,7 +101,8 @@ const COLUMN_TYPES = {
 };
 
 /**
- *
+ * Detect columns that are missing from the database schema.
+ * @returns {Promise<Array<{table: string, column: string|null, reason: string}>>} List of missing column descriptors
  */
 async function detectMissingColumns() {
   const registry = await discover(true);
@@ -124,7 +125,8 @@ async function detectMissingColumns() {
 }
 
 /**
- *
+ * Generate SQL statements to add missing columns.
+ * @returns {Promise<{sql: string[], missing: Array<*>}>} Object with SQL statements and missing column info
  */
 async function generateMigrationSQL() {
   const missing = await detectMissingColumns();
@@ -143,7 +145,8 @@ async function generateMigrationSQL() {
 }
 
 /**
- *
+ * Log migration info and return status.
+ * @returns {Promise<{ok: boolean, sql: string[]}>} Migration result with ok flag and SQL statements
  */
 async function logMigrationInfo() {
   const { sql, missing } = await generateMigrationSQL();
@@ -170,7 +173,8 @@ async function logMigrationInfo() {
 }
 
 /**
- *
+ * Create tables defined in TABLE_CREATE_SQL if they do not exist.
+ * @returns {Promise<string[]>} List of created table names
  */
 async function createMissingTables() {
   const registry = await discover(true);
@@ -196,7 +200,8 @@ async function createMissingTables() {
 }
 
 /**
- *
+ * Run full startup migration: create missing tables and log column status.
+ * @returns {Promise<{ok: boolean, sql: string[]}>} Migration result
  */
 async function runStartupMigration() {
   await createMissingTables();

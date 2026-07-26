@@ -78,7 +78,7 @@ module.exports = {
         try {
           await addXp({ creatorId: pending.attackerUserId, characterName: winnerChar.name, cantidad: xpReward });
           await setHp({ creatorId: ctx.sender, characterName: activeChar.name, hp: 0 });
-        } catch (_e) {}
+        } catch { /* non-critical on KO */ }
 
         lines.push("");
         lines.push(`\uD83D\uDC80 *${activeChar.name}* cay\u00F3`);

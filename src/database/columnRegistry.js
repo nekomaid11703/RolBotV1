@@ -81,9 +81,10 @@ async function discover(force = false) {
 }
 
 /**
- * @param {string} table
- * @param {string} column
- * @returns {boolean}
+ * Check if a column exists in the cache for a given table.
+ * @param {string} table - Table name
+ * @param {string} column - Column name
+ * @returns {boolean} True if the column exists or cache is unavailable
  */
 function hasColumn(table, column) {
   if (!cache || !cache[table]) return true;
@@ -91,14 +92,15 @@ function hasColumn(table, column) {
 }
 
 /**
- * @param {string} table
- * @param {{ [key: string]: unknown } | undefined | null} data
- * @returns {{ [key: string]: unknown }}
+ * Filter an object to only include keys that exist as columns in the table.
+ * @param {string} table - Table name
+ * @param {*|undefined|null} data - Data object to filter
+ * @returns {*} Filtered object with only existing columns
  */
 function filterExisting(table, data) {
   if (!cache || !cache[table] || !data) return data || {};
   const cols = cache[table];
-  /** @type {{ [key: string]: unknown }} */
+  /** @type {*} */
   const filtered = {};
   let skipped = false;
   for (const [key, value] of Object.entries(data)) {

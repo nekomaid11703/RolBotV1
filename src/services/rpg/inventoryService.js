@@ -13,9 +13,10 @@ const { setCooldown } = require("./statusService");
 const characterLocks = new Map();
 
 /**
- *
- * @param characterId
- * @param fn
+ * Ejecuta una función con un lock exclusivo por personaje para evitar condiciones de carrera.
+ * @param {string|number} characterId - ID del personaje
+ * @param {() => Promise<*>} fn - Función asíncrona a ejecutar bajo lock
+ * @returns {Promise<*>} Resultado de la función ejecutada
  */
 async function withCharacterLock(characterId, fn) {
   while (characterLocks.get(characterId)) {
@@ -32,8 +33,9 @@ async function withCharacterLock(characterId, fn) {
 }
 
 /**
- *
- * @param characterId
+ * Obtiene el inventario de un personaje desde la base de datos.
+ * @param {string|number} characterId - ID del personaje
+ * @returns {Promise<Array<*>>} Lista de items en el inventario
  */
 async function getInventory(characterId) {
   const { data, error } = await supabase
@@ -51,11 +53,12 @@ async function getInventory(characterId) {
 }
 
 /**
- *
- * @param characterId
- * @param creatorId
- * @param itemId
- * @param quantity
+ * Añade un item al inventario de un personaje con control de límites.
+ * @param {string|number} characterId - ID del personaje
+ * @param {string} creatorId - ID del creador/usuario
+ * @param {string} itemId - ID del item a añadir
+ * @param {number} [quantity=1] - Cantidad a añadir
+ * @returns {Promise<*>} Resultado con itemId, quantity y total
  */
 async function addItem(characterId, creatorId, itemId, quantity = 1) {
   return withCharacterLock(characterId, async () => {
@@ -105,11 +108,12 @@ async function addItem(characterId, creatorId, itemId, quantity = 1) {
 }
 
 /**
- *
- * @param characterId
- * @param creatorId
- * @param itemId
- * @param quantity
+ * Elimina una cantidad de un item del inventario de un personaje.
+ * @param {string|number} characterId - ID del personaje
+ * @param {string} creatorId - ID del creador/usuario
+ * @param {string} itemId - ID del item a eliminar
+ * @param {number} [quantity=1] - Cantidad a eliminar
+ * @returns {Promise<*>} Resultado con itemId, removed y remaining
  */
 async function removeItem(characterId, creatorId, itemId, quantity = 1) {
   return withCharacterLock(characterId, async () => {
@@ -145,9 +149,10 @@ async function removeItem(characterId, creatorId, itemId, quantity = 1) {
 }
 
 /**
- *
- * @param creatorId
- * @param itemId
+ * Usa un item consumible del inventario del personaje activo.
+ * @param {string} creatorId - ID del creador/usuario
+ * @param {string} itemId - ID del item a usar
+ * @returns {Promise<*>} Resultado del uso del item con efectos aplicados
  */
 async function useItem(creatorId, itemId) {
   const character = await getActiveCharacter({ creatorId });
@@ -216,9 +221,10 @@ async function useItem(creatorId, itemId) {
 }
 
 /**
- *
- * @param characterId
- * @param creatorId
+ * Asegura que un personaje tenga los items de prueba básicos en su inventario.
+ * @param {string|number} characterId - ID del personaje
+ * @param {string} creatorId - ID del creador/usuario
+ * @returns {Promise<string[]>} Lista de items añadidos
  */
 async function ensureTestKit(characterId, creatorId) {
   const testItems = ["venda", "pocion", "tonico", "antidoto"];
@@ -241,9 +247,10 @@ async function ensureTestKit(characterId, creatorId) {
 }
 
 /**
- *
- * @param characterId
- * @param creatorId
+ * Asegura que un personaje tenga los items temporales de prueba.
+ * @param {string|number} characterId - ID del personaje
+ * @param {string} creatorId - ID del creador/usuario
+ * @returns {Promise<string[]>} Lista de items temporales añadidos
  */
 async function ensureTempTestKit(characterId, creatorId) {
   const tempItems = ["venda_temp", "pocion_temp", "tonico_temp"];
@@ -266,8 +273,9 @@ async function ensureTempTestKit(characterId, creatorId) {
 }
 
 /**
- *
- * @param characterId
+ * Limpia los items temporales del inventario de un personaje.
+ * @param {string|number} characterId - ID del personaje
+ * @returns {Promise<string[]>} Lista de items temporales eliminados
  */
 async function cleanupTemporalItems(characterId) {
   const inv = await getInventory(characterId);

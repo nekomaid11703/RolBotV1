@@ -2,9 +2,13 @@ import js from "@eslint/js";
 import prettier from "eslint-config-prettier";
 import globals from "globals";
 import jsdoc from "eslint-plugin-jsdoc";
+import { createRequire } from "node:module";
+const require = createRequire(import.meta.url);
+const sonarjs = require("eslint-plugin-sonarjs");
 
 export default [
   js.configs.recommended,
+  sonarjs.configs.recommended,
   prettier,
   {
     files: ["src/**/*.js", "tests/**/*.js", "scripts/**/*.js", "index.js"],

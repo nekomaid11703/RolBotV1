@@ -71,7 +71,12 @@ function resolverSeleccionRaza(input) {
  */
 function parseStatLine(line) {
   const trimmed = (line || "").trim();
-  const match = trimmed.match(/^(HP|ATK|ASPD|MSPD|REF|DEF|FULGOR|D_FULGOR|R_FULGOR)\s*(?:\((\d+)\))?\s*:\s*(\d+)\s*$/i);
+  const stat = trimmed.match(/^(HP|ATK|ASPD|MSPD|REF|DEF|FULGOR|D_FULGOR|R_FULGOR)/i);
+  if (!stat) return null;
+  const rest = trimmed.slice(stat[0].length).trim();
+  const pointsMatch = rest.match(/^\((\d+)\)\s*:\s*(\d+)$|^:\s*(\d+)$/);
+  if (!pointsMatch) return null;
+  const match = [stat[0], stat[1], pointsMatch[1], (pointsMatch[2] || pointsMatch[3])];
   if (!match) return null;
   const label = match[1].toLowerCase();
   const key = LABEL_TO_KEY[label];

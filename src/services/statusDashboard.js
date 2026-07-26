@@ -92,7 +92,10 @@ async function render() {
     const events = stats.lastEvents
       .map((e) => {
         const t = e.time.toLocaleTimeString("es-ES", { hour12: false });
-        const ic = e.type === "cmd" ? `${C}>${R}` : e.type === "err" ? `${RE}X${R}` : `${G}>${R}`;
+        let ic;
+        if (e.type === "cmd") ic = C + ">" + R;
+        else if (e.type === "err") ic = RE + "X" + R;
+        else ic = G + ">" + R;
         return `  ${GR}${t}${R}  ${ic}  ${e.text.slice(0, 55)}`;
       })
       .join("\n");
@@ -151,9 +154,7 @@ async function render() {
     out.push(sep);
 
     process.stdout.write("\x1b[2J\x1b[H" + out.join(n) + n);
-  } catch (_e) {
-    // Never crash the bot due to dashboard rendering error
-  }
+  } catch { /* Never crash the bot due to dashboard rendering error */ }
 }
 
 /**

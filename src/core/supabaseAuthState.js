@@ -1,34 +1,36 @@
-// @ts-nocheck
 const { BufferJSON, initAuthCreds } = require("@whiskeysockets/baileys");
 const { supabase } = require("../database/supabase");
 const { logError } = require("../services/loggerService");
 
 const TABLE_NAME = "bot_auth_state";
 
+/**
+ * Create a Supabase-backed authentication state for Baileys.
+ * Implements a circuit breaker pattern for fault tolerance.
+ * @param {string} [sessionId="default"] - Session identifier
+ * @returns {Promise<*>} Auth state object with state and saveCreds
+ */
 async function useSupabaseAuthState(sessionId = "default") {
   let consecutiveFailures = 0;
   let circuitOpen = false;
   let nextAttemptTime = 0;
-  const COOLDOWN_MS = 30000; // 30 segundos de cooldown
+  const COOLDOWN_MS = 30000;
   const MAX_FAILURES = 3;
 
-  const checkCircuit = () => {
-    if (circuitOpen) {
-      if (Date.now() > nextAttemptTime) {
-        // Semi-abierto: permitir un intento de prueba
-        return true;
-      }
-      return false;
-    }
-    return true;
-  };
+  /** @returns {boolean} Whether the circuit allows requests */
+  const checkCircuit = () => !circuitOpen || Date.now() > nextAttemptTime;
 
+  /** @returns {void} */
   const recordSuccess = () => {
     consecutiveFailures = 0;
     circuitOpen = false;
   };
 
-  /** @param {unknown} err - Error that caused the failure */
+  /**
+   * Record a failure and potentially open the circuit.
+   * @param {unknown} err - Error that caused the failure
+   * @returns {void}
+   */
   const recordFailure = (err) => {
     consecutiveFailures++;
     if (consecutiveFailures >= MAX_FAILURES) {
@@ -46,8 +48,10 @@ async function useSupabaseAuthState(sessionId = "default") {
   };
 
   /**
-   * @param {object} data - Data to persist
+   * Write data to the auth state table.
+   * @param {*} data - Data to persist
    * @param {string} id - Record identifier
+   * @returns {Promise<void>}
    */
   const writeData = async (data, id) => {
     if (!checkCircuit()) return;
@@ -67,8 +71,9 @@ async function useSupabaseAuthState(sessionId = "default") {
   };
 
   /**
+   * Read data from the auth state table.
    * @param {string} id - Record identifier
-   * @returns {Promise<object|null>} - Promise resolving to the data or null
+   * @returns {Promise<*|null>} Resolves to the stored data or null
    */
   const readData = async (id) => {
     if (!checkCircuit()) return null;
@@ -82,7 +87,6 @@ async function useSupabaseAuthState(sessionId = "default") {
 
       if (error) {
         if (error.code === "PGRST116") {
-          // Fila no encontrada, es normal al iniciar credenciales limpias
           recordSuccess();
           return null;
         }
@@ -102,23 +106,6 @@ async function useSupabaseAuthState(sessionId = "default") {
     }
   };
 
-  /** @param {string} id - Record identifier */
-  const _removeData = async (id) => {
-    if (!checkCircuit()) return;
-    try {
-      const { error } = await supabase.from(TABLE_NAME).delete().eq("session_id", sessionId).eq("id", id);
-
-      if (error) throw error;
-      recordSuccess();
-    } catch (err) {
-      recordFailure(err);
-      await logError({
-        source: `supabaseAuthState.removeData:${id}`,
-        error: err,
-      });
-    }
-  };
-
   let creds = await readData("creds");
   if (!creds) {
     creds = initAuthCreds();
@@ -130,12 +117,13 @@ async function useSupabaseAuthState(sessionId = "default") {
       creds,
       keys: {
         /**
+         * Get key data by type and ids.
          * @param {string} type - Key or event type
          * @param {string[]} ids - Array of identifiers
-         * @returns {Promise<object>} - Promise resolving to the sent message
+         * @returns {Promise<*>} Object mapping ids to values
          */
         get: async (type, ids) => {
-          /** @type {object} */
+          /** @type {*} */
           const data = {};
           await Promise.all(
             ids.map(async (/** @type {string} */ id) => {
@@ -149,7 +137,11 @@ async function useSupabaseAuthState(sessionId = "default") {
           );
           return data;
         },
-        /** @param {object} data - Data payload */
+        /**
+         * Set key data in batch.
+         * @param {*} data - Data payload with category/id/value nesting
+         * @returns {Promise<void>}
+         */
         set: async (data) => {
           if (!checkCircuit()) return;
           const upsertData = [];

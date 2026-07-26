@@ -1,4 +1,3 @@
-// @ts-nocheck
 require("dotenv").config({ path: require("path").join(__dirname, "../../.env.local") });
 
 const OWNER_PHONE = process.env.OWNER_PHONE || "";

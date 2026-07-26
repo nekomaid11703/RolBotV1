@@ -8,8 +8,9 @@ const sessions = new Map();
 let cleanupInterval = null;
 
 /**
- *
- * @param challengerChar
+ * Genera un personaje dummy para combate de práctica PvE.
+ * @param {*} challengerChar - Personaje del retador para escalar estadísticas del dummy
+ * @returns {*} Personaje dummy generado
  */
 function generateDummyCharacter(challengerChar) {
   const stats = challengerChar.stats || {};
@@ -28,7 +29,7 @@ function generateDummyCharacter(challengerChar) {
 
   const dummyStats = {};
   for (const key of keys) {
-    const variation = Math.floor((Math.random() * 0.4 - 0.2) * basePerStat);
+    const variation = Math.floor((Math.random() * 0.4 - 0.2) * basePerStat); // eslint-disable-line sonarjs/pseudo-random
     dummyStats[key] = Math.max(1, basePerStat + variation);
   }
 
@@ -39,7 +40,8 @@ function generateDummyCharacter(challengerChar) {
   const dummyHp = Math.max(1, Math.floor(totalPoints / keys.length));
 
   return {
-    id: `dummy_${Date.now()}_${Math.floor(Math.random() * 1000)}`,
+    id: `dummy_${Date.now()}_${Math.floor(Math.random() * 1000)}`, // eslint-disable-line sonarjs/pseudo-random
+
     name: "Maniqu\u00ed de Pr\u00e1ctica",
     nivel: totalPoints,
     hp_actual: dummyHp * 2,
@@ -51,8 +53,9 @@ function generateDummyCharacter(challengerChar) {
 }
 
 /**
- *
- * @param session
+ * Guarda o actualiza una sesión de combate en la base de datos.
+ * @param {*} session - Sesión de combate a persistir
+ * @returns {Promise<void>}
  */
 async function saveSession(session) {
   try {
@@ -80,8 +83,9 @@ async function saveSession(session) {
 }
 
 /**
- *
- * @param sessionId
+ * Elimina una sesión de combate de la base de datos.
+ * @param {string} sessionId - ID de la sesión a eliminar
+ * @returns {Promise<void>}
  */
 async function deleteSessionFromDb(sessionId) {
   try {
@@ -95,7 +99,8 @@ async function deleteSessionFromDb(sessionId) {
 }
 
 /**
- *
+ * Carga sesiones activas desde la base de datos al iniciar.
+ * @returns {Promise<Array<*>>} Lista de sesiones restauradas
  */
 async function loadSessionsFromDb() {
   try {
@@ -129,8 +134,9 @@ async function loadSessionsFromDb() {
 }
 
 /**
- *
- * @param session
+ * Verifica si una sesión ha expirado por tiempo de inactividad.
+ * @param {*} session - Sesión de combate a verificar
+ * @returns {boolean} true si la sesión expiró
  */
 function isSessionExpired(session) {
   if (!session) return false;
@@ -141,8 +147,9 @@ function isSessionExpired(session) {
 }
 
 /**
- *
- * @param session
+ * Verifica si una sesión sigue activa (no completada ni expirada).
+ * @param {*} session - Sesión de combate a verificar
+ * @returns {boolean} true si la sesión está activa
  */
 function isSessionActive(session) {
   if (!session) return false;
@@ -150,7 +157,8 @@ function isSessionActive(session) {
 }
 
 /**
- *
+ * Cuenta las sesiones de combate activas actualmente.
+ * @returns {number} Número de sesiones activas
  */
 function getActiveSessionCount() {
   let count = 0;
@@ -161,11 +169,12 @@ function getActiveSessionCount() {
 }
 
 /**
- *
- * @param challengerId
- * @param defenderId
- * @param challengerChar
- * @param defenderChar
+ * Crea una nueva sesión de combate PvP entre dos personajes.
+ * @param {string} challengerId - ID del usuario retador
+ * @param {string} defenderId - ID del usuario defensor
+ * @param {*} challengerChar - Personaje del retador
+ * @param {*} defenderChar - Personaje del defensor
+ * @returns {Promise<*>} Sesión de combate creada
  */
 async function createSession(challengerId, defenderId, challengerChar, defenderChar) {
   if (getActiveSessionCount() >= MAX_ACTIVE_SESSIONS) {
@@ -209,9 +218,10 @@ async function createSession(challengerId, defenderId, challengerChar, defenderC
 }
 
 /**
- *
- * @param challengerId
- * @param challengerChar
+ * Crea una sesión de combate PvE contra un personaje dummy.
+ * @param {string} challengerId - ID del usuario retador
+ * @param {*} challengerChar - Personaje del retador
+ * @returns {Promise<*>} Sesión de combate PvE creada
  */
 async function createDummySession(challengerId, challengerChar) {
   if (getActiveSessionCount() >= MAX_ACTIVE_SESSIONS) {
@@ -256,16 +266,18 @@ async function createDummySession(challengerId, challengerChar) {
 }
 
 /**
- *
- * @param sessionId
+ * Obtiene una sesión de combate por su ID.
+ * @param {string} sessionId - ID de la sesión
+ * @returns {*|null} Sesión encontrada o null
  */
 function getSession(sessionId) {
   return sessions.get(sessionId) || null;
 }
 
 /**
- *
- * @param characterId
+ * Busca una sesión activa por ID de personaje.
+ * @param {string} characterId - ID del personaje
+ * @returns {*|null} Sesión activa encontrada o null
  */
 function findSessionByCharacter(characterId) {
   if (!characterId) return null;
@@ -288,8 +300,9 @@ function findSessionByCharacter(characterId) {
 }
 
 /**
- *
- * @param userId
+ * Busca una sesión activa por ID de usuario.
+ * @param {string} userId - ID del usuario
+ * @returns {*|null} Sesión activa encontrada o null
  */
 function findSessionByUser(userId) {
   for (const session of sessions.values()) {
@@ -306,14 +319,11 @@ function findSessionByUser(userId) {
 }
 
 /**
- *
- * @param sessionId
- * @param newAttackerHp
- * @param newDefenderHp
- * @param skipRound
- * @param session
- * @param event
- * @param context
+ * Dispara un evento de módulo para todos los participantes de la sesión.
+ * @param {*} session - Sesión de combate
+ * @param {string} event - Nombre del evento a disparar
+ * @param {*} [context={}] - Contexto adicional para el evento
+ * @returns {Array<*>} Resultados de la ejecución de módulos
  */
 function triggerModuleEvent(session, event, context = {}) {
   const slots = [session.challenger, session.defender];
@@ -335,11 +345,12 @@ function triggerModuleEvent(session, event, context = {}) {
 }
 
 /**
- *
- * @param sessionId
- * @param newAttackerHp
- * @param newDefenderHp
- * @param skipRound
+ * Avanza al siguiente turno actualizando HP, fatiga y cambiando el turno al otro personaje.
+ * @param {string} sessionId - ID de la sesión
+ * @param {number} newAttackerHp - Nuevo HP del atacante
+ * @param {number} newDefenderHp - Nuevo HP del defensor
+ * @param {boolean} [skipRound=false] - Si true, no incrementa el contador de rondas
+ * @returns {Promise<*|null>} Sesión actualizada o null si no existe
  */
 async function advanceTurn(sessionId, newAttackerHp, newDefenderHp, skipRound = false) {
   const session = sessions.get(sessionId);
@@ -373,9 +384,10 @@ async function advanceTurn(sessionId, newAttackerHp, newDefenderHp, skipRound = 
 }
 
 /**
- *
- * @param sessionId
- * @param pendingData
+ * Marca una sesión como esperando reacción del defensor.
+ * @param {string} sessionId - ID de la sesión
+ * @param {*} pendingData - Datos del ataque pendiente de reacción
+ * @returns {Promise<*|null>} Sesión actualizada o null si no existe
  */
 async function setPendingReaction(sessionId, pendingData) {
   const session = sessions.get(sessionId);
@@ -388,8 +400,9 @@ async function setPendingReaction(sessionId, pendingData) {
 }
 
 /**
- *
- * @param sessionId
+ * Limpia el estado de reacción pendiente de una sesión.
+ * @param {string} sessionId - ID de la sesión
+ * @returns {Promise<*|null>} Sesión actualizada o null si no existe
  */
 async function clearPendingReaction(sessionId) {
   const session = sessions.get(sessionId);
@@ -402,9 +415,10 @@ async function clearPendingReaction(sessionId) {
 }
 
 /**
- *
- * @param sessionId
- * @param winnerCharId
+ * Finaliza una sesión de combate declarando un ganador y limpiando items temporales.
+ * @param {string} sessionId - ID de la sesión
+ * @param {string} winnerCharId - ID del personaje ganador
+ * @returns {Promise<*|null>} Sesión finalizada o null si no existe
  */
 async function endSession(sessionId, winnerCharId) {
   const session = sessions.get(sessionId);
@@ -429,9 +443,10 @@ async function endSession(sessionId, winnerCharId) {
 }
 
 /**
- *
- * @param sessionId
- * @param _reason
+ * Marca una sesión como expirada por inactividad.
+ * @param {string} sessionId - ID de la sesión
+ * @param {string} _reason - Razón de la expiración (no utilizada internamente)
+ * @returns {Promise<*|null>} Sesión expirada o null si no existe
  */
 async function expireSession(sessionId, _reason) {
   const session = sessions.get(sessionId);
@@ -445,8 +460,9 @@ async function expireSession(sessionId, _reason) {
 }
 
 /**
- *
- * @param sessionId
+ * Elimina una sesión de la memoria y la base de datos.
+ * @param {string} sessionId - ID de la sesión a eliminar
+ * @returns {Promise<void>}
  */
 async function removeSession(sessionId) {
   sessions.delete(sessionId);
@@ -454,7 +470,8 @@ async function removeSession(sessionId) {
 }
 
 /**
- *
+ * Limpia sesiones expiradas y remueve sesiones inactivas de la memoria y BD.
+ * @returns {Promise<void>}
  */
 async function cleanup() {
   const now = Date.now();
@@ -487,7 +504,8 @@ async function cleanup() {
 }
 
 /**
- *
+ * Restaura sesiones activas desde la base de datos al iniciar el bot.
+ * @returns {Promise<void>}
  */
 async function restoreSessions() {
   const loaded = await loadSessionsFromDb();
@@ -505,7 +523,8 @@ async function restoreSessions() {
 }
 
 /**
- *
+ * Inicia el intervalo de limpieza automática de sesiones cada 5 minutos.
+ * @returns {void}
  */
 function startCleanupInterval() {
   if (cleanupInterval) return;
@@ -518,7 +537,8 @@ function startCleanupInterval() {
 }
 
 /**
- *
+ * Detiene el intervalo de limpieza automática de sesiones.
+ * @returns {void}
  */
 function stopCleanupInterval() {
   if (cleanupInterval) {

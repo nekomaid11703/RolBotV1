@@ -1,5 +1,3 @@
-// @ts-nocheck
-
 // =========================
 // STATS — V1.0 COMBAT UPDATE
 // =========================
@@ -192,16 +190,18 @@ const XP_CURVE_BASE = 10;
 const XP_CURVE_EXPONENT = 1.2;
 
 /**
- *
- * @param currentLevel
+ * Calculate XP required for the next level.
+ * @param {number} currentLevel - Current character level
+ * @returns {number} XP needed to reach the next level
  */
 function xpForNextLevel(currentLevel) {
   return Math.floor(XP_CURVE_BASE * Math.pow(currentLevel, XP_CURVE_EXPONENT));
 }
 
 /**
- *
- * @param stats
+ * Calculate total level from stats sum.
+ * @param {*} stats - Character stats object
+ * @returns {number} Calculated level value
  */
 function calculateLevel(stats) {
   let sum = 0;
@@ -218,7 +218,8 @@ function calculateLevel(stats) {
 const RANGOS = ["F", "E", "D", "C", "B", "A", "S"];
 
 /**
- *
+ * Get the list of available ranks.
+ * @returns {string[]} Array of rank labels
  */
 function rangosDisponibles() {
   return RANGOS;

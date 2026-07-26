@@ -8,7 +8,7 @@ class BuffModule extends ModuleBase {
     return {
       type: "buff",
       effect: {
-        id: `eff_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+        id: `eff_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`, // eslint-disable-line sonarjs/pseudo-random
         module: "buff",
         stat: this.config.stat,
         amount: this.config.amount,

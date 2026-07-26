@@ -33,11 +33,10 @@ function formatCharacter(character, inventoryParam = null, maxHpOverride) {
     }
   }
 
-  const inventory = Array.isArray(inventoryParam)
-    ? inventoryParam
-    : Array.isArray(character.inventory)
-      ? character.inventory
-      : null;
+  let inventory = inventoryParam;
+  if (!Array.isArray(inventory)) {
+    inventory = Array.isArray(character.inventory) ? character.inventory : null;
+  }
 
   lines.push("");
   if (inventory && inventory.length > 0) {

@@ -2,10 +2,12 @@
 const { DAMAGE_MIN, BLOCK_REDUCTION } = require("../../config/combatConfig");
 const { applyFatiguePenalties } = require("./fatigueEngine");
 const moduleRegistry = require("../../modules/moduleRegistry");
+const { randomFloat } = require("../../utils/randomUtils");
 
 /**
- *
- * @param stats
+ * Normaliza las estadísticas a un formato consistente con valores por defecto.
+ * @param {*} stats - Estadísticas del personaje
+ * @returns {*} Estadísticas normalizadas con todas las claves requeridas
  */
 function normalizeStats(stats = {}) {
   return {
@@ -21,11 +23,12 @@ function normalizeStats(stats = {}) {
 }
 
 /**
- *
- * @param stats
- * @param hp
- * @param fatigue
- * @param resistance
+ * Aplica penalizaciones por fatiga y estado a las estadísticas del personaje.
+ * @param {*} stats - Estadísticas base del personaje
+ * @param {number} hp - Puntos de vida actuales
+ * @param {number} [fatigue=0] - Nivel de fatiga actual
+ * @param {number} [resistance=0] - Resistencia a fatiga
+ * @returns {*} Estadísticas con penalizaciones aplicadas
  */
 function applyPenalties(stats, hp, fatigue = 0, resistance = 0) {
   const normalized = normalizeStats(stats);
@@ -39,15 +42,16 @@ function applyPenalties(stats, hp, fatigue = 0, resistance = 0) {
 }
 
 /**
- *
- * @param attackerStats
- * @param defenderStats
- * @param attackerHp
- * @param defenderHp
- * @param attackerFatigue
- * @param defenderFatigue
- * @param attackerRes
- * @param defenderRes
+ * Calcula el daño base de un ataque entre atacante y defensor.
+ * @param {*} attackerStats - Estadísticas del atacante
+ * @param {*} defenderStats - Estadísticas del defensor
+ * @param {number} attackerHp - HP del atacante
+ * @param {number} defenderHp - HP del defensor
+ * @param {number} [attackerFatigue=0] - Fatiga del atacante
+ * @param {number} [defenderFatigue=0] - Fatiga del defensor
+ * @param {number} [attackerRes=0] - Resistencia del atacante
+ * @param {number} [defenderRes=0] - Resistencia del defensor
+ * @returns {number} Daño calculado (mínimo DAMAGE_MIN)
  */
 function calculateDamage(
   attackerStats,
@@ -67,15 +71,16 @@ function calculateDamage(
 }
 
 /**
- *
- * @param defenderStats
- * @param defenderHp
- * @param attackerStats
- * @param attackerHp
- * @param defenderFatigue
- * @param attackerFatigue
- * @param defenderRes
- * @param attackerRes
+ * Determina si el defensor puede reaccionar al ataque (reflejos vs velocidad de ataque).
+ * @param {*} defenderStats - Estadísticas del defensor
+ * @param {number} defenderHp - HP del defensor
+ * @param {*} attackerStats - Estadísticas del atacante
+ * @param {number} attackerHp - HP del atacante
+ * @param {number} [defenderFatigue=0] - Fatiga del defensor
+ * @param {number} [attackerFatigue=0] - Fatiga del atacante
+ * @param {number} [defenderRes=0] - Resistencia del defensor
+ * @param {number} [attackerRes=0] - Resistencia del atacante
+ * @returns {boolean} true si el defensor puede reaccionar
  */
 function canReact(
   defenderStats,
@@ -94,14 +99,14 @@ function canReact(
 
 /**
  * Evalúa si esquivar resultará en dodge exitoso (sin cálculo mental para el jugador).
- * @param defenderStats
- * @param defenderHp
- * @param attackerStats
- * @param attackerHp
- * @param defenderFatigue
- * @param attackerFatigue
- * @param defenderRes
- * @param attackerRes
+ * @param {*} defenderStats - Estadísticas del defensor
+ * @param {number} defenderHp - HP del defensor
+ * @param {*} attackerStats - Estadísticas del atacante
+ * @param {number} attackerHp - HP del atacante
+ * @param {number} [defenderFatigue=0] - Fatiga del defensor
+ * @param {number} [attackerFatigue=0] - Fatiga del atacante
+ * @param {number} [defenderRes=0] - Resistencia del defensor
+ * @param {number} [attackerRes=0] - Resistencia del atacante
  * @returns {boolean} true si el jugador podrá esquivar completamente
  */
 function evaluateDodgeFeasibility(
@@ -121,15 +126,15 @@ function evaluateDodgeFeasibility(
 
 /**
  * Evalúa la probabilidad de huida basada en MSPD comparativo.
- * @param fleerStats
- * @param fleerHp
- * @param pursuerStats
- * @param pursuerHp
- * @param fleerFatigue
- * @param pursuerFatigue
- * @param fleerRes
- * @param pursuerRes
- * @returns {{ chance: number, roll: number, success: boolean }}
+ * @param {*} fleerStats - Estadísticas del que huye
+ * @param {number} fleerHp - HP del que huye
+ * @param {*} pursuerStats - Estadísticas del perseguidor
+ * @param {number} pursuerHp - HP del perseguidor
+ * @param {number} [fleerFatigue=0] - Fatiga del que huye
+ * @param {number} [pursuerFatigue=0] - Fatiga del perseguidor
+ * @param {number} [fleerRes=0] - Resistencia del que huye
+ * @param {number} [pursuerRes=0] - Resistencia del perseguidor
+ * @returns {{ chance: number, roll: number, success: boolean }} Resultado de la tirada de huida
  */
 function rollFlee(
   fleerStats,
@@ -153,13 +158,14 @@ function rollFlee(
     chance = 0.25;
   }
 
-  const roll = Math.random();
+  const roll = randomFloat();
   return { chance, roll, success: roll < chance };
 }
 
 /**
- *
- * @param incomingDamage
+ * Intenta bloquear un ataque entrante, reduciendo el daño según BLOCK_REDUCTION.
+ * @param {number} incomingDamage - Daño entrante a bloquear
+ * @returns {{ blocked: boolean, damage: number }} Resultado del bloqueo con daño reducido
  */
 function attemptBlock(incomingDamage) {
   return {
@@ -169,15 +175,16 @@ function attemptBlock(incomingDamage) {
 }
 
 /**
- *
- * @param defenderStats
- * @param defenderHp
- * @param attackerStats
- * @param attackerHp
- * @param defenderFatigue
- * @param attackerFatigue
- * @param defenderRes
- * @param attackerRes
+ * Intenta esquivar un ataque basado en velocidad de movimiento vs velocidad de ataque.
+ * @param {*} defenderStats - Estadísticas del defensor
+ * @param {number} defenderHp - HP del defensor
+ * @param {*} attackerStats - Estadísticas del atacante
+ * @param {number} attackerHp - HP del atacante
+ * @param {number} [defenderFatigue=0] - Fatiga del defensor
+ * @param {number} [attackerFatigue=0] - Fatiga del atacante
+ * @param {number} [defenderRes=0] - Resistencia del defensor
+ * @param {number} [attackerRes=0] - Resistencia del atacante
+ * @returns {{ dodged: boolean, damage: (number|null) }} Resultado del intento de esquiva
  */
 function attemptDodge(
   defenderStats,
@@ -199,13 +206,14 @@ function attemptDodge(
 }
 
 /**
- *
- * @param attackerChar
- * @param defenderChar
- * @param defenderHp
- * @param attackerHp
- * @param attackerFatigue
- * @param defenderFatigue
+ * Ejecuta la fase de ataque de un turno, calculando daño base y posibilidad de reacción.
+ * @param {*} attackerChar - Personaje atacante
+ * @param {*} defenderChar - Personaje defensor
+ * @param {number} defenderHp - HP actual del defensor
+ * @param {number} attackerHp - HP actual del atacante
+ * @param {number} [attackerFatigue=0] - Fatiga del atacante
+ * @param {number} [defenderFatigue=0] - Fatiga del defensor
+ * @returns {*} Información del ataque ejecutado
  */
 function executeAttack(attackerChar, defenderChar, defenderHp, attackerHp, attackerFatigue = 0, defenderFatigue = 0) {
   const attackerStats = attackerChar.stats || {};
@@ -244,15 +252,16 @@ function executeAttack(attackerChar, defenderChar, defenderHp, attackerHp, attac
 }
 
 /**
- *
- * @param reactionType
- * @param baseDamage
- * @param defenderChar
- * @param defenderHp
- * @param attackerChar
- * @param attackerHp
- * @param defenderFatigue
- * @param attackerFatigue
+ * Ejecuta la reacción del defensor (esquivar, bloquear o ninguna) y aplica el daño final.
+ * @param {string} reactionType - Tipo de reacción ('dodge', 'block', 'none')
+ * @param {number} baseDamage - Daño base antes de reacción
+ * @param {*} defenderChar - Personaje defensor
+ * @param {number} defenderHp - HP actual del defensor
+ * @param {*} attackerChar - Personaje atacante
+ * @param {number} attackerHp - HP actual del atacante
+ * @param {number} [defenderFatigue=0] - Fatiga del defensor
+ * @param {number} [attackerFatigue=0] - Fatiga del atacante
+ * @returns {*} Resultado completo de la reacción con daño final
  */
 function executeReaction(
   reactionType,
@@ -317,14 +326,15 @@ function executeReaction(
 }
 
 /**
- *
- * @param defenderChar
- * @param defenderHp
- * @param attackerChar
- * @param baseDamage
- * @param attackerHp
- * @param defenderFatigue
- * @param attackerFatigue
+ * La IA elige la mejor reacción disponible (esquivar, bloquear o ninguna).
+ * @param {*} defenderChar - Personaje defensor (IA)
+ * @param {number} defenderHp - HP del defensor
+ * @param {*} attackerChar - Personaje atacante
+ * @param {number} baseDamage - Daño base del ataque
+ * @param {number} attackerHp - HP del atacante
+ * @param {number} [defenderFatigue=0] - Fatiga del defensor
+ * @param {number} [attackerFatigue=0] - Fatiga del atacante
+ * @returns {string} Reacción elegida ('dodge', 'block', 'none')
  */
 function chooseAiReaction(
   defenderChar,
@@ -371,14 +381,15 @@ function chooseAiReaction(
 }
 
 /**
- *
- * @param attackerChar
- * @param defenderChar
- * @param defenderHp
- * @param attackerHp
- * @param chosenReaction
- * @param attackerFatigue
- * @param defenderFatigue
+ * Ejecuta un turno completo de combate: ataque + reacción (elegida o automática).
+ * @param {*} attackerChar - Personaje atacante
+ * @param {*} defenderChar - Personaje defensor
+ * @param {number} defenderHp - HP del defensor
+ * @param {number} attackerHp - HP del atacante
+ * @param {string|null} [chosenReaction=null] - Reacción forzada (null para IA)
+ * @param {number} [attackerFatigue=0] - Fatiga del atacante
+ * @param {number} [defenderFatigue=0] - Fatiga del defensor
+ * @returns {*} Resultado completo del turno
  */
 function executeTurn(
   attackerChar,
@@ -434,9 +445,10 @@ function executeTurn(
 }
 
 /**
- *
- * @param enemyLevel
- * @param isWinner
+ * Calcula la recompensa de XP basada en el nivel del enemigo y si el jugador ganó.
+ * @param {number} [enemyLevel=1] - Nivel del enemigo derrotado
+ * @param {boolean} [isWinner=true] - true si el jugador ganó el combate
+ * @returns {number} Puntos de XP otorgados
  */
 function calculateXpReward(enemyLevel = 1, isWinner = true) {
   const lvl = Math.max(1, Number(enemyLevel) || 1);
@@ -445,10 +457,11 @@ function calculateXpReward(enemyLevel = 1, isWinner = true) {
 }
 
 /**
- *
- * @param character
- * @param baseDamage
- * @param context
+ * Aplica modificadores de módulos al daño de ataque.
+ * @param {*} character - Personaje con módulos equipados
+ * @param {number} baseDamage - Daño base antes de modificadores
+ * @param {*} [context={}] - Contexto adicional para los módulos
+ * @returns {number} Daño modificado
  */
 function applyAttackModifiers(character, baseDamage, context = {}) {
   const modules = character.slots?.modules;
@@ -468,10 +481,11 @@ function applyAttackModifiers(character, baseDamage, context = {}) {
 }
 
 /**
- *
- * @param character
- * @param incomingDamage
- * @param context
+ * Aplica modificadores de módulos al daño recibido.
+ * @param {*} character - Personaje con módulos equipados
+ * @param {number} incomingDamage - Daño entrante antes de modificadores
+ * @param {*} [context={}] - Contexto adicional para los módulos
+ * @returns {number} Daño modificado tras recibir el golpe
  */
 function applyHitModifiers(character, incomingDamage, context = {}) {
   const modules = character.slots?.modules;

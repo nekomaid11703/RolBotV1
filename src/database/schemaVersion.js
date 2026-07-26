@@ -6,7 +6,8 @@ const SESSION_ID = "_meta";
 const CURRENT_VERSION = "2.0.0";
 
 /**
- *
+ * Get the stored schema version from the database.
+ * @returns {Promise<string|null>} Stored version string or null
  */
 async function getStoredVersion() {
   try {
@@ -24,7 +25,11 @@ async function getStoredVersion() {
   }
 }
 
-/** @param {string} version */
+/**
+ * Set the stored schema version in the database.
+ * @param {string} version - Version string to store
+ * @returns {Promise<void>}
+ */
 async function setStoredVersion(version) {
   try {
     await supabase.from("bot_auth_state").upsert(
@@ -41,7 +46,8 @@ async function setStoredVersion(version) {
 }
 
 /**
- *
+ * Check if the stored schema version matches the current code version.
+ * @returns {Promise<{ok: boolean, stored: string|null, current: string}>} Version check result
  */
 async function checkVersion() {
   const stored = await getStoredVersion();

@@ -18,7 +18,7 @@ const usageMessage = formatCommandUsage({
   usage: "/admin_perm_rem @usuario <categor\u00eda>",
   example: "/admin_perm_rem @Nekomaid economy",
   notes: [
-    `Categor\u00edas disponibles: ${CATEGORIES.map((c) => `\`${c}\``).join(", ")}`,
+    "Categor\u00edas disponibles: " + CATEGORIES.map((c) => "'" + c + "'").join(", "),
     "El creador conserva permisos permanentes.",
   ],
 });
@@ -40,7 +40,7 @@ module.exports = {
 
     if (!CATEGORIES.includes(category)) {
       return ctx.reply(
-        `\u274C Categor\u00eda \`${category}\` no v\u00e1lida.\n\nCategor\u00edas disponibles: ${CATEGORIES.map((c) => `\`${c}\``).join(", ")}`,
+        "\u274C Categor\u00eda '" + category + "' no v\u00e1lida.\n\nCategor\u00edas disponibles: " + CATEGORIES.map((c) => "'" + c + "'").join(", "),
       );
     }
 

@@ -1,4 +1,3 @@
-// @ts-nocheck
 const path = require("path");
 
 const GROUP_ACTIVITY_ROOT = path.join(__dirname, "../database/grupos");

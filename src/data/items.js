@@ -1,4 +1,3 @@
-// @ts-nocheck
 const ITEMS = {
   venda: {
     id: "venda",
@@ -81,16 +80,18 @@ const ITEMS = {
 };
 
 /**
-
- * @param itemId
+ * Get an item definition by id.
+ * @param {string} itemId - Item identifier
+ * @returns {*|null} Item definition object or null
  */
 function getItem(itemId) {
   return ITEMS[itemId] || null;
 }
 
 /**
- *
- * @param category
+ * Get all items matching a category.
+ * @param {string} category - Category to filter by
+ * @returns {Array<*>} Array of matching item definitions
  */
 function getItemsByCategory(category) {
   return Object.values(ITEMS).filter((item) => (item.categories || []).includes(category));

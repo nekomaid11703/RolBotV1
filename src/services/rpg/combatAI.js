@@ -56,7 +56,7 @@ class CombatAI {
           characterName: loserChar.name,
           hp: 0,
         }).catch(() => {});
-      } catch (_err) {}
+      } catch { /* non-critical on KO */ }
     }
 
     return turnResult;

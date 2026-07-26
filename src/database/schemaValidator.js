@@ -43,7 +43,8 @@ const CRITICAL_EQUALS_COLUMNS = {
 };
 
 /**
- *
+ * Check database schema health by validating tables and critical columns.
+ * @returns {Promise<{errors: string[], warnings: string[]}>} Health check results
  */
 async function checkHealth() {
   /** @type {string[]} */ const errors = [];
@@ -93,7 +94,8 @@ async function checkHealth() {
 }
 
 /**
- *
+ * Verify schema on startup, checking version and health.
+ * @returns {Promise<{ok: boolean, errors: string[], warnings: string[]}>} Verification results
  */
 async function verifyStartup() {
   /** @type {{ ok: boolean, errors: string[], warnings: string[] }} */

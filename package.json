@@ -54,13 +54,14 @@
     "eslint": "^10.7.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-jsdoc": "^63.0.13",
+    "eslint-plugin-sonarjs": "^4.2.0",
     "globals": "^17.7.0",
     "husky": "^9.1.7",
     "knip": "^6.26.0",
     "lint-staged": "^17.0.8",
     "nodemon": "^3.1.14",
     "prettier": "^3.9.5",
-    "typescript": "^7.0.2",
+    "typescript": "^5.9.3",
     "vitest": "^4.1.10"
   },
   "lint-staged": {

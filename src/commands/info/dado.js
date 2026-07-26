@@ -2,6 +2,7 @@
 const { box } = require("../../utils/boxUtils");
 const { formatError } = require("../../utils/formatErrorUtils");
 const { formatCommandUsage } = require("../../utils/formatCommandUtils");
+const { randomInt } = require("../../utils/randomUtils");
 
 const usageMessage = formatCommandUsage({
   icon: "🎲",
@@ -24,7 +25,7 @@ module.exports = {
   async execute(ctx) {
     const input = (ctx.args[0] || "d20").toLowerCase();
 
-    const fullMatch = input.match(/^(\d*)d(\d+)([+-]\d+)?d(\d+)?$|^(\d*)d(\d+)([+-]\d+)?$/);
+    const fullMatch = input.match(/^(\d*)d(\d+)([+-]\d+)?(?:d(\d+))?$/);
 
     if (!fullMatch) {
       return ctx.reply(formatError("Formato invalido.", usageMessage));
@@ -55,7 +56,7 @@ module.exports = {
     let criticosBajos = 0;
 
     for (let i = 0; i < cantidad; i++) {
-      const roll = Math.floor(Math.random() * caras) + 1;
+      const roll = randomInt(1, caras + 1);
       rolls.push(roll);
 
       if (roll === caras) criticosAltos++;
@@ -75,8 +76,10 @@ module.exports = {
 
     const displayRolls = rolls.map((r) => {
       const isDropped = dropLowest > 0 && lowest.includes(r);
-      const label = r === caras ? `🎉${r}` : r === 1 ? `💀${r}` : `${r}`;
-      return isDropped ? `~${label}~` : label;
+      let label = "" + r;
+      if (r === caras) label = "\uD83C\uDF89" + r;
+      else if (r === 1) label = "\uD83D\uDC80" + r;
+      return isDropped ? "~" + label + "~" : label;
     });
 
     const lines = [];

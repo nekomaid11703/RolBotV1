@@ -1,13 +1,15 @@
-// @ts-nocheck
 const fs = require("fs");
 const path = require("path");
 
+/** @type {Map<string, *>} */
 const commands = new Map();
+/** @type {Map<string, *>} */
 const aliases = new Map();
 
 /**
- *
- * @param value
+ * Normalize a string value for comparison.
+ * @param {string} value - Value to normalize
+ * @returns {string} Lowercase trimmed string
  */
 function normalizeName(value) {
   return String(value || "")
@@ -16,9 +18,10 @@ function normalizeName(value) {
 }
 
 /**
- *
- * @param command
- * @param fileName
+ * Register a command and its aliases.
+ * @param {*} command - Command object with name, execute, and optional aliases
+ * @param {string} fileName - Source file name for error messages
+ * @returns {void}
  */
 function registerCommand(command, fileName) {
   if (!command?.name) {
@@ -85,8 +88,9 @@ function registerCommand(command, fileName) {
 }
 
 /**
- *
- * @param dir
+ * Recursively get all .js files in a directory.
+ * @param {string} dir - Directory path to search
+ * @returns {string[]} Array of file paths
  */
 function getJsFilesRecursively(dir) {
   /** @type {string[]} */

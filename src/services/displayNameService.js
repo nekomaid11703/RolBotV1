@@ -90,10 +90,11 @@ function extractMentionLabelFromContext(ctx) {
       continue;
     }
 
-    const label = clean
-      .replace(/^@+/, "")
-      .replace(/[.,;:!?]+$/g, "")
-      .trim();
+    let label = clean.replace(/^@+/, "");
+    while (label.length > 0 && ".,;:!?".includes(label[label.length - 1])) {
+      label = label.slice(0, -1);
+    }
+    label = label.trim();
 
     if (isMeaningfulDisplayName(label)) {
       return label;

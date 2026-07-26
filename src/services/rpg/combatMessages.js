@@ -4,9 +4,10 @@ const { getFatigueLevel } = require("./fatigueEngine");
 const { HP_MAX } = require("../../config/characterConfig");
 
 /**
- *
- * @param current
- * @param max
+ * Construye una barra de HP visual con icono de estado.
+ * @param {number} current - HP actual
+ * @param {number} [max=HP_MAX] - HP máximo
+ * @returns {string} Barra de HP formateada
  */
 function buildHpBar(current, max = HP_MAX) {
   const pct = Math.max(0, Math.min(1, current / max));
@@ -24,8 +25,9 @@ function buildHpBar(current, max = HP_MAX) {
 }
 
 /**
- *
- * @param stats
+ * Genera un resumen de estadísticas formateado en líneas.
+ * @param {*} stats - Estadísticas del personaje
+ * @returns {string[]} Líneas de resumen de estadísticas
  */
 function buildStatSummary(stats = {}) {
   return [
@@ -36,9 +38,10 @@ function buildStatSummary(stats = {}) {
 }
 
 /**
- *
- * @param fatigue
- * @param resistance
+ * Construye una barra de fatiga visual con nivel y ratio.
+ * @param {number} fatigue - Nivel de fatiga actual
+ * @param {number} resistance - Resistencia máxima contra fatiga
+ * @returns {string} Barra de fatiga formateada
  */
 function buildFatigueBar(fatigue, resistance) {
   const { name: levelName, ratio } = getFatigueLevel(fatigue, resistance);
@@ -51,8 +54,9 @@ function buildFatigueBar(fatigue, resistance) {
 }
 
 /**
- *
- * @param characterName
+ * Genera el menú de acciones disponibles para el turno actual.
+ * @param {string} characterName - Nombre del personaje en turno
+ * @returns {string} Menú de acciones formateado
  */
 function formatActionMenu(characterName) {
   return [
@@ -65,11 +69,12 @@ function formatActionMenu(characterName) {
 }
 
 /**
- *
- * @param attackerName
- * @param defenderName
- * @param baseDamage
- * @param canDodgeSuccessfully
+ * Genera el prompt de reacción para el defensor ante un ataque entrante.
+ * @param {string} attackerName - Nombre del atacante
+ * @param {string} defenderName - Nombre del defensor
+ * @param {number} baseDamage - Daño base del ataque
+ * @param {boolean} [canDodgeSuccessfully=false] - Si puede esquivar exitosamente
+ * @returns {string} Prompt de reacción formateado
  */
 function formatReactionPrompt(attackerName, defenderName, baseDamage, canDodgeSuccessfully = false) {
   const dodgeLine = canDodgeSuccessfully
@@ -85,9 +90,10 @@ function formatReactionPrompt(attackerName, defenderName, baseDamage, canDodgeSu
 }
 
 /**
- *
- * @param session
- * @param hasTestKit
+ * Formatea el mensaje de apertura de combate con estadísticas de ambos participantes.
+ * @param {*} session - Sesión de combate
+ * @param {boolean} [hasTestKit=false] - Si el personaje tiene kit de prueba
+ * @returns {string} Mensaje de apertura formateado
  */
 function formatCombatOpen(session, hasTestKit = false) {
   const c = session.challenger;
@@ -126,8 +132,9 @@ function formatCombatOpen(session, hasTestKit = false) {
 }
 
 /**
- *
- * @param result
+ * Formatea el resumen de un turno de combate.
+ * @param {*} result - Resultado del turno ejecutado
+ * @returns {string} Resumen del turno formateado
  */
 function formatTurnSummary(result) {
   const lines = [];
@@ -158,8 +165,9 @@ function formatTurnSummary(result) {
 }
 
 /**
- *
- * @param session
+ * Formatea el estado completo del combate con HP, fatiga y acciones disponibles.
+ * @param {*} session - Sesión de combate
+ * @returns {string} Estado del combate formateado
  */
 function formatCombatStatus(session) {
   const lines = [];
@@ -201,21 +209,23 @@ function formatCombatStatus(session) {
 }
 
 /**
- *
- * @param winnerName
- * @param xpGained
+ * Formatea el mensaje de victoria con XP ganada.
+ * @param {string} winnerName - Nombre del ganador
+ * @param {number} xpGained - XP ganada en el combate
+ * @returns {string} Mensaje de victoria formateado
  */
 function formatVictory(winnerName, xpGained) {
   return box("\uD83C\uDF89 VICTORIA", ["", `\uD83C\uDFC6 *${winnerName}* gan\u00F3`, `\u2728 +${xpGained} XP`]);
 }
 
 /**
- *
- * @param fleerName
- * @param success
- * @param chance
- * @param fatigue
- * @param resistance
+ * Formatea el resultado de un intento de huida.
+ * @param {string} fleerName - Nombre del personaje que huye
+ * @param {boolean} success - Si la huida fue exitosa
+ * @param {number} chance - Probabilidad de éxito (0-1)
+ * @param {number} [fatigue=0] - Nivel de fatiga actual
+ * @param {number} [resistance=50] - Resistencia máxima
+ * @returns {string} Mensaje de huida formateado
  */
 function formatFlee(fleerName, success, chance, fatigue = 0, resistance = 50) {
   const pct = Math.round(chance * 100);
@@ -239,8 +249,9 @@ function formatFlee(fleerName, success, chance, fatigue = 0, resistance = 50) {
 }
 
 /**
- *
- * @param adminName
+ * Formatea el mensaje de combate disuelto por un administrador.
+ * @param {string} adminName - Nombre del administrador que disolvió el combate
+ * @returns {string} Mensaje de disolución formateado
  */
 function formatCombatDisolved(adminName) {
   return box("\uD83D\uDD13 DISUELTO", ["", `${adminName} disolvi\u00F3 el combate`, "Personajes desbloqueados"]);
