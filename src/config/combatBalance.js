@@ -117,7 +117,7 @@ const FATIGUE_SPEED_STATS = ["aspd", "mspd", "ref"];
 const FATIGUE_THRESHOLDS = [
   { maxRatio: 0.33, state: "pleno", name: "Pleno", penalty: 0, recoveryMult: 1.0 },
   { maxRatio: 0.66, state: "agitado", name: "Agitado", penalty: 0.2, recoveryMult: 0.5 },
-  { maxRatio: 0.9,  state: "cansado", name: "Cansado", penalty: 0.4, recoveryMult: 0.25 },
+  { maxRatio: 0.9, state: "cansado", name: "Cansado", penalty: 0.4, recoveryMult: 0.25 },
   { maxRatio: Infinity, state: "fatigado", name: "Fatigado", penalty: 0.6, recoveryMult: 0.125 },
 ];
 
@@ -126,9 +126,9 @@ const FATIGUE_THRESHOLDS = [
 // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
 /** Flee success chances (currently hardcoded in combatEngine.js) */
-const FLEE_CHANCE_HIGHER_MSPD = 1.0;   // fleer MSPD > pursuer MSPD â†’ guaranteed
-const FLEE_CHANCE_EQUAL_MSPD = 0.5;    // fleer MSPD == pursuer MSPD â†’ 50%
-const FLEE_CHANCE_LOWER_MSPD = 0.25;   // fleer MSPD < pursuer MSPD â†’ 25%
+const FLEE_CHANCE_HIGHER_MSPD = 1.0; // fleer MSPD > pursuer MSPD â†’ guaranteed
+const FLEE_CHANCE_EQUAL_MSPD = 0.5; // fleer MSPD == pursuer MSPD â†’ 50%
+const FLEE_CHANCE_LOWER_MSPD = 0.25; // fleer MSPD < pursuer MSPD â†’ 25%
 
 // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // XP REWARDS

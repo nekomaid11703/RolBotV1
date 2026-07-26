@@ -12,10 +12,16 @@
 
 const path = require("path");
 const { supabase } = require(path.join(__dirname, "../src/database/supabase"));
-const { RACES, LEVELABLE_STATS, calculateLevel, DEFAULT_CHARACTER_STATS } = require(path.join(__dirname, "../src/config/characterConfig"));
+const { RACES, LEVELABLE_STATS, calculateLevel, DEFAULT_CHARACTER_STATS } = require(
+  path.join(__dirname, "../src/config/characterConfig"),
+);
 
 const isDryRun = process.argv.includes("--dry-run");
 
+/**
+ *
+ * @param stats
+ */
 function normalizeStats(stats = {}) {
   const base = { ...DEFAULT_CHARACTER_STATS };
   for (const key of Object.keys(base)) {
@@ -26,6 +32,10 @@ function normalizeStats(stats = {}) {
   return base;
 }
 
+/**
+ *
+ * @param character
+ */
 function needsMigration(character) {
   const stats = character.stats || {};
   const hp = stats.hp;
@@ -47,6 +57,10 @@ function needsMigration(character) {
   return hpIsOld || (hpActualIsOld && nivelIsStale);
 }
 
+/**
+ *
+ * @param character
+ */
 function fixCharacter(character) {
   const stats = { ...(character.stats || {}) };
   const raza = character.raza || "humano";
@@ -83,15 +97,16 @@ function fixCharacter(character) {
   };
 }
 
+/**
+ *
+ */
 async function main() {
   console.log(`\n${"=".repeat(60)}`);
   console.log(`  Migración HP Fix — ${isDryRun ? "DRY RUN" : "MODO REAL"}`);
   console.log(`${"=".repeat(60)}\n`);
 
   // Fetch all characters
-  const { data: characters, error } = await supabase
-    .from("characters")
-    .select("*");
+  const { data: characters, error } = await supabase.from("characters").select("*");
 
   if (error) {
     console.error("Error fetching characters:", error.message);

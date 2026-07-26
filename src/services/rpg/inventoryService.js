@@ -57,7 +57,7 @@ async function getInventory(characterId) {
  * @param {string|number} characterId - ID del personaje
  * @param {string} creatorId - ID del creador/usuario
  * @param {string} itemId - ID del item a añadir
- * @param {number} [quantity=1] - Cantidad a añadir
+ * @param {number} [quantity] - Cantidad a añadir
  * @returns {Promise<*>} Resultado con itemId, quantity y total
  */
 async function addItem(characterId, creatorId, itemId, quantity = 1) {
@@ -112,7 +112,7 @@ async function addItem(characterId, creatorId, itemId, quantity = 1) {
  * @param {string|number} characterId - ID del personaje
  * @param {string} creatorId - ID del creador/usuario
  * @param {string} itemId - ID del item a eliminar
- * @param {number} [quantity=1] - Cantidad a eliminar
+ * @param {number} [quantity] - Cantidad a eliminar
  * @returns {Promise<*>} Resultado con itemId, removed y remaining
  */
 async function removeItem(characterId, creatorId, itemId, quantity = 1) {

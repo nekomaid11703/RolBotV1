@@ -7,7 +7,7 @@ const TABLE_NAME = "bot_auth_state";
 /**
  * Create a Supabase-backed authentication state for Baileys.
  * Implements a circuit breaker pattern for fault tolerance.
- * @param {string} [sessionId="default"] - Session identifier
+ * @param {string} [sessionId] - Session identifier
  * @returns {Promise<*>} Auth state object with state and saveCreds
  */
 async function useSupabaseAuthState(sessionId = "default") {

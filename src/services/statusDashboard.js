@@ -154,7 +154,9 @@ async function render() {
     out.push(sep);
 
     process.stdout.write("\x1b[2J\x1b[H" + out.join(n) + n);
-  } catch { /* Never crash the bot due to dashboard rendering error */ }
+  } catch {
+    /* Never crash the bot due to dashboard rendering error */
+  }
 }
 
 /**

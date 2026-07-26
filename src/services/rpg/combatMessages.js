@@ -6,7 +6,7 @@ const { HP_MAX } = require("../../config/characterConfig");
 /**
  * Construye una barra de HP visual con icono de estado.
  * @param {number} current - HP actual
- * @param {number} [max=HP_MAX] - HP máximo
+ * @param {number} [max] - HP máximo
  * @returns {string} Barra de HP formateada
  */
 function buildHpBar(current, max = HP_MAX) {
@@ -73,7 +73,7 @@ function formatActionMenu(characterName) {
  * @param {string} attackerName - Nombre del atacante
  * @param {string} defenderName - Nombre del defensor
  * @param {number} baseDamage - Daño base del ataque
- * @param {boolean} [canDodgeSuccessfully=false] - Si puede esquivar exitosamente
+ * @param {boolean} [canDodgeSuccessfully] - Si puede esquivar exitosamente
  * @returns {string} Prompt de reacción formateado
  */
 function formatReactionPrompt(attackerName, defenderName, baseDamage, canDodgeSuccessfully = false) {
@@ -92,7 +92,7 @@ function formatReactionPrompt(attackerName, defenderName, baseDamage, canDodgeSu
 /**
  * Formatea el mensaje de apertura de combate con estadísticas de ambos participantes.
  * @param {*} session - Sesión de combate
- * @param {boolean} [hasTestKit=false] - Si el personaje tiene kit de prueba
+ * @param {boolean} [hasTestKit] - Si el personaje tiene kit de prueba
  * @returns {string} Mensaje de apertura formateado
  */
 function formatCombatOpen(session, hasTestKit = false) {
@@ -223,8 +223,8 @@ function formatVictory(winnerName, xpGained) {
  * @param {string} fleerName - Nombre del personaje que huye
  * @param {boolean} success - Si la huida fue exitosa
  * @param {number} chance - Probabilidad de éxito (0-1)
- * @param {number} [fatigue=0] - Nivel de fatiga actual
- * @param {number} [resistance=50] - Resistencia máxima
+ * @param {number} [fatigue] - Nivel de fatiga actual
+ * @param {number} [resistance] - Resistencia máxima
  * @returns {string} Mensaje de huida formateado
  */
 function formatFlee(fleerName, success, chance, fatigue = 0, resistance = 50) {

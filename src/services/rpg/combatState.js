@@ -322,7 +322,7 @@ function findSessionByUser(userId) {
  * Dispara un evento de módulo para todos los participantes de la sesión.
  * @param {*} session - Sesión de combate
  * @param {string} event - Nombre del evento a disparar
- * @param {*} [context={}] - Contexto adicional para el evento
+ * @param {*} [context] - Contexto adicional para el evento
  * @returns {Array<*>} Resultados de la ejecución de módulos
  */
 function triggerModuleEvent(session, event, context = {}) {
@@ -349,7 +349,7 @@ function triggerModuleEvent(session, event, context = {}) {
  * @param {string} sessionId - ID de la sesión
  * @param {number} newAttackerHp - Nuevo HP del atacante
  * @param {number} newDefenderHp - Nuevo HP del defensor
- * @param {boolean} [skipRound=false] - Si true, no incrementa el contador de rondas
+ * @param {boolean} [skipRound] - Si true, no incrementa el contador de rondas
  * @returns {Promise<*|null>} Sesión actualizada o null si no existe
  */
 async function advanceTurn(sessionId, newAttackerHp, newDefenderHp, skipRound = false) {

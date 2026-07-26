@@ -35,6 +35,12 @@ const {
 
 const STAT_KEYS = ["hp", "atk", "def", "aspd", "ref", "mspd", "fulgor", "d_fulgor", "r_fulgor"];
 
+/**
+ *
+ * @param level
+ * @param id
+ * @param name
+ */
 function generateRandomCharacter(level, id, name) {
   let remaining = level;
   const raw = {};
@@ -52,12 +58,17 @@ function generateRandomCharacter(level, id, name) {
     raw.atk = Math.max(SIM_STAT_BASE, (raw.atk || SIM_STAT_BASE) + diff);
   }
   return {
-    id, name, nivel: level,
+    id,
+    name,
+    nivel: level,
     hp_actual: (raw.hp || SIM_STAT_BASE) * SIM_HP_MULTIPLIER,
     stats: raw,
   };
 }
 
+/**
+ *
+ */
 function generateBattlePair() {
   const levelRange = SIM_MAX_LEVEL - SIM_MIN_LEVEL;
   const levelA = SIM_MIN_LEVEL + Math.floor(Math.random() * levelRange);
@@ -74,6 +85,13 @@ function generateBattlePair() {
 
 // --- Combat simulation ---
 
+/**
+ *
+ * @param charA
+ * @param charB
+ * @param levelA
+ * @param levelB
+ */
 function simulateBattle(charA, charB, levelA, levelB) {
   const state = {
     charA: { ...charA, hp: charA.hp_actual, fatigue: 0, distance: INITIAL_DISTANCE },
@@ -153,8 +171,13 @@ function simulateBattle(charA, charB, levelA, levelB) {
     const aspdPenalty = getAspdPenalty(distance);
 
     const attackInfo = executeAttack(
-      attacker, defender, defender.hp, attacker.hp,
-      attacker.fatigue, defender.fatigue, aspdPenalty,
+      attacker,
+      defender,
+      defender.hp,
+      attacker.hp,
+      attacker.fatigue,
+      defender.fatigue,
+      aspdPenalty,
     );
 
     // Reaction choice
@@ -179,9 +202,14 @@ function simulateBattle(charA, charB, levelA, levelB) {
     }
 
     const reactionResult = executeReaction(
-      chosenReaction, attackInfo.baseDamage,
-      defender, defender.hp, attacker, attacker.hp,
-      defender.fatigue, attacker.fatigue,
+      chosenReaction,
+      attackInfo.baseDamage,
+      defender,
+      defender.hp,
+      attacker,
+      attacker.hp,
+      defender.fatigue,
+      attacker.fatigue,
     );
 
     // Track reactions
@@ -211,7 +239,14 @@ function simulateBattle(charA, charB, levelA, levelB) {
       const winnerLevel = winner === "A" ? levelA : levelB;
       const loserLevel = winner === "A" ? levelB : levelA;
       battleStats.winnerHigherLevel = winnerLevel >= loserLevel;
-      return { winner, winnerLevel, loserLevel, higherLevelWon: winnerLevel >= loserLevel, ...battleStats, rounds: state.rounds };
+      return {
+        winner,
+        winnerLevel,
+        loserLevel,
+        higherLevelWon: winnerLevel >= loserLevel,
+        ...battleStats,
+        rounds: state.rounds,
+      };
     }
 
     state.currentAttacker = state.currentAttacker === "A" ? "B" : "A";
@@ -226,29 +261,55 @@ function simulateBattle(charA, charB, levelA, levelB) {
   const winnerLevel = winner === "A" ? levelA : winner === "B" ? levelB : 0;
   const loserLevel = winner === "A" ? levelB : winner === "B" ? levelA : 0;
   battleStats.winnerHigherLevel = winner === "tie" ? null : winnerLevel >= loserLevel;
-  return { winner, winnerLevel, loserLevel, higherLevelWon: battleStats.winnerHigherLevel, ...battleStats, rounds: state.rounds };
+  return {
+    winner,
+    winnerLevel,
+    loserLevel,
+    higherLevelWon: battleStats.winnerHigherLevel,
+    ...battleStats,
+    rounds: state.rounds,
+  };
 }
 
 // --- Main simulation ---
 
+/**
+ *
+ * @param battleCount
+ */
 function runSimulation(battleCount = SIM_DEFAULT_BATTLE_COUNT) {
   console.log(`\n=== SIMULACIÓN DE ${battleCount} BATALLAS (AUDIT) ===`);
   console.log(`Niveles: 100-500 | Diferencia máx: 10% | MSPD_TO_METERS: 0.5\n`);
 
   const stats = {
-    total: 0, winsA: 0, winsB: 0, ties: 0,
-    higherLevelWins: 0, lowerLevelWins: 0,
-    totalRounds: 0, maxRounds: 0, minRounds: Infinity,
+    total: 0,
+    winsA: 0,
+    winsB: 0,
+    ties: 0,
+    higherLevelWins: 0,
+    lowerLevelWins: 0,
+    totalRounds: 0,
+    maxRounds: 0,
+    minRounds: Infinity,
     // Level diff tracking
     levelDiffBuckets: {},
     // Distance tracking
-    advanceCount: 0, outOfRangeCount: 0, outOfRangeBattles: 0,
-    totalDistanceStart: 0, totalDistanceEnd: 0, totalMetersMoved: 0,
+    advanceCount: 0,
+    outOfRangeCount: 0,
+    outOfRangeBattles: 0,
+    totalDistanceStart: 0,
+    totalDistanceEnd: 0,
+    totalMetersMoved: 0,
     // Damage tracking
-    totalDamageDealt: 0, hitCount: 0, totalAttacks: 0,
-    dodgeCount: 0, blockCount: 0, noReactionCount: 0,
+    totalDamageDealt: 0,
+    hitCount: 0,
+    totalAttacks: 0,
+    dodgeCount: 0,
+    blockCount: 0,
+    noReactionCount: 0,
     // Fatigue tracking
-    totalFatigueA: 0, totalFatigueB: 0,
+    totalFatigueA: 0,
+    totalFatigueB: 0,
     // Stat correlation
     statDiffs: {},
     // Round distribution
@@ -285,7 +346,18 @@ function runSimulation(battleCount = SIM_DEFAULT_BATTLE_COUNT) {
     else if (result.higherLevelWon === false) stats.lowerLevelWins++;
 
     // Level diff bucket
-    const diffBucket = diffPct < 1 ? "<1%" : diffPct < 3 ? "1-3%" : diffPct < 5 ? "3-5%" : diffPct < 7 ? "5-7%" : diffPct < 9 ? "7-9%" : "9-10%";
+    const diffBucket =
+      diffPct < 1
+        ? "<1%"
+        : diffPct < 3
+          ? "1-3%"
+          : diffPct < 5
+            ? "3-5%"
+            : diffPct < 7
+              ? "5-7%"
+              : diffPct < 9
+                ? "7-9%"
+                : "9-10%";
     stats.levelDiffBuckets[diffBucket] = (stats.levelDiffBuckets[diffBucket] || 0) + 1;
 
     // Level brackets
@@ -293,7 +365,16 @@ function runSimulation(battleCount = SIM_DEFAULT_BATTLE_COUNT) {
     stats.levelStats[bracket] = (stats.levelStats[bracket] || 0) + 1;
 
     // Round distribution
-    const roundBucket = result.rounds <= 3 ? "1-3" : result.rounds <= 5 ? "4-5" : result.rounds <= 8 ? "6-8" : result.rounds <= 12 ? "9-12" : "13+";
+    const roundBucket =
+      result.rounds <= 3
+        ? "1-3"
+        : result.rounds <= 5
+          ? "4-5"
+          : result.rounds <= 8
+            ? "6-8"
+            : result.rounds <= 12
+              ? "9-12"
+              : "13+";
     stats.roundBuckets[roundBucket] = (stats.roundBuckets[roundBucket] || 0) + 1;
 
     // Distance tracking
@@ -305,7 +386,7 @@ function runSimulation(battleCount = SIM_DEFAULT_BATTLE_COUNT) {
     stats.totalDistanceEnd += result.finalDistance;
 
     // Meters moved (each advance reduces distance)
-    stats.totalMetersMoved += (INITIAL_DISTANCE - result.finalDistance) || 0;
+    stats.totalMetersMoved += INITIAL_DISTANCE - result.finalDistance || 0;
 
     // Damage tracking
     stats.totalDamageDealt += result.totalDamageDealt;
@@ -369,7 +450,9 @@ function runSimulation(battleCount = SIM_DEFAULT_BATTLE_COUNT) {
   console.log(`  ─────────────────────────────────────────────`);
   console.log(`  Nivel más alto gana:        ${stats.higherLevelWins} (${higherWon}%)`);
   console.log(`  Nivel más bajo gana:        ${stats.lowerLevelWins} (${lowerWon}%)`);
-  console.log(`  Ratio nivel alto/bajo:      ${(stats.higherLevelWins / Math.max(1, stats.lowerLevelWins)).toFixed(2)}x`);
+  console.log(
+    `  Ratio nivel alto/bajo:      ${(stats.higherLevelWins / Math.max(1, stats.lowerLevelWins)).toFixed(2)}x`,
+  );
   console.log(`└────────────────────────────────────────────────────────┘\n`);
 
   // SECTION 2: Level Difference Distribution
@@ -383,8 +466,12 @@ function runSimulation(battleCount = SIM_DEFAULT_BATTLE_COUNT) {
 
   // SECTION 3: Distance Mechanic
   console.log("┌─ 3. MECÁNICA DE DISTANCIA ─────────────────────────────┐");
-  console.log(`  Batallas con rango fuera:   ${stats.outOfRangeBattles} (${((stats.outOfRangeBattles / stats.total) * 100).toFixed(2)}%)`);
-  console.log(`  Batallas con avances:       ${stats.battlesWithAdvances} (${((stats.battlesWithAdvances / stats.total) * 100).toFixed(2)}%)`);
+  console.log(
+    `  Batallas con rango fuera:   ${stats.outOfRangeBattles} (${((stats.outOfRangeBattles / stats.total) * 100).toFixed(2)}%)`,
+  );
+  console.log(
+    `  Batallas con avances:       ${stats.battlesWithAdvances} (${((stats.battlesWithAdvances / stats.total) * 100).toFixed(2)}%)`,
+  );
   console.log(`  Veces fuera de rango:       ${stats.outOfRangeCount}`);
   console.log(`  Avances realizados:         ${stats.advanceCount}`);
   console.log(`  Avances por batalla (media): ${(stats.advanceCount / stats.total).toFixed(3)}`);
@@ -430,7 +517,9 @@ function runSimulation(battleCount = SIM_DEFAULT_BATTLE_COUNT) {
   console.log(`  Sin reacción (no puede):    ${stats.noReactionCount} (${pctNoReaction}%)`);
   console.log(`  Total reacciones:           ${reactionTotal}`);
   console.log(`  ─────────────────────────────────────────────`);
-  console.log(`  Ratio Block/Dodge:          ${stats.blockCount > 0 ? (stats.blockCount / Math.max(1, stats.dodgeCount)).toFixed(2) : "N/A"}x`);
+  console.log(
+    `  Ratio Block/Dodge:          ${stats.blockCount > 0 ? (stats.blockCount / Math.max(1, stats.dodgeCount)).toFixed(2) : "N/A"}x`,
+  );
   console.log(`└────────────────────────────────────────────────────────┘\n`);
 
   // SECTION 7: Fatigue
@@ -469,7 +558,18 @@ function runSimulation(battleCount = SIM_DEFAULT_BATTLE_COUNT) {
   console.log("┌─ 10. DIFERENCIA DE NIVEL VS RONDAS ───────────────────┐");
   const diffGroups = {};
   for (const entry of stats.diffVsRounds) {
-    const group = entry.diff < 1 ? "<1%" : entry.diff < 3 ? "1-3%" : entry.diff < 5 ? "3-5%" : entry.diff < 7 ? "5-7%" : entry.diff < 9 ? "7-9%" : "9-10%";
+    const group =
+      entry.diff < 1
+        ? "<1%"
+        : entry.diff < 3
+          ? "1-3%"
+          : entry.diff < 5
+            ? "3-5%"
+            : entry.diff < 7
+              ? "5-7%"
+              : entry.diff < 9
+                ? "7-9%"
+                : "9-10%";
     if (!diffGroups[group]) diffGroups[group] = { sum: 0, count: 0 };
     diffGroups[group].sum += entry.rounds;
     diffGroups[group].count++;

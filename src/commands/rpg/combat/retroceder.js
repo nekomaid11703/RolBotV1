@@ -2,7 +2,12 @@
 const { findSessionByCharacter, updateDistance } = require("../../../services/rpg/combatState");
 const { calculateMovementFatigue, capFatigue, getMovementRange } = require("../../../services/rpg/fatigueEngine");
 const { checkAttackRange } = require("../../../services/rpg/combatEngine");
-const { formatMovement, formatOutOfRange, formatActionMenu, buildFatigueBar } = require("../../../services/rpg/combatMessages");
+const {
+  formatMovement,
+  formatOutOfRange,
+  formatActionMenu,
+  buildFatigueBar,
+} = require("../../../services/rpg/combatMessages");
 const { formatError } = require("../../../utils/formatErrorUtils");
 const { formatCommandUsage } = require("../../../utils/formatCommandUtils");
 const { box } = require("../../../utils/boxUtils");
@@ -23,7 +28,7 @@ module.exports = {
   description: "Retrocede de tu enemigo en el combate activo.",
   category: "rpg",
 
-  /** 
+  /**
    * @param {{ reply: (msg: string) => any, sender: string, userName: string, args: string[] }} ctx - Contexto del comando
    * @returns {Promise<void>}
    */
@@ -102,4 +107,3 @@ module.exports = {
     }
   },
 };
-

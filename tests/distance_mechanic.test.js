@@ -232,18 +232,18 @@ describe("Mecánica de Distancia v1.5", () => {
   describe("IA con mecánica de distancia", () => {
     it("makeDecision retorna movimiento cuando está fuera de alcance", () => {
       const CombatAI = require("../src/services/rpg/combatAI");
-      
+
       const session = {
         distance: 20,
         isPvE: true,
       };
-      
+
       const aiSlot = {
         character: { stats: { mspd: 10, atk: 15, def: 10 } },
         hp: 100,
         fatigue: 0,
       };
-      
+
       const playerSlot = {
         character: { stats: { mspd: 5, atk: 10, def: 8 } },
         hp: 100,
@@ -251,7 +251,7 @@ describe("Mecánica de Distancia v1.5", () => {
       };
 
       const decision = CombatAI.makeDecision(session, aiSlot, playerSlot);
-      
+
       expect(decision.movement).not.toBeNull();
       expect(decision.movement.direction).toBe("advanced");
       expect(decision.movement.meters).toBeGreaterThan(0);
@@ -260,18 +260,18 @@ describe("Mecánica de Distancia v1.5", () => {
 
     it("makeDecision no mueve cuando está en alcance", () => {
       const CombatAI = require("../src/services/rpg/combatAI");
-      
+
       const session = {
         distance: 3,
         isPvE: true,
       };
-      
+
       const aiSlot = {
         character: { stats: { mspd: 10, atk: 15, def: 10 } },
         hp: 100,
         fatigue: 0,
       };
-      
+
       const playerSlot = {
         character: { stats: { mspd: 5, atk: 10, def: 8 } },
         hp: 100,
@@ -279,25 +279,25 @@ describe("Mecánica de Distancia v1.5", () => {
       };
 
       const decision = CombatAI.makeDecision(session, aiSlot, playerSlot);
-      
+
       expect(decision.movement).toBeNull();
       expect(decision.action).toBe("attack");
     });
 
     it("makeDecision avanza lo máximo posible cuando no puede alcanzar", () => {
       const CombatAI = require("../src/services/rpg/combatAI");
-      
+
       const session = {
         distance: 100,
         isPvE: true,
       };
-      
+
       const aiSlot = {
         character: { stats: { mspd: 5, atk: 15, def: 10 } },
         hp: 100,
         fatigue: 0,
       };
-      
+
       const playerSlot = {
         character: { stats: { mspd: 5, atk: 10, def: 8 } },
         hp: 100,
@@ -305,7 +305,7 @@ describe("Mecánica de Distancia v1.5", () => {
       };
 
       const decision = CombatAI.makeDecision(session, aiSlot, playerSlot);
-      
+
       // MSPD 5 = 2 metros max
       expect(decision.movement).not.toBeNull();
       expect(decision.movement.meters).toBe(2);

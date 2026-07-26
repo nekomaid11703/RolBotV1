@@ -26,8 +26,8 @@ function normalizeStats(stats = {}) {
  * Aplica penalizaciones por fatiga y estado a las estadísticas del personaje.
  * @param {*} stats - Estadísticas base del personaje
  * @param {number} hp - Puntos de vida actuales
- * @param {number} [fatigue=0] - Nivel de fatiga actual
- * @param {number} [resistance=0] - Resistencia a fatiga
+ * @param {number} [fatigue] - Nivel de fatiga actual
+ * @param {number} [resistance] - Resistencia a fatiga
  * @returns {*} Estadísticas con penalizaciones aplicadas
  */
 function applyPenalties(stats, hp, fatigue = 0, resistance = 0) {
@@ -47,10 +47,10 @@ function applyPenalties(stats, hp, fatigue = 0, resistance = 0) {
  * @param {*} defenderStats - Estadísticas del defensor
  * @param {number} attackerHp - HP del atacante
  * @param {number} defenderHp - HP del defensor
- * @param {number} [attackerFatigue=0] - Fatiga del atacante
- * @param {number} [defenderFatigue=0] - Fatiga del defensor
- * @param {number} [attackerRes=0] - Resistencia del atacante
- * @param {number} [defenderRes=0] - Resistencia del defensor
+ * @param {number} [attackerFatigue] - Fatiga del atacante
+ * @param {number} [defenderFatigue] - Fatiga del defensor
+ * @param {number} [attackerRes] - Resistencia del atacante
+ * @param {number} [defenderRes] - Resistencia del defensor
  * @returns {number} Daño calculado (mínimo DAMAGE_MIN)
  */
 function calculateDamage(
@@ -76,10 +76,10 @@ function calculateDamage(
  * @param {number} defenderHp - HP del defensor
  * @param {*} attackerStats - Estadísticas del atacante
  * @param {number} attackerHp - HP del atacante
- * @param {number} [defenderFatigue=0] - Fatiga del defensor
- * @param {number} [attackerFatigue=0] - Fatiga del atacante
- * @param {number} [defenderRes=0] - Resistencia del defensor
- * @param {number} [attackerRes=0] - Resistencia del atacante
+ * @param {number} [defenderFatigue] - Fatiga del defensor
+ * @param {number} [attackerFatigue] - Fatiga del atacante
+ * @param {number} [defenderRes] - Resistencia del defensor
+ * @param {number} [attackerRes] - Resistencia del atacante
  * @returns {boolean} true si el defensor puede reaccionar
  */
 function canReact(
@@ -103,10 +103,10 @@ function canReact(
  * @param {number} defenderHp - HP del defensor
  * @param {*} attackerStats - Estadísticas del atacante
  * @param {number} attackerHp - HP del atacante
- * @param {number} [defenderFatigue=0] - Fatiga del defensor
- * @param {number} [attackerFatigue=0] - Fatiga del atacante
- * @param {number} [defenderRes=0] - Resistencia del defensor
- * @param {number} [attackerRes=0] - Resistencia del atacante
+ * @param {number} [defenderFatigue] - Fatiga del defensor
+ * @param {number} [attackerFatigue] - Fatiga del atacante
+ * @param {number} [defenderRes] - Resistencia del defensor
+ * @param {number} [attackerRes] - Resistencia del atacante
  * @returns {boolean} true si el jugador podrá esquivar completamente
  */
 function evaluateDodgeFeasibility(
@@ -130,10 +130,10 @@ function evaluateDodgeFeasibility(
  * @param {number} fleerHp - HP del que huye
  * @param {*} pursuerStats - Estadísticas del perseguidor
  * @param {number} pursuerHp - HP del perseguidor
- * @param {number} [fleerFatigue=0] - Fatiga del que huye
- * @param {number} [pursuerFatigue=0] - Fatiga del perseguidor
- * @param {number} [fleerRes=0] - Resistencia del que huye
- * @param {number} [pursuerRes=0] - Resistencia del perseguidor
+ * @param {number} [fleerFatigue] - Fatiga del que huye
+ * @param {number} [pursuerFatigue] - Fatiga del perseguidor
+ * @param {number} [fleerRes] - Resistencia del que huye
+ * @param {number} [pursuerRes] - Resistencia del perseguidor
  * @returns {{ chance: number, roll: number, success: boolean }} Resultado de la tirada de huida
  */
 function rollFlee(
@@ -180,10 +180,10 @@ function attemptBlock(incomingDamage) {
  * @param {number} defenderHp - HP del defensor
  * @param {*} attackerStats - Estadísticas del atacante
  * @param {number} attackerHp - HP del atacante
- * @param {number} [defenderFatigue=0] - Fatiga del defensor
- * @param {number} [attackerFatigue=0] - Fatiga del atacante
- * @param {number} [defenderRes=0] - Resistencia del defensor
- * @param {number} [attackerRes=0] - Resistencia del atacante
+ * @param {number} [defenderFatigue] - Fatiga del defensor
+ * @param {number} [attackerFatigue] - Fatiga del atacante
+ * @param {number} [defenderRes] - Resistencia del defensor
+ * @param {number} [attackerRes] - Resistencia del atacante
  * @returns {{ dodged: boolean, damage: (number|null) }} Resultado del intento de esquiva
  */
 function attemptDodge(
@@ -211,8 +211,8 @@ function attemptDodge(
  * @param {*} defenderChar - Personaje defensor
  * @param {number} defenderHp - HP actual del defensor
  * @param {number} attackerHp - HP actual del atacante
- * @param {number} [attackerFatigue=0] - Fatiga del atacante
- * @param {number} [defenderFatigue=0] - Fatiga del defensor
+ * @param {number} [attackerFatigue] - Fatiga del atacante
+ * @param {number} [defenderFatigue] - Fatiga del defensor
  * @returns {*} Información del ataque ejecutado
  */
 function executeAttack(attackerChar, defenderChar, defenderHp, attackerHp, attackerFatigue = 0, defenderFatigue = 0) {
@@ -259,8 +259,8 @@ function executeAttack(attackerChar, defenderChar, defenderHp, attackerHp, attac
  * @param {number} defenderHp - HP actual del defensor
  * @param {*} attackerChar - Personaje atacante
  * @param {number} attackerHp - HP actual del atacante
- * @param {number} [defenderFatigue=0] - Fatiga del defensor
- * @param {number} [attackerFatigue=0] - Fatiga del atacante
+ * @param {number} [defenderFatigue] - Fatiga del defensor
+ * @param {number} [attackerFatigue] - Fatiga del atacante
  * @returns {*} Resultado completo de la reacción con daño final
  */
 function executeReaction(
@@ -332,8 +332,8 @@ function executeReaction(
  * @param {*} attackerChar - Personaje atacante
  * @param {number} baseDamage - Daño base del ataque
  * @param {number} attackerHp - HP del atacante
- * @param {number} [defenderFatigue=0] - Fatiga del defensor
- * @param {number} [attackerFatigue=0] - Fatiga del atacante
+ * @param {number} [defenderFatigue] - Fatiga del defensor
+ * @param {number} [attackerFatigue] - Fatiga del atacante
  * @returns {string} Reacción elegida ('dodge', 'block', 'none')
  */
 function chooseAiReaction(
@@ -386,9 +386,9 @@ function chooseAiReaction(
  * @param {*} defenderChar - Personaje defensor
  * @param {number} defenderHp - HP del defensor
  * @param {number} attackerHp - HP del atacante
- * @param {string|null} [chosenReaction=null] - Reacción forzada (null para IA)
- * @param {number} [attackerFatigue=0] - Fatiga del atacante
- * @param {number} [defenderFatigue=0] - Fatiga del defensor
+ * @param {string|null} [chosenReaction] - Reacción forzada (null para IA)
+ * @param {number} [attackerFatigue] - Fatiga del atacante
+ * @param {number} [defenderFatigue] - Fatiga del defensor
  * @returns {*} Resultado completo del turno
  */
 function executeTurn(
@@ -446,8 +446,8 @@ function executeTurn(
 
 /**
  * Calcula la recompensa de XP basada en el nivel del enemigo y si el jugador ganó.
- * @param {number} [enemyLevel=1] - Nivel del enemigo derrotado
- * @param {boolean} [isWinner=true] - true si el jugador ganó el combate
+ * @param {number} [enemyLevel] - Nivel del enemigo derrotado
+ * @param {boolean} [isWinner] - true si el jugador ganó el combate
  * @returns {number} Puntos de XP otorgados
  */
 function calculateXpReward(enemyLevel = 1, isWinner = true) {
@@ -460,7 +460,7 @@ function calculateXpReward(enemyLevel = 1, isWinner = true) {
  * Aplica modificadores de módulos al daño de ataque.
  * @param {*} character - Personaje con módulos equipados
  * @param {number} baseDamage - Daño base antes de modificadores
- * @param {*} [context={}] - Contexto adicional para los módulos
+ * @param {*} [context] - Contexto adicional para los módulos
  * @returns {number} Daño modificado
  */
 function applyAttackModifiers(character, baseDamage, context = {}) {
@@ -484,7 +484,7 @@ function applyAttackModifiers(character, baseDamage, context = {}) {
  * Aplica modificadores de módulos al daño recibido.
  * @param {*} character - Personaje con módulos equipados
  * @param {number} incomingDamage - Daño entrante antes de modificadores
- * @param {*} [context={}] - Contexto adicional para los módulos
+ * @param {*} [context] - Contexto adicional para los módulos
  * @returns {number} Daño modificado tras recibir el golpe
  */
 function applyHitModifiers(character, incomingDamage, context = {}) {

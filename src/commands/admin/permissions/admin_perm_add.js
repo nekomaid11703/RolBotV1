@@ -40,7 +40,10 @@ module.exports = {
 
     if (!CATEGORIES.includes(category)) {
       return ctx.reply(
-        "\u274C Categor\u00eda '" + category + "' no v\u00e1lida.\n\nCategor\u00edas disponibles: " + CATEGORIES.map((c) => "'" + c + "'").join(", "),
+        "\u274C Categor\u00eda '" +
+          category +
+          "' no v\u00e1lida.\n\nCategor\u00edas disponibles: " +
+          CATEGORIES.map((c) => "'" + c + "'").join(", "),
       );
     }
 

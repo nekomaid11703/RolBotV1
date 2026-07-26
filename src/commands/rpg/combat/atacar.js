@@ -305,7 +305,9 @@ module.exports = {
             cantidad: xpReward,
           });
           await setHp({ creatorId: defenderSlot.userId, characterName: defenderSlot.character.name, hp: 0 });
-        } catch { /* non-critical on KO */ }
+        } catch {
+          /* non-critical on KO */
+        }
 
         lines.push("");
         lines.push(`\uD83D\uDC80 *${defenderSlot.character.name}* cay\u00F3`);
