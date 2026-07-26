@@ -85,18 +85,16 @@ function normalizeCharacterRecord(character) {
 }
 
 /**
-@param {object} options
-  historia = "",
-} - TODO: describe parameter "{
-  creatorId,
-  creatorName,
-  characterName,
-  raza = "humano",
-  clase = "civil",
-  statDistribution = {},
-  historia = "",
-}".
- * @returns
+ * Create a new character for a user.
+ * @param {object} options
+ * @param {string} options.creatorId
+ * @param {string} options.creatorName
+ * @param {string} options.characterName
+ * @param {string} [options.raza="humano"]
+ * @param {string} [options.clase="civil"]
+ * @param {object} [options.statDistribution={}]
+ * @param {string} [options.historia=""]
+ * @returns {Promise<object>}
  */
 async function createCharacter({
   creatorId,

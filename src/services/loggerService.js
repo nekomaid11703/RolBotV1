@@ -88,7 +88,7 @@ async function ensureLogsDir() {
 }
 
 /**
- * TODO: describe what this does.
+ * Remove log files older than the configured retention period.
  */
 async function cleanOldLogs() {
   try {

@@ -103,15 +103,14 @@ async function hasEconomyPermission(candidate) {
 }
 
 /**
-@param {object} options
-} - TODO: describe parameter "{
-  userId,
-  userName = "usuario",
-  enabled = true,
-  createIfMissing = true,
-  registration = {},
-}".
- * @returns
+ * Set or unset a user as economy admin.
+ * @param {object} options
+ * @param {string} options.userId
+ * @param {string} [options.userName="usuario"]
+ * @param {boolean} [options.enabled=true]
+ * @param {boolean} [options.createIfMissing=true]
+ * @param {object} [options.registration={}]
+ * @returns {Promise<object|null>}
  */
 async function setEconomyAdmin({
   userId,
@@ -221,16 +220,15 @@ async function hasPermissionForCategory(candidate, category) {
 }
 
 /**
-@param {object} options
-} - TODO: describe parameter "{
-  userId,
-  userName = "usuario",
-  category,
-  enabled = true,
-  createIfMissing = true,
-  registration = {},
-}".
- * @returns
+ * Set or unset a user as admin for a specific category.
+ * @param {object} options
+ * @param {string} options.userId
+ * @param {string} [options.userName="usuario"]
+ * @param {string} options.category
+ * @param {boolean} [options.enabled=true]
+ * @param {boolean} [options.createIfMissing=true]
+ * @param {object} [options.registration={}]
+ * @returns {Promise<object|null>}
  */
 async function setAdminForCategory({
   userId,

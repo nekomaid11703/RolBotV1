@@ -8,7 +8,7 @@ let pendingTimer = null;
 let currentSock = null;
 
 /**
- * TODO: describe what this does.
+ * Stop the midnight review timer and clear the WhatsApp socket reference.
  */
 function stopMidnightReview() {
   if (pendingTimer) {

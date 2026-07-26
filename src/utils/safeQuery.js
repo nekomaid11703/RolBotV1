@@ -128,21 +128,21 @@ function invalidateGroupCache(groupId) {
 }
 
 /**
- * TODO: describe what this does.
+ * Invalidate all cached top balances queries.
  */
 function invalidateTopBalancesCache() {
   cache.invalidate((k) => k.startsWith("topBalances:"));
 }
 
 /**
- * TODO: describe what this does.
+ * Invalidate all cached top active users queries.
  */
 function invalidateTopActiveUsersCache() {
   cache.invalidate((k) => k.startsWith("topActiveUsers:"));
 }
 
 /**
- * TODO: describe what this does.
+ * Invalidate all cached queries.
  */
 function invalidateAllCache() {
   cache.clear();

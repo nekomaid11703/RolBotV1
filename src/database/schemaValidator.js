@@ -87,6 +87,9 @@ async function checkHealth() {
     ),
   ]);
 
+  const errors = [];
+  const warnings = [];
+
   for (const r of tableResults) {
     if (!r) continue;
     if (typeof r === "string") errors.push(r);

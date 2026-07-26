@@ -433,152 +433,75 @@ function resolveActivityBucket(messageType) {
 }
 
 /**
-@param {object} options
-} - TODO: describe parameter "{
-  creatorId,
-  creatorName = "usuario",
-  displayName,
-  pushName,
-  senderJid,
-  senderNumber,
-  messageType = "unknown",
-  messageCount = 0,
-  commandCount = 0,
-  isText = false,
-  registration = {},
-}".
- * @returns
+ * @param {object} next
+ * @param {object} data
+ * @param {string} data.displayName
+ * @param {string} data.pushName
+ * @param {string} data.senderJid
+ * @param {string} data.senderNumber
+ * @param {string} data.now
+ * @returns {boolean} whether any field changed
  */
-async function recordUserActivity({
-  creatorId,
-  creatorName = "usuario",
-  displayName,
-  pushName,
-  senderJid,
-  senderNumber,
-  messageType = "unknown",
-  messageCount = 0,
-  commandCount = 0,
-  isText = false,
-  registration = {},
-}) {
-  /**
-   * @constant current
-   */
-  const current = await getOrCreateProfile({
-    creatorId,
-    creatorName,
-    registration: {
-      source: registration.source || "activity",
-      scope: registration.scope || "self",
-      createdBy: registration.createdBy || creatorId,
-      createdAt: registration.createdAt,
-    },
-  });
-
-  if (!current) {
-    return null;
-  }
-
-  /**
-   * @constant profile
-   */
-  const profile = current.profile;
-  /**
-   * @constant next
-   * @type {object}
-   */
-  const next = {
-    ...profile,
-    metadata: {
-      ...(profile.metadata || {}),
-    },
-    activity: normalizeActivity(profile.activity || {}),
-  };
-
-  /**
-   * @constant now
-   */
-  const now = new Date().toISOString();
+function updateDisplayName(next, displayName) {
+  if (typeof displayName !== "string") return false;
+  const clean = displayName.trim() || "usuario";
   let changed = false;
+  if (next.metadata.displayName !== clean) { next.metadata.displayName = clean; changed = true; }
+  if (next.creatorName !== clean) { next.creatorName = clean; changed = true; }
+  return changed;
+}
 
-  if (typeof displayName === "string") {
-    /**
-     * @constant cleanDisplayName
-     */
-    const cleanDisplayName = displayName.trim() || "usuario";
+function updatePushName(next, pushName) {
+  if (typeof pushName !== "string") return false;
+  const clean = pushName.trim() || "usuario";
+  if (next.metadata.pushName !== clean) { next.metadata.pushName = clean; return true; }
+  return false;
+}
 
-    if (next.metadata.displayName !== cleanDisplayName) {
-      next.metadata.displayName = cleanDisplayName;
-      changed = true;
-    }
+function updateSenderJid(next, senderJid) {
+  if (typeof senderJid !== "string") return false;
+  const clean = String(senderJid).trim() || null;
+  if (clean && next.metadata.lastKnownJid !== clean) { next.metadata.lastKnownJid = clean; return true; }
+  return false;
+}
 
-    if (next.creatorName !== cleanDisplayName) {
-      next.creatorName = cleanDisplayName;
-      changed = true;
-    }
-  }
+function updateSenderNumber(next, senderNumber) {
+  if (typeof senderNumber !== "string") return false;
+  const clean = senderNumber.trim() || null;
+  if (clean && next.metadata.lastKnownNumber !== clean) { next.metadata.lastKnownNumber = clean; return true; }
+  return false;
+}
 
-  if (typeof pushName === "string") {
-    /**
-     * @constant cleanPushName
-     */
-    const cleanPushName = pushName.trim() || "usuario";
+function updateLastSeen(next, now) {
+  if (next.metadata.lastSeenAt !== now) { next.metadata.lastSeenAt = now; return true; }
+  return false;
+}
 
-    if (next.metadata.pushName !== cleanPushName) {
-      next.metadata.pushName = cleanPushName;
-      changed = true;
-    }
-  }
+const METADATA_UPDATERS = [
+  (n, d) => updateDisplayName(n, d.displayName),
+  (n, d) => updatePushName(n, d.pushName),
+  (n, d) => updateSenderJid(n, d.senderJid),
+  (n, d) => updateSenderNumber(n, d.senderNumber),
+  (n, d) => updateLastSeen(n, d.now),
+];
 
-  if (typeof senderJid === "string") {
-    /**
-     * @constant cleanSenderJid
-     */
-    const cleanSenderJid = String(senderJid).trim() || null;
+function updateProfileMetadata(next, data) {
+  return METADATA_UPDATERS.some((updater) => updater(next, data));
+}
 
-    if (cleanSenderJid && next.metadata.lastKnownJid !== cleanSenderJid) {
-      next.metadata.lastKnownJid = cleanSenderJid;
-      changed = true;
-    }
-  }
-
-  if (typeof senderNumber === "string") {
-    /**
-     * @constant cleanSenderNumber
-     */
-    const cleanSenderNumber = senderNumber.trim() || null;
-
-    if (cleanSenderNumber && next.metadata.lastKnownNumber !== cleanSenderNumber) {
-      next.metadata.lastKnownNumber = cleanSenderNumber;
-      changed = true;
-    }
-  }
-
-  if (next.metadata.lastSeenAt !== now) {
-    next.metadata.lastSeenAt = now;
-    changed = true;
-  }
-
-  /**
-   * @constant safeMessageCount
-   */
-  const safeMessageCount = Math.max(0, Math.floor(Number(messageCount) || 0));
-  /**
-   * @constant safeCommandCount
-   */
-  const safeCommandCount = Math.max(0, Math.floor(Number(commandCount) || 0));
-  /**
-   * @constant bucket
-   */
-  const bucket = resolveActivityBucket(messageType);
-  /**
-   * @constant normalizedType
-   */
-  const normalizedType =
-    String(messageType || "unknown")
-      .trim()
-      .toLowerCase() || "unknown";
+/**
+ * @param {object} next
+ * @param {object} counts
+ * @param {number} counts.safeMessageCount
+ * @param {number} counts.safeCommandCount
+ * @param {string} counts.normalizedType
+ * @param {boolean} counts.isText
+ * @param {string} counts.bucket
+ * @param {string} counts.now
+ * @returns {boolean} whether any field changed
+ */
+function updateActivityCounts(next, { safeMessageCount, safeCommandCount, normalizedType, isText, bucket, now }) {
+  let changed = false;
 
   if (safeMessageCount > 0) {
     next.activity.messages = Number(next.activity.messages || 0) + safeMessageCount;
@@ -602,12 +525,64 @@ async function recordUserActivity({
     changed = true;
   }
 
-  if (changed) {
+  return changed;
+}
+
+/**
+ * @param {object} options
+ * @returns {Promise<object|null>}
+ */
+async function recordUserActivity(options) {
+  const {
+    creatorId,
+    creatorName = "usuario",
+    displayName,
+    pushName,
+    senderJid,
+    senderNumber,
+    messageType = "unknown",
+    messageCount = 0,
+    commandCount = 0,
+    isText = false,
+    registration = {},
+  } = options;
+
+  const current = await getOrCreateProfile({
+    creatorId,
+    creatorName,
+    registration: {
+      source: registration.source || "activity",
+      scope: registration.scope || "self",
+      createdBy: registration.createdBy || creatorId,
+      createdAt: registration.createdAt,
+    },
+  });
+
+  if (!current) {
+    return null;
+  }
+
+  const profile = current.profile;
+  const next = {
+    ...profile,
+    metadata: { ...(profile.metadata || {}) },
+    activity: normalizeActivity(profile.activity || {}),
+  };
+
+  const now = new Date().toISOString();
+
+  const metaChanged = updateProfileMetadata(next, { displayName, pushName, senderJid, senderNumber, now });
+
+  const safeMessageCount = Math.max(0, Math.floor(Number(messageCount) || 0));
+  const safeCommandCount = Math.max(0, Math.floor(Number(commandCount) || 0));
+  const bucket = resolveActivityBucket(messageType);
+  const normalizedType = String(messageType || "unknown").trim().toLowerCase() || "unknown";
+
+  const activityChanged = updateActivityCounts(next, { safeMessageCount, safeCommandCount, normalizedType, isText, bucket, now });
+
+  if (metaChanged || activityChanged) {
     next.updatedAt = now;
-    await saveUserProfile({
-      folder: current.folder,
-      profile: next,
-    });
+    await saveUserProfile({ folder: current.folder, profile: next });
   }
 
   return next;
