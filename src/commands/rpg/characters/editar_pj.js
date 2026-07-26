@@ -6,6 +6,9 @@ const { box } = require("../../../utils/boxUtils");
 const { formatError } = require("../../../utils/formatErrorUtils");
 const { formatCommandUsage } = require("../../../utils/formatCommandUtils");
 
+/**
+ * @constant usageMessage
+ */
 const usageMessage = formatCommandUsage({
   icon: "📝",
   title: "Editar personaje",
@@ -24,30 +27,56 @@ module.exports = {
   description: "Edita el nombre o historia de tu personaje activo.",
   category: "rpg",
 
+  /**
+   * Executes the .
+   * @async
+   * @param ctx - execution context.
+   * @returns {any}
+   * @throws {Error}
+   */
   async execute(ctx) {
+    /**
+     * @constant rawText
+     */
     const rawText = ctx.args.join(" ").trim();
 
     if (!rawText) {
       return ctx.reply(usageMessage);
     }
 
+    /**
+     * @constant character
+     */
     const character = await getActiveCharacter({ creatorId: ctx.sender });
 
     if (!character) {
       return ctx.reply(formatError("No tienes un personaje activo.", "Usa /switch_pj para activar uno."));
     }
 
+    /**
+     * @variable admin
+     * @type {boolean}
+     */
     let admin = false;
     if (ctx.isGroup) {
       admin = await isAdmin(ctx.sock, ctx.from, ctx.sender);
     }
 
+    /**
+     * @constant nameMatch
+     */
     const nameMatch = rawText.match(/^Nombre:\s*(.+)/i);
     if (nameMatch) {
+      /**
+       * @constant newName
+       */
       const newName = nameMatch[1].trim();
       if (newName.length < 2 || newName.length > MAX_CHARACTER_NAME_LENGTH) {
         throw new Error(`El nombre debe tener entre 2 y ${MAX_CHARACTER_NAME_LENGTH} caracteres.`);
       }
+      /**
+       * @constant updated
+       */
       const updated = await renameCharacter({
         characterName: character.name,
         newName,
@@ -61,7 +90,13 @@ module.exports = {
       );
     }
 
+    /**
+     * @constant historyMatch
+     */
     const historyMatch = rawText.match(/^Historia:\s*(.+)/i);
+    /**
+     * @constant historia
+     */
     const historia = historyMatch ? historyMatch[1].trim() : rawText;
 
     await updateCharacterSlots({

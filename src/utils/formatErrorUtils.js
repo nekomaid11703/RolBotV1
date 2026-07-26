@@ -1,9 +1,13 @@
 // @ts-nocheck
+/**
+ * @constant LINE
+ * @type {string}
+ */
 const LINE = "✦ ━━━━━━━━━━━━━━ ✦";
 
 /**
- *
  * @param lines
+ * @returns
  */
 function compactLines(lines) {
   return lines
@@ -14,25 +18,26 @@ function compactLines(lines) {
 }
 
 /**
- *
+ * @param { icon = "ℹ️", title = "Aviso", lines = [] } - TODO: describe parameter "{ icon = "ℹ️", title = "Aviso", lines = [] }".
  * @param root0
+ * @returns
  */
 function buildFeedbackBody({ icon = "ℹ️", title = "Aviso", lines = [] }) {
   return [LINE, `${icon} *${title}*`, LINE, "", lines, "", LINE];
 }
 
 /**
- *
  * @param opts
+ * @returns
  */
 function formatFeedback(opts) {
   return compactLines(buildFeedbackBody(opts));
 }
 
 /**
- *
  * @param message
- * @param hint
+ * @param [hint]
+ * @returns
  */
 function formatError(message, hint = null) {
   return formatFeedback({

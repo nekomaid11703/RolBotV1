@@ -3,13 +3,19 @@ const { ITEMS, getItem: getRawItem } = require("../../data/items");
 const { createEntity } = require("../../modules/entityFactory");
 
 /**
- *
  * @param itemId
+ * @returns
  */
 function createItem(itemId) {
+  /**
+   * @constant def
+   */
   const def = getRawItem(itemId);
   if (!def) return null;
 
+  /**
+   * @constant entity
+   */
   const entity = createEntity({
     id: def.id,
     type: "item",
@@ -31,15 +37,15 @@ function createItem(itemId) {
 }
 
 /**
- *
  * @param itemId
+ * @returns
  */
 function getItem(itemId) {
   return getRawItem(itemId);
 }
 
 /**
- *
+ * @returns
  */
 function getDisplayList() {
   return Object.values(ITEMS).map((item) => ({

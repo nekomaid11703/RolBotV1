@@ -1,8 +1,16 @@
 const { supabase } = require("./supabase");
 const { logSystem } = require("../services/loggerService");
 
+/**
+ * @constant DISCOVERY_TTL
+ * @type {number}
+ */
 const DISCOVERY_TTL = 300000;
 
+/**
+ * @constant KNOWN_SCHEMA
+ * @type {Object}
+ */
 const KNOWN_SCHEMA = {
   bot_auth_state: ["session_id", "id", "data"],
   players: ["phone", "username", "money", "activity_messages", "activity_commands", "last_active_at"],
@@ -44,6 +52,10 @@ const KNOWN_SCHEMA = {
 
 /** @type {Record<string, Set<string> | null> | null} */
 let cache = null;
+/**
+ * @variable lastDiscovery
+ * @type {number}
+ */
 let lastDiscovery = 0;
 
 /**
@@ -56,13 +68,25 @@ async function discover(force = false) {
     return cache;
   }
 
+  /**
+   * @constant tables
+   */
   const tables = Object.keys(KNOWN_SCHEMA);
 
+  /**
+   * @constant results
+   */
   const results = await Promise.all(
     tables.map(async (table) => {
+      /**
+       * @constant knownCols
+       */
       const knownCols = KNOWN_SCHEMA[table] || [];
       try {
         const { data } = await supabase.from(table).select("*").limit(1);
+        /**
+         * @constant fetchedKeys
+         */
         const fetchedKeys = data && data.length > 0 ? Object.keys(data[0]) : [];
         return { table, keys: new Set([...knownCols, ...fetchedKeys]) };
       } catch {
@@ -99,9 +123,16 @@ function hasColumn(table, column) {
  */
 function filterExisting(table, data) {
   if (!cache || !cache[table] || !data) return data || {};
+  /**
+   * @constant cols
+   */
   const cols = cache[table];
   /** @type {*} */
   const filtered = {};
+  /**
+   * @variable skipped
+   * @type {boolean}
+   */
   let skipped = false;
   for (const [key, value] of Object.entries(data)) {
     if (key === undefined || key === null) continue;
@@ -112,6 +143,9 @@ function filterExisting(table, data) {
     }
   }
   if (skipped) {
+    /**
+     * @constant skippedKeys
+     */
     const skippedKeys = Object.keys(data).filter((k) => !cols.has(k));
     logSystem(`ColumnRegistry: columnas omitidas en "${table}": ${skippedKeys.join(", ")}`);
   }

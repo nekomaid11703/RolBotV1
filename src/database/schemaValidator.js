@@ -3,6 +3,10 @@ const { logSystem, logError } = require("../services/loggerService");
 const { discover } = require("./columnRegistry");
 const { checkVersion } = require("./schemaVersion");
 
+/**
+ * @constant SCHEMA
+ * @type {Object}
+ */
 const SCHEMA = {
   bot_auth_state: { columns: ["session_id", "id", "data"] },
   players: { columns: ["phone", "username", "money", "activity_messages", "activity_commands", "last_active_at"] },
@@ -33,6 +37,10 @@ const SCHEMA = {
   },
 };
 
+/**
+ * @constant CRITICAL_EQUALS_COLUMNS
+ * @type {Object}
+ */
 const CRITICAL_EQUALS_COLUMNS = {
   players: ["phone"],
   characters: ["player_phone", "slug", "is_active"],
@@ -52,6 +60,10 @@ async function checkHealth() {
 
   await discover(true);
 
+  /**
+   * @constant [tableResults, colResults]
+   * @type {any}
+   */
   const [tableResults, colResults] = await Promise.all([
     Promise.all(
       Object.entries(SCHEMA).map(async ([table, { columns }]) => {
@@ -59,6 +71,9 @@ async function checkHealth() {
           const { data, error } = await supabase.from(table).select("*").limit(1);
           if (error) return `Tabla "${table}" inaccesible: ${error.message}`;
           if (data && data.length > 0) {
+            /**
+             * @constant missing
+             */
             const missing = columns.filter((col) => !(col in data[0]));
             if (missing.length > 0)
               return { warn: true, msg: `Tabla "${table}" sin columnas esperadas: ${missing.join(", ")}` };
@@ -101,11 +116,17 @@ async function verifyStartup() {
   /** @type {{ ok: boolean, errors: string[], warnings: string[] }} */
   const results = { ok: true, errors: [], warnings: [] };
 
+  /**
+   * @constant versionResult
+   */
   const versionResult = await checkVersion();
   if (!versionResult.ok) {
     results.warnings.push(`SchemaVersion desajustado: DB=${versionResult.stored}, código=${versionResult.current}`);
   }
 
+  /**
+   * @constant health
+   */
   const health = await checkHealth();
   results.errors.push(...health.errors);
   results.warnings.push(...health.warnings);

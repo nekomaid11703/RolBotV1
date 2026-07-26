@@ -12,14 +12,30 @@ module.exports = {
   description: "Usa un ítem consumible de tu inventario activo.",
   category: "rpg",
 
+  /**
+   * Executes the .
+   * @async
+   * @param ctx - execution context.
+   * @returns {any}
+   */
   async execute(ctx) {
     if (ctx.args.length === 0) {
+      /**
+       * @constant character
+       */
       const character = await getActiveCharacter({ creatorId: ctx.sender });
       if (!character) {
         return ctx.reply("❌ No tienes un personaje activo. Usa `/crear_pj` o `/switch_pj`.");
       }
 
+      /**
+       * @constant inv
+       */
       const inv = await getInventory(character.id);
+      /**
+       * @constant lines
+       * @type {Array}
+       */
       const lines = [];
       lines.push("");
       lines.push("Uso: `/usar <item>`");
@@ -30,6 +46,9 @@ module.exports = {
       } else {
         lines.push("📋 Tus ítems disponibles:");
         for (const entry of inv) {
+          /**
+           * @constant item
+           */
           const item = getItem(entry.item_id);
           if (item) {
             lines.push(`   · ${item.icon} ${item.name} (${item.id}) x${entry.quantity}`);
@@ -43,11 +62,20 @@ module.exports = {
       return ctx.reply(box("📦 Usar ítem", lines));
     }
 
+    /**
+     * @constant itemName
+     */
     const itemName = ctx.args[0].toLowerCase();
 
     try {
+      /**
+       * @constant result
+       */
       const result = await useItem(ctx.sender, itemName);
 
+      /**
+       * @constant session
+       */
       const session = findSessionByCharacter(result.characterId);
       if (session) {
         if (session.challenger.characterId === result.characterId) {
@@ -57,6 +85,10 @@ module.exports = {
         }
       }
 
+      /**
+       * @constant lines
+       * @type {Array}
+       */
       const lines = [];
       lines.push("");
       lines.push(`📦  ${result.icon} ${result.itemName} usado`);

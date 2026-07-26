@@ -4,8 +4,15 @@ const { getOwnerRecords } = require("../../../utils/permissionUtils");
 const { box } = require("../../../utils/boxUtils");
 const { formatCommandUsage } = require("../../../utils/formatCommandUtils");
 
+/**
+ * @constant CATEGORY_DISPLAY
+ * @type {object}
+ */
 const CATEGORY_DISPLAY = { economy: "econom\u00eda", items: "\u00edtems" };
 
+/**
+ * @constant usageMessage
+ */
 const usageMessage = formatCommandUsage({
   icon: "\uD83D\uDEE1\uFE0F",
   title: "Lista de administradores",
@@ -22,19 +29,44 @@ module.exports = {
   category: "admin",
   creatorOnly: true,
 
+  /**
+   * Executes the .
+   * @async
+   * @param ctx - execution context.
+   * @returns {any}
+   */
   async execute(ctx) {
+    /**
+     * @constant category
+     */
     const category = (ctx.args[0] || "").toLowerCase();
+    /**
+     * @constant owners
+     */
     const owners = getOwnerRecords();
 
+    /**
+     * @constant ownerNames
+     */
     const ownerNames = owners.map((owner) => ({
       name: owner.displayName || "Creador",
       phone: owner.phone,
     }));
 
     if (category) {
+      /**
+       * @constant admins
+       */
       const admins = await listAdminsForCategory(category);
+      /**
+       * @constant catLabel
+       */
       const catLabel = CATEGORY_DISPLAY[category] || getCategoryLabel(category);
 
+      /**
+       * @constant lines
+       * @type {Array}
+       */
       const lines = [];
       lines.push("");
       lines.push("\uD83D\uDC51 Creador:");
@@ -54,6 +86,9 @@ module.exports = {
         lines.push("  \u2022 Ninguno");
       } else {
         admins.forEach((admin, index) => {
+          /**
+           * @constant date
+           */
           const date = admin.grantedAt
             ? new Date(admin.grantedAt).toLocaleString("es-CO", { dateStyle: "short", timeStyle: "short" })
             : "fecha desconocida";
@@ -64,9 +99,19 @@ module.exports = {
       return ctx.reply(box(`\uD83D\uDEE1\uFE0F Admins de ${catLabel}`, lines));
     }
 
+    /**
+     * @constant categories
+     */
     const categories = await listAllCategories();
+    /**
+     * @constant allCats
+     */
     const allCats = categories.length > 0 ? categories : ["economy", "items"];
 
+    /**
+     * @constant lines
+     * @type {Array}
+     */
     const lines = [];
     lines.push("");
     lines.push("\uD83D\uDC51 Creador:");
@@ -80,7 +125,13 @@ module.exports = {
     }
 
     for (const cat of allCats) {
+      /**
+       * @constant admins
+       */
       const admins = await listAdminsForCategory(cat);
+      /**
+       * @constant catLabel
+       */
       const catLabel = CATEGORY_DISPLAY[cat] || getCategoryLabel(cat);
 
       lines.push("");
@@ -90,6 +141,9 @@ module.exports = {
         lines.push("  \u2022 Ninguno");
       } else {
         admins.forEach((admin, index) => {
+          /**
+           * @constant date
+           */
           const date = admin.grantedAt
             ? new Date(admin.grantedAt).toLocaleString("es-CO", { dateStyle: "short", timeStyle: "short" })
             : "fecha desconocida";

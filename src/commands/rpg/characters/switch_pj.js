@@ -6,6 +6,9 @@ const { box } = require("../../../utils/boxUtils");
 const { formatError } = require("../../../utils/formatErrorUtils");
 const { formatCommandUsage } = require("../../../utils/formatCommandUtils");
 
+/**
+ * @constant usageMessage
+ */
 const usageMessage = formatCommandUsage({
   icon: "🔄",
   title: "Cambiar personaje activo",
@@ -21,21 +24,40 @@ module.exports = {
   description: "Cambia tu personaje activo.",
   category: "rpg",
 
+  /**
+   * Executes the .
+   * @async
+   * @param ctx - execution context.
+   * @returns {any}
+   */
   async execute(ctx) {
+    /**
+     * @constant targetName
+     */
     const targetName = ctx.args.join(" ");
 
     if (!targetName || targetName.trim() === "") {
       return ctx.reply(usageMessage);
     }
 
+    /**
+     * @constant name
+     */
     const name = targetName.trim();
 
+    /**
+     * @constant names
+     */
     const names = await getCharacterNames({ creatorId: ctx.sender });
 
     if (!names.has(name)) {
       return ctx.reply(formatError(`No tienes un personaje llamado "${name}".`, `Usa /mis_pj para ver tu lista.`));
     }
 
+    /**
+     * @variable admin
+     * @type {boolean}
+     */
     let admin = false;
     if (ctx.isGroup) {
       admin = await isAdmin(ctx.sock, ctx.from, ctx.sender);

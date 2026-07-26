@@ -1,6 +1,10 @@
 // @ts-nocheck
 const { extractPhoneNumber, normalizeJid } = require("../utils/identityUtils");
 
+/**
+ * @constant TEXT_MESSAGE_TYPES
+ * @type {Set}
+ */
 const TEXT_MESSAGE_TYPES = new Set([
   "conversation",
   "extendedtextmessage",
@@ -14,8 +18,8 @@ const TEXT_MESSAGE_TYPES = new Set([
 ]);
 
 /**
- * @param {object|null|undefined} message - Message to process
- * @returns {object} - Context object
+ * @param {object|null|undefined} message - - Message to process.
+ * @returns {object} - Context object.
  */
 function unwrapMessageContent(message) {
   if (!message) return {};
@@ -40,16 +44,23 @@ function unwrapMessageContent(message) {
 }
 
 /**
- * @param {object|null|undefined} message - Message to process
- * @returns {string} - Formatted value
+ * @param {object|null|undefined} message - - Message to process.
+ * @returns {string} - Formatted value.
  */
 function getMessageType(message) {
+  /**
+   * @constant normalized
+   */
   const normalized = unwrapMessageContent(message);
 
   if (typeof normalized !== "object") {
     return "unknown";
   }
 
+  /**
+   * @constant keys
+   * @type {Array}
+   */
   const keys = [
     "conversation",
     "extendedTextMessage",
@@ -77,8 +88,8 @@ function getMessageType(message) {
 }
 
 /**
- * @param {string} messageType - Type of message
- * @returns {boolean} - True if text-like
+ * @param {string} messageType - - Type of message.
+ * @returns {boolean} - True if text-like.
  */
 function isTextLikeMessageType(messageType) {
   return TEXT_MESSAGE_TYPES.has(
@@ -89,14 +100,20 @@ function isTextLikeMessageType(messageType) {
 }
 
 /**
- * @param {object|null|undefined} message - Message to process
- * @returns {string} - Formatted value
+ * @param {object|null|undefined} message - - Message to process.
+ * @returns {string} - Formatted value.
  */
 function extractText(message) {
   if (!message) return "";
 
+  /**
+   * @constant normalized
+   */
   const normalized = unwrapMessageContent(message);
 
+  /**
+   * @constant text
+   */
   const text =
     normalized.conversation ||
     normalized.extendedTextMessage?.text ||
@@ -113,24 +130,51 @@ function extractText(message) {
 }
 
 /**
- * @param {object} sock - Socket instance
- * @param {{ key: { remoteJid: string, participant?: string }, pushName?: string, participant?: string, message?: object }} msg - Message object
- * @returns {object} - Context object
+ * @param {object} sock - - Socket instance.
+ * @param {{ key: { remoteJid: string, participant?: string }, pushName?: string, participant?: string, message?: object }} msg - - Message object.
+ * @returns {object} - Context object.
  */
 function createContext(sock, msg) {
+  /**
+   * @constant from
+   */
   const from = msg.key.remoteJid;
+  /**
+   * @constant isGroup
+   */
   const isGroup = from.endsWith("@g.us");
 
+  /**
+   * @constant senderJid
+   */
   const senderJid = isGroup ? msg.key.participant || msg.participant || from : from;
 
+  /**
+   * @constant senderNumber
+   */
   const senderNumber = extractPhoneNumber(senderJid) || null;
+  /**
+   * @constant senderBareJid
+   */
   const senderBareJid = normalizeJid(senderJid);
 
+  /**
+   * @constant userName
+   */
   const userName = msg.pushName || senderNumber || senderBareJid.split("@")[0];
 
+  /**
+   * @constant mentionedJid
+   */
   const mentionedJid = msg.message?.extendedTextMessage?.contextInfo?.mentionedJid || [];
 
+  /**
+   * @constant messageType
+   */
   const messageType = getMessageType(msg.message);
+  /**
+   * @constant text
+   */
   const text = extractText(msg.message);
 
   return {
@@ -158,6 +202,10 @@ function createContext(sock, msg) {
      */
     async reply(content, options = {}) {
       if (content && typeof content === "object" && !Array.isArray(content)) {
+        /**
+         * @constant payload
+         * @type {Object}
+         */
         const payload = { ...content, ...options };
 
         if (typeof payload.text !== "string" && typeof payload.content === "string") {

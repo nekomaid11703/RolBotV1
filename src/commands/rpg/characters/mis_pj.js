@@ -8,7 +8,16 @@ module.exports = {
   description: "Lista tus personajes creados.",
   category: "rpg",
 
+  /**
+   * Executes the .
+   * @async
+   * @param ctx - execution context.
+   * @returns {any}
+   */
   async execute(ctx) {
+    /**
+     * @constant characters
+     */
     const characters = await listCharacters({
       creatorId: ctx.sender,
     });
@@ -17,6 +26,10 @@ module.exports = {
       return ctx.reply("❌ No tienes personajes todavía. Usa `/crear_pj` para empezar.");
     }
 
+    /**
+     * @constant lines
+     * @type {Array}
+     */
     const lines = [];
     for (const character of characters) {
       if (character.active) {

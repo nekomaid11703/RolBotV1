@@ -4,6 +4,9 @@ const { box } = require("../../../utils/boxUtils");
 const { formatError } = require("../../../utils/formatErrorUtils");
 const { formatCommandUsage } = require("../../../utils/formatCommandUtils");
 
+/**
+ * @constant usageMessage
+ */
 const usageMessage = formatCommandUsage({
   icon: "🗑️",
   title: "Eliminar personaje",
@@ -13,6 +16,9 @@ const usageMessage = formatCommandUsage({
   notes: ["Acción irreversible. Se pedirá confirmación."],
 });
 
+/**
+ * @constant CONFIRM_TIMEOUT_MS
+ */
 const CONFIRM_TIMEOUT_MS = 30 * 1000;
 
 /** @type {Map<string, { characterName: string, creatorId: string, timestamp: number }>} */
@@ -24,17 +30,32 @@ module.exports = {
   description: "Elimina un personaje de tu lista (con confirmación).",
   category: "rpg",
 
+  /**
+   * Executes the .
+   * @async
+   * @param ctx - execution context.
+   * @returns {any}
+   */
   async execute(ctx) {
+    /**
+     * @constant raw
+     */
     const raw = ctx.args.join(" ").trim();
 
     if (!raw) {
       return ctx.reply(usageMessage);
     }
 
+    /**
+     * @constant pendingKey
+     */
     const pendingKey = `${ctx.from}:${ctx.senderJid || ctx.sender}`;
 
     // --- If user confirms with "si" or "sí" ---
     if (raw.toLowerCase() === "si" || raw.toLowerCase() === "sí") {
+      /**
+       * @constant pending
+       */
       const pending = pendingConfirmations.get(pendingKey);
       if (!pending) {
         return ctx.reply(
@@ -53,15 +74,27 @@ module.exports = {
     }
 
     // --- Step 1: find character case-insensitively ---
+    /**
+     * @constant name
+     */
     const name = raw.toLowerCase();
 
+    /**
+     * @constant characters
+     */
     const characters = await listCharacters({ creatorId: ctx.sender, bypassCache: true });
+    /**
+     * @constant character
+     */
     const character = characters.find((c) => c.name.toLowerCase() === name);
 
     if (!character) {
       return ctx.reply(formatError(`No tienes un personaje llamado "${raw}".`, `Usa /mis_pj para ver tu lista.`));
     }
 
+    /**
+     * @constant storedName
+     */
     const storedName = character.name;
 
     pendingConfirmations.set(pendingKey, {
@@ -70,6 +103,9 @@ module.exports = {
       timestamp: Date.now(),
     });
 
+    /**
+     * @constant confirmMsg
+     */
     const confirmMsg = [
       `╭─  ¿Eliminar «${storedName}»?  ─╮`,
       `│                                │`,

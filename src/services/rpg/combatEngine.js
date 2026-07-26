@@ -1,6 +1,9 @@
 // @ts-nocheck
 const { DAMAGE_MIN, BLOCK_REDUCTION } = require("../../config/combatConfig");
 const { applyFatiguePenalties } = require("./fatigueEngine");
+/**
+ * @constant moduleRegistry
+ */
 const moduleRegistry = require("../../modules/moduleRegistry");
 const { randomFloat } = require("../../utils/randomUtils");
 
@@ -31,9 +34,19 @@ function normalizeStats(stats = {}) {
  * @returns {*} Estadísticas con penalizaciones aplicadas
  */
 function applyPenalties(stats, hp, fatigue = 0, resistance = 0) {
+  /**
+   * @constant normalized
+   */
   const normalized = normalizeStats(stats);
+  /**
+   * @constant fatigueApplied
+   */
   const fatigueApplied = fatigue > 0 ? applyFatiguePenalties(normalized, fatigue, resistance) : normalized;
 
+  /**
+   * @constant penalized
+   * @type {Object}
+   */
   const penalized = {};
   for (const key of Object.keys(fatigueApplied)) {
     penalized[key] = Math.max(0, Math.round(fatigueApplied[key]));
@@ -63,9 +76,18 @@ function calculateDamage(
   attackerRes = 0,
   defenderRes = 0,
 ) {
+  /**
+   * @constant atkPenalized
+   */
   const atkPenalized = applyPenalties(attackerStats, attackerHp, attackerFatigue, attackerRes);
+  /**
+   * @constant defPenalized
+   */
   const defPenalized = applyPenalties(defenderStats, defenderHp, defenderFatigue, defenderRes);
 
+  /**
+   * @constant rawDamage
+   */
   const rawDamage = Math.floor(atkPenalized.atk * (100 / (100 + defPenalized.def)));
   return Number.isFinite(rawDamage) ? Math.max(DAMAGE_MIN, rawDamage) : DAMAGE_MIN;
 }
@@ -92,7 +114,13 @@ function canReact(
   defenderRes = 0,
   attackerRes = 0,
 ) {
+  /**
+   * @constant defPenalized
+   */
   const defPenalized = applyPenalties(defenderStats, defenderHp, defenderFatigue, defenderRes);
+  /**
+   * @constant atkPenalized
+   */
   const atkPenalized = applyPenalties(attackerStats, attackerHp, attackerFatigue, attackerRes);
   return defPenalized.ref > atkPenalized.aspd;
 }
@@ -119,7 +147,13 @@ function evaluateDodgeFeasibility(
   defenderRes = 0,
   attackerRes = 0,
 ) {
+  /**
+   * @constant defPenalized
+   */
   const defPenalized = applyPenalties(defenderStats, defenderHp, defenderFatigue, defenderRes);
+  /**
+   * @constant atkPenalized
+   */
   const atkPenalized = applyPenalties(attackerStats, attackerHp, attackerFatigue, attackerRes);
   return defPenalized.mspd > atkPenalized.aspd;
 }
@@ -146,9 +180,19 @@ function rollFlee(
   fleerRes = 0,
   pursuerRes = 0,
 ) {
+  /**
+   * @constant fleerPenalized
+   */
   const fleerPenalized = applyPenalties(fleerStats, fleerHp, fleerFatigue, fleerRes);
+  /**
+   * @constant pursuerPenalized
+   */
   const pursuerPenalized = applyPenalties(pursuerStats, pursuerHp, pursuerFatigue, pursuerRes);
 
+  /**
+   * @variable chance
+   * @type {any}
+   */
   let chance;
   if (fleerPenalized.mspd > pursuerPenalized.mspd) {
     chance = 1.0; // Garantizado
@@ -158,6 +202,9 @@ function rollFlee(
     chance = 0.25;
   }
 
+  /**
+   * @constant roll
+   */
   const roll = randomFloat();
   return { chance, roll, success: roll < chance };
 }
@@ -196,7 +243,13 @@ function attemptDodge(
   defenderRes = 0,
   attackerRes = 0,
 ) {
+  /**
+   * @constant defPenalized
+   */
   const defPenalized = applyPenalties(defenderStats, defenderHp, defenderFatigue, defenderRes);
+  /**
+   * @constant atkPenalized
+   */
   const atkPenalized = applyPenalties(attackerStats, attackerHp, attackerFatigue, attackerRes);
 
   if (defPenalized.mspd > atkPenalized.aspd) {
@@ -216,11 +269,26 @@ function attemptDodge(
  * @returns {*} Información del ataque ejecutado
  */
 function executeAttack(attackerChar, defenderChar, defenderHp, attackerHp, attackerFatigue = 0, defenderFatigue = 0) {
+  /**
+   * @constant attackerStats
+   */
   const attackerStats = attackerChar.stats || {};
+  /**
+   * @constant defenderStats
+   */
   const defenderStats = defenderChar.stats || {};
+  /**
+   * @constant attackerRes
+   */
   const attackerRes = attackerStats.def || 0;
+  /**
+   * @constant defenderRes
+   */
   const defenderRes = defenderStats.def || 0;
 
+  /**
+   * @constant baseDamage
+   */
   const baseDamage = calculateDamage(
     attackerStats,
     defenderStats,
@@ -231,6 +299,9 @@ function executeAttack(attackerChar, defenderChar, defenderHp, attackerHp, attac
     attackerRes,
     defenderRes,
   );
+  /**
+   * @constant reactPossible
+   */
   const reactPossible = canReact(
     defenderStats,
     defenderHp,
@@ -273,16 +344,43 @@ function executeReaction(
   defenderFatigue = 0,
   attackerFatigue = 0,
 ) {
+  /**
+   * @constant attackerStats
+   */
   const attackerStats = attackerChar.stats || {};
+  /**
+   * @constant defenderStats
+   */
   const defenderStats = defenderChar.stats || {};
+  /**
+   * @constant attackerRes
+   */
   const attackerRes = attackerStats.def || 0;
+  /**
+   * @constant defenderRes
+   */
   const defenderRes = defenderStats.def || 0;
 
+  /**
+   * @variable finalDamage
+   * @type {any}
+   */
   let finalDamage;
+  /**
+   * @variable reaction
+   * @type {any}
+   */
   let reaction;
+  /**
+   * @variable dodged
+   * @type {boolean}
+   */
   let dodged = false;
 
   if (reactionType === "dodge") {
+    /**
+     * @constant dodgeResult
+     */
     const dodgeResult = attemptDodge(
       defenderStats,
       defenderHp,
@@ -302,6 +400,9 @@ function executeReaction(
       reaction = "dodge_failed";
     }
   } else if (reactionType === "block") {
+    /**
+     * @constant blockResult
+     */
     const blockResult = attemptBlock(baseDamage);
     finalDamage = blockResult.damage;
     reaction = "block";
@@ -310,6 +411,9 @@ function executeReaction(
     finalDamage = baseDamage;
   }
 
+  /**
+   * @constant defenderHpAfter
+   */
   const defenderHpAfter = Math.max(0, defenderHp - finalDamage);
 
   return {
@@ -345,11 +449,26 @@ function chooseAiReaction(
   defenderFatigue = 0,
   attackerFatigue = 0,
 ) {
+  /**
+   * @constant attackerStats
+   */
   const attackerStats = attackerChar.stats || {};
+  /**
+   * @constant defenderStats
+   */
   const defenderStats = defenderChar.stats || {};
+  /**
+   * @constant attackerRes
+   */
   const attackerRes = attackerStats.def || 0;
+  /**
+   * @constant defenderRes
+   */
   const defenderRes = defenderStats.def || 0;
 
+  /**
+   * @constant reactPossible
+   */
   const reactPossible = canReact(
     defenderStats,
     defenderHp,
@@ -364,6 +483,9 @@ function chooseAiReaction(
     return "none";
   }
 
+  /**
+   * @constant dodgeCheck
+   */
   const dodgeCheck = attemptDodge(
     defenderStats,
     defenderHp,
@@ -400,6 +522,9 @@ function executeTurn(
   attackerFatigue = 0,
   defenderFatigue = 0,
 ) {
+  /**
+   * @constant attackInfo
+   */
   const attackInfo = executeAttack(
     attackerChar,
     defenderChar,
@@ -421,6 +546,9 @@ function executeTurn(
     );
   }
 
+  /**
+   * @constant reaction
+   */
   const reaction =
     chosenReaction ||
     chooseAiReaction(
@@ -451,7 +579,13 @@ function executeTurn(
  * @returns {number} Puntos de XP otorgados
  */
 function calculateXpReward(enemyLevel = 1, isWinner = true) {
+  /**
+   * @constant lvl
+   */
   const lvl = Math.max(1, Number(enemyLevel) || 1);
+  /**
+   * @constant baseXp
+   */
   const baseXp = 50 + lvl * 2;
   return isWinner ? baseXp : Math.round(baseXp * 0.3);
 }
@@ -464,13 +598,26 @@ function calculateXpReward(enemyLevel = 1, isWinner = true) {
  * @returns {number} Daño modificado
  */
 function applyAttackModifiers(character, baseDamage, context = {}) {
+  /**
+   * @constant modules
+   */
   const modules = character.slots?.modules;
   if (!modules) return baseDamage;
 
+  /**
+   * @variable modified
+   * @type {any}
+   */
   let modified = baseDamage;
   for (const [type, config] of Object.entries(modules)) {
+    /**
+     * @constant mod
+     */
     const mod = moduleRegistry.createInstance(type, config);
     if (mod && mod.constructor.triggers.includes("Attack")) {
+      /**
+       * @constant result
+       */
       const result = mod.onAttack({ ...context, baseDamage, character });
       if (result && typeof result.damageMod === "number") {
         modified = Math.max(0, modified + result.damageMod);
@@ -488,13 +635,26 @@ function applyAttackModifiers(character, baseDamage, context = {}) {
  * @returns {number} Daño modificado tras recibir el golpe
  */
 function applyHitModifiers(character, incomingDamage, context = {}) {
+  /**
+   * @constant modules
+   */
   const modules = character.slots?.modules;
   if (!modules) return incomingDamage;
 
+  /**
+   * @variable modified
+   * @type {any}
+   */
   let modified = incomingDamage;
   for (const [type, config] of Object.entries(modules)) {
+    /**
+     * @constant mod
+     */
     const mod = moduleRegistry.createInstance(type, config);
     if (mod && mod.constructor.triggers.includes("Hit")) {
+      /**
+       * @constant result
+       */
       const result = mod.onHit({ ...context, incomingDamage, character });
       if (result && typeof result.damageMod === "number") {
         modified = Math.max(0, modified + result.damageMod);

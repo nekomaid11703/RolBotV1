@@ -11,8 +11,16 @@ module.exports = {
   groupOnly: true,
   adminOnly: true,
 
+  /**
+   * Executes the .
+   * @async
+   * @param ctx - execution context.
+   */
   async execute(ctx) {
     try {
+      /**
+       * @constant link
+       */
       const link = await getInviteCode(ctx.sock, ctx.from);
       await ctx.reply(box("🔗 Link de invitación", ["", link]));
     } catch (error) {

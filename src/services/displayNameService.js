@@ -9,6 +9,9 @@ const { getUserProfile } = require("./userService");
  * @returns {string} - Result value
  */
 function cleanText(value, fallback = "usuario") {
+  /**
+   * @constant text
+   */
   const text = String(value || "").trim();
   return text || fallback;
 }
@@ -19,12 +22,18 @@ function cleanText(value, fallback = "usuario") {
  * @returns {boolean} - True if condition is met
  */
 function isMeaningfulDisplayName(value) {
+  /**
+   * @constant text
+   */
   const text = String(value || "").trim();
 
   if (!text) {
     return false;
   }
 
+  /**
+   * @constant normalized
+   */
   const normalized = text.toLowerCase();
 
   if (normalized === "usuario" || normalized === "creador") {
@@ -52,6 +61,10 @@ function findParticipantDisplayName(participant) {
     return "";
   }
 
+  /**
+   * @constant candidates
+   * @type {Array}
+   */
   const candidates = [
     participant.notify,
     participant.name,
@@ -61,6 +74,9 @@ function findParticipantDisplayName(participant) {
   ];
 
   for (const candidate of candidates) {
+    /**
+     * @constant clean
+     */
     const clean = String(candidate || "").trim();
 
     if (isMeaningfulDisplayName(clean)) {
@@ -77,6 +93,9 @@ function findParticipantDisplayName(participant) {
  * @returns {string} - Result value
  */
 function extractMentionLabelFromContext(ctx) {
+  /**
+   * @constant tokens
+   */
   const tokens = Array.isArray(ctx?.args)
     ? ctx.args
     : String(ctx?.text || "")
@@ -84,12 +103,19 @@ function extractMentionLabelFromContext(ctx) {
         .split(/\s+/);
 
   for (const token of tokens) {
+    /**
+     * @constant clean
+     */
     const clean = String(token || "").trim();
 
     if (!clean.startsWith("@")) {
       continue;
     }
 
+    /**
+     * @variable label
+     * @type {any}
+     */
     let label = clean.replace(/^@+/, "");
     while (label.length > 0 && ".,;:!?".includes(label[label.length - 1])) {
       label = label.slice(0, -1);
@@ -112,6 +138,9 @@ function extractMentionLabelFromContext(ctx) {
  * @returns {Promise<string>} - Promise resolving to a string
  */
 async function resolveTargetDisplayName(ctx, targetId, fallback = "usuario") {
+  /**
+   * @constant cleanFallback
+   */
   const cleanFallback = cleanText(fallback, "usuario");
 
   if (!targetId) {
@@ -119,8 +148,15 @@ async function resolveTargetDisplayName(ctx, targetId, fallback = "usuario") {
   }
 
   try {
+    /**
+     * @constant data
+     */
     const data = await getUserProfile({ creatorId: targetId });
 
+    /**
+     * @constant storedCandidates
+     * @type {Array}
+     */
     const storedCandidates = [
       data?.profile?.metadata?.displayName,
       data?.profile?.metadata?.pushName,
@@ -139,10 +175,20 @@ async function resolveTargetDisplayName(ctx, targetId, fallback = "usuario") {
 
   try {
     if (ctx?.sock && ctx?.from && String(ctx.from).endsWith("@g.us")) {
+      /**
+       * @constant metadata
+       */
       const metadata = await getGroupMetadata(ctx.sock, ctx.from);
 
+      /**
+       * @constant participant
+       */
       const participant = Array.isArray(metadata?.participants)
         ? metadata.participants.find((entry) => {
+            /**
+             * @constant ids
+             * @type {Array}
+             */
             const ids = [entry?.id, entry?.jid, entry?.userId];
 
             return ids.some((candidate) => {
@@ -151,6 +197,9 @@ async function resolveTargetDisplayName(ctx, targetId, fallback = "usuario") {
           })
         : null;
 
+      /**
+       * @constant participantName
+       */
       const participantName = findParticipantDisplayName(participant);
 
       if (participantName) {
@@ -161,6 +210,9 @@ async function resolveTargetDisplayName(ctx, targetId, fallback = "usuario") {
     /* fallback */
   }
 
+  /**
+   * @constant mentionLabel
+   */
   const mentionLabel = extractMentionLabelFromContext(ctx);
 
   if (isMeaningfulDisplayName(mentionLabel)) {

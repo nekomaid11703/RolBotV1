@@ -10,6 +10,10 @@ const { parseQuantity } = require("../../utils/quantityUtils");
 const { createItem } = require("./itemService");
 const { setCooldown } = require("./statusService");
 
+/**
+ * @constant characterLocks
+ * @type {Map}
+ */
 const characterLocks = new Map();
 
 /**
@@ -62,12 +66,24 @@ async function getInventory(characterId) {
  */
 async function addItem(characterId, creatorId, itemId, quantity = 1) {
   return withCharacterLock(characterId, async () => {
+    /**
+     * @constant safeQty
+     */
     const safeQty = parseQuantity(quantity);
 
+    /**
+     * @constant item
+     */
     const item = getItem(itemId);
     if (!item) throw new Error(`El ítem "${itemId}" no existe.`);
 
+    /**
+     * @constant inv
+     */
     const inv = await getInventory(characterId);
+    /**
+     * @constant existing
+     */
     const existing = inv.find((row) => row.item_id === itemId);
 
     if (!existing && inv.length >= MAX_INVENTORY_SIZE) {
@@ -78,7 +94,13 @@ async function addItem(characterId, creatorId, itemId, quantity = 1) {
       if (existing.quantity + safeQty > MAX_STACK_SIZE) {
         throw new Error(`No puedes tener más de ${MAX_STACK_SIZE} unidades del mismo ítem por ranura.`);
       }
+      /**
+       * @constant newQty
+       */
       const newQty = existing.quantity + safeQty;
+      /**
+       * @constant payload
+       */
       const payload = filterExisting("inventory", { quantity: newQty, updated_at: new Date().toISOString() });
       const { error } = await supabase
         .from("inventory")
@@ -88,6 +110,9 @@ async function addItem(characterId, creatorId, itemId, quantity = 1) {
 
       if (error) throw new Error(`Error actualizando inventario: ${error.message}`);
     } else {
+      /**
+       * @constant payload
+       */
       const payload = filterExisting("inventory", {
         character_id: characterId,
         item_id: itemId,
@@ -117,15 +142,27 @@ async function addItem(characterId, creatorId, itemId, quantity = 1) {
  */
 async function removeItem(characterId, creatorId, itemId, quantity = 1) {
   return withCharacterLock(characterId, async () => {
+    /**
+     * @constant safeQty
+     */
     const safeQty = parseQuantity(quantity);
 
+    /**
+     * @constant inv
+     */
     const inv = await getInventory(characterId);
+    /**
+     * @constant existing
+     */
     const existing = inv.find((row) => row.item_id === itemId);
 
     if (!existing || existing.quantity < safeQty) {
       throw new Error(`No tienes suficientes "${itemId}".`);
     }
 
+    /**
+     * @constant newQty
+     */
     const newQty = existing.quantity - safeQty;
 
     if (newQty <= 0) {
@@ -133,6 +170,9 @@ async function removeItem(characterId, creatorId, itemId, quantity = 1) {
 
       if (error) throw new Error(`Error eliminando ítem: ${error.message}`);
     } else {
+      /**
+       * @constant payload
+       */
       const payload = filterExisting("inventory", { quantity: newQty, updated_at: new Date().toISOString() });
       const { error } = await supabase
         .from("inventory")
@@ -155,9 +195,15 @@ async function removeItem(characterId, creatorId, itemId, quantity = 1) {
  * @returns {Promise<*>} Resultado del uso del item con efectos aplicados
  */
 async function useItem(creatorId, itemId) {
+  /**
+   * @constant character
+   */
   const character = await getActiveCharacter({ creatorId });
   if (!character) throw new Error("No tienes un personaje activo.");
 
+  /**
+   * @constant itemDef
+   */
   const itemDef = getItem(itemId);
   if (!itemDef) throw new Error(`El ítem "${itemId}" no existe.`);
 
@@ -166,24 +212,48 @@ async function useItem(creatorId, itemId) {
   }
 
   return withCharacterLock(character.id, async () => {
+    /**
+     * @constant inv
+     */
     const inv = await getInventory(character.id);
+    /**
+     * @constant entry
+     */
     const entry = inv.find((row) => row.item_id === itemId);
 
     if (!entry || entry.quantity < 1) {
       throw new Error(`No tienes "${itemDef.name}" en tu inventario.`);
     }
 
+    /**
+     * @constant item
+     */
     const item = createItem(itemId);
+    /**
+     * @constant results
+     */
     const results = item.trigger("Use", { character, creatorId });
 
+    /**
+     * @constant healResult
+     */
     const healResult = results.find((r) => r.type === "heal");
+    /**
+     * @constant healAmount
+     */
     const healAmount = healResult?.result?.amount || 0;
+    /**
+     * @constant maxHp
+     */
     const maxHp = (character.stats?.hp || 1) * 2;
 
     if (healAmount > 0 && character.hp_actual >= maxHp) {
       throw new Error("Tu personaje ya tiene la vida al máximo.");
     }
 
+    /**
+     * @constant payload
+     */
     const payload = filterExisting("inventory", { quantity: entry.quantity - 1, updated_at: new Date().toISOString() });
 
     if (entry.quantity - 1 <= 0) {
@@ -192,7 +262,15 @@ async function useItem(creatorId, itemId) {
       await supabase.from("inventory").update(payload).eq("character_id", character.id).eq("item_id", itemId);
     }
 
+    /**
+     * @variable hpBefore
+     * @type {any}
+     */
     let hpBefore = character.hp_actual;
+    /**
+     * @variable hpAfter
+     * @type {any}
+     */
     let hpAfter = character.hp_actual;
 
     for (const { type, result } of results) {
@@ -227,9 +305,24 @@ async function useItem(creatorId, itemId) {
  * @returns {Promise<string[]>} Lista de items añadidos
  */
 async function ensureTestKit(characterId, creatorId) {
+  /**
+   * @constant testItems
+   * @type {Array}
+   */
   const testItems = ["venda", "pocion", "tonico", "antidoto"];
+  /**
+   * @constant inv
+   */
   const inv = await getInventory(characterId);
+  /**
+   * @constant existingIds
+   * @type {Set}
+   */
   const existingIds = new Set(inv.map((row) => row.item_id));
+  /**
+   * @constant added
+   * @type {Array}
+   */
   const added = [];
 
   for (const itemId of testItems) {
@@ -253,9 +346,24 @@ async function ensureTestKit(characterId, creatorId) {
  * @returns {Promise<string[]>} Lista de items temporales añadidos
  */
 async function ensureTempTestKit(characterId, creatorId) {
+  /**
+   * @constant tempItems
+   * @type {Array}
+   */
   const tempItems = ["venda_temp", "pocion_temp", "tonico_temp"];
+  /**
+   * @constant inv
+   */
   const inv = await getInventory(characterId);
+  /**
+   * @constant existingIds
+   * @type {Set}
+   */
   const existingIds = new Set(inv.map((row) => row.item_id));
+  /**
+   * @constant added
+   * @type {Array}
+   */
   const added = [];
 
   for (const itemId of tempItems) {
@@ -278,10 +386,20 @@ async function ensureTempTestKit(characterId, creatorId) {
  * @returns {Promise<string[]>} Lista de items temporales eliminados
  */
 async function cleanupTemporalItems(characterId) {
+  /**
+   * @constant inv
+   */
   const inv = await getInventory(characterId);
+  /**
+   * @constant toRemove
+   * @type {Array}
+   */
   const toRemove = [];
 
   for (const entry of inv) {
+    /**
+     * @constant item
+     */
     const item = createItem(entry.item_id);
     if (item && item.modules.some((m) => m.constructor.type === "temporal")) {
       toRemove.push(entry.item_id);
@@ -289,7 +407,6 @@ async function cleanupTemporalItems(characterId) {
   }
 
   if (toRemove.length === 0) return [];
-
   const { error } = await supabase.from("inventory").delete().eq("character_id", characterId).in("item_id", toRemove);
 
   if (error) {

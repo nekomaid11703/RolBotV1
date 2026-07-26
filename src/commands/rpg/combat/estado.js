@@ -10,17 +10,35 @@ module.exports = {
   description: "Muestra el estado del combate activo del personaje.",
   category: "rpg",
 
+  /**
+   * Executes the .
+   * @async
+   * @param ctx - execution context.
+   * @returns {any}
+   */
   async execute(ctx) {
     try {
+      /**
+       * @constant activeChar
+       */
       const activeChar = await getActiveCharacter({ creatorId: ctx.sender });
       if (!activeChar) {
         return ctx.reply("❌ No tienes un personaje activo.");
       }
 
+      /**
+       * @constant session
+       */
       const session = findSessionByCharacter(activeChar.id);
       if (!session) {
+        /**
+         * @constant userSession
+         */
         const userSession = findSessionByUser(ctx.sender);
         if (userSession) {
+          /**
+           * @constant charInCombatName
+           */
           const charInCombatName =
             userSession.challenger.userId === ctx.sender
               ? userSession.challenger.character.name

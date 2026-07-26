@@ -18,10 +18,22 @@ class CombatAI {
       return null;
     }
 
+    /**
+     * @constant isChallengerAi
+     */
     const isChallengerAi = session.challenger.isBot;
+    /**
+     * @constant aiSlot
+     */
     const aiSlot = isChallengerAi ? session.challenger : session.defender;
+    /**
+     * @constant playerSlot
+     */
     const playerSlot = isChallengerAi ? session.defender : session.challenger;
 
+    /**
+     * @constant turnResult
+     */
     const turnResult = executeTurn(
       aiSlot.character,
       playerSlot.character,
@@ -32,14 +44,29 @@ class CombatAI {
       playerSlot.fatigue,
     );
 
+    /**
+     * @constant newAttackerHp
+     */
     const newAttackerHp = isChallengerAi ? turnResult.defenderHpAfter : session.challenger.hp;
+    /**
+     * @constant newDefenderHp
+     */
     const newDefenderHp = isChallengerAi ? session.defender.hp : turnResult.defenderHpAfter;
 
     advanceTurn(session.id, newAttackerHp, newDefenderHp);
 
     if (turnResult.ko) {
+      /**
+       * @constant winnerChar
+       */
       const winnerChar = aiSlot.character;
+      /**
+       * @constant loserChar
+       */
       const loserChar = playerSlot.character;
+      /**
+       * @constant xpReward
+       */
       const xpReward = calculateXpReward(winnerChar.nivel || 1, false);
 
       endSession(session.id, winnerChar.id);

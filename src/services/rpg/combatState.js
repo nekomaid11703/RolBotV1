@@ -2,9 +2,20 @@
 const { TURN_TIMEOUT_MS, MAX_ACTIVE_SESSIONS, SESSION_STATES } = require("../../config/combatConfig");
 const { supabase } = require("../../database/supabase");
 const { logError, logSystem } = require("../loggerService");
+/**
+ * @constant moduleRegistry
+ */
 const moduleRegistry = require("../../modules/moduleRegistry");
 
+/**
+ * @constant sessions
+ * @type {Map}
+ */
 const sessions = new Map();
+/**
+ * @variable cleanupInterval
+ * @type {any}
+ */
 let cleanupInterval = null;
 
 /**
@@ -13,7 +24,13 @@ let cleanupInterval = null;
  * @returns {*} Personaje dummy generado
  */
 function generateDummyCharacter(challengerChar) {
+  /**
+   * @constant stats
+   */
   const stats = challengerChar.stats || {};
+  /**
+   * @constant totalPoints
+   */
   const totalPoints =
     Number(stats.atk || 0) +
       Number(stats.def || 0) +
@@ -24,19 +41,42 @@ function generateDummyCharacter(challengerChar) {
       Number(stats.d_fulgor || 0) +
       Number(stats.r_fulgor || 0) || 20;
 
+  /**
+   * @constant keys
+   * @type {Array}
+   */
   const keys = ["atk", "def", "aspd", "ref", "mspd", "fulgor", "d_fulgor", "r_fulgor"];
+  /**
+   * @constant basePerStat
+   */
   const basePerStat = Math.max(1, Math.floor(totalPoints / keys.length));
 
+  /**
+   * @constant dummyStats
+   * @type {Object}
+   */
   const dummyStats = {};
   for (const key of keys) {
+    /**
+     * @constant variation
+     */
     const variation = Math.floor((Math.random() * 0.4 - 0.2) * basePerStat); // eslint-disable-line sonarjs/pseudo-random
     dummyStats[key] = Math.max(1, basePerStat + variation);
   }
 
+  /**
+   * @constant currentSum
+   */
   const currentSum = Object.values(dummyStats).reduce((a, b) => a + b, 0);
+  /**
+   * @constant diff
+   */
   const diff = totalPoints - currentSum;
   dummyStats.atk = Math.max(1, dummyStats.atk + diff);
 
+  /**
+   * @constant dummyHp
+   */
   const dummyHp = Math.max(1, Math.floor(totalPoints / keys.length));
 
   return {
@@ -54,11 +94,14 @@ function generateDummyCharacter(challengerChar) {
 
 /**
  * Guarda o actualiza una sesión de combate en la base de datos.
- * @param {*} session - Sesión de combate a persistir
- * @returns {Promise<void>}
+ * @param {*} session - - Sesión de combate a persistir.
  */
 async function saveSession(session) {
   try {
+    /**
+     * @constant payload
+     * @type {Object}
+     */
     const payload = {
       id: session.id,
       is_pve: session.isPvE,
@@ -72,7 +115,6 @@ async function saveSession(session) {
       winner_id: session.winnerId,
       rounds: session.rounds,
     };
-
     const { error } = await supabase.from("combat_sessions").upsert(payload, { onConflict: "id" });
     if (error) {
       logError({ source: "combatState.saveSession", error });
@@ -84,8 +126,7 @@ async function saveSession(session) {
 
 /**
  * Elimina una sesión de combate de la base de datos.
- * @param {string} sessionId - ID de la sesión a eliminar
- * @returns {Promise<void>}
+ * @param {string} sessionId - - ID de la sesión a eliminar.
  */
 async function deleteSessionFromDb(sessionId) {
   try {
@@ -161,6 +202,10 @@ function isSessionActive(session) {
  * @returns {number} Número de sesiones activas
  */
 function getActiveSessionCount() {
+  /**
+   * @variable count
+   * @type {number}
+   */
   let count = 0;
   for (const session of sessions.values()) {
     if (isSessionActive(session)) count++;
@@ -181,8 +226,15 @@ async function createSession(challengerId, defenderId, challengerChar, defenderC
     throw new Error(`L\u00edmite de ${MAX_ACTIVE_SESSIONS} sesiones activas alcanzado.`);
   }
 
+  /**
+   * @constant sessionId
+   */
   const sessionId = `${challengerChar.id}:${defenderChar.id}:${Date.now()}`;
 
+  /**
+   * @constant session
+   * @type {Object}
+   */
   const session = {
     id: sessionId,
     isPvE: false,
@@ -228,9 +280,19 @@ async function createDummySession(challengerId, challengerChar) {
     throw new Error(`L\u00edmite de ${MAX_ACTIVE_SESSIONS} sesiones activas alcanzado.`);
   }
 
+  /**
+   * @constant dummyChar
+   */
   const dummyChar = generateDummyCharacter(challengerChar);
+  /**
+   * @constant sessionId
+   */
   const sessionId = `${challengerChar.id}:dummy:${Date.now()}`;
 
+  /**
+   * @constant session
+   * @type {Object}
+   */
   const session = {
     id: sessionId,
     isPvE: true,
@@ -281,6 +343,9 @@ function getSession(sessionId) {
  */
 function findSessionByCharacter(characterId) {
   if (!characterId) return null;
+  /**
+   * @constant targetIdStr
+   */
   const targetIdStr = String(characterId);
 
   for (const session of sessions.values()) {
@@ -326,14 +391,31 @@ function findSessionByUser(userId) {
  * @returns {Array<*>} Resultados de la ejecución de módulos
  */
 function triggerModuleEvent(session, event, context = {}) {
+  /**
+   * @constant slots
+   * @type {Array}
+   */
   const slots = [session.challenger, session.defender];
+  /**
+   * @constant results
+   * @type {Array}
+   */
   const results = [];
   for (const slot of slots) {
+    /**
+     * @constant charModules
+     */
     const charModules = slot.character?.slots?.modules;
     if (!charModules) continue;
     for (const [type, config] of Object.entries(charModules)) {
+      /**
+       * @constant mod
+       */
       const mod = moduleRegistry.createInstance(type, config);
       if (mod && mod.constructor.triggers.includes(event)) {
+        /**
+         * @constant method
+         */
         const method = `on${event.charAt(0).toUpperCase()}${event.slice(1)}`;
         if (typeof mod[method] === "function") {
           results.push({ characterId: slot.characterId, type, result: mod[method](context) });
@@ -353,6 +435,9 @@ function triggerModuleEvent(session, event, context = {}) {
  * @returns {Promise<*|null>} Sesión actualizada o null si no existe
  */
 async function advanceTurn(sessionId, newAttackerHp, newDefenderHp, skipRound = false) {
+  /**
+   * @constant session
+   */
   const session = sessions.get(sessionId);
   if (!session || !isSessionActive(session)) return null;
 
@@ -390,6 +475,9 @@ async function advanceTurn(sessionId, newAttackerHp, newDefenderHp, skipRound = 
  * @returns {Promise<*|null>} Sesión actualizada o null si no existe
  */
 async function setPendingReaction(sessionId, pendingData) {
+  /**
+   * @constant session
+   */
   const session = sessions.get(sessionId);
   if (!session || !isSessionActive(session)) return null;
 
@@ -405,6 +493,9 @@ async function setPendingReaction(sessionId, pendingData) {
  * @returns {Promise<*|null>} Sesión actualizada o null si no existe
  */
 async function clearPendingReaction(sessionId) {
+  /**
+   * @constant session
+   */
   const session = sessions.get(sessionId);
   if (!session || !isSessionActive(session)) return null;
 
@@ -421,6 +512,9 @@ async function clearPendingReaction(sessionId) {
  * @returns {Promise<*|null>} Sesión finalizada o null si no existe
  */
 async function endSession(sessionId, winnerCharId) {
+  /**
+   * @constant session
+   */
   const session = sessions.get(sessionId);
   if (!session) return null;
 
@@ -430,9 +524,14 @@ async function endSession(sessionId, winnerCharId) {
   triggerModuleEvent(session, "CombatEnd", { session, winnerId: winnerCharId });
 
   await saveSession(session);
-
   const { cleanupTemporalItems } = require("./inventoryService");
+  /**
+   * @constant challengerId
+   */
   const challengerId = session.challenger.characterId;
+  /**
+   * @constant defenderId
+   */
   const defenderId = session.defender.characterId;
   await Promise.all([
     cleanupTemporalItems(challengerId).catch(() => {}),
@@ -449,6 +548,9 @@ async function endSession(sessionId, winnerCharId) {
  * @returns {Promise<*|null>} Sesión expirada o null si no existe
  */
 async function expireSession(sessionId, _reason) {
+  /**
+   * @constant session
+   */
   const session = sessions.get(sessionId);
   if (!session) return null;
 
@@ -461,8 +563,7 @@ async function expireSession(sessionId, _reason) {
 
 /**
  * Elimina una sesión de la memoria y la base de datos.
- * @param {string} sessionId - ID de la sesión a eliminar
- * @returns {Promise<void>}
+ * @param {string} sessionId - - ID de la sesión a eliminar.
  */
 async function removeSession(sessionId) {
   sessions.delete(sessionId);
@@ -471,11 +572,21 @@ async function removeSession(sessionId) {
 
 /**
  * Limpia sesiones expiradas y remueve sesiones inactivas de la memoria y BD.
- * @returns {Promise<void>}
  */
 async function cleanup() {
+  /**
+   * @constant now
+   */
   const now = Date.now();
+  /**
+   * @constant toExpire
+   * @type {Array}
+   */
   const toExpire = [];
+  /**
+   * @constant toRemove
+   * @type {Array}
+   */
   const toRemove = [];
 
   for (const [id, session] of sessions.entries()) {
@@ -483,6 +594,9 @@ async function cleanup() {
       toRemove.push(id);
       continue;
     }
+    /**
+     * @constant elapsed
+     */
     const elapsed = now - session.lastTurnAt;
     if (elapsed > TURN_TIMEOUT_MS) {
       toExpire.push(id);
@@ -505,9 +619,11 @@ async function cleanup() {
 
 /**
  * Restaura sesiones activas desde la base de datos al iniciar el bot.
- * @returns {Promise<void>}
  */
 async function restoreSessions() {
+  /**
+   * @constant loaded
+   */
   const loaded = await loadSessionsFromDb();
 
   for (const session of loaded) {
@@ -524,7 +640,6 @@ async function restoreSessions() {
 
 /**
  * Inicia el intervalo de limpieza automática de sesiones cada 5 minutos.
- * @returns {void}
  */
 function startCleanupInterval() {
   if (cleanupInterval) return;
@@ -538,7 +653,6 @@ function startCleanupInterval() {
 
 /**
  * Detiene el intervalo de limpieza automática de sesiones.
- * @returns {void}
  */
 function stopCleanupInterval() {
   if (cleanupInterval) {

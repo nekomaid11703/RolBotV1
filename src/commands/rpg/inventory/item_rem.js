@@ -13,8 +13,17 @@ module.exports = {
   category: "rpg",
   adminPerm: "items",
 
+  /**
+   * Executes the .
+   * @async
+   * @param ctx - execution context.
+   * @returns {any}
+   */
   async execute(ctx) {
     if (ctx.args.length === 0) {
+      /**
+       * @constant availableItems
+       */
       const availableItems = Object.values(ITEMS)
         .map((item) => `\u2022 \`${item.id}\` \u2014 ${item.icon} ${item.name}`)
         .join("\n");
@@ -32,17 +41,32 @@ module.exports = {
       );
     }
 
+    /**
+     * @constant itemIdInput
+     */
     const itemIdInput = ctx.args[0].toLowerCase();
+    /**
+     * @constant quantity
+     */
     const quantity = parseQuantity(ctx.args[1]);
 
     try {
+      /**
+       * @constant activeChar
+       */
       const activeChar = await getActiveCharacter({ creatorId: ctx.sender });
       if (!activeChar) {
         return ctx.reply("\u274C No tienes un personaje activo. Usa `/crear_pj`.");
       }
 
+      /**
+       * @constant item
+       */
       const item = getItem(itemIdInput);
       if (!item) {
+        /**
+         * @constant validIds
+         */
         const validIds = Object.keys(ITEMS)
           .map((id) => `\`${id}\``)
           .join(", ");
@@ -51,8 +75,15 @@ module.exports = {
         );
       }
 
+      /**
+       * @constant result
+       */
       const result = await removeItem(activeChar.id, activeChar.creator_id, item.id, quantity);
 
+      /**
+       * @constant lines
+       * @type {Array}
+       */
       const lines = [
         "",
         `\uD83D\uDC64  Personaje: *${activeChar.name}*`,

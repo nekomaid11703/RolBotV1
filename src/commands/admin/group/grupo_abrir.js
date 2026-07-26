@@ -11,6 +11,11 @@ module.exports = {
   groupOnly: true,
   adminOnly: true,
 
+  /**
+   * Executes the .
+   * @async
+   * @param ctx - execution context.
+   */
   async execute(ctx) {
     try {
       await openGroup(ctx.sock, ctx.from);

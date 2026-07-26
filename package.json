@@ -57,6 +57,7 @@
     "eslint-plugin-sonarjs": "^4.2.0",
     "globals": "^17.7.0",
     "husky": "^9.1.7",
+    "jsdoc-scribe": "^2.4.8",
     "knip": "^6.26.0",
     "lint-staged": "^17.0.8",
     "nodemon": "^3.1.14",

@@ -13,13 +13,25 @@ module.exports = {
   description: "Intenta esquivar un ataque en curso si tus estadísticas lo permiten.",
   category: "rpg",
 
+  /**
+   * Executes the .
+   * @async
+   * @param ctx - execution context.
+   * @returns {any}
+   */
   async execute(ctx) {
     try {
+      /**
+       * @constant activeChar
+       */
       const activeChar = await getActiveCharacter({ creatorId: ctx.sender });
       if (!activeChar) {
         return ctx.reply("❌ No tienes un personaje activo.");
       }
 
+      /**
+       * @constant session
+       */
       const session = findSessionByCharacter(activeChar.id);
       if (!session) {
         return ctx.reply("\u274C No est\u00E1s en combate.");
@@ -29,18 +41,36 @@ module.exports = {
         return ctx.reply("\u274C No hay ataque pendiente. Usa `/estado`.");
       }
 
+      /**
+       * @constant pending
+       */
       const pending = session.pendingAttack;
       if (String(pending.defenderChar.id) !== String(activeChar.id)) {
         return ctx.reply("\u274C No eres el defensor.");
       }
 
+      /**
+       * @constant isDefenderChallenger
+       */
       const isDefenderChallenger = String(session.challenger.characterId) === String(activeChar.id);
+      /**
+       * @constant defenderSlot
+       */
       const defenderSlot = isDefenderChallenger ? session.challenger : session.defender;
+      /**
+       * @constant attackerSlot
+       */
       const attackerSlot = isDefenderChallenger ? session.defender : session.challenger;
 
+      /**
+       * @constant dodgeFatigueCost
+       */
       const dodgeFatigueCost = calcFatigueCost("dodge", defenderSlot.character.stats);
       defenderSlot.fatigue = capFatigue(defenderSlot.fatigue + dodgeFatigueCost);
 
+      /**
+       * @constant reactionResult
+       */
       const reactionResult = executeReaction(
         "dodge",
         pending.baseDamage,
@@ -52,11 +82,21 @@ module.exports = {
         attackerSlot.fatigue,
       );
 
+      /**
+       * @constant newAttackerHp
+       */
       const newAttackerHp = pending.isChallengerAttacking ? session.challenger.hp : reactionResult.defenderHpAfter;
+      /**
+       * @constant newDefenderHp
+       */
       const newDefenderHp = pending.isChallengerAttacking ? reactionResult.defenderHpAfter : session.defender.hp;
 
       advanceTurn(session.id, newAttackerHp, newDefenderHp);
 
+      /**
+       * @constant lines
+       * @type {Array}
+       */
       const lines = [];
       lines.push("");
       if (reactionResult.dodged) {
@@ -71,7 +111,13 @@ module.exports = {
       lines.push(`\u26A1 ${buildFatigueBar(defenderSlot.fatigue, defenderSlot.character.stats.def || 1)}`);
 
       if (reactionResult.ko) {
+        /**
+         * @constant winnerChar
+         */
         const winnerChar = pending.attackerChar;
+        /**
+         * @constant xpReward
+         */
         const xpReward = calculateXpReward(activeChar.nivel || 1, true);
         endSession(session.id, winnerChar.id);
 
@@ -88,6 +134,9 @@ module.exports = {
         return ctx.reply(box("\uD83D\uDCA8 ESQUIVA", lines));
       }
 
+      /**
+       * @constant nextTurnCharName
+       */
       const nextTurnCharName =
         session.currentTurnCharId === session.challenger.characterId
           ? session.challenger.character.name

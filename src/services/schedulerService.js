@@ -8,7 +8,7 @@ let pendingTimer = null;
 let currentSock = null;
 
 /**
- *
+ * TODO: describe what this does.
  */
 function stopMidnightReview() {
   if (pendingTimer) {
@@ -19,7 +19,6 @@ function stopMidnightReview() {
 }
 
 /**
- *
  * @param sock
  */
 function startMidnightReview(sock) {
@@ -29,14 +28,24 @@ function startMidnightReview(sock) {
 }
 
 /**
- *
  * @param sock
  */
 function scheduleNext(sock) {
+  /**
+   * @constant now
+   * @type {Date}
+   */
   const now = new Date();
+  /**
+   * @constant tomorrow
+   * @type {Date}
+   */
   const tomorrow = new Date(now);
   tomorrow.setDate(tomorrow.getDate() + 1);
   tomorrow.setHours(0, 0, 0, 0);
+  /**
+   * @constant msUntilMidnight
+   */
   const msUntilMidnight = tomorrow - now;
 
   if (msUntilMidnight <= 0) {

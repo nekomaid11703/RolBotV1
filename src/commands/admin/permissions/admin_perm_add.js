@@ -8,9 +8,20 @@ const { box } = require("../../../utils/boxUtils");
 const { formatError } = require("../../../utils/formatErrorUtils");
 const { formatCommandUsage } = require("../../../utils/formatCommandUtils");
 
+/**
+ * @constant CATEGORIES
+ * @type {Array}
+ */
 const CATEGORIES = ["economy", "items"];
+/**
+ * @constant CATEGORY_DISPLAY
+ * @type {object}
+ */
 const CATEGORY_DISPLAY = { economy: "econom\u00eda", items: "\u00edtems" };
 
+/**
+ * @constant usageMessage
+ */
 const usageMessage = formatCommandUsage({
   icon: "\uD83D\uDEE1\uFE0F",
   title: "Dar permiso de administrador",
@@ -30,8 +41,20 @@ module.exports = {
   category: "admin",
   creatorOnly: true,
 
+  /**
+   * Executes the .
+   * @async
+   * @param ctx - execution context.
+   * @returns {any}
+   */
   async execute(ctx) {
+    /**
+     * @constant targetId
+     */
     const targetId = getFirstMentionedJid(ctx);
+    /**
+     * @constant category
+     */
     const category = (ctx.args.find((a) => !a.startsWith("@") && CATEGORIES.includes(a)) || "").toLowerCase();
 
     if (!targetId || !category) {
@@ -52,6 +75,9 @@ module.exports = {
     }
 
     try {
+      /**
+       * @constant targetName
+       */
       const targetName = await resolveTargetDisplayName(ctx, targetId);
 
       await setAdminForCategory({

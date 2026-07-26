@@ -1,4 +1,10 @@
+/**
+ * @constant fs
+ */
 const fs = require("fs");
+/**
+ * @constant path
+ */
 const path = require("path");
 
 /** @type {Map<string, *>} */
@@ -19,9 +25,8 @@ function normalizeName(value) {
 
 /**
  * Register a command and its aliases.
- * @param {*} command - Command object with name, execute, and optional aliases
- * @param {string} fileName - Source file name for error messages
- * @returns {void}
+ * @param {*} command - - Command object with name, execute, and optional aliases.
+ * @param {string} fileName - - Source file name for error messages.
  */
 function registerCommand(command, fileName) {
   if (!command?.name) {
@@ -32,6 +37,9 @@ function registerCommand(command, fileName) {
     throw new Error(`Comando inválido (${fileName}): falta la función "execute".`);
   }
 
+  /**
+   * @constant commandName
+   */
   const commandName = normalizeName(command.name);
 
   if (!commandName) {
@@ -43,6 +51,9 @@ function registerCommand(command, fileName) {
   }
 
   if (aliases.has(commandName)) {
+    /**
+     * @constant existingCommand
+     */
     const existingCommand = aliases.get(commandName);
     throw new Error(
       `El nombre del comando "${commandName}" (${fileName}) entra en conflicto con el alias del comando "${existingCommand.name}".`,
@@ -60,6 +71,9 @@ function registerCommand(command, fileName) {
       throw new Error(`Alias inválido en (${fileName}): todos los aliases deben ser texto.`);
     }
 
+    /**
+     * @constant aliasName
+     */
     const aliasName = normalizeName(alias);
 
     if (!aliasName) {
@@ -67,6 +81,9 @@ function registerCommand(command, fileName) {
     }
 
     if (commands.has(aliasName)) {
+      /**
+       * @constant existingCommand
+       */
       const existingCommand = commands.get(aliasName);
       if (existingCommand !== command) {
         throw new Error(
@@ -77,6 +94,9 @@ function registerCommand(command, fileName) {
     }
 
     if (aliases.has(aliasName)) {
+      /**
+       * @constant existingCommand
+       */
       const existingCommand = aliases.get(aliasName);
       throw new Error(
         `Alias duplicado detectado: "${aliasName}" usado por "${existingCommand.name}" y "${commandName}".`,
@@ -95,9 +115,18 @@ function registerCommand(command, fileName) {
 function getJsFilesRecursively(dir) {
   /** @type {string[]} */
   let results = [];
+  /**
+   * @constant list
+   */
   const list = fs.readdirSync(dir);
   for (const file of list) {
+    /**
+     * @constant filePath
+     */
     const filePath = path.join(dir, file);
+    /**
+     * @constant stat
+     */
     const stat = fs.statSync(filePath);
     if (stat && stat.isDirectory()) {
       results = results.concat(getJsFilesRecursively(filePath));

@@ -9,6 +9,9 @@ const { box } = require("../../utils/boxUtils");
 const { formatError } = require("../../utils/formatErrorUtils");
 const { formatCommandUsage } = require("../../utils/formatCommandUtils");
 
+/**
+ * @constant usageMessage
+ */
 const usageMessage = formatCommandUsage({
   icon: "💸",
   title: "Transferir stelas",
@@ -24,7 +27,16 @@ module.exports = {
   description: "Transfiere tus stelas a otro usuario.",
   category: "economia",
 
+  /**
+   * Executes the .
+   * @async
+   * @param ctx - execution context.
+   * @returns {any}
+   */
   async execute(ctx) {
+    /**
+     * @constant targetId
+     */
     const targetId = getFirstMentionedJid(ctx);
 
     if (!targetId) {
@@ -35,6 +47,9 @@ module.exports = {
       return ctx.reply(formatError("No puedes enviarte stelas a ti mismo."));
     }
 
+    /**
+     * @constant amount
+     */
     const amount = extractAmountFromArgs(ctx.args);
 
     if (!amount) {
@@ -42,11 +57,17 @@ module.exports = {
     }
 
     try {
+      /**
+       * @constant targetProfile
+       */
       const targetProfile = await getUserProfile({ creatorId: targetId });
       if (!targetProfile) {
         return ctx.reply(formatError("El usuario destinatario no tiene perfil registrado."));
       }
 
+      /**
+       * @constant targetName
+       */
       const targetName = await resolveTargetDisplayName(ctx, targetId);
 
       await transferMoney(ctx.sender, targetId, amount, {
@@ -60,6 +81,9 @@ module.exports = {
         },
       });
 
+      /**
+       * @constant senderBalance
+       */
       const senderBalance = await getBalance(ctx.sender);
 
       await ctx.reply(

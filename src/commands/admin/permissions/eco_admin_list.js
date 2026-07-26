@@ -10,15 +10,33 @@ module.exports = {
   category: "admin",
   creatorOnly: true,
 
+  /**
+   * Executes the .
+   * @async
+   * @param ctx - execution context.
+   */
   async execute(ctx) {
+    /**
+     * @constant admins
+     */
     const admins = await listEconomyAdmins();
+    /**
+     * @constant owners
+     */
     const owners = getOwnerRecords();
 
+    /**
+     * @constant ownerNames
+     */
     const ownerNames = owners.map((owner) => ({
       name: owner.displayName || "Creador",
       phone: owner.phone,
     }));
 
+    /**
+     * @constant lines
+     * @type {Array}
+     */
     const lines = [];
 
     lines.push("");
@@ -39,6 +57,9 @@ module.exports = {
       lines.push("  • Ninguno");
     } else {
       admins.forEach((admin, index) => {
+        /**
+         * @constant date
+         */
         const date = admin.grantedAt
           ? new Date(admin.grantedAt).toLocaleString("es-CO", { dateStyle: "short", timeStyle: "short" })
           : "fecha desconocida";

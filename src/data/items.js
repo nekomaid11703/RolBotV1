@@ -1,3 +1,7 @@
+/**
+ * @constant ITEMS
+ * @type {Object}
+ */
 const ITEMS = {
   venda: {
     id: "venda",

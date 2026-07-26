@@ -1,5 +1,15 @@
 // @ts-nocheck
 const { getActiveCharacter, setHp } = require("../../../services/characterService");
+/**
+ * @constant {
+  findSessionByCharacter,
+  findSessionByUser,
+  advanceTurn,
+  setPendingReaction,
+  endSession,
+}
+ * @type {any}
+ */
 const {
   findSessionByCharacter,
   findSessionByUser,
@@ -19,17 +29,35 @@ module.exports = {
   description: "Recupera fatiga saltándote tu turno. Más efectivo cuanto menos fatigado estés.",
   category: "rpg",
 
+  /**
+   * Executes the .
+   * @async
+   * @param ctx - execution context.
+   * @returns {any}
+   */
   async execute(ctx) {
     try {
+      /**
+       * @constant activeChar
+       */
       const activeChar = await getActiveCharacter({ creatorId: ctx.sender });
       if (!activeChar) {
         return ctx.reply("❌ No tienes un personaje activo.");
       }
 
+      /**
+       * @constant session
+       */
       const session = findSessionByCharacter(activeChar.id);
       if (!session) {
+        /**
+         * @constant userSession
+         */
         const userSession = findSessionByUser(ctx.sender);
         if (userSession) {
+          /**
+           * @constant charInCombatName
+           */
           const charInCombatName =
             userSession.challenger.userId === ctx.sender
               ? userSession.challenger.character.name
@@ -51,13 +79,29 @@ module.exports = {
         return ctx.reply("\u274C No es tu turno. Espera.");
       }
 
+      /**
+       * @constant isChallenger
+       */
       const isChallenger = String(session.challenger.characterId) === String(activeChar.id);
+      /**
+       * @constant resterSlot
+       */
       const resterSlot = isChallenger ? session.challenger : session.defender;
+      /**
+       * @constant opponentSlot
+       */
       const opponentSlot = isChallenger ? session.defender : session.challenger;
 
+      /**
+       * @constant recovery
+       */
       const recovery = calcFatigueRecovery("rest", resterSlot.fatigue, resterSlot.character.stats.def || 1);
       resterSlot.fatigue = capFatigue(resterSlot.fatigue - recovery);
 
+      /**
+       * @constant lines
+       * @type {Array}
+       */
       const lines = [];
       lines.push("");
       lines.push(`\uD83D\uDCA4 *${resterSlot.character.name}* descansa`);
@@ -66,6 +110,9 @@ module.exports = {
 
       // En PvE, el dummy contraataca automáticamente
       if (session.isPvE) {
+        /**
+         * @constant dummyAttack
+         */
         const dummyAttack = executeAttack(
           opponentSlot.character,
           resterSlot.character,
@@ -77,6 +124,9 @@ module.exports = {
 
         if (dummyAttack.canReact) {
           const { evaluateDodgeFeasibility } = require("../../../services/rpg/combatEngine");
+          /**
+           * @constant canDodge
+           */
           const canDodge = evaluateDodgeFeasibility(
             resterSlot.character.stats,
             resterSlot.hp,
@@ -118,6 +168,9 @@ module.exports = {
         }
 
         // Si no puede reaccionar, recibe el daño completo
+        /**
+         * @constant dummyReaction
+         */
         const dummyReaction = executeReaction(
           "none",
           dummyAttack.baseDamage,
@@ -129,7 +182,13 @@ module.exports = {
           opponentSlot.fatigue,
         );
 
+        /**
+         * @constant finalAttackerHp
+         */
         const finalAttackerHp = isChallenger ? dummyReaction.defenderHpAfter : opponentSlot.hp;
+        /**
+         * @constant finalDefenderHp
+         */
         const finalDefenderHp = isChallenger ? opponentSlot.hp : dummyReaction.defenderHpAfter;
 
         advanceTurn(session.id, finalAttackerHp, finalDefenderHp);
@@ -163,6 +222,9 @@ module.exports = {
 
       lines.push("");
       lines.push("\u2726 \u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501 \u2726");
+      /**
+       * @constant nextTurnCharName
+       */
       const nextTurnCharName =
         session.currentTurnCharId === session.challenger.characterId
           ? session.challenger.character.name

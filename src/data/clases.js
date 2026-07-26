@@ -1,6 +1,10 @@
 // Catálogo de clases — v1.0 Combat Update
 // Las stats base por clase son referencia para futuras actualizaciones.
 
+/**
+ * @constant CLASES
+ * @type {Object}
+ */
 const CLASES = {
   civil: {
     id: "civil",

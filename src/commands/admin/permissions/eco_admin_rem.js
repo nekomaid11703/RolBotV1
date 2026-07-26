@@ -8,6 +8,9 @@ const { box } = require("../../../utils/boxUtils");
 const { formatError } = require("../../../utils/formatErrorUtils");
 const { formatCommandUsage } = require("../../../utils/formatCommandUtils");
 
+/**
+ * @constant usageMessage
+ */
 const usageMessage = formatCommandUsage({
   icon: "🛡️",
   title: "Quitar permiso de economia",
@@ -24,7 +27,16 @@ module.exports = {
   category: "admin",
   creatorOnly: true,
 
+  /**
+   * Executes the .
+   * @async
+   * @param ctx - execution context.
+   * @returns {any}
+   */
   async execute(ctx) {
+    /**
+     * @constant targetId
+     */
     const targetId = getFirstMentionedJid(ctx);
 
     if (!targetId) {
@@ -35,7 +47,13 @@ module.exports = {
       return ctx.reply(formatError("No puedes quitar permisos de economia al creador."));
     }
 
+    /**
+     * @constant current
+     */
     const current = await isEconomyAdmin(targetId);
+    /**
+     * @constant targetName
+     */
     const targetName = await resolveTargetDisplayName(ctx, targetId);
 
     if (!current) {

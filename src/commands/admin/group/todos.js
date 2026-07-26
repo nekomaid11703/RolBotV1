@@ -13,24 +13,53 @@ module.exports = {
   groupOnly: true,
   adminOnly: true,
 
+  /**
+   * Executes the .
+   * @async
+   * @param ctx - execution context.
+   * @returns {any}
+   */
   async execute(ctx) {
     try {
+      /**
+       * @constant metadata
+       */
       const metadata = await getGroupMetadata(ctx.sock, ctx.from);
+      /**
+       * @constant participants
+       */
       const participants = metadata?.participants || [];
 
       if (!participants.length) {
         return ctx.reply("❌ No se pudieron obtener los miembros del grupo.");
       }
 
+      /**
+       * @constant memberJids
+       */
       const memberJids = participants
         .map((p) => p.id || p.jid || "")
         .filter(Boolean)
         .filter((jid) => jid !== ctx.sock?.user?.id);
 
+      /**
+       * @constant lines
+       * @type {Array}
+       */
       const lines = [];
+      /**
+       * @variable chunk
+       * @type {string}
+       */
       let chunk = "";
       for (const jid of memberJids) {
+        /**
+         * @constant tag
+         */
         const tag = formatRealMentionTag(jid);
+        /**
+         * @constant next
+         */
         const next = chunk ? `${chunk} ${tag}` : tag;
         if (next.length > 2000) {
           lines.push(chunk);
@@ -41,6 +70,9 @@ module.exports = {
       }
       if (chunk) lines.push(chunk);
 
+      /**
+       * @constant firstLine
+       */
       const firstLine = lines.shift() || "";
 
       await ctx.reply(

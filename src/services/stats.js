@@ -13,7 +13,6 @@ const stats = {
 
 /**
  * Increment the message counter.
- * @returns {void}
  */
 function incrementMessages() {
   stats.messagesReceived++;
@@ -22,7 +21,6 @@ function incrementMessages() {
 
 /**
  * Increment the command counter.
- * @returns {void}
  */
 function incrementCommands() {
   stats.commandsExecuted++;
@@ -30,16 +28,14 @@ function incrementCommands() {
 
 /**
  * Increment the error counter.
- * @returns {void}
  */
 function incrementErrors() {
   stats.errors++;
 }
 
 /**
- * @param {string} type - Key or event type
- * @param {string} text - Text content
- * @returns {void}
+ * @param {string} type - - Key or event type.
+ * @param {string} text - - Text content.
  */
 function addEvent(type, text) {
   stats.lastEvents.unshift({ time: new Date(), type, text });
@@ -59,18 +55,33 @@ function getUptime() {
  * @returns {number} - Result value
  */
 function getMemory() {
+  /**
+   * @constant usage
+   */
   const usage = process.memoryUsage();
   return Math.round((usage.rss / 1024 / 1024) * 10) / 10;
 }
 
 /**
- * @param {number} ms - Duration in milliseconds
- * @returns {string} Formatted time string
+ * @param {number} ms - - Duration in milliseconds.
+ * @returns {string} Formatted time string.
  */
 function formatDuration(ms) {
+  /**
+   * @constant s
+   */
   const s = Math.floor(ms / 1000);
+  /**
+   * @constant h
+   */
   const h = String(Math.floor(s / 3600)).padStart(2, "0");
+  /**
+   * @constant m
+   */
   const m = String(Math.floor((s % 3600) / 60)).padStart(2, "0");
+  /**
+   * @constant sec
+   */
   const sec = String(s % 60).padStart(2, "0");
   return `${h}:${m}:${sec}`;
 }

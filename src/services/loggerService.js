@@ -1,22 +1,46 @@
+/**
+ * @constant fsp
+ */
 const fsp = require("fs/promises");
+/**
+ * @constant path
+ */
 const path = require("path");
 
+/**
+ * @constant LOGS_DIR
+ */
 const LOGS_DIR = path.join(__dirname, "../../logs");
 
+/**
+ * @constant LOG_PREFIX
+ * @type {Object}
+ */
 const LOG_PREFIX = {
   system: "system",
   command: "command",
   error: "error",
 };
 
+/**
+ * @constant writeQueues
+ * @type {Map}
+ */
 const writeQueues = new Map();
+/**
+ * @constant MAX_LOG_DAYS
+ * @type {number}
+ */
 const MAX_LOG_DAYS = 30;
 
 /**
- * @param {keyof typeof LOG_PREFIX | string} type - Key or event type
- * @returns {string} - Formatted value
+ * @param {keyof typeof LOG_PREFIX | string} type - - Key or event type.
+ * @returns {string} - Formatted value.
  */
 function getLogFileName(type) {
+  /**
+   * @constant date
+   */
   const date = new Date().toISOString().slice(0, 10);
   return `${LOG_PREFIX[/** @type {keyof typeof LOG_PREFIX} */ (type)] || type}-${date}.log`;
 }
@@ -31,8 +55,8 @@ function timestamp(date = new Date()) {
 }
 
 /**
- * @param {unknown} value - Value to process
- * @returns {string} - Formatted value
+ * @param {unknown} value - - Value to process.
+ * @returns {string} - Formatted value.
  */
 function safeStringify(value) {
   if (value === undefined) return "undefined";
@@ -49,8 +73,8 @@ function safeStringify(value) {
 }
 
 /**
- * @param {string[]} lines - Lines of content
- * @returns {string} - Formatted value
+ * @param {string[]} lines - - Lines of content.
+ * @returns {string} - Formatted value.
  */
 function section(lines) {
   return lines.filter((l) => l !== undefined && l !== null && l !== "").join("\n");
@@ -58,22 +82,33 @@ function section(lines) {
 
 /**
  * Ensure the logs directory exists.
- * @returns {Promise<void>}
  */
 async function ensureLogsDir() {
   await fsp.mkdir(LOGS_DIR, { recursive: true });
 }
 
 /**
- *
+ * TODO: describe what this does.
  */
 async function cleanOldLogs() {
   try {
+    /**
+     * @constant files
+     */
     const files = await fsp.readdir(LOGS_DIR);
+    /**
+     * @constant cutoff
+     */
     const cutoff = Date.now() - MAX_LOG_DAYS * 86400000;
     for (const file of files) {
+      /**
+       * @constant filePath
+       */
       const filePath = path.join(LOGS_DIR, file);
       try {
+        /**
+         * @constant stat
+         */
         const stat = await fsp.stat(filePath);
         if (stat.mtimeMs < cutoff) await fsp.unlink(filePath);
       } catch {
@@ -86,13 +121,22 @@ async function cleanOldLogs() {
 }
 
 /**
- * @param {string} fileName - File name
- * @param {string} content - Content to write
- * @returns {Promise<unknown>} - Promise resolving to the result
+ * @param {string} fileName - - File name.
+ * @param {string} content - - Content to write.
+ * @returns {Promise<unknown>} - Promise resolving to the result.
  */
 async function appendToLog(fileName, content) {
+  /**
+   * @constant filePath
+   */
   const filePath = path.join(LOGS_DIR, fileName);
+  /**
+   * @constant previous
+   */
   const previous = writeQueues.get(filePath) || Promise.resolve();
+  /**
+   * @constant next
+   */
   const next = previous
     .then(async () => {
       await ensureLogsDir();
@@ -107,18 +151,21 @@ async function appendToLog(fileName, content) {
 }
 
 /**
- * @param {string} type - Key or event type
- * @param {string} title - Log title
- * @param {string[]} lines - Lines of content
+ * @param {string} type - - Key or event type.
+ * @param {string} title - - Log title.
+ * @param {string[]} lines - - Lines of content.
  */
 async function writeLog(type, title, lines) {
+  /**
+   * @constant content
+   */
   const content = `[${timestamp()}] ${title}\n${section(lines)}\n\n`;
   await appendToLog(getLogFileName(type), content);
 }
 
 /**
- * @param {string} message - Message to process
- * @param {object} [details] - Additional details
+ * @param {string} message - - Message to process.
+ * @param {object} [details] - - Additional details.
  */
 async function logSystem(message, details = {}) {
   await writeLog("system", "SYSTEM", [
@@ -127,7 +174,30 @@ async function logSystem(message, details = {}) {
   ]);
 }
 
-/** @param {{ userId: string, userName: string, userPhone?: string|null, groupId: string, inputCommand: string, resolvedCommand: string, args?: string[], status?: string, reason?: string }} opts - Options object */
+/**
+ * @param {{ userId: string, userName: string, userPhone?: string|null, groupId: string, inputCommand: string, resolvedCommand: string, args?: string[], status?: string, reason?: string }} opts - Options object.
+ * @param {
+  userId,
+  userName,
+  userPhone = null,
+  groupId,
+  inputCommand,
+  resolvedCommand,
+  args = [],
+  status = "success",
+  reason = "",
+} - TODO: describe parameter "{
+  userId,
+  userName,
+  userPhone = null,
+  groupId,
+  inputCommand,
+  resolvedCommand,
+  args = [],
+  status = "success",
+  reason = "",
+}".
+ */
 async function logCommand({
   userId,
   userName,
@@ -152,8 +222,14 @@ async function logCommand({
   ]);
 }
 
-/** @param {{ source?: string, userId?: string|null, userName?: string|null, groupId?: string|null, error: unknown, context?: object }} opts - Options object */
+/**
+ * @param {{ source?: string, userId?: string|null, userName?: string|null, groupId?: string|null, error: unknown, context?: object }} opts - Options object.
+ * @param { source = "unknown", userId = null, userName = null, groupId = null, error, context = {} } - TODO: describe parameter "{ source = "unknown", userId = null, userName = null, groupId = null, error, context = {} }".
+ */
 async function logError({ source = "unknown", userId = null, userName = null, groupId = null, error, context = {} }) {
+  /**
+   * @constant normalizedError
+   */
   const normalizedError = error instanceof Error ? error : new Error(safeStringify(error));
   await writeLog("error", "ERROR", [
     `SOURCE: ${safeStringify(source)}`,
@@ -169,19 +245,35 @@ async function logError({ source = "unknown", userId = null, userName = null, gr
 
 /**
  * Parse error entries from log content.
- * @param {string} content - Raw log file content
- * @param {number} limit - Max entries to return
+ * @param {string} content - - Raw log file content.
+ * @param {number} [limit] - - Max entries to return.
  * @returns {Array<{time: string, source: string, message: string}>}
  */
 function parseErrorEntries(content, limit = 5) {
+  /**
+   * @constant entries
+   * @type {Array}
+   */
   const entries = [];
+  /**
+   * @constant blocks
+   */
   const blocks = content.split(/\n\n+/);
 
   for (const block of blocks) {
     if (!block.includes("] ERROR")) continue;
 
+    /**
+     * @constant timeMatch
+     */
     const timeMatch = block.match(/^\[(.+?)\]/);
+    /**
+     * @constant sourceMatch
+     */
     const sourceMatch = block.match(/SOURCE:\s*(.+)/);
+    /**
+     * @constant messageMatch
+     */
     const messageMatch = block.match(/MESSAGE:\s*(.+)/);
 
     if (timeMatch) {
@@ -200,13 +292,22 @@ function parseErrorEntries(content, limit = 5) {
 
 /**
  * Get recent errors from today's error log.
- * @param {number} limit - Max errors to return
+ * @param {number} [limit] - - Max errors to return.
  * @returns {Promise<Array<{time: string, source: string, message: string}>>}
  */
 async function getRecentErrors(limit = 5) {
   try {
+    /**
+     * @constant fileName
+     */
     const fileName = getLogFileName("error");
+    /**
+     * @constant filePath
+     */
     const filePath = path.join(LOGS_DIR, fileName);
+    /**
+     * @constant content
+     */
     const content = await fsp.readFile(filePath, "utf8");
     return parseErrorEntries(content, limit);
   } catch {
@@ -216,14 +317,23 @@ async function getRecentErrors(limit = 5) {
 
 /**
  * Get recent errors from a specific date's log.
- * @param {string} dateStr - Date in YYYY-MM-DD format
- * @param {number} limit - Max errors to return
+ * @param {string} dateStr - - Date in YYYY-MM-DD format.
+ * @param {number} [limit] - - Max errors to return.
  * @returns {Promise<Array<{time: string, source: string, message: string}>>}
  */
 async function getErrorsByDate(dateStr, limit = 10) {
   try {
+    /**
+     * @constant fileName
+     */
     const fileName = `error-${dateStr}.log`;
+    /**
+     * @constant filePath
+     */
     const filePath = path.join(LOGS_DIR, fileName);
+    /**
+     * @constant content
+     */
     const content = await fsp.readFile(filePath, "utf8");
     return parseErrorEntries(content, limit);
   } catch {

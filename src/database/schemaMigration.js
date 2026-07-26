@@ -3,8 +3,16 @@ const { supabase } = require("./supabase");
 const { logSystem } = require("../services/loggerService");
 const { setStoredVersion } = require("./schemaVersion");
 
+/**
+ * @constant CURRENT_VERSION
+ * @type {string}
+ */
 const CURRENT_VERSION = "2.1.0";
 
+/**
+ * @constant DESIRED_SCHEMA
+ * @type {Object}
+ */
 const DESIRED_SCHEMA = {
   players: ["phone", "username", "money", "activity_messages", "activity_commands", "last_active_at"],
   characters: [
@@ -43,6 +51,10 @@ const DESIRED_SCHEMA = {
   ],
 };
 
+/**
+ * @constant TABLE_CREATE_SQL
+ * @type {Object}
+ */
 const TABLE_CREATE_SQL = {
   combat_sessions: `
     CREATE TABLE IF NOT EXISTS "combat_sessions" (
@@ -105,10 +117,20 @@ const COLUMN_TYPES = {
  * @returns {Promise<Array<{table: string, column: string|null, reason: string}>>} List of missing column descriptors
  */
 async function detectMissingColumns() {
+  /**
+   * @constant registry
+   */
   const registry = await discover(true);
+  /**
+   * @constant missing
+   * @type {Array}
+   */
   const missing = [];
 
   for (const [table, desiredCols] of Object.entries(DESIRED_SCHEMA)) {
+    /**
+     * @constant tableCols
+     */
     const tableCols = registry[table];
     if (!tableCols) {
       missing.push({ table, column: null, reason: "tabla_no_accesible" });
@@ -129,13 +151,23 @@ async function detectMissingColumns() {
  * @returns {Promise<{sql: string[], missing: Array<*>}>} Object with SQL statements and missing column info
  */
 async function generateMigrationSQL() {
+  /**
+   * @constant missing
+   */
   const missing = await detectMissingColumns();
   if (missing.length === 0) return { sql: [], missing };
 
+  /**
+   * @constant statements
+   * @type {Array}
+   */
   const statements = [];
 
   for (const item of missing) {
     if (item.reason !== "no_existe") continue;
+    /**
+     * @constant typeDef
+     */
     const typeDef = COLUMN_TYPES[`${item.table}.${item.column}`];
     if (!typeDef) continue;
     statements.push(`ALTER TABLE "${item.table}" ADD COLUMN IF NOT EXISTS "${item.column}" ${typeDef};`);
@@ -177,7 +209,14 @@ async function logMigrationInfo() {
  * @returns {Promise<string[]>} List of created table names
  */
 async function createMissingTables() {
+  /**
+   * @constant registry
+   */
   const registry = await discover(true);
+  /**
+   * @constant created
+   * @type {Array}
+   */
   const created = [];
 
   for (const [table, sql] of Object.entries(TABLE_CREATE_SQL)) {
@@ -205,6 +244,9 @@ async function createMissingTables() {
  */
 async function runStartupMigration() {
   await createMissingTables();
+  /**
+   * @constant result
+   */
   const result = await logMigrationInfo();
   await setStoredVersion(CURRENT_VERSION);
   return result;

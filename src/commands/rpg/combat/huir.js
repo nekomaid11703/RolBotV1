@@ -1,5 +1,15 @@
 // @ts-nocheck
 const { getActiveCharacter, setHp } = require("../../../services/characterService");
+/**
+ * @constant {
+  findSessionByCharacter,
+  findSessionByUser,
+  endSession,
+  advanceTurn,
+  setPendingReaction,
+}
+ * @type {any}
+ */
 const {
   findSessionByCharacter,
   findSessionByUser,
@@ -9,6 +19,15 @@ const {
 } = require("../../../services/rpg/combatState");
 const { rollFlee, executeAttack, executeReaction } = require("../../../services/rpg/combatEngine");
 const { calcFatigueCost, capFatigue } = require("../../../services/rpg/fatigueEngine");
+/**
+ * @constant {
+  formatFlee,
+  formatActionMenu,
+  formatReactionPrompt,
+  buildFatigueBar,
+}
+ * @type {any}
+ */
 const {
   formatFlee,
   formatActionMenu,
@@ -24,13 +43,25 @@ module.exports = {
   description: "Intenta escapar del combate activo.",
   category: "rpg",
 
+  /**
+   * Executes the .
+   * @async
+   * @param ctx - execution context.
+   * @returns {any}
+   */
   async execute(ctx) {
     try {
+      /**
+       * @constant activeChar
+       */
       const activeChar = await getActiveCharacter({ creatorId: ctx.sender });
       if (!activeChar) {
         return ctx.reply("\u274C No tienes un personaje activo.");
       }
 
+      /**
+       * @constant session
+       */
       const session = findSessionByCharacter(activeChar.id);
       if (!session) {
         return ctx.reply("\u274C No est\u00E1s en combate.");
@@ -44,10 +75,22 @@ module.exports = {
         return ctx.reply("\u274C No es tu turno.");
       }
 
+      /**
+       * @constant isChallenger
+       */
       const isChallenger = String(session.challenger.characterId) === String(activeChar.id);
+      /**
+       * @constant fleerSlot
+       */
       const fleerSlot = isChallenger ? session.challenger : session.defender;
+      /**
+       * @constant pursuerSlot
+       */
       const pursuerSlot = isChallenger ? session.defender : session.challenger;
 
+      /**
+       * @constant fleeCost
+       */
       const fleeCost = calcFatigueCost("flee", fleerSlot.character.stats);
       fleerSlot.fatigue = capFatigue(fleerSlot.fatigue + fleeCost);
 
@@ -60,6 +103,9 @@ module.exports = {
       }
 
       // En PvP, se evalúa la huida según MSPD comparativo
+      /**
+       * @constant fleeResult
+       */
       const fleeResult = rollFlee(
         fleerSlot.character.stats,
         fleerSlot.hp,
@@ -85,12 +131,19 @@ module.exports = {
       }
 
       // Si la huida falla, el jugador pierde el turno y sufre el ataque automático del perseguidor
+      /**
+       * @constant lines
+       * @type {Array}
+       */
       const lines = [];
       lines.push("");
       lines.push(`\u274C *${fleerSlot.character.name}* interceptado`);
       lines.push(`Prob: ${Math.round(fleeResult.chance * 100)}%`);
       lines.push(`\u26A1 ${buildFatigueBar(fleerSlot.fatigue, fleerSlot.character.stats.def || 1)}`);
 
+      /**
+       * @constant attackInfo
+       */
       const attackInfo = executeAttack(
         pursuerSlot.character,
         fleerSlot.character,
@@ -102,6 +155,9 @@ module.exports = {
 
       if (attackInfo.canReact) {
         const { evaluateDodgeFeasibility } = require("../../../services/rpg/combatEngine");
+        /**
+         * @constant canDodge
+         */
         const canDodge = evaluateDodgeFeasibility(
           fleerSlot.character.stats,
           fleerSlot.hp,
@@ -135,6 +191,9 @@ module.exports = {
         return ctx.reply(box("\uD83C\uDFC3 HUIDA", lines));
       }
 
+      /**
+       * @constant reactionResult
+       */
       const reactionResult = executeReaction(
         "none",
         attackInfo.baseDamage,
@@ -146,7 +205,13 @@ module.exports = {
         pursuerSlot.fatigue,
       );
 
+      /**
+       * @constant newFleerHp
+       */
       const newFleerHp = reactionResult.defenderHpAfter;
+      /**
+       * @constant newAttackerHp
+       */
       const newAttackerHp = pursuerSlot.hp;
 
       advanceTurn(session.id, isChallenger ? newFleerHp : newAttackerHp, isChallenger ? newAttackerHp : newFleerHp);

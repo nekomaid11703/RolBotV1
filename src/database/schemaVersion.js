@@ -1,8 +1,20 @@
 const { supabase } = require("./supabase");
 const { logSystem } = require("../services/loggerService");
 
+/**
+ * @constant VERSION_KEY
+ * @type {string}
+ */
 const VERSION_KEY = "_schema_version";
+/**
+ * @constant SESSION_ID
+ * @type {string}
+ */
 const SESSION_ID = "_meta";
+/**
+ * @constant CURRENT_VERSION
+ * @type {string}
+ */
 const CURRENT_VERSION = "2.0.0";
 
 /**
@@ -27,8 +39,7 @@ async function getStoredVersion() {
 
 /**
  * Set the stored schema version in the database.
- * @param {string} version - Version string to store
- * @returns {Promise<void>}
+ * @param {string} version - - Version string to store.
  */
 async function setStoredVersion(version) {
   try {
@@ -50,6 +61,9 @@ async function setStoredVersion(version) {
  * @returns {Promise<{ok: boolean, stored: string|null, current: string}>} Version check result
  */
 async function checkVersion() {
+  /**
+   * @constant stored
+   */
   const stored = await getStoredVersion();
 
   if (!stored) {

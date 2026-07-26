@@ -1,7 +1,16 @@
-﻿const { getActiveCharacter } = require("../../../services/characterService");
+const { getActiveCharacter } = require("../../../services/characterService");
 const { findSessionByCharacter, updateDistance } = require("../../../services/rpg/combatState");
 const { calculateMovementFatigue, capFatigue, getMovementRange } = require("../../../services/rpg/fatigueEngine");
 const { checkAttackRange } = require("../../../services/rpg/combatEngine");
+/**
+ * @constant {
+  formatMovement,
+  formatOutOfRange,
+  formatActionMenu,
+  buildFatigueBar,
+}
+ * @type {any}
+ */
 const {
   formatMovement,
   formatOutOfRange,
@@ -13,13 +22,16 @@ const { formatCommandUsage } = require("../../../utils/formatCommandUtils");
 const { box } = require("../../../utils/boxUtils");
 const { MAX_DISTANCE } = require("../../../config/combatConfig");
 
+/**
+ * @constant usageMessage
+ */
 const usageMessage = formatCommandUsage({
   icon: "\u21A9\uFE0F",
   title: "Retroceder",
-  description: "Retrocedes de tu enemigo. Si despuÃ©s de moverte lo alcanzas, podrÃ¡s atacar.",
+  description: "Retrocedes de tu enemigo. Si después de moverte lo alcanzas, podrás atacar.",
   usage: "/retroceder <metros>",
   example: "/retroceder 5",
-  notes: ["El rango de movimiento depende de tu MSPD.", "Coste de fatiga: mÃ¡s metros = mÃ¡s coste."],
+  notes: ["El rango de movimiento depende de tu MSPD.", "Coste de fatiga: más metros = más coste."],
 });
 
 module.exports = {
@@ -34,11 +46,17 @@ module.exports = {
    */
   async execute(ctx) {
     try {
+      /**
+       * @constant activeChar
+       */
       const activeChar = await getActiveCharacter({ creatorId: ctx.sender });
       if (!activeChar) {
         return ctx.reply("\u274C No tienes un personaje activo. Usa `/crear_pj` o `/switch_pj`.");
       }
 
+      /**
+       * @constant session
+       */
       const session = findSessionByCharacter(activeChar.id);
       if (!session) {
         return ctx.reply("\u274C No est\u00E1s en combate. Usa `/retar @usuario` o `/retar dummy`.");
@@ -52,34 +70,58 @@ module.exports = {
         return ctx.reply("\u274C No es tu turno. Espera.");
       }
 
+      /**
+       * @constant meters
+       */
       const meters = parseInt(ctx.args[0], 10);
       if (!meters || meters <= 0) {
-        return ctx.reply(formatError("Debes especificar cuÃ¡ntos metros retroceder.", "Uso: /retroceder <metros>"));
+        return ctx.reply(formatError("Debes especificar cuántos metros retroceder.", "Uso: /retroceder <metros>"));
       }
 
+      /**
+       * @constant isChallenger
+       */
       const isChallenger = String(session.challenger.characterId) === String(activeChar.id);
+      /**
+       * @constant playerSlot
+       */
       const playerSlot = isChallenger ? session.challenger : session.defender;
 
+      /**
+       * @constant maxMove
+       */
       const maxMove = getMovementRange(activeChar.stats.mspd || 0);
       if (meters > maxMove) {
         return ctx.reply(
           formatError(
-            `Solo puedes moverte ${maxMove}m como mÃ¡ximo.`,
+            `Solo puedes moverte ${maxMove}m como máximo.`,
             `Tu MSPD: ${activeChar.stats.mspd || 0} (${maxMove}m de alcance)`,
           ),
         );
       }
 
+      /**
+       * @constant newDistance
+       */
       const newDistance = Math.min(MAX_DISTANCE, session.distance + meters);
+      /**
+       * @constant fatigueCost
+       */
       const fatigueCost = calculateMovementFatigue(meters);
       playerSlot.fatigue = capFatigue(playerSlot.fatigue + fatigueCost);
 
       await updateDistance(session.id, newDistance);
 
+      /**
+       * @constant attackerStats
+       */
       const attackerStats = activeChar.stats;
       const { canAttack, effectiveRange } = checkAttackRange(newDistance, attackerStats);
 
       if (canAttack) {
+        /**
+         * @constant lines
+         */
         const lines = [
           formatMovement(activeChar.name, "retreated", meters, newDistance, fatigueCost),
           "",
@@ -92,6 +134,9 @@ module.exports = {
         return ctx.reply(box("\u21A9\uFE0F RETROCESO", lines));
       }
 
+      /**
+       * @constant lines
+       */
       const lines = [
         formatMovement(activeChar.name, "retreated", meters, newDistance, fatigueCost),
         "",

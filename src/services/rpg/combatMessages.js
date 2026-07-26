@@ -10,11 +10,27 @@ const { HP_MAX } = require("../../config/characterConfig");
  * @returns {string} Barra de HP formateada
  */
 function buildHpBar(current, max = HP_MAX) {
+  /**
+   * @constant pct
+   */
   const pct = Math.max(0, Math.min(1, current / max));
+  /**
+   * @constant filled
+   */
   const filled = Math.round(pct * 10);
+  /**
+   * @constant empty
+   */
   const empty = 10 - filled;
+  /**
+   * @constant bar
+   */
   const bar = "\u2588".repeat(filled) + "\u2591".repeat(empty);
 
+  /**
+   * @variable icon
+   * @type {any}
+   */
   let icon;
   if (pct > 0.6) icon = "\uD83D\uDFE2";
   else if (pct > 0.3) icon = "\uD83D\uDFE1";
@@ -45,10 +61,26 @@ function buildStatSummary(stats = {}) {
  */
 function buildFatigueBar(fatigue, resistance) {
   const { name: levelName, ratio } = getFatigueLevel(fatigue, resistance);
+  /**
+   * @constant icons
+   * @type {Object}
+   */
   const icons = { pleno: "\uD83D\uDFE2", agitado: "\uD83D\uDFE1", cansado: "\uD83D\uDD34", fatigado: "\uD83D\uDD34" };
+  /**
+   * @constant icon
+   */
   const icon = icons[levelName] || "\u26A0\uFE0F";
+  /**
+   * @constant filled
+   */
   const filled = Math.round(ratio * 10);
+  /**
+   * @constant empty
+   */
   const empty = 10 - filled;
+  /**
+   * @constant bar
+   */
   const bar = "\u2588".repeat(Math.min(10, Math.max(0, filled))) + "\u2591".repeat(Math.max(0, empty));
   return `${icon} ${bar} ${fatigue}/${resistance}`;
 }
@@ -77,6 +109,9 @@ function formatActionMenu(characterName) {
  * @returns {string} Prompt de reacción formateado
  */
 function formatReactionPrompt(attackerName, defenderName, baseDamage, canDodgeSuccessfully = false) {
+  /**
+   * @constant dodgeLine
+   */
   const dodgeLine = canDodgeSuccessfully
     ? "  \u2022 `/esquivar` \u2192 \u2705 Da\u00F1o: 0"
     : "  \u2022 `/esquivar` \u2192 \u274C Da\u00F1o: " + baseDamage;
@@ -96,12 +131,28 @@ function formatReactionPrompt(attackerName, defenderName, baseDamage, canDodgeSu
  * @returns {string} Mensaje de apertura formateado
  */
 function formatCombatOpen(session, hasTestKit = false) {
+  /**
+   * @constant c
+   */
   const c = session.challenger;
+  /**
+   * @constant d
+   */
   const d = session.defender;
 
+  /**
+   * @constant cStats
+   */
   const cStats = buildStatSummary(c.character.stats);
+  /**
+   * @constant dStats
+   */
   const dStats = buildStatSummary(d.character.stats);
 
+  /**
+   * @constant lines
+   * @type {Array}
+   */
   const lines = [
     "",
     `*${c.character.name}* Nv.${c.character.nivel || 20}`,
@@ -137,6 +188,10 @@ function formatCombatOpen(session, hasTestKit = false) {
  * @returns {string} Resumen del turno formateado
  */
 function formatTurnSummary(result) {
+  /**
+   * @constant lines
+   * @type {Array}
+   */
   const lines = [];
 
   lines.push("");
@@ -170,13 +225,32 @@ function formatTurnSummary(result) {
  * @returns {string} Estado del combate formateado
  */
 function formatCombatStatus(session) {
+  /**
+   * @constant lines
+   * @type {Array}
+   */
   const lines = [];
+  /**
+   * @constant c
+   */
   const c = session.challenger;
+  /**
+   * @constant d
+   */
   const d = session.defender;
 
+  /**
+   * @constant currentName
+   */
   const currentName = String(session.currentTurnCharId) === String(c.characterId) ? c.character.name : d.character.name;
 
+  /**
+   * @constant cStats
+   */
   const cStats = buildStatSummary(c.character.stats);
+  /**
+   * @constant dStats
+   */
   const dStats = buildStatSummary(d.character.stats);
 
   lines.push("");
@@ -199,6 +273,9 @@ function formatCombatStatus(session) {
 
   lines.push("\u2726 \u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501 \u2726");
   if (session.status === "waiting_reaction" && session.pendingAttack) {
+    /**
+     * @constant p
+     */
     const p = session.pendingAttack;
     lines.push(formatReactionPrompt(p.attackerName, p.defenderName, p.baseDamage, p.canDodgeSuccessfully ?? false));
   } else {
@@ -228,6 +305,9 @@ function formatVictory(winnerName, xpGained) {
  * @returns {string} Mensaje de huida formateado
  */
 function formatFlee(fleerName, success, chance, fatigue = 0, resistance = 50) {
+  /**
+   * @constant pct
+   */
   const pct = Math.round(chance * 100);
   if (success) {
     return box(

@@ -2,6 +2,10 @@ const { BufferJSON, initAuthCreds } = require("@whiskeysockets/baileys");
 const { supabase } = require("../database/supabase");
 const { logError } = require("../services/loggerService");
 
+/**
+ * @constant TABLE_NAME
+ * @type {string}
+ */
 const TABLE_NAME = "bot_auth_state";
 
 /**
@@ -11,13 +15,36 @@ const TABLE_NAME = "bot_auth_state";
  * @returns {Promise<*>} Auth state object with state and saveCreds
  */
 async function useSupabaseAuthState(sessionId = "default") {
+  /**
+   * @variable consecutiveFailures
+   * @type {number}
+   */
   let consecutiveFailures = 0;
+  /**
+   * @variable circuitOpen
+   * @type {boolean}
+   */
   let circuitOpen = false;
+  /**
+   * @variable nextAttemptTime
+   * @type {number}
+   */
   let nextAttemptTime = 0;
+  /**
+   * @constant COOLDOWN_MS
+   * @type {number}
+   */
   const COOLDOWN_MS = 30000;
+  /**
+   * @constant MAX_FAILURES
+   * @type {number}
+   */
   const MAX_FAILURES = 3;
 
-  /** @returns {boolean} Whether the circuit allows requests */
+  /**
+   * @returns {boolean} Whether the circuit allows requests.
+   * @returns
+   */
   const checkCircuit = () => !circuitOpen || Date.now() > nextAttemptTime;
 
   /** @returns {void} */
@@ -28,8 +55,7 @@ async function useSupabaseAuthState(sessionId = "default") {
 
   /**
    * Record a failure and potentially open the circuit.
-   * @param {unknown} err - Error that caused the failure
-   * @returns {void}
+   * @param {unknown} err - - Error that caused the failure.
    */
   const recordFailure = (err) => {
     consecutiveFailures++;
@@ -49,13 +75,15 @@ async function useSupabaseAuthState(sessionId = "default") {
 
   /**
    * Write data to the auth state table.
-   * @param {*} data - Data to persist
-   * @param {string} id - Record identifier
-   * @returns {Promise<void>}
+   * @param {*} data - - Data to persist.
+   * @param {string} id - - Record identifier.
    */
   const writeData = async (data, id) => {
     if (!checkCircuit()) return;
     try {
+      /**
+       * @constant json
+       */
       const json = JSON.parse(JSON.stringify(data, BufferJSON.replacer));
       const { error } = await supabase.from(TABLE_NAME).upsert({ session_id: sessionId, id, data: json });
 
@@ -106,6 +134,10 @@ async function useSupabaseAuthState(sessionId = "default") {
     }
   };
 
+  /**
+   * @variable creds
+   * @type {any}
+   */
   let creds = await readData("creds");
   if (!creds) {
     creds = initAuthCreds();
@@ -127,6 +159,10 @@ async function useSupabaseAuthState(sessionId = "default") {
           const data = {};
           await Promise.all(
             ids.map(async (/** @type {string} */ id) => {
+              /**
+               * @variable value
+               * @type {any}
+               */
               let value = await readData(`${type}-${id}`);
               if (type === "app-state-sync-key" && value) {
                 const { proto } = require("@whiskeysockets/baileys");
@@ -144,13 +180,30 @@ async function useSupabaseAuthState(sessionId = "default") {
          */
         set: async (data) => {
           if (!checkCircuit()) return;
+          /**
+           * @constant upsertData
+           * @type {Array}
+           */
           const upsertData = [];
+          /**
+           * @constant deleteData
+           * @type {Array}
+           */
           const deleteData = [];
           for (const category in data) {
             for (const id in data[category]) {
+              /**
+               * @constant value
+               */
               const value = data[category][id];
+              /**
+               * @constant key
+               */
               const key = `${category}-${id}`;
               if (value) {
+                /**
+                 * @constant json
+                 */
                 const json = JSON.parse(JSON.stringify(value, BufferJSON.replacer));
                 upsertData.push({ session_id: sessionId, id: key, data: json });
               } else {
@@ -183,6 +236,10 @@ async function useSupabaseAuthState(sessionId = "default") {
         },
       },
     },
+    /**
+     * Saves the creds.
+     * @returns {any}
+     */
     saveCreds: () => {
       return writeData(creds, "creds");
     },

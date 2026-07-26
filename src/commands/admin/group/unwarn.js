@@ -14,7 +14,16 @@ module.exports = {
   groupOnly: true,
   adminOnly: true,
 
+  /**
+   * Executes the .
+   * @async
+   * @param ctx - execution context.
+   * @returns {any}
+   */
   async execute(ctx) {
+    /**
+     * @constant targetId
+     */
     const targetId = getFirstMentionedJid(ctx);
 
     if (!targetId) {
@@ -22,13 +31,22 @@ module.exports = {
     }
 
     try {
+      /**
+       * @constant currentWarns
+       */
       const currentWarns = await getWarns(ctx.from, targetId);
+      /**
+       * @constant warnCount
+       */
       const warnCount = currentWarns.count;
 
       if (warnCount <= 0) {
         return ctx.reply("❌ Ese usuario no tiene warns activos.");
       }
 
+      /**
+       * @constant targetName
+       */
       const targetName = await resolveTargetDisplayName(ctx, targetId);
       await deleteWarn(ctx.from, targetId);
 

@@ -10,10 +10,25 @@ module.exports = {
   description: "Muestra en detalle tu personaje activo. Menciona a otro usuario para ver el suyo.",
   category: "rpg",
 
+  /**
+   * Executes the .
+   * @async
+   * @param ctx - execution context.
+   * @returns {any}
+   */
   async execute(ctx) {
+    /**
+     * @constant mentioned
+     */
     const mentioned = Array.isArray(ctx.mentionedJid) ? ctx.mentionedJid.filter(Boolean) : [];
+    /**
+     * @constant targetId
+     */
     const targetId = mentioned.length > 0 ? mentioned[0] : ctx.sender;
 
+    /**
+     * @constant character
+     */
     const character = await getActiveCharacter({
       creatorId: targetId,
     });
@@ -25,6 +40,10 @@ module.exports = {
       return ctx.reply("❌ No tienes un personaje activo. Usa `/crear_pj` o `/switch_pj`.");
     }
 
+    /**
+     * @variable inventory
+     * @type {Array}
+     */
     let inventory = [];
     try {
       inventory = await getInventory(character.id);

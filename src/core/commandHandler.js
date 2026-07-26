@@ -1,6 +1,8 @@
 // @ts-nocheck
+/**
+ * @constant path
+ */
 const path = require("path");
-
 const { isAdmin, isBotAdmin, isOnGroup } = require("../utils/groupUtils");
 const { isOwner } = require("../utils/permissionUtils");
 const { hasEconomyPermission, hasPermissionForCategory, getCategoryLabel } = require("../services/permissionService");
@@ -10,24 +12,44 @@ const { incrementCommands, incrementErrors, addEvent } = require("../services/st
 const { commands, aliases, registerCommand, getJsFilesRecursively } = require("./commandRegistry");
 
 /**
- *
+ * TODO: describe what this does.
  */
 function loadCommands() {
+  /**
+   * @constant commandsPath
+   */
   const commandsPath = path.join(__dirname, "../commands");
 
   commands.clear();
   aliases.clear();
 
+  /**
+   * @variable commandCount
+   * @type {number}
+   */
   let commandCount = 0;
+  /**
+   * @variable aliasCount
+   * @type {number}
+   */
   let aliasCount = 0;
 
+  /**
+   * @constant files
+   */
   const files = getJsFilesRecursively(commandsPath);
 
   for (const filePath of files) {
+    /**
+     * @constant file
+     */
     const file = path.basename(filePath);
 
     delete require.cache[require.resolve(filePath)];
 
+    /**
+     * @constant command
+     */
     const command = require(filePath);
 
     registerCommand(command, file);
@@ -45,23 +67,36 @@ function loadCommands() {
 }
 
 /**
- * @param {object} ctx - Command context
- * @returns {Promise<void>} Promise that resolves when complete
+ * @param {object} ctx - - Command context.
+ * @returns {Promise<void>} Promise that resolves when complete.
  */
 async function handleCommand(ctx) {
+  /**
+   * @constant prefix
+   * @type {string}
+   */
   const prefix = "/";
 
   if (!ctx.text.startsWith(prefix)) {
     return;
   }
 
+  /**
+   * @constant args
+   */
   const args = ctx.text.slice(prefix.length).trim().split(/\s+/);
+  /**
+   * @constant commandName
+   */
   const commandName = args.shift()?.toLowerCase();
 
   if (!commandName) {
     return;
   }
 
+  /**
+   * @constant command
+   */
   const command = commands.get(commandName) || aliases.get(commandName);
 
   if (!command) {
@@ -72,6 +107,10 @@ async function handleCommand(ctx) {
   ctx.command = commandName;
   ctx.commandName = command.name;
 
+  /**
+   * @constant logBase
+   * @type {Object}
+   */
   const logBase = {
     userId: ctx.senderJid || ctx.sender,
     userPhone: ctx.senderNumber || null,
@@ -93,6 +132,9 @@ async function handleCommand(ctx) {
   }
 
   if (command.creatorOnly) {
+    /**
+     * @constant owner
+     */
     const owner = isOwner({
       jid: ctx.senderJid || ctx.sender,
       phone: ctx.senderNumber,
@@ -111,6 +153,9 @@ async function handleCommand(ctx) {
   }
 
   if (command.economyAdminOnly) {
+    /**
+     * @constant allowed
+     */
     const allowed = await hasEconomyPermission({
       jid: ctx.senderJid || ctx.sender,
       phone: ctx.senderNumber,
@@ -129,6 +174,9 @@ async function handleCommand(ctx) {
   }
 
   if (command.adminPerm) {
+    /**
+     * @constant allowed
+     */
     const allowed = await hasPermissionForCategory(
       {
         jid: ctx.senderJid || ctx.sender,
@@ -139,6 +187,9 @@ async function handleCommand(ctx) {
     );
 
     if (!allowed) {
+      /**
+       * @constant catLabel
+       */
       const catLabel = getCategoryLabel(command.adminPerm);
       await logCommand({
         ...logBase,
@@ -161,6 +212,9 @@ async function handleCommand(ctx) {
       return ctx.reply("❌ Este comando solo funciona en grupos.");
     }
 
+    /**
+     * @constant admin
+     */
     const admin = await isAdmin(ctx.sock, ctx.from, ctx.senderJid || ctx.sender);
 
     if (!admin) {
@@ -175,6 +229,9 @@ async function handleCommand(ctx) {
   }
 
   if (command.botAdminOnly) {
+    /**
+     * @constant botAdmin
+     */
     const botAdmin = await isBotAdmin(ctx.sock, ctx.from);
 
     if (!botAdmin) {
@@ -230,6 +287,9 @@ async function handleCommand(ctx) {
       });
     }
   } catch (error) {
+    /**
+     * @constant err
+     */
     const err = /** @type {{ message?: string }} */ (error);
     await logCommand({
       ...logBase,

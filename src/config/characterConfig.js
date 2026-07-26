@@ -7,6 +7,10 @@
 // 3. Add to all RACES[race].baseStats
 // Stats are stored in JSONB — no schema migration needed for new keys.
 
+/**
+ * @constant LEVELABLE_STATS
+ * @type {object}
+ */
 const LEVELABLE_STATS = {
   hp: { label: "HP", name: "Vida Base", min: 1, max: 100, icon: "❤️" },
   atk: { label: "ATK", name: "Ataque", min: 1, max: 100, icon: "⚔️" },
@@ -19,8 +23,16 @@ const LEVELABLE_STATS = {
   r_fulgor: { label: "R_FULGOR", name: "Resistencia Magica", min: 1, max: 100, icon: "🛡️" },
 };
 
+/**
+ * @constant HP_MAX
+ * @type {number}
+ */
 const HP_MAX = 100;
 
+/**
+ * @constant DEFAULT_CHARACTER_STATS
+ * @type {object}
+ */
 const DEFAULT_CHARACTER_STATS = {
   hp: 1,
   atk: 1,
@@ -37,6 +49,10 @@ const DEFAULT_CHARACTER_STATS = {
 // SLOTS
 // =========================
 
+/**
+ * @constant DEFAULT_CHARACTER_SLOTS
+ * @type {object}
+ */
 const DEFAULT_CHARACTER_SLOTS = {
   descripcion: "",
   historia: "",
@@ -49,6 +65,10 @@ const DEFAULT_CHARACTER_SLOTS = {
 // Race baseStats add to DEFAULT_CHARACTER_STATS at creation
 // Total race contribution = sum of baseStats values = 50 points
 
+/**
+ * @constant RACES
+ * @type {object}
+ */
 const RACES = {
   humano: {
     name: "Humano",
@@ -182,11 +202,31 @@ const RACES = {
 // LEVEL SYSTEM
 // =========================
 
+/**
+ * @constant LEVEL_INITIAL
+ * @type {number}
+ */
 const LEVEL_INITIAL = 100;
+/**
+ * @constant LEVEL_MAX
+ * @type {number}
+ */
 const LEVEL_MAX = 500;
+/**
+ * @constant FREE_POINTS_AT_CREATION
+ * @type {number}
+ */
 const FREE_POINTS_AT_CREATION = 50;
 
+/**
+ * @constant XP_CURVE_BASE
+ * @type {number}
+ */
 const XP_CURVE_BASE = 10;
+/**
+ * @constant XP_CURVE_EXPONENT
+ * @type {number}
+ */
 const XP_CURVE_EXPONENT = 1.2;
 
 /**
@@ -204,6 +244,10 @@ function xpForNextLevel(currentLevel) {
  * @returns {number} Calculated level value
  */
 function calculateLevel(stats) {
+  /**
+   * @variable sum
+   * @type {number}
+   */
   let sum = 0;
   for (const key of Object.keys(LEVELABLE_STATS)) {
     sum += stats[key] || 0;
@@ -215,6 +259,10 @@ function calculateLevel(stats) {
 // RANGO (cosmetic)
 // =========================
 
+/**
+ * @constant RANGOS
+ * @type {Array}
+ */
 const RANGOS = ["F", "E", "D", "C", "B", "A", "S"];
 
 /**
@@ -229,8 +277,20 @@ function rangosDisponibles() {
 // LIMITS
 // =========================
 
+/**
+ * @constant MAX_CHARACTER_NAME_LENGTH
+ * @type {number}
+ */
 const MAX_CHARACTER_NAME_LENGTH = 40;
+/**
+ * @constant MAX_SLOT_SIZE
+ * @type {number}
+ */
 const MAX_SLOT_SIZE = 5000;
+/**
+ * @constant MAX_CHARACTERS_PER_USER
+ * @type {number}
+ */
 const MAX_CHARACTERS_PER_USER = 5;
 
 // =========================

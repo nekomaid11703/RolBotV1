@@ -1,10 +1,32 @@
 // 48h — retención aceptable dado que ~10 sesiones simultáneas = ~50KB. Decisión: mantener para UX.
+/**
+ * @constant TURN_TIMEOUT_MS
+ */
 const TURN_TIMEOUT_MS = 48 * 60 * 60 * 1000;
+/**
+ * @constant DAMAGE_MIN
+ * @type {number}
+ */
 const DAMAGE_MIN = 1;
+/**
+ * @constant BLOCK_REDUCTION
+ * @type {number}
+ */
 const BLOCK_REDUCTION = 0.25;
+/**
+ * @constant MAX_ACTIVE_SESSIONS
+ * @type {number}
+ */
 const MAX_ACTIVE_SESSIONS = 50;
+/**
+ * @constant CLEANUP_INTERVAL_MS
+ */
 const CLEANUP_INTERVAL_MS = 5 * 60 * 1000;
 
+/**
+ * @constant SESSION_STATES
+ * @type {object}
+ */
 const SESSION_STATES = {
   WAITING_ACTION: "waiting_action",
   WAITING_REACTION: "waiting_reaction",
@@ -12,6 +34,10 @@ const SESSION_STATES = {
   EXPIRED: "expired",
 };
 
+/**
+ * @constant FATIGUE_THRESHOLDS
+ * @type {Array}
+ */
 const FATIGUE_THRESHOLDS = [
   { maxRatio: 0.33, state: "pleno", name: "Pleno", penalty: 0, recoveryMult: 1.0 },
   { maxRatio: 0.66, state: "agitado", name: "Agitado", penalty: 0.2, recoveryMult: 0.5 },
@@ -19,6 +45,10 @@ const FATIGUE_THRESHOLDS = [
   { maxRatio: Infinity, state: "fatigado", name: "Fatigado", penalty: 0.6, recoveryMult: 0.125 },
 ];
 
+/**
+ * @constant FATIGUE_COSTS
+ * @type {object}
+ */
 const FATIGUE_COSTS = {
   attack: 1,
   dodge: 4,
@@ -28,19 +58,55 @@ const FATIGUE_COSTS = {
   receiveHit: 1,
 };
 
+/**
+ * @constant FATIGUE_ATK_COST_SCALE
+ * @type {number}
+ */
 const FATIGUE_ATK_COST_SCALE = 0.05;
+/**
+ * @constant FATIGUE_DEF_REDUCTION_SCALE
+ * @type {number}
+ */
 const FATIGUE_DEF_REDUCTION_SCALE = 0.01;
+/**
+ * @constant FATIGUE_DODGE_MSPD_REDUCTION
+ * @type {number}
+ */
 const FATIGUE_DODGE_MSPD_REDUCTION = 0.03;
+/**
+ * @constant FATIGUE_REST_DEF_SCALE
+ * @type {number}
+ */
 const FATIGUE_REST_DEF_SCALE = 0.2;
+/**
+ * @constant FATIGUE_COST_MIN
+ * @type {number}
+ */
 const FATIGUE_COST_MIN = 1;
+/**
+ * @constant FATIGUE_RECOVERY_MAX
+ * @type {number}
+ */
 const FATIGUE_RECOVERY_MAX = 15;
+/**
+ * @constant FATIGUE_MAX
+ * @type {number}
+ */
 const FATIGUE_MAX = 50;
 
+/**
+ * @constant FATIGUE_RECOVERY
+ * @type {object}
+ */
 const FATIGUE_RECOVERY = {
   block: 1,
   rest: 5,
 };
 
+/**
+ * @constant FATIGUE_SPEED_STATS
+ * @type {Array}
+ */
 const FATIGUE_SPEED_STATS = ["aspd", "mspd", "ref"];
 
 module.exports = {

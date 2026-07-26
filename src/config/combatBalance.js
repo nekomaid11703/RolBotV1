@@ -1,4 +1,4 @@
-﻿// @ts-nocheck
+// @ts-nocheck
 /**
  * Combat Balance Configuration
  * Central service for ALL tunable combat magic numbers.
@@ -8,9 +8,9 @@
  * migrate individual values here as needed.
  */
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ══════════════════════════════════════════
 // DAMAGE FORMULA
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ══════════════════════════════════════════
 
 /** Damage formula: atk * DAMAGE_DEFENSE_SCALE / (DAMAGE_DEFENSE_SCALE + def) */
 const DAMAGE_DEFENSE_SCALE = 100;
@@ -21,9 +21,9 @@ const DAMAGE_MIN = 1;
 /** Block damage reduction (0.25 = 25%) */
 const BLOCK_REDUCTION = 0.25;
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ══════════════════════════════════════════
 // DISTANCE MECHANIC
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ══════════════════════════════════════════
 
 /** Maximum possible combat distance (meters) */
 const MAX_DISTANCE = 500;
@@ -34,7 +34,7 @@ const INITIAL_DISTANCE = 5;
 /** Base attack reach without MSPD contribution (meters) */
 const BASE_ATTACK_RANGE = 1;
 
-/** MSPD â†’ movement meters per turn: floor(mspd * MSPD_TO_METERS) */
+/** MSPD → movement meters per turn: floor(mspd * MSPD_TO_METERS) */
 const MSPD_TO_METERS = 0.5;
 
 /** ASPD penalty per 5m block: penalty = -floor(distance / 5) * ASPD_PENALTY_PER_5M */
@@ -43,9 +43,9 @@ const ASPD_PENALTY_PER_5M = 1;
 /** Divisor for distance grouping in ASPD penalty: floor(distance / ASPD_PENALTY_DISTANCE_BLOCK) */
 const ASPD_PENALTY_DISTANCE_BLOCK = 5;
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ══════════════════════════════════════════
 // MOVEMENT FATIGUE
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ══════════════════════════════════════════
 
 /** Base fatigue cost per meter moved */
 const FATIGUE_BASE_PER_METER = 1;
@@ -62,32 +62,52 @@ const MOVEMENT_FATIGUE_MIN = 1;
 /** Kite movement fatigue multiplier (defined but currently unused in engine) */
 const KITE_FATIGUE_MULTIPLIER = 1.5;
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ══════════════════════════════════════════
 // FATIGUE COSTS (base values before stat scaling)
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ══════════════════════════════════════════
 
 /** Base fatigue cost per action type */
 const FATIGUE_COST_ATTACK = 1;
+/**
+ * @constant FATIGUE_COST_DODGE
+ * @type {number}
+ */
 const FATIGUE_COST_DODGE = 4;
+/**
+ * @constant FATIGUE_COST_BLOCK
+ * @type {number}
+ */
 const FATIGUE_COST_BLOCK = 0;
+/**
+ * @constant FATIGUE_COST_FLEE
+ * @type {number}
+ */
 const FATIGUE_COST_FLEE = 3;
+/**
+ * @constant FATIGUE_COST_USE_ITEM
+ * @type {number}
+ */
 const FATIGUE_COST_USE_ITEM = 1;
+/**
+ * @constant FATIGUE_COST_RECEIVE_HIT
+ * @type {number}
+ */
 const FATIGUE_COST_RECEIVE_HIT = 1;
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ══════════════════════════════════════════
 // FATIGUE STAT SCALING
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ══════════════════════════════════════════
 
-/** ATK â†’ fatigue cost multiplier per point of ATK */
+/** ATK → fatigue cost multiplier per point of ATK */
 const FATIGUE_ATK_COST_SCALE = 0.05;
 
-/** DEF â†’ fatigue cost reduction per point of DEF */
+/** DEF → fatigue cost reduction per point of DEF */
 const FATIGUE_DEF_REDUCTION_SCALE = 0.01;
 
-/** MSPD â†’ dodge fatigue cost reduction per MSPD point */
+/** MSPD → dodge fatigue cost reduction per MSPD point */
 const FATIGUE_DODGE_MSPD_REDUCTION = 0.03;
 
-/** DEF â†’ recovery bonus multiplier per DEF point */
+/** DEF → recovery bonus multiplier per DEF point */
 const FATIGUE_REST_DEF_SCALE = 0.2;
 
 /** Minimum possible fatigue cost */
@@ -101,14 +121,18 @@ const FATIGUE_MAX = 50;
 
 /** Base fatigue recovery per reaction type */
 const FATIGUE_RECOVERY_BLOCK = 1;
+/**
+ * @constant FATIGUE_RECOVERY_REST
+ * @type {number}
+ */
 const FATIGUE_RECOVERY_REST = 5;
 
 /** Stats affected by fatigue penalties */
 const FATIGUE_SPEED_STATS = ["aspd", "mspd", "ref"];
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ══════════════════════════════════════════
 // FATIGUE THRESHOLDS
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ══════════════════════════════════════════
 
 /**
  * Fatigue state thresholds (ratio of FATIGUE_MAX).
@@ -121,29 +145,41 @@ const FATIGUE_THRESHOLDS = [
   { maxRatio: Infinity, state: "fatigado", name: "Fatigado", penalty: 0.6, recoveryMult: 0.125 },
 ];
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ══════════════════════════════════════════
 // FLEE MECHANIC
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ══════════════════════════════════════════
 
 /** Flee success chances (currently hardcoded in combatEngine.js) */
-const FLEE_CHANCE_HIGHER_MSPD = 1.0; // fleer MSPD > pursuer MSPD â†’ guaranteed
-const FLEE_CHANCE_EQUAL_MSPD = 0.5; // fleer MSPD == pursuer MSPD â†’ 50%
-const FLEE_CHANCE_LOWER_MSPD = 0.25; // fleer MSPD < pursuer MSPD â†’ 25%
+const FLEE_CHANCE_HIGHER_MSPD = 1.0; // fleer MSPD > pursuer MSPD → guaranteed
+/**
+ * @constant FLEE_CHANCE_EQUAL_MSPD
+ * @type {number}
+ */
+const FLEE_CHANCE_EQUAL_MSPD = 0.5; // fleer MSPD == pursuer MSPD → 50%
+/**
+ * @constant FLEE_CHANCE_LOWER_MSPD
+ * @type {number}
+ */
+const FLEE_CHANCE_LOWER_MSPD = 0.25; // fleer MSPD < pursuer MSPD → 25%
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ══════════════════════════════════════════
 // XP REWARDS
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ══════════════════════════════════════════
 
 /** XP formula: baseXp = XP_BASE + enemyLevel * XP_PER_LEVEL */
 const XP_BASE = 50;
+/**
+ * @constant XP_PER_LEVEL
+ * @type {number}
+ */
 const XP_PER_LEVEL = 2;
 
 /** XP multiplier when losing */
 const XP_LOSER_MULTIPLIER = 0.3;
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ══════════════════════════════════════════
 // STAT NORMALIZATION DEFAULTS
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ══════════════════════════════════════════
 
 /** Default stat value when a stat is missing (used in normalizeStats) */
 const STAT_DEFAULT = 1;
@@ -151,9 +187,9 @@ const STAT_DEFAULT = 1;
 /** Minimum floor for penalized stats after fatigue application */
 const STAT_MIN_AFTER_PENALTY = 0;
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ══════════════════════════════════════════
 // SIMULATION-ONLY PARAMETERS
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ══════════════════════════════════════════
 // These only affect the simulation script, not the real game engine.
 
 /** AI dodge probability when dodge is feasible */
@@ -161,6 +197,10 @@ const SIM_AI_DODGE_CHANCE = 0.3;
 
 /** Simulation level range */
 const SIM_MIN_LEVEL = 100;
+/**
+ * @constant SIM_MAX_LEVEL
+ * @type {number}
+ */
 const SIM_MAX_LEVEL = 500;
 
 /** Max level difference ratio for simulation pairing */
@@ -178,9 +218,9 @@ const SIM_HP_MULTIPLIER = 2;
 /** Stat generation: initial base value per stat */
 const SIM_STAT_BASE = 1;
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ══════════════════════════════════════════
 // EXPORT
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ══════════════════════════════════════════
 
 module.exports = {
   // Damage
