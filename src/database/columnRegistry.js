@@ -9,7 +9,7 @@ const DISCOVERY_TTL = 300000;
 
 /**
  * @constant KNOWN_SCHEMA
- * @type {Object}
+ * @type {object}
  */
 const KNOWN_SCHEMA = {
   bot_auth_state: ["session_id", "id", "data"],

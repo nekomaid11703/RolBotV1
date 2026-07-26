@@ -5,7 +5,7 @@ const ModuleBase = require("../../modules/ModuleBase");
 
 /**
  * Represents a heal module.
- * @extends ModuleBase
+ * @augments ModuleBase
  */
 class HealModule extends ModuleBase {
   /**
@@ -25,7 +25,7 @@ class HealModule extends ModuleBase {
 
   /**
    * Registers a listener for the use event.
-   * @param { character }
+   * @param root0
    * @returns
    */
   onUse({ character }) {

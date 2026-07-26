@@ -42,7 +42,7 @@ function parsePositiveInteger(value) {
 /**
  * Extracts the amount from args.
  * @param args - - arguments.
- * @param {Object} [{ min = 1 }]
+ * @param {object} [{ min]
  * @returns
  */
 function extractAmountFromArgs(args, { min = 1 } = {}) {

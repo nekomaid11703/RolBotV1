@@ -30,7 +30,7 @@ function getUsage(opts) {
 
 /**
  * @param {{ sock: any, sender: string, userName: string, reply: Function, args: string[], command?: string }} ctx
- * @param { serviceFn, createIfMissing = true, usage, boxTitle, amountLabel, showAmount = true, minAmount }
+ * @param root0
  * @param {{ serviceFn: (targetId: string, amount: number, opts: any) => Promise<number>, createIfMissing?: boolean, usage: { icon?: string, title: string, description?: string, usage?: string, example?: string, notes?: string[] }, boxTitle: string, amountLabel: string, showAmount?: boolean, minAmount?: number }} opts
  * @returns
  */
@@ -48,7 +48,7 @@ async function executeEconomyAction(
 
   /**
    * @constant parseOpts
-   * @type {Object}
+   * @type {object}
    */
   const parseOpts = {};
   if (minAmount !== undefined) parseOpts.min = minAmount;

@@ -51,7 +51,7 @@ async function addEffect(character, effect) {
   effects.push(effect);
   /**
    * @constant slots
-   * @type {Object}
+   * @type {object}
    */
   const slots = { ...(character.slots || {}), active_effects: effects };
   await saveSlots(character.id, slots);
@@ -104,7 +104,7 @@ async function tickEffects(characterId, character) {
 
   /**
    * @constant slots
-   * @type {Object}
+   * @type {object}
    */
   const slots = { ...(character.slots || {}), active_effects: remaining };
   await saveSlots(characterId, slots);
@@ -120,7 +120,7 @@ async function tickEffects(characterId, character) {
 async function clearEffects(characterId, character) {
   /**
    * @constant slots
-   * @type {Object}
+   * @type {object}
    */
   const slots = { ...(character.slots || {}), active_effects: [] };
   await saveSlots(characterId, slots);
@@ -159,13 +159,13 @@ function getCooldown(character, itemId) {
 async function cleanCooldown(character, itemId) {
   /**
    * @constant cooldowns
-   * @type {Object}
+   * @type {object}
    */
   const cooldowns = { ...getCooldowns(character) };
   delete cooldowns[itemId];
   /**
    * @constant slots
-   * @type {Object}
+   * @type {object}
    */
   const slots = { ...(character.slots || {}), cooldowns };
   await saveSlots(character.id, slots);
@@ -179,12 +179,12 @@ async function cleanCooldown(character, itemId) {
 async function setCooldown(character, itemId) {
   /**
    * @constant cooldowns
-   * @type {Object}
+   * @type {object}
    */
   const cooldowns = { ...getCooldowns(character), [itemId]: Date.now() };
   /**
    * @constant slots
-   * @type {Object}
+   * @type {object}
    */
   const slots = { ...(character.slots || {}), cooldowns };
   await saveSlots(character.id, slots);
@@ -213,7 +213,7 @@ async function cleanExpiredCooldowns(character) {
   if (changed) {
     /**
      * @constant slots
-     * @type {Object}
+     * @type {object}
      */
     const slots = { ...(character.slots || {}), cooldowns };
     await saveSlots(character.id, slots);

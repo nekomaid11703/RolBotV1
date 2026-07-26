@@ -5,7 +5,7 @@ const ModuleBase = require("../../modules/ModuleBase");
 
 /**
  * Represents a damage module.
- * @extends ModuleBase
+ * @augments ModuleBase
  */
 class DamageModule extends ModuleBase {
   /**

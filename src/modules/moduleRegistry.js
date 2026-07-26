@@ -11,7 +11,7 @@ const registry = new Map();
 
 /**
  * @constant moduleRegistry
- * @type {Object}
+ * @type {object}
  */
 const moduleRegistry = {
   /**

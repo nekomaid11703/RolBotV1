@@ -63,7 +63,7 @@ function buildFatigueBar(fatigue, resistance) {
   const { name: levelName, ratio } = getFatigueLevel(fatigue, resistance);
   /**
    * @constant icons
-   * @type {Object}
+   * @type {object}
    */
   const icons = { pleno: "\uD83D\uDFE2", agitado: "\uD83D\uDFE1", cansado: "\uD83D\uDD34", fatigado: "\uD83D\uDD34" };
   /**

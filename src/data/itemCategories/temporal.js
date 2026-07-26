@@ -5,7 +5,7 @@ const ModuleBase = require("../../modules/ModuleBase");
 
 /**
  * Represents a temporal module.
- * @extends ModuleBase
+ * @augments ModuleBase
  */
 class TemporalModule extends ModuleBase {
   /**

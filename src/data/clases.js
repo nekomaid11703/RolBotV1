@@ -3,7 +3,7 @@
 
 /**
  * @constant CLASES
- * @type {Object}
+ * @type {object}
  */
 const CLASES = {
   civil: {

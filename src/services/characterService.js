@@ -45,7 +45,7 @@ function getCharacterSlug(characterName) {
 function normalizeStats(stats = {}) {
   /**
    * @constant base
-   * @type {Object}
+   * @type {object}
    */
   const base = { ...DEFAULT_CHARACTER_STATS };
   for (const key of Object.keys(base)) {
@@ -65,7 +65,7 @@ function normalizeCharacterRecord(character) {
 
   /**
    * @constant normalized
-   * @type {Object}
+   * @type {object}
    */
   const normalized = { ...character };
   normalized.name = String(normalized.name || "").trim();
@@ -160,7 +160,7 @@ async function createCharacter({
 
   /**
    * @constant raceStats
-   * @type {Object}
+   * @type {object}
    */
   const raceStats = { ...raceConfig.baseStats };
   /**
@@ -181,7 +181,7 @@ async function createCharacter({
 
   /**
    * @constant finalStats
-   * @type {Object}
+   * @type {object}
    */
   const finalStats = { ...DEFAULT_CHARACTER_STATS };
   for (const key of Object.keys(LEVELABLE_STATS)) {
@@ -527,7 +527,7 @@ async function updateCharacterSlots({ characterName, creatorId, slots, requester
 
   /**
    * @constant mergedSlots
-   * @type {Object}
+   * @type {object}
    */
   const mergedSlots = { ...DEFAULT_CHARACTER_SLOTS, ...(current.slots || {}), ...slots };
 
@@ -577,7 +577,7 @@ async function getCombatStats({ creatorId, maxHp }) {
   const baseMaxHp = (character.stats?.hp || 1) * 2;
   /**
    * @constant combatStats
-   * @type {Object}
+   * @type {object}
    */
   const combatStats = { hp: character.hp_actual, hp_max: maxHp ?? baseMaxHp };
   for (const key of Object.keys(LEVELABLE_STATS)) {
@@ -742,7 +742,7 @@ async function distribuirPunto({ creatorId, characterName, stat }) {
 
   /**
    * @constant stats
-   * @type {Object}
+   * @type {object}
    */
   const stats = { ...(character.stats || {}) };
 

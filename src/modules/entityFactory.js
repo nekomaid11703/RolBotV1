@@ -9,7 +9,7 @@ const moduleRegistry = require("./moduleRegistry");
 class Entity {
   /**
    * @param def - - def.
-   * @constructor
+   * @class
    */
   constructor(def) {
     if (!def || !def.id || !def.type) {

@@ -11,7 +11,7 @@ const CURRENT_VERSION = "2.1.0";
 
 /**
  * @constant DESIRED_SCHEMA
- * @type {Object}
+ * @type {object}
  */
 const DESIRED_SCHEMA = {
   players: ["phone", "username", "money", "activity_messages", "activity_commands", "last_active_at"],
@@ -53,7 +53,7 @@ const DESIRED_SCHEMA = {
 
 /**
  * @constant TABLE_CREATE_SQL
- * @type {Object}
+ * @type {object}
  */
 const TABLE_CREATE_SQL = {
   combat_sessions: `

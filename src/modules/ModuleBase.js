@@ -25,8 +25,8 @@ class ModuleBase {
   static priority = 0;
 
   /**
-   * @param {Object} [config] - - configuration object.
-   * @constructor
+   * @param {object} [config] - - configuration object.
+   * @class
    */
   constructor(config = {}) {
     this.config = config;

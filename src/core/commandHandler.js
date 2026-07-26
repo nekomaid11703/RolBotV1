@@ -109,7 +109,7 @@ async function handleCommand(ctx) {
 
   /**
    * @constant logBase
-   * @type {Object}
+   * @type {object}
    */
   const logBase = {
     userId: ctx.senderJid || ctx.sender,

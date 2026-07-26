@@ -237,7 +237,7 @@ function normalizeProfile(profile, { creatorId, creatorName }) {
 
   /**
    * @constant normalized
-   * @type {Object}
+   * @type {object}
    */
   const normalized = {
     ...buildDefaultProfile({
@@ -373,7 +373,7 @@ async function getUserProfile({ creatorId, bypassCache = false }) {
 
   /**
    * @constant result
-   * @type {Object}
+   * @type {object}
    */
   const result = { folder: "supabase", profilePath: "supabase", profile };
   cache.set(key, result, TTLS.memoryContext);
@@ -521,7 +521,7 @@ async function recordUserActivity({
   const profile = current.profile;
   /**
    * @constant next
-   * @type {Object}
+   * @type {object}
    */
   const next = {
     ...profile,
@@ -680,7 +680,7 @@ function sortActivityProfilesDesc(a, b) {
 }
 
 /**
- * @param {Object} [{ limit = 10, bypassCache = false }]
+ * @param {object} [{ limit = 10, bypassCache = false }]
  * @param root0
  * @returns
  */

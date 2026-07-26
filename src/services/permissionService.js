@@ -168,7 +168,7 @@ async function listEconomyAdmins() {
 
 /**
  * @constant CATEGORY_LABELS
- * @type {Object}
+ * @type {object}
  */
 const CATEGORY_LABELS = {
   economy: "economía",
@@ -336,7 +336,7 @@ async function listAdminsForCategory(category) {
   const users = await listUserProfiles();
   /**
    * @constant userMap
-   * @type {Object}
+   * @type {object}
    */
   const userMap = {};
   for (const u of users) {
@@ -345,7 +345,7 @@ async function listAdminsForCategory(category) {
 
   /**
    * @constant permData
-   * @type {Object}
+   * @type {object}
    */
   const permData = {};
   for (const row of rows) {

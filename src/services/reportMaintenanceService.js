@@ -42,7 +42,7 @@ async function getStats() {
   const total = all.length;
   /**
    * @constant byPriority
-   * @type {Object}
+   * @type {object}
    */
   const byPriority = { critical: 0, high: 0, medium: 0, low: 0 };
 
@@ -87,7 +87,7 @@ async function markStale(days) {
   for (const row of rows) {
     /**
      * @constant updatedData
-     * @type {Object}
+     * @type {object}
      */
     const updatedData = { ...row.data, status: "stale" };
     const { error: updateError } = await supabase

@@ -45,7 +45,7 @@ function applyPenalties(stats, hp, fatigue = 0, resistance = 0) {
 
   /**
    * @constant penalized
-   * @type {Object}
+   * @type {object}
    */
   const penalized = {};
   for (const key of Object.keys(fatigueApplied)) {

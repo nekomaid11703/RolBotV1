@@ -53,7 +53,7 @@ function generateDummyCharacter(challengerChar) {
 
   /**
    * @constant dummyStats
-   * @type {Object}
+   * @type {object}
    */
   const dummyStats = {};
   for (const key of keys) {
@@ -100,7 +100,7 @@ async function saveSession(session) {
   try {
     /**
      * @constant payload
-     * @type {Object}
+     * @type {object}
      */
     const payload = {
       id: session.id,
@@ -233,7 +233,7 @@ async function createSession(challengerId, defenderId, challengerChar, defenderC
 
   /**
    * @constant session
-   * @type {Object}
+   * @type {object}
    */
   const session = {
     id: sessionId,
@@ -291,7 +291,7 @@ async function createDummySession(challengerId, challengerChar) {
 
   /**
    * @constant session
-   * @type {Object}
+   * @type {object}
    */
   const session = {
     id: sessionId,

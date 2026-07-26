@@ -5,7 +5,7 @@ const ModuleBase = require("../../modules/ModuleBase");
 
 /**
  * Represents a buff module.
- * @extends ModuleBase
+ * @augments ModuleBase
  */
 class BuffModule extends ModuleBase {
   /**

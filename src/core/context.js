@@ -204,7 +204,7 @@ function createContext(sock, msg) {
       if (content && typeof content === "object" && !Array.isArray(content)) {
         /**
          * @constant payload
-         * @type {Object}
+         * @type {object}
          */
         const payload = { ...content, ...options };
 

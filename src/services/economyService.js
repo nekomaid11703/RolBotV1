@@ -446,7 +446,7 @@ async function claimDaily({ userId, userName = "usuario", registration = {} }) {
 
     /**
      * @constant daily
-     * @type {Object}
+     * @type {object}
      */
     const daily = {
       streak: 0,
@@ -497,7 +497,7 @@ async function claimDaily({ userId, userName = "usuario", registration = {} }) {
 
     /**
      * @constant nextDaily
-     * @type {Object}
+     * @type {object}
      */
     const nextDaily = {
       streak: nextStreak,

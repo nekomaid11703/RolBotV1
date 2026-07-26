@@ -43,7 +43,7 @@ async function recordUserAndGroupActivity(ctx, rawMsg) {
   const isTextMessage = Boolean(ctx.text);
   /**
    * @constant registration
-   * @type {Object}
+   * @type {object}
    */
   const registration = {
     source: "activity",

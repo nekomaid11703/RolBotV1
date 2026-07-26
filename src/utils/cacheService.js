@@ -5,7 +5,7 @@
 class LRUCache {
   /**
    * @param {number} [maxSize] - - max size or length.
-   * @constructor
+   * @class
    */
   constructor(maxSize = 100) {
     this.maxSize = maxSize;
@@ -104,7 +104,7 @@ const cache = new LRUCache(100);
 
 /**
  * @constant TTLS
- * @type {Object}
+ * @type {object}
  */
 const TTLS = {
   textGeneration: 300000,

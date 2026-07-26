@@ -1,6 +1,6 @@
 /**
  * @constant ITEMS
- * @type {Object}
+ * @type {object}
  */
 const ITEMS = {
   venda: {

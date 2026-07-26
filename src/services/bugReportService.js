@@ -25,7 +25,7 @@ const SESSION_ID = "bug_report";
 
 /**
  * @constant PRIORITY_KEYWORDS
- * @type {Object}
+ * @type {object}
  */
 const PRIORITY_KEYWORDS = {
   critical: [
@@ -64,7 +64,7 @@ function determinePriority(description) {
 
 /**
  * @constant CATEGORY_KEYWORDS
- * @type {Object}
+ * @type {object}
  */
 const CATEGORY_KEYWORDS = {
   bug: ["bug", "error", "fallo", "falla", "crash", "no funciona", "roto", "mal", "incorrecto"],
@@ -146,7 +146,7 @@ async function getDailyCount(userId) {
 
 /**
  * Creates a new report.
- * @param { sock, groupId, userId, userName, description, msg }
+ * @param root0
  * @throws {Error}
  * @returns
  * @async
@@ -158,7 +158,7 @@ async function createReport({ sock, groupId, userId, userName, description, msg 
   const role = await getRole(sock, groupId, userId);
   /**
    * @constant limits
-   * @type {Object}
+   * @type {object}
    */
   const limits = { owner: Infinity, admin: 5, user: 3 };
   /**
@@ -215,7 +215,7 @@ async function createReport({ sock, groupId, userId, userName, description, msg 
 
   /**
    * @constant report
-   * @type {Object}
+   * @type {object}
    */
   const report = {
     id,

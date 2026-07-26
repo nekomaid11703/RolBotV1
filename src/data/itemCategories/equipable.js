@@ -5,7 +5,7 @@ const ModuleBase = require("../../modules/ModuleBase");
 
 /**
  * Represents a equipable module.
- * @extends ModuleBase
+ * @augments ModuleBase
  */
 class EquipableModule extends ModuleBase {
   /**

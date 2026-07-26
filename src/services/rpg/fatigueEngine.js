@@ -66,7 +66,7 @@ function applyFatiguePenalties(stats, fatigue, resistance) {
 
   /**
    * @constant result
-   * @type {Object}
+   * @type {object}
    */
   const result = { ...stats };
   for (const key of FATIGUE_SPEED_STATS) {

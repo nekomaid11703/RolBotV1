@@ -14,7 +14,7 @@ const LOGS_DIR = path.join(__dirname, "../../logs");
 
 /**
  * @constant LOG_PREFIX
- * @type {Object}
+ * @type {object}
  */
 const LOG_PREFIX = {
   system: "system",
