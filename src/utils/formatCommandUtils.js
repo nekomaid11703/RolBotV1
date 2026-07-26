@@ -11,8 +11,7 @@ const compactLines = require("./formatErrorUtils").compactLines;
 const LINE = "✦ ━━━━━━━━━━━━━━ ✦";
 
 /**
- * @param { icon = "📘", title, description, usage, example, notes = [] } - TODO: describe parameter "{ icon = "📘", title, description, usage, example, notes = [] }".
- * @param root0
+ * @param {object} options
  * @returns
  */
 function buildUsageBody({ icon = "📘", title, description, usage, example, notes = [] }) {
@@ -33,8 +32,7 @@ function buildUsageBody({ icon = "📘", title, description, usage, example, not
 }
 
 /**
- * @param { icon = "📋", title, description, command, fields = [], example = [], notes = [] } - TODO: describe parameter "{ icon = "📋", title, description, command, fields = [], example = [], notes = [] }".
- * @param root0
+ * @param {object} options
  * @returns
  */
 function buildFormBody({ icon = "📋", title, description, command, fields = [], example = [], notes = [] }) {

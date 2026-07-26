@@ -54,10 +54,6 @@ module.exports = {
       return ctx.reply(formatError(`No tienes un personaje llamado "${name}".`, `Usa /mis_pj para ver tu lista.`));
     }
 
-    /**
-     * @variable admin
-     * @type {boolean}
-     */
     let admin = false;
     if (ctx.isGroup) {
       admin = await isAdmin(ctx.sock, ctx.from, ctx.sender);

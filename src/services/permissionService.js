@@ -103,12 +103,7 @@ async function hasEconomyPermission(candidate) {
 }
 
 /**
- * @param {
-  userId,
-  userName = "usuario",
-  enabled = true,
-  createIfMissing = true,
-  registration = {},
+@param {object} options
 } - TODO: describe parameter "{
   userId,
   userName = "usuario",
@@ -116,7 +111,6 @@ async function hasEconomyPermission(candidate) {
   createIfMissing = true,
   registration = {},
 }".
- * @param root0
  * @returns
  */
 async function setEconomyAdmin({
@@ -227,13 +221,7 @@ async function hasPermissionForCategory(candidate, category) {
 }
 
 /**
- * @param {
-  userId,
-  userName = "usuario",
-  category,
-  enabled = true,
-  createIfMissing = true,
-  registration = {},
+@param {object} options
 } - TODO: describe parameter "{
   userId,
   userName = "usuario",
@@ -242,7 +230,6 @@ async function hasPermissionForCategory(candidate, category) {
   createIfMissing = true,
   registration = {},
 }".
- * @param root0
  * @returns
  */
 async function setAdminForCategory({

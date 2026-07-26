@@ -32,10 +32,6 @@ module.exports = {
      */
     const limit = Number.isFinite(rawLimit) && rawLimit > 0 ? Math.min(10, Math.floor(rawLimit)) : 10;
 
-    /**
-     * @constant [targetProfile, topUsers, targetDisplayName]
-     * @type {any}
-     */
     const [targetProfile, topUsers, targetDisplayName] = await Promise.all([
       getUserProfile({ creatorId: targetId }),
       getTopActiveUsers({ limit }),

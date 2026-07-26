@@ -186,10 +186,6 @@ async function createReport({ sock, groupId, userId, userName, description, msg 
    */
   const id = crypto.randomUUID();
 
-  /**
-   * @variable mediaUrl
-   * @type {any}
-   */
   let mediaUrl = null;
   if (msg && msg.message && msg.message.imageMessage) {
     try {

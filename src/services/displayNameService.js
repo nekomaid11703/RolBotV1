@@ -112,10 +112,6 @@ function extractMentionLabelFromContext(ctx) {
       continue;
     }
 
-    /**
-     * @variable label
-     * @type {any}
-     */
     let label = clean.replace(/^@+/, "");
     while (label.length > 0 && ".,;:!?".includes(label[label.length - 1])) {
       label = label.slice(0, -1);

@@ -5,9 +5,10 @@ const { box } = require("./boxUtils");
 const { formatError } = require("./formatErrorUtils");
 
 /**
- * @param {{ sock: any, from: string, reply: Function }} ctx
- * @param { serviceFn, usageMessage, boxTitle, boxMessage = "" } - TODO: describe parameter "{ serviceFn, usageMessage, boxTitle, boxMessage = "" }".
- * @param {{ serviceFn: (sock: any, jid: string, participantJid: string) => any, usageMessage: string, boxTitle: string, boxMessage?: string }} opts
+ * @param {object} options
+ * @param {object} options
+ * @param {object} options
+ * @param ctx
  * @returns
  */
 async function executeGroupAction(ctx, { serviceFn, usageMessage, boxTitle, boxMessage = "" }) {

@@ -18,8 +18,7 @@ function compactLines(lines) {
 }
 
 /**
- * @param { icon = "ℹ️", title = "Aviso", lines = [] } - TODO: describe parameter "{ icon = "ℹ️", title = "Aviso", lines = [] }".
- * @param root0
+ * @param {object} options
  * @returns
  */
 function buildFeedbackBody({ icon = "ℹ️", title = "Aviso", lines = [] }) {

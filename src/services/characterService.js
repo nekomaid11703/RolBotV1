@@ -2,20 +2,6 @@
 const { supabase } = require("../database/supabase");
 const { filterExisting } = require("../database/columnRegistry");
 const { invalidateUserCache, charactersCacheKey, safeSingleOrNull, cache, TTLS } = require("../utils/safeQuery");
-/**
- * @constant {
-  DEFAULT_CHARACTER_STATS,
-  DEFAULT_CHARACTER_SLOTS,
-  RACES,
-  LEVELABLE_STATS,
-  LEVEL_INITIAL,
-  FREE_POINTS_AT_CREATION,
-  calculateLevel,
-  xpForNextLevel,
-  RANGOS,
-}
- * @type {any}
- */
 const {
   DEFAULT_CHARACTER_STATS,
   DEFAULT_CHARACTER_SLOTS,
@@ -99,13 +85,7 @@ function normalizeCharacterRecord(character) {
 }
 
 /**
- * @param {
-  creatorId,
-  creatorName,
-  characterName,
-  raza = "humano",
-  clase = "civil",
-  statDistribution = {},
+@param {object} options
   historia = "",
 } - TODO: describe parameter "{
   creatorId,
@@ -116,7 +96,6 @@ function normalizeCharacterRecord(character) {
   statDistribution = {},
   historia = "",
 }".
- * @param root0
  * @returns
  */
 async function createCharacter({
@@ -243,8 +222,7 @@ async function createCharacter({
 }
 
 /**
- * @param { creatorId, bypassCache = false }
- * @param root0
+ * @param {object} options
  * @returns
  */
 async function listCharacters({ creatorId, bypassCache = false }) {
@@ -284,8 +262,7 @@ async function listCharacters({ creatorId, bypassCache = false }) {
 }
 
 /**
- * @param { creatorId, bypassCache = false }
- * @param root0
+ * @param {object} options
  * @returns
  */
 async function getActiveCharacter({ creatorId, bypassCache = false }) {
@@ -319,14 +296,7 @@ async function getActiveCharacter({ creatorId, bypassCache = false }) {
 }
 
 /**
- * @param {
-  targetCreatorId,
-  _targetCreatorName,
-  characterName,
-  requesterId,
-  requesterIsAdmin = false,
-}
- * @param root0
+@param {object} options
  * @returns
  */
 async function setActiveCharacter({
@@ -393,8 +363,7 @@ async function setActiveCharacter({
 }
 
 /**
- * @param { creatorId, characterName }
- * @param root0
+ * @param {object} options
  * @returns
  */
 async function deleteCharacter({ creatorId, characterName }) {
@@ -435,7 +404,6 @@ async function deleteCharacter({ creatorId, characterName }) {
 }
 
 /**
- * @param { creatorId }
  * @param root0
  * @returns
  */
@@ -448,8 +416,7 @@ async function getCharacterNames({ creatorId }) {
 }
 
 /**
- * @param { characterName, newName, creatorId, requesterId, requesterIsAdmin = false }
- * @param root0
+ * @param {object} options
  * @returns
  */
 async function renameCharacter({ characterName, newName, creatorId, requesterId, requesterIsAdmin = false }) {
@@ -503,8 +470,7 @@ async function renameCharacter({ characterName, newName, creatorId, requesterId,
 }
 
 /**
- * @param { characterName, creatorId, slots, requesterId, requesterIsAdmin = false }
- * @param root0
+ * @param {object} options
  * @returns
  */
 async function updateCharacterSlots({ characterName, creatorId, slots, requesterId, requesterIsAdmin = false }) {
@@ -560,8 +526,7 @@ async function updateCharacterSlots({ characterName, creatorId, slots, requester
 // =========================
 
 /**
- * @param { creatorId, maxHp }
- * @param root0
+ * @param {object} options
  * @returns
  */
 async function getCombatStats({ creatorId, maxHp }) {
@@ -592,8 +557,7 @@ async function getCombatStats({ creatorId, maxHp }) {
 }
 
 /**
- * @param { creatorId, characterName, cantidad }
- * @param root0
+ * @param {object} options
  * @returns
  */
 async function addXp({ creatorId, characterName, cantidad }) {
@@ -646,8 +610,7 @@ async function addXp({ creatorId, characterName, cantidad }) {
 }
 
 /**
- * @param { creatorId, characterName, hp, maxHp }
- * @param root0
+ * @param {object} options
  * @returns
  */
 async function setHp({ creatorId, characterName, hp, maxHp }) {
@@ -694,8 +657,7 @@ async function setHp({ creatorId, characterName, hp, maxHp }) {
 }
 
 /**
- * @param { creatorId, characterName, maxHp }
- * @param root0
+ * @param {object} options
  * @returns
  */
 async function restaurarHp({ creatorId, characterName, maxHp }) {
@@ -721,8 +683,7 @@ async function restaurarHp({ creatorId, characterName, maxHp }) {
 }
 
 /**
- * @param { creatorId, characterName, stat }
- * @param root0
+ * @param {object} options
  * @returns
  */
 async function distribuirPunto({ creatorId, characterName, stat }) {
@@ -801,8 +762,7 @@ async function distribuirPunto({ creatorId, characterName, stat }) {
 }
 
 /**
- * @param { creatorId, characterName }
- * @param root0
+ * @param {object} options
  * @returns
  */
 async function getXpInfo({ creatorId, characterName }) {

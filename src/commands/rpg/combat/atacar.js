@@ -1,15 +1,5 @@
 // @ts-nocheck
 const { getActiveCharacter, addXp, setHp } = require("../../../services/characterService");
-/**
- * @constant {
-  findSessionByCharacter,
-  findSessionByUser,
-  advanceTurn,
-  setPendingReaction,
-  endSession,
-}
- * @type {any}
- */
 const {
   findSessionByCharacter,
   findSessionByUser,
@@ -17,15 +7,6 @@ const {
   setPendingReaction,
   endSession,
 } = require("../../../services/rpg/combatState");
-/**
- * @constant {
-  executeAttack,
-  executeReaction,
-  chooseAiReaction,
-  calculateXpReward,
-}
- * @type {any}
- */
 const {
   executeAttack,
   executeReaction,
@@ -79,10 +60,6 @@ function applyAttackFatigue(attackerSlot) {
  * @async
  */
 async function handlePvE(ctx, session, attackerSlot, defenderSlot, attackInfo, isChallenger) {
-  /**
-   * @variable aiReaction
-   * @type {string}
-   */
   let aiReaction = "none";
   if (attackInfo.canReact) {
     aiReaction = chooseAiReaction(

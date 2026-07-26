@@ -1,15 +1,5 @@
 // @ts-nocheck
 const { getActiveCharacter, setHp } = require("../../../services/characterService");
-/**
- * @constant {
-  findSessionByCharacter,
-  findSessionByUser,
-  endSession,
-  advanceTurn,
-  setPendingReaction,
-}
- * @type {any}
- */
 const {
   findSessionByCharacter,
   findSessionByUser,
@@ -19,15 +9,6 @@ const {
 } = require("../../../services/rpg/combatState");
 const { rollFlee, executeAttack, executeReaction } = require("../../../services/rpg/combatEngine");
 const { calcFatigueCost, capFatigue } = require("../../../services/rpg/fatigueEngine");
-/**
- * @constant {
-  formatFlee,
-  formatActionMenu,
-  formatReactionPrompt,
-  buildFatigueBar,
-}
- * @type {any}
- */
 const {
   formatFlee,
   formatActionMenu,

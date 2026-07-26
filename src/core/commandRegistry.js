@@ -25,8 +25,10 @@ function normalizeName(value) {
 
 /**
  * Register a command and its aliases.
- * @param {*} command - - Command object with name, execute, and optional aliases.
- * @param {string} fileName - - Source file name for error messages.
+ * @param {object} options
+ * @param {object} options
+ * @param command
+ * @param fileName
  */
 function registerCommand(command, fileName) {
   if (!command?.name) {

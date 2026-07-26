@@ -27,10 +27,6 @@ function buildHpBar(current, max = HP_MAX) {
    */
   const bar = "\u2588".repeat(filled) + "\u2591".repeat(empty);
 
-  /**
-   * @variable icon
-   * @type {any}
-   */
   let icon;
   if (pct > 0.6) icon = "\uD83D\uDFE2";
   else if (pct > 0.3) icon = "\uD83D\uDFE1";

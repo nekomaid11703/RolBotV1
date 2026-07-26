@@ -52,15 +52,12 @@ const KNOWN_SCHEMA = {
 
 /** @type {Record<string, Set<string> | null> | null} */
 let cache = null;
-/**
- * @variable lastDiscovery
- * @type {number}
- */
 let lastDiscovery = 0;
 
 /**
  * Descubre dinámicamente el esquema de columnas uniendo el esquema canónico conocido con las columnas en BD.
- * @param {boolean} [force]
+ * @param {object} options
+ * @param force
  * @returns {Promise<Record<string, Set<string> | null>>}
  */
 async function discover(force = false) {
@@ -129,10 +126,6 @@ function filterExisting(table, data) {
   const cols = cache[table];
   /** @type {*} */
   const filtered = {};
-  /**
-   * @variable skipped
-   * @type {boolean}
-   */
   let skipped = false;
   for (const [key, value] of Object.entries(data)) {
     if (key === undefined || key === null) continue;

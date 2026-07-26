@@ -55,15 +55,6 @@ const CRITICAL_EQUALS_COLUMNS = {
  * @returns {Promise<{errors: string[], warnings: string[]}>} Health check results
  */
 async function checkHealth() {
-  /** @type {string[]} */ const errors = [];
-  /** @type {string[]} */ const warnings = [];
-
-  await discover(true);
-
-  /**
-   * @constant [tableResults, colResults]
-   * @type {any}
-   */
   const [tableResults, colResults] = await Promise.all([
     Promise.all(
       Object.entries(SCHEMA).map(async ([table, { columns }]) => {

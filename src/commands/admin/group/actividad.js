@@ -26,10 +26,6 @@ module.exports = {
      */
     const targetId = getFirstMentionedJid(ctx) || ctx.senderJid || ctx.sender;
 
-    /**
-     * @constant [groupData, memberActivity, metadata, userProfile, targetDisplayName]
-     * @type {any}
-     */
     const [groupData, memberActivity, metadata, userProfile, targetDisplayName] = await Promise.all([
       getGroupActivity(ctx.from),
       getGroupMemberActivity({

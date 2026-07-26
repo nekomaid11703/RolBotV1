@@ -1,14 +1,5 @@
 // @ts-nocheck
 const { createCharacter, setActiveCharacter } = require("../../../services/characterService");
-/**
- * @constant {
-  MAX_CHARACTER_NAME_LENGTH,
-  LEVELABLE_STATS,
-  FREE_POINTS_AT_CREATION,
-  RACES,
-}
- * @type {any}
- */
 const {
   MAX_CHARACTER_NAME_LENGTH,
   LEVELABLE_STATS,
@@ -300,50 +291,18 @@ function tryParseClass(trimmed, currentClass) {
  * @returns
  */
 function parseFormLines(lines) {
-  /**
-   * @variable name
-   * @type {string}
-   */
   let name = "";
-  /**
-   * @variable raza
-   * @type {string}
-   */
   let raza = "";
-  /**
-   * @variable rawRazaInput
-   * @type {string}
-   */
   let rawRazaInput = "";
-  /**
-   * @variable clase
-   * @type {string}
-   */
   let clase = "";
   /**
    * @constant statDistribution
    * @type {object}
    */
   const statDistribution = {};
-  /**
-   * @variable hasCustomStats
-   * @type {boolean}
-   */
   let hasCustomStats = false;
-  /**
-   * @variable historia
-   * @type {string}
-   */
   let historia = "";
-  /**
-   * @variable historiaStarted
-   * @type {boolean}
-   */
   let historiaStarted = false;
-  /**
-   * @variable historiaFirstLine
-   * @type {boolean}
-   */
   let historiaFirstLine = true;
 
   for (const rawLine of lines) {
@@ -490,10 +449,6 @@ function resolveStatDistribution(hasCustomStats, statDistribution) {
    * @constant uniform
    */
   const uniform = Math.floor(FREE_POINTS_AT_CREATION / Object.keys(LEVELABLE_STATS).length);
-  /**
-   * @variable remainder
-   * @type {any}
-   */
   let remainder = FREE_POINTS_AT_CREATION;
   /**
    * @constant result

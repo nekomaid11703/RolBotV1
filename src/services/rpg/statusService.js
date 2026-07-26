@@ -199,10 +199,6 @@ async function cleanExpiredCooldowns(character) {
    * @constant cooldowns
    */
   const cooldowns = getCooldowns(character);
-  /**
-   * @variable changed
-   * @type {boolean}
-   */
   let changed = false;
   for (const [itemId, timestamp] of Object.entries(cooldowns)) {
     if (Date.now() - timestamp > 0) {

@@ -1,16 +1,5 @@
 // @ts-nocheck
 const { getUserProfile, getOrCreateProfile, saveUserProfile } = require("./userService");
-/**
- * @constant {
-  topBalancesCacheKey,
-  invalidateTopBalancesCache,
-  invalidateUserCache,
-  safeSelect,
-  TTLS,
-  cache,
-}
- * @type {any}
- */
 const {
   topBalancesCacheKey,
   invalidateTopBalancesCache,
@@ -48,16 +37,6 @@ async function withUserLock(userId, fn) {
   }
 }
 
-/**
- * @constant {
-  DAILY_BASE_REWARD,
-  DAILY_COOLDOWN_HOURS,
-  DAILY_STREAK_RESET_HOURS,
-  DAILY_STREAK_BONUS_PER_DAY,
-  DAILY_STREAK_BONUS_CAP,
-}
- * @type {any}
- */
 const {
   DAILY_BASE_REWARD,
   DAILY_COOLDOWN_HOURS,
@@ -67,8 +46,7 @@ const {
 } = require("../config/economyConfig");
 
 /**
- * @param { userId, userName = "usuario", createIfMissing = false, registration = {} } - TODO: describe parameter "{ userId, userName = "usuario", createIfMissing = false, registration = {} }".
- * @param root0
+ * @param {object} options
  * @returns
  */
 function resolveEconomyProfile({ userId, userName = "usuario", createIfMissing = false, registration = {} }) {
@@ -280,10 +258,6 @@ async function transferMoney(fromUserId, toUserId, amount, options = {}) {
    */
   const toName = options.toUserName || "usuario";
 
-  /**
-   * @constant [lockA, lockB]
-   * @type {any}
-   */
   const [lockA, lockB] = [fromUserId, toUserId].sort();
   return withUserLock(lockA, async () =>
     withUserLock(lockB, async () => {
@@ -392,8 +366,7 @@ async function transferMoney(fromUserId, toUserId, amount, options = {}) {
 }
 
 /**
- * @param { userId, userName = "usuario", registration = {} } - TODO: describe parameter "{ userId, userName = "usuario", registration = {} }".
- * @param root0
+ * @param {object} options
  * @returns
  */
 async function claimDaily({ userId, userName = "usuario", registration = {} }) {

@@ -130,8 +130,10 @@ function extractText(message) {
 }
 
 /**
- * @param {object} sock - - Socket instance.
- * @param {{ key: { remoteJid: string, participant?: string }, pushName?: string, participant?: string, message?: object }} msg - - Message object.
+ * @param {object} options
+ * @param {object} options
+ * @param sock
+ * @param msg
  * @returns {object} - Context object.
  */
 function createContext(sock, msg) {

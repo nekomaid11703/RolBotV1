@@ -160,14 +160,22 @@ function evaluateDodgeFeasibility(
 
 /**
  * Evalúa la probabilidad de huida basada en MSPD comparativo.
- * @param {*} fleerStats - Estadísticas del que huye
- * @param {number} fleerHp - HP del que huye
- * @param {*} pursuerStats - Estadísticas del perseguidor
- * @param {number} pursuerHp - HP del perseguidor
- * @param {number} [fleerFatigue] - Fatiga del que huye
- * @param {number} [pursuerFatigue] - Fatiga del perseguidor
- * @param {number} [fleerRes] - Resistencia del que huye
- * @param {number} [pursuerRes] - Resistencia del perseguidor
+ * @param {object} options
+ * @param {object} options
+ * @param {object} options
+ * @param {object} options
+ * @param {object} options
+ * @param {object} options
+ * @param {object} options
+ * @param {object} options
+ * @param fleerStats
+ * @param fleerHp
+ * @param pursuerStats
+ * @param pursuerHp
+ * @param fleerFatigue
+ * @param pursuerFatigue
+ * @param fleerRes
+ * @param pursuerRes
  * @returns {{ chance: number, roll: number, success: boolean }} Resultado de la tirada de huida
  */
 function rollFlee(
@@ -189,10 +197,6 @@ function rollFlee(
    */
   const pursuerPenalized = applyPenalties(pursuerStats, pursuerHp, pursuerFatigue, pursuerRes);
 
-  /**
-   * @variable chance
-   * @type {any}
-   */
   let chance;
   if (fleerPenalized.mspd > pursuerPenalized.mspd) {
     chance = 1.0; // Garantizado
@@ -211,7 +215,8 @@ function rollFlee(
 
 /**
  * Intenta bloquear un ataque entrante, reduciendo el daño según BLOCK_REDUCTION.
- * @param {number} incomingDamage - Daño entrante a bloquear
+ * @param {object} options
+ * @param incomingDamage
  * @returns {{ blocked: boolean, damage: number }} Resultado del bloqueo con daño reducido
  */
 function attemptBlock(incomingDamage) {
@@ -223,14 +228,22 @@ function attemptBlock(incomingDamage) {
 
 /**
  * Intenta esquivar un ataque basado en velocidad de movimiento vs velocidad de ataque.
- * @param {*} defenderStats - Estadísticas del defensor
- * @param {number} defenderHp - HP del defensor
- * @param {*} attackerStats - Estadísticas del atacante
- * @param {number} attackerHp - HP del atacante
- * @param {number} [defenderFatigue] - Fatiga del defensor
- * @param {number} [attackerFatigue] - Fatiga del atacante
- * @param {number} [defenderRes] - Resistencia del defensor
- * @param {number} [attackerRes] - Resistencia del atacante
+ * @param {object} options
+ * @param {object} options
+ * @param {object} options
+ * @param {object} options
+ * @param {object} options
+ * @param {object} options
+ * @param {object} options
+ * @param {object} options
+ * @param defenderStats
+ * @param defenderHp
+ * @param attackerStats
+ * @param attackerHp
+ * @param defenderFatigue
+ * @param attackerFatigue
+ * @param defenderRes
+ * @param attackerRes
  * @returns {{ dodged: boolean, damage: (number|null) }} Resultado del intento de esquiva
  */
 function attemptDodge(
@@ -324,14 +337,22 @@ function executeAttack(attackerChar, defenderChar, defenderHp, attackerHp, attac
 
 /**
  * Ejecuta la reacción del defensor (esquivar, bloquear o ninguna) y aplica el daño final.
- * @param {string} reactionType - Tipo de reacción ('dodge', 'block', 'none')
- * @param {number} baseDamage - Daño base antes de reacción
- * @param {*} defenderChar - Personaje defensor
- * @param {number} defenderHp - HP actual del defensor
- * @param {*} attackerChar - Personaje atacante
- * @param {number} attackerHp - HP actual del atacante
- * @param {number} [defenderFatigue] - Fatiga del defensor
- * @param {number} [attackerFatigue] - Fatiga del atacante
+ * @param {object} options
+ * @param {object} options
+ * @param {object} options
+ * @param {object} options
+ * @param {object} options
+ * @param {object} options
+ * @param {object} options
+ * @param {object} options
+ * @param reactionType
+ * @param baseDamage
+ * @param defenderChar
+ * @param defenderHp
+ * @param attackerChar
+ * @param attackerHp
+ * @param defenderFatigue
+ * @param attackerFatigue
  * @returns {*} Resultado completo de la reacción con daño final
  */
 function executeReaction(
@@ -361,20 +382,8 @@ function executeReaction(
    */
   const defenderRes = defenderStats.def || 0;
 
-  /**
-   * @variable finalDamage
-   * @type {any}
-   */
   let finalDamage;
-  /**
-   * @variable reaction
-   * @type {any}
-   */
   let reaction;
-  /**
-   * @variable dodged
-   * @type {boolean}
-   */
   let dodged = false;
 
   if (reactionType === "dodge") {
@@ -604,10 +613,6 @@ function applyAttackModifiers(character, baseDamage, context = {}) {
   const modules = character.slots?.modules;
   if (!modules) return baseDamage;
 
-  /**
-   * @variable modified
-   * @type {any}
-   */
   let modified = baseDamage;
   for (const [type, config] of Object.entries(modules)) {
     /**
@@ -641,10 +646,6 @@ function applyHitModifiers(character, incomingDamage, context = {}) {
   const modules = character.slots?.modules;
   if (!modules) return incomingDamage;
 
-  /**
-   * @variable modified
-   * @type {any}
-   */
   let modified = incomingDamage;
   for (const [type, config] of Object.entries(modules)) {
     /**

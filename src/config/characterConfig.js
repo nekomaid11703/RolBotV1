@@ -244,10 +244,6 @@ function xpForNextLevel(currentLevel) {
  * @returns {number} Calculated level value
  */
 function calculateLevel(stats) {
-  /**
-   * @variable sum
-   * @type {number}
-   */
   let sum = 0;
   for (const key of Object.keys(LEVELABLE_STATS)) {
     sum += stats[key] || 0;

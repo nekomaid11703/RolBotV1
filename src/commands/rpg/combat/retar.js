@@ -61,10 +61,6 @@ module.exports = {
          * @constant session
          */
         const session = await createDummySession(ctx.sender, challengerChar);
-        /**
-         * @variable msg
-         * @type {any}
-         */
         let msg = formatCombatOpen(session, true);
         if (added.length > 0) {
           msg += `\n\n🎒 Se añadieron items de prueba: ${added.join(", ")}.`;

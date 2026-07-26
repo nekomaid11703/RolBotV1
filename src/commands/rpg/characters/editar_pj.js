@@ -53,10 +53,6 @@ module.exports = {
       return ctx.reply(formatError("No tienes un personaje activo.", "Usa /switch_pj para activar uno."));
     }
 
-    /**
-     * @variable admin
-     * @type {boolean}
-     */
     let admin = false;
     if (ctx.isGroup) {
       admin = await isAdmin(ctx.sock, ctx.from, ctx.sender);

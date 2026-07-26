@@ -69,10 +69,6 @@ module.exports = {
       return ctx.reply(formatError(`Ya tienes un personaje llamado "${newName}".`, `Elige otro nombre.`));
     }
 
-    /**
-     * @variable admin
-     * @type {boolean}
-     */
     let admin = false;
     if (ctx.isGroup) {
       admin = await isAdmin(ctx.sock, ctx.from, ctx.sender);

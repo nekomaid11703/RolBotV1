@@ -15,20 +15,8 @@ const TABLE_NAME = "bot_auth_state";
  * @returns {Promise<*>} Auth state object with state and saveCreds
  */
 async function useSupabaseAuthState(sessionId = "default") {
-  /**
-   * @variable consecutiveFailures
-   * @type {number}
-   */
   let consecutiveFailures = 0;
-  /**
-   * @variable circuitOpen
-   * @type {boolean}
-   */
   let circuitOpen = false;
-  /**
-   * @variable nextAttemptTime
-   * @type {number}
-   */
   let nextAttemptTime = 0;
   /**
    * @constant COOLDOWN_MS
@@ -134,10 +122,6 @@ async function useSupabaseAuthState(sessionId = "default") {
     }
   };
 
-  /**
-   * @variable creds
-   * @type {any}
-   */
   let creds = await readData("creds");
   if (!creds) {
     creds = initAuthCreds();
@@ -159,10 +143,6 @@ async function useSupabaseAuthState(sessionId = "default") {
           const data = {};
           await Promise.all(
             ids.map(async (/** @type {string} */ id) => {
-              /**
-               * @variable value
-               * @type {any}
-               */
               let value = await readData(`${type}-${id}`);
               if (type === "app-state-sync-key" && value) {
                 const { proto } = require("@whiskeysockets/baileys");

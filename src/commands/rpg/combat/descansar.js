@@ -1,15 +1,5 @@
 // @ts-nocheck
 const { getActiveCharacter, setHp } = require("../../../services/characterService");
-/**
- * @constant {
-  findSessionByCharacter,
-  findSessionByUser,
-  advanceTurn,
-  setPendingReaction,
-  endSession,
-}
- * @type {any}
- */
 const {
   findSessionByCharacter,
   findSessionByUser,

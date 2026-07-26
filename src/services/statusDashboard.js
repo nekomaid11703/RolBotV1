@@ -2,17 +2,9 @@
 const { stats, getUptime, getMemory, formatDuration } = require("./stats");
 const { getRecentErrors } = require("./loggerService");
 
-/**
- * @variable dashboardTimer
- * @type {any}
- */
 let dashboardTimer = null;
 /** @type {Array<{time: string, source: string, message: string}>} */
 let cachedErrors = [];
-/**
- * @variable lastErrorFetch
- * @type {number}
- */
 let lastErrorFetch = 0;
 /**
  * @constant ERROR_CACHE_MS
@@ -214,10 +206,6 @@ async function render() {
          * @constant t
          */
         const t = e.time.toLocaleTimeString("es-ES", { hour12: false });
-        /**
-         * @variable ic
-         * @type {any}
-         */
         let ic;
         if (e.type === "cmd") ic = C + ">" + R;
         else if (e.type === "err") ic = RE + "X" + R;

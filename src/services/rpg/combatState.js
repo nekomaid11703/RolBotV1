@@ -12,10 +12,6 @@ const moduleRegistry = require("../../modules/moduleRegistry");
  * @type {Map}
  */
 const sessions = new Map();
-/**
- * @variable cleanupInterval
- * @type {any}
- */
 let cleanupInterval = null;
 
 /**
@@ -202,10 +198,6 @@ function isSessionActive(session) {
  * @returns {number} Número de sesiones activas
  */
 function getActiveSessionCount() {
-  /**
-   * @variable count
-   * @type {number}
-   */
   let count = 0;
   for (const session of sessions.values()) {
     if (isSessionActive(session)) count++;
@@ -428,10 +420,14 @@ function triggerModuleEvent(session, event, context = {}) {
 
 /**
  * Avanza al siguiente turno actualizando HP, fatiga y cambiando el turno al otro personaje.
- * @param {string} sessionId - ID de la sesión
- * @param {number} newAttackerHp - Nuevo HP del atacante
- * @param {number} newDefenderHp - Nuevo HP del defensor
- * @param {boolean} [skipRound] - Si true, no incrementa el contador de rondas
+ * @param {object} options
+ * @param {object} options
+ * @param {object} options
+ * @param {object} options
+ * @param sessionId
+ * @param newAttackerHp
+ * @param newDefenderHp
+ * @param skipRound
  * @returns {Promise<*|null>} Sesión actualizada o null si no existe
  */
 async function advanceTurn(sessionId, newAttackerHp, newDefenderHp, skipRound = false) {

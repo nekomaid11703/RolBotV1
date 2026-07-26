@@ -23,15 +23,7 @@ function loadCommands() {
   commands.clear();
   aliases.clear();
 
-  /**
-   * @variable commandCount
-   * @type {number}
-   */
   let commandCount = 0;
-  /**
-   * @variable aliasCount
-   * @type {number}
-   */
   let aliasCount = 0;
 
   /**

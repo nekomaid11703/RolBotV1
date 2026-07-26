@@ -1,17 +1,6 @@
 // @ts-nocheck
 const { supabase } = require("../database/supabase");
 const { filterExisting } = require("../database/columnRegistry");
-/**
- * @constant {
-  safeSingleOrNull,
-  userCacheKey,
-  invalidateUserCache,
-  TTLS,
-  cache,
-  topActiveUsersCacheKey,
-}
- * @type {any}
- */
 const {
   safeSingleOrNull,
   userCacheKey,
@@ -63,10 +52,6 @@ async function listUserProfiles(bypassCache = false, opts = {}) {
     if (cached) return cached;
   }
 
-  /**
-   * @variable query
-   * @type {any}
-   */
   let query = supabase.from("players").select("*");
   if (opts.limit) query = query.range(opts.offset || 0, (opts.offset || 0) + opts.limit - 1);
   const { data, error } = await query;
@@ -92,8 +77,7 @@ async function listUserProfiles(bypassCache = false, opts = {}) {
 }
 
 /**
- * @param { creatorId, registration = {} }
- * @param root0
+ * @param {object} options
  * @returns
  */
 function buildRegistration({ creatorId, registration = {} }) {
@@ -111,8 +95,7 @@ function buildRegistration({ creatorId, registration = {} }) {
 }
 
 /**
- * @param { creatorId, creatorName, registration = {} }
- * @param root0
+ * @param {object} options
  * @returns
  */
 function buildDefaultProfile({ creatorId, creatorName, registration = {} }) {
@@ -172,8 +155,7 @@ function buildDefaultProfile({ creatorId, creatorName, registration = {} }) {
 }
 
 /**
- * @param { creatorId, registration = {}, fallback = {} }
- * @param root0
+ * @param {object} options
  * @returns
  */
 function normalizeRegistration({ creatorId, registration = {}, fallback = {} }) {
@@ -221,8 +203,7 @@ function normalizeActivity(activity = {}) {
 
 /**
  * @param profile
- * @param { creatorId, creatorName }
- * @param root0
+ * @param {object} options
  * @returns
  */
 function normalizeProfile(profile, { creatorId, creatorName }) {
@@ -312,8 +293,7 @@ function normalizeProfile(profile, { creatorId, creatorName }) {
 }
 
 /**
- * @param { creatorId, creatorName = "usuario", registration = {} } - TODO: describe parameter "{ creatorId, creatorName = "usuario", registration = {} }".
- * @param root0
+ * @param {object} options
  * @returns
  */
 async function ensureUserProfile({ creatorId, creatorName = "usuario", registration = {} }) {
@@ -338,8 +318,7 @@ async function ensureUserProfile({ creatorId, creatorName = "usuario", registrat
 }
 
 /**
- * @param { creatorId, bypassCache = false }
- * @param root0
+ * @param {object} options
  * @returns
  */
 async function getUserProfile({ creatorId, bypassCache = false }) {
@@ -381,8 +360,7 @@ async function getUserProfile({ creatorId, bypassCache = false }) {
 }
 
 /**
- * @param { folder: _folder, profile }
- * @param root0
+ * @param {object} options
  * @returns
  */
 async function saveUserProfile({ folder: _folder, profile }) {
@@ -406,8 +384,7 @@ async function saveUserProfile({ folder: _folder, profile }) {
 }
 
 /**
- * @param { creatorId, creatorName = "usuario", registration = {} } - TODO: describe parameter "{ creatorId, creatorName = "usuario", registration = {} }".
- * @param root0
+ * @param {object} options
  * @returns
  */
 async function getOrCreateProfile({ creatorId, creatorName = "usuario", registration = {} }) {
@@ -456,18 +433,7 @@ function resolveActivityBucket(messageType) {
 }
 
 /**
- * @param {
-  creatorId,
-  creatorName = "usuario",
-  displayName,
-  pushName,
-  senderJid,
-  senderNumber,
-  messageType = "unknown",
-  messageCount = 0,
-  commandCount = 0,
-  isText = false,
-  registration = {},
+@param {object} options
 } - TODO: describe parameter "{
   creatorId,
   creatorName = "usuario",
@@ -481,7 +447,6 @@ function resolveActivityBucket(messageType) {
   isText = false,
   registration = {},
 }".
- * @param root0
  * @returns
  */
 async function recordUserActivity({
@@ -535,10 +500,6 @@ async function recordUserActivity({
    * @constant now
    */
   const now = new Date().toISOString();
-  /**
-   * @variable changed
-   * @type {boolean}
-   */
   let changed = false;
 
   if (typeof displayName === "string") {
@@ -680,8 +641,7 @@ function sortActivityProfilesDesc(a, b) {
 }
 
 /**
- * @param {object} [{ limit = 10, bypassCache = false }]
- * @param root0
+ * @param {object} options
  * @returns
  */
 async function getTopActiveUsers({ limit = 10, bypassCache = false } = {}) {

@@ -50,10 +50,6 @@ module.exports = {
      * @constant hasDrop
      */
     const hasDrop = fullMatch[4] !== undefined;
-    /**
-     * @variable cantidad
-     * @type {any}
-     */
     let cantidad = parseInt(hasDrop ? fullMatch[1] || "1" : fullMatch[5] || "1");
     /**
      * @constant caras
@@ -91,15 +87,7 @@ module.exports = {
      * @type {Array}
      */
     const rolls = [];
-    /**
-     * @variable criticosAltos
-     * @type {number}
-     */
     let criticosAltos = 0;
-    /**
-     * @variable criticosBajos
-     * @type {number}
-     */
     let criticosBajos = 0;
 
     for (let i = 0; i < cantidad; i++) {
@@ -144,10 +132,6 @@ module.exports = {
        * @constant isDropped
        */
       const isDropped = dropLowest > 0 && lowest.includes(r);
-      /**
-       * @variable label
-       * @type {any}
-       */
       let label = "" + r;
       if (r === caras) label = "\uD83C\uDF89" + r;
       else if (r === 1) label = "\uD83D\uDC80" + r;

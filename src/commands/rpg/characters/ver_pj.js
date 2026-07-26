@@ -40,10 +40,6 @@ module.exports = {
       return ctx.reply("❌ No tienes un personaje activo. Usa `/crear_pj` o `/switch_pj`.");
     }
 
-    /**
-     * @variable inventory
-     * @type {Array}
-     */
     let inventory = [];
     try {
       inventory = await getInventory(character.id);

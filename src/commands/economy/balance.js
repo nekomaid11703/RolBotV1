@@ -4,7 +4,7 @@ const { formatStelas } = require("../../utils/economyUtils");
 const { box } = require("../../utils/boxUtils");
 
 /**
- * @param {{ mentionedJid?: string[], sender: string }} ctx.
+ * @param {object} options
  * @param ctx
  * @returns
  */

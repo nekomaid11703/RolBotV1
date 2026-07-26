@@ -45,10 +45,6 @@ function formatCharacter(character, inventoryParam = null, maxHpOverride) {
     }
   }
 
-  /**
-   * @variable inventory
-   * @type {any}
-   */
   let inventory = inventoryParam;
   if (!Array.isArray(inventory)) {
     inventory = Array.isArray(character.inventory) ? character.inventory : null;

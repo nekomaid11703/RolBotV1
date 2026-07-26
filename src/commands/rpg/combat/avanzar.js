@@ -2,15 +2,6 @@ const { getActiveCharacter } = require("../../../services/characterService");
 const { findSessionByCharacter, updateDistance } = require("../../../services/rpg/combatState");
 const { calculateMovementFatigue, capFatigue, getMovementRange } = require("../../../services/rpg/fatigueEngine");
 const { checkAttackRange } = require("../../../services/rpg/combatEngine");
-/**
- * @constant {
-  formatMovement,
-  formatOutOfRange,
-  formatActionMenu,
-  buildFatigueBar,
-}
- * @type {any}
- */
 const {
   formatMovement,
   formatOutOfRange,
@@ -40,7 +31,8 @@ module.exports = {
   category: "rpg",
 
   /**
-   * @param {{ reply: (msg: string) => any, sender: string, userName: string, args: string[] }} ctx - Contexto del comando
+   * @param {object} options
+   * @param ctx
    * @returns {Promise<void>}
    */
   async execute(ctx) {

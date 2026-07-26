@@ -1,20 +1,4 @@
 // @ts-nocheck
-/**
- * @constant {
-  FATIGUE_THRESHOLDS,
-  FATIGUE_SPEED_STATS,
-  FATIGUE_COSTS,
-  FATIGUE_RECOVERY,
-  FATIGUE_ATK_COST_SCALE,
-  FATIGUE_DEF_REDUCTION_SCALE,
-  FATIGUE_DODGE_MSPD_REDUCTION,
-  FATIGUE_REST_DEF_SCALE,
-  FATIGUE_COST_MIN,
-  FATIGUE_RECOVERY_MAX,
-  FATIGUE_MAX,
-}
- * @type {any}
- */
 const {
   FATIGUE_THRESHOLDS,
   FATIGUE_SPEED_STATS,
@@ -79,8 +63,10 @@ function applyFatiguePenalties(stats, fatigue, resistance) {
 
 /**
  * Calcula el costo de fatiga de una acción basado en estadísticas.
- * @param {string} actionName - Nombre de la acción ('attack', 'dodge', 'flee', etc.)
- * @param {*} [stats] - Estadísticas del personaje
+ * @param {object} options
+ * @param {object} options
+ * @param actionName
+ * @param stats
  * @returns {number} Costo de fatiga calculado
  */
 function calcFatigueCost(actionName, stats = {}) {
@@ -129,9 +115,12 @@ function calcFatigueCost(actionName, stats = {}) {
 
 /**
  * Calcula la recuperación de fatiga según el método y nivel actual.
- * @param {string} method - Método de recuperación ('rest', etc.)
- * @param {number} fatigue - Nivel de fatiga actual
- * @param {number} resistance - Resistencia máxima
+ * @param {object} options
+ * @param {object} options
+ * @param {object} options
+ * @param method
+ * @param fatigue
+ * @param resistance
  * @returns {number} Cantidad de fatiga recuperada
  */
 function calcFatigueRecovery(method, fatigue, resistance) {

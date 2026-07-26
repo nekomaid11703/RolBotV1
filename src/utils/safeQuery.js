@@ -37,8 +37,7 @@ async function safeMaybeSingle(query) {
 }
 
 /**
- * @param { key, fetch, ttl, bypassCache = false }
- * @param root0
+ * @param {object} options
  * @returns
  */
 async function cachedRead({ key, fetch, ttl, bypassCache = false }) {

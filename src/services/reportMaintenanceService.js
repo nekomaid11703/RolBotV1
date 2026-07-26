@@ -79,10 +79,6 @@ async function markStale(days) {
   if (selectError) throw new Error(`Error buscando reportes stale: ${selectError.message}`);
   if (!rows || rows.length === 0) return 0;
 
-  /**
-   * @variable count
-   * @type {number}
-   */
   let count = 0;
   for (const row of rows) {
     /**

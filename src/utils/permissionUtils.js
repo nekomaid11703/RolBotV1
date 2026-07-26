@@ -1,15 +1,5 @@
 // @ts-nocheck
 const { OWNERS } = require("../config/permissionsConfig");
-/**
- * @constant {
-  normalizeJid,
-  extractPhoneNumber,
-  isSameIdentity,
-  toIdentityCandidates,
-  uniqueStrings,
-}
- * @type {any}
- */
 const {
   normalizeJid,
   extractPhoneNumber,

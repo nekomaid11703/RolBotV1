@@ -34,8 +34,7 @@ function invalidateGroupCache(groupId) {
 }
 
 /**
- * @param { groupId, groupName = "" } - TODO: describe parameter "{ groupId, groupName = "" }".
- * @param root0
+ * @param {object} options
  * @returns
  */
 function buildDefaultGroupRecord({ groupId, groupName = "" }) {
@@ -138,16 +137,11 @@ async function getGroupActivity(groupId, bypassCache = false) {
 }
 
 /**
- * @param { groupId, groupName = "" } - TODO: describe parameter "{ groupId, groupName = "" }".
- * @param root0
+ * @param {object} options
  * @returns
  */
 async function ensureGroupActivity({ groupId, groupName = "" }) {
   if (!groupId) throw new Error("Falta el identificador del grupo.");
-  /**
-   * @variable record
-   * @type {any}
-   */
   let record = await getGroupActivity(groupId);
   if (!record) {
     record = buildDefaultGroupRecord({ groupId, groupName });
@@ -196,15 +190,7 @@ async function saveGroupActivity(record) {
 }
 
 /**
- * @param {
-  groupId,
-  groupName = "",
-  memberId,
-  memberName = "usuario",
-  messageType = "unknown",
-  messageCount = 0,
-  isText = false,
-} - TODO: describe parameter "{
+@param {object} options
   groupId,
   groupName = "",
   memberId,
@@ -213,7 +199,6 @@ async function saveGroupActivity(record) {
   messageCount = 0,
   isText = false,
 }".
- * @param root0
  * @returns
  */
 async function recordGroupActivity({
@@ -262,10 +247,6 @@ async function recordGroupActivity({
    */
   const cleanMemberName = String(memberName || "usuario").trim() || "usuario";
 
-  /**
-   * @variable changed
-   * @type {boolean}
-   */
   let changed = false;
 
   if (safeMessageCount > 0) {
@@ -281,10 +262,6 @@ async function recordGroupActivity({
       record.totals[bucket] = Number(record.totals[bucket] || 0) + safeMessageCount;
     }
 
-    /**
-     * @variable member
-     * @type {any}
-     */
     let member = record.members[cleanMemberId];
 
     if (!member) {
@@ -332,8 +309,7 @@ async function recordGroupActivity({
 }
 
 /**
- * @param { groupId, limit = GROUP_TOP_LIMIT, bypassCache = false }
- * @param root0
+ * @param {object} options
  * @returns
  */
 async function getTopGroupMembers({ groupId, limit = GROUP_TOP_LIMIT, bypassCache = false }) {
@@ -393,8 +369,7 @@ async function getTopGroupMembers({ groupId, limit = GROUP_TOP_LIMIT, bypassCach
 }
 
 /**
- * @param { groupId, memberId }
- * @param root0
+ * @param {object} options
  * @returns
  */
 async function getGroupMemberActivity({ groupId, memberId }) {

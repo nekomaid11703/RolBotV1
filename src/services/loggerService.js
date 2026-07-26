@@ -175,18 +175,8 @@ async function logSystem(message, details = {}) {
 }
 
 /**
- * @param {{ userId: string, userName: string, userPhone?: string|null, groupId: string, inputCommand: string, resolvedCommand: string, args?: string[], status?: string, reason?: string }} opts - Options object.
- * @param {
-  userId,
-  userName,
-  userPhone = null,
-  groupId,
-  inputCommand,
-  resolvedCommand,
-  args = [],
-  status = "success",
-  reason = "",
-} - TODO: describe parameter "{
+ * @param {object} options
+@param {object} options
   userId,
   userName,
   userPhone = null,
@@ -223,8 +213,8 @@ async function logCommand({
 }
 
 /**
- * @param {{ source?: string, userId?: string|null, userName?: string|null, groupId?: string|null, error: unknown, context?: object }} opts - Options object.
- * @param { source = "unknown", userId = null, userName = null, groupId = null, error, context = {} } - TODO: describe parameter "{ source = "unknown", userId = null, userName = null, groupId = null, error, context = {} }".
+ * @param {object} options
+ * @param {object} options
  */
 async function logError({ source = "unknown", userId = null, userName = null, groupId = null, error, context = {} }) {
   /**
@@ -245,8 +235,10 @@ async function logError({ source = "unknown", userId = null, userName = null, gr
 
 /**
  * Parse error entries from log content.
- * @param {string} content - - Raw log file content.
- * @param {number} [limit] - - Max entries to return.
+ * @param {object} options
+ * @param {object} options
+ * @param content
+ * @param limit
  * @returns {Array<{time: string, source: string, message: string}>}
  */
 function parseErrorEntries(content, limit = 5) {
@@ -292,7 +284,8 @@ function parseErrorEntries(content, limit = 5) {
 
 /**
  * Get recent errors from today's error log.
- * @param {number} [limit] - - Max errors to return.
+ * @param {object} options
+ * @param limit
  * @returns {Promise<Array<{time: string, source: string, message: string}>>}
  */
 async function getRecentErrors(limit = 5) {
@@ -317,8 +310,10 @@ async function getRecentErrors(limit = 5) {
 
 /**
  * Get recent errors from a specific date's log.
- * @param {string} dateStr - - Date in YYYY-MM-DD format.
- * @param {number} [limit] - - Max errors to return.
+ * @param {object} options
+ * @param {object} options
+ * @param dateStr
+ * @param limit
  * @returns {Promise<Array<{time: string, source: string, message: string}>>}
  */
 async function getErrorsByDate(dateStr, limit = 10) {

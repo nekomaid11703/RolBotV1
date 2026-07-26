@@ -68,27 +68,11 @@ const USE_PAIRING_CODE = process.argv.slice(2).includes("code");
 const SUPABASE_TABLE = "bot_auth_state";
 /** @type {object|null} */
 let currentSock = null;
-/**
- * @variable reconnectAttempts
- * @type {number}
- */
 let reconnectAttempts = 0;
-/**
- * @variable restartRequiredCount
- * @type {number}
- */
 let restartRequiredCount = 0;
 /** @type {ReturnType<typeof setInterval>|null} */
 let watchdogTimer = null;
-/**
- * @variable pairingCodeRequested
- * @type {boolean}
- */
 let pairingCodeRequested = false;
-/**
- * @variable pairingCodeRegistered
- * @type {boolean}
- */
 let pairingCodeRegistered = false;
 /** @type {string|null} */
 let cachedPairingPhone = null;

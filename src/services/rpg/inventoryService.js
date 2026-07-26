@@ -18,8 +18,10 @@ const characterLocks = new Map();
 
 /**
  * Ejecuta una función con un lock exclusivo por personaje para evitar condiciones de carrera.
- * @param {string|number} characterId - ID del personaje
- * @param {() => Promise<*>} fn - Función asíncrona a ejecutar bajo lock
+ * @param {object} options
+ * @param {object} options
+ * @param characterId
+ * @param fn
  * @returns {Promise<*>} Resultado de la función ejecutada
  */
 async function withCharacterLock(characterId, fn) {
@@ -262,15 +264,7 @@ async function useItem(creatorId, itemId) {
       await supabase.from("inventory").update(payload).eq("character_id", character.id).eq("item_id", itemId);
     }
 
-    /**
-     * @variable hpBefore
-     * @type {any}
-     */
     let hpBefore = character.hp_actual;
-    /**
-     * @variable hpAfter
-     * @type {any}
-     */
     let hpAfter = character.hp_actual;
 
     for (const { type, result } of results) {

@@ -47,10 +47,6 @@ module.exports = {
        * @type {Array}
        */
       const lines = [];
-      /**
-       * @variable chunk
-       * @type {string}
-       */
       let chunk = "";
       for (const jid of memberJids) {
         /**
