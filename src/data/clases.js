@@ -3,7 +3,7 @@
 
 /**
  * @constant CLASES
- * @type {object}
+ * @type {Record<string, {id: string, name: string, description: string, baseStats: object}>}
  */
 const CLASES = {
   civil: {

@@ -3,7 +3,7 @@ const { ITEMS, getItem: getRawItem } = require("../../data/items");
 const { createEntity } = require("../../modules/entityFactory");
 
 /**
- * @param itemId
+ * @param {*} itemId
  * @returns
  */
 function createItem(itemId) {
@@ -29,15 +29,11 @@ function createItem(itemId) {
     modules: def.modules || {},
   });
 
-  entity.use = function use(context) {
-    return this.trigger("Use", context);
-  };
-
   return entity;
 }
 
 /**
- * @param itemId
+ * @param {*} itemId
  * @returns
  */
 function getItem(itemId) {

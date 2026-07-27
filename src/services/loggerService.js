@@ -24,7 +24,7 @@ const LOG_PREFIX = {
 
 /**
  * @constant writeQueues
- * @type {Map}
+ * @type {Map<*, *>}
  */
 const writeQueues = new Map();
 /**
@@ -176,17 +176,15 @@ async function logSystem(message, details = {}) {
 
 /**
  * @param {object} options
-@param {object} options
-  userId,
-  userName,
-  userPhone = null,
-  groupId,
-  inputCommand,
-  resolvedCommand,
-  args = [],
-  status = "success",
-  reason = "",
-}".
+ * @param {string} options.userId
+ * @param {string} options.userName
+ * @param {string|null} [options.userPhone=null]
+ * @param {string} [options.groupId]
+ * @param {string} options.inputCommand
+ * @param {string} options.resolvedCommand
+ * @param {*[]} [options.args=[]]
+ * @param {string} [options.status="success"]
+ * @param {string} [options.reason=""]
  */
 async function logCommand({
   userId,
@@ -214,7 +212,12 @@ async function logCommand({
 
 /**
  * @param {object} options
- * @param {object} options
+ * @param {string} [options.source="unknown"]
+ * @param {string|null} [options.userId=null]
+ * @param {string|null} [options.userName=null]
+ * @param {string|null} [options.groupId=null]
+ * @param {*} options.error
+ * @param {object} [options.context={}]
  */
 async function logError({ source = "unknown", userId = null, userName = null, groupId = null, error, context = {} }) {
   /**
@@ -235,16 +238,14 @@ async function logError({ source = "unknown", userId = null, userName = null, gr
 
 /**
  * Parse error entries from log content.
- * @param {object} options
- * @param {object} options
- * @param content
- * @param limit
- * @returns {Array<{time: string, source: string, message: string}>}
+ * @param {string} content
+ * @param {number} [limit=5]
+ * @returns {*[]}
  */
 function parseErrorEntries(content, limit = 5) {
   /**
    * @constant entries
-   * @type {Array}
+   * @type {*[]}
    */
   const entries = [];
   /**
@@ -284,9 +285,8 @@ function parseErrorEntries(content, limit = 5) {
 
 /**
  * Get recent errors from today's error log.
- * @param {object} options
- * @param limit
- * @returns {Promise<Array<{time: string, source: string, message: string}>>}
+ * @param {number} [limit=5]
+ * @returns {Promise<*[]>}
  */
 async function getRecentErrors(limit = 5) {
   try {
@@ -310,11 +310,9 @@ async function getRecentErrors(limit = 5) {
 
 /**
  * Get recent errors from a specific date's log.
- * @param {object} options
- * @param {object} options
- * @param dateStr
- * @param limit
- * @returns {Promise<Array<{time: string, source: string, message: string}>>}
+ * @param {string} dateStr
+ * @param {number} [limit=10]
+ * @returns {Promise<*[]>}
  */
 async function getErrorsByDate(dateStr, limit = 10) {
   try {

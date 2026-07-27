@@ -51,7 +51,7 @@ function isMeaningfulDisplayName(value) {
 
 /**
  * Formats the real mention tag.
- * @param jid - - jid.
+ * @param {*} jid - - jid.
  * @param {string} [fallback] - - fallback.
  * @returns
  */
@@ -75,7 +75,7 @@ function formatRealMentionTag(jid, fallback = "usuario") {
 
 /**
  * Formats the display mention.
- * @param jid - - jid.
+ * @param {*} jid - - jid.
  * @param {string} [displayName] - - display display name.
  * @returns
  */
@@ -98,14 +98,14 @@ function formatDisplayMention(jid, displayName = "usuario") {
 
 /**
  * Returns the profile display name.
- * @param profile - - profile.
+ * @param {*} profile - - profile.
  * @param {string} [fallback] - - fallback.
  * @returns
  */
 function getProfileDisplayName(profile, fallback = "usuario") {
   /**
    * @constant candidates
-   * @type {Array}
+   * @type {*[]}
    */
   const candidates = [
     profile?.metadata?.displayName,
@@ -123,7 +123,7 @@ function getProfileDisplayName(profile, fallback = "usuario") {
 
 /**
  * With mentions.
- * @param text - - text content.
+ * @param {*} text - - text content.
  * @param {Array} [mentions] - - mentions.
  * @returns
  */

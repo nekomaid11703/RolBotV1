@@ -17,7 +17,7 @@ const { getClase } = require("../data/clases");
 const { sanitizeName, ensureUserProfile } = require("./userService");
 
 /**
- * @param characterName
+ * @param {*} characterName
  * @returns
  */
 function getCharacterSlug(characterName) {
@@ -43,7 +43,7 @@ function normalizeStats(stats = {}) {
 }
 
 /**
- * @param character
+ * @param {*} character
  * @returns
  */
 function normalizeCharacterRecord(character) {
@@ -402,7 +402,7 @@ async function deleteCharacter({ creatorId, characterName }) {
 }
 
 /**
- * @param root0
+ * @param {*} root0
  * @returns
  */
 async function getCharacterNames({ creatorId }) {

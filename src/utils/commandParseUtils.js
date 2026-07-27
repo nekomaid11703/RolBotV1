@@ -1,7 +1,7 @@
 // @ts-nocheck
 /**
  * Returns the first mentioned jid.
- * @param ctx - - execution context.
+ * @param {*} ctx - - execution context.
  * @returns
  */
 function getFirstMentionedJid(ctx) {
@@ -14,7 +14,7 @@ function getFirstMentionedJid(ctx) {
 
 /**
  * Parses the positive integer.
- * @param value - - value to process.
+ * @param {*} value - - value to process.
  * @returns
  */
 function parsePositiveInteger(value) {
@@ -41,7 +41,7 @@ function parsePositiveInteger(value) {
 
 /**
  * Extracts the amount from args.
- * @param args - - arguments.
+ * @param {*} args - - arguments.
  * @param {object} [{ min]
  * @returns
  */

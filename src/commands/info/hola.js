@@ -13,7 +13,7 @@ module.exports = {
   /**
    * Executes the .
    * @async
-   * @param ctx - execution context.
+   * @param {*} ctx - execution context.
    */
   async execute(ctx) {
     await ctx.react("👋");

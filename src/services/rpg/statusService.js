@@ -7,7 +7,7 @@ const { logError } = require("../loggerService");
 const moduleRegistry = require("../../modules/moduleRegistry");
 
 /**
- * @param character
+ * @param {*} character
  * @returns
  */
 function getActiveEffects(character) {
@@ -15,7 +15,7 @@ function getActiveEffects(character) {
 }
 
 /**
- * @param character
+ * @param {*} character
  * @returns
  */
 function getCooldowns(character) {
@@ -23,8 +23,8 @@ function getCooldowns(character) {
 }
 
 /**
- * @param characterId
- * @param slots
+ * @param {*} characterId
+ * @param {*} slots
  */
 async function saveSlots(characterId, slots) {
   /**
@@ -33,14 +33,14 @@ async function saveSlots(characterId, slots) {
   const payload = filterExisting("characters", { slots, updated_at: new Date().toISOString() });
   const { error } = await supabase.from("characters").update(payload).eq("id", characterId);
   if (error) {
-    logError({ source: "statusService.saveSlots", error, characterId });
+    logError({ source: "statusService.saveSlots", error, context: { characterId } });
     throw new Error(`Error guardando estados: ${error.message}`);
   }
 }
 
 /**
- * @param character
- * @param effect
+ * @param {*} character
+ * @param {*} effect
  * @returns
  */
 async function addEffect(character, effect) {
@@ -60,8 +60,8 @@ async function addEffect(character, effect) {
 }
 
 /**
- * @param characterId
- * @param character
+ * @param {*} characterId
+ * @param {*} character
  * @returns
  */
 async function tickEffects(characterId, character) {
@@ -74,12 +74,12 @@ async function tickEffects(characterId, character) {
 
   /**
    * @constant remaining
-   * @type {Array}
+   * @type {*[]}
    */
   const remaining = [];
   /**
    * @constant expired
-   * @type {Array}
+   * @type {*[]}
    */
   const expired = [];
 
@@ -114,8 +114,8 @@ async function tickEffects(characterId, character) {
 }
 
 /**
- * @param characterId
- * @param character
+ * @param {*} characterId
+ * @param {*} character
  */
 async function clearEffects(characterId, character) {
   /**
@@ -128,8 +128,8 @@ async function clearEffects(characterId, character) {
 }
 
 /**
- * @param character
- * @param itemId
+ * @param {*} character
+ * @param {*} itemId
  * @returns
  */
 function getCooldown(character, itemId) {
@@ -153,13 +153,13 @@ function getCooldown(character, itemId) {
 }
 
 /**
- * @param character
- * @param itemId
+ * @param {*} character
+ * @param {*} itemId
  */
 async function cleanCooldown(character, itemId) {
   /**
    * @constant cooldowns
-   * @type {object}
+   * @type {Record<string, number>}
    */
   const cooldowns = { ...getCooldowns(character) };
   delete cooldowns[itemId];
@@ -173,8 +173,8 @@ async function cleanCooldown(character, itemId) {
 }
 
 /**
- * @param character
- * @param itemId
+ * @param {*} character
+ * @param {*} itemId
  */
 async function setCooldown(character, itemId) {
   /**
@@ -192,7 +192,7 @@ async function setCooldown(character, itemId) {
 }
 
 /**
- * @param character
+ * @param {*} character
  */
 async function cleanExpiredCooldowns(character) {
   /**

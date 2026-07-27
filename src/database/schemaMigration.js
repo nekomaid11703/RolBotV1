@@ -123,7 +123,7 @@ async function detectMissingColumns() {
   const registry = await discover(true);
   /**
    * @constant missing
-   * @type {Array}
+   * @type {*[]}
    */
   const missing = [];
 
@@ -159,7 +159,7 @@ async function generateMigrationSQL() {
 
   /**
    * @constant statements
-   * @type {Array}
+   * @type {*[]}
    */
   const statements = [];
 
@@ -215,7 +215,7 @@ async function createMissingTables() {
   const registry = await discover(true);
   /**
    * @constant created
-   * @type {Array}
+   * @type {*[]}
    */
   const created = [];
 
@@ -231,7 +231,8 @@ async function createMissingTables() {
         created.push(table);
       }
     } catch (err) {
-      await logSystem(`Migration: error creando tabla "${table}": ${err.message}`);
+      const msg = err instanceof Error ? err.message : String(err);
+      await logSystem(`Migration: error creando tabla "${table}": ${msg}`);
     }
   }
 

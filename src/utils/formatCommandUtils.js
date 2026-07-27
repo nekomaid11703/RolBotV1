@@ -17,7 +17,7 @@ const LINE = "✦ ━━━━━━━━━━━━━━ ✦";
 function buildUsageBody({ icon = "📘", title, description, usage, example, notes = [] }) {
   /**
    * @constant body
-   * @type {Array}
+   * @type {*[]}
    */
   const body = [LINE, `${icon} *${String(title || "COMANDO").toUpperCase()}*`, LINE, ""];
   if (description) body.push(description, "");
@@ -38,12 +38,12 @@ function buildUsageBody({ icon = "📘", title, description, usage, example, not
 function buildFormBody({ icon = "📋", title, description, command, fields = [], example = [], notes = [] }) {
   /**
    * @constant templateLines
-   * @type {Array}
+   * @type {*[]}
    */
   const templateLines = [command, ...fields.map((f) => (f.includes(":") ? f : `${f}: `))];
   /**
    * @constant body
-   * @type {Array}
+   * @type {*[]}
    */
   const body = [LINE, `${icon} *${String(title || "FORMULARIO").toUpperCase()}*`, LINE, ""];
   if (description) body.push(description, "");
@@ -58,7 +58,7 @@ function buildFormBody({ icon = "📋", title, description, command, fields = []
 }
 
 /**
- * @param opts
+ * @param {*} opts
  * @returns
  */
 function formatCommandUsage(opts) {
@@ -66,7 +66,7 @@ function formatCommandUsage(opts) {
 }
 
 /**
- * @param opts
+ * @param {*} opts
  * @returns
  */
 function formatCommandForm(opts) {

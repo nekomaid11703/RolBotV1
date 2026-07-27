@@ -6,7 +6,7 @@ const { safeSingleOrNull } = require("../utils/safeQuery");
 const { cache, TTLS } = require("../utils/cacheService");
 
 /**
- * @param groupId
+ * @param {*} groupId
  * @returns
  */
 function groupCacheKey(groupId) {
@@ -14,8 +14,8 @@ function groupCacheKey(groupId) {
 }
 
 /**
- * @param groupId
- * @param limit
+ * @param {*} groupId
+ * @param {*} limit
  * @returns
  */
 function topGroupMembersCacheKey(groupId, limit) {
@@ -23,7 +23,7 @@ function topGroupMembersCacheKey(groupId, limit) {
 }
 
 /**
- * @param groupId
+ * @param {*} groupId
  */
 function invalidateGroupCache(groupId) {
   /**
@@ -64,7 +64,7 @@ function buildDefaultGroupRecord({ groupId, groupName = "" }) {
 }
 
 /**
- * @param messageType
+ * @param {*} messageType
  * @returns
  */
 function resolveBucket(messageType) {
@@ -86,7 +86,7 @@ function resolveBucket(messageType) {
 }
 
 /**
- * @param groupId
+ * @param {*} groupId
  * @param [bypassCache]
  * @returns
  */
@@ -151,7 +151,7 @@ async function ensureGroupActivity({ groupId, groupName = "" }) {
 }
 
 /**
- * @param record
+ * @param {*} record
  */
 async function saveGroupActivity(record) {
   const { supabase } = require("../database/supabase");

@@ -17,7 +17,7 @@ class DamageModule extends ModuleBase {
   static type = "damage";
   /**
    * @member triggers
-   * @type {Array}
+   * @type {*[]}
    * @public
    * @static
    */

@@ -1,8 +1,8 @@
 const { randomInt: secureRandomInt } = require("crypto");
 
 /**
- * @param min
- * @param max
+ * @param {*} min
+ * @param {*} max
  * @returns
  */
 function randomInt(min, max) {

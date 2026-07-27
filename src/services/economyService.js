@@ -14,13 +14,13 @@ const { filterExisting } = require("../database/columnRegistry");
 
 /**
  * @constant userLocks
- * @type {Map}
+ * @type {Map<*, *>}
  */
 const userLocks = new Map();
 
 /**
- * @param userId
- * @param fn
+ * @param {*} userId
+ * @param {*} fn
  * @returns
  */
 async function withUserLock(userId, fn) {
@@ -64,7 +64,7 @@ function resolveEconomyProfile({ userId, userName = "usuario", createIfMissing =
 }
 
 /**
- * @param profile
+ * @param {*} profile
  * @returns
  */
 function getMoneyValue(profile) {
@@ -72,7 +72,7 @@ function getMoneyValue(profile) {
 }
 
 /**
- * @param userId
+ * @param {*} userId
  * @returns
  */
 async function getBalance(userId) {
@@ -91,8 +91,8 @@ async function getBalance(userId) {
 }
 
 /**
- * @param userId
- * @param amount
+ * @param {*} userId
+ * @param {*} amount
  * @param [options]
  * @returns
  */
@@ -134,8 +134,8 @@ async function addMoney(userId, amount, options = {}) {
 }
 
 /**
- * @param userId
- * @param amount
+ * @param {*} userId
+ * @param {*} amount
  * @param [options]
  * @returns
  */
@@ -186,8 +186,8 @@ async function removeMoney(userId, amount, options = {}) {
 }
 
 /**
- * @param userId
- * @param amount
+ * @param {*} userId
+ * @param {*} amount
  * @param [options]
  * @returns
  */
@@ -229,9 +229,9 @@ async function setMoney(userId, amount, options = {}) {
 }
 
 /**
- * @param fromUserId
- * @param toUserId
- * @param amount
+ * @param {*} fromUserId
+ * @param {*} toUserId
+ * @param {*} amount
  * @param [options]
  * @returns
  */

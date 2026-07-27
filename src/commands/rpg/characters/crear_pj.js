@@ -22,7 +22,7 @@ for (const [key, cfg] of Object.entries(LEVELABLE_STATS)) {
 }
 
 /**
- * @param input
+ * @param {*} input
  * @returns
  */
 function validarRaza(input) {
@@ -68,7 +68,7 @@ function validarRaza(input) {
 }
 
 /**
- * @param input
+ * @param {*} input
  * @returns
  */
 function resolverSeleccionRaza(input) {
@@ -91,7 +91,7 @@ function resolverSeleccionRaza(input) {
 }
 
 /**
- * @param line
+ * @param {*} line
  * @returns
  */
 function parseStatLine(line) {
@@ -115,7 +115,7 @@ function parseStatLine(line) {
   if (!pointsMatch) return null;
   /**
    * @constant match
-   * @type {Array}
+   * @type {*[]}
    */
   const match = [stat[0], stat[1], pointsMatch[1], pointsMatch[2] || pointsMatch[3]];
   if (!match) return null;
@@ -137,7 +137,7 @@ function parseStatLine(line) {
 }
 
 /**
- * @param raceConfig
+ * @param {*} raceConfig
  * @returns
  */
 function buildRaceSummary(raceConfig) {
@@ -147,7 +147,7 @@ function buildRaceSummary(raceConfig) {
 }
 
 /**
- * @param raceConfig
+ * @param {*} raceConfig
  * @returns
  */
 function buildTemplate(raceConfig) {
@@ -217,9 +217,9 @@ function buildRaceList() {
 
 /**
  * Appends the historia line.
- * @param historia - - historia.
- * @param trimmed - - trimmed.
- * @param firstLine - - first line.
+ * @param {*} historia - - historia.
+ * @param {*} trimmed - - trimmed.
+ * @param {*} firstLine - - first line.
  * @returns
  */
 function appendHistoriaLine(historia, trimmed, firstLine) {
@@ -228,7 +228,7 @@ function appendHistoriaLine(historia, trimmed, firstLine) {
 
 /**
  * Try start historia.
- * @param trimmed - - trimmed.
+ * @param {*} trimmed - - trimmed.
  * @returns
  */
 function tryStartHistoria(trimmed) {
@@ -242,8 +242,8 @@ function tryStartHistoria(trimmed) {
 
 /**
  * Try parse name.
- * @param trimmed - - trimmed.
- * @param currentName - - current display name.
+ * @param {*} trimmed - - trimmed.
+ * @param {*} currentName - - current display name.
  * @returns
  */
 function tryParseName(trimmed, currentName) {
@@ -257,8 +257,8 @@ function tryParseName(trimmed, currentName) {
 
 /**
  * Try parse race.
- * @param trimmed - - trimmed.
- * @param currentRawInput - - current raw input value.
+ * @param {*} trimmed - - trimmed.
+ * @param {*} currentRawInput - - current raw input value.
  * @returns
  */
 function tryParseRace(trimmed, currentRawInput) {
@@ -272,8 +272,8 @@ function tryParseRace(trimmed, currentRawInput) {
 
 /**
  * Try parse class.
- * @param trimmed - - trimmed.
- * @param currentClass - - current class.
+ * @param {*} trimmed - - trimmed.
+ * @param {*} currentClass - - current class.
  * @returns
  */
 function tryParseClass(trimmed, currentClass) {
@@ -287,7 +287,7 @@ function tryParseClass(trimmed, currentClass) {
 
 /**
  * Parses the form lines.
- * @param lines - - lines.
+ * @param {*} lines - - lines.
  * @returns
  */
 function parseFormLines(lines) {
@@ -371,8 +371,8 @@ function parseFormLines(lines) {
 
 /**
  * Validates the form.
- * @param form - - form.
- * @param raceConfig - - race configuration object.
+ * @param {*} form - - form.
+ * @param {*} raceConfig - - race configuration object.
  * @throws {Error}
  * @returns
  */
@@ -437,8 +437,8 @@ function validateForm(form, raceConfig) {
 
 /**
  * Resolves the stat distribution.
- * @param hasCustomStats - - has custom stats.
- * @param statDistribution - - stat distribution.
+ * @param {*} hasCustomStats - - has custom stats.
+ * @param {*} statDistribution - - stat distribution.
  * @returns
  */
 function resolveStatDistribution(hasCustomStats, statDistribution) {
@@ -468,8 +468,8 @@ function resolveStatDistribution(hasCustomStats, statDistribution) {
 
 /**
  * Builds a character created box.
- * @param character - - character.
- * @param raceConfig - - race configuration object.
+ * @param {*} character - - character.
+ * @param {*} raceConfig - - race configuration object.
  * @returns
  */
 function buildCharacterCreatedBox(character, raceConfig) {
@@ -499,7 +499,7 @@ module.exports = {
   /**
    * Executes the .
    * @async
-   * @param ctx - execution context.
+   * @param {*} ctx - execution context.
    * @returns {any}
    */
   async execute(ctx) {

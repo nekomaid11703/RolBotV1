@@ -48,7 +48,7 @@ const PRIORITY_KEYWORDS = {
 
 /**
  * Determine priority.
- * @param description - - description.
+ * @param {*} description - - description.
  * @returns
  */
 function determinePriority(description) {
@@ -74,7 +74,7 @@ const CATEGORY_KEYWORDS = {
 
 /**
  * Determine category.
- * @param description - - description.
+ * @param {*} description - - description.
  * @returns
  */
 function determineCategory(description) {
@@ -90,9 +90,9 @@ function determineCategory(description) {
 
 /**
  * Returns the role.
- * @param sock - - sock.
- * @param groupId - - group unique identifier.
- * @param userId - - user unique identifier.
+ * @param {*} sock - - sock.
+ * @param {*} groupId - - group unique identifier.
+ * @param {*} userId - - user unique identifier.
  * @returns
  * @async
  */
@@ -124,7 +124,7 @@ async function getRole(sock, groupId, userId) {
 
 /**
  * Returns the daily count.
- * @param userId - - user unique identifier.
+ * @param {*} userId - - user unique identifier.
  * @throws {Error}
  * @returns
  * @async
@@ -146,7 +146,7 @@ async function getDailyCount(userId) {
 
 /**
  * Creates a new report.
- * @param root0
+ * @param {*} root0
  * @throws {Error}
  * @returns
  * @async
@@ -255,7 +255,7 @@ async function createReport({ sock, groupId, userId, userName, description, msg 
 
 /**
  * Returns the report.
- * @param id - - unique identifier.
+ * @param {*} id - - unique identifier.
  * @returns
  * @async
  */
@@ -272,7 +272,7 @@ async function getReport(id) {
 
 /**
  * Returns the user reports.
- * @param userId - - user unique identifier.
+ * @param {*} userId - - user unique identifier.
  * @param {number} [days] - - days.
  * @throws {Error}
  * @returns

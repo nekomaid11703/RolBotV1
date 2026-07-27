@@ -59,7 +59,7 @@ async function getStats() {
 
 /**
  * Mark stale.
- * @param days - - days.
+ * @param {*} days - - days.
  * @throws {Error}
  * @returns
  * @async

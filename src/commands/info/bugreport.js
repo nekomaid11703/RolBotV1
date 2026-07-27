@@ -5,7 +5,7 @@ const { formatError } = require("../../utils/formatErrorUtils");
 
 /**
  * @constant reportCooldowns
- * @type {Map}
+ * @type {Map<*, *>}
  */
 const reportCooldowns = new Map();
 /**
@@ -21,7 +21,7 @@ module.exports = {
   /**
    * Executes the .
    * @async
-   * @param ctx - execution context.
+   * @param {*} ctx - execution context.
    * @returns {any}
    */
   async execute(ctx) {
@@ -66,7 +66,7 @@ module.exports = {
 
       /**
        * @constant lines
-       * @type {Array}
+       * @type {*[]}
        */
       const lines = [];
       lines.push("");

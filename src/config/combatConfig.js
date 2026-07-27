@@ -36,7 +36,7 @@ const SESSION_STATES = {
 
 /**
  * @constant FATIGUE_THRESHOLDS
- * @type {Array}
+ * @type {*[]}
  */
 const FATIGUE_THRESHOLDS = [
   { maxRatio: 0.33, state: "pleno", name: "Pleno", penalty: 0, recoveryMult: 1.0 },
@@ -105,7 +105,7 @@ const FATIGUE_RECOVERY = {
 
 /**
  * @constant FATIGUE_SPEED_STATS
- * @type {Array}
+ * @type {*[]}
  */
 const FATIGUE_SPEED_STATS = ["aspd", "mspd", "ref"];
 

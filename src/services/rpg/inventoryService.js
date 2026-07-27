@@ -12,7 +12,7 @@ const { setCooldown } = require("./statusService");
 
 /**
  * @constant characterLocks
- * @type {Map}
+ * @type {Map<*, *>}
  */
 const characterLocks = new Map();
 
@@ -20,8 +20,8 @@ const characterLocks = new Map();
  * Ejecuta una función con un lock exclusivo por personaje para evitar condiciones de carrera.
  * @param {object} options
  * @param {object} options
- * @param characterId
- * @param fn
+ * @param {*} characterId
+ * @param {*} fn
  * @returns {Promise<*>} Resultado de la función ejecutada
  */
 async function withCharacterLock(characterId, fn) {
@@ -301,7 +301,7 @@ async function useItem(creatorId, itemId) {
 async function ensureTestKit(characterId, creatorId) {
   /**
    * @constant testItems
-   * @type {Array}
+   * @type {*[]}
    */
   const testItems = ["venda", "pocion", "tonico", "antidoto"];
   /**
@@ -315,7 +315,7 @@ async function ensureTestKit(characterId, creatorId) {
   const existingIds = new Set(inv.map((row) => row.item_id));
   /**
    * @constant added
-   * @type {Array}
+   * @type {*[]}
    */
   const added = [];
 
@@ -342,7 +342,7 @@ async function ensureTestKit(characterId, creatorId) {
 async function ensureTempTestKit(characterId, creatorId) {
   /**
    * @constant tempItems
-   * @type {Array}
+   * @type {*[]}
    */
   const tempItems = ["venda_temp", "pocion_temp", "tonico_temp"];
   /**
@@ -356,7 +356,7 @@ async function ensureTempTestKit(characterId, creatorId) {
   const existingIds = new Set(inv.map((row) => row.item_id));
   /**
    * @constant added
-   * @type {Array}
+   * @type {*[]}
    */
   const added = [];
 
@@ -386,7 +386,7 @@ async function cleanupTemporalItems(characterId) {
   const inv = await getInventory(characterId);
   /**
    * @constant toRemove
-   * @type {Array}
+   * @type {*[]}
    */
   const toRemove = [];
 

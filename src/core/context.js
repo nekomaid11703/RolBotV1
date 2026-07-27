@@ -59,7 +59,7 @@ function getMessageType(message) {
 
   /**
    * @constant keys
-   * @type {Array}
+   * @type {*[]}
    */
   const keys = [
     "conversation",
@@ -132,8 +132,8 @@ function extractText(message) {
 /**
  * @param {object} options
  * @param {object} options
- * @param sock
- * @param msg
+ * @param {*} sock
+ * @param {*} msg
  * @returns {object} - Context object.
  */
 function createContext(sock, msg) {

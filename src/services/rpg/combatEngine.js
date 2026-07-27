@@ -168,14 +168,14 @@ function evaluateDodgeFeasibility(
  * @param {object} options
  * @param {object} options
  * @param {object} options
- * @param fleerStats
- * @param fleerHp
- * @param pursuerStats
- * @param pursuerHp
- * @param fleerFatigue
- * @param pursuerFatigue
- * @param fleerRes
- * @param pursuerRes
+ * @param {*} fleerStats
+ * @param {*} fleerHp
+ * @param {*} pursuerStats
+ * @param {*} pursuerHp
+ * @param {*} fleerFatigue
+ * @param {*} pursuerFatigue
+ * @param {*} fleerRes
+ * @param {*} pursuerRes
  * @returns {{ chance: number, roll: number, success: boolean }} Resultado de la tirada de huida
  */
 function rollFlee(
@@ -216,7 +216,7 @@ function rollFlee(
 /**
  * Intenta bloquear un ataque entrante, reduciendo el daño según BLOCK_REDUCTION.
  * @param {object} options
- * @param incomingDamage
+ * @param {*} incomingDamage
  * @returns {{ blocked: boolean, damage: number }} Resultado del bloqueo con daño reducido
  */
 function attemptBlock(incomingDamage) {
@@ -236,14 +236,14 @@ function attemptBlock(incomingDamage) {
  * @param {object} options
  * @param {object} options
  * @param {object} options
- * @param defenderStats
- * @param defenderHp
- * @param attackerStats
- * @param attackerHp
- * @param defenderFatigue
- * @param attackerFatigue
- * @param defenderRes
- * @param attackerRes
+ * @param {*} defenderStats
+ * @param {*} defenderHp
+ * @param {*} attackerStats
+ * @param {*} attackerHp
+ * @param {*} defenderFatigue
+ * @param {*} attackerFatigue
+ * @param {*} defenderRes
+ * @param {*} attackerRes
  * @returns {{ dodged: boolean, damage: (number|null) }} Resultado del intento de esquiva
  */
 function attemptDodge(
@@ -345,14 +345,14 @@ function executeAttack(attackerChar, defenderChar, defenderHp, attackerHp, attac
  * @param {object} options
  * @param {object} options
  * @param {object} options
- * @param reactionType
- * @param baseDamage
- * @param defenderChar
- * @param defenderHp
- * @param attackerChar
- * @param attackerHp
- * @param defenderFatigue
- * @param attackerFatigue
+ * @param {*} reactionType
+ * @param {*} baseDamage
+ * @param {*} defenderChar
+ * @param {*} defenderHp
+ * @param {*} attackerChar
+ * @param {*} attackerHp
+ * @param {*} defenderFatigue
+ * @param {*} attackerFatigue
  * @returns {*} Resultado completo de la reacción con daño final
  */
 function executeReaction(

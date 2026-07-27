@@ -6,12 +6,21 @@ const commands = new Map();
 /** @type {Map<string, *>} */
 const aliases = new Map();
 
+/**
+ * @param {string} value
+ * @returns {string}
+ */
 function normalizeName(value) {
   return String(value || "")
     .trim()
     .toLowerCase();
 }
 
+/**
+ * @param {*} command
+ * @param {string} fileName
+ * @returns {string}
+ */
 function validateCommand(command, fileName) {
   if (!command?.name) {
     throw new Error(`Comando inválido (${fileName}): falta la propiedad "name".`);
@@ -41,6 +50,12 @@ function validateCommand(command, fileName) {
   return commandName;
 }
 
+/**
+ * @param {string} alias
+ * @param {string} fileName
+ * @param {string} commandName
+ * @param {*} command
+ */
 function registerAlias(alias, fileName, commandName, command) {
   if (typeof alias !== "string") {
     throw new Error(`Alias inválido en (${fileName}): todos los aliases deben ser texto.`);
@@ -72,6 +87,10 @@ function registerAlias(alias, fileName, commandName, command) {
   aliases.set(aliasName, command);
 }
 
+/**
+ * @param {*} command
+ * @param {string} fileName
+ */
 function registerCommand(command, fileName) {
   const commandName = validateCommand(command, fileName);
 
@@ -86,7 +105,12 @@ function registerCommand(command, fileName) {
   }
 }
 
+/**
+ * @param {string} dir
+ * @returns {string[]}
+ */
 function getJsFilesRecursively(dir) {
+  /** @type {string[]} */
   let results = [];
   const list = fs.readdirSync(dir);
   for (const file of list) {

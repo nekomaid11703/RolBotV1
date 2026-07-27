@@ -32,7 +32,7 @@ moduleRegistry.register(TemporalModule);
 module.exports = {
   /**
    * Returns the category.
-   * @param type - type identifier.
+   * @param {*} type - type identifier.
    * @returns {any}
    */
   getCategory: (type) => moduleRegistry.get(type),

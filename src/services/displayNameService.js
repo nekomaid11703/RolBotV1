@@ -63,7 +63,7 @@ function findParticipantDisplayName(participant) {
 
   /**
    * @constant candidates
-   * @type {Array}
+   * @type {*[]}
    */
   const candidates = [
     participant.notify,
@@ -89,7 +89,7 @@ function findParticipantDisplayName(participant) {
 
 /**
  * Extract a mention label from command context.
- * @param {object} ctx - Command context
+ * @param {*} ctx - Command context
  * @returns {string} - Result value
  */
 function extractMentionLabelFromContext(ctx) {
@@ -128,7 +128,7 @@ function extractMentionLabelFromContext(ctx) {
 
 /**
  * Resolve the display name for a target user.
- * @param {object} ctx - Command context
+ * @param {*} ctx - Command context
  * @param {string} targetId - Target user ID
  * @param {string} fallback - Fallback display name
  * @returns {Promise<string>} - Promise resolving to a string
@@ -151,7 +151,7 @@ async function resolveTargetDisplayName(ctx, targetId, fallback = "usuario") {
 
     /**
      * @constant storedCandidates
-     * @type {Array}
+     * @type {*[]}
      */
     const storedCandidates = [
       data?.profile?.metadata?.displayName,
@@ -183,7 +183,7 @@ async function resolveTargetDisplayName(ctx, targetId, fallback = "usuario") {
         ? metadata.participants.find((entry) => {
             /**
              * @constant ids
-             * @type {Array}
+             * @type {*[]}
              */
             const ids = [entry?.id, entry?.jid, entry?.userId];
 

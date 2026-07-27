@@ -27,7 +27,7 @@ module.exports = {
   /**
    * Executes the .
    * @async
-   * @param ctx - execution context.
+   * @param {*} ctx - execution context.
    * @returns {any}
    */
   async execute(ctx) {
@@ -114,7 +114,7 @@ module.exports = {
       // Si la huida falla, el jugador pierde el turno y sufre el ataque automático del perseguidor
       /**
        * @constant lines
-       * @type {Array}
+       * @type {*[]}
        */
       const lines = [];
       lines.push("");

@@ -33,7 +33,7 @@ module.exports = {
   /**
    * Executes the .
    * @async
-   * @param ctx - execution context.
+   * @param {*} ctx - execution context.
    * @returns {any}
    */
   async execute(ctx) {
@@ -122,7 +122,7 @@ module.exports = {
 };
 
 /**
- * @param {object} ctx
+ * @param {*} ctx
  * @param {string} characterName
  * @param {string} creatorId
  */

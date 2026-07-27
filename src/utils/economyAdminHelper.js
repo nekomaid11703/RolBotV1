@@ -8,14 +8,14 @@ const { formatStelas } = require("./economyUtils");
 
 /**
  * @constant usageCache
- * @type {Map}
+ * @type {Map<*, *>}
  */
 const usageCache = new Map();
 
 /**
- * @param {{ title: string }} opts.
- * @param opts
- * @returns
+ * @param {object} opts
+ * @param {string} opts.title
+ * @returns {string}
  */
 function getUsage(opts) {
   /**
@@ -29,10 +29,16 @@ function getUsage(opts) {
 }
 
 /**
+ * @param {*} ctx
  * @param {object} options
- * @param {object} options
- * @param ctx
- * @returns
+ * @param {Function} options.serviceFn
+ * @param {boolean} [options.createIfMissing=true]
+ * @param {{ title: string, icon?: string, description?: string, usage?: string, example?: string, notes?: string[] }} options.usage
+ * @param {string} options.boxTitle
+ * @param {string} [options.amountLabel]
+ * @param {boolean} [options.showAmount=true]
+ * @param {number} [options.minAmount]
+ * @returns {Promise<*>}
  */
 async function executeEconomyAction(
   ctx,
@@ -48,7 +54,7 @@ async function executeEconomyAction(
 
   /**
    * @constant parseOpts
-   * @type {object}
+   * @type {{ min: number }}
    */
   const parseOpts = {};
   if (minAmount !== undefined) parseOpts.min = minAmount;
@@ -82,7 +88,7 @@ async function executeEconomyAction(
 
     /**
      * @constant lines
-     * @type {Array}
+     * @type {*[]}
      */
     const lines = ["", `👤  ${formatDisplayMention(targetId, targetName)}`];
     if (showAmount) lines.push("", `💵  ${amountLabel}: ${formatStelas(amount)}`);

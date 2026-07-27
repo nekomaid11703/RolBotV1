@@ -20,8 +20,8 @@ const { box } = require("../../../utils/boxUtils");
 
 /**
  * Returns the slots.
- * @param session - - session object.
- * @param activeChar - - active char.
+ * @param {*} session - - session object.
+ * @param {*} activeChar - - active char.
  * @returns
  */
 function getSlots(session, activeChar) {
@@ -38,7 +38,7 @@ function getSlots(session, activeChar) {
 
 /**
  * Applies the attack fatigue.
- * @param attackerSlot - - attacker slot.
+ * @param {*} attackerSlot - - attacker slot.
  */
 function applyAttackFatigue(attackerSlot) {
   /**
@@ -50,12 +50,12 @@ function applyAttackFatigue(attackerSlot) {
 
 /**
  * Handles the pv e.
- * @param ctx - - execution context.
- * @param session - - session object.
- * @param attackerSlot - - attacker slot.
- * @param defenderSlot - - defender slot.
- * @param attackInfo - - attack info.
- * @param isChallenger - - is challenger.
+ * @param {*} ctx - - execution context.
+ * @param {*} session - - session object.
+ * @param {*} attackerSlot - - attacker slot.
+ * @param {*} defenderSlot - - defender slot.
+ * @param {*} attackInfo - - attack info.
+ * @param {*} isChallenger - - is challenger.
  * @returns
  * @async
  */
@@ -100,7 +100,7 @@ async function handlePvE(ctx, session, attackerSlot, defenderSlot, attackInfo, i
 
   /**
    * @constant lines
-   * @type {Array}
+   * @type {*[]}
    */
   const lines = [];
   lines.push("");
@@ -151,14 +151,14 @@ async function handlePvE(ctx, session, attackerSlot, defenderSlot, attackInfo, i
 
 /**
  * Handles the pv e counter attack.
- * @param ctx - - execution context.
- * @param session - - session object.
- * @param attackerSlot - - attacker slot.
- * @param defenderSlot - - defender slot.
- * @param isChallenger - - is challenger.
- * @param prevAttackerHp - - prev attacker hp.
- * @param prevDefenderHp - - prev defender hp.
- * @param lines - - lines.
+ * @param {*} ctx - - execution context.
+ * @param {*} session - - session object.
+ * @param {*} attackerSlot - - attacker slot.
+ * @param {*} defenderSlot - - defender slot.
+ * @param {*} isChallenger - - is challenger.
+ * @param {*} prevAttackerHp - - prev attacker hp.
+ * @param {*} prevDefenderHp - - prev defender hp.
+ * @param {*} lines - - lines.
  * @returns
  * @async
  */
@@ -274,12 +274,12 @@ async function handlePvECounterAttack(
 
 /**
  * Handles the pv p with reaction.
- * @param ctx - - execution context.
- * @param session - - session object.
- * @param attackerSlot - - attacker slot.
- * @param defenderSlot - - defender slot.
- * @param attackInfo - - attack info.
- * @param isChallenger - - is challenger.
+ * @param {*} ctx - - execution context.
+ * @param {*} session - - session object.
+ * @param {*} attackerSlot - - attacker slot.
+ * @param {*} defenderSlot - - defender slot.
+ * @param {*} attackInfo - - attack info.
+ * @param {*} isChallenger - - is challenger.
  * @returns
  * @async
  */
@@ -312,7 +312,7 @@ async function handlePvPWithReaction(ctx, session, attackerSlot, defenderSlot, a
 
   /**
    * @constant lines
-   * @type {Array}
+   * @type {*[]}
    */
   const lines = [
     "",
@@ -329,12 +329,12 @@ async function handlePvPWithReaction(ctx, session, attackerSlot, defenderSlot, a
 
 /**
  * Handles the pv p.
- * @param ctx - - execution context.
- * @param session - - session object.
- * @param attackerSlot - - attacker slot.
- * @param defenderSlot - - defender slot.
- * @param attackInfo - - attack info.
- * @param isChallenger - - is challenger.
+ * @param {*} ctx - - execution context.
+ * @param {*} session - - session object.
+ * @param {*} attackerSlot - - attacker slot.
+ * @param {*} defenderSlot - - defender slot.
+ * @param {*} attackInfo - - attack info.
+ * @param {*} isChallenger - - is challenger.
  * @returns
  * @async
  */
@@ -366,7 +366,7 @@ async function handlePvP(ctx, session, attackerSlot, defenderSlot, attackInfo, i
 
   /**
    * @constant lines
-   * @type {Array}
+   * @type {*[]}
    */
   const lines = [
     "",
@@ -413,7 +413,7 @@ module.exports = {
   /**
    * Executes the .
    * @async
-   * @param ctx - execution context.
+   * @param {*} ctx - execution context.
    * @returns {any}
    */
   async execute(ctx) {

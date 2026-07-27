@@ -11,7 +11,7 @@ const {
 } = require("../utils/safeQuery");
 
 /**
- * @param text
+ * @param {*} text
  * @returns
  */
 function stripAccents(text) {
@@ -21,7 +21,7 @@ function stripAccents(text) {
 }
 
 /**
- * @param text
+ * @param {*} text
  * @returns
  */
 function sanitizeName(text) {
@@ -202,7 +202,7 @@ function normalizeActivity(activity = {}) {
 }
 
 /**
- * @param profile
+ * @param {*} profile
  * @param {object} options
  * @returns
  */
@@ -407,7 +407,7 @@ async function getOrCreateProfile({ creatorId, creatorName = "usuario", registra
 }
 
 /**
- * @param messageType
+ * @param {*} messageType
  * @returns
  */
 function resolveActivityBucket(messageType) {
@@ -446,34 +446,52 @@ function updateDisplayName(next, displayName) {
   if (typeof displayName !== "string") return false;
   const clean = displayName.trim() || "usuario";
   let changed = false;
-  if (next.metadata.displayName !== clean) { next.metadata.displayName = clean; changed = true; }
-  if (next.creatorName !== clean) { next.creatorName = clean; changed = true; }
+  if (next.metadata.displayName !== clean) {
+    next.metadata.displayName = clean;
+    changed = true;
+  }
+  if (next.creatorName !== clean) {
+    next.creatorName = clean;
+    changed = true;
+  }
   return changed;
 }
 
 function updatePushName(next, pushName) {
   if (typeof pushName !== "string") return false;
   const clean = pushName.trim() || "usuario";
-  if (next.metadata.pushName !== clean) { next.metadata.pushName = clean; return true; }
+  if (next.metadata.pushName !== clean) {
+    next.metadata.pushName = clean;
+    return true;
+  }
   return false;
 }
 
 function updateSenderJid(next, senderJid) {
   if (typeof senderJid !== "string") return false;
   const clean = String(senderJid).trim() || null;
-  if (clean && next.metadata.lastKnownJid !== clean) { next.metadata.lastKnownJid = clean; return true; }
+  if (clean && next.metadata.lastKnownJid !== clean) {
+    next.metadata.lastKnownJid = clean;
+    return true;
+  }
   return false;
 }
 
 function updateSenderNumber(next, senderNumber) {
   if (typeof senderNumber !== "string") return false;
   const clean = senderNumber.trim() || null;
-  if (clean && next.metadata.lastKnownNumber !== clean) { next.metadata.lastKnownNumber = clean; return true; }
+  if (clean && next.metadata.lastKnownNumber !== clean) {
+    next.metadata.lastKnownNumber = clean;
+    return true;
+  }
   return false;
 }
 
 function updateLastSeen(next, now) {
-  if (next.metadata.lastSeenAt !== now) { next.metadata.lastSeenAt = now; return true; }
+  if (next.metadata.lastSeenAt !== now) {
+    next.metadata.lastSeenAt = now;
+    return true;
+  }
   return false;
 }
 
@@ -576,9 +594,19 @@ async function recordUserActivity(options) {
   const safeMessageCount = Math.max(0, Math.floor(Number(messageCount) || 0));
   const safeCommandCount = Math.max(0, Math.floor(Number(commandCount) || 0));
   const bucket = resolveActivityBucket(messageType);
-  const normalizedType = String(messageType || "unknown").trim().toLowerCase() || "unknown";
+  const normalizedType =
+    String(messageType || "unknown")
+      .trim()
+      .toLowerCase() || "unknown";
 
-  const activityChanged = updateActivityCounts(next, { safeMessageCount, safeCommandCount, normalizedType, isText, bucket, now });
+  const activityChanged = updateActivityCounts(next, {
+    safeMessageCount,
+    safeCommandCount,
+    normalizedType,
+    isText,
+    bucket,
+    now,
+  });
 
   if (metaChanged || activityChanged) {
     next.updatedAt = now;
@@ -589,8 +617,8 @@ async function recordUserActivity(options) {
 }
 
 /**
- * @param a
- * @param b
+ * @param {*} a
+ * @param {*} b
  * @returns
  */
 function sortActivityProfilesDesc(a, b) {

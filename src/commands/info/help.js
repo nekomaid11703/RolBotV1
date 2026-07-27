@@ -3,7 +3,7 @@ const { commands } = require("../../core/commandRegistry");
 
 /**
  * @constant SECTIONS
- * @type {Array}
+ * @type {*[]}
  */
 const SECTIONS = [
   {
@@ -12,7 +12,7 @@ const SECTIONS = [
     label: "ADMINISTRADOR",
     /**
      * Filters the .
-     * @param cmd - cmd.
+     * @param {*} cmd - cmd.
      * @returns {any}
      */
     filter: (cmd) => cmd.adminPerm || cmd.economyAdminOnly || cmd.adminOnly,
@@ -23,7 +23,7 @@ const SECTIONS = [
     label: "CREADOR",
     /**
      * Filters the .
-     * @param cmd - cmd.
+     * @param {*} cmd - cmd.
      * @returns {any}
      */
     filter: (cmd) => cmd.creatorOnly && !cmd.adminPerm && !cmd.economyAdminOnly && !cmd.adminOnly,
@@ -34,7 +34,7 @@ const SECTIONS = [
     label: "COMUNES",
     /**
      * Filters the .
-     * @param cmd - cmd.
+     * @param {*} cmd - cmd.
      * @returns {any}
      */
     filter: (cmd) => !cmd.adminPerm && !cmd.economyAdminOnly && !cmd.adminOnly && !cmd.creatorOnly,
@@ -43,7 +43,7 @@ const SECTIONS = [
 
 /**
  * @constant SUBCAT_ORDER
- * @type {Array}
+ * @type {*[]}
  */
 const SUBCAT_ORDER = ["rpg", "economia", "grupo", "permisos", "info"];
 
@@ -60,7 +60,7 @@ const SUBCAT_META = {
 };
 
 /**
- * @param c
+ * @param {*} c
  * @returns
  */
 function normCat(c) {
@@ -70,7 +70,7 @@ function normCat(c) {
 }
 
 /**
- * @param cmd
+ * @param {*} cmd
  * @returns
  */
 function getSubcat(cmd) {
@@ -86,7 +86,7 @@ function getSubcat(cmd) {
 }
 
 /**
- * @param aliases
+ * @param {*} aliases
  * @returns
  */
 function buildAliasStr(aliases) {
@@ -103,15 +103,15 @@ function buildAliasStr(aliases) {
 }
 
 /**
- * @param name
- * @param desc
- * @param aliases
+ * @param {*} name
+ * @param {*} desc
+ * @param {*} aliases
  * @returns
  */
 function renderCmd(name, desc, aliases) {
   /**
    * @constant lines
-   * @type {Array}
+   * @type {*[]}
    */
   const lines = [];
   /**
@@ -123,8 +123,8 @@ function renderCmd(name, desc, aliases) {
 }
 
 /**
- * @param subcatKey
- * @param cmds
+ * @param {*} subcatKey
+ * @param {*} cmds
  * @returns
  */
 function buildSubcatBlock(subcatKey, cmds) {
@@ -134,7 +134,7 @@ function buildSubcatBlock(subcatKey, cmds) {
   const meta = SUBCAT_META[subcatKey] || { emoji: "\uD83D\uDCC2", label: subcatKey.toUpperCase() };
   /**
    * @constant lines
-   * @type {Array}
+   * @type {*[]}
    */
   const lines = [];
   lines.push(`\u256D\u2500\u2500 ${meta.emoji} ${meta.label} \u2500\u2500\u256E`);
@@ -156,7 +156,7 @@ function buildSubcatBlock(subcatKey, cmds) {
 function collectUniqueCommands() {
   /**
    * @constant unique
-   * @type {Map}
+   * @type {Map<*, *>}
    */
   const unique = new Map();
   for (const cmd of commands.values()) {
@@ -173,7 +173,7 @@ function collectUniqueCommands() {
 function buildOutputHeader() {
   /**
    * @constant lines
-   * @type {Array}
+   * @type {*[]}
    */
   const lines = [];
   lines.push(
@@ -189,14 +189,14 @@ function buildOutputHeader() {
 
 /**
  * Returns the filtered section cmds.
- * @param unique - - unique.
- * @param sectionFilter - - section filter.
+ * @param {*} unique - - unique.
+ * @param {*} sectionFilter - - section filter.
  * @returns
  */
 function getFilteredSectionCmds(unique, sectionFilter) {
   /**
    * @constant cmds
-   * @type {Array}
+   * @type {*[]}
    */
   const cmds = [];
   for (const cmd of unique.values()) {
@@ -207,13 +207,13 @@ function getFilteredSectionCmds(unique, sectionFilter) {
 
 /**
  * Group section by subcat.
- * @param cmds - - cmds.
+ * @param {*} cmds - - cmds.
  * @returns
  */
 function groupSectionBySubcat(cmds) {
   /**
    * @constant bySubcat
-   * @type {Map}
+   * @type {Map<*, *>}
    */
   const bySubcat = new Map();
   for (const cmd of cmds) {
@@ -229,7 +229,7 @@ function groupSectionBySubcat(cmds) {
 
 /**
  * Returns the ordered subcat list.
- * @param bySubcat - - by subcat.
+ * @param {*} bySubcat - - by subcat.
  * @returns
  */
 function getOrderedSubcatList(bySubcat) {
@@ -245,8 +245,8 @@ function getOrderedSubcatList(bySubcat) {
 
 /**
  * Builds a section content.
- * @param section - - section.
- * @param unique - - unique.
+ * @param {*} section - - section.
+ * @param {*} unique - - unique.
  * @returns
  */
 function buildSectionContent(section, unique) {
@@ -260,7 +260,7 @@ function buildSectionContent(section, unique) {
 
   /**
    * @constant lines
-   * @type {Array}
+   * @type {*[]}
    */
   const lines = [];
   lines.push(`\u256D\u2500\u300C ${section.emoji} *${section.label}* \u300D`);
@@ -295,7 +295,7 @@ module.exports = {
   /**
    * Executes the .
    * @async
-   * @param ctx - execution context.
+   * @param {*} ctx - execution context.
    */
   async execute(ctx) {
     /**

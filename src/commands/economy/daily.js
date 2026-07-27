@@ -6,7 +6,7 @@ const { box } = require("../../utils/boxUtils");
 
 /**
  * @param {number} streak.
- * @param streak
+ * @param {*} streak
  * @returns
  */
 function formatStreakLabel(streak) {
@@ -19,7 +19,7 @@ function formatStreakLabel(streak) {
 
 /**
  * @param {number} remainingMs - @param {number} totalMs.
- * @param totalMs
+ * @param {*} totalMs
  * @returns
  */
 function formatProgressBar(remainingMs, totalMs) {
@@ -51,7 +51,7 @@ module.exports = {
   /**
    * Executes the .
    * @async
-   * @param ctx - execution context.
+   * @param {*} ctx - execution context.
    */
   async execute(ctx) {
     /**

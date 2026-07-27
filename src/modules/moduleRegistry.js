@@ -5,18 +5,18 @@ const ModuleBase = require("./ModuleBase");
 
 /**
  * @constant registry
- * @type {Map}
+ * @type {Map<*, *>}
  */
 const registry = new Map();
 
 /**
  * @constant moduleRegistry
- * @type {object}
+ * @type {{ register: Function, get: Function, getAll: Function, createInstance: Function, clear: Function }}
  */
 const moduleRegistry = {
   /**
    * Registers the .
-   * @param ModuleClass - module class.
+   * @param {*} ModuleClass - module class.
    * @throws {Error}
    */
   register(ModuleClass) {
@@ -34,7 +34,7 @@ const moduleRegistry = {
 
   /**
    * Returns the .
-   * @param type - type identifier.
+   * @param {*} type - type identifier.
    * @returns {any}
    */
   get(type) {
@@ -51,8 +51,8 @@ const moduleRegistry = {
 
   /**
    * Creates a new instance.
-   * @param type - type identifier.
-   * @param config - configuration object.
+   * @param {*} type - type identifier.
+   * @param {*} config - configuration object.
    * @returns {any}
    */
   createInstance(type, config) {

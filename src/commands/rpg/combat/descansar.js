@@ -147,7 +147,9 @@ async function handlePvECounterattack(ctx, session, resterSlot, opponentSlot, is
     endSession(session.id, opponentSlot.character.id);
     try {
       await setHp({ creatorId: ctx.sender, characterName: resterSlot.character.name, hp: 0 });
-    } catch (_e) { /* empty */ }
+    } catch (_e) {
+      /* empty */
+    }
     return ctx.reply(box("\uD83D\uDCA4 DESCANSO", lines));
   }
 
@@ -180,13 +182,24 @@ module.exports = {
       const restCtx = await getRestContext(ctx);
       if (restCtx.error) return ctx.reply(restCtx.error);
 
-      const recovery = calcFatigueRecovery("rest", restCtx.resterSlot.fatigue, restCtx.resterSlot.character.stats.def || 1);
+      const recovery = calcFatigueRecovery(
+        "rest",
+        restCtx.resterSlot.fatigue,
+        restCtx.resterSlot.character.stats.def || 1,
+      );
       restCtx.resterSlot.fatigue = capFatigue(restCtx.resterSlot.fatigue - recovery);
 
       const lines = buildRestLines(restCtx.resterSlot, recovery);
 
       if (restCtx.session.isPvE) {
-        return handlePvECounterattack(ctx, restCtx.session, restCtx.resterSlot, restCtx.opponentSlot, restCtx.isChallenger, lines);
+        return handlePvECounterattack(
+          ctx,
+          restCtx.session,
+          restCtx.resterSlot,
+          restCtx.opponentSlot,
+          restCtx.isChallenger,
+          lines,
+        );
       }
 
       return handlePvPRest(ctx, restCtx.session, restCtx.resterSlot, restCtx.opponentSlot, lines);

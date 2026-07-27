@@ -8,7 +8,7 @@ const moduleRegistry = require("./moduleRegistry");
  */
 class Entity {
   /**
-   * @param def - - def.
+   * @param {*} def - - def.
    * @class
    */
   constructor(def) {
@@ -42,9 +42,17 @@ class Entity {
   }
 
   /**
+   * @param {*} context
+   * @returns
+   */
+  use(context) {
+    return this.trigger("Use", context);
+  }
+
+  /**
    * Trigger.
-   * @param event - - event object.
-   * @param context - - execution context.
+   * @param {*} event
+   * @param {*} context
    * @returns
    */
   trigger(event, context) {
@@ -57,7 +65,7 @@ class Entity {
 
     /**
      * @constant results
-     * @type {Array}
+     * @type {*[]}
      */
     const results = [];
     for (const mod of sorted) {
@@ -76,7 +84,7 @@ class Entity {
 }
 
 /**
- * @param def
+ * @param {*} def
  * @returns
  */
 function createEntity(def) {

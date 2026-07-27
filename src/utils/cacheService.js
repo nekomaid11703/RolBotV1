@@ -16,7 +16,7 @@ class LRUCache {
 
   /**
    * Returns the .
-   * @param key - - lookup key.
+   * @param {*} key - - lookup key.
    * @returns
    */
   get(key) {
@@ -41,8 +41,8 @@ class LRUCache {
 
   /**
    * Sets the .
-   * @param key - lookup key.
-   * @param value - value to process.
+   * @param {*} key - lookup key.
+   * @param {*} value - value to process.
    * @param {number} [ttl] - ttl.
    */
   set(key, value, ttl = 300000) {
@@ -59,7 +59,7 @@ class LRUCache {
 
   /**
    * Invalidate.
-   * @param predicate - predicate function returning a boolean.
+   * @param {*} predicate - predicate function returning a boolean.
    */
   invalidate(predicate) {
     for (const key of this.map.keys()) {

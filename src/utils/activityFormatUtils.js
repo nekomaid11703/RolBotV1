@@ -1,7 +1,7 @@
 // @ts-nocheck
 /**
  * Formats the count.
- * @param value - - value to process.
+ * @param {*} value - - value to process.
  * @returns
  */
 function formatCount(value) {
@@ -10,7 +10,7 @@ function formatCount(value) {
 
 /**
  * Formats the date.
- * @param value - - value to process.
+ * @param {*} value - - value to process.
  * @returns
  */
 function formatDate(value) {
@@ -36,7 +36,7 @@ function formatDate(value) {
 
 /**
  * Medal.
- * @param index - - zero-based index.
+ * @param {*} index - - zero-based index.
  * @returns
  */
 function medal(index) {

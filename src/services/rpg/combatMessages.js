@@ -147,7 +147,7 @@ function formatCombatOpen(session, hasTestKit = false) {
 
   /**
    * @constant lines
-   * @type {Array}
+   * @type {*[]}
    */
   const lines = [
     "",
@@ -186,7 +186,7 @@ function formatCombatOpen(session, hasTestKit = false) {
 function formatTurnSummary(result) {
   /**
    * @constant lines
-   * @type {Array}
+   * @type {*[]}
    */
   const lines = [];
 
@@ -223,7 +223,7 @@ function formatTurnSummary(result) {
 function formatCombatStatus(session) {
   /**
    * @constant lines
-   * @type {Array}
+   * @type {*[]}
    */
   const lines = [];
   /**

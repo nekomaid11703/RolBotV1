@@ -20,14 +20,14 @@ const BOX_BTM = `╰${"─".repeat(BOX_W)}`;
 const BAR = "│ ";
 
 /**
- * @param title
- * @param bodyLines
+ * @param {*} title
+ * @param {*} bodyLines
  * @returns
  */
 function box(title, bodyLines) {
   /**
    * @constant parts
-   * @type {Array}
+   * @type {*[]}
    */
   const parts = [BOX_TOP, `${BAR}${title}`];
   for (const line of bodyLines) {

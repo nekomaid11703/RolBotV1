@@ -1,7 +1,7 @@
 // @ts-nocheck
 /**
  * Formats the stelas.
- * @param amount - - amount.
+ * @param {*} amount - - amount.
  * @returns
  */
 function formatStelas(amount) {
@@ -15,7 +15,7 @@ function formatStelas(amount) {
 
 /**
  * Formats the duration.
- * @param ms - - ms.
+ * @param {*} ms - - ms.
  * @returns
  */
 function formatDuration(ms) {

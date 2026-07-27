@@ -17,7 +17,7 @@ class TemporalModule extends ModuleBase {
   static type = "temporal";
   /**
    * @member triggers
-   * @type {Array}
+   * @type {*[]}
    * @public
    * @static
    */

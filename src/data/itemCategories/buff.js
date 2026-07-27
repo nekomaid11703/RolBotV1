@@ -17,7 +17,7 @@ class BuffModule extends ModuleBase {
   static type = "buff";
   /**
    * @member triggers
-   * @type {Array}
+   * @type {*[]}
    * @public
    * @static
    */

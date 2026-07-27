@@ -257,7 +257,7 @@ function calculateLevel(stats) {
 
 /**
  * @constant RANGOS
- * @type {Array}
+ * @type {*[]}
  */
 const RANGOS = ["F", "E", "D", "C", "B", "A", "S"];
 

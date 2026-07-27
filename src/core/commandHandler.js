@@ -54,14 +54,28 @@ async function checkCreatorOnly(ctx, command, logBase) {
   if (!command.creatorOnly) return null;
   const owner = isOwner({ jid: ctx.senderJid || ctx.sender, phone: ctx.senderNumber, displayName: ctx.userName });
   if (owner) return null;
-  return logDenied(ctx, logBase, "Solo el creador puede usar este comando.", "❌ Solo el creador puede usar este comando.");
+  return logDenied(
+    ctx,
+    logBase,
+    "Solo el creador puede usar este comando.",
+    "❌ Solo el creador puede usar este comando.",
+  );
 }
 
 async function checkEconomyAdmin(ctx, command, logBase) {
   if (!command.economyAdminOnly) return null;
-  const allowed = await hasEconomyPermission({ jid: ctx.senderJid || ctx.sender, phone: ctx.senderNumber, displayName: ctx.userName });
+  const allowed = await hasEconomyPermission({
+    jid: ctx.senderJid || ctx.sender,
+    phone: ctx.senderNumber,
+    displayName: ctx.userName,
+  });
   if (allowed) return null;
-  return logDenied(ctx, logBase, "Solo los administradores de economía pueden usar este comando.", "❌ Solo los administradores de economía pueden usar este comando.");
+  return logDenied(
+    ctx,
+    logBase,
+    "Solo los administradores de economía pueden usar este comando.",
+    "❌ Solo los administradores de economía pueden usar este comando.",
+  );
 }
 
 async function checkAdminPerm(ctx, command, logBase) {
@@ -72,7 +86,12 @@ async function checkAdminPerm(ctx, command, logBase) {
   );
   if (allowed) return null;
   const catLabel = getCategoryLabel(command.adminPerm);
-  return logDenied(ctx, logBase, `Solo los administradores de ${catLabel} pueden usar este comando.`, `❌ Solo los administradores de ${catLabel} pueden usar este comando.`);
+  return logDenied(
+    ctx,
+    logBase,
+    `Solo los administradores de ${catLabel} pueden usar este comando.`,
+    `❌ Solo los administradores de ${catLabel} pueden usar este comando.`,
+  );
 }
 
 async function checkAdminOnly(ctx, command, logBase) {
@@ -82,7 +101,12 @@ async function checkAdminOnly(ctx, command, logBase) {
   }
   const admin = await isAdmin(ctx.sock, ctx.from, ctx.senderJid || ctx.sender);
   if (admin) return null;
-  return logDenied(ctx, logBase, "Solo los administradores pueden usar este comando.", "❌ Solo los administradores pueden usar este comando.");
+  return logDenied(
+    ctx,
+    logBase,
+    "Solo los administradores pueden usar este comando.",
+    "❌ Solo los administradores pueden usar este comando.",
+  );
 }
 
 async function checkBotAdminOnly(ctx, command, logBase) {

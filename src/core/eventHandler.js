@@ -11,7 +11,7 @@ const { logError } = require("../services/loggerService");
 
 /**
  * Determines whether the skip message.
- * @param rawMsg - - raw message string.
+ * @param {*} rawMsg - - raw message string.
  * @returns
  */
 function shouldSkipMessage(rawMsg) {
@@ -23,8 +23,8 @@ function shouldSkipMessage(rawMsg) {
 
 /**
  * Record user and group activity.
- * @param ctx - - execution context.
- * @param rawMsg - - raw message string.
+ * @param {*} ctx - - execution context.
+ * @param {*} rawMsg - - raw message string.
  * @returns
  * @async
  */
@@ -111,8 +111,8 @@ async function recordUserAndGroupActivity(ctx, rawMsg) {
 
 /**
  * Processes the single message.
- * @param rawMsg - - raw message string.
- * @param sock - - sock.
+ * @param {*} rawMsg - - raw message string.
+ * @param {*} sock - - sock.
  * @async
  */
 async function processSingleMessage(rawMsg, sock) {
@@ -130,7 +130,7 @@ async function processSingleMessage(rawMsg, sock) {
 
 /**
  * @param {object} sock - Socket instance.
- * @param sock
+ * @param {*} sock
  */
 function registerEvents(sock) {
   sock.ev.on("messages.upsert", async ({ messages, type }) => {

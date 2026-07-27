@@ -19,7 +19,7 @@ function stopMidnightReview() {
 }
 
 /**
- * @param sock
+ * @param {*} sock
  */
 function startMidnightReview(sock) {
   stopMidnightReview();
@@ -28,7 +28,7 @@ function startMidnightReview(sock) {
 }
 
 /**
- * @param sock
+ * @param {*} sock
  */
 function scheduleNext(sock) {
   /**

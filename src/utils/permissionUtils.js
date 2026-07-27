@@ -10,7 +10,7 @@ const {
 
 /**
  * Normalises the owner record.
- * @param owner - - owner.
+ * @param {*} owner - - owner.
  * @returns
  */
 function normalizeOwnerRecord(owner) {
@@ -79,8 +79,8 @@ function getOwnerRecords() {
 
 /**
  * Owner record matches.
- * @param record - - record.
- * @param candidate - - candidate.
+ * @param {*} record - - record.
+ * @param {*} candidate - - candidate.
  * @returns
  */
 function ownerRecordMatches(record, candidate) {
@@ -104,7 +104,7 @@ function ownerRecordMatches(record, candidate) {
 
 /**
  * Returns whether it is owner.
- * @param candidate - - candidate.
+ * @param {*} candidate - - candidate.
  * @returns
  */
 function isOwner(candidate) {

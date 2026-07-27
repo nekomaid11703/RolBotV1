@@ -32,7 +32,8 @@ function parseDiceInput(input) {
 
   if (!DADOS_PERMITIDOS.includes(caras)) return { error: "Ese dado no esta permitido." };
   if (cantidad < MIN_CANTIDAD || cantidad > MAX_CANTIDAD) return { error: "Puedes lanzar entre 1 y 20 dados." };
-  if (dropLowest < 0 || dropLowest >= cantidad) return { error: "El numero de dados a descartar debe ser menor que el total." };
+  if (dropLowest < 0 || dropLowest >= cantidad)
+    return { error: "El numero de dados a descartar debe ser menor que el total." };
 
   return { cantidad, caras, modifier, dropLowest };
 }
@@ -111,12 +112,7 @@ function formatRollResult(input, rolls, criticosAltos, criticosBajos, { modifier
 
   const displayRolls = rolls.map((r) => formatDisplayRoll(r, caras, lowest, dropLowest));
 
-  const lines = [
-    "",
-    input,
-    `→ [ ${displayRolls.join(", ")} ]`,
-    `⭐ Total: ${total}`,
-  ];
+  const lines = ["", input, `→ [ ${displayRolls.join(", ")} ]`, `⭐ Total: ${total}`];
 
   addModifierLine(lines, rawTotal, modifier);
   addDropLine(lines, dropLowest, lowest);

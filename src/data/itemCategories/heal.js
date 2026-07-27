@@ -17,7 +17,7 @@ class HealModule extends ModuleBase {
   static type = "heal";
   /**
    * @member triggers
-   * @type {Array}
+   * @type {*[]}
    * @public
    * @static
    */
@@ -25,7 +25,7 @@ class HealModule extends ModuleBase {
 
   /**
    * Registers a listener for the use event.
-   * @param root0
+   * @param {*} root0
    * @returns
    */
   onUse({ character }) {

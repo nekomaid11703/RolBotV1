@@ -32,8 +32,7 @@ module.exports = {
   category: "rpg",
 
   /**
-   * @param {object} options
-   * @param ctx
+   * @param {*} ctx
    * @returns {Promise<void>}
    */
   async execute(ctx) {
@@ -140,7 +139,8 @@ module.exports = {
 
       return ctx.reply(box("\u21A9\uFE0F RETROCESO", lines));
     } catch (error) {
-      return ctx.reply(formatError(error.message));
+      const msg = error instanceof Error ? error.message : String(error);
+      return ctx.reply(formatError(msg));
     }
   },
 };

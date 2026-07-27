@@ -143,7 +143,7 @@ function cleanupSock() {
 
 /**
  * @param {object} _sock - Socket instance.
- * @param _sock
+ * @param {*} _sock
  */
 function startWatchdog(_sock) {
   stopWatchdog();
@@ -177,7 +177,7 @@ function stopWatchdog() {
 
 /**
  * Handles the show qr.
- * @param qr - - qr.
+ * @param {*} qr - - qr.
  */
 function handleShowQR(qr) {
   if (!qr) return;
@@ -190,8 +190,8 @@ function handleShowQR(qr) {
 
 /**
  * Try request pairing code.
- * @param connection - - connection.
- * @param sock - - sock.
+ * @param {*} connection - - connection.
+ * @param {*} sock - - sock.
  */
 function tryRequestPairingCode(connection, sock) {
   if (connection !== "connecting") return;
@@ -226,7 +226,7 @@ function tryRequestPairingCode(connection, sock) {
 
 /**
  * Notifies about the bug fixes.
- * @param sock - - sock.
+ * @param {*} sock - - sock.
  * @async
  */
 async function notifyBugFixes(sock) {
@@ -259,7 +259,7 @@ async function notifyBugFixes(sock) {
 
 /**
  * Handles the connection open.
- * @param sock - - sock.
+ * @param {*} sock - - sock.
  * @async
  */
 async function handleConnectionOpen(sock) {
@@ -351,8 +351,8 @@ async function attemptReconnect() {
 
 /**
  * Handles the connection close.
- * @param update - - update.
- * @param sock - - sock.
+ * @param {*} update - - update.
+ * @param {*} sock - - sock.
  * @async
  */
 async function handleConnectionClose(update, sock) {
@@ -402,7 +402,7 @@ async function handleConnectionClose(update, sock) {
 
 /**
  * Handles the start bot error.
- * @param error - - error instance.
+ * @param {*} error - - error instance.
  * @async
  */
 async function handleStartBotError(error) {

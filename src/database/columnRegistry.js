@@ -9,7 +9,7 @@ const DISCOVERY_TTL = 300000;
 
 /**
  * @constant KNOWN_SCHEMA
- * @type {object}
+ * @type {Record<string, string[]>}
  */
 const KNOWN_SCHEMA = {
   bot_auth_state: ["session_id", "id", "data"],
@@ -56,8 +56,7 @@ let lastDiscovery = 0;
 
 /**
  * Descubre dinámicamente el esquema de columnas uniendo el esquema canónico conocido con las columnas en BD.
- * @param {object} options
- * @param force
+ * @param {boolean} [force=false]
  * @returns {Promise<Record<string, Set<string> | null>>}
  */
 async function discover(force = false) {

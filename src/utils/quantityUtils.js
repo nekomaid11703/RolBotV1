@@ -1,5 +1,5 @@
 /**
- * @param input
+ * @param {*} input
  * @returns
  */
 function parseQuantity(input) {

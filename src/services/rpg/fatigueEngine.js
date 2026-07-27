@@ -65,8 +65,8 @@ function applyFatiguePenalties(stats, fatigue, resistance) {
  * Calcula el costo de fatiga de una acción basado en estadísticas.
  * @param {object} options
  * @param {object} options
- * @param actionName
- * @param stats
+ * @param {*} actionName
+ * @param {*} stats
  * @returns {number} Costo de fatiga calculado
  */
 function calcFatigueCost(actionName, stats = {}) {
@@ -118,9 +118,9 @@ function calcFatigueCost(actionName, stats = {}) {
  * @param {object} options
  * @param {object} options
  * @param {object} options
- * @param method
- * @param fatigue
- * @param resistance
+ * @param {*} method
+ * @param {*} fatigue
+ * @param {*} resistance
  * @returns {number} Cantidad de fatiga recuperada
  */
 function calcFatigueRecovery(method, fatigue, resistance) {

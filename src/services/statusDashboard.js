@@ -3,7 +3,7 @@ const { stats, getUptime, getMemory, formatDuration } = require("./stats");
 const { getRecentErrors } = require("./loggerService");
 
 let dashboardTimer = null;
-/** @type {Array<{time: string, source: string, message: string}>} */
+/** @type {[]} */
 let cachedErrors = [];
 let lastErrorFetch = 0;
 const ERROR_CACHE_MS = 15000;

@@ -5,7 +5,7 @@ const { checkVersion } = require("./schemaVersion");
 
 /**
  * @constant SCHEMA
- * @type {object}
+ * @type {Record<string, {columns: string[]}>}
  */
 const SCHEMA = {
   bot_auth_state: { columns: ["session_id", "id", "data"] },
@@ -39,7 +39,7 @@ const SCHEMA = {
 
 /**
  * @constant CRITICAL_EQUALS_COLUMNS
- * @type {object}
+ * @type {Record<string, string[]>}
  */
 const CRITICAL_EQUALS_COLUMNS = {
   players: ["phone"],

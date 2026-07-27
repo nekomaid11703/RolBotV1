@@ -15,8 +15,8 @@ const MAX_WARNS = 5;
 
 /**
  * Returns the warns.
- * @param groupId - - group unique identifier.
- * @param userId - - user unique identifier.
+ * @param {*} groupId - - group unique identifier.
+ * @param {*} userId - - user unique identifier.
  * @returns
  * @async
  */
@@ -32,9 +32,9 @@ async function getWarns(groupId, userId) {
 
 /**
  * Saves the warns.
- * @param groupId - - group unique identifier.
- * @param userId - - user unique identifier.
- * @param warns - - warns.
+ * @param {*} groupId - - group unique identifier.
+ * @param {*} userId - - user unique identifier.
+ * @param {*} warns - - warns.
  * @async
  */
 async function saveWarns(groupId, userId, warns) {
@@ -50,8 +50,8 @@ async function saveWarns(groupId, userId, warns) {
 
 /**
  * Deletes the warns.
- * @param groupId - - group unique identifier.
- * @param userId - - user unique identifier.
+ * @param {*} groupId - - group unique identifier.
+ * @param {*} userId - - user unique identifier.
  * @async
  */
 async function deleteWarns(groupId, userId) {
@@ -60,9 +60,9 @@ async function deleteWarns(groupId, userId) {
 
 /**
  * Adds the warn.
- * @param groupId - - group unique identifier.
- * @param userId - - user unique identifier.
- * @param warnData - - warn input data.
+ * @param {*} groupId - - group unique identifier.
+ * @param {*} userId - - user unique identifier.
+ * @param {*} warnData - - warn input data.
  * @async
  */
 async function addWarn(groupId, userId, warnData) {
@@ -80,8 +80,8 @@ async function addWarn(groupId, userId, warnData) {
 
 /**
  * Returns the group metadata.
- * @param sock - - sock.
- * @param jid - - jid.
+ * @param {*} sock - - sock.
+ * @param {*} jid - - jid.
  * @returns
  * @async
  */
@@ -99,7 +99,7 @@ async function getGroupMetadata(sock, jid) {
 
 /**
  * Returns whether the on is group.
- * @param jid - - jid.
+ * @param {*} jid - - jid.
  * @returns
  */
 function isOnGroup(jid) {
@@ -111,8 +111,8 @@ function isOnGroup(jid) {
 
 /**
  * Participant matches.
- * @param participant - - participant.
- * @param user - - user object.
+ * @param {*} participant - - participant.
+ * @param {*} user - - user object.
  * @returns
  */
 function participantMatches(participant, user) {
@@ -133,9 +133,9 @@ function participantMatches(participant, user) {
 
 /**
  * Returns whether it is admin.
- * @param sock - - sock.
- * @param jid - - jid.
- * @param user - - user object.
+ * @param {*} sock - - sock.
+ * @param {*} jid - - jid.
+ * @param {*} user - - user object.
  * @returns
  * @async
  */
@@ -167,8 +167,8 @@ async function isAdmin(sock, jid, user) {
 
 /**
  * Returns whether the bot is admin.
- * @param sock - - sock.
- * @param jid - - jid.
+ * @param {*} sock - - sock.
+ * @param {*} jid - - jid.
  * @returns
  * @async
  */
@@ -205,9 +205,9 @@ async function isBotAdmin(sock, jid) {
 
 /**
  * Adds the participant.
- * @param sock - - sock.
- * @param jid - - jid.
- * @param identifier - - identifier.
+ * @param {*} sock - - sock.
+ * @param {*} jid - - jid.
+ * @param {*} identifier - - identifier.
  * @throws {Error}
  * @returns
  * @async
@@ -226,9 +226,9 @@ async function addParticipant(sock, jid, identifier) {
 
 /**
  * Removes the participant.
- * @param sock - - sock.
- * @param jid - - jid.
- * @param participantJid - - participant jid.
+ * @param {*} sock - - sock.
+ * @param {*} jid - - jid.
+ * @param {*} participantJid - - participant jid.
  * @throws {Error}
  * @returns
  * @async
@@ -247,9 +247,9 @@ async function removeParticipant(sock, jid, participantJid) {
 
 /**
  * Promote to admin.
- * @param sock - - sock.
- * @param jid - - jid.
- * @param participantJid - - participant jid.
+ * @param {*} sock - - sock.
+ * @param {*} jid - - jid.
+ * @param {*} participantJid - - participant jid.
  * @async
  */
 async function promoteToAdmin(sock, jid, participantJid) {
@@ -258,9 +258,9 @@ async function promoteToAdmin(sock, jid, participantJid) {
 
 /**
  * Demote from admin.
- * @param sock - - sock.
- * @param jid - - jid.
- * @param participantJid - - participant jid.
+ * @param {*} sock - - sock.
+ * @param {*} jid - - jid.
+ * @param {*} participantJid - - participant jid.
  * @async
  */
 async function demoteFromAdmin(sock, jid, participantJid) {
@@ -269,8 +269,8 @@ async function demoteFromAdmin(sock, jid, participantJid) {
 
 /**
  * Returns the invite code.
- * @param sock - - sock.
- * @param jid - - jid.
+ * @param {*} sock - - sock.
+ * @param {*} jid - - jid.
  * @returns
  * @async
  */
@@ -284,8 +284,8 @@ async function getInviteCode(sock, jid) {
 
 /**
  * Opens the group.
- * @param sock - - sock.
- * @param jid - - jid.
+ * @param {*} sock - - sock.
+ * @param {*} jid - - jid.
  * @async
  */
 async function openGroup(sock, jid) {
@@ -294,8 +294,8 @@ async function openGroup(sock, jid) {
 
 /**
  * Closes the group.
- * @param sock - - sock.
- * @param jid - - jid.
+ * @param {*} sock - - sock.
+ * @param {*} jid - - jid.
  * @async
  */
 async function closeGroup(sock, jid) {
@@ -304,8 +304,8 @@ async function closeGroup(sock, jid) {
 
 /**
  * Deletes the warn.
- * @param groupId - - group unique identifier.
- * @param userId - - user unique identifier.
+ * @param {*} groupId - - group unique identifier.
+ * @param {*} userId - - user unique identifier.
  * @async
  */
 async function deleteWarn(groupId, userId) {

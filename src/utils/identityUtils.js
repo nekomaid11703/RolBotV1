@@ -1,7 +1,7 @@
 // @ts-nocheck
 /**
  * Normalises the jid.
- * @param value - - value to process.
+ * @param {*} value - - value to process.
  * @returns
  */
 function normalizeJid(value) {
@@ -12,7 +12,7 @@ function normalizeJid(value) {
 
 /**
  * Extracts the phone number.
- * @param value - - value to process.
+ * @param {*} value - - value to process.
  * @returns
  */
 function extractPhoneNumber(value) {
@@ -33,8 +33,8 @@ function uniqueStrings(values = []) {
 
 /**
  * Returns whether the same is identity.
- * @param left - - left.
- * @param right - - right.
+ * @param {*} left - - left.
+ * @param {*} right - - right.
  * @returns
  */
 function isSameIdentity(left, right) {
@@ -69,13 +69,13 @@ function isSameIdentity(left, right) {
 
 /**
  * To identity candidates.
- * @param value - - value to process.
+ * @param {*} value - - value to process.
  * @returns
  */
 function toIdentityCandidates(value) {
   /**
    * @constant candidates
-   * @type {Array}
+   * @type {*[]}
    */
   const candidates = [];
 
@@ -94,7 +94,7 @@ function toIdentityCandidates(value) {
   if (typeof value === "object") {
     /**
      * @constant keys
-     * @type {Array}
+     * @type {*[]}
      */
     const keys = [
       "jid",

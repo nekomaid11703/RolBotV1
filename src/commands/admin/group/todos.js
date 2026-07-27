@@ -16,7 +16,7 @@ module.exports = {
   /**
    * Executes the .
    * @async
-   * @param ctx - execution context.
+   * @param {*} ctx - execution context.
    * @returns {any}
    */
   async execute(ctx) {
@@ -44,7 +44,7 @@ module.exports = {
 
       /**
        * @constant lines
-       * @type {Array}
+       * @type {*[]}
        */
       const lines = [];
       let chunk = "";

@@ -5,11 +5,13 @@ const { box } = require("./boxUtils");
 const { formatError } = require("./formatErrorUtils");
 
 /**
+ * @param {*} ctx
  * @param {object} options
- * @param {object} options
- * @param {object} options
- * @param ctx
- * @returns
+ * @param {Function} options.serviceFn
+ * @param {string} options.usageMessage
+ * @param {string} options.boxTitle
+ * @param {string} [options.boxMessage=""]
+ * @returns {Promise<*>}
  */
 async function executeGroupAction(ctx, { serviceFn, usageMessage, boxTitle, boxMessage = "" }) {
   /**
@@ -33,7 +35,7 @@ async function executeGroupAction(ctx, { serviceFn, usageMessage, boxTitle, boxM
 
     /**
      * @constant lines
-     * @type {Array}
+     * @type {*[]}
      */
     const lines = ["", `👤  ${formatDisplayMention(targetId, targetName)}`];
     if (boxMessage) lines.push("", boxMessage);

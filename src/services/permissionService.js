@@ -11,7 +11,7 @@ const { supabase } = require("../database/supabase");
 const PERMISSIONS_SESSION = "permissions";
 
 /**
- * @param candidate
+ * @param {*} candidate
  * @returns
  */
 function resolveCandidateId(candidate) {
@@ -33,7 +33,7 @@ function resolveCandidateId(candidate) {
 }
 
 /**
- * @param profile
+ * @param {*} profile
  * @param [fallback]
  * @returns
  */
@@ -42,7 +42,7 @@ function pickDisplayName(profile, fallback = "usuario") {
 }
 
 /**
- * @param userId
+ * @param {*} userId
  * @returns
  */
 async function readPermissions(userId) {
@@ -56,8 +56,8 @@ async function readPermissions(userId) {
 }
 
 /**
- * @param userId
- * @param permissions
+ * @param {*} userId
+ * @param {*} permissions
  */
 async function writePermissions(userId, permissions) {
   await supabase.from("bot_auth_state").upsert(
@@ -71,7 +71,7 @@ async function writePermissions(userId, permissions) {
 }
 
 /**
- * @param candidate
+ * @param {*} candidate
  * @returns
  */
 async function isEconomyAdmin(candidate) {
@@ -95,7 +95,7 @@ async function isEconomyAdmin(candidate) {
 }
 
 /**
- * @param candidate
+ * @param {*} candidate
  * @returns
  */
 async function hasEconomyPermission(candidate) {
@@ -169,7 +169,7 @@ const CATEGORY_LABELS = {
 };
 
 /**
- * @param category
+ * @param {*} category
  * @returns
  */
 function getCategoryLabel(category) {
@@ -177,8 +177,8 @@ function getCategoryLabel(category) {
 }
 
 /**
- * @param candidate
- * @param category
+ * @param {*} candidate
+ * @param {*} category
  * @returns
  */
 async function isAdminForCategory(candidate, category) {
@@ -211,8 +211,8 @@ async function isAdminForCategory(candidate, category) {
 }
 
 /**
- * @param candidate
- * @param category
+ * @param {*} candidate
+ * @param {*} category
  * @returns
  */
 async function hasPermissionForCategory(candidate, category) {
@@ -293,7 +293,7 @@ async function setAdminForCategory({
 }
 
 /**
- * @param category
+ * @param {*} category
  * @returns
  */
 async function listAdminsForCategory(category) {

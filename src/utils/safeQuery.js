@@ -4,7 +4,7 @@ const { logSystem } = require("../services/loggerService");
 const { hasColumn } = require("../database/columnRegistry");
 
 /**
- * @param query
+ * @param {*} query
  * @returns
  */
 async function safeSingle(query) {
@@ -14,7 +14,7 @@ async function safeSingle(query) {
 }
 
 /**
- * @param query
+ * @param {*} query
  * @returns
  */
 async function safeSingleOrNull(query) {
@@ -27,7 +27,7 @@ async function safeSingleOrNull(query) {
 }
 
 /**
- * @param query
+ * @param {*} query
  * @returns
  */
 async function safeMaybeSingle(query) {
@@ -57,7 +57,7 @@ async function cachedRead({ key, fetch, ttl, bypassCache = false }) {
 }
 
 /**
- * @param creatorId
+ * @param {*} creatorId
  * @returns
  */
 function userCacheKey(creatorId) {
@@ -65,7 +65,7 @@ function userCacheKey(creatorId) {
 }
 
 /**
- * @param limit
+ * @param {*} limit
  * @returns
  */
 function topBalancesCacheKey(limit) {
@@ -73,7 +73,7 @@ function topBalancesCacheKey(limit) {
 }
 
 /**
- * @param groupId
+ * @param {*} groupId
  * @returns
  */
 function groupCacheKey(groupId) {
@@ -81,7 +81,7 @@ function groupCacheKey(groupId) {
 }
 
 /**
- * @param creatorId
+ * @param {*} creatorId
  * @returns
  */
 function charactersCacheKey(creatorId) {
@@ -89,8 +89,8 @@ function charactersCacheKey(creatorId) {
 }
 
 /**
- * @param groupId
- * @param limit
+ * @param {*} groupId
+ * @param {*} limit
  * @returns
  */
 function topGroupMembersCacheKey(groupId, limit) {
@@ -98,7 +98,7 @@ function topGroupMembersCacheKey(groupId, limit) {
 }
 
 /**
- * @param limit
+ * @param {*} limit
  * @returns
  */
 function topActiveUsersCacheKey(limit) {
@@ -106,7 +106,7 @@ function topActiveUsersCacheKey(limit) {
 }
 
 /**
- * @param creatorId
+ * @param {*} creatorId
  */
 function invalidateUserCache(creatorId) {
   /**
@@ -117,7 +117,7 @@ function invalidateUserCache(creatorId) {
 }
 
 /**
- * @param groupId
+ * @param {*} groupId
  */
 function invalidateGroupCache(groupId) {
   /**
@@ -149,7 +149,7 @@ function invalidateAllCache() {
 }
 
 /**
- * @param table
+ * @param {*} table
  * @param {...any} columnGroups
  * @returns
  */

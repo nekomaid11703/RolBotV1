@@ -31,7 +31,6 @@ async function useSupabaseAuthState(sessionId = "default") {
 
   /**
    * @returns {boolean} Whether the circuit allows requests.
-   * @returns
    */
   const checkCircuit = () => !circuitOpen || Date.now() > nextAttemptTime;
 
@@ -162,12 +161,12 @@ async function useSupabaseAuthState(sessionId = "default") {
           if (!checkCircuit()) return;
           /**
            * @constant upsertData
-           * @type {Array}
+           * @type {*[]}
            */
           const upsertData = [];
           /**
            * @constant deleteData
-           * @type {Array}
+           * @type {*[]}
            */
           const deleteData = [];
           for (const category in data) {

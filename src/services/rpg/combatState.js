@@ -9,7 +9,7 @@ const moduleRegistry = require("../../modules/moduleRegistry");
 
 /**
  * @constant sessions
- * @type {Map}
+ * @type {Map<*, *>}
  */
 const sessions = new Map();
 let cleanupInterval = null;
@@ -39,7 +39,7 @@ function generateDummyCharacter(challengerChar) {
 
   /**
    * @constant keys
-   * @type {Array}
+   * @type {*[]}
    */
   const keys = ["atk", "def", "aspd", "ref", "mspd", "fulgor", "d_fulgor", "r_fulgor"];
   /**
@@ -385,12 +385,12 @@ function findSessionByUser(userId) {
 function triggerModuleEvent(session, event, context = {}) {
   /**
    * @constant slots
-   * @type {Array}
+   * @type {*[]}
    */
   const slots = [session.challenger, session.defender];
   /**
    * @constant results
-   * @type {Array}
+   * @type {*[]}
    */
   const results = [];
   for (const slot of slots) {
@@ -424,10 +424,10 @@ function triggerModuleEvent(session, event, context = {}) {
  * @param {object} options
  * @param {object} options
  * @param {object} options
- * @param sessionId
- * @param newAttackerHp
- * @param newDefenderHp
- * @param skipRound
+ * @param {*} sessionId
+ * @param {*} newAttackerHp
+ * @param {*} newDefenderHp
+ * @param {*} skipRound
  * @returns {Promise<*|null>} Sesión actualizada o null si no existe
  */
 async function advanceTurn(sessionId, newAttackerHp, newDefenderHp, skipRound = false) {
@@ -576,12 +576,12 @@ async function cleanup() {
   const now = Date.now();
   /**
    * @constant toExpire
-   * @type {Array}
+   * @type {*[]}
    */
   const toExpire = [];
   /**
    * @constant toRemove
-   * @type {Array}
+   * @type {*[]}
    */
   const toRemove = [];
 

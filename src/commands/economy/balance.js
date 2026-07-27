@@ -5,7 +5,7 @@ const { box } = require("../../utils/boxUtils");
 
 /**
  * @param {object} options
- * @param ctx
+ * @param {*} ctx
  * @returns
  */
 function resolveTarget(ctx) {
@@ -36,7 +36,7 @@ module.exports = {
   /**
    * Executes the .
    * @async
-   * @param ctx - execution context.
+   * @param {*} ctx - execution context.
    * @returns {any}
    */
   async execute(ctx) {

@@ -1,6 +1,19 @@
 /**
+ * @typedef {object} ItemDef
+ * @property {string} id
+ * @property {string} name
+ * @property {string} description
+ * @property {string} icon
+ * @property {string[]} categories
+ * @property {number} basePrice
+ * @property {number} maxStack
+ * @property {string} rarity
+ * @property {object} modules
+ */
+
+/**
  * @constant ITEMS
- * @type {object}
+ * @type {Record<string, ItemDef>}
  */
 const ITEMS = {
   venda: {
@@ -86,7 +99,7 @@ const ITEMS = {
 /**
  * Get an item definition by id.
  * @param {string} itemId - Item identifier
- * @returns {*|null} Item definition object or null
+ * @returns {ItemDef|null} Item definition object or null
  */
 function getItem(itemId) {
   return ITEMS[itemId] || null;

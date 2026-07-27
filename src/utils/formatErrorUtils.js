@@ -6,7 +6,7 @@
 const LINE = "✦ ━━━━━━━━━━━━━━ ✦";
 
 /**
- * @param lines
+ * @param {*} lines
  * @returns
  */
 function compactLines(lines) {
@@ -26,7 +26,7 @@ function buildFeedbackBody({ icon = "ℹ️", title = "Aviso", lines = [] }) {
 }
 
 /**
- * @param opts
+ * @param {*} opts
  * @returns
  */
 function formatFeedback(opts) {
@@ -34,9 +34,9 @@ function formatFeedback(opts) {
 }
 
 /**
- * @param message
- * @param [hint]
- * @returns
+ * @param {*} message
+ * @param {string|null} [hint=null]
+ * @returns {string}
  */
 function formatError(message, hint = null) {
   return formatFeedback({

@@ -31,8 +31,7 @@ module.exports = {
   category: "rpg",
 
   /**
-   * @param {object} options
-   * @param ctx
+   * @param {*} ctx
    * @returns {Promise<void>}
    */
   async execute(ctx) {
@@ -139,7 +138,8 @@ module.exports = {
 
       return ctx.reply(box("\uD83D\uDEB6 AVANCE", lines));
     } catch (error) {
-      return ctx.reply(formatError(error.message));
+      const msg = error instanceof Error ? error.message : String(error);
+      return ctx.reply(formatError(msg));
     }
   },
 };

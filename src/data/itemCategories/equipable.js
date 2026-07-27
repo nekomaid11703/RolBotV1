@@ -17,7 +17,7 @@ class EquipableModule extends ModuleBase {
   static type = "equipable";
   /**
    * @member triggers
-   * @type {Array}
+   * @type {*[]}
    * @public
    * @static
    */
