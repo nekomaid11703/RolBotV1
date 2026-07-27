@@ -46,17 +46,33 @@ describe("CombatAI & Dummy Generation", () => {
     await removeSession(session.id);
   });
 
-  it("CombatAI.executeAiTurn ejecuta el contraataque de la IA del Dummy", async () => {
+  it("CombatAI.makeDecision retorna advance cuando está fuera de alcance", async () => {
     const session = await createDummySession("user123", challengerChar);
 
-    session.currentTurnCharId = session.defender.characterId;
+    session.distance = 10;
+    const aiSlot = session.defender;
+    const playerSlot = session.challenger;
 
-    const result = CombatAI.executeAiTurn(session);
+    const decision = CombatAI.makeDecision(session, aiSlot, playerSlot);
 
-    expect(result).not.toBeNull();
-    expect(result.attackerName).toBe("Maniqu\u00ed de Pr\u00e1ctica");
-    expect(result.defenderName).toBe("H\u00e9roe de Prueba");
-    expect(result.finalDamage).toBeGreaterThanOrEqual(0);
+    expect(decision.action).toBe("advance");
+    expect(decision.movement).not.toBeNull();
+    expect(decision.movement.meters).toBeGreaterThan(0);
+
+    await removeSession(session.id);
+  });
+
+  it("CombatAI.makeDecision retorna attack cuando está en alcance", async () => {
+    const session = await createDummySession("user123", challengerChar);
+
+    session.distance = 0;
+    const aiSlot = session.defender;
+    const playerSlot = session.challenger;
+
+    const decision = CombatAI.makeDecision(session, aiSlot, playerSlot);
+
+    expect(decision.action).toBe("attack");
+    expect(decision.movement).toBeNull();
 
     await removeSession(session.id);
   });
