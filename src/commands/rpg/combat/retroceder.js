@@ -110,9 +110,6 @@ module.exports = {
       const { canAttack, effectiveRange } = checkAttackRange(newDistance, attackerStats);
 
       if (canAttack) {
-        /**
-         * @constant lines
-         */
         const lines = [
           formatMovement(activeChar.name, "retreated", meters, newDistance, fatigueCost),
           "",
@@ -120,14 +117,11 @@ module.exports = {
           "",
           "\u2726 \u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501 \u2726",
           formatActionMenu(activeChar.name),
-        ].join("\n");
+        ];
 
         return ctx.reply(box("\u21A9\uFE0F RETROCESO", lines));
       }
 
-      /**
-       * @constant lines
-       */
       const lines = [
         formatMovement(activeChar.name, "retreated", meters, newDistance, fatigueCost),
         "",
@@ -135,7 +129,7 @@ module.exports = {
         "",
         "\u2726 \u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501 \u2726",
         formatActionMenu(activeChar.name),
-      ].join("\n");
+      ];
 
       return ctx.reply(box("\u21A9\uFE0F RETROCESO", lines));
     } catch (error) {

@@ -30,7 +30,8 @@ function box(title, bodyLines) {
    * @type {*[]}
    */
   const parts = [BOX_TOP, `${BAR}${title}`];
-  for (const line of bodyLines) {
+  const lines = Array.isArray(bodyLines) ? bodyLines : [String(bodyLines)];
+  for (const line of lines) {
     if (line === null || line === undefined) continue;
     if (line === "") {
       parts.push(BAR);
