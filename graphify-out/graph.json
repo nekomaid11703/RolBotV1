@@ -5102,7 +5102,7 @@
       "source_location": "L165",
       "_origin": "ast",
       "id": "src_commands_rpg_combat_atacar_handlepvecounterattack",
-      "community": 14,
+      "community": 16,
       "norm_label": "handlepvecounterattack()"
     },
     {
@@ -5802,7 +5802,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "src_commands_rpg_combat_retar_execute",
-      "community": 37,
+      "community": 38,
       "norm_label": "execute()"
     },
     {
@@ -10312,7 +10312,7 @@
       "source_location": "L486",
       "_origin": "ast",
       "id": "src_services_rpg_combatstate_setpendingreaction",
-      "community": 38,
+      "community": 16,
       "norm_label": "setpendingreaction()"
     },
     {
@@ -10406,14 +10406,14 @@
       "norm_label": "fatigueengine.js"
     },
     {
-      "label": "{\r\n  FATIGUE_THRESHOLDS,\r\n  FATIGUE_SPEED_STATS,\r\n  FATIGUE_COSTS,\r\n  FATIGUE_RECOVERY,\r\n  FATIGUE_ATK_COST_SCALE,\r\n  FATIGUE_DEF_REDUCTION_SCALE,\r\n  FATIGUE_DODGE_MSPD_REDUCTION,\r\n  FATIGUE_REST_DEF_SCALE,\r\n  FATIGUE_COST_MIN,\r\n  FATIGUE_RECOVERY_MAX,\r\n  FATIGUE_MAX,\r\n}",
+      "label": "{\n  FATIGUE_THRESHOLDS,\n  FATIGUE_SPEED_STATS,\n  FATIGUE_COSTS,\n  FATIGUE_RECOVERY,\n  FATIGUE_ATK_COST_SCALE,\n  FATIGUE_DEF_REDUCTION_SCALE,\n  FATIGUE_DODGE_MSPD_REDUCTION,\n  FATIGUE_REST_DEF_SCALE,\n  FATIGUE_COST_MIN,\n  FATIGUE_RECOVERY_MAX,\n  FATIGUE_MAX,\n}",
       "file_type": "code",
       "source_file": "src/services/rpg/fatigueEngine.js",
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_services_rpg_fatigueengine_fatigue_thresholds_fatigue_speed_stats_fatigue_costs_fatigue_recovery_fatigue_atk_cost_scale_fatigue_def_reduction_scale_fatigue_dodge_mspd_reduction_fatigue_rest_def_scale_fatigue_cost_min_fatigue_recovery_max_fatigue_max",
       "community": 22,
-      "norm_label": "{\r\n  fatigue_thresholds,\r\n  fatigue_speed_stats,\r\n  fatigue_costs,\r\n  fatigue_recovery,\r\n  fatigue_atk_cost_scale,\r\n  fatigue_def_reduction_scale,\r\n  fatigue_dodge_mspd_reduction,\r\n  fatigue_rest_def_scale,\r\n  fatigue_cost_min,\r\n  fatigue_recovery_max,\r\n  fatigue_max,\r\n}"
+      "norm_label": "{\n  fatigue_thresholds,\n  fatigue_speed_stats,\n  fatigue_costs,\n  fatigue_recovery,\n  fatigue_atk_cost_scale,\n  fatigue_def_reduction_scale,\n  fatigue_dodge_mspd_reduction,\n  fatigue_rest_def_scale,\n  fatigue_cost_min,\n  fatigue_recovery_max,\n  fatigue_max,\n}"
     },
     {
       "label": "getFatigueLevel()",
@@ -50598,5 +50598,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "68876b994586103792e8e6d320cbbba297a13221"
+  "built_at_commit": "723a9d6b924e20908e1a51b48fa04e2821b97d82"
 }

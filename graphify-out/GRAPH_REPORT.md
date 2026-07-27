@@ -10,7 +10,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `68876b99`
+- Built from commit: `723a9d6b`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -210,7 +210,7 @@ Nodes (18): buildDefaultProfile(), buildRegistration(), ensureUserProfile(), { f
 
 ### Community 14 - "unwarn.js"
 Cohesion: 0.11
-Nodes (31): applyAttackFatigue(), { box }, { calcFatigueCost, calcFatigueRecovery, capFatigue }, execute(), {
+Nodes (30): applyAttackFatigue(), { box }, { calcFatigueCost, calcFatigueRecovery, capFatigue }, execute(), {
   executeAttack,
   executeReaction,
   chooseAiReaction,
@@ -221,7 +221,7 @@ Nodes (31): applyAttackFatigue(), { box }, { calcFatigueCost, calcFatigueRecover
   advanceTurn,
   setPendingReaction,
   endSession,
-}, { formatActionMenu, formatReactionPrompt, buildFatigueBar }, { formatError } (+23 more)
+}, { formatActionMenu, formatReactionPrompt, buildFatigueBar }, { formatError } (+22 more)
 
 ### Community 15 - "economyService.js"
 Cohesion: 0.15
@@ -234,8 +234,8 @@ Nodes (20): execute(), { executeEconomyAction }, { removeMoney }, claimDaily(), 
 }, { filterExisting }, getBalance(), getMoneyValue() (+12 more)
 
 ### Community 16 - "test_helpers.js"
-Cohesion: 0.17
-Nodes (22): handlePvPWithReaction(), { box }, { calcFatigueCost, capFatigue }, execute(), {
+Cohesion: 0.16
+Nodes (24): handlePvECounterAttack(), handlePvPWithReaction(), { box }, { calcFatigueCost, capFatigue }, execute(), {
   findSessionByCharacter,
   findSessionByUser,
   endSession,
@@ -246,7 +246,7 @@ Nodes (22): handlePvPWithReaction(), { box }, { calcFatigueCost, capFatigue }, e
   formatActionMenu,
   formatReactionPrompt,
   buildFatigueBar,
-}, { getActiveCharacter, setHp } (+14 more)
+} (+16 more)
 
 ### Community 17 - "groupUtils.js"
 Cohesion: 0.12
@@ -351,11 +351,11 @@ Nodes (5): graphify — Knowledge Graph (Code-Only), Hook post-commit:, Instalac
 
 ### Community 37 - "formatError"
 Cohesion: 0.09
-Nodes (37): handlePvP(), { box }, { calcFatigueCost, calcFatigueRecovery, capFatigue }, execute(), { executeReaction, calculateXpReward }, { findSessionByCharacter, advanceTurn, endSession }, { formatActionMenu, buildFatigueBar }, { formatError } (+29 more)
+Nodes (36): handlePvP(), { box }, { calcFatigueCost, calcFatigueRecovery, capFatigue }, execute(), { executeReaction, calculateXpReward }, { findSessionByCharacter, advanceTurn, endSession }, { formatActionMenu, buildFatigueBar }, { formatError } (+28 more)
 
 ### Community 38 - "grupo_cerrar.js"
 Cohesion: 0.08
-Nodes (34): execute(), { findSessionByUser, removeSession }, { formatCombatDisolved }, { createSession, createDummySession, findSessionByCharacter }, { ensureTempTestKit }, { formatCombatOpen }, { formatError }, { getActiveCharacter } (+26 more)
+Nodes (34): execute(), { findSessionByUser, removeSession }, { formatCombatDisolved }, { createSession, createDummySession, findSessionByCharacter }, { ensureTempTestKit }, execute(), { formatCombatOpen }, { formatError } (+26 more)
 
 ### Community 39 - "invite.js"
 Cohesion: 0.13
