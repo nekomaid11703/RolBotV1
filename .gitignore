@@ -44,3 +44,7 @@ ai-memory/
 graphify-out/cost.json
 graphify-out/cache/
 
+
+# Cache files
+.eslintcache
+*.tsbuildinfo

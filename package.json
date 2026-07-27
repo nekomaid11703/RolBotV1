@@ -6,11 +6,11 @@
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
-    "lint": "eslint src/",
-    "lint:fix": "eslint src/ --fix",
+    "lint": "eslint src/ --cache",
+    "lint:fix": "eslint src/ --cache --fix",
     "format": "prettier --write \"src/**/*.js\" \"tests/**/*.js\" \"index.js\"",
     "format:check": "prettier --check \"src/**/*.js\" \"tests/**/*.js\" \"index.js\"",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --noEmit --incremental",
     "depcruise": "depcruise src",
     "depcruise:graph": "depcruise src --output-type dot | dot -T svg > graphify-out/dependency-graph.svg",
     "test": "vitest run",
@@ -66,9 +66,12 @@
     "vitest": "^4.1.10"
   },
   "lint-staged": {
-    "*.js": [
+    "src/**/*.js": [
       "prettier --write",
-      "eslint --fix"
+      "eslint --cache --fix"
+    ],
+    "*.js": [
+      "prettier --write"
     ]
   }
 }
