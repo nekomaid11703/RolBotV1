@@ -12,6 +12,7 @@ const {
   executeReaction,
   chooseAiReaction,
   calculateXpReward,
+  checkAttackRange,
 } = require("../../../services/rpg/combatEngine");
 const { calcFatigueCost, calcFatigueRecovery, capFatigue } = require("../../../services/rpg/fatigueEngine");
 const { formatActionMenu, formatReactionPrompt, buildFatigueBar } = require("../../../services/rpg/combatMessages");
@@ -463,6 +464,16 @@ module.exports = {
         return ctx.reply("\u274C No es tu turno. Espera.");
       }
       const { isChallenger, attackerSlot, defenderSlot } = getSlots(session, activeChar);
+
+      const { canAttack, effectiveRange } = checkAttackRange(session.distance || 5, activeChar.stats);
+      if (!canAttack) {
+        return ctx.reply(
+          formatError(
+            `\uD83D\uDCDD *${activeChar.name}* est\u00E1 a **${session.distance || 5}m** del objetivo (alcance: ${effectiveRange}m).`,
+            `Ac\u00E9rcate usando \`/avanzar <metros>\` antes de atacar.`,
+          ),
+        );
+      }
 
       applyAttackFatigue(attackerSlot);
 

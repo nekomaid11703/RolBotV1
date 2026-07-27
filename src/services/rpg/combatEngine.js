@@ -1,5 +1,5 @@
 // @ts-nocheck
-const { DAMAGE_MIN, BLOCK_REDUCTION } = require("../../config/combatConfig");
+const { DAMAGE_MIN, BLOCK_REDUCTION, BASE_ATTACK_RANGE, MSPD_TO_METERS, ASPD_PENALTY_DISTANCE_BLOCK, ASPD_PENALTY_PER_5M } = require("../../config/combatConfig");
 const { applyFatiguePenalties } = require("./fatigueEngine");
 /**
  * @constant moduleRegistry
@@ -113,6 +113,7 @@ function canReact(
   attackerFatigue = 0,
   defenderRes = 0,
   attackerRes = 0,
+  attackerAspdPenalty = 0,
 ) {
   /**
    * @constant defPenalized
@@ -122,7 +123,7 @@ function canReact(
    * @constant atkPenalized
    */
   const atkPenalized = applyPenalties(attackerStats, attackerHp, attackerFatigue, attackerRes);
-  return defPenalized.ref > atkPenalized.aspd;
+  return defPenalized.ref > Math.max(0, atkPenalized.aspd + attackerAspdPenalty);
 }
 
 /**
@@ -666,15 +667,25 @@ function applyHitModifiers(character, incomingDamage, context = {}) {
 }
 
 /**
+ * Calculate ASPD penalty based on combat distance.
+ * @param {number} distance
+ * @returns {number}
+ */
+function getAspdPenalty(distance) {
+  const raw = -Math.floor(distance / ASPD_PENALTY_DISTANCE_BLOCK) * ASPD_PENALTY_PER_5M;
+  return raw || 0;
+}
+
+/**
  * Check if the current distance is within attack range for the combatant.
  * @param {number} distance
  * @param {*} stats
+ * @param {number} [weaponRange]
  * @returns {{ canAttack: boolean, effectiveRange: number }}
  */
-function checkAttackRange(distance, stats) {
-  const baseRange = 1;
-  const rangeBonus = Math.max(0, Math.floor((stats.mspd || 0) * 0.1));
-  const effectiveRange = baseRange + rangeBonus;
+function checkAttackRange(distance, stats, weaponRange = 0) {
+  const mspdBonus = Math.floor((stats.mspd || 0) * MSPD_TO_METERS);
+  const effectiveRange = BASE_ATTACK_RANGE + mspdBonus + weaponRange;
   return {
     canAttack: distance <= effectiveRange,
     effectiveRange,
@@ -698,4 +709,5 @@ module.exports = {
   applyAttackModifiers,
   applyHitModifiers,
   checkAttackRange,
+  getAspdPenalty,
 };

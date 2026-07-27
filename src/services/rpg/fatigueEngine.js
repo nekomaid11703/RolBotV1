@@ -11,6 +11,11 @@ const {
   FATIGUE_COST_MIN,
   FATIGUE_RECOVERY_MAX,
   FATIGUE_MAX,
+  FATIGUE_BASE_PER_METER,
+  FATIGUE_SCALE_PER_5M,
+  FATIGUE_DISTANCE_BLOCK,
+  MOVEMENT_FATIGUE_MIN,
+  MSPD_TO_METERS,
 } = require("../../config/combatConfig");
 
 /**
@@ -160,7 +165,9 @@ function capFatigue(fatigue) {
  * @returns {number}
  */
 function calculateMovementFatigue(meters) {
-  return Math.max(FATIGUE_COST_MIN, Math.ceil(meters * 0.5));
+  if (meters <= 0) return 0;
+  const blocks = Math.floor(meters / FATIGUE_DISTANCE_BLOCK);
+  return Math.max(MOVEMENT_FATIGUE_MIN, meters * FATIGUE_BASE_PER_METER + blocks * meters * FATIGUE_SCALE_PER_5M);
 }
 
 /**
@@ -169,7 +176,7 @@ function calculateMovementFatigue(meters) {
  * @returns {number}
  */
 function getMovementRange(mspd) {
-  return Math.max(1, Math.floor((mspd || 0) * 0.5));
+  return Math.floor((mspd || 0) * MSPD_TO_METERS);
 }
 
 module.exports = {

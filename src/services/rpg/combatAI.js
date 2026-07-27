@@ -11,6 +11,7 @@ class CombatAI {
    * @param {object} session
    * @param {object} aiSlot
    * @param {object} playerSlot
+   * @param _playerSlot
    * @returns {{ movement: object|null, action: string }}
    */
   static makeDecision(session, aiSlot, _playerSlot) {
