@@ -81,20 +81,8 @@
   "79": "dado.js",
   "80": "editar_pj.js",
   "81": "atacar.js",
-  "82": "characterConfig.js",
-  "83": "items.js",
-  "84": "clases.js",
   "85": "equipable.js",
   "86": "schedulerService.js",
   "87": "heal.js",
-  "88": "LRUCache",
-  "89": "ConditionalMod",
-  "90": "listCharacters",
-  "91": "inventario.js",
-  "92": "add_stelas.js",
-  "93": "set_stelas.js",
-  "94": "supabaseAuthState.js",
-  "95": "sanitizeName",
-  "96": "combatBalance.js",
-  "97": "groupConfig.js"
+  "89": "ConditionalMod"
 }

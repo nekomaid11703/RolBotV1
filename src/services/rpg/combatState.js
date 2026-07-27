@@ -230,6 +230,7 @@ async function createSession(challengerId, defenderId, challengerChar, defenderC
   const session = {
     id: sessionId,
     isPvE: false,
+    distance: 5,
     challenger: {
       userId: challengerId,
       characterId: challengerChar.id,
@@ -259,6 +260,17 @@ async function createSession(challengerId, defenderId, challengerChar, defenderC
   await saveSession(session);
 
   return session;
+}
+
+/**
+ * @param {string} sessionId
+ * @param {number} newDistance
+ */
+async function updateDistance(sessionId, newDistance) {
+  const session = sessions.get(sessionId);
+  if (!session) return;
+  session.distance = newDistance;
+  session.lastTurnAt = Date.now();
 }
 
 /**
@@ -311,6 +323,7 @@ async function createDummySession(challengerId, challengerChar) {
     lastTurnAt: Date.now(),
     winnerId: null,
     rounds: 0,
+    distance: 5,
   };
 
   sessions.set(sessionId, session);
@@ -663,6 +676,7 @@ module.exports = {
   generateDummyCharacter,
   getSession,
   findSessionByCharacter,
+  updateDistance,
   findSessionByUser,
   advanceTurn,
   setPendingReaction,

@@ -154,10 +154,30 @@ function capFatigue(fatigue) {
   return Math.min(FATIGUE_MAX, Math.max(0, Number(fatigue) || 0));
 }
 
+/**
+ * Calculate fatigue cost for moving a given distance.
+ * @param {number} meters
+ * @returns {number}
+ */
+function calculateMovementFatigue(meters) {
+  return Math.max(FATIGUE_COST_MIN, Math.ceil(meters * 0.5));
+}
+
+/**
+ * Calculate maximum movement range based on MSPD stat.
+ * @param {number} mspd
+ * @returns {number}
+ */
+function getMovementRange(mspd) {
+  return Math.max(1, Math.floor((mspd || 0) * 0.5));
+}
+
 module.exports = {
   getFatigueLevel,
   applyFatiguePenalties,
   calcFatigueCost,
   calcFatigueRecovery,
   capFatigue,
+  calculateMovementFatigue,
+  getMovementRange,
 };

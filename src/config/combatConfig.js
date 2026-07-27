@@ -104,6 +104,12 @@ const FATIGUE_RECOVERY = {
 };
 
 /**
+ * @constant MAX_DISTANCE
+ * @type {number}
+ */
+const MAX_DISTANCE = 500;
+
+/**
  * @constant FATIGUE_SPEED_STATS
  * @type {*[]}
  */
@@ -114,6 +120,7 @@ module.exports = {
   DAMAGE_MIN,
   BLOCK_REDUCTION,
   MAX_ACTIVE_SESSIONS,
+  MAX_DISTANCE,
   CLEANUP_INTERVAL_MS,
   SESSION_STATES,
   FATIGUE_THRESHOLDS,

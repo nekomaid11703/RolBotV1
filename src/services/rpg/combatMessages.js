@@ -333,6 +333,32 @@ function formatCombatDisolved(adminName) {
   return box("\uD83D\uDD13 DISUELTO", ["", `${adminName} disolvi\u00F3 el combate`, "Personajes desbloqueados"]);
 }
 
+/**
+ * Format a movement action message.
+ * @param {string} name
+ * @param {string} action
+ * @param {number} meters
+ * @param {number} newDistance
+ * @param {number} fatigueCost
+ * @returns {string}
+ */
+function formatMovement(name, action, meters, newDistance, fatigueCost) {
+  const actionText = action === "advanced" ? "avanz\u00F3" : "retrocedi\u00F3";
+  return `\uD83D\uDEB6 *${name}* ${actionText} ${meters}m  |  Distancia: ${newDistance}m  |  Fatiga: +${fatigueCost}`;
+}
+
+/**
+ * Format an out-of-range warning message.
+ * @param {string} name
+ * @param {number} meters
+ * @param {number} newDistance
+ * @param {number} effectiveRange
+ * @returns {string}
+ */
+function formatOutOfRange(name, meters, newDistance, effectiveRange) {
+  return `\u26A0\uFE0F *${name}* a ${newDistance}m (alcance: ${effectiveRange}m) — demasiado lejos para atacar`;
+}
+
 module.exports = {
   buildHpBar,
   buildFatigueBar,
@@ -345,4 +371,6 @@ module.exports = {
   formatVictory,
   formatFlee,
   formatCombatDisolved,
+  formatMovement,
+  formatOutOfRange,
 };

@@ -665,6 +665,22 @@ function applyHitModifiers(character, incomingDamage, context = {}) {
   return modified;
 }
 
+/**
+ * Check if the current distance is within attack range for the combatant.
+ * @param {number} distance
+ * @param {*} stats
+ * @returns {{ canAttack: boolean, effectiveRange: number }}
+ */
+function checkAttackRange(distance, stats) {
+  const baseRange = 1;
+  const rangeBonus = Math.max(0, Math.floor((stats.mspd || 0) * 0.1));
+  const effectiveRange = baseRange + rangeBonus;
+  return {
+    canAttack: distance <= effectiveRange,
+    effectiveRange,
+  };
+}
+
 module.exports = {
   normalizeStats,
   applyPenalties,
@@ -681,4 +697,5 @@ module.exports = {
   calculateXpReward,
   applyAttackModifiers,
   applyHitModifiers,
+  checkAttackRange,
 };
