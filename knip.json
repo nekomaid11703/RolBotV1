@@ -1,21 +1,19 @@
 {
-  "$schema": "https://unpkg.com/knip@5/schema.json",
+  "$schema": "https://unpkg.com/knip@6/schema.json",
   "entry": [
     "src/core/bot.js",
-    "index.js",
     "src/commands/**/*.js",
     "src/data/**/*.js",
-    "src/config/**/*.js"
+    "src/config/**/*.js",
+    "scripts/**/*.js",
+    "tests/**/*.js"
   ],
   "project": ["src/**/*.js"],
-  "ignore": [
-    "src/utils/safeQuery.js",
-    "src/core/commandHandler.js"
-  ],
-  "ignoreDependencies": [],
   "rules": {
     "files": "warn",
-    "exports": "warn"
+    "exports": "warn",
+    "dependencies": "off",
+    "devDependencies": "off"
   },
-  "ignoreBinaries": ["echo", "cat", "dot"]
+  "ignoreBinaries": ["dot"]
 }

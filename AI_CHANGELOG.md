@@ -4,6 +4,29 @@ Este archivo registra los cambios significativos y decisiones arquitectónicas t
 
 ---
 
+## [2.2.2] - 2026-07-28
+
+### Auditoría de Código con Knip
+
+- `knip.json`: desactiva el análisis de dependencias, incluye `scripts/` y `tests/`, y conserva `dot` como binario usado por dependency-cruiser.
+- `scripts/knip-wrapper.mjs`: desactiva `oxc-parser` raw transfer para evitar la asignación fallida de un buffer de 6 GiB en Windows/Node 24.
+- `src/`: elimina exports y funciones sin consumidores confirmados por el repositorio.
+- `tests/message_format.test.js`: usa un `require` estático para que Knip reconozca `messageFormatUtils.js` como usado.
+- Resultado: Knip sin hallazgos, sin análisis de dependencias.
+
+---
+
+## [2.2.1] - 2026-07-28
+
+### Correcciones del Toolchain y Cache
+
+- `scripts/tools-list.js`: reconoce configuraciones ESLint `.js`, `.mjs` y `.cjs`, y cuenta suites `*.test.js` además de `test_*.js`.
+- `src/utils/safeQuery.js`: `cachedRead` conserva correctamente valores cacheados falsy.
+- `src/core/commandRegistry.js`: carga archivos recursivos en orden determinista y evita `statSync` innecesario.
+- `tests/safe_query.test.js`: añade regresión para valores `null`, `false`, `0` y cadena vacía.
+
+---
+
 ## [2.2.0] - 2026-07-21
 
 ### Rediseño Completo del Sistema de Combate por Turnos y Formato Único de Mensaje
@@ -280,5 +303,3 @@ Este archivo registra los cambios significativos y decisiones arquitectónicas t
 - `src/utils/messageFormatUtils.js` ➔ Limpieza de imports no usados
 - `memory/known_issues.md` ➔ Mover KI-001 a resueltos
 - `AI_CHANGELOG.md` ➔ Esta entrada
-
-

@@ -1,5 +1,5 @@
 require("../../data/itemCategories");
-const { ITEMS, getItem: getRawItem } = require("../../data/items");
+const { getItem: getRawItem } = require("../../data/items");
 const { createEntity } = require("../../modules/entityFactory");
 
 /**
@@ -32,27 +32,4 @@ function createItem(itemId) {
   return entity;
 }
 
-/**
- * @param {*} itemId
- * @returns
- */
-function getItem(itemId) {
-  return getRawItem(itemId);
-}
-
-/**
- * @returns
- */
-function getDisplayList() {
-  return Object.values(ITEMS).map((item) => ({
-    id: item.id,
-    name: item.name,
-    icon: item.icon,
-    description: item.description,
-    categories: item.categories || [],
-    basePrice: item.basePrice || 0,
-    rarity: item.rarity || "common",
-  }));
-}
-
-module.exports = { createItem, getItem, getDisplayList };
+module.exports = { createItem };

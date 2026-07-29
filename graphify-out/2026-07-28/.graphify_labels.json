@@ -77,6 +77,7 @@
   "75": "schemaMigration.js",
   "76": "statusService.js",
   "77": "dar_stelas.js",
+  "78": "eco_admin_rem.js",
   "79": "dado.js",
   "80": "editar_pj.js",
   "81": "atacar.js",
@@ -90,6 +91,11 @@
   "89": "ConditionalMod",
   "90": "listCharacters",
   "91": "inventario.js",
+  "92": "add_stelas.js",
+  "93": "set_stelas.js",
+  "94": "eco_admin_list.js",
+  "95": "listCharacters",
   "96": "combatBalance.js",
+  "97": "command_format.test.js",
   "98": "knip-wrapper.mjs"
 }

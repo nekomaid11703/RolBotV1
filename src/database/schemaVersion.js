@@ -81,4 +81,4 @@ async function checkVersion() {
   return { ok: true, stored, current: CURRENT_VERSION };
 }
 
-module.exports = { checkVersion, getStoredVersion, setStoredVersion, CURRENT_VERSION };
+module.exports = { checkVersion, setStoredVersion };

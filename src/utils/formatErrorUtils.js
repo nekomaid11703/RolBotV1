@@ -35,7 +35,7 @@ function formatFeedback(opts) {
 
 /**
  * @param {*} message
- * @param {string|null} [hint=null]
+ * @param {string|null} [hint]
  * @returns {string}
  */
 function formatError(message, hint = null) {
@@ -46,4 +46,4 @@ function formatError(message, hint = null) {
   });
 }
 
-module.exports = { formatError, formatFeedback, buildFeedbackBody, compactLines };
+module.exports = { formatError, compactLines };

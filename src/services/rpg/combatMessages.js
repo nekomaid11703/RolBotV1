@@ -179,43 +179,6 @@ function formatCombatOpen(session, hasTestKit = false) {
 }
 
 /**
- * Formatea el resumen de un turno de combate.
- * @param {*} result - Resultado del turno ejecutado
- * @returns {string} Resumen del turno formateado
- */
-function formatTurnSummary(result) {
-  /**
-   * @constant lines
-   * @type {*[]}
-   */
-  const lines = [];
-
-  lines.push("");
-  lines.push(`\u2694\uFE0F *${result.attackerName}* \u2192 *${result.defenderName}*`);
-
-  if (result.reaction === "dodge") {
-    lines.push(`\uD83D\uDCA8 *${result.defenderName}* esquiv\u00F3 (0)`);
-  } else if (result.reaction === "dodge_failed") {
-    lines.push(`\u274C *${result.defenderName}* fall\u00F3 esquiva`);
-    lines.push(`\uD83D\uDCA5 Da\u00F1o: ${result.finalDamage}`);
-  } else if (result.reaction === "block") {
-    lines.push(`\uD83D\uDEE1\uFE0F *${result.defenderName}* bloque\u00F3`);
-    lines.push(`\uD83D\uDCA5 ${result.baseDamage} \u2192 ${result.finalDamage}`);
-  } else {
-    lines.push(`\uD83D\uDCA5 Da\u00F1o: ${result.finalDamage}`);
-  }
-
-  lines.push(`\u2764\uFE0F *${result.defenderName}*: ${result.defenderHpBefore} \u2192 ${result.defenderHpAfter}`);
-
-  if (result.ko) {
-    lines.push("");
-    lines.push(`\uD83D\uDC80 *${result.defenderName}* ha ca\u00EDdo`);
-  }
-
-  return box("\u2694\uFE0F TURNO", lines);
-}
-
-/**
  * Formatea el estado completo del combate con HP, fatiga y acciones disponibles.
  * @param {*} session - Sesión de combate
  * @returns {string} Estado del combate formateado
@@ -279,16 +242,6 @@ function formatCombatStatus(session) {
   }
 
   return box("\uD83D\uDCCA ESTADO", lines);
-}
-
-/**
- * Formatea el mensaje de victoria con XP ganada.
- * @param {string} winnerName - Nombre del ganador
- * @param {number} xpGained - XP ganada en el combate
- * @returns {string} Mensaje de victoria formateado
- */
-function formatVictory(winnerName, xpGained) {
-  return box("\uD83C\uDF89 VICTORIA", ["", `\uD83C\uDFC6 *${winnerName}* gan\u00F3`, `\u2728 +${xpGained} XP`]);
 }
 
 /**
@@ -360,15 +313,12 @@ function formatOutOfRange(name, meters, newDistance, effectiveRange) {
 }
 
 module.exports = {
-  buildHpBar,
   buildFatigueBar,
   buildStatSummary,
   formatActionMenu,
   formatReactionPrompt,
   formatCombatOpen,
-  formatTurnSummary,
   formatCombatStatus,
-  formatVictory,
   formatFlee,
   formatCombatDisolved,
   formatMovement,

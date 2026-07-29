@@ -20,16 +20,4 @@ function randomFloat() {
  * @param [length]
  * @returns
  */
-function randomId(length = 4) {
-  /**
-   * @constant min
-   */
-  const min = Math.pow(36, length - 1);
-  /**
-   * @constant max
-   */
-  const max = Math.pow(36, length);
-  return secureRandomInt(min, max).toString(36);
-}
-
-module.exports = { randomInt, randomFloat, randomId };
+module.exports = { randomInt, randomFloat };

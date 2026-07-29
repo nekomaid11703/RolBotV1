@@ -112,13 +112,13 @@ function registerCommand(command, fileName) {
 function getJsFilesRecursively(dir) {
   /** @type {string[]} */
   let results = [];
-  const list = fs.readdirSync(dir);
-  for (const file of list) {
-    const filePath = path.join(dir, file);
-    const stat = fs.statSync(filePath);
-    if (stat && stat.isDirectory()) {
+  const list = fs.readdirSync(dir, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name));
+
+  for (const entry of list) {
+    const filePath = path.join(dir, entry.name);
+    if (entry.isDirectory()) {
       results = results.concat(getJsFilesRecursively(filePath));
-    } else if (file.endsWith(".js")) {
+    } else if (entry.isFile() && entry.name.endsWith(".js")) {
       results.push(filePath);
     }
   }
@@ -128,7 +128,6 @@ function getJsFilesRecursively(dir) {
 module.exports = {
   commands,
   aliases,
-  normalizeName,
   registerCommand,
   getJsFilesRecursively,
 };

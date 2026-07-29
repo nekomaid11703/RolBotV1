@@ -1,10 +1,13 @@
 // @ts-nocheck
-const { DAMAGE_MIN, BLOCK_REDUCTION, BASE_ATTACK_RANGE, MSPD_TO_METERS, ASPD_PENALTY_DISTANCE_BLOCK, ASPD_PENALTY_PER_5M } = require("../../config/combatConfig");
+const {
+  DAMAGE_MIN,
+  BLOCK_REDUCTION,
+  BASE_ATTACK_RANGE,
+  MSPD_TO_METERS,
+  ASPD_PENALTY_DISTANCE_BLOCK,
+  ASPD_PENALTY_PER_5M,
+} = require("../../config/combatConfig");
 const { applyFatiguePenalties } = require("./fatigueEngine");
-/**
- * @constant moduleRegistry
- */
-const moduleRegistry = require("../../modules/moduleRegistry");
 const { randomFloat } = require("../../utils/randomUtils");
 
 /**
@@ -102,6 +105,7 @@ function calculateDamage(
  * @param {number} [attackerFatigue] - Fatiga del atacante
  * @param {number} [defenderRes] - Resistencia del defensor
  * @param {number} [attackerRes] - Resistencia del atacante
+ * @param attackerAspdPenalty
  * @returns {boolean} true si el defensor puede reaccionar
  */
 function canReact(
@@ -601,72 +605,6 @@ function calculateXpReward(enemyLevel = 1, isWinner = true) {
 }
 
 /**
- * Aplica modificadores de módulos al daño de ataque.
- * @param {*} character - Personaje con módulos equipados
- * @param {number} baseDamage - Daño base antes de modificadores
- * @param {*} [context] - Contexto adicional para los módulos
- * @returns {number} Daño modificado
- */
-function applyAttackModifiers(character, baseDamage, context = {}) {
-  /**
-   * @constant modules
-   */
-  const modules = character.slots?.modules;
-  if (!modules) return baseDamage;
-
-  let modified = baseDamage;
-  for (const [type, config] of Object.entries(modules)) {
-    /**
-     * @constant mod
-     */
-    const mod = moduleRegistry.createInstance(type, config);
-    if (mod && mod.constructor.triggers.includes("Attack")) {
-      /**
-       * @constant result
-       */
-      const result = mod.onAttack({ ...context, baseDamage, character });
-      if (result && typeof result.damageMod === "number") {
-        modified = Math.max(0, modified + result.damageMod);
-      }
-    }
-  }
-  return modified;
-}
-
-/**
- * Aplica modificadores de módulos al daño recibido.
- * @param {*} character - Personaje con módulos equipados
- * @param {number} incomingDamage - Daño entrante antes de modificadores
- * @param {*} [context] - Contexto adicional para los módulos
- * @returns {number} Daño modificado tras recibir el golpe
- */
-function applyHitModifiers(character, incomingDamage, context = {}) {
-  /**
-   * @constant modules
-   */
-  const modules = character.slots?.modules;
-  if (!modules) return incomingDamage;
-
-  let modified = incomingDamage;
-  for (const [type, config] of Object.entries(modules)) {
-    /**
-     * @constant mod
-     */
-    const mod = moduleRegistry.createInstance(type, config);
-    if (mod && mod.constructor.triggers.includes("Hit")) {
-      /**
-       * @constant result
-       */
-      const result = mod.onHit({ ...context, incomingDamage, character });
-      if (result && typeof result.damageMod === "number") {
-        modified = Math.max(0, modified + result.damageMod);
-      }
-    }
-  }
-  return modified;
-}
-
-/**
  * Calculate ASPD penalty based on combat distance.
  * @param {number} distance
  * @returns {number}
@@ -693,7 +631,6 @@ function checkAttackRange(distance, stats, weaponRange = 0) {
 }
 
 module.exports = {
-  normalizeStats,
   applyPenalties,
   calculateDamage,
   canReact,
@@ -706,8 +643,6 @@ module.exports = {
   chooseAiReaction,
   executeTurn,
   calculateXpReward,
-  applyAttackModifiers,
-  applyHitModifiers,
   checkAttackRange,
   getAspdPenalty,
 };

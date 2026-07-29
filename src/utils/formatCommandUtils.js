@@ -2,7 +2,7 @@
 /**
  * @constant compactLines
  */
-const compactLines = require("./formatErrorUtils").compactLines;
+const { compactLines } = require("./formatErrorUtils");
 
 /**
  * @constant LINE

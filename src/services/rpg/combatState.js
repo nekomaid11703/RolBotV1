@@ -497,24 +497,6 @@ async function setPendingReaction(sessionId, pendingData) {
 }
 
 /**
- * Limpia el estado de reacción pendiente de una sesión.
- * @param {string} sessionId - ID de la sesión
- * @returns {Promise<*|null>} Sesión actualizada o null si no existe
- */
-async function clearPendingReaction(sessionId) {
-  /**
-   * @constant session
-   */
-  const session = sessions.get(sessionId);
-  if (!session || !isSessionActive(session)) return null;
-
-  session.status = SESSION_STATES.WAITING_ACTION;
-  session.pendingAttack = null;
-  await saveSession(session);
-  return session;
-}
-
-/**
  * Finaliza una sesión de combate declarando un ganador y limpiando items temporales.
  * @param {string} sessionId - ID de la sesión
  * @param {string} winnerCharId - ID del personaje ganador
@@ -660,16 +642,6 @@ function startCleanupInterval() {
   );
 }
 
-/**
- * Detiene el intervalo de limpieza automática de sesiones.
- */
-function stopCleanupInterval() {
-  if (cleanupInterval) {
-    clearInterval(cleanupInterval);
-    cleanupInterval = null;
-  }
-}
-
 module.exports = {
   createSession,
   createDummySession,
@@ -680,14 +652,11 @@ module.exports = {
   findSessionByUser,
   advanceTurn,
   setPendingReaction,
-  clearPendingReaction,
   isSessionActive,
   isSessionExpired,
   endSession,
   expireSession,
   removeSession,
-  cleanup,
   restoreSessions,
   startCleanupInterval,
-  stopCleanupInterval,
 };

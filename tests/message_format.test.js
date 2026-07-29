@@ -1,9 +1,7 @@
 const path = require("path");
 const fs = require("fs");
 
-const { box, formatCommandUsage, formatCommandForm, formatError } = require(
-  path.join(__dirname, "../src/utils/messageFormatUtils"),
-);
+const { box, formatCommandUsage, formatCommandForm, formatError } = require("../src/utils/messageFormatUtils");
 
 const srcContent = fs.readFileSync(path.join(__dirname, "../src/utils/messageFormatUtils.js"), "utf8");
 

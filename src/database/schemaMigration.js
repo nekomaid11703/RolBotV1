@@ -254,10 +254,5 @@ async function runStartupMigration() {
 }
 
 module.exports = {
-  detectMissingColumns,
-  generateMigrationSQL,
-  logMigrationInfo,
   runStartupMigration,
-  CURRENT_VERSION,
-  DESIRED_SCHEMA,
 };

@@ -72,7 +72,7 @@ C:\IA_rolbot/
 ## Configuración
 
 ```bash
-cp .env.local.example .env.local
+cp .env.example .env.local
 # Editar .env.local con SUPABASE_URL, SUPABASE_KEY
 npm install
 npm run dev       # Desarrollo con recarga automática
@@ -83,10 +83,10 @@ npm start         # Producción
 
 ```bash
 npm run check       # lint + typecheck + depcruise
-npm run check:all   # check + format:check + test:all
+npm run check:all   # check + format:check + test
 npm run lint        # ESLint (0 errores)
 npm run typecheck   # TypeScript strict
-npm run test:vite   # Vitest (test runner)
+npm test            # Vitest (test runner)
 npm run format      # Prettier
 npm run depcruise   # dependency-cruiser
 npm run knip        # Dead code detection

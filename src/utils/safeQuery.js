@@ -46,7 +46,7 @@ async function cachedRead({ key, fetch, ttl, bypassCache = false }) {
      * @constant cached
      */
     const cached = cache.get(key);
-    if (cached) return cached;
+    if (cached !== undefined) return cached;
   }
   /**
    * @constant data
