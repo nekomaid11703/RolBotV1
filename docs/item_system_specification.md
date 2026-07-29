@@ -76,7 +76,7 @@ Los materiales se utilizan en la forja de ítems y dictan las estadísticas base
 4. **Botas** (Calzado, Botas pesadas)
 5. **Mano Derecha** (Arma principal / Escudo)
 6. **Mano Izquierda** (Arma secundaria / Escudo)
-   * *Armas a dos manos* (Arcos, Espadas Largas, Mazos pesados) ocupan **Mano Derecha + Mano Izquierda**.
+   * *Armas a dos manos* (Arcos, Espadas Largas, Mazos pesados): Ocupan **Mano Derecha + Mano Izquierda**. Al equipar un arma a dos manos, el sistema **desequipa automáticamente** cualquier objeto en la mano izquierda y mano derecha.
 7. **Artefactos (4 slots)**: Anillos, Amuletos, Reliquias.
 
 ### Bonos de Set

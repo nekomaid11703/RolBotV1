@@ -1,44 +1,26 @@
 /**
- * @constant moduleRegistry
+ * Module Registration Registry for Item Categories
  */
 const moduleRegistry = require("../../modules/moduleRegistry");
-/**
- * @constant HealModule
- */
 const HealModule = require("./heal");
-/**
- * @constant BuffModule
- */
 const BuffModule = require("./buff");
-/**
- * @constant DamageModule
- */
 const DamageModule = require("./damage");
-/**
- * @constant EquipableModule
- */
 const EquipableModule = require("./equipable");
-/**
- * @constant TemporalModule
- */
 const TemporalModule = require("./temporal");
+const WeaponModule = require("./weapon");
+const ArmorModule = require("./armor");
+const DurabilityModule = require("./durability");
 
 moduleRegistry.register(HealModule);
 moduleRegistry.register(BuffModule);
 moduleRegistry.register(DamageModule);
 moduleRegistry.register(EquipableModule);
 moduleRegistry.register(TemporalModule);
+moduleRegistry.register(WeaponModule);
+moduleRegistry.register(ArmorModule);
+moduleRegistry.register(DurabilityModule);
 
 module.exports = {
-  /**
-   * Returns the category.
-   * @param {*} type - type identifier.
-   * @returns {any}
-   */
   getCategory: (type) => moduleRegistry.get(type),
-  /**
-   * Returns the categories.
-   * @returns {any}
-   */
   getCategories: () => moduleRegistry.getAll(),
 };

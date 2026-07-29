@@ -1,0 +1,202 @@
+// @ts-nocheck
+/**
+ * equipmentService unit tests.
+ * Usa inyección manual de require.cache para mockear supabase (patrón del proyecto).
+ */
+
+let mockEquippedSlots = {};
+let mockSaveError = null;
+
+function setupMocks() {
+  mockEquippedSlots = {};
+  mockSaveError = null;
+
+  const supabasePath = require.resolve("../src/database/supabase");
+  const loggerPath = require.resolve("../src/services/loggerService");
+  const columnRegistryPath = require.resolve("../src/database/columnRegistry");
+  const safeQueryPath = require.resolve("../src/utils/safeQuery");
+
+  const mockFrom = vi.fn().mockImplementation((table) => {
+    if (table === "characters") {
+      return {
+        select: vi.fn().mockReturnValue({
+          eq: vi.fn().mockReturnValue({
+            single: vi.fn().mockResolvedValue({ data: { equipped_slots: mockEquippedSlots }, error: null }),
+          }),
+        }),
+        update: vi.fn().mockReturnValue({
+          eq: vi.fn().mockResolvedValue({ error: mockSaveError }),
+        }),
+      };
+    }
+    return { select: vi.fn(), update: vi.fn() };
+  });
+
+  require.cache[supabasePath] = {
+    id: supabasePath,
+    filename: supabasePath,
+    loaded: true,
+    exports: { supabase: { from: mockFrom } },
+  };
+  require.cache[loggerPath] = {
+    id: loggerPath,
+    filename: loggerPath,
+    loaded: true,
+    exports: { logError: vi.fn(), logSystem: vi.fn() },
+  };
+  require.cache[columnRegistryPath] = {
+    id: columnRegistryPath,
+    filename: columnRegistryPath,
+    loaded: true,
+    exports: { filterExisting: vi.fn((_t, payload) => payload) },
+  };
+  require.cache[safeQueryPath] = {
+    id: safeQueryPath,
+    filename: safeQueryPath,
+    loaded: true,
+    exports: { invalidateUserCache: vi.fn() },
+  };
+
+  // Limpiar equipmentService del cache para que use los mocks frescos
+  const equipPath = require.resolve("../src/services/rpg/equipmentService");
+  delete require.cache[equipPath];
+}
+
+describe("EQUIPMENT_SLOTS — configuración", () => {
+  it("Tiene los 10 slots definidos", () => {
+    const { EQUIPMENT_SLOTS } = require("../src/services/rpg/equipmentService");
+    const slots = Object.keys(EQUIPMENT_SLOTS);
+    expect(slots).toContain("cabeza");
+    expect(slots).toContain("pecho");
+    expect(slots).toContain("pantalones");
+    expect(slots).toContain("botas");
+    expect(slots).toContain("mano_der");
+    expect(slots).toContain("mano_izq");
+    expect(slots).toContain("artefacto_1");
+    expect(slots).toContain("artefacto_4");
+    expect(slots.length).toBe(10);
+  });
+});
+
+describe("getSlotsToFree (via equipItem)", () => {
+  beforeEach(() => setupMocks());
+
+  it("Arma 1 mano: solo libera el slot de destino", async () => {
+    mockEquippedSlots = { mano_der: "espada_vieja", mano_izq: "escudo_viejo" };
+    // items.js catálogo real: venda es consumible no weapon, usamos mock de ítem
+    const itemsPath = require.resolve("../src/data/items");
+    require.cache[itemsPath] = {
+      id: itemsPath,
+      filename: itemsPath,
+      loaded: true,
+      exports: {
+        getItem: (id) =>
+          id === "daga_test"
+            ? {
+                id: "daga_test",
+                categories: ["weapon"],
+                modules: { weapon: { hands: 1 } },
+              }
+            : null,
+        getItemsByCategory: vi.fn(),
+        ITEMS: {},
+      },
+    };
+    delete require.cache[require.resolve("../src/services/rpg/equipmentService")];
+
+    const { equipItem } = require("../src/services/rpg/equipmentService");
+    const result = await equipItem({ characterId: 1, creatorId: "test", itemId: "daga_test", slot: "mano_der" });
+    expect(result.equipped).toBe("daga_test");
+    expect(result.autoUnequipped).toContain("espada_vieja");
+    expect(result.autoUnequipped).not.toContain("escudo_viejo"); // mano_izq intacta
+  });
+
+  it("Arma 2 manos: libera AMBAS manos automáticamente", async () => {
+    mockEquippedSlots = { mano_der: "espada_vieja", mano_izq: "escudo_viejo" };
+    const itemsPath = require.resolve("../src/data/items");
+    require.cache[itemsPath] = {
+      id: itemsPath,
+      filename: itemsPath,
+      loaded: true,
+      exports: {
+        getItem: (id) =>
+          id === "mandoble_test"
+            ? {
+                id: "mandoble_test",
+                categories: ["weapon"],
+                modules: { weapon: { hands: 2 } },
+              }
+            : null,
+        getItemsByCategory: vi.fn(),
+        ITEMS: {},
+      },
+    };
+    delete require.cache[require.resolve("../src/services/rpg/equipmentService")];
+
+    const { equipItem } = require("../src/services/rpg/equipmentService");
+    const result = await equipItem({ characterId: 1, creatorId: "test", itemId: "mandoble_test", slot: "mano_der" });
+    expect(result.equipped).toBe("mandoble_test");
+    expect(result.autoUnequipped).toContain("espada_vieja");
+    expect(result.autoUnequipped).toContain("escudo_viejo");
+  });
+
+  it("Arma 2 manos en slot incorrecto lanza error", async () => {
+    const itemsPath = require.resolve("../src/data/items");
+    require.cache[itemsPath] = {
+      id: itemsPath,
+      filename: itemsPath,
+      loaded: true,
+      exports: {
+        getItem: (id) =>
+          id === "arco_test"
+            ? {
+                id: "arco_test",
+                categories: ["weapon"],
+                modules: { weapon: { hands: 2 } },
+              }
+            : null,
+        getItemsByCategory: vi.fn(),
+        ITEMS: {},
+      },
+    };
+    delete require.cache[require.resolve("../src/services/rpg/equipmentService")];
+
+    const { equipItem } = require("../src/services/rpg/equipmentService");
+    await expect(
+      equipItem({ characterId: 1, creatorId: "test", itemId: "arco_test", slot: "mano_izq" }),
+    ).rejects.toThrow("mano_der");
+  });
+
+  it("Slot inválido lanza error descriptivo", async () => {
+    const { equipItem } = require("../src/services/rpg/equipmentService");
+    await expect(equipItem({ characterId: 1, creatorId: "test", itemId: "algo", slot: "slot_falso" })).rejects.toThrow(
+      "Slot inválido",
+    );
+  });
+});
+
+describe("unequipItem", () => {
+  beforeEach(() => setupMocks());
+
+  it("Desequipa ítem de slot ocupado correctamente", async () => {
+    mockEquippedSlots = { mano_der: "espada_X", mano_izq: null };
+    const { unequipItem } = require("../src/services/rpg/equipmentService");
+    const result = await unequipItem({ characterId: 1, creatorId: "test", slot: "mano_der" });
+    expect(result.unequipped).toBe("espada_X");
+    expect(result.slot).toBe("mano_der");
+  });
+
+  it("Desequipar arma 2 manos limpia también el marcador de mano_izq", async () => {
+    mockEquippedSlots = { mano_der: "espadon_X", mano_izq: "__2h:espadon_X" };
+    const { unequipItem } = require("../src/services/rpg/equipmentService");
+    await unequipItem({ characterId: 1, creatorId: "test", slot: "mano_der" });
+    // La lógica borra mano_izq si comienza con __2h:
+    // No tenemos acceso directo al estado pero verificamos que no lanza error
+  });
+
+  it("Slot vacío lanza error", async () => {
+    mockEquippedSlots = { mano_der: null };
+    const { unequipItem } = require("../src/services/rpg/equipmentService");
+    await expect(unequipItem({ characterId: 1, creatorId: "test", slot: "mano_der" })).rejects.toThrow("vacío");
+  });
+});

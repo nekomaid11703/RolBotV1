@@ -31,10 +31,11 @@ const KNOWN_SCHEMA = {
     "hp_actual",
     "stats",
     "slots",
+    "equipped_slots",
     "created_at",
     "updated_at",
   ],
-  inventory: ["id", "character_id", "item_id", "quantity", "created_at", "updated_at"],
+  inventory: ["id", "character_id", "item_id", "quantity", "metadata", "created_at", "updated_at"],
   combat_sessions: [
     "id",
     "is_pve",
@@ -56,7 +57,7 @@ let lastDiscovery = 0;
 
 /**
  * Descubre dinámicamente el esquema de columnas uniendo el esquema canónico conocido con las columnas en BD.
- * @param {boolean} [force=false]
+ * @param {boolean} [force]
  * @returns {Promise<Record<string, Set<string> | null>>}
  */
 async function discover(force = false) {

@@ -1172,7 +1172,7 @@
       "source_location": "L95",
       "_origin": "ast",
       "id": "scripts_simulate_battles_simulatebattle",
-      "community": 96,
+      "community": 22,
       "norm_label": "simulatebattle()"
     },
     {
@@ -2112,7 +2112,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_commands_admin_group_add",
-      "community": 87,
+      "community": 6,
       "norm_label": "add.js"
     },
     {
@@ -2122,7 +2122,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_commands_admin_group_add_addparticipant",
-      "community": 87,
+      "community": 6,
       "norm_label": "{ addparticipant }"
     },
     {
@@ -2132,7 +2132,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_commands_admin_group_add_box",
-      "community": 87,
+      "community": 6,
       "norm_label": "{ box }"
     },
     {
@@ -2142,7 +2142,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_commands_admin_group_add_formaterror",
-      "community": 87,
+      "community": 6,
       "norm_label": "{ formaterror }"
     },
     {
@@ -2152,7 +2152,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "src_commands_admin_group_add_execute",
-      "community": 87,
+      "community": 6,
       "norm_label": "execute()"
     },
     {
@@ -2282,7 +2282,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_commands_admin_group_grupo_abrir",
-      "community": 92,
+      "community": 47,
       "norm_label": "grupo_abrir.js"
     },
     {
@@ -2292,7 +2292,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_commands_admin_group_grupo_abrir_opengroup",
-      "community": 92,
+      "community": 47,
       "norm_label": "{ opengroup }"
     },
     {
@@ -2302,7 +2302,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_commands_admin_group_grupo_abrir_box",
-      "community": 92,
+      "community": 47,
       "norm_label": "{ box }"
     },
     {
@@ -2312,7 +2312,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_commands_admin_group_grupo_abrir_formaterror",
-      "community": 92,
+      "community": 47,
       "norm_label": "{ formaterror }"
     },
     {
@@ -2322,7 +2322,7 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "src_commands_admin_group_grupo_abrir_execute",
-      "community": 92,
+      "community": 47,
       "norm_label": "execute()"
     },
     {
@@ -2332,7 +2332,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_commands_admin_group_grupo_cerrar",
-      "community": 93,
+      "community": 47,
       "norm_label": "grupo_cerrar.js"
     },
     {
@@ -2342,7 +2342,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_commands_admin_group_grupo_cerrar_closegroup",
-      "community": 93,
+      "community": 47,
       "norm_label": "{ closegroup }"
     },
     {
@@ -2352,7 +2352,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_commands_admin_group_grupo_cerrar_box",
-      "community": 93,
+      "community": 47,
       "norm_label": "{ box }"
     },
     {
@@ -2362,7 +2362,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_commands_admin_group_grupo_cerrar_formaterror",
-      "community": 93,
+      "community": 47,
       "norm_label": "{ formaterror }"
     },
     {
@@ -2372,7 +2372,7 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "src_commands_admin_group_grupo_cerrar_execute",
-      "community": 93,
+      "community": 47,
       "norm_label": "execute()"
     },
     {
@@ -2382,7 +2382,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_commands_admin_group_invite",
-      "community": 94,
+      "community": 6,
       "norm_label": "invite.js"
     },
     {
@@ -2392,7 +2392,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_commands_admin_group_invite_getinvitecode",
-      "community": 94,
+      "community": 6,
       "norm_label": "{ getinvitecode }"
     },
     {
@@ -2402,7 +2402,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_commands_admin_group_invite_box",
-      "community": 94,
+      "community": 6,
       "norm_label": "{ box }"
     },
     {
@@ -2412,7 +2412,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_commands_admin_group_invite_formaterror",
-      "community": 94,
+      "community": 6,
       "norm_label": "{ formaterror }"
     },
     {
@@ -2422,7 +2422,7 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "src_commands_admin_group_invite_execute",
-      "community": 94,
+      "community": 6,
       "norm_label": "execute()"
     },
     {
@@ -2432,7 +2432,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_commands_admin_group_promote",
-      "community": 76,
+      "community": 39,
       "norm_label": "promote.js"
     },
     {
@@ -2442,7 +2442,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_commands_admin_group_promote_promotetoadmin",
-      "community": 76,
+      "community": 39,
       "norm_label": "{ promotetoadmin }"
     },
     {
@@ -2452,7 +2452,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_commands_admin_group_promote_executegroupaction",
-      "community": 76,
+      "community": 39,
       "norm_label": "{ executegroupaction }"
     },
     {
@@ -2462,7 +2462,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "src_commands_admin_group_promote_execute",
-      "community": 76,
+      "community": 39,
       "norm_label": "execute()"
     },
     {
@@ -2542,7 +2542,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_commands_admin_group_top_activos",
-      "community": 7,
+      "community": 10,
       "norm_label": "top_activos.js"
     },
     {
@@ -2552,7 +2552,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_commands_admin_group_top_activos_gettopgroupmembers",
-      "community": 7,
+      "community": 10,
       "norm_label": "{ gettopgroupmembers }"
     },
     {
@@ -2562,7 +2562,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_commands_admin_group_top_activos_formatcount_medal",
-      "community": 7,
+      "community": 10,
       "norm_label": "{ formatcount, medal }"
     },
     {
@@ -2572,7 +2572,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_commands_admin_group_top_activos_formatdisplaymention_withmentions",
-      "community": 7,
+      "community": 10,
       "norm_label": "{ formatdisplaymention, withmentions }"
     },
     {
@@ -2582,7 +2582,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "src_commands_admin_group_top_activos_box",
-      "community": 7,
+      "community": 10,
       "norm_label": "{ box }"
     },
     {
@@ -2592,7 +2592,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "src_commands_admin_group_top_activos_execute",
-      "community": 7,
+      "community": 10,
       "norm_label": "execute()"
     },
     {
@@ -2602,7 +2602,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_commands_admin_group_unwarn",
-      "community": 6,
+      "community": 80,
       "norm_label": "unwarn.js"
     },
     {
@@ -2612,7 +2612,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_commands_admin_group_unwarn_deletewarn_getwarns",
-      "community": 6,
+      "community": 80,
       "norm_label": "{ deletewarn, getwarns }"
     },
     {
@@ -2622,7 +2622,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_commands_admin_group_unwarn_getfirstmentionedjid",
-      "community": 6,
+      "community": 80,
       "norm_label": "{ getfirstmentionedjid }"
     },
     {
@@ -2632,7 +2632,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_commands_admin_group_unwarn_formatdisplaymention_withmentions",
-      "community": 6,
+      "community": 80,
       "norm_label": "{ formatdisplaymention, withmentions }"
     },
     {
@@ -2642,7 +2642,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "src_commands_admin_group_unwarn_resolvetargetdisplayname",
-      "community": 6,
+      "community": 80,
       "norm_label": "{ resolvetargetdisplayname }"
     },
     {
@@ -2652,7 +2652,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "src_commands_admin_group_unwarn_box",
-      "community": 6,
+      "community": 80,
       "norm_label": "{ box }"
     },
     {
@@ -2662,7 +2662,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "src_commands_admin_group_unwarn_formaterror",
-      "community": 6,
+      "community": 80,
       "norm_label": "{ formaterror }"
     },
     {
@@ -2672,7 +2672,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "src_commands_admin_group_unwarn_execute",
-      "community": 6,
+      "community": 80,
       "norm_label": "execute()"
     },
     {
@@ -2752,7 +2752,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "src_commands_admin_group_warn_execute",
-      "community": 6,
+      "community": 80,
       "norm_label": "execute()"
     },
     {
@@ -3262,7 +3262,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_commands_admin_permissions_eco_admin_rem",
-      "community": 77,
+      "community": 80,
       "norm_label": "eco_admin_rem.js"
     },
     {
@@ -3272,7 +3272,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_commands_admin_permissions_eco_admin_rem_seteconomyadmin_iseconomyadmin",
-      "community": 77,
+      "community": 80,
       "norm_label": "{ seteconomyadmin, iseconomyadmin }"
     },
     {
@@ -3282,7 +3282,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_commands_admin_permissions_eco_admin_rem_getfirstmentionedjid",
-      "community": 77,
+      "community": 80,
       "norm_label": "{ getfirstmentionedjid }"
     },
     {
@@ -3292,7 +3292,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_commands_admin_permissions_eco_admin_rem_isowner",
-      "community": 77,
+      "community": 80,
       "norm_label": "{ isowner }"
     },
     {
@@ -3302,7 +3302,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "src_commands_admin_permissions_eco_admin_rem_formatdisplaymention_withmentions",
-      "community": 77,
+      "community": 80,
       "norm_label": "{ formatdisplaymention, withmentions }"
     },
     {
@@ -3312,7 +3312,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "src_commands_admin_permissions_eco_admin_rem_resolvetargetdisplayname",
-      "community": 77,
+      "community": 80,
       "norm_label": "{ resolvetargetdisplayname }"
     },
     {
@@ -3322,7 +3322,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "src_commands_admin_permissions_eco_admin_rem_box",
-      "community": 77,
+      "community": 80,
       "norm_label": "{ box }"
     },
     {
@@ -3332,7 +3332,7 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "src_commands_admin_permissions_eco_admin_rem_formaterror",
-      "community": 77,
+      "community": 80,
       "norm_label": "{ formaterror }"
     },
     {
@@ -3342,7 +3342,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "src_commands_admin_permissions_eco_admin_rem_formatcommandusage",
-      "community": 77,
+      "community": 80,
       "norm_label": "{ formatcommandusage }"
     },
     {
@@ -3352,7 +3352,7 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "src_commands_admin_permissions_eco_admin_rem_usagemessage",
-      "community": 77,
+      "community": 80,
       "norm_label": "usagemessage"
     },
     {
@@ -3412,7 +3412,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_commands_economy_balance",
-      "community": 15,
+      "community": 69,
       "norm_label": "balance.js"
     },
     {
@@ -3422,7 +3422,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_commands_economy_balance_getorcreateprofile_getuserprofile",
-      "community": 15,
+      "community": 69,
       "norm_label": "{ getorcreateprofile, getuserprofile }"
     },
     {
@@ -3432,7 +3432,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_commands_economy_balance_formatstelas",
-      "community": 15,
+      "community": 69,
       "norm_label": "{ formatstelas }"
     },
     {
@@ -3442,7 +3442,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_commands_economy_balance_box",
-      "community": 15,
+      "community": 69,
       "norm_label": "{ box }"
     },
     {
@@ -3452,7 +3452,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "src_commands_economy_balance_resolvetarget",
-      "community": 15,
+      "community": 69,
       "norm_label": "resolvetarget()"
     },
     {
@@ -3462,7 +3462,7 @@
       "source_location": "L42",
       "_origin": "ast",
       "id": "src_commands_economy_balance_execute",
-      "community": 15,
+      "community": 69,
       "norm_label": "execute()"
     },
     {
@@ -3472,7 +3472,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_commands_economy_daily",
-      "community": 15,
+      "community": 69,
       "norm_label": "daily.js"
     },
     {
@@ -3482,7 +3482,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_commands_economy_daily_claimdaily",
-      "community": 15,
+      "community": 69,
       "norm_label": "{ claimdaily }"
     },
     {
@@ -3492,7 +3492,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_commands_economy_daily_formatstelas_formatduration",
-      "community": 15,
+      "community": 69,
       "norm_label": "{ formatstelas, formatduration }"
     },
     {
@@ -3502,7 +3502,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_commands_economy_daily_daily_cooldown_hours",
-      "community": 15,
+      "community": 69,
       "norm_label": "{ daily_cooldown_hours }"
     },
     {
@@ -3512,7 +3512,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "src_commands_economy_daily_box",
-      "community": 15,
+      "community": 69,
       "norm_label": "{ box }"
     },
     {
@@ -3522,7 +3522,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "src_commands_economy_daily_formatstreaklabel",
-      "community": 15,
+      "community": 69,
       "norm_label": "formatstreaklabel()"
     },
     {
@@ -3532,7 +3532,7 @@
       "source_location": "L25",
       "_origin": "ast",
       "id": "src_commands_economy_daily_formatprogressbar",
-      "community": 15,
+      "community": 69,
       "norm_label": "formatprogressbar()"
     },
     {
@@ -3542,7 +3542,7 @@
       "source_location": "L56",
       "_origin": "ast",
       "id": "src_commands_economy_daily_execute",
-      "community": 15,
+      "community": 69,
       "norm_label": "execute()"
     },
     {
@@ -3662,7 +3662,7 @@
       "source_location": "L36",
       "_origin": "ast",
       "id": "src_commands_economy_dar_stelas_execute",
-      "community": 18,
+      "community": 7,
       "norm_label": "execute()"
     },
     {
@@ -3672,7 +3672,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_commands_economy_rem_stelas",
-      "community": 15,
+      "community": 70,
       "norm_label": "rem_stelas.js"
     },
     {
@@ -3682,7 +3682,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_commands_economy_rem_stelas_removemoney",
-      "community": 15,
+      "community": 70,
       "norm_label": "{ removemoney }"
     },
     {
@@ -3692,7 +3692,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_commands_economy_rem_stelas_executeeconomyaction",
-      "community": 15,
+      "community": 70,
       "norm_label": "{ executeeconomyaction }"
     },
     {
@@ -3702,7 +3702,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "src_commands_economy_rem_stelas_execute",
-      "community": 15,
+      "community": 70,
       "norm_label": "execute()"
     },
     {
@@ -3712,7 +3712,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_commands_economy_set_stelas",
-      "community": 15,
+      "community": 76,
       "norm_label": "set_stelas.js"
     },
     {
@@ -3722,7 +3722,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_commands_economy_set_stelas_setmoney",
-      "community": 15,
+      "community": 76,
       "norm_label": "{ setmoney }"
     },
     {
@@ -3732,7 +3732,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_commands_economy_set_stelas_executeeconomyaction",
-      "community": 15,
+      "community": 76,
       "norm_label": "{ executeeconomyaction }"
     },
     {
@@ -3742,7 +3742,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "src_commands_economy_set_stelas_execute",
-      "community": 15,
+      "community": 76,
       "norm_label": "execute()"
     },
     {
@@ -3752,7 +3752,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_commands_economy_top_dinero",
-      "community": 15,
+      "community": 20,
       "norm_label": "top_dinero.js"
     },
     {
@@ -3762,7 +3762,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_commands_economy_top_dinero_gettopbalances",
-      "community": 15,
+      "community": 20,
       "norm_label": "{ gettopbalances }"
     },
     {
@@ -3772,7 +3772,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_commands_economy_top_dinero_formatstelas",
-      "community": 15,
+      "community": 20,
       "norm_label": "{ formatstelas }"
     },
     {
@@ -3782,7 +3782,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_commands_economy_top_dinero_top_dinero_limit",
-      "community": 15,
+      "community": 20,
       "norm_label": "{ top_dinero_limit }"
     },
     {
@@ -3792,7 +3792,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "src_commands_economy_top_dinero_box",
-      "community": 15,
+      "community": 20,
       "norm_label": "{ box }"
     },
     {
@@ -3802,7 +3802,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "src_commands_economy_top_dinero_medal",
-      "community": 15,
+      "community": 20,
       "norm_label": "{ medal }"
     },
     {
@@ -3812,7 +3812,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "src_commands_economy_top_dinero_execute",
-      "community": 15,
+      "community": 10,
       "norm_label": "execute()"
     },
     {
@@ -3872,7 +3872,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "src_commands_info_bugreport_execute",
-      "community": 22,
+      "community": 47,
       "norm_label": "execute()"
     },
     {
@@ -3882,7 +3882,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_commands_info_bugstatus",
-      "community": 89,
+      "community": 1,
       "norm_label": "bugstatus.js"
     },
     {
@@ -3892,7 +3892,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_commands_info_bugstatus_getreport_getuserreports",
-      "community": 89,
+      "community": 1,
       "norm_label": "{ getreport, getuserreports }"
     },
     {
@@ -3902,7 +3902,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_commands_info_bugstatus_box",
-      "community": 89,
+      "community": 1,
       "norm_label": "{ box }"
     },
     {
@@ -3912,7 +3912,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_commands_info_bugstatus_formaterror",
-      "community": 89,
+      "community": 1,
       "norm_label": "{ formaterror }"
     },
     {
@@ -3922,7 +3922,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "src_commands_info_bugstatus_execute",
-      "community": 89,
+      "community": 1,
       "norm_label": "execute()"
     },
     {
@@ -4072,7 +4072,7 @@
       "source_location": "L130",
       "_origin": "ast",
       "id": "src_commands_info_dado_execute",
-      "community": 22,
+      "community": 19,
       "norm_label": "execute()"
     },
     {
@@ -4252,7 +4252,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_commands_info_hola",
-      "community": 84,
+      "community": 10,
       "norm_label": "hola.js"
     },
     {
@@ -4262,7 +4262,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_commands_info_hola_formatdisplaymention",
-      "community": 84,
+      "community": 10,
       "norm_label": "{ formatdisplaymention }"
     },
     {
@@ -4272,7 +4272,7 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "src_commands_info_hola_execute",
-      "community": 84,
+      "community": 10,
       "norm_label": "execute()"
     },
     {
@@ -4602,7 +4602,7 @@
       "source_location": "L37",
       "_origin": "ast",
       "id": "src_commands_rpg_characters_editar_pj_execute",
-      "community": 22,
+      "community": 5,
       "norm_label": "execute()"
     },
     {
@@ -4682,7 +4682,7 @@
       "source_location": "L39",
       "_origin": "ast",
       "id": "src_commands_rpg_characters_eliminar_pj_execute",
-      "community": 22,
+      "community": 90,
       "norm_label": "execute()"
     },
     {
@@ -4692,7 +4692,7 @@
       "source_location": "L129",
       "_origin": "ast",
       "id": "src_commands_rpg_characters_eliminar_pj_executedeletion",
-      "community": 22,
+      "community": 90,
       "norm_label": "executedeletion()"
     },
     {
@@ -4702,7 +4702,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_commands_rpg_characters_mis_pj",
-      "community": 95,
+      "community": 90,
       "norm_label": "mis_pj.js"
     },
     {
@@ -4712,7 +4712,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_commands_rpg_characters_mis_pj_listcharacters",
-      "community": 95,
+      "community": 90,
       "norm_label": "{ listcharacters }"
     },
     {
@@ -4722,7 +4722,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_commands_rpg_characters_mis_pj_box",
-      "community": 95,
+      "community": 90,
       "norm_label": "{ box }"
     },
     {
@@ -4732,7 +4732,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "src_commands_rpg_characters_mis_pj_execute",
-      "community": 95,
+      "community": 90,
       "norm_label": "execute()"
     },
     {
@@ -4832,7 +4832,7 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "src_commands_rpg_characters_renombrar_pj_execute",
-      "community": 22,
+      "community": 47,
       "norm_label": "execute()"
     },
     {
@@ -4842,7 +4842,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_commands_rpg_characters_switch_pj",
-      "community": 20,
+      "community": 47,
       "norm_label": "switch_pj.js"
     },
     {
@@ -4852,7 +4852,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_commands_rpg_characters_switch_pj_setactivecharacter",
-      "community": 20,
+      "community": 47,
       "norm_label": "{ setactivecharacter }"
     },
     {
@@ -4862,7 +4862,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_commands_rpg_characters_switch_pj_getcharacternames",
-      "community": 20,
+      "community": 47,
       "norm_label": "{ getcharacternames }"
     },
     {
@@ -4872,7 +4872,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_commands_rpg_characters_switch_pj_isadmin",
-      "community": 20,
+      "community": 47,
       "norm_label": "{ isadmin }"
     },
     {
@@ -4882,7 +4882,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "src_commands_rpg_characters_switch_pj_box",
-      "community": 20,
+      "community": 47,
       "norm_label": "{ box }"
     },
     {
@@ -4892,7 +4892,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "src_commands_rpg_characters_switch_pj_formaterror",
-      "community": 20,
+      "community": 47,
       "norm_label": "{ formaterror }"
     },
     {
@@ -4902,7 +4902,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "src_commands_rpg_characters_switch_pj_formatcommandusage",
-      "community": 20,
+      "community": 47,
       "norm_label": "{ formatcommandusage }"
     },
     {
@@ -4912,7 +4912,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "src_commands_rpg_characters_switch_pj_usagemessage",
-      "community": 20,
+      "community": 47,
       "norm_label": "usagemessage"
     },
     {
@@ -4922,7 +4922,7 @@
       "source_location": "L33",
       "_origin": "ast",
       "id": "src_commands_rpg_characters_switch_pj_execute",
-      "community": 22,
+      "community": 47,
       "norm_label": "execute()"
     },
     {
@@ -5422,7 +5422,7 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "src_commands_rpg_combat_descansar_getrestcontext",
-      "community": 64,
+      "community": 38,
       "norm_label": "getrestcontext()"
     },
     {
@@ -5472,7 +5472,7 @@
       "source_location": "L79",
       "_origin": "ast",
       "id": "src_commands_rpg_combat_descansar_handlepvecounterattack",
-      "community": 37,
+      "community": 64,
       "norm_label": "handlepvecounterattack()"
     },
     {
@@ -5732,7 +5732,7 @@
       "source_location": "L33",
       "_origin": "ast",
       "id": "src_commands_rpg_combat_huir_execute",
-      "community": 37,
+      "community": 16,
       "norm_label": "execute()"
     },
     {
@@ -5802,7 +5802,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "src_commands_rpg_combat_retar_execute",
-      "community": 22,
+      "community": 38,
       "norm_label": "execute()"
     },
     {
@@ -5982,7 +5982,7 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "src_commands_rpg_inventory_inventario_execute",
-      "community": 22,
+      "community": 83,
       "norm_label": "execute()"
     },
     {
@@ -6062,7 +6062,7 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "src_commands_rpg_inventory_item_add_execute",
-      "community": 22,
+      "community": 43,
       "norm_label": "execute()"
     },
     {
@@ -6142,7 +6142,7 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "src_commands_rpg_inventory_item_rem_execute",
-      "community": 22,
+      "community": 43,
       "norm_label": "execute()"
     },
     {
@@ -6222,7 +6222,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "src_commands_rpg_inventory_usar_showinventorylist",
-      "community": 22,
+      "community": 28,
       "norm_label": "showinventorylist()"
     },
     {
@@ -6242,7 +6242,7 @@
       "source_location": "L53",
       "_origin": "ast",
       "id": "src_commands_rpg_inventory_usar_execute",
-      "community": 22,
+      "community": 28,
       "norm_label": "execute()"
     },
     {
@@ -6282,7 +6282,7 @@
       "source_location": "L56",
       "_origin": "ast",
       "id": "src_config_characterconfig_default_character_slots",
-      "community": 42,
+      "community": 5,
       "norm_label": "default_character_slots"
     },
     {
@@ -6302,7 +6302,7 @@
       "source_location": "L237",
       "_origin": "ast",
       "id": "src_config_characterconfig_xpfornextlevel",
-      "community": 5,
+      "community": 42,
       "norm_label": "xpfornextlevel()"
     },
     {
@@ -6312,7 +6312,7 @@
       "source_location": "L246",
       "_origin": "ast",
       "id": "src_config_characterconfig_calculatelevel",
-      "community": 5,
+      "community": 42,
       "norm_label": "calculatelevel()"
     },
     {
@@ -6442,7 +6442,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_config_economyconfig",
-      "community": 15,
+      "community": 20,
       "norm_label": "economyconfig.js"
     },
     {
@@ -6504,76 +6504,6 @@
       "id": "src_config_permissionsconfig_owner_aliases",
       "community": 26,
       "norm_label": "owner_aliases"
-    },
-    {
-      "label": "tierConfig.js",
-      "file_type": "code",
-      "source_file": "src/config/tierConfig.js",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "src_config_tierconfig",
-      "community": 69,
-      "norm_label": "tierconfig.js"
-    },
-    {
-      "label": "TIERS",
-      "file_type": "code",
-      "source_file": "src/config/tierConfig.js",
-      "source_location": "L6",
-      "_origin": "ast",
-      "id": "src_config_tierconfig_tiers",
-      "community": 69,
-      "norm_label": "tiers"
-    },
-    {
-      "label": "CONTUNDENTE_PERFORANTE_MULT",
-      "file_type": "code",
-      "source_file": "src/config/tierConfig.js",
-      "source_location": "L16",
-      "_origin": "ast",
-      "id": "src_config_tierconfig_contundente_perforante_mult",
-      "community": 69,
-      "norm_label": "contundente_perforante_mult"
-    },
-    {
-      "label": "normalizeTier()",
-      "file_type": "code",
-      "source_file": "src/config/tierConfig.js",
-      "source_location": "L31",
-      "_origin": "ast",
-      "id": "src_config_tierconfig_normalizetier",
-      "community": 69,
-      "norm_label": "normalizetier()"
-    },
-    {
-      "label": "getTierMultiplier()",
-      "file_type": "code",
-      "source_file": "src/config/tierConfig.js",
-      "source_location": "L41",
-      "_origin": "ast",
-      "id": "src_config_tierconfig_gettiermultiplier",
-      "community": 69,
-      "norm_label": "gettiermultiplier()"
-    },
-    {
-      "label": "getSpecialTierMult()",
-      "file_type": "code",
-      "source_file": "src/config/tierConfig.js",
-      "source_location": "L51",
-      "_origin": "ast",
-      "id": "src_config_tierconfig_getspecialtiermult",
-      "community": 69,
-      "norm_label": "getspecialtiermult()"
-    },
-    {
-      "label": "getTierPenaltyBonus()",
-      "file_type": "code",
-      "source_file": "src/config/tierConfig.js",
-      "source_location": "L61",
-      "_origin": "ast",
-      "id": "src_config_tierconfig_gettierpenaltybonus",
-      "community": 69,
-      "norm_label": "gettierpenaltybonus()"
     },
     {
       "label": "bot.js",
@@ -7002,7 +6932,7 @@
       "source_location": "L81",
       "_origin": "ast",
       "id": "src_core_commandhandler_checkadminperm",
-      "community": 26,
+      "community": 3,
       "norm_label": "checkadminperm()"
     },
     {
@@ -7412,7 +7342,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "src_core_supabaseauthstate_usesupabaseauthstate",
-      "community": 0,
+      "community": 72,
       "norm_label": "usesupabaseauthstate()"
     },
     {
@@ -7422,7 +7352,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_data_clases",
-      "community": 79,
+      "community": 84,
       "norm_label": "clases.js"
     },
     {
@@ -7432,7 +7362,7 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "src_data_clases_clases",
-      "community": 79,
+      "community": 84,
       "norm_label": "clases"
     },
     {
@@ -7442,7 +7372,7 @@
       "source_location": "L40",
       "_origin": "ast",
       "id": "src_data_clases_getclase",
-      "community": 79,
+      "community": 84,
       "norm_label": "getclase()"
     },
     {
@@ -7462,68 +7392,8 @@
       "source_location": "L61",
       "_origin": "ast",
       "id": "src_data_clases_validarclase",
-      "community": 79,
+      "community": 84,
       "norm_label": "validarclase()"
-    },
-    {
-      "label": "armor.js",
-      "file_type": "code",
-      "source_file": "src/data/itemCategories/armor.js",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "src_data_itemcategories_armor",
-      "community": 97,
-      "norm_label": "armor.js"
-    },
-    {
-      "label": "ModuleBase",
-      "file_type": "code",
-      "source_file": "src/data/itemCategories/armor.js",
-      "source_location": "L2",
-      "_origin": "ast",
-      "id": "src_data_itemcategories_armor_modulebase",
-      "community": 97,
-      "norm_label": "modulebase"
-    },
-    {
-      "label": "ArmorModule",
-      "file_type": "code",
-      "source_file": "src/data/itemCategories/armor.js",
-      "source_location": "L7",
-      "_origin": "ast",
-      "id": "src_data_itemcategories_armor_armormodule",
-      "community": 97,
-      "norm_label": "armormodule"
-    },
-    {
-      "label": ".constructor()",
-      "file_type": "code",
-      "source_file": "src/data/itemCategories/armor.js",
-      "source_location": "L11",
-      "_origin": "ast",
-      "id": "src_data_itemcategories_armor_armormodule_constructor",
-      "community": 97,
-      "norm_label": ".constructor()"
-    },
-    {
-      "label": ".onEquip()",
-      "file_type": "code",
-      "source_file": "src/data/itemCategories/armor.js",
-      "source_location": "L19",
-      "_origin": "ast",
-      "id": "src_data_itemcategories_armor_armormodule_onequip",
-      "community": 97,
-      "norm_label": ".onequip()"
-    },
-    {
-      "label": ".onUnequip()",
-      "file_type": "code",
-      "source_file": "src/data/itemCategories/armor.js",
-      "source_location": "L29",
-      "_origin": "ast",
-      "id": "src_data_itemcategories_armor_armormodule_onunequip",
-      "community": 97,
-      "norm_label": ".onunequip()"
     },
     {
       "label": "buff.js",
@@ -7572,7 +7442,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_data_itemcategories_damage",
-      "community": 23,
+      "community": 77,
       "norm_label": "damage.js"
     },
     {
@@ -7582,7 +7452,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_data_itemcategories_damage_modulebase",
-      "community": 23,
+      "community": 77,
       "norm_label": "modulebase"
     },
     {
@@ -7592,7 +7462,7 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "src_data_itemcategories_damage_damagemodule",
-      "community": 23,
+      "community": 77,
       "norm_label": "damagemodule"
     },
     {
@@ -7602,68 +7472,8 @@
       "source_location": "L30",
       "_origin": "ast",
       "id": "src_data_itemcategories_damage_damagemodule_onattack",
-      "community": 23,
+      "community": 77,
       "norm_label": ".onattack()"
-    },
-    {
-      "label": "durability.js",
-      "file_type": "code",
-      "source_file": "src/data/itemCategories/durability.js",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "src_data_itemcategories_durability",
-      "community": 99,
-      "norm_label": "durability.js"
-    },
-    {
-      "label": "ModuleBase",
-      "file_type": "code",
-      "source_file": "src/data/itemCategories/durability.js",
-      "source_location": "L2",
-      "_origin": "ast",
-      "id": "src_data_itemcategories_durability_modulebase",
-      "community": 99,
-      "norm_label": "modulebase"
-    },
-    {
-      "label": "DurabilityModule",
-      "file_type": "code",
-      "source_file": "src/data/itemCategories/durability.js",
-      "source_location": "L7",
-      "_origin": "ast",
-      "id": "src_data_itemcategories_durability_durabilitymodule",
-      "community": 99,
-      "norm_label": "durabilitymodule"
-    },
-    {
-      "label": ".constructor()",
-      "file_type": "code",
-      "source_file": "src/data/itemCategories/durability.js",
-      "source_location": "L11",
-      "_origin": "ast",
-      "id": "src_data_itemcategories_durability_durabilitymodule_constructor",
-      "community": 99,
-      "norm_label": ".constructor()"
-    },
-    {
-      "label": ".absorbDamage()",
-      "file_type": "code",
-      "source_file": "src/data/itemCategories/durability.js",
-      "source_location": "L24",
-      "_origin": "ast",
-      "id": "src_data_itemcategories_durability_durabilitymodule_absorbdamage",
-      "community": 99,
-      "norm_label": ".absorbdamage()"
-    },
-    {
-      "label": ".onHit()",
-      "file_type": "code",
-      "source_file": "src/data/itemCategories/durability.js",
-      "source_location": "L51",
-      "_origin": "ast",
-      "id": "src_data_itemcategories_durability_durabilitymodule_onhit",
-      "community": 99,
-      "norm_label": ".onhit()"
     },
     {
       "label": "equipable.js",
@@ -7732,7 +7542,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_data_itemcategories_heal",
-      "community": 81,
+      "community": 87,
       "norm_label": "heal.js"
     },
     {
@@ -7742,7 +7552,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_data_itemcategories_heal_modulebase",
-      "community": 81,
+      "community": 87,
       "norm_label": "modulebase"
     },
     {
@@ -7752,7 +7562,7 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "src_data_itemcategories_heal_healmodule",
-      "community": 81,
+      "community": 87,
       "norm_label": "healmodule"
     },
     {
@@ -7762,7 +7572,7 @@
       "source_location": "L31",
       "_origin": "ast",
       "id": "src_data_itemcategories_heal_healmodule_onuse",
-      "community": 81,
+      "community": 87,
       "norm_label": ".onuse()"
     },
     {
@@ -7789,7 +7599,7 @@
       "label": "HealModule",
       "file_type": "code",
       "source_file": "src/data/itemCategories/index.js",
-      "source_location": "L5",
+      "source_location": "L8",
       "_origin": "ast",
       "id": "src_data_itemcategories_index_healmodule",
       "community": 23,
@@ -7799,7 +7609,7 @@
       "label": "BuffModule",
       "file_type": "code",
       "source_file": "src/data/itemCategories/index.js",
-      "source_location": "L6",
+      "source_location": "L12",
       "_origin": "ast",
       "id": "src_data_itemcategories_index_buffmodule",
       "community": 23,
@@ -7809,7 +7619,7 @@
       "label": "DamageModule",
       "file_type": "code",
       "source_file": "src/data/itemCategories/index.js",
-      "source_location": "L7",
+      "source_location": "L16",
       "_origin": "ast",
       "id": "src_data_itemcategories_index_damagemodule",
       "community": 23,
@@ -7819,7 +7629,7 @@
       "label": "EquipableModule",
       "file_type": "code",
       "source_file": "src/data/itemCategories/index.js",
-      "source_location": "L8",
+      "source_location": "L20",
       "_origin": "ast",
       "id": "src_data_itemcategories_index_equipablemodule",
       "community": 23,
@@ -7829,41 +7639,11 @@
       "label": "TemporalModule",
       "file_type": "code",
       "source_file": "src/data/itemCategories/index.js",
-      "source_location": "L9",
+      "source_location": "L24",
       "_origin": "ast",
       "id": "src_data_itemcategories_index_temporalmodule",
       "community": 23,
       "norm_label": "temporalmodule"
-    },
-    {
-      "label": "WeaponModule",
-      "file_type": "code",
-      "source_file": "src/data/itemCategories/index.js",
-      "source_location": "L10",
-      "_origin": "ast",
-      "id": "src_data_itemcategories_index_weaponmodule",
-      "community": 23,
-      "norm_label": "weaponmodule"
-    },
-    {
-      "label": "ArmorModule",
-      "file_type": "code",
-      "source_file": "src/data/itemCategories/index.js",
-      "source_location": "L11",
-      "_origin": "ast",
-      "id": "src_data_itemcategories_index_armormodule",
-      "community": 23,
-      "norm_label": "armormodule"
-    },
-    {
-      "label": "DurabilityModule",
-      "file_type": "code",
-      "source_file": "src/data/itemCategories/index.js",
-      "source_location": "L12",
-      "_origin": "ast",
-      "id": "src_data_itemcategories_index_durabilitymodule",
-      "community": 23,
-      "norm_label": "durabilitymodule"
     },
     {
       "label": "temporal.js",
@@ -7872,7 +7652,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_data_itemcategories_temporal",
-      "community": 81,
+      "community": 23,
       "norm_label": "temporal.js"
     },
     {
@@ -7882,7 +7662,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_data_itemcategories_temporal_modulebase",
-      "community": 81,
+      "community": 23,
       "norm_label": "modulebase"
     },
     {
@@ -7892,58 +7672,8 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "src_data_itemcategories_temporal_temporalmodule",
-      "community": 81,
+      "community": 23,
       "norm_label": "temporalmodule"
-    },
-    {
-      "label": "weapon.js",
-      "file_type": "code",
-      "source_file": "src/data/itemCategories/weapon.js",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "src_data_itemcategories_weapon",
-      "community": 100,
-      "norm_label": "weapon.js"
-    },
-    {
-      "label": "ModuleBase",
-      "file_type": "code",
-      "source_file": "src/data/itemCategories/weapon.js",
-      "source_location": "L2",
-      "_origin": "ast",
-      "id": "src_data_itemcategories_weapon_modulebase",
-      "community": 100,
-      "norm_label": "modulebase"
-    },
-    {
-      "label": "WeaponModule",
-      "file_type": "code",
-      "source_file": "src/data/itemCategories/weapon.js",
-      "source_location": "L7",
-      "_origin": "ast",
-      "id": "src_data_itemcategories_weapon_weaponmodule",
-      "community": 100,
-      "norm_label": "weaponmodule"
-    },
-    {
-      "label": ".constructor()",
-      "file_type": "code",
-      "source_file": "src/data/itemCategories/weapon.js",
-      "source_location": "L11",
-      "_origin": "ast",
-      "id": "src_data_itemcategories_weapon_weaponmodule_constructor",
-      "community": 100,
-      "norm_label": ".constructor()"
-    },
-    {
-      "label": ".onAttack()",
-      "file_type": "code",
-      "source_file": "src/data/itemCategories/weapon.js",
-      "source_location": "L20",
-      "_origin": "ast",
-      "id": "src_data_itemcategories_weapon_weaponmodule_onattack",
-      "community": 100,
-      "norm_label": ".onattack()"
     },
     {
       "label": "items.js",
@@ -7952,7 +7682,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_data_items",
-      "community": 28,
+      "community": 83,
       "norm_label": "items.js"
     },
     {
@@ -7962,7 +7692,7 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "src_data_items_items",
-      "community": 28,
+      "community": 83,
       "norm_label": "items"
     },
     {
@@ -7972,7 +7702,7 @@
       "source_location": "L104",
       "_origin": "ast",
       "id": "src_data_items_getitem",
-      "community": 28,
+      "community": 83,
       "norm_label": "getitem()"
     },
     {
@@ -7982,48 +7712,8 @@
       "source_location": "L113",
       "_origin": "ast",
       "id": "src_data_items_getitemsbycategory",
-      "community": 28,
+      "community": 83,
       "norm_label": "getitemsbycategory()"
-    },
-    {
-      "label": "materialData.js",
-      "file_type": "code",
-      "source_file": "src/data/materialData.js",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "src_data_materialdata",
-      "community": 69,
-      "norm_label": "materialdata.js"
-    },
-    {
-      "label": "{ getTierMultiplier }",
-      "file_type": "code",
-      "source_file": "src/data/materialData.js",
-      "source_location": "L2",
-      "_origin": "ast",
-      "id": "src_data_materialdata_gettiermultiplier",
-      "community": 69,
-      "norm_label": "{ gettiermultiplier }"
-    },
-    {
-      "label": "MATERIALS",
-      "file_type": "code",
-      "source_file": "src/data/materialData.js",
-      "source_location": "L16",
-      "_origin": "ast",
-      "id": "src_data_materialdata_materials",
-      "community": 69,
-      "norm_label": "materials"
-    },
-    {
-      "label": "getMaterialStats()",
-      "file_type": "code",
-      "source_file": "src/data/materialData.js",
-      "source_location": "L59",
-      "_origin": "ast",
-      "id": "src_data_materialdata_getmaterialstats",
-      "community": 69,
-      "norm_label": "getmaterialstats()"
     },
     {
       "label": "columnRegistry.js",
@@ -8032,7 +7722,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_database_columnregistry",
-      "community": 11,
+      "community": 35,
       "norm_label": "columnregistry.js"
     },
     {
@@ -8042,7 +7732,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_database_columnregistry_supabase",
-      "community": 11,
+      "community": 35,
       "norm_label": "{ supabase }"
     },
     {
@@ -8052,7 +7742,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_database_columnregistry_logsystem",
-      "community": 11,
+      "community": 35,
       "norm_label": "{ logsystem }"
     },
     {
@@ -8062,7 +7752,7 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "src_database_columnregistry_known_schema",
-      "community": 11,
+      "community": 35,
       "norm_label": "known_schema"
     },
     {
@@ -8072,7 +7762,7 @@
       "source_location": "L62",
       "_origin": "ast",
       "id": "src_database_columnregistry_discover",
-      "community": 72,
+      "community": 11,
       "norm_label": "discover()"
     },
     {
@@ -8082,7 +7772,7 @@
       "source_location": "L109",
       "_origin": "ast",
       "id": "src_database_columnregistry_hascolumn",
-      "community": 11,
+      "community": 35,
       "norm_label": "hascolumn()"
     },
     {
@@ -8152,7 +7842,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_database_schemamigration",
-      "community": 72,
+      "community": 11,
       "norm_label": "schemamigration.js"
     },
     {
@@ -8162,7 +7852,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_database_schemamigration_discover",
-      "community": 72,
+      "community": 11,
       "norm_label": "{ discover }"
     },
     {
@@ -8172,7 +7862,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_database_schemamigration_supabase",
-      "community": 72,
+      "community": 11,
       "norm_label": "{ supabase }"
     },
     {
@@ -8182,7 +7872,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_database_schemamigration_logsystem",
-      "community": 72,
+      "community": 11,
       "norm_label": "{ logsystem }"
     },
     {
@@ -8192,7 +7882,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_database_schemamigration_setstoredversion",
-      "community": 72,
+      "community": 11,
       "norm_label": "{ setstoredversion }"
     },
     {
@@ -8202,7 +7892,7 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "src_database_schemamigration_desired_schema",
-      "community": 72,
+      "community": 11,
       "norm_label": "desired_schema"
     },
     {
@@ -8212,7 +7902,7 @@
       "source_location": "L58",
       "_origin": "ast",
       "id": "src_database_schemamigration_table_create_sql",
-      "community": 72,
+      "community": 11,
       "norm_label": "table_create_sql"
     },
     {
@@ -8222,7 +7912,7 @@
       "source_location": "L77",
       "_origin": "ast",
       "id": "src_database_schemamigration_column_types",
-      "community": 72,
+      "community": 11,
       "norm_label": "column_types"
     },
     {
@@ -8232,7 +7922,7 @@
       "source_location": "L119",
       "_origin": "ast",
       "id": "src_database_schemamigration_detectmissingcolumns",
-      "community": 72,
+      "community": 11,
       "norm_label": "detectmissingcolumns()"
     },
     {
@@ -8242,7 +7932,7 @@
       "source_location": "L153",
       "_origin": "ast",
       "id": "src_database_schemamigration_generatemigrationsql",
-      "community": 72,
+      "community": 11,
       "norm_label": "generatemigrationsql()"
     },
     {
@@ -8252,7 +7942,7 @@
       "source_location": "L183",
       "_origin": "ast",
       "id": "src_database_schemamigration_logmigrationinfo",
-      "community": 72,
+      "community": 11,
       "norm_label": "logmigrationinfo()"
     },
     {
@@ -8262,7 +7952,7 @@
       "source_location": "L211",
       "_origin": "ast",
       "id": "src_database_schemamigration_createmissingtables",
-      "community": 72,
+      "community": 11,
       "norm_label": "createmissingtables()"
     },
     {
@@ -8272,7 +7962,7 @@
       "source_location": "L246",
       "_origin": "ast",
       "id": "src_database_schemamigration_runstartupmigration",
-      "community": 72,
+      "community": 11,
       "norm_label": "runstartupmigration()"
     },
     {
@@ -8602,7 +8292,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_modules_entityfactory",
-      "community": 74,
+      "community": 24,
       "norm_label": "entityfactory.js"
     },
     {
@@ -8612,7 +8302,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_modules_entityfactory_moduleregistry",
-      "community": 74,
+      "community": 24,
       "norm_label": "moduleregistry"
     },
     {
@@ -8662,7 +8352,7 @@
       "source_location": "L90",
       "_origin": "ast",
       "id": "src_modules_entityfactory_createentity",
-      "community": 74,
+      "community": 24,
       "norm_label": "createentity()"
     },
     {
@@ -8672,7 +8362,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_modules_moduleregistry",
-      "community": 74,
+      "community": 81,
       "norm_label": "moduleregistry.js"
     },
     {
@@ -8682,7 +8372,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_modules_moduleregistry_modulebase",
-      "community": 74,
+      "community": 81,
       "norm_label": "modulebase"
     },
     {
@@ -8692,7 +8382,7 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "src_modules_moduleregistry_registry",
-      "community": 74,
+      "community": 81,
       "norm_label": "registry"
     },
     {
@@ -8702,7 +8392,7 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "src_modules_moduleregistry_moduleregistry",
-      "community": 74,
+      "community": 81,
       "norm_label": "moduleregistry"
     },
     {
@@ -8842,7 +8532,7 @@
       "source_location": "L99",
       "_origin": "ast",
       "id": "src_services_bugreportservice_getrole",
-      "community": 1,
+      "community": 7,
       "norm_label": "getrole()"
     },
     {
@@ -8872,7 +8562,7 @@
       "source_location": "L262",
       "_origin": "ast",
       "id": "src_services_bugreportservice_getreport",
-      "community": 89,
+      "community": 1,
       "norm_label": "getreport()"
     },
     {
@@ -8882,7 +8572,7 @@
       "source_location": "L281",
       "_origin": "ast",
       "id": "src_services_bugreportservice_getuserreports",
-      "community": 89,
+      "community": 1,
       "norm_label": "getuserreports()"
     },
     {
@@ -9012,7 +8702,7 @@
       "source_location": "L226",
       "_origin": "ast",
       "id": "src_services_characterservice_listcharacters",
-      "community": 95,
+      "community": 90,
       "norm_label": "listcharacters()"
     },
     {
@@ -9022,7 +8712,7 @@
       "source_location": "L266",
       "_origin": "ast",
       "id": "src_services_characterservice_getactivecharacter",
-      "community": 22,
+      "community": 38,
       "norm_label": "getactivecharacter()"
     },
     {
@@ -9052,7 +8742,7 @@
       "source_location": "L408",
       "_origin": "ast",
       "id": "src_services_characterservice_getcharacternames",
-      "community": 22,
+      "community": 47,
       "norm_label": "getcharacternames()"
     },
     {
@@ -9142,7 +8832,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_services_displaynameservice",
-      "community": 18,
+      "community": 7,
       "norm_label": "displaynameservice.js"
     },
     {
@@ -9152,7 +8842,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_services_displaynameservice_getgroupmetadata",
-      "community": 18,
+      "community": 7,
       "norm_label": "{ getgroupmetadata }"
     },
     {
@@ -9162,7 +8852,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_services_displaynameservice_getuserprofile",
-      "community": 18,
+      "community": 7,
       "norm_label": "{ getuserprofile }"
     },
     {
@@ -9172,7 +8862,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "src_services_displaynameservice_cleantext",
-      "community": 18,
+      "community": 7,
       "norm_label": "cleantext()"
     },
     {
@@ -9182,7 +8872,7 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "src_services_displaynameservice_ismeaningfuldisplayname",
-      "community": 18,
+      "community": 7,
       "norm_label": "ismeaningfuldisplayname()"
     },
     {
@@ -9192,7 +8882,7 @@
       "source_location": "L59",
       "_origin": "ast",
       "id": "src_services_displaynameservice_findparticipantdisplayname",
-      "community": 18,
+      "community": 7,
       "norm_label": "findparticipantdisplayname()"
     },
     {
@@ -9202,7 +8892,7 @@
       "source_location": "L95",
       "_origin": "ast",
       "id": "src_services_displaynameservice_extractmentionlabelfromcontext",
-      "community": 18,
+      "community": 7,
       "norm_label": "extractmentionlabelfromcontext()"
     },
     {
@@ -9212,7 +8902,7 @@
       "source_location": "L136",
       "_origin": "ast",
       "id": "src_services_displaynameservice_resolvetargetdisplayname",
-      "community": 18,
+      "community": 7,
       "norm_label": "resolvetargetdisplayname()"
     },
     {
@@ -9312,7 +9002,7 @@
       "source_location": "L52",
       "_origin": "ast",
       "id": "src_services_economyservice_resolveeconomyprofile",
-      "community": 18,
+      "community": 15,
       "norm_label": "resolveeconomyprofile()"
     },
     {
@@ -9332,7 +9022,7 @@
       "source_location": "L78",
       "_origin": "ast",
       "id": "src_services_economyservice_getbalance",
-      "community": 18,
+      "community": 15,
       "norm_label": "getbalance()"
     },
     {
@@ -9392,7 +9082,7 @@
       "source_location": "L518",
       "_origin": "ast",
       "id": "src_services_economyservice_gettopbalances",
-      "community": 15,
+      "community": 20,
       "norm_label": "gettopbalances()"
     },
     {
@@ -9652,7 +9342,7 @@
       "source_location": "L61",
       "_origin": "ast",
       "id": "src_services_loggerservice_safestringify",
-      "community": 0,
+      "community": 40,
       "norm_label": "safestringify()"
     },
     {
@@ -9662,7 +9352,7 @@
       "source_location": "L79",
       "_origin": "ast",
       "id": "src_services_loggerservice_section",
-      "community": 40,
+      "community": 4,
       "norm_label": "section()"
     },
     {
@@ -9682,7 +9372,7 @@
       "source_location": "L93",
       "_origin": "ast",
       "id": "src_services_loggerservice_cleanoldlogs",
-      "community": 40,
+      "community": 0,
       "norm_label": "cleanoldlogs()"
     },
     {
@@ -9722,7 +9412,7 @@
       "source_location": "L189",
       "_origin": "ast",
       "id": "src_services_loggerservice_logcommand",
-      "community": 3,
+      "community": 40,
       "norm_label": "logcommand()"
     },
     {
@@ -9752,7 +9442,7 @@
       "source_location": "L291",
       "_origin": "ast",
       "id": "src_services_loggerservice_getrecenterrors",
-      "community": 30,
+      "community": 40,
       "norm_label": "getrecenterrors()"
     },
     {
@@ -9772,7 +9462,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_services_permissionservice",
-      "community": 80,
+      "community": 26,
       "norm_label": "permissionservice.js"
     },
     {
@@ -9782,7 +9472,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_services_permissionservice_isowner",
-      "community": 80,
+      "community": 26,
       "norm_label": "{ isowner }"
     },
     {
@@ -9792,7 +9482,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_services_permissionservice_getprofiledisplayname",
-      "community": 80,
+      "community": 26,
       "norm_label": "{ getprofiledisplayname }"
     },
     {
@@ -9802,7 +9492,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_services_permissionservice_getuserprofile_getorcreateprofile_listuserprofiles",
-      "community": 80,
+      "community": 26,
       "norm_label": "{ getuserprofile, getorcreateprofile, listuserprofiles }"
     },
     {
@@ -9812,7 +9502,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "src_services_permissionservice_supabase",
-      "community": 80,
+      "community": 26,
       "norm_label": "{ supabase }"
     },
     {
@@ -9832,7 +9522,7 @@
       "source_location": "L40",
       "_origin": "ast",
       "id": "src_services_permissionservice_pickdisplayname",
-      "community": 80,
+      "community": 26,
       "norm_label": "pickdisplayname()"
     },
     {
@@ -9872,7 +9562,7 @@
       "source_location": "L101",
       "_origin": "ast",
       "id": "src_services_permissionservice_haseconomypermission",
-      "community": 80,
+      "community": 3,
       "norm_label": "haseconomypermission()"
     },
     {
@@ -9902,7 +9592,7 @@
       "source_location": "L166",
       "_origin": "ast",
       "id": "src_services_permissionservice_category_labels",
-      "community": 80,
+      "community": 26,
       "norm_label": "category_labels"
     },
     {
@@ -9912,7 +9602,7 @@
       "source_location": "L175",
       "_origin": "ast",
       "id": "src_services_permissionservice_getcategorylabel",
-      "community": 26,
+      "community": 3,
       "norm_label": "getcategorylabel()"
     },
     {
@@ -9932,7 +9622,7 @@
       "source_location": "L218",
       "_origin": "ast",
       "id": "src_services_permissionservice_haspermissionforcategory",
-      "community": 80,
+      "community": 3,
       "norm_label": "haspermissionforcategory()"
     },
     {
@@ -9952,7 +9642,7 @@
       "source_location": "L299",
       "_origin": "ast",
       "id": "src_services_permissionservice_listadminsforcategory",
-      "community": 80,
+      "community": 26,
       "norm_label": "listadminsforcategory()"
     },
     {
@@ -10032,7 +9722,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_services_rpg_combatai",
-      "community": 96,
+      "community": 22,
       "norm_label": "combatai.js"
     },
     {
@@ -10042,7 +9732,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_services_rpg_combatai_checkattackrange",
-      "community": 96,
+      "community": 22,
       "norm_label": "{ checkattackrange }"
     },
     {
@@ -10052,7 +9742,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_services_rpg_combatai_getmovementrange",
-      "community": 96,
+      "community": 22,
       "norm_label": "{ getmovementrange }"
     },
     {
@@ -10062,7 +9752,7 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "src_services_rpg_combatai_combatai",
-      "community": 96,
+      "community": 22,
       "norm_label": "combatai"
     },
     {
@@ -10072,7 +9762,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "src_services_rpg_combatai_combatai_makedecision",
-      "community": 96,
+      "community": 22,
       "norm_label": ".makedecision()"
     },
     {
@@ -10149,7 +9839,7 @@
       "label": "canReact()",
       "file_type": "code",
       "source_file": "src/services/rpg/combatEngine.js",
-      "source_location": "L111",
+      "source_location": "L110",
       "_origin": "ast",
       "id": "src_services_rpg_combatengine_canreact",
       "community": 14,
@@ -10159,17 +9849,17 @@
       "label": "evaluateDodgeFeasibility()",
       "file_type": "code",
       "source_file": "src/services/rpg/combatEngine.js",
-      "source_location": "L145",
+      "source_location": "L144",
       "_origin": "ast",
       "id": "src_services_rpg_combatengine_evaluatedodgefeasibility",
-      "community": 37,
+      "community": 64,
       "norm_label": "evaluatedodgefeasibility()"
     },
     {
       "label": "rollFlee()",
       "file_type": "code",
       "source_file": "src/services/rpg/combatEngine.js",
-      "source_location": "L186",
+      "source_location": "L185",
       "_origin": "ast",
       "id": "src_services_rpg_combatengine_rollflee",
       "community": 14,
@@ -10179,7 +9869,7 @@
       "label": "attemptBlock()",
       "file_type": "code",
       "source_file": "src/services/rpg/combatEngine.js",
-      "source_location": "L227",
+      "source_location": "L226",
       "_origin": "ast",
       "id": "src_services_rpg_combatengine_attemptblock",
       "community": 14,
@@ -10189,7 +9879,7 @@
       "label": "attemptDodge()",
       "file_type": "code",
       "source_file": "src/services/rpg/combatEngine.js",
-      "source_location": "L254",
+      "source_location": "L253",
       "_origin": "ast",
       "id": "src_services_rpg_combatengine_attemptdodge",
       "community": 14,
@@ -10199,17 +9889,17 @@
       "label": "executeAttack()",
       "file_type": "code",
       "source_file": "src/services/rpg/combatEngine.js",
-      "source_location": "L289",
+      "source_location": "L288",
       "_origin": "ast",
       "id": "src_services_rpg_combatengine_executeattack",
-      "community": 37,
+      "community": 14,
       "norm_label": "executeattack()"
     },
     {
       "label": "executeReaction()",
       "file_type": "code",
       "source_file": "src/services/rpg/combatEngine.js",
-      "source_location": "L363",
+      "source_location": "L362",
       "_origin": "ast",
       "id": "src_services_rpg_combatengine_executereaction",
       "community": 37,
@@ -10219,7 +9909,7 @@
       "label": "chooseAiReaction()",
       "file_type": "code",
       "source_file": "src/services/rpg/combatEngine.js",
-      "source_location": "L457",
+      "source_location": "L456",
       "_origin": "ast",
       "id": "src_services_rpg_combatengine_chooseaireaction",
       "community": 14,
@@ -10229,17 +9919,17 @@
       "label": "executeTurn()",
       "file_type": "code",
       "source_file": "src/services/rpg/combatEngine.js",
-      "source_location": "L530",
+      "source_location": "L529",
       "_origin": "ast",
       "id": "src_services_rpg_combatengine_executeturn",
-      "community": 9,
+      "community": 14,
       "norm_label": "executeturn()"
     },
     {
       "label": "calculateXpReward()",
       "file_type": "code",
       "source_file": "src/services/rpg/combatEngine.js",
-      "source_location": "L595",
+      "source_location": "L594",
       "_origin": "ast",
       "id": "src_services_rpg_combatengine_calculatexpreward",
       "community": 37,
@@ -10249,20 +9939,20 @@
       "label": "getAspdPenalty()",
       "file_type": "code",
       "source_file": "src/services/rpg/combatEngine.js",
-      "source_location": "L612",
+      "source_location": "L611",
       "_origin": "ast",
       "id": "src_services_rpg_combatengine_getaspdpenalty",
-      "community": 96,
+      "community": 22,
       "norm_label": "getaspdpenalty()"
     },
     {
       "label": "checkAttackRange()",
       "file_type": "code",
       "source_file": "src/services/rpg/combatEngine.js",
-      "source_location": "L624",
+      "source_location": "L623",
       "_origin": "ast",
       "id": "src_services_rpg_combatengine_checkattackrange",
-      "community": 96,
+      "community": 22,
       "norm_label": "checkattackrange()"
     },
     {
@@ -10352,7 +10042,7 @@
       "source_location": "L107",
       "_origin": "ast",
       "id": "src_services_rpg_combatmessages_formatreactionprompt",
-      "community": 37,
+      "community": 16,
       "norm_label": "formatreactionprompt()"
     },
     {
@@ -10492,7 +10182,7 @@
       "source_location": "L95",
       "_origin": "ast",
       "id": "src_services_rpg_combatstate_savesession",
-      "community": 37,
+      "community": 38,
       "norm_label": "savesession()"
     },
     {
@@ -10632,7 +10322,7 @@
       "source_location": "L486",
       "_origin": "ast",
       "id": "src_services_rpg_combatstate_setpendingreaction",
-      "community": 37,
+      "community": 38,
       "norm_label": "setpendingreaction()"
     },
     {
@@ -10762,7 +10452,7 @@
       "source_location": "L158",
       "_origin": "ast",
       "id": "src_services_rpg_fatigueengine_capfatigue",
-      "community": 37,
+      "community": 22,
       "norm_label": "capfatigue()"
     },
     {
@@ -10782,7 +10472,7 @@
       "source_location": "L178",
       "_origin": "ast",
       "id": "src_services_rpg_fatigueengine_getmovementrange",
-      "community": 96,
+      "community": 22,
       "norm_label": "getmovementrange()"
     },
     {
@@ -10912,7 +10602,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "src_services_rpg_inventoryservice_withcharacterlock",
-      "community": 75,
+      "community": 28,
       "norm_label": "withcharacterlock()"
     },
     {
@@ -10922,7 +10612,7 @@
       "source_location": "L46",
       "_origin": "ast",
       "id": "src_services_rpg_inventoryservice_getinventory",
-      "community": 71,
+      "community": 28,
       "norm_label": "getinventory()"
     },
     {
@@ -10932,7 +10622,7 @@
       "source_location": "L69",
       "_origin": "ast",
       "id": "src_services_rpg_inventoryservice_additem",
-      "community": 71,
+      "community": 28,
       "norm_label": "additem()"
     },
     {
@@ -10942,7 +10632,7 @@
       "source_location": "L145",
       "_origin": "ast",
       "id": "src_services_rpg_inventoryservice_removeitem",
-      "community": 5,
+      "community": 43,
       "norm_label": "removeitem()"
     },
     {
@@ -10952,7 +10642,7 @@
       "source_location": "L199",
       "_origin": "ast",
       "id": "src_services_rpg_inventoryservice_useitem",
-      "community": 75,
+      "community": 28,
       "norm_label": "useitem()"
     },
     {
@@ -10962,7 +10652,7 @@
       "source_location": "L301",
       "_origin": "ast",
       "id": "src_services_rpg_inventoryservice_ensuretestkit",
-      "community": 71,
+      "community": 28,
       "norm_label": "ensuretestkit()"
     },
     {
@@ -10972,7 +10662,7 @@
       "source_location": "L342",
       "_origin": "ast",
       "id": "src_services_rpg_inventoryservice_ensuretemptestkit",
-      "community": 71,
+      "community": 38,
       "norm_label": "ensuretemptestkit()"
     },
     {
@@ -10992,7 +10682,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_services_rpg_itemservice",
-      "community": 28,
+      "community": 71,
       "norm_label": "itemservice.js"
     },
     {
@@ -11002,7 +10692,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_services_rpg_itemservice_getitem_getrawitem",
-      "community": 28,
+      "community": 71,
       "norm_label": "{ getitem: getrawitem }"
     },
     {
@@ -11012,7 +10702,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_services_rpg_itemservice_createentity",
-      "community": 28,
+      "community": 71,
       "norm_label": "{ createentity }"
     },
     {
@@ -11452,7 +11142,7 @@
       "source_location": "L42",
       "_origin": "ast",
       "id": "src_services_userservice_listuserprofiles",
-      "community": 80,
+      "community": 26,
       "norm_label": "listuserprofiles()"
     },
     {
@@ -11522,7 +11212,7 @@
       "source_location": "L324",
       "_origin": "ast",
       "id": "src_services_userservice_getuserprofile",
-      "community": 18,
+      "community": 7,
       "norm_label": "getuserprofile()"
     },
     {
@@ -11532,7 +11222,7 @@
       "source_location": "L366",
       "_origin": "ast",
       "id": "src_services_userservice_saveuserprofile",
-      "community": 5,
+      "community": 15,
       "norm_label": "saveuserprofile()"
     },
     {
@@ -11542,7 +11232,7 @@
       "source_location": "L390",
       "_origin": "ast",
       "id": "src_services_userservice_getorcreateprofile",
-      "community": 80,
+      "community": 13,
       "norm_label": "getorcreateprofile()"
     },
     {
@@ -11702,7 +11392,7 @@
       "source_location": "L42",
       "_origin": "ast",
       "id": "src_utils_activityformatutils_medal",
-      "community": 7,
+      "community": 10,
       "norm_label": "medal()"
     },
     {
@@ -11712,7 +11402,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_utils_boxutils",
-      "community": 87,
+      "community": 47,
       "norm_label": "boxutils.js"
     },
     {
@@ -11722,7 +11412,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "src_utils_boxutils_box",
-      "community": 22,
+      "community": 47,
       "norm_label": "box()"
     },
     {
@@ -11932,7 +11622,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_utils_commandparseutils",
-      "community": 10,
+      "community": 18,
       "norm_label": "commandparseutils.js"
     },
     {
@@ -11942,7 +11632,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "src_utils_commandparseutils_getfirstmentionedjid",
-      "community": 7,
+      "community": 80,
       "norm_label": "getfirstmentionedjid()"
     },
     {
@@ -11952,7 +11642,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "src_utils_commandparseutils_parsepositiveinteger",
-      "community": 10,
+      "community": 18,
       "norm_label": "parsepositiveinteger()"
     },
     {
@@ -11962,7 +11652,7 @@
       "source_location": "L48",
       "_origin": "ast",
       "id": "src_utils_commandparseutils_extractamountfromargs",
-      "community": 10,
+      "community": 18,
       "norm_label": "extractamountfromargs()"
     },
     {
@@ -11972,7 +11662,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_utils_economyadminhelper",
-      "community": 15,
+      "community": 18,
       "norm_label": "economyadminhelper.js"
     },
     {
@@ -11982,7 +11672,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_utils_economyadminhelper_getfirstmentionedjid_extractamountfromargs",
-      "community": 15,
+      "community": 18,
       "norm_label": "{ getfirstmentionedjid, extractamountfromargs }"
     },
     {
@@ -11992,7 +11682,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_utils_economyadminhelper_formatdisplaymention",
-      "community": 15,
+      "community": 18,
       "norm_label": "{ formatdisplaymention }"
     },
     {
@@ -12002,7 +11692,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_utils_economyadminhelper_resolvetargetdisplayname",
-      "community": 15,
+      "community": 18,
       "norm_label": "{ resolvetargetdisplayname }"
     },
     {
@@ -12012,7 +11702,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_utils_economyadminhelper_box",
-      "community": 15,
+      "community": 18,
       "norm_label": "{ box }"
     },
     {
@@ -12022,7 +11712,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "src_utils_economyadminhelper_formaterror",
-      "community": 15,
+      "community": 18,
       "norm_label": "{ formaterror }"
     },
     {
@@ -12032,7 +11722,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "src_utils_economyadminhelper_formatcommandusage",
-      "community": 15,
+      "community": 18,
       "norm_label": "{ formatcommandusage }"
     },
     {
@@ -12042,7 +11732,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "src_utils_economyadminhelper_formatstelas",
-      "community": 15,
+      "community": 18,
       "norm_label": "{ formatstelas }"
     },
     {
@@ -12052,7 +11742,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "src_utils_economyadminhelper_usagecache",
-      "community": 15,
+      "community": 18,
       "norm_label": "usagecache"
     },
     {
@@ -12062,7 +11752,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "src_utils_economyadminhelper_getusage",
-      "community": 20,
+      "community": 18,
       "norm_label": "getusage()"
     },
     {
@@ -12072,7 +11762,7 @@
       "source_location": "L43",
       "_origin": "ast",
       "id": "src_utils_economyadminhelper_executeeconomyaction",
-      "community": 15,
+      "community": 18,
       "norm_label": "executeeconomyaction()"
     },
     {
@@ -12082,7 +11772,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_utils_economyutils",
-      "community": 15,
+      "community": 69,
       "norm_label": "economyutils.js"
     },
     {
@@ -12092,7 +11782,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "src_utils_economyutils_formatstelas",
-      "community": 15,
+      "community": 69,
       "norm_label": "formatstelas()"
     },
     {
@@ -12102,7 +11792,7 @@
       "source_location": "L21",
       "_origin": "ast",
       "id": "src_utils_economyutils_formatduration",
-      "community": 15,
+      "community": 69,
       "norm_label": "formatduration()"
     },
     {
@@ -12112,7 +11802,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_utils_formatcommandutils",
-      "community": 20,
+      "community": 34,
       "norm_label": "formatcommandutils.js"
     },
     {
@@ -12122,7 +11812,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "src_utils_formatcommandutils_compactlines",
-      "community": 20,
+      "community": 34,
       "norm_label": "{ compactlines }"
     },
     {
@@ -12132,7 +11822,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "src_utils_formatcommandutils_buildusagebody",
-      "community": 20,
+      "community": 34,
       "norm_label": "buildusagebody()"
     },
     {
@@ -12142,7 +11832,7 @@
       "source_location": "L38",
       "_origin": "ast",
       "id": "src_utils_formatcommandutils_buildformbody",
-      "community": 20,
+      "community": 34,
       "norm_label": "buildformbody()"
     },
     {
@@ -12152,7 +11842,7 @@
       "source_location": "L64",
       "_origin": "ast",
       "id": "src_utils_formatcommandutils_formatcommandusage",
-      "community": 20,
+      "community": 34,
       "norm_label": "formatcommandusage()"
     },
     {
@@ -12162,7 +11852,7 @@
       "source_location": "L72",
       "_origin": "ast",
       "id": "src_utils_formatcommandutils_formatcommandform",
-      "community": 20,
+      "community": 34,
       "norm_label": "formatcommandform()"
     },
     {
@@ -12172,7 +11862,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_utils_formaterrorutils",
-      "community": 20,
+      "community": 34,
       "norm_label": "formaterrorutils.js"
     },
     {
@@ -12182,7 +11872,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "src_utils_formaterrorutils_compactlines",
-      "community": 20,
+      "community": 34,
       "norm_label": "compactlines()"
     },
     {
@@ -12192,7 +11882,7 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "src_utils_formaterrorutils_buildfeedbackbody",
-      "community": 20,
+      "community": 34,
       "norm_label": "buildfeedbackbody()"
     },
     {
@@ -12202,7 +11892,7 @@
       "source_location": "L32",
       "_origin": "ast",
       "id": "src_utils_formaterrorutils_formatfeedback",
-      "community": 20,
+      "community": 34,
       "norm_label": "formatfeedback()"
     },
     {
@@ -12212,7 +11902,7 @@
       "source_location": "L41",
       "_origin": "ast",
       "id": "src_utils_formaterrorutils_formaterror",
-      "community": 22,
+      "community": 80,
       "norm_label": "formaterror()"
     },
     {
@@ -12292,7 +11982,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_utils_grouputils",
-      "community": 76,
+      "community": 6,
       "norm_label": "grouputils.js"
     },
     {
@@ -12302,7 +11992,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_utils_grouputils_issameidentity",
-      "community": 76,
+      "community": 6,
       "norm_label": "{ issameidentity }"
     },
     {
@@ -12312,7 +12002,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_utils_grouputils_supabase",
-      "community": 76,
+      "community": 6,
       "norm_label": "{ supabase }"
     },
     {
@@ -12362,7 +12052,7 @@
       "source_location": "L88",
       "_origin": "ast",
       "id": "src_utils_grouputils_getgroupmetadata",
-      "community": 76,
+      "community": 7,
       "norm_label": "getgroupmetadata()"
     },
     {
@@ -12382,7 +12072,7 @@
       "source_location": "L118",
       "_origin": "ast",
       "id": "src_utils_grouputils_participantmatches",
-      "community": 76,
+      "community": 3,
       "norm_label": "participantmatches()"
     },
     {
@@ -12392,7 +12082,7 @@
       "source_location": "L142",
       "_origin": "ast",
       "id": "src_utils_grouputils_isadmin",
-      "community": 76,
+      "community": 3,
       "norm_label": "isadmin()"
     },
     {
@@ -12402,7 +12092,7 @@
       "source_location": "L175",
       "_origin": "ast",
       "id": "src_utils_grouputils_isbotadmin",
-      "community": 76,
+      "community": 3,
       "norm_label": "isbotadmin()"
     },
     {
@@ -12412,7 +12102,7 @@
       "source_location": "L215",
       "_origin": "ast",
       "id": "src_utils_grouputils_addparticipant",
-      "community": 87,
+      "community": 6,
       "norm_label": "addparticipant()"
     },
     {
@@ -12432,7 +12122,7 @@
       "source_location": "L255",
       "_origin": "ast",
       "id": "src_utils_grouputils_promotetoadmin",
-      "community": 76,
+      "community": 39,
       "norm_label": "promotetoadmin()"
     },
     {
@@ -12452,7 +12142,7 @@
       "source_location": "L277",
       "_origin": "ast",
       "id": "src_utils_grouputils_getinvitecode",
-      "community": 94,
+      "community": 6,
       "norm_label": "getinvitecode()"
     },
     {
@@ -12462,7 +12152,7 @@
       "source_location": "L291",
       "_origin": "ast",
       "id": "src_utils_grouputils_opengroup",
-      "community": 92,
+      "community": 47,
       "norm_label": "opengroup()"
     },
     {
@@ -12472,7 +12162,7 @@
       "source_location": "L301",
       "_origin": "ast",
       "id": "src_utils_grouputils_closegroup",
-      "community": 93,
+      "community": 47,
       "norm_label": "closegroup()"
     },
     {
@@ -12552,7 +12242,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_utils_messageformatutils",
-      "community": 78,
+      "community": 34,
       "norm_label": "messageformatutils.js"
     },
     {
@@ -12562,7 +12252,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_utils_messageformatutils_box",
-      "community": 78,
+      "community": 34,
       "norm_label": "{ box }"
     },
     {
@@ -12572,7 +12262,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_utils_messageformatutils_formaterror",
-      "community": 78,
+      "community": 34,
       "norm_label": "{ formaterror }"
     },
     {
@@ -12582,7 +12272,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_utils_messageformatutils_formatcommandusage_formatcommandform",
-      "community": 78,
+      "community": 34,
       "norm_label": "{ formatcommandusage, formatcommandform }"
     },
     {
@@ -12662,7 +12352,7 @@
       "source_location": "L118",
       "_origin": "ast",
       "id": "src_utils_permissionutils_getownerjids",
-      "community": 0,
+      "community": 48,
       "norm_label": "getownerjids()"
     },
     {
@@ -12692,7 +12382,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_utils_randomutils",
-      "community": 14,
+      "community": 19,
       "norm_label": "randomutils.js"
     },
     {
@@ -12702,7 +12392,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_utils_randomutils_randomint_securerandomint",
-      "community": 14,
+      "community": 19,
       "norm_label": "{ randomint: securerandomint }"
     },
     {
@@ -12732,7 +12422,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_utils_safequery",
-      "community": 11,
+      "community": 35,
       "norm_label": "safequery.js"
     },
     {
@@ -12742,7 +12432,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_utils_safequery_cache_ttls",
-      "community": 11,
+      "community": 35,
       "norm_label": "{ cache, ttls }"
     },
     {
@@ -12752,7 +12442,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_utils_safequery_logsystem",
-      "community": 11,
+      "community": 35,
       "norm_label": "{ logsystem }"
     },
     {
@@ -12762,7 +12452,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_utils_safequery_hascolumn",
-      "community": 11,
+      "community": 35,
       "norm_label": "{ hascolumn }"
     },
     {
@@ -12772,7 +12462,7 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "src_utils_safequery_safesingle",
-      "community": 11,
+      "community": 35,
       "norm_label": "safesingle()"
     },
     {
@@ -12792,7 +12482,7 @@
       "source_location": "L33",
       "_origin": "ast",
       "id": "src_utils_safequery_safemaybesingle",
-      "community": 11,
+      "community": 35,
       "norm_label": "safemaybesingle()"
     },
     {
@@ -12802,7 +12492,7 @@
       "source_location": "L43",
       "_origin": "ast",
       "id": "src_utils_safequery_cachedread",
-      "community": 11,
+      "community": 35,
       "norm_label": "cachedread()"
     },
     {
@@ -12812,7 +12502,7 @@
       "source_location": "L63",
       "_origin": "ast",
       "id": "src_utils_safequery_usercachekey",
-      "community": 11,
+      "community": 35,
       "norm_label": "usercachekey()"
     },
     {
@@ -12822,7 +12512,7 @@
       "source_location": "L71",
       "_origin": "ast",
       "id": "src_utils_safequery_topbalancescachekey",
-      "community": 15,
+      "community": 20,
       "norm_label": "topbalancescachekey()"
     },
     {
@@ -12832,7 +12522,7 @@
       "source_location": "L79",
       "_origin": "ast",
       "id": "src_utils_safequery_groupcachekey",
-      "community": 11,
+      "community": 35,
       "norm_label": "groupcachekey()"
     },
     {
@@ -12842,7 +12532,7 @@
       "source_location": "L87",
       "_origin": "ast",
       "id": "src_utils_safequery_characterscachekey",
-      "community": 95,
+      "community": 90,
       "norm_label": "characterscachekey()"
     },
     {
@@ -12852,7 +12542,7 @@
       "source_location": "L96",
       "_origin": "ast",
       "id": "src_utils_safequery_topgroupmemberscachekey",
-      "community": 11,
+      "community": 35,
       "norm_label": "topgroupmemberscachekey()"
     },
     {
@@ -12882,7 +12572,7 @@
       "source_location": "L122",
       "_origin": "ast",
       "id": "src_utils_safequery_invalidategroupcache",
-      "community": 11,
+      "community": 35,
       "norm_label": "invalidategroupcache()"
     },
     {
@@ -12902,7 +12592,7 @@
       "source_location": "L140",
       "_origin": "ast",
       "id": "src_utils_safequery_invalidatetopactiveuserscache",
-      "community": 11,
+      "community": 35,
       "norm_label": "invalidatetopactiveuserscache()"
     },
     {
@@ -12912,7 +12602,7 @@
       "source_location": "L147",
       "_origin": "ast",
       "id": "src_utils_safequery_invalidateallcache",
-      "community": 11,
+      "community": 35,
       "norm_label": "invalidateallcache()"
     },
     {
@@ -12922,7 +12612,7 @@
       "source_location": "L156",
       "_origin": "ast",
       "id": "src_utils_safequery_safeselect",
-      "community": 15,
+      "community": 35,
       "norm_label": "safeselect()"
     },
     {
@@ -12932,7 +12622,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_utils_usermentionutils",
-      "community": 84,
+      "community": 10,
       "norm_label": "usermentionutils.js"
     },
     {
@@ -12942,7 +12632,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "src_utils_usermentionutils_cleantext",
-      "community": 84,
+      "community": 10,
       "norm_label": "cleantext()"
     },
     {
@@ -12952,7 +12642,7 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "src_utils_usermentionutils_ismeaningfuldisplayname",
-      "community": 84,
+      "community": 10,
       "norm_label": "ismeaningfuldisplayname()"
     },
     {
@@ -12962,7 +12652,7 @@
       "source_location": "L58",
       "_origin": "ast",
       "id": "src_utils_usermentionutils_formatrealmentiontag",
-      "community": 7,
+      "community": 10,
       "norm_label": "formatrealmentiontag()"
     },
     {
@@ -12972,7 +12662,7 @@
       "source_location": "L82",
       "_origin": "ast",
       "id": "src_utils_usermentionutils_formatdisplaymention",
-      "community": 84,
+      "community": 10,
       "norm_label": "formatdisplaymention()"
     },
     {
@@ -12982,7 +12672,7 @@
       "source_location": "L105",
       "_origin": "ast",
       "id": "src_utils_usermentionutils_getprofiledisplayname",
-      "community": 84,
+      "community": 26,
       "norm_label": "getprofiledisplayname()"
     },
     {
@@ -12992,7 +12682,7 @@
       "source_location": "L130",
       "_origin": "ast",
       "id": "src_utils_usermentionutils_withmentions",
-      "community": 7,
+      "community": 80,
       "norm_label": "withmentions()"
     },
     {
@@ -13242,7 +12932,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_clases_test",
-      "community": 79,
+      "community": 84,
       "norm_label": "clases.test.js"
     },
     {
@@ -13252,7 +12942,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_clases_test_clases_getclase_listarclases_validarclase",
-      "community": 79,
+      "community": 84,
       "norm_label": "{ clases, getclase, listarclases, validarclase }"
     },
     {
@@ -13406,83 +13096,13 @@
       "norm_label": "createctx()"
     },
     {
-      "label": "damage_natures.test.js",
-      "file_type": "code",
-      "source_file": "tests/damage_natures.test.js",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "tests_damage_natures_test",
-      "community": 69,
-      "norm_label": "damage_natures.test.js"
-    },
-    {
-      "label": "{ describe, it, expect }",
-      "file_type": "code",
-      "source_file": "tests/damage_natures.test.js",
-      "source_location": "L2",
-      "_origin": "ast",
-      "id": "tests_damage_natures_test_describe_it_expect",
-      "community": 69,
-      "norm_label": "{ describe, it, expect }"
-    },
-    {
-      "label": "{ getTierMultiplier, getSpecialTierMult, getTierPenaltyBonus }",
-      "file_type": "code",
-      "source_file": "tests/damage_natures.test.js",
-      "source_location": "L3",
-      "_origin": "ast",
-      "id": "tests_damage_natures_test_gettiermultiplier_getspecialtiermult_gettierpenaltybonus",
-      "community": 69,
-      "norm_label": "{ gettiermultiplier, getspecialtiermult, gettierpenaltybonus }"
-    },
-    {
-      "label": "{ getMaterialStats }",
-      "file_type": "code",
-      "source_file": "tests/damage_natures.test.js",
-      "source_location": "L4",
-      "_origin": "ast",
-      "id": "tests_damage_natures_test_getmaterialstats",
-      "community": 69,
-      "norm_label": "{ getmaterialstats }"
-    },
-    {
-      "label": "WeaponModule",
-      "file_type": "code",
-      "source_file": "tests/damage_natures.test.js",
-      "source_location": "L5",
-      "_origin": "ast",
-      "id": "tests_damage_natures_test_weaponmodule",
-      "community": 69,
-      "norm_label": "weaponmodule"
-    },
-    {
-      "label": "ArmorModule",
-      "file_type": "code",
-      "source_file": "tests/damage_natures.test.js",
-      "source_location": "L6",
-      "_origin": "ast",
-      "id": "tests_damage_natures_test_armormodule",
-      "community": 69,
-      "norm_label": "armormodule"
-    },
-    {
-      "label": "DurabilityModule",
-      "file_type": "code",
-      "source_file": "tests/damage_natures.test.js",
-      "source_location": "L7",
-      "_origin": "ast",
-      "id": "tests_damage_natures_test_durabilitymodule",
-      "community": 69,
-      "norm_label": "durabilitymodule"
-    },
-    {
       "label": "distance_mechanic.test.js",
       "file_type": "code",
       "source_file": "tests/distance_mechanic.test.js",
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_distance_mechanic_test",
-      "community": 96,
+      "community": 22,
       "norm_label": "distance_mechanic.test.js"
     },
     {
@@ -13492,7 +13112,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_economy_service_test",
-      "community": 15,
+      "community": 20,
       "norm_label": "economy_service.test.js"
     },
     {
@@ -13502,7 +13122,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_economy_service_test_daily_base_reward_daily_cooldown_hours_daily_streak_reset_hours_daily_streak_bonus_per_day_daily_streak_bonus_cap",
-      "community": 15,
+      "community": 20,
       "norm_label": "{\n  daily_base_reward,\n  daily_cooldown_hours,\n  daily_streak_reset_hours,\n  daily_streak_bonus_per_day,\n  daily_streak_bonus_cap,\n}"
     },
     {
@@ -13582,7 +13202,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_inventory_test",
-      "community": 28,
+      "community": 83,
       "norm_label": "inventory.test.js"
     },
     {
@@ -13592,7 +13212,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_inventory_test_max_inventory_size_max_stack_size",
-      "community": 28,
+      "community": 83,
       "norm_label": "{ max_inventory_size, max_stack_size }"
     },
     {
@@ -13602,7 +13222,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "tests_inventory_test_items_getitem_getitemsbycategory",
-      "community": 28,
+      "community": 83,
       "norm_label": "{ items, getitem, getitemsbycategory }"
     },
     {
@@ -13792,7 +13412,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_message_format_test",
-      "community": 78,
+      "community": 34,
       "norm_label": "message_format.test.js"
     },
     {
@@ -13802,7 +13422,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_message_format_test_path",
-      "community": 78,
+      "community": 34,
       "norm_label": "path"
     },
     {
@@ -13812,7 +13432,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "tests_message_format_test_fs",
-      "community": 78,
+      "community": 34,
       "norm_label": "fs"
     },
     {
@@ -13822,7 +13442,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "tests_message_format_test_box_formatcommandusage_formatcommandform_formaterror",
-      "community": 78,
+      "community": 34,
       "norm_label": "{ box, formatcommandusage, formatcommandform, formaterror }"
     },
     {
@@ -13832,7 +13452,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "tests_message_format_test_srccontent",
-      "community": 78,
+      "community": 34,
       "norm_label": "srccontent"
     },
     {
@@ -14022,7 +13642,7 @@
       "source_location": "L211",
       "_origin": "ast",
       "id": "tests_module_system_test_conditionalmod",
-      "community": 24,
+      "community": 89,
       "norm_label": "conditionalmod"
     },
     {
@@ -14032,7 +13652,7 @@
       "source_location": "L214",
       "_origin": "ast",
       "id": "tests_module_system_test_conditionalmod_condition",
-      "community": 24,
+      "community": 89,
       "norm_label": ".condition()"
     },
     {
@@ -14042,7 +13662,7 @@
       "source_location": "L217",
       "_origin": "ast",
       "id": "tests_module_system_test_conditionalmod_onuse",
-      "community": 24,
+      "community": 89,
       "norm_label": ".onuse()"
     },
     {
@@ -14112,7 +13732,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_safe_query_test",
-      "community": 11,
+      "community": 35,
       "norm_label": "safe_query.test.js"
     },
     {
@@ -14122,7 +13742,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_safe_query_test_cachedread_cache",
-      "community": 11,
+      "community": 35,
       "norm_label": "{ cachedread, cache }"
     },
     {
@@ -14444,146 +14064,6 @@
       "id": "readme_knowledge_graph",
       "community": 27,
       "norm_label": "knowledge graph"
-    },
-    {
-      "label": "item_system_specification.md",
-      "file_type": "document",
-      "source_file": "docs/item_system_specification.md",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "docs_item_system_specification",
-      "community": 70,
-      "norm_label": "item_system_specification.md"
-    },
-    {
-      "label": "\ud83d\udcdc Especificaci\u00f3n T\u00e9cnica: Sistema de \u00cdtems, Materiales, Coberturas y Naturalezas de Da\u00f1o",
-      "file_type": "document",
-      "source_file": "docs/item_system_specification.md",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "docs_item_system_specification_especificaci\u00f3n_t\u00e9cnica_sistema_de_\u00edtems_materiales_coberturas_y_naturalezas_de_da\u00f1o",
-      "community": 70,
-      "norm_label": "\ud83d\udcdc especificacion tecnica: sistema de items, materiales, coberturas y naturalezas de dano"
-    },
-    {
-      "label": "1. Sistema de Tiers (E, D, C, B, A, S, N)",
-      "file_type": "document",
-      "source_file": "docs/item_system_specification.md",
-      "source_location": "L8",
-      "_origin": "ast",
-      "id": "docs_item_system_specification_1_sistema_de_tiers_e_d_c_b_a_s_n",
-      "community": 70,
-      "norm_label": "1. sistema de tiers (e, d, c, b, a, s, n)"
-    },
-    {
-      "label": "2. Naturalezas de Da\u00f1o F\u00edsico y F\u00f3rmulas de Combate",
-      "file_type": "document",
-      "source_file": "docs/item_system_specification.md",
-      "source_location": "L24",
-      "_origin": "ast",
-      "id": "docs_item_system_specification_2_naturalezas_de_da\u00f1o_f\u00edsico_y_f\u00f3rmulas_de_combate",
-      "community": 70,
-      "norm_label": "2. naturalezas de dano fisico y formulas de combate"
-    },
-    {
-      "label": "\ud83d\udde1\ufe0f A. Cortante (Ej: Espadas, Katanas, Hachas)",
-      "file_type": "document",
-      "source_file": "docs/item_system_specification.md",
-      "source_location": "L30",
-      "_origin": "ast",
-      "id": "docs_item_system_specification_a_cortante_ej_espadas_katanas_hachas",
-      "community": 70,
-      "norm_label": "\ud83d\udde1\ufe0f a. cortante (ej: espadas, katanas, hachas)"
-    },
-    {
-      "label": "\ud83d\udd28 B. Contundente (Ej: Mazos, Martillos, Garrotes)",
-      "file_type": "document",
-      "source_file": "docs/item_system_specification.md",
-      "source_location": "L36",
-      "_origin": "ast",
-      "id": "docs_item_system_specification_b_contundente_ej_mazos_martillos_garrotes",
-      "community": 70,
-      "norm_label": "\ud83d\udd28 b. contundente (ej: mazos, martillos, garrotes)"
-    },
-    {
-      "label": "\ud83c\udfaf C. Perforante (Ej: Estocadas, Lanzas, Flechas)",
-      "file_type": "document",
-      "source_file": "docs/item_system_specification.md",
-      "source_location": "L41",
-      "_origin": "ast",
-      "id": "docs_item_system_specification_c_perforante_ej_estocadas_lanzas_flechas",
-      "community": 70,
-      "norm_label": "\ud83c\udfaf c. perforante (ej: estocadas, lanzas, flechas)"
-    },
-    {
-      "label": "3. Sistema de Materiales y Crafteo",
-      "file_type": "document",
-      "source_file": "docs/item_system_specification.md",
-      "source_location": "L48",
-      "_origin": "ast",
-      "id": "docs_item_system_specification_3_sistema_de_materiales_y_crafteo",
-      "community": 70,
-      "norm_label": "3. sistema de materiales y crafteo"
-    },
-    {
-      "label": "Categor\u00edas de Materiales (Jerarqu\u00eda Progresiva)",
-      "file_type": "document",
-      "source_file": "docs/item_system_specification.md",
-      "source_location": "L58",
-      "_origin": "ast",
-      "id": "docs_item_system_specification_categor\u00edas_de_materiales_jerarqu\u00eda_progresiva",
-      "community": 70,
-      "norm_label": "categorias de materiales (jerarquia progresiva)"
-    },
-    {
-      "label": "4. Equipamiento, Slots y Cobertura de Armadura",
-      "file_type": "document",
-      "source_file": "docs/item_system_specification.md",
-      "source_location": "L70",
-      "_origin": "ast",
-      "id": "docs_item_system_specification_4_equipamiento_slots_y_cobertura_de_armadura",
-      "community": 70,
-      "norm_label": "4. equipamiento, slots y cobertura de armadura"
-    },
-    {
-      "label": "Ranuras de Equipamiento (Slots)",
-      "file_type": "document",
-      "source_file": "docs/item_system_specification.md",
-      "source_location": "L72",
-      "_origin": "ast",
-      "id": "docs_item_system_specification_ranuras_de_equipamiento_slots",
-      "community": 70,
-      "norm_label": "ranuras de equipamiento (slots)"
-    },
-    {
-      "label": "Bonos de Set",
-      "file_type": "document",
-      "source_file": "docs/item_system_specification.md",
-      "source_location": "L82",
-      "_origin": "ast",
-      "id": "docs_item_system_specification_bonos_de_set",
-      "community": 70,
-      "norm_label": "bonos de set"
-    },
-    {
-      "label": "Grados de Cobertura de Armadura (por parte corporal)",
-      "file_type": "document",
-      "source_file": "docs/item_system_specification.md",
-      "source_location": "L85",
-      "_origin": "ast",
-      "id": "docs_item_system_specification_grados_de_cobertura_de_armadura_por_parte_corporal",
-      "community": 70,
-      "norm_label": "grados de cobertura de armadura (por parte corporal)"
-    },
-    {
-      "label": "5. Clasificaci\u00f3n de Categor\u00edas Generales de \u00cdtems",
-      "file_type": "document",
-      "source_file": "docs/item_system_specification.md",
-      "source_location": "L94",
-      "_origin": "ast",
-      "id": "docs_item_system_specification_5_clasificaci\u00f3n_de_categor\u00edas_generales_de_\u00edtems",
-      "community": 70,
-      "norm_label": "5. clasificacion de categorias generales de items"
     },
     {
       "label": "universal_module_system.md",
@@ -33807,180 +33287,6 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "src/config/tierConfig.js",
-      "source_location": "L16",
-      "weight": 1.0,
-      "source": "src_config_tierconfig",
-      "target": "src_config_tierconfig_contundente_perforante_mult",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "indirect_call",
-      "confidence": "INFERRED",
-      "source_file": "src/config/tierConfig.js",
-      "source_location": "L71",
-      "weight": 1.0,
-      "context": "collection",
-      "source": "src_config_tierconfig",
-      "target": "src_config_tierconfig_getspecialtiermult",
-      "confidence_score": 0.5
-    },
-    {
-      "relation": "indirect_call",
-      "confidence": "INFERRED",
-      "source_file": "src/config/tierConfig.js",
-      "source_location": "L70",
-      "weight": 1.0,
-      "context": "collection",
-      "source": "src_config_tierconfig",
-      "target": "src_config_tierconfig_gettiermultiplier",
-      "confidence_score": 0.5
-    },
-    {
-      "relation": "indirect_call",
-      "confidence": "INFERRED",
-      "source_file": "src/config/tierConfig.js",
-      "source_location": "L72",
-      "weight": 1.0,
-      "context": "collection",
-      "source": "src_config_tierconfig",
-      "target": "src_config_tierconfig_gettierpenaltybonus",
-      "confidence_score": 0.5
-    },
-    {
-      "relation": "indirect_call",
-      "confidence": "INFERRED",
-      "source_file": "src/config/tierConfig.js",
-      "source_location": "L69",
-      "weight": 1.0,
-      "context": "collection",
-      "source": "src_config_tierconfig",
-      "target": "src_config_tierconfig_normalizetier",
-      "confidence_score": 0.5
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/config/tierConfig.js",
-      "source_location": "L6",
-      "weight": 1.0,
-      "source": "src_config_tierconfig",
-      "target": "src_config_tierconfig_tiers",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/data/materialData.js",
-      "source_location": "L2",
-      "weight": 1.0,
-      "source": "src_data_materialdata",
-      "target": "src_config_tierconfig",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/damage_natures.test.js",
-      "source_location": "L3",
-      "weight": 1.0,
-      "source": "tests_damage_natures_test",
-      "target": "src_config_tierconfig",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "src/config/tierConfig.js",
-      "source_location": "L52",
-      "weight": 1.0,
-      "source": "src_config_tierconfig_getspecialtiermult",
-      "target": "src_config_tierconfig_normalizetier",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "src/config/tierConfig.js",
-      "source_location": "L42",
-      "weight": 1.0,
-      "source": "src_config_tierconfig_gettiermultiplier",
-      "target": "src_config_tierconfig_normalizetier",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "src/config/tierConfig.js",
-      "source_location": "L62",
-      "weight": 1.0,
-      "source": "src_config_tierconfig_gettierpenaltybonus",
-      "target": "src_config_tierconfig_normalizetier",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/data/materialData.js",
-      "source_location": "L2",
-      "weight": 1.0,
-      "source": "src_data_materialdata",
-      "target": "src_config_tierconfig_gettiermultiplier",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "src/data/materialData.js",
-      "source_location": "L61",
-      "weight": 1.0,
-      "source": "src_data_materialdata_getmaterialstats",
-      "target": "src_config_tierconfig_gettiermultiplier"
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/damage_natures.test.js",
-      "source_location": "L3",
-      "weight": 1.0,
-      "source": "tests_damage_natures_test",
-      "target": "src_config_tierconfig_gettiermultiplier",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/damage_natures.test.js",
-      "source_location": "L3",
-      "weight": 1.0,
-      "source": "tests_damage_natures_test",
-      "target": "src_config_tierconfig_getspecialtiermult",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/damage_natures.test.js",
-      "source_location": "L3",
-      "weight": 1.0,
-      "source": "tests_damage_natures_test",
-      "target": "src_config_tierconfig_gettierpenaltybonus",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
       "source_file": "src/core/bot.js",
       "source_location": "L332",
       "weight": 1.0,
@@ -36972,89 +36278,6 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "src/data/itemCategories/armor.js",
-      "source_location": "L7",
-      "weight": 1.0,
-      "source": "src_data_itemcategories_armor",
-      "target": "src_data_itemcategories_armor_armormodule",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/data/itemCategories/armor.js",
-      "source_location": "L2",
-      "weight": 1.0,
-      "source": "src_data_itemcategories_armor",
-      "target": "src_data_itemcategories_armor_modulebase",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/data/itemCategories/armor.js",
-      "source_location": "L2",
-      "weight": 1.0,
-      "source": "src_data_itemcategories_armor",
-      "target": "src_modules_modulebase",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/data/itemCategories/index.js",
-      "source_location": "L11",
-      "weight": 1.0,
-      "source": "src_data_itemcategories_index",
-      "target": "src_data_itemcategories_armor",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/damage_natures.test.js",
-      "source_location": "L6",
-      "weight": 1.0,
-      "source": "tests_damage_natures_test",
-      "target": "src_data_itemcategories_armor",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "method",
-      "confidence": "EXTRACTED",
-      "source_file": "src/data/itemCategories/armor.js",
-      "source_location": "L11",
-      "weight": 1.0,
-      "source": "src_data_itemcategories_armor_armormodule",
-      "target": "src_data_itemcategories_armor_armormodule_constructor",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "method",
-      "confidence": "EXTRACTED",
-      "source_file": "src/data/itemCategories/armor.js",
-      "source_location": "L19",
-      "weight": 1.0,
-      "source": "src_data_itemcategories_armor_armormodule",
-      "target": "src_data_itemcategories_armor_armormodule_onequip",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "method",
-      "confidence": "EXTRACTED",
-      "source_file": "src/data/itemCategories/armor.js",
-      "source_location": "L29",
-      "weight": 1.0,
-      "source": "src_data_itemcategories_armor_armormodule",
-      "target": "src_data_itemcategories_armor_armormodule_onunequip",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
       "source_file": "src/data/itemCategories/buff.js",
       "source_location": "L10",
       "weight": 1.0,
@@ -37088,7 +36311,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "src/data/itemCategories/index.js",
-      "source_location": "L6",
+      "source_location": "L12",
       "weight": 1.0,
       "source": "src_data_itemcategories_index",
       "target": "src_data_itemcategories_buff",
@@ -37140,7 +36363,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "src/data/itemCategories/index.js",
-      "source_location": "L7",
+      "source_location": "L16",
       "weight": 1.0,
       "source": "src_data_itemcategories_index",
       "target": "src_data_itemcategories_damage",
@@ -37154,100 +36377,6 @@
       "weight": 1.0,
       "source": "src_data_itemcategories_damage_damagemodule",
       "target": "src_data_itemcategories_damage_damagemodule_onattack",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/data/itemCategories/durability.js",
-      "source_location": "L7",
-      "weight": 1.0,
-      "source": "src_data_itemcategories_durability",
-      "target": "src_data_itemcategories_durability_durabilitymodule",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/data/itemCategories/durability.js",
-      "source_location": "L2",
-      "weight": 1.0,
-      "source": "src_data_itemcategories_durability",
-      "target": "src_data_itemcategories_durability_modulebase",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/data/itemCategories/durability.js",
-      "source_location": "L2",
-      "weight": 1.0,
-      "source": "src_data_itemcategories_durability",
-      "target": "src_modules_modulebase",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/data/itemCategories/index.js",
-      "source_location": "L12",
-      "weight": 1.0,
-      "source": "src_data_itemcategories_index",
-      "target": "src_data_itemcategories_durability",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/damage_natures.test.js",
-      "source_location": "L7",
-      "weight": 1.0,
-      "source": "tests_damage_natures_test",
-      "target": "src_data_itemcategories_durability",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "method",
-      "confidence": "EXTRACTED",
-      "source_file": "src/data/itemCategories/durability.js",
-      "source_location": "L24",
-      "weight": 1.0,
-      "source": "src_data_itemcategories_durability_durabilitymodule",
-      "target": "src_data_itemcategories_durability_durabilitymodule_absorbdamage",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "method",
-      "confidence": "EXTRACTED",
-      "source_file": "src/data/itemCategories/durability.js",
-      "source_location": "L11",
-      "weight": 1.0,
-      "source": "src_data_itemcategories_durability_durabilitymodule",
-      "target": "src_data_itemcategories_durability_durabilitymodule_constructor",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "method",
-      "confidence": "EXTRACTED",
-      "source_file": "src/data/itemCategories/durability.js",
-      "source_location": "L51",
-      "weight": 1.0,
-      "source": "src_data_itemcategories_durability_durabilitymodule",
-      "target": "src_data_itemcategories_durability_durabilitymodule_onhit",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "src/data/itemCategories/durability.js",
-      "source_location": "L52",
-      "weight": 1.0,
-      "source": "src_data_itemcategories_durability_durabilitymodule_onhit",
-      "target": "src_data_itemcategories_durability_durabilitymodule_absorbdamage",
       "confidence_score": 1.0
     },
     {
@@ -37286,7 +36415,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "src/data/itemCategories/index.js",
-      "source_location": "L8",
+      "source_location": "L20",
       "weight": 1.0,
       "source": "src_data_itemcategories_index",
       "target": "src_data_itemcategories_equipable",
@@ -37358,7 +36487,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "src/data/itemCategories/index.js",
-      "source_location": "L5",
+      "source_location": "L8",
       "weight": 1.0,
       "source": "src_data_itemcategories_index",
       "target": "src_data_itemcategories_heal",
@@ -37378,17 +36507,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/data/itemCategories/index.js",
-      "source_location": "L11",
-      "weight": 1.0,
-      "source": "src_data_itemcategories_index",
-      "target": "src_data_itemcategories_index_armormodule",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/data/itemCategories/index.js",
-      "source_location": "L6",
+      "source_location": "L12",
       "weight": 1.0,
       "source": "src_data_itemcategories_index",
       "target": "src_data_itemcategories_index_buffmodule",
@@ -37398,7 +36517,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/data/itemCategories/index.js",
-      "source_location": "L7",
+      "source_location": "L16",
       "weight": 1.0,
       "source": "src_data_itemcategories_index",
       "target": "src_data_itemcategories_index_damagemodule",
@@ -37408,17 +36527,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/data/itemCategories/index.js",
-      "source_location": "L12",
-      "weight": 1.0,
-      "source": "src_data_itemcategories_index",
-      "target": "src_data_itemcategories_index_durabilitymodule",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/data/itemCategories/index.js",
-      "source_location": "L8",
+      "source_location": "L20",
       "weight": 1.0,
       "source": "src_data_itemcategories_index",
       "target": "src_data_itemcategories_index_equipablemodule",
@@ -37428,7 +36537,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/data/itemCategories/index.js",
-      "source_location": "L5",
+      "source_location": "L8",
       "weight": 1.0,
       "source": "src_data_itemcategories_index",
       "target": "src_data_itemcategories_index_healmodule",
@@ -37448,42 +36557,21 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/data/itemCategories/index.js",
-      "source_location": "L9",
+      "source_location": "L24",
       "weight": 1.0,
       "source": "src_data_itemcategories_index",
       "target": "src_data_itemcategories_index_temporalmodule",
       "confidence_score": 1.0
     },
     {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/data/itemCategories/index.js",
-      "source_location": "L10",
-      "weight": 1.0,
-      "source": "src_data_itemcategories_index",
-      "target": "src_data_itemcategories_index_weaponmodule",
-      "confidence_score": 1.0
-    },
-    {
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "src/data/itemCategories/index.js",
-      "source_location": "L9",
+      "source_location": "L24",
       "weight": 1.0,
       "source": "src_data_itemcategories_index",
       "target": "src_data_itemcategories_temporal",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/data/itemCategories/index.js",
-      "source_location": "L10",
-      "weight": 1.0,
-      "source": "src_data_itemcategories_index",
-      "target": "src_data_itemcategories_weapon",
       "confidence_score": 1.0
     },
     {
@@ -37526,68 +36614,6 @@
       "weight": 1.0,
       "source": "src_data_itemcategories_temporal",
       "target": "src_modules_modulebase",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/data/itemCategories/weapon.js",
-      "source_location": "L2",
-      "weight": 1.0,
-      "source": "src_data_itemcategories_weapon",
-      "target": "src_data_itemcategories_weapon_modulebase",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/data/itemCategories/weapon.js",
-      "source_location": "L7",
-      "weight": 1.0,
-      "source": "src_data_itemcategories_weapon",
-      "target": "src_data_itemcategories_weapon_weaponmodule",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/data/itemCategories/weapon.js",
-      "source_location": "L2",
-      "weight": 1.0,
-      "source": "src_data_itemcategories_weapon",
-      "target": "src_modules_modulebase",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/damage_natures.test.js",
-      "source_location": "L5",
-      "weight": 1.0,
-      "source": "tests_damage_natures_test",
-      "target": "src_data_itemcategories_weapon",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "method",
-      "confidence": "EXTRACTED",
-      "source_file": "src/data/itemCategories/weapon.js",
-      "source_location": "L11",
-      "weight": 1.0,
-      "source": "src_data_itemcategories_weapon_weaponmodule",
-      "target": "src_data_itemcategories_weapon_weaponmodule_constructor",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "method",
-      "confidence": "EXTRACTED",
-      "source_file": "src/data/itemCategories/weapon.js",
-      "source_location": "L20",
-      "weight": 1.0,
-      "source": "src_data_itemcategories_weapon_weaponmodule",
-      "target": "src_data_itemcategories_weapon_weaponmodule_onattack",
       "confidence_score": 1.0
     },
     {
@@ -37763,59 +36789,6 @@
       "weight": 1.0,
       "source": "tests_inventory_test",
       "target": "src_data_items_getitemsbycategory",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "indirect_call",
-      "confidence": "INFERRED",
-      "source_file": "src/data/materialData.js",
-      "source_location": "L72",
-      "weight": 1.0,
-      "context": "collection",
-      "source": "src_data_materialdata",
-      "target": "src_data_materialdata_getmaterialstats",
-      "confidence_score": 0.5
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/data/materialData.js",
-      "source_location": "L2",
-      "weight": 1.0,
-      "source": "src_data_materialdata",
-      "target": "src_data_materialdata_gettiermultiplier",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/data/materialData.js",
-      "source_location": "L16",
-      "weight": 1.0,
-      "source": "src_data_materialdata",
-      "target": "src_data_materialdata_materials",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/damage_natures.test.js",
-      "source_location": "L4",
-      "weight": 1.0,
-      "source": "tests_damage_natures_test",
-      "target": "src_data_materialdata",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/damage_natures.test.js",
-      "source_location": "L4",
-      "weight": 1.0,
-      "source": "tests_damage_natures_test",
-      "target": "src_data_materialdata_getmaterialstats",
       "confidence_score": 1.0
     },
     {
@@ -43480,7 +42453,7 @@
       "relation": "indirect_call",
       "confidence": "INFERRED",
       "source_file": "src/services/rpg/combatEngine.js",
-      "source_location": "L634",
+      "source_location": "L633",
       "weight": 1.0,
       "context": "collection",
       "source": "src_services_rpg_combatengine",
@@ -43491,7 +42464,7 @@
       "relation": "indirect_call",
       "confidence": "INFERRED",
       "source_file": "src/services/rpg/combatEngine.js",
-      "source_location": "L639",
+      "source_location": "L638",
       "weight": 1.0,
       "context": "collection",
       "source": "src_services_rpg_combatengine",
@@ -43502,7 +42475,7 @@
       "relation": "indirect_call",
       "confidence": "INFERRED",
       "source_file": "src/services/rpg/combatEngine.js",
-      "source_location": "L640",
+      "source_location": "L639",
       "weight": 1.0,
       "context": "collection",
       "source": "src_services_rpg_combatengine",
@@ -43513,7 +42486,7 @@
       "relation": "indirect_call",
       "confidence": "INFERRED",
       "source_file": "src/services/rpg/combatEngine.js",
-      "source_location": "L635",
+      "source_location": "L634",
       "weight": 1.0,
       "context": "collection",
       "source": "src_services_rpg_combatengine",
@@ -43524,7 +42497,7 @@
       "relation": "indirect_call",
       "confidence": "INFERRED",
       "source_file": "src/services/rpg/combatEngine.js",
-      "source_location": "L645",
+      "source_location": "L644",
       "weight": 1.0,
       "context": "collection",
       "source": "src_services_rpg_combatengine",
@@ -43535,7 +42508,7 @@
       "relation": "indirect_call",
       "confidence": "INFERRED",
       "source_file": "src/services/rpg/combatEngine.js",
-      "source_location": "L636",
+      "source_location": "L635",
       "weight": 1.0,
       "context": "collection",
       "source": "src_services_rpg_combatengine",
@@ -43546,7 +42519,7 @@
       "relation": "indirect_call",
       "confidence": "INFERRED",
       "source_file": "src/services/rpg/combatEngine.js",
-      "source_location": "L646",
+      "source_location": "L645",
       "weight": 1.0,
       "context": "collection",
       "source": "src_services_rpg_combatengine",
@@ -43557,7 +42530,7 @@
       "relation": "indirect_call",
       "confidence": "INFERRED",
       "source_file": "src/services/rpg/combatEngine.js",
-      "source_location": "L643",
+      "source_location": "L642",
       "weight": 1.0,
       "context": "collection",
       "source": "src_services_rpg_combatengine",
@@ -43578,7 +42551,7 @@
       "relation": "indirect_call",
       "confidence": "INFERRED",
       "source_file": "src/services/rpg/combatEngine.js",
-      "source_location": "L637",
+      "source_location": "L636",
       "weight": 1.0,
       "context": "collection",
       "source": "src_services_rpg_combatengine",
@@ -43589,7 +42562,7 @@
       "relation": "indirect_call",
       "confidence": "INFERRED",
       "source_file": "src/services/rpg/combatEngine.js",
-      "source_location": "L641",
+      "source_location": "L640",
       "weight": 1.0,
       "context": "collection",
       "source": "src_services_rpg_combatengine",
@@ -43600,7 +42573,7 @@
       "relation": "indirect_call",
       "confidence": "INFERRED",
       "source_file": "src/services/rpg/combatEngine.js",
-      "source_location": "L642",
+      "source_location": "L641",
       "weight": 1.0,
       "context": "collection",
       "source": "src_services_rpg_combatengine",
@@ -43611,7 +42584,7 @@
       "relation": "indirect_call",
       "confidence": "INFERRED",
       "source_file": "src/services/rpg/combatEngine.js",
-      "source_location": "L644",
+      "source_location": "L643",
       "weight": 1.0,
       "context": "collection",
       "source": "src_services_rpg_combatengine",
@@ -43622,7 +42595,7 @@
       "relation": "indirect_call",
       "confidence": "INFERRED",
       "source_file": "src/services/rpg/combatEngine.js",
-      "source_location": "L647",
+      "source_location": "L646",
       "weight": 1.0,
       "context": "collection",
       "source": "src_services_rpg_combatengine",
@@ -43653,7 +42626,7 @@
       "relation": "indirect_call",
       "confidence": "INFERRED",
       "source_file": "src/services/rpg/combatEngine.js",
-      "source_location": "L638",
+      "source_location": "L637",
       "weight": 1.0,
       "context": "collection",
       "source": "src_services_rpg_combatengine",
@@ -43753,7 +42726,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/services/rpg/combatEngine.js",
-      "source_location": "L267",
+      "source_location": "L266",
       "weight": 1.0,
       "source": "src_services_rpg_combatengine_attemptdodge",
       "target": "src_services_rpg_combatengine_applypenalties",
@@ -43775,7 +42748,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/services/rpg/combatEngine.js",
-      "source_location": "L125",
+      "source_location": "L124",
       "weight": 1.0,
       "source": "src_services_rpg_combatengine_canreact",
       "target": "src_services_rpg_combatengine_applypenalties",
@@ -43786,7 +42759,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/services/rpg/combatEngine.js",
-      "source_location": "L158",
+      "source_location": "L157",
       "weight": 1.0,
       "source": "src_services_rpg_combatengine_evaluatedodgefeasibility",
       "target": "src_services_rpg_combatengine_applypenalties",
@@ -43797,7 +42770,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/services/rpg/combatEngine.js",
-      "source_location": "L199",
+      "source_location": "L198",
       "weight": 1.0,
       "source": "src_services_rpg_combatengine_rollflee",
       "target": "src_services_rpg_combatengine_applypenalties",
@@ -43819,7 +42792,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/services/rpg/combatEngine.js",
-      "source_location": "L310",
+      "source_location": "L309",
       "weight": 1.0,
       "source": "src_services_rpg_combatengine_executeattack",
       "target": "src_services_rpg_combatengine_calculatedamage",
@@ -43841,7 +42814,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/services/rpg/combatEngine.js",
-      "source_location": "L486",
+      "source_location": "L485",
       "weight": 1.0,
       "source": "src_services_rpg_combatengine_chooseaireaction",
       "target": "src_services_rpg_combatengine_canreact",
@@ -43852,7 +42825,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/services/rpg/combatEngine.js",
-      "source_location": "L323",
+      "source_location": "L322",
       "weight": 1.0,
       "source": "src_services_rpg_combatengine_executeattack",
       "target": "src_services_rpg_combatengine_canreact",
@@ -43886,7 +42859,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/services/rpg/combatEngine.js",
-      "source_location": "L217",
+      "source_location": "L216",
       "weight": 1.0,
       "source": "src_services_rpg_combatengine_rollflee",
       "target": "src_utils_randomutils_randomfloat"
@@ -43896,7 +42869,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/services/rpg/combatEngine.js",
-      "source_location": "L420",
+      "source_location": "L419",
       "weight": 1.0,
       "source": "src_services_rpg_combatengine_executereaction",
       "target": "src_services_rpg_combatengine_attemptblock",
@@ -43918,7 +42891,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/services/rpg/combatEngine.js",
-      "source_location": "L503",
+      "source_location": "L502",
       "weight": 1.0,
       "source": "src_services_rpg_combatengine_chooseaireaction",
       "target": "src_services_rpg_combatengine_attemptdodge",
@@ -43929,7 +42902,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/services/rpg/combatEngine.js",
-      "source_location": "L398",
+      "source_location": "L397",
       "weight": 1.0,
       "source": "src_services_rpg_combatengine_executereaction",
       "target": "src_services_rpg_combatengine_attemptdodge",
@@ -43951,7 +42924,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/services/rpg/combatEngine.js",
-      "source_location": "L542",
+      "source_location": "L541",
       "weight": 1.0,
       "source": "src_services_rpg_combatengine_executeturn",
       "target": "src_services_rpg_combatengine_executeattack",
@@ -43962,7 +42935,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/services/rpg/combatEngine.js",
-      "source_location": "L551",
+      "source_location": "L550",
       "weight": 1.0,
       "source": "src_services_rpg_combatengine_executeturn",
       "target": "src_services_rpg_combatengine_executereaction",
@@ -43973,7 +42946,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/services/rpg/combatEngine.js",
-      "source_location": "L568",
+      "source_location": "L567",
       "weight": 1.0,
       "source": "src_services_rpg_combatengine_executeturn",
       "target": "src_services_rpg_combatengine_chooseaireaction",
@@ -49971,66 +48944,6 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "tests/damage_natures.test.js",
-      "source_location": "L6",
-      "weight": 1.0,
-      "source": "tests_damage_natures_test",
-      "target": "tests_damage_natures_test_armormodule",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/damage_natures.test.js",
-      "source_location": "L2",
-      "weight": 1.0,
-      "source": "tests_damage_natures_test",
-      "target": "tests_damage_natures_test_describe_it_expect",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/damage_natures.test.js",
-      "source_location": "L7",
-      "weight": 1.0,
-      "source": "tests_damage_natures_test",
-      "target": "tests_damage_natures_test_durabilitymodule",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/damage_natures.test.js",
-      "source_location": "L4",
-      "weight": 1.0,
-      "source": "tests_damage_natures_test",
-      "target": "tests_damage_natures_test_getmaterialstats",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/damage_natures.test.js",
-      "source_location": "L3",
-      "weight": 1.0,
-      "source": "tests_damage_natures_test",
-      "target": "tests_damage_natures_test_gettiermultiplier_getspecialtiermult_gettierpenaltybonus",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/damage_natures.test.js",
-      "source_location": "L5",
-      "weight": 1.0,
-      "source": "tests_damage_natures_test",
-      "target": "tests_damage_natures_test_weaponmodule",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
       "source_file": "tests/economy_service.test.js",
       "source_location": "L1",
       "weight": 1.0,
@@ -50854,136 +49767,6 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "docs/item_system_specification.md",
-      "source_location": "L1",
-      "weight": 1.0,
-      "source": "docs_item_system_specification",
-      "target": "docs_item_system_specification_especificaci\u00f3n_t\u00e9cnica_sistema_de_\u00edtems_materiales_coberturas_y_naturalezas_de_da\u00f1o",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/item_system_specification.md",
-      "source_location": "L8",
-      "weight": 1.0,
-      "source": "docs_item_system_specification_especificaci\u00f3n_t\u00e9cnica_sistema_de_\u00edtems_materiales_coberturas_y_naturalezas_de_da\u00f1o",
-      "target": "docs_item_system_specification_1_sistema_de_tiers_e_d_c_b_a_s_n",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/item_system_specification.md",
-      "source_location": "L24",
-      "weight": 1.0,
-      "source": "docs_item_system_specification_especificaci\u00f3n_t\u00e9cnica_sistema_de_\u00edtems_materiales_coberturas_y_naturalezas_de_da\u00f1o",
-      "target": "docs_item_system_specification_2_naturalezas_de_da\u00f1o_f\u00edsico_y_f\u00f3rmulas_de_combate",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/item_system_specification.md",
-      "source_location": "L48",
-      "weight": 1.0,
-      "source": "docs_item_system_specification_especificaci\u00f3n_t\u00e9cnica_sistema_de_\u00edtems_materiales_coberturas_y_naturalezas_de_da\u00f1o",
-      "target": "docs_item_system_specification_3_sistema_de_materiales_y_crafteo",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/item_system_specification.md",
-      "source_location": "L70",
-      "weight": 1.0,
-      "source": "docs_item_system_specification_especificaci\u00f3n_t\u00e9cnica_sistema_de_\u00edtems_materiales_coberturas_y_naturalezas_de_da\u00f1o",
-      "target": "docs_item_system_specification_4_equipamiento_slots_y_cobertura_de_armadura",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/item_system_specification.md",
-      "source_location": "L94",
-      "weight": 1.0,
-      "source": "docs_item_system_specification_especificaci\u00f3n_t\u00e9cnica_sistema_de_\u00edtems_materiales_coberturas_y_naturalezas_de_da\u00f1o",
-      "target": "docs_item_system_specification_5_clasificaci\u00f3n_de_categor\u00edas_generales_de_\u00edtems",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/item_system_specification.md",
-      "source_location": "L30",
-      "weight": 1.0,
-      "source": "docs_item_system_specification_2_naturalezas_de_da\u00f1o_f\u00edsico_y_f\u00f3rmulas_de_combate",
-      "target": "docs_item_system_specification_a_cortante_ej_espadas_katanas_hachas",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/item_system_specification.md",
-      "source_location": "L36",
-      "weight": 1.0,
-      "source": "docs_item_system_specification_2_naturalezas_de_da\u00f1o_f\u00edsico_y_f\u00f3rmulas_de_combate",
-      "target": "docs_item_system_specification_b_contundente_ej_mazos_martillos_garrotes",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/item_system_specification.md",
-      "source_location": "L41",
-      "weight": 1.0,
-      "source": "docs_item_system_specification_2_naturalezas_de_da\u00f1o_f\u00edsico_y_f\u00f3rmulas_de_combate",
-      "target": "docs_item_system_specification_c_perforante_ej_estocadas_lanzas_flechas",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/item_system_specification.md",
-      "source_location": "L58",
-      "weight": 1.0,
-      "source": "docs_item_system_specification_3_sistema_de_materiales_y_crafteo",
-      "target": "docs_item_system_specification_categor\u00edas_de_materiales_jerarqu\u00eda_progresiva",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/item_system_specification.md",
-      "source_location": "L82",
-      "weight": 1.0,
-      "source": "docs_item_system_specification_4_equipamiento_slots_y_cobertura_de_armadura",
-      "target": "docs_item_system_specification_bonos_de_set",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/item_system_specification.md",
-      "source_location": "L85",
-      "weight": 1.0,
-      "source": "docs_item_system_specification_4_equipamiento_slots_y_cobertura_de_armadura",
-      "target": "docs_item_system_specification_grados_de_cobertura_de_armadura_por_parte_corporal",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/item_system_specification.md",
-      "source_location": "L72",
-      "weight": 1.0,
-      "source": "docs_item_system_specification_4_equipamiento_slots_y_cobertura_de_armadura",
-      "target": "docs_item_system_specification_ranuras_de_equipamiento_slots",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
       "source_file": "memory/plans/universal_module_system.md",
       "source_location": "L1",
       "weight": 1.0,
@@ -51473,5 +50256,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "7f815975e9e8341c345a8d211f9f3f37142050e1"
+  "built_at_commit": "9566ad2b1e69134c9b0a525e77172084fece7089"
 }
