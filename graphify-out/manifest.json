@@ -565,8 +565,8 @@
     "semantic_hash": ""
   },
   "src/database/columnRegistry.js": {
-    "mtime": 1785276604.2614615,
-    "ast_hash": "a2a27cc6bc178d0397fd7baf2634d077",
+    "mtime": 1785355414.9221742,
+    "ast_hash": "bad90ea43731f4567506e4b7d9b4e43c",
     "semantic_hash": ""
   },
   "src/database/schemaMigration.js": {
@@ -1095,8 +1095,8 @@
     "semantic_hash": ""
   },
   "src/config/tierConfig.js": {
-    "mtime": 1785354676.0092757,
-    "ast_hash": "7288f7eefeecab34b3c34e8b54ec0a3a",
+    "mtime": 1785355379.2410676,
+    "ast_hash": "31b9a5258f7a5a672cef3cfecc438c2f",
     "semantic_hash": ""
   },
   "src/data/itemCategories/armor.js": {
@@ -1105,8 +1105,8 @@
     "semantic_hash": ""
   },
   "src/data/itemCategories/durability.js": {
-    "mtime": 1785354607.9919505,
-    "ast_hash": "ac2e32ada87f9c12215a3f0abc487c2d",
+    "mtime": 1785355380.2747352,
+    "ast_hash": "9566bc909ed37c8f480d104cf0bbd37f",
     "semantic_hash": ""
   },
   "src/data/itemCategories/weapon.js": {
@@ -1115,18 +1115,43 @@
     "semantic_hash": ""
   },
   "src/data/materialData.js": {
-    "mtime": 1785354570.9816632,
-    "ast_hash": "2d722fe64c2c59cf30a2c1656a3aaeeb",
+    "mtime": 1785355414.8385696,
+    "ast_hash": "ba19d53d8838375edb5539ade3de5fe6",
     "semantic_hash": ""
   },
   "tests/damage_natures.test.js": {
-    "mtime": 1785354709.154595,
-    "ast_hash": "503308f23963708cc96f606a53d93fa2",
+    "mtime": 1785355383.9988396,
+    "ast_hash": "5698a19d0bd9009eb243f619542c8cf2",
     "semantic_hash": ""
   },
   "docs/item_system_specification.md": {
     "mtime": 1785354744.2709033,
     "ast_hash": "139ee958c4a9524b690f47eac50a9322",
+    "semantic_hash": ""
+  },
+  "src/commands/rpg/inventory/desequipar.js": {
+    "mtime": 1785355378.1072192,
+    "ast_hash": "debcea55ac25fce7d68873d80185200b",
+    "semantic_hash": ""
+  },
+  "src/commands/rpg/inventory/equipar.js": {
+    "mtime": 1785355378.5885327,
+    "ast_hash": "51531bf8945e060dccd0ade7a55514f9",
+    "semantic_hash": ""
+  },
+  "src/database/migrations/002_add_item_metadata_and_equipment.sql": {
+    "mtime": 1785355042.4115038,
+    "ast_hash": "85f0238c01b2c8e3664bd6ad28358b43",
+    "semantic_hash": ""
+  },
+  "src/services/rpg/equipmentService.js": {
+    "mtime": 1785355414.8385696,
+    "ast_hash": "9699d2796831ae253dcd88d0d6e9e041",
+    "semantic_hash": ""
+  },
+  "tests/equipment_service.test.js": {
+    "mtime": 1785355384.344776,
+    "ast_hash": "9ddc42106d074f000afbac1ff847f613",
     "semantic_hash": ""
   }
 }

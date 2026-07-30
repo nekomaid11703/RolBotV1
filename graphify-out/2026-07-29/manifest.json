@@ -695,8 +695,8 @@
     "semantic_hash": ""
   },
   "src/utils/formatErrorUtils.js": {
-    "mtime": 1785292468.9052904,
-    "ast_hash": "727ac6b881bfee78a051af769b0e8c9c",
+    "mtime": 1785354740.2992392,
+    "ast_hash": "5b78a3d8945495a924d0f4d7d1de8268",
     "semantic_hash": ""
   },
   "src/services/reportMaintenanceService.js": {
@@ -760,8 +760,8 @@
     "semantic_hash": ""
   },
   "src/services/rpg/combatEngine.js": {
-    "mtime": 1785292989.0777938,
-    "ast_hash": "05aa67368b358497ccbfa5a48acc65b8",
+    "mtime": 1785354740.2992392,
+    "ast_hash": "91c99d78519b5de2b57789a57efd8535",
     "semantic_hash": ""
   },
   "src/services/rpg/combatMessages.js": {
@@ -980,8 +980,8 @@
     "semantic_hash": ""
   },
   "src/data/itemCategories/index.js": {
-    "mtime": 1785114506.4076025,
-    "ast_hash": "27709cbdfb6b644eb50f3f49aa48a29d",
+    "mtime": 1785354638.160965,
+    "ast_hash": "1b367d58b6eac7677780d9d46ee382f3",
     "semantic_hash": ""
   },
   "src/services/rpg/itemService.js": {
@@ -1092,6 +1092,41 @@
   "scripts/knip-wrapper.mjs": {
     "mtime": 1785292455.7251575,
     "ast_hash": "f3778c090010c89375113ac82bf26053",
+    "semantic_hash": ""
+  },
+  "src/config/tierConfig.js": {
+    "mtime": 1785354676.0092757,
+    "ast_hash": "7288f7eefeecab34b3c34e8b54ec0a3a",
+    "semantic_hash": ""
+  },
+  "src/data/itemCategories/armor.js": {
+    "mtime": 1785354600.6962347,
+    "ast_hash": "3fc3b9ce6251a69c465d9a601929d1f8",
+    "semantic_hash": ""
+  },
+  "src/data/itemCategories/durability.js": {
+    "mtime": 1785354607.9919505,
+    "ast_hash": "ac2e32ada87f9c12215a3f0abc487c2d",
+    "semantic_hash": ""
+  },
+  "src/data/itemCategories/weapon.js": {
+    "mtime": 1785354582.2259586,
+    "ast_hash": "befd6b009b46d9f1e5679f6f937fa487",
+    "semantic_hash": ""
+  },
+  "src/data/materialData.js": {
+    "mtime": 1785354570.9816632,
+    "ast_hash": "2d722fe64c2c59cf30a2c1656a3aaeeb",
+    "semantic_hash": ""
+  },
+  "tests/damage_natures.test.js": {
+    "mtime": 1785354709.154595,
+    "ast_hash": "503308f23963708cc96f606a53d93fa2",
+    "semantic_hash": ""
+  },
+  "docs/item_system_specification.md": {
+    "mtime": 1785354744.2709033,
+    "ast_hash": "139ee958c4a9524b690f47eac50a9322",
     "semantic_hash": ""
   }
 }

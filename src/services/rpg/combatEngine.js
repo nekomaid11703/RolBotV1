@@ -9,6 +9,7 @@ const {
 } = require("../../config/combatConfig");
 const { applyFatiguePenalties } = require("./fatigueEngine");
 const { randomFloat } = require("../../utils/randomUtils");
+const { getTierPenaltyBonus, getSpecialTierMult } = require("../../config/tierConfig");
 
 /**
  * Normaliza las estadísticas a un formato consistente con valores por defecto.
@@ -277,64 +278,116 @@ function attemptDodge(
 }
 
 /**
+ * Calcula el daño de un arma según su naturaleza (cortante, contundente, perforante).
+ * Para combate desarmado o sin weaponInfo, delega a calculateDamage.
+ * @param {*} attackerStats - Stats penalizadas del atacante
+ * @param {*} defenderStats - Stats penalizadas del defensor
+ * @param {object|null} weaponInfo - Info del módulo weapon: { damageNature, tier, baseDamage }
+ * @returns {{ bodyDamage: number, materialDamage: number, nature: string }}
+ */
+function calculateWeaponDamage(attackerStats, defenderStats, weaponInfo) {
+  const nature = weaponInfo?.damageNature || "desarmado";
+  const tier = weaponInfo?.tier || "E";
+  const weaponBase = Math.max(0, Number(weaponInfo?.baseDamage) || 0);
+
+  if (!weaponInfo || nature === "desarmado") {
+    // Fórmula clásica sin arma: atk del atacante vs def del defensor
+    const raw = Math.floor(attackerStats.atk * (100 / (100 + defenderStats.def)));
+    const bodyDamage = Number.isFinite(raw) ? Math.max(DAMAGE_MIN, raw) : DAMAGE_MIN;
+    return { bodyDamage, materialDamage: bodyDamage, nature: "desarmado" };
+  }
+
+  if (nature === "cortante") {
+    // Penetra la defensa natural un 12%-84% según tier
+    const penetration = getTierPenaltyBonus(tier);
+    const effectiveDef = Math.max(0, Math.floor(defenderStats.def * (1 - penetration)));
+    const rawDamage = Math.floor(0.8 * attackerStats.atk) + weaponBase;
+    const bodyDamage = Math.max(DAMAGE_MIN, Math.floor(rawDamage * (100 / (100 + effectiveDef))));
+    return { bodyDamage, materialDamage: bodyDamage, nature: "cortante" };
+  }
+
+  if (nature === "contundente") {
+    // Daño corporal: fórmula normal. Daño material: multiplicado por tier (1.2x-6.0x)
+    const materialMult = getSpecialTierMult(tier);
+    const rawBody = Math.floor(attackerStats.atk * (100 / (100 + defenderStats.def)));
+    const bodyDamage = Math.max(DAMAGE_MIN, rawBody);
+    const materialDamage = Math.max(DAMAGE_MIN, Math.floor(bodyDamage * materialMult));
+    return { bodyDamage, materialDamage, nature: "contundente" };
+  }
+
+  if (nature === "perforante") {
+    // Ignora 100% defensa corporal, daño fijo * mult de tier. Mitad vs material.
+    const tierMult = getSpecialTierMult(tier);
+    const bodyDamage = Math.max(DAMAGE_MIN, Math.floor(weaponBase * tierMult));
+    const materialDamage = Math.max(DAMAGE_MIN, Math.floor(bodyDamage * 0.5));
+    return { bodyDamage, materialDamage, nature: "perforante" };
+  }
+
+  // Naturaleza desconocida: fallback a desarmado
+  const raw = Math.floor(attackerStats.atk * (100 / (100 + defenderStats.def)));
+  const bodyDamage = Number.isFinite(raw) ? Math.max(DAMAGE_MIN, raw) : DAMAGE_MIN;
+  return { bodyDamage, materialDamage: bodyDamage, nature: "desarmado" };
+}
+
+/**
+ * Determina la velocidad de reacción del atacante según la naturaleza del arma.
+ * Perforante: usa ATK en lugar de ASPD como velocidad de estocada.
+ * @param {*} atkPenalized - Stats penalizadas del atacante
+ * @param {string} [nature] - Naturaleza del arma
+ * @returns {number} Velocidad efectiva del ataque
+ */
+function resolveAttackerSpeed(atkPenalized, nature) {
+  if (nature === "perforante") {
+    return atkPenalized.atk; // STR reemplaza a ASPD
+  }
+  return atkPenalized.aspd;
+}
+
+/**
  * Ejecuta la fase de ataque de un turno, calculando daño base y posibilidad de reacción.
+ * Acepta weaponInfo opcional para aplicar naturaleza de daño del arma equipada.
  * @param {*} attackerChar - Personaje atacante
  * @param {*} defenderChar - Personaje defensor
  * @param {number} defenderHp - HP actual del defensor
  * @param {number} attackerHp - HP actual del atacante
  * @param {number} [attackerFatigue] - Fatiga del atacante
  * @param {number} [defenderFatigue] - Fatiga del defensor
+ * @param {object|null} [weaponInfo] - Info del arma equipada ({ damageNature, tier, baseDamage })
  * @returns {*} Información del ataque ejecutado
  */
-function executeAttack(attackerChar, defenderChar, defenderHp, attackerHp, attackerFatigue = 0, defenderFatigue = 0) {
-  /**
-   * @constant attackerStats
-   */
+function executeAttack(
+  attackerChar,
+  defenderChar,
+  defenderHp,
+  attackerHp,
+  attackerFatigue = 0,
+  defenderFatigue = 0,
+  weaponInfo = null,
+) {
   const attackerStats = attackerChar.stats || {};
-  /**
-   * @constant defenderStats
-   */
   const defenderStats = defenderChar.stats || {};
-  /**
-   * @constant attackerRes
-   */
   const attackerRes = attackerStats.def || 0;
-  /**
-   * @constant defenderRes
-   */
   const defenderRes = defenderStats.def || 0;
 
-  /**
-   * @constant baseDamage
-   */
-  const baseDamage = calculateDamage(
-    attackerStats,
-    defenderStats,
-    attackerHp,
-    defenderHp,
-    attackerFatigue,
-    defenderFatigue,
-    attackerRes,
-    defenderRes,
-  );
-  /**
-   * @constant reactPossible
-   */
-  const reactPossible = canReact(
-    defenderStats,
-    defenderHp,
-    attackerStats,
-    attackerHp,
-    defenderFatigue,
-    attackerFatigue,
-    defenderRes,
-    attackerRes,
-  );
+  // Aplicar penalizaciones a stats de ambos
+  const atkPenalized = applyPenalties(attackerStats, attackerHp, attackerFatigue, attackerRes);
+  const defPenalized = applyPenalties(defenderStats, defenderHp, defenderFatigue, defenderRes);
+
+  // Calcular daño según naturaleza del arma
+  const damageResult = calculateWeaponDamage(atkPenalized, defPenalized, weaponInfo);
+
+  // Velocidad de ataque efectiva (perforante usa ATK, resto usa ASPD)
+  const attackerEffectiveSpeed = resolveAttackerSpeed(atkPenalized, damageResult.nature);
+
+  // Chequeo de reacción usando velocidad efectiva
+  const reactPossible = defPenalized.ref > Math.max(0, attackerEffectiveSpeed);
 
   return {
     attackerName: attackerChar.name,
     defenderName: defenderChar.name,
-    baseDamage,
+    baseDamage: damageResult.bodyDamage,
+    materialDamage: damageResult.materialDamage,
+    damageNature: damageResult.nature,
     canReact: reactPossible,
     defenderHpBefore: defenderHp,
   };
@@ -633,6 +686,8 @@ function checkAttackRange(distance, stats, weaponRange = 0) {
 module.exports = {
   applyPenalties,
   calculateDamage,
+  calculateWeaponDamage,
+  resolveAttackerSpeed,
   canReact,
   evaluateDodgeFeasibility,
   rollFlee,

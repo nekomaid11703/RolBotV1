@@ -77,6 +77,7 @@
   "75": "schemaMigration.js",
   "76": "statusService.js",
   "77": "dar_stelas.js",
+  "78": "messageFormatUtils.js",
   "79": "dado.js",
   "80": "editar_pj.js",
   "81": "atacar.js",
@@ -90,6 +91,13 @@
   "89": "ConditionalMod",
   "90": "listCharacters",
   "91": "inventario.js",
+  "92": "grupo_abrir.js",
+  "93": "grupo_cerrar.js",
+  "94": "invite.js",
+  "95": "listCharacters",
   "96": "combatBalance.js",
-  "98": "knip-wrapper.mjs"
+  "97": "armor.js",
+  "98": "knip-wrapper.mjs",
+  "99": "durability.js",
+  "100": "weapon.js"
 }
