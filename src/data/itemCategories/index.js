@@ -21,6 +21,10 @@ moduleRegistry.register(ArmorModule);
 moduleRegistry.register(DurabilityModule);
 
 module.exports = {
+  /**
+   * @param {string} type - category type identifier.
+   * @returns {object|null} the registered module class or null when not found.
+   */
   getCategory: (type) => moduleRegistry.get(type),
   getCategories: () => moduleRegistry.getAll(),
 };

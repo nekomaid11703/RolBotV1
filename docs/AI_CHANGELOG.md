@@ -4,6 +4,51 @@ Este archivo registra los cambios significativos y decisiones arquitectónicas t
 
 ---
 
+## [2.3.1] - 2026-08-01
+
+### Reestructuración de Raíz y Limpieza de Archivos Obsoletos
+
+**Organización de la raíz del proyecto:**
+- `docs/` — Movidos `AI_CHANGELOG.md`, `ROADMAP.md`, `CHECKLIST.md` desde la raíz.
+- `_archive/` — Movidos `PLAN_stats_magicas.md` y `COMBATSISTEM.md` (borrador/plan completado).
+- Eliminados `tsconfig.tsbuildinfo` (artefacto de cache incremental de `tsc`), `.clinerules`, `.roomodes` y `.roo/` (configs de agentes que referenciaban la capa de IA purgada).
+
+**Limpieza de `_archive/`:**
+- Eliminados 6 archivos obsoletos: `carta_blanca.test.js`, `test_carta_blanca_inventory.js` (tests de sistemas de combate/inventario IA eliminados), `characterProgressionService.js` (servicio sin uso, XP deshabilitada), `classes.js` y `races.js` (catálogos antiguos reemplazados por `src/data/clases.js` y `src/config/characterConfig.js` con 21 razas canon) y `COMBATSISTEM.md` (borrador).
+- Conservados como histórico: `combat_systems_archive.zip`, `PLAN_stats_magicas.md` y `fase3_purga/`.
+
+**Referencias actualizadas:**
+- `.agents/AGENTS.md` y skills de opencode ahora apuntan a `RolBotV1/docs/`.
+- `src/data/itemCategories/index.js`: añadido JSDoc a `getCategory` (error TS7006 oculto por el cache incremental de `tsc` quedó visible al eliminar `tsconfig.tsbuildinfo`).
+
+**Verificación:** typecheck 0 errores, lint 0 errores nuevos en archivos tocados, 380/380 tests verdes, knip limpio, depcruise solo 3 warnings históricos.
+
+---
+
+## [2.3.0] - 2026-07-30
+
+### Sistema de Ítems V2 — Tiers, Materiales, Módulos, Equipamiento y Naturalezas de Daño
+
+**Nuevas funcionalidades:**
+
+- **Tiers (E/D/C/B/A/S/N)**: `tierConfig.js` — multiplicadores lineales (1.12x→1.84x), especiales para Contundente (1.2x→6.0x), penetración para Cortante (12%→84%).
+- **Materiales**: `materialData.js` — 20 materiales en 6 categorías con 4 atributos de forja (Afilabilidad, Conducción, Resistencia, Flexibilidad) escalados por Tier.
+- **WeaponModule**: naturaleza de daño (cortante/contundente/perforante), manos (1/2).
+- **ArmorModule**: slot corporal, grados de cobertura (total/alta/media/ligera).
+- **DurabilityModule**: absorción, `broken` (reparables) vs `destroyed` (no reparables).
+- **equipmentService**: 10 slots, auto-desequipado de armas de 2 manos (marcador `__2h:`), persistencia JSONB.
+- **Comandos `/equipar` y `/desequipar`** con validaciones completas.
+- **Migración SQL 002**: columnas `metadata` (inventory) y `equipped_slots` (characters) con índice GIN.
+
+**Motor de combate:**
+- `calculateWeaponDamage()` — Cortante: penetra DEF según tier. Contundente: daño material ×tier. Perforante: ignora DEF, daño fijo, ATK→ASPD.
+- `resolveAttackerSpeed()` — Perforante usa ATK como velocidad de estocada.
+- `executeAttack()` retrocompatible con nuevo parámetro `weaponInfo` opcional.
+
+**Tests:** 376 / 376 pasando (24 suites).
+
+---
+
 ## [2.2.2] - 2026-07-28
 
 ### Auditoría de Código con Knip
