@@ -237,3 +237,42 @@ describe("resolveAttackerSpeed — Velocidad de ataque según naturaleza", () =>
     expect(resolveAttackerSpeed(atkPenalized, "perforante")).toBe(90);
   });
 });
+
+describe("applyMaterialAbsorption — Durabilidad de armadura", () => {
+  const { applyMaterialAbsorption } = require("../src/services/rpg/combatEngine");
+
+  it("Sin armadura: todo el daño material es overflow al HP", () => {
+    const result = applyMaterialAbsorption(50, null);
+    expect(result.absorbed).toBe(0);
+    expect(result.overflow).toBe(50);
+    expect(result.isBroken).toBe(false);
+    expect(result.isDestroyed).toBe(false);
+  });
+
+  it("Con armadura reparable: absorbe daño y rompe al llegar a 0", () => {
+    const armor = new DurabilityModule({ maxResist: 30, isRepairable: true });
+    const result = applyMaterialAbsorption(50, armor);
+    expect(result.absorbed).toBe(30);
+    expect(result.overflow).toBe(20);
+    expect(result.isBroken).toBe(true);
+    expect(result.isDestroyed).toBe(false);
+  });
+
+  it("Con armadura no reparable: se destruye al llegar a 0", () => {
+    const armor = new DurabilityModule({ maxResist: 20, isRepairable: false });
+    const result = applyMaterialAbsorption(40, armor);
+    expect(result.absorbed).toBe(20);
+    expect(result.overflow).toBe(20);
+    expect(result.isDestroyed).toBe(true);
+    expect(result.isBroken).toBe(false);
+  });
+
+  it("Con armadura con durabilidad suficiente: absorbe todo sin romperse", () => {
+    const armor = new DurabilityModule({ maxResist: 100, isRepairable: true });
+    const result = applyMaterialAbsorption(40, armor);
+    expect(result.absorbed).toBe(40);
+    expect(result.overflow).toBe(0);
+    expect(result.isBroken).toBe(false);
+    expect(result.isDestroyed).toBe(false);
+  });
+});

@@ -90,6 +90,8 @@
   "88": "LRUCache",
   "89": "ConditionalMod",
   "91": "inventario.js",
+  "92": "grupo_abrir.js",
+  "93": "grupo_cerrar.js",
   "95": "listCharacters",
   "96": "combatBalance.js",
   "97": "armor.js",

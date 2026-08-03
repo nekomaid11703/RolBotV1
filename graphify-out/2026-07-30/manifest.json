@@ -760,8 +760,8 @@
     "semantic_hash": ""
   },
   "src/services/rpg/combatEngine.js": {
-    "mtime": 1785419776.2300105,
-    "ast_hash": "d59e8a16deba0d00135e846f12e1e856",
+    "mtime": 1785354740.2992392,
+    "ast_hash": "91c99d78519b5de2b57789a57efd8535",
     "semantic_hash": ""
   },
   "src/services/rpg/combatMessages.js": {
@@ -1120,8 +1120,8 @@
     "semantic_hash": ""
   },
   "tests/damage_natures.test.js": {
-    "mtime": 1785419602.782715,
-    "ast_hash": "1cc6592fda291b913ace5dc594dc4879",
+    "mtime": 1785355383.9988396,
+    "ast_hash": "5698a19d0bd9009eb243f619542c8cf2",
     "semantic_hash": ""
   },
   "docs/item_system_specification.md": {

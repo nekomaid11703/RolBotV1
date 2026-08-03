@@ -394,23 +394,37 @@ function executeAttack(
 }
 
 /**
+ * Aplica el daño material a la durabilidad de la armadura equipada del defensor.
+ * Si el arma no tiene naturaleza material (desarmado), el overflow es 0.
+ * Si no hay armadura, todo el daño material pasa directamente como overflow.
+ *
+ * @param {number} materialDamage - Daño que impacta la resistencia material
+ * @param {object|null} armorDurability - Instancia de DurabilityModule de la armadura del defensor
+ * @returns {{ absorbed: number, overflow: number, isBroken: boolean, isDestroyed: boolean }}
+ */
+function applyMaterialAbsorption(materialDamage, armorDurability) {
+  if (!armorDurability || typeof armorDurability.absorbDamage !== "function") {
+    // Sin armadura: todo el material damage va como overflow (daño al HP)
+    return { absorbed: 0, overflow: materialDamage, isBroken: false, isDestroyed: false };
+  }
+  return armorDurability.absorbDamage(materialDamage);
+}
+
+/**
  * Ejecuta la reacción del defensor (esquivar, bloquear o ninguna) y aplica el daño final.
- * @param {object} options
- * @param {object} options
- * @param {object} options
- * @param {object} options
- * @param {object} options
- * @param {object} options
- * @param {object} options
- * @param {object} options
- * @param {*} reactionType
- * @param {*} baseDamage
- * @param {*} defenderChar
- * @param {*} defenderHp
- * @param {*} attackerChar
- * @param {*} attackerHp
- * @param {*} defenderFatigue
- * @param {*} attackerFatigue
+ * Si se proporciona materialDamage y armorDurability, aplica absorción de Resistencia Material
+ * antes de calcular el daño al HP corporal.
+ *
+ * @param {string} reactionType - 'dodge' | 'block' | 'none'
+ * @param {number} baseDamage - Daño corporal del ataque (impacta HP)
+ * @param {*} defenderChar - Personaje defensor
+ * @param {number} defenderHp - HP actual del defensor
+ * @param {*} attackerChar - Personaje atacante
+ * @param {number} attackerHp - HP actual del atacante
+ * @param {number} [defenderFatigue] - Fatiga del defensor
+ * @param {number} [attackerFatigue] - Fatiga del atacante
+ * @param {number} [materialDamage] - Daño a aplicar a la armadura (opcional)
+ * @param {object|null} [armorDurability] - Instancia DurabilityModule de la armadura del defensor
  * @returns {*} Resultado completo de la reacción con daño final
  */
 function executeReaction(
@@ -422,22 +436,12 @@ function executeReaction(
   attackerHp,
   defenderFatigue = 0,
   attackerFatigue = 0,
+  materialDamage = 0,
+  armorDurability = null,
 ) {
-  /**
-   * @constant attackerStats
-   */
   const attackerStats = attackerChar.stats || {};
-  /**
-   * @constant defenderStats
-   */
   const defenderStats = defenderChar.stats || {};
-  /**
-   * @constant attackerRes
-   */
   const attackerRes = attackerStats.def || 0;
-  /**
-   * @constant defenderRes
-   */
   const defenderRes = defenderStats.def || 0;
 
   let finalDamage;
@@ -445,9 +449,6 @@ function executeReaction(
   let dodged = false;
 
   if (reactionType === "dodge") {
-    /**
-     * @constant dodgeResult
-     */
     const dodgeResult = attemptDodge(
       defenderStats,
       defenderHp,
@@ -467,9 +468,6 @@ function executeReaction(
       reaction = "dodge_failed";
     }
   } else if (reactionType === "block") {
-    /**
-     * @constant blockResult
-     */
     const blockResult = attemptBlock(baseDamage);
     finalDamage = blockResult.damage;
     reaction = "block";
@@ -478,9 +476,12 @@ function executeReaction(
     finalDamage = baseDamage;
   }
 
-  /**
-   * @constant defenderHpAfter
-   */
+  // Absorción de Resistencia Material: el daño material pasa por la armadura antes que el HP
+  let armorAbsorption = null;
+  if (materialDamage > 0 && !dodged) {
+    armorAbsorption = applyMaterialAbsorption(materialDamage, armorDurability);
+  }
+
   const defenderHpAfter = Math.max(0, defenderHp - finalDamage);
 
   return {
@@ -493,6 +494,7 @@ function executeReaction(
     defenderHpBefore: defenderHp,
     defenderHpAfter,
     ko: defenderHpAfter <= 0,
+    armorAbsorption, // null si no hay armadura/material damage
   };
 }
 
@@ -687,6 +689,7 @@ module.exports = {
   applyPenalties,
   calculateDamage,
   calculateWeaponDamage,
+  applyMaterialAbsorption,
   resolveAttackerSpeed,
   canReact,
   evaluateDodgeFeasibility,
