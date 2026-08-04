@@ -2,18 +2,8 @@
 const { listAdminsForCategory, listAllCategories, getCategoryLabel } = require("../../../services/permissionService");
 const { getOwnerRecords } = require("../../../utils/permissionUtils");
 const { box } = require("../../../utils/boxUtils");
-const { formatCommandUsage } = require("../../../utils/formatCommandUtils");
 
 const CATEGORY_DISPLAY = { economy: "econom\u00eda", items: "\u00edtems" };
-
-const usageMessage = formatCommandUsage({
-  icon: "\uD83D\uDEE1\uFE0F",
-  title: "Lista de administradores",
-  description: "Muestra los administradores de una categor\u00eda. Si no se indica categor\u00eda, muestra todas.",
-  usage: "/admin_perm_list [categor\u00eda]",
-  example: "/admin_perm_list economy",
-  notes: ["Si no se indica categor\u00eda, se muestran todas las categor\u00edas con sus administradores."],
-});
 
 module.exports = {
   name: "admin_perm_list",

@@ -1,7 +1,6 @@
 // @ts-nocheck
 const { getInviteCode } = require("../../../utils/groupUtils");
 const { box } = require("../../../utils/boxUtils");
-const { formatError } = require("../../../utils/formatErrorUtils");
 
 module.exports = {
   name: "invite",
@@ -12,11 +11,7 @@ module.exports = {
   adminOnly: true,
 
   async execute(ctx) {
-    try {
-      const link = await getInviteCode(ctx.sock, ctx.from);
-      await ctx.reply(box("🔗 Link de invitación", ["", link]));
-    } catch (error) {
-      await ctx.reply(formatError(error.message));
-    }
+    const link = await getInviteCode(ctx.sock, ctx.from);
+    await ctx.reply(box("🔗 Link de invitación", ["", link]));
   },
 };

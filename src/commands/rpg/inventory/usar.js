@@ -1,6 +1,5 @@
 // @ts-nocheck
 const { useItem } = require("../../../services/rpg/inventoryService");
-const { formatError } = require("../../../utils/formatErrorUtils");
 const { box } = require("../../../utils/boxUtils");
 
 module.exports = {
@@ -16,17 +15,13 @@ module.exports = {
 
     const itemName = ctx.args[0].toLowerCase();
 
-    try {
-      const result = await useItem(ctx.sender, itemName);
+    const result = await useItem(ctx.sender, itemName);
 
-      const lines = [];
-      lines.push("");
-      lines.push(`📦  ${result.icon} ${result.itemName} usado`);
-      lines.push(`❤️  HP: ${result.hpBefore} → ${result.hpAfter}`);
+    const lines = [];
+    lines.push("");
+    lines.push(`📦  ${result.icon} ${result.itemName} usado`);
+    lines.push(`❤️  HP: ${result.hpBefore} → ${result.hpAfter}`);
 
-      return ctx.reply(box("✅ ITEM USADO", lines));
-    } catch (error) {
-      return ctx.reply(formatError(error.message));
-    }
+    return ctx.reply(box("✅ ITEM USADO", lines));
   },
 };

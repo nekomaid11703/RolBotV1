@@ -12,33 +12,25 @@ const {
   attemptBlock,
   attemptDodge,
   executeTurn,
-  calculateXpReward,
 } = require("../src/services/rpg/combatEngine");
-const {
-  createSession,
-  findSessionByCharacter,
-  findSessionByUser,
-  advanceTurn,
-  endSession,
-  expireSession,
-  removeSession,
-} = require("../src/services/rpg/combatState");
+const { createSession, findSessionByCharacter, removeSession } = require("../src/services/rpg/combatState");
+const { supabase } = require("../src/database/supabase");
 
-vi.mock("../src/database/supabase", () => ({
-  supabase: {
-    from: vi.fn(() => ({
-      upsert: vi.fn(async () => ({ error: null })),
-      delete: vi.fn(() => ({
-        eq: vi.fn(async () => ({ error: null })),
-      })),
-      select: vi.fn(() => ({
-        eq: vi.fn(() => ({
-          maybeSingle: vi.fn(async () => ({ data: null })),
-        })),
+beforeEach(() => {
+  vi.spyOn(supabase, "from").mockImplementation(() => ({
+    upsert: vi.fn(async () => ({ error: null })),
+    delete: vi.fn(() => ({
+      eq: vi.fn(async () => ({ error: null })),
+    })),
+    select: vi.fn(() => ({
+      eq: vi.fn(() => ({
+        maybeSingle: vi.fn(async () => ({ data: null })),
       })),
     })),
-  },
-}));
+  }));
+});
+
+afterEach(() => vi.restoreAllMocks());
 
 describe("combatConfig", () => {
   it("TURN_TIMEOUT_MS es 48 horas", () => {
@@ -171,20 +163,6 @@ describe("combatEngine — executeTurn", () => {
   });
 });
 
-describe("combatEngine — calculateXpReward", () => {
-  it("Nivel 20 para el ganador da 50 + 20*2 = 90 XP", () => {
-    expect(calculateXpReward(20, true)).toBe(90);
-  });
-
-  it("Nivel 20 para el perdedor da 30% (27 XP)", () => {
-    expect(calculateXpReward(20, false)).toBe(27);
-  });
-
-  it("Nivel 1 para el ganador da 52 XP", () => {
-    expect(calculateXpReward(1, true)).toBe(52);
-  });
-});
-
 describe("combatState — createSession", () => {
   const charA = { id: 101, name: "A", hp_actual: 100, stats: { hp: 100 } };
   const charB = { id: 102, name: "B", hp_actual: 100, stats: { hp: 100 } };
@@ -200,5 +178,16 @@ describe("combatState — createSession", () => {
     expect(foundByChar.id).toBe(session.id);
 
     await removeSession(session.id);
+  });
+
+  it("no publica en memoria una sesión que Supabase rechazó", async () => {
+    const failedA = { ...charA, id: 201 };
+    const failedB = { ...charB, id: 202 };
+    supabase.from.mockReturnValueOnce({
+      upsert: vi.fn(async () => ({ error: new Error("database unavailable") })),
+    });
+
+    await expect(createSession("userA", "userB", failedA, failedB)).rejects.toThrow("database unavailable");
+    expect(findSessionByCharacter(failedA.id)).toBeNull();
   });
 });

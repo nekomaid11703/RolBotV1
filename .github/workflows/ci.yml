@@ -16,8 +16,4 @@ jobs:
       - run: npm run typecheck
       - run: npm run depcruise
       - run: npm run format:check
-      - run: npm run test:vite
-        env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
-          OWNER_PHONE: ${{ secrets.OWNER_PHONE }}
+      - run: npm test

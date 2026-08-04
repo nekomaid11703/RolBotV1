@@ -1,7 +1,7 @@
 // @ts-nocheck
-const { executeTurn, calculateXpReward } = require("./combatEngine");
+const { executeTurn } = require("./combatEngine");
 const { advanceTurn, endSession, isSessionActive } = require("./combatState");
-const { addXp, setHp } = require("../characterService");
+const { setHp } = require("../characterService");
 
 /**
  * Sistema de IA de combate extensible para PvE.
@@ -13,7 +13,7 @@ class CombatAI {
    * @param {object} session Sesión de combate activa
    * @returns {object} Resultado del turno ejecutado por la IA
    */
-  static executeAiTurn(session) {
+  static async executeAiTurn(session) {
     if (!session || !isSessionActive(session) || !session.isPvE) {
       return null;
     }
@@ -24,31 +24,21 @@ class CombatAI {
 
     const turnResult = executeTurn(aiSlot.character, playerSlot.character, playerSlot.hp);
 
-    const newAttackerHp = isChallengerAi ? turnResult.defenderHpAfter : session.challenger.hp;
-    const newDefenderHp = isChallengerAi ? session.defender.hp : turnResult.defenderHpAfter;
+    const newChallengerHp = isChallengerAi ? session.challenger.hp : turnResult.defenderHpAfter;
+    const newDefenderHp = isChallengerAi ? turnResult.defenderHpAfter : session.defender.hp;
 
-    advanceTurn(session.id, newAttackerHp, newDefenderHp);
+    await advanceTurn(session.id, newChallengerHp, newDefenderHp);
 
     if (turnResult.ko) {
       const winnerChar = aiSlot.character;
       const loserChar = playerSlot.character;
-      const xpReward = calculateXpReward(winnerChar.nivel || 1, false);
 
-      endSession(session.id, winnerChar.id);
-
-      try {
-        addXp({
-          creatorId: playerSlot.userId,
-          characterName: loserChar.name,
-          cantidad: xpReward,
-        }).catch(() => {});
-
-        setHp({
-          creatorId: playerSlot.userId,
-          characterName: loserChar.name,
-          hp: 0,
-        }).catch(() => {});
-      } catch (_err) {}
+      await endSession(session.id, winnerChar.id);
+      await setHp({
+        creatorId: playerSlot.userId,
+        characterName: loserChar.name,
+        hp: 0,
+      });
     }
 
     return turnResult;

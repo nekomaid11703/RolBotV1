@@ -4,7 +4,6 @@ const { getFirstMentionedJid } = require("../../../utils/commandParseUtils");
 const { formatDisplayMention, withMentions } = require("../../../utils/userMentionUtils");
 const { resolveTargetDisplayName } = require("../../../services/displayNameService");
 const { box } = require("../../../utils/boxUtils");
-const { formatError } = require("../../../utils/formatErrorUtils");
 
 module.exports = {
   name: "unwarn",
@@ -21,30 +20,26 @@ module.exports = {
       return ctx.reply("❌ Debes mencionar al usuario.\n\nUso: /unwarn @usuario");
     }
 
-    try {
-      const currentWarns = await getWarns(ctx.from, targetId);
-      const warnCount = currentWarns.count;
+    const currentWarns = await getWarns(ctx.from, targetId);
+    const warnCount = currentWarns.count;
 
-      if (warnCount <= 0) {
-        return ctx.reply("❌ Ese usuario no tiene warns activos.");
-      }
-
-      const targetName = await resolveTargetDisplayName(ctx, targetId);
-      await deleteWarn(ctx.from, targetId);
-
-      await ctx.reply(
-        withMentions(
-          box("✅ Warn eliminado", [
-            "",
-            `👤  ${formatDisplayMention(targetId, targetName)}`,
-            "",
-            `Warns restantes: ${warnCount - 1}`,
-          ]),
-          [targetId],
-        ),
-      );
-    } catch (error) {
-      await ctx.reply(formatError(error.message));
+    if (warnCount <= 0) {
+      return ctx.reply("❌ Ese usuario no tiene warns activos.");
     }
+
+    const targetName = await resolveTargetDisplayName(ctx, targetId);
+    await deleteWarn(ctx.from, targetId);
+
+    await ctx.reply(
+      withMentions(
+        box("✅ Warn eliminado", [
+          "",
+          `👤  ${formatDisplayMention(targetId, targetName)}`,
+          "",
+          `Warns restantes: ${warnCount - 1}`,
+        ]),
+        [targetId],
+      ),
+    );
   },
 };

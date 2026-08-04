@@ -172,185 +172,181 @@ module.exports = {
       }
     }
 
-    try {
-      const lines = fullText.split("\n");
+    const lines = fullText.split("\n");
 
-      let name = "";
-      let raza = "";
-      let rawRazaInput = "";
-      let clase = "";
-      const statDistribution = {};
-      let hasCustomStats = false;
-      let historia = "";
-      let historiaStarted = false;
-      let historiaFirstLine = true;
+    let name = "";
+    let raza = "";
+    let rawRazaInput = "";
+    let clase = "";
+    const statDistribution = {};
+    let hasCustomStats = false;
+    let historia = "";
+    let historiaStarted = false;
+    let historiaFirstLine = true;
 
-      for (const rawLine of lines) {
-        const trimmed = (rawLine || "").trim();
+    for (const rawLine of lines) {
+      const trimmed = (rawLine || "").trim();
 
-        if (historiaStarted) {
-          if (historiaFirstLine) {
-            historia += trimmed;
-            historiaFirstLine = false;
-          } else {
-            historia += "\n" + trimmed;
-          }
-          continue;
+      if (historiaStarted) {
+        if (historiaFirstLine) {
+          historia += trimmed;
+          historiaFirstLine = false;
+        } else {
+          historia += "\n" + trimmed;
         }
-
-        if (/^Historia/i.test(trimmed)) {
-          historiaStarted = true;
-          const rest = trimmed.replace(/^Historia[^:]*:\s*/i, "");
-          if (rest) {
-            historia = rest;
-            historiaFirstLine = false;
-          }
-          continue;
-        }
-
-        const nameMatch = trimmed.match(/^Nombre:\s*(.+)/i);
-        if (nameMatch && !name) {
-          name = nameMatch[1].trim();
-          continue;
-        }
-
-        const raceMatch = trimmed.match(/^Raza:\s*(.+)/i);
-        if (raceMatch && !rawRazaInput) {
-          rawRazaInput = raceMatch[1].trim();
-          raza = validarRaza(rawRazaInput);
-          continue;
-        }
-
-        const classMatch = trimmed.match(/^Clase:\s*(.+)/i);
-        if (classMatch && !clase) {
-          clase = classMatch[1].trim();
-          continue;
-        }
-
-        const parsed = parseStatLine(trimmed);
-        if (parsed) {
-          hasCustomStats = true;
-          statDistribution[parsed.key] = parsed.value;
-        }
+        continue;
       }
 
-      if (!name) {
-        return ctx.reply(formatError("Debes incluir el Nombre.", buildRaceList()));
+      if (/^Historia/i.test(trimmed)) {
+        historiaStarted = true;
+        const rest = trimmed.replace(/^Historia[^:]*:\s*/i, "");
+        if (rest) {
+          historia = rest;
+          historiaFirstLine = false;
+        }
+        continue;
       }
 
-      if (name.length < 2 || name.length > MAX_CHARACTER_NAME_LENGTH) {
-        throw new Error(`El nombre debe tener entre 2 y ${MAX_CHARACTER_NAME_LENGTH} caracteres.`);
+      const nameMatch = trimmed.match(/^Nombre:\s*(.+)/i);
+      if (nameMatch && !name) {
+        name = nameMatch[1].trim();
+        continue;
       }
 
-      const raceKeys = Object.keys(RACES);
-      if (rawRazaInput && !raza) {
+      const raceMatch = trimmed.match(/^Raza:\s*(.+)/i);
+      if (raceMatch && !rawRazaInput) {
+        rawRazaInput = raceMatch[1].trim();
+        raza = validarRaza(rawRazaInput);
+        continue;
+      }
+
+      const classMatch = trimmed.match(/^Clase:\s*(.+)/i);
+      if (classMatch && !clase) {
+        clase = classMatch[1].trim();
+        continue;
+      }
+
+      const parsed = parseStatLine(trimmed);
+      if (parsed) {
+        hasCustomStats = true;
+        statDistribution[parsed.key] = parsed.value;
+      }
+    }
+
+    if (!name) {
+      return ctx.reply(formatError("Debes incluir el Nombre.", buildRaceList()));
+    }
+
+    if (name.length < 2 || name.length > MAX_CHARACTER_NAME_LENGTH) {
+      throw new Error(`El nombre debe tener entre 2 y ${MAX_CHARACTER_NAME_LENGTH} caracteres.`);
+    }
+
+    const raceKeys = Object.keys(RACES);
+    if (rawRazaInput && !raza) {
+      return ctx.reply(
+        formatError(
+          `Raza "${rawRazaInput}" no válida. Razas disponibles: ` +
+            Object.values(RACES)
+              .map((r) => r.name)
+              .join(", "),
+          buildRaceList(),
+        ),
+      );
+    }
+
+    const raceId = raza || raceKeys[0];
+    const raceConfig = RACES[raceId];
+    if (!raceConfig) {
+      return ctx.reply(
+        formatError(
+          "Raza no válida. Razas disponibles: " +
+            Object.values(RACES)
+              .map((r) => r.name)
+              .join(", "),
+          buildRaceList(),
+        ),
+      );
+    }
+
+    if (!clase) {
+      return ctx.reply(
+        formatError(
+          "Debes especificar una clase. Clases disponibles: " +
+            listarClases()
+              .map((c) => c.name)
+              .join(", "),
+          buildTemplate(raceConfig),
+        ),
+      );
+    }
+
+    const claseId = clase
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "");
+    const { validarClase } = require("../../../data/clases");
+    if (!validarClase(claseId)) {
+      return ctx.reply(formatError(`Clase "${clase}" no válida.`, buildTemplate(raceConfig)));
+    }
+
+    if (!historia) {
+      return ctx.reply(formatError("Debes escribir una historia para tu personaje.", buildTemplate(raceConfig)));
+    }
+
+    if (hasCustomStats) {
+      const assignedPoints = Object.values(statDistribution).reduce((a, b) => a + (Number(b) || 0), 0);
+      if (assignedPoints !== FREE_POINTS_AT_CREATION) {
         return ctx.reply(
           formatError(
-            `Raza "${rawRazaInput}" no válida. Razas disponibles: ` +
-              Object.values(RACES)
-                .map((r) => r.name)
-                .join(", "),
-            buildRaceList(),
-          ),
-        );
-      }
-
-      const raceId = raza || raceKeys[0];
-      const raceConfig = RACES[raceId];
-      if (!raceConfig) {
-        return ctx.reply(
-          formatError(
-            "Raza no válida. Razas disponibles: " +
-              Object.values(RACES)
-                .map((r) => r.name)
-                .join(", "),
-            buildRaceList(),
-          ),
-        );
-      }
-
-      if (!clase) {
-        return ctx.reply(
-          formatError(
-            "Debes especificar una clase. Clases disponibles: " +
-              listarClases()
-                .map((c) => c.name)
-                .join(", "),
+            `Has asignado ${assignedPoints} puntos libres. Deben ser exactamente ${FREE_POINTS_AT_CREATION}.`,
             buildTemplate(raceConfig),
           ),
         );
       }
-
-      const claseId = clase
-        .toLowerCase()
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "");
-      const { validarClase } = require("../../../data/clases");
-      if (!validarClase(claseId)) {
-        return ctx.reply(formatError(`Clase "${clase}" no válida.`, buildTemplate(raceConfig)));
+    } else {
+      const uniform = Math.floor(FREE_POINTS_AT_CREATION / Object.keys(LEVELABLE_STATS).length);
+      let remainder = FREE_POINTS_AT_CREATION;
+      for (const key of Object.keys(LEVELABLE_STATS)) {
+        const assign = remainder > uniform ? uniform : remainder;
+        statDistribution[key] = assign;
+        remainder -= assign;
       }
-
-      if (!historia) {
-        return ctx.reply(formatError("Debes escribir una historia para tu personaje.", buildTemplate(raceConfig)));
-      }
-
-      if (hasCustomStats) {
-        const assignedPoints = Object.values(statDistribution).reduce((a, b) => a + (Number(b) || 0), 0);
-        if (assignedPoints !== FREE_POINTS_AT_CREATION) {
-          return ctx.reply(
-            formatError(
-              `Has asignado ${assignedPoints} puntos libres. Deben ser exactamente ${FREE_POINTS_AT_CREATION}.`,
-              buildTemplate(raceConfig),
-            ),
-          );
-        }
-      } else {
-        const uniform = Math.floor(FREE_POINTS_AT_CREATION / Object.keys(LEVELABLE_STATS).length);
-        let remainder = FREE_POINTS_AT_CREATION;
-        for (const key of Object.keys(LEVELABLE_STATS)) {
-          const assign = remainder > uniform ? uniform : remainder;
-          statDistribution[key] = assign;
-          remainder -= assign;
-        }
-      }
-
-      const character = await createCharacter({
-        creatorId: ctx.sender,
-        creatorName: ctx.userName,
-        characterName: name,
-        raza: raceId,
-        clase: claseId,
-        statDistribution,
-        historia,
-      });
-
-      await setActiveCharacter({
-        targetCreatorId: ctx.sender,
-        targetCreatorName: ctx.userName,
-        characterName: name,
-        requesterId: ctx.sender,
-        requesterIsAdmin: false,
-      });
-
-      await ctx.react("🎉");
-
-      const statSummary = Object.entries(LEVELABLE_STATS)
-        .map(([key, cfg]) => `${cfg.label}: ${character.stats[key] || 0}`)
-        .join("  ");
-
-      await ctx.reply(
-        box("🎉 Personaje creado", [
-          "",
-          `👤  ${character.name.toUpperCase()}`,
-          `🎖️  ${raceConfig.name} · ${character.clase}  ·  Nivel ${character.nivel}`,
-          "",
-          `📊  ${statSummary}`,
-          "",
-          `💡 Usa /ver_pj para ver tu perfil completo`,
-        ]),
-      );
-    } catch (error) {
-      await ctx.reply(formatError(error.message));
     }
+
+    const character = await createCharacter({
+      creatorId: ctx.sender,
+      creatorName: ctx.userName,
+      characterName: name,
+      raza: raceId,
+      clase: claseId,
+      statDistribution,
+      historia,
+    });
+
+    await setActiveCharacter({
+      targetCreatorId: ctx.sender,
+      targetCreatorName: ctx.userName,
+      characterName: name,
+      requesterId: ctx.sender,
+      requesterIsAdmin: false,
+    });
+
+    await ctx.react("🎉");
+
+    const statSummary = Object.entries(LEVELABLE_STATS)
+      .map(([key, cfg]) => `${cfg.label}: ${character.stats[key] || 0}`)
+      .join("  ");
+
+    await ctx.reply(
+      box("🎉 Personaje creado", [
+        "",
+        `👤  ${character.name.toUpperCase()}`,
+        `🎖️  ${raceConfig.name} · ${character.clase}  ·  Nivel ${character.nivel}`,
+        "",
+        `📊  ${statSummary}`,
+        "",
+        `💡 Usa /ver_pj para ver tu perfil completo`,
+      ]),
+    );
   },
 };

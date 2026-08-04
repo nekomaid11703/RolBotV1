@@ -108,6 +108,7 @@ function render() {
 }
 
 function startDashboard() {
+  if (!process.stdout.isTTY) return;
   if (dashboardTimer) return;
   render();
   dashboardTimer = setInterval(render, 30000);

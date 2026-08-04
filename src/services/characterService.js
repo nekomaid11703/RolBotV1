@@ -10,9 +10,7 @@ const {
   LEVEL_INITIAL,
   FREE_POINTS_AT_CREATION,
   calculateLevel,
-  xpForNextLevel,
   RANGOS,
-  getHpState,
   HP_MAX,
 } = require("../config/characterConfig");
 const { getClase } = require("../data/clases");
@@ -425,34 +423,6 @@ async function updateCharacterSlots({ characterName, creatorId, slots, requester
  *
  * @param root0
  */
-async function getCombatStats({ creatorId }) {
-  const character = await getActiveCharacter({ creatorId });
-  if (!character) return null;
-
-  const hpState = getHpState(character.hp_actual);
-  const penalty = hpState.penalty;
-
-  const combatStats = { hp: character.hp_actual, hp_max: HP_MAX, hpState: hpState.name };
-  for (const key of Object.keys(LEVELABLE_STATS)) {
-    const baseVal = Number(character.stats[key]) || 0;
-    combatStats[key] = Math.max(0, Math.round(baseVal * (1 - penalty)));
-  }
-
-  return combatStats;
-}
-
-/**
- *
- * @param root0
- */
-async function addXp() {
-  return { xp: 0, xp_total: 0 };
-}
-
-/**
- *
- * @param root0
- */
 async function setHp({ creatorId, characterName, hp }) {
   const slug = getCharacterSlug(characterName);
   const safeHp = Math.max(0, Math.min(HP_MAX, Math.floor(Number(hp) || 0)));
@@ -472,92 +442,6 @@ async function setHp({ creatorId, characterName, hp }) {
   return normalizeCharacterRecord(data);
 }
 
-/**
- *
- * @param root0
- */
-async function restaurarHp({ creatorId, characterName }) {
-  return setHp({ creatorId, characterName, hp: HP_MAX });
-}
-
-/**
- *
- * @param root0
- */
-async function distribuirPunto({ creatorId, characterName, stat }) {
-  if (!LEVELABLE_STATS[stat]) throw new Error(`La estadística '${stat}' no es válida.`);
-
-  const slug = getCharacterSlug(characterName);
-  const character = await safeSingleOrNull(
-    supabase.from("characters").select("*").eq("player_phone", creatorId).eq("slug", slug),
-  );
-  if (!character) throw new Error("No existe el personaje.");
-
-  const stats = { ...(character.stats || {}) };
-
-  if (LEVELABLE_STATS[stat] && stats[stat] >= LEVELABLE_STATS[stat].max) {
-    throw new Error(`${LEVELABLE_STATS[stat].name} ya está al máximo (${LEVELABLE_STATS[stat].max}).`);
-  }
-
-  const currentXp = Number(character.xp) || 0;
-  const currentLevel = Number(character.nivel) || LEVEL_INITIAL;
-  const neededXp = xpForNextLevel(currentLevel);
-
-  if (currentXp < neededXp) {
-    throw new Error(`Necesitas ${neededXp} XP para subir de nivel. Tienes ${currentXp}.`);
-  }
-
-  stats[stat] = Math.min((stats[stat] || 0) + 1, LEVELABLE_STATS[stat].max);
-
-  const newLevel = calculateLevel(stats);
-  const remainingXp = currentXp - neededXp;
-
-  const updatePayload = filterExisting("characters", {
-    stats,
-    nivel: newLevel,
-    xp: remainingXp,
-    hp_actual: HP_MAX,
-    updated_at: new Date().toISOString(),
-  });
-
-  const { data, error } = await supabase
-    .from("characters")
-    .update(updatePayload)
-    .eq("id", character.id)
-    .select()
-    .maybeSingle();
-
-  if (error || !data) throw new Error("Error distribuyendo punto.");
-
-  invalidateUserCache(creatorId);
-  return normalizeCharacterRecord(data);
-}
-
-/**
- *
- * @param root0
- */
-async function getXpInfo({ creatorId, characterName }) {
-  const slug = getCharacterSlug(characterName);
-  const character = await safeSingleOrNull(
-    supabase.from("characters").select("nivel, xp, xp_total").eq("player_phone", creatorId).eq("slug", slug),
-  );
-
-  if (!character) throw new Error("No existe el personaje.");
-
-  const currentLevel = Number(character.nivel) || LEVEL_INITIAL;
-  const currentXp = Number(character.xp) || 0;
-  const neededXp = xpForNextLevel(currentLevel);
-
-  return {
-    nivel: currentLevel,
-    xp: currentXp,
-    xp_total: Number(character.xp_total) || 0,
-    xp_para_siguiente: neededXp,
-    progreso: neededXp > 0 ? Math.min(1, currentXp / neededXp) : 0,
-  };
-}
-
 module.exports = {
   createCharacter,
   listCharacters,
@@ -567,10 +451,5 @@ module.exports = {
   getCharacterNames,
   renameCharacter,
   updateCharacterSlots,
-  getCombatStats,
-  addXp,
   setHp,
-  restaurarHp,
-  distribuirPunto,
-  getXpInfo,
 };

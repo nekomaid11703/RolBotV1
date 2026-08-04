@@ -37,3 +37,31 @@ describe("Cache Key Derivation (versioned)", () => {
     expect(key1f0).toBe(key1fU);
   });
 });
+
+describe("User cache invalidation", () => {
+  const { cache } = require("../src/utils/cacheService");
+  const { invalidateUserCache, invalidateUserProfileCache } = require("../src/utils/safeQuery");
+
+  beforeEach(() => cache.clear());
+
+  it("keeps character caches when only profile data changes", () => {
+    cache.set("user:alice", {});
+    cache.set("characters:alice", []);
+    cache.set("activeCharacter:alice", {});
+
+    invalidateUserProfileCache("alice");
+
+    expect(cache.stats().keys).toEqual(["characters:alice", "activeCharacter:alice"]);
+  });
+
+  it("clears list and active-character caches after a character mutation", () => {
+    cache.set("user:alice", {});
+    cache.set("characters:alice", []);
+    cache.set("activeCharacter:alice", {});
+    cache.set("user:bob", {});
+
+    invalidateUserCache("alice");
+
+    expect(cache.stats().keys).toEqual(["user:bob"]);
+  });
+});

@@ -1,9 +1,7 @@
 const { discover } = require("./columnRegistry");
 const { supabase } = require("./supabase");
 const { logSystem } = require("../services/loggerService");
-const { setStoredVersion } = require("./schemaVersion");
-
-const CURRENT_VERSION = "2.1.0";
+const { setStoredVersion, CURRENT_VERSION } = require("./schemaVersion");
 
 const DESIRED_SCHEMA = {
   players: ["phone", "username", "money", "activity_messages", "activity_commands", "last_active_at"],
@@ -188,7 +186,7 @@ async function createMissingTables() {
         created.push(table);
       }
     } catch (err) {
-      await logSystem(`Migration: error creando tabla "${table}": ${err.message}`);
+      await logSystem(`Migration: error creando tabla "${table}": ${err instanceof Error ? err.message : String(err)}`);
     }
   }
 
@@ -206,10 +204,5 @@ async function runStartupMigration() {
 }
 
 module.exports = {
-  detectMissingColumns,
-  generateMigrationSQL,
-  logMigrationInfo,
   runStartupMigration,
-  CURRENT_VERSION,
-  DESIRED_SCHEMA,
 };

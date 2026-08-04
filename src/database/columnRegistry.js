@@ -3,6 +3,7 @@ const { logSystem } = require("../services/loggerService");
 
 const DISCOVERY_TTL = 300000;
 
+/** @type {Record<string, string[]>} */
 const KNOWN_SCHEMA = {
   bot_auth_state: ["session_id", "id", "data"],
   players: ["phone", "username", "money", "activity_messages", "activity_commands", "last_active_at"],
@@ -116,4 +117,4 @@ function filterExisting(table, data) {
   return filtered;
 }
 
-module.exports = { discover, hasColumn, filterExisting, KNOWN_SCHEMA };
+module.exports = { discover, hasColumn, filterExisting };

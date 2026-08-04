@@ -1,14 +1,12 @@
-import js from "@eslint/js";
-import prettier from "eslint-config-prettier";
-import globals from "globals";
-import jsdoc from "eslint-plugin-jsdoc";
+const js = require("@eslint/js");
+const prettier = require("eslint-config-prettier");
+const globals = require("globals");
 
-export default [
+module.exports = [
   js.configs.recommended,
   prettier,
   {
-    files: ["src/**/*.js", "tests/**/*.js", "scripts/**/*.js", "index.js"],
-    ...jsdoc.configs["flat/recommended"],
+    files: ["**/*.js"],
     languageOptions: {
       ecmaVersion: "latest",
       sourceType: "script",
@@ -18,7 +16,6 @@ export default [
       },
     },
     rules: {
-      ...jsdoc.configs["flat/recommended"].rules,
       "no-unused-vars": ["warn", { argsIgnorePattern: "^_", varsIgnorePattern: "^_", caughtErrors: "none" }],
       "no-undef": "error",
       "no-constant-binary-expression": "error",
@@ -28,9 +25,6 @@ export default [
       "no-empty": "warn",
       "no-console": "warn",
       "no-redeclare": "off",
-      "jsdoc/require-param": ["warn", { checkRestProperty: false, checkDestructured: false }],
-      "jsdoc/require-returns": "warn",
-      "jsdoc/check-types": "warn",
     },
   },
   {

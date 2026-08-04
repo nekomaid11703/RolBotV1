@@ -125,4 +125,4 @@ async function verifyStartup() {
   return results;
 }
 
-module.exports = { checkHealth, verifyStartup, SCHEMA };
+module.exports = { verifyStartup };

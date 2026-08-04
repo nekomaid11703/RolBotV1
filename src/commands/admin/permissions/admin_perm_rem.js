@@ -65,35 +65,31 @@ module.exports = {
       );
     }
 
-    try {
-      await setAdminForCategory({
-        userId: targetId,
-        userName: targetName,
-        category,
-        enabled: false,
-        createIfMissing: false,
-        registration: {
-          source: "admin_perm_rem",
-          scope: "target",
-          createdBy: ctx.sender,
-          displayName: targetName,
-        },
-      });
+    await setAdminForCategory({
+      userId: targetId,
+      userName: targetName,
+      category,
+      enabled: false,
+      createIfMissing: false,
+      registration: {
+        source: "admin_perm_rem",
+        scope: "target",
+        createdBy: ctx.sender,
+        displayName: targetName,
+      },
+    });
 
-      await ctx.reply(
-        withMentions(
-          box("\uD83D\uDEE1\uFE0F Permiso retirado", [
-            "",
-            `\uD83D\uDC64  ${formatDisplayMention(targetId, targetName)}`,
-            `\uD83D\uDCC1  Categor\u00eda: *${CATEGORY_DISPLAY[category]}*`,
-            "",
-            `Ya no es administrador de ${CATEGORY_DISPLAY[category]}.`,
-          ]),
-          [targetId],
-        ),
-      );
-    } catch (error) {
-      await ctx.reply(formatError(error.message));
-    }
+    await ctx.reply(
+      withMentions(
+        box("\uD83D\uDEE1\uFE0F Permiso retirado", [
+          "",
+          `\uD83D\uDC64  ${formatDisplayMention(targetId, targetName)}`,
+          `\uD83D\uDCC1  Categor\u00eda: *${CATEGORY_DISPLAY[category]}*`,
+          "",
+          `Ya no es administrador de ${CATEGORY_DISPLAY[category]}.`,
+        ]),
+        [targetId],
+      ),
+    );
   },
 };

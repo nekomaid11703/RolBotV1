@@ -1,5 +1,5 @@
 // @ts-nocheck
-const { BufferJSON, initAuthCreds } = require("@whiskeysockets/baileys");
+const { BufferJSON, initAuthCreds, makeCacheableSignalKeyStore } = require("@whiskeysockets/baileys");
 const { supabase } = require("../database/supabase");
 const { logError } = require("../services/loggerService");
 
@@ -21,6 +21,12 @@ async function useSupabaseAuthState(sessionId = "default") {
       return false;
     }
     return true;
+  };
+
+  const assertCircuitAvailable = () => {
+    if (!checkCircuit()) {
+      throw new Error("Supabase temporalmente no disponible (circuito abierto).");
+    }
   };
 
   const recordSuccess = () => {
@@ -50,7 +56,7 @@ async function useSupabaseAuthState(sessionId = "default") {
    * @param {string} id - Record identifier
    */
   const writeData = async (data, id) => {
-    if (!checkCircuit()) return;
+    assertCircuitAvailable();
     try {
       const json = JSON.parse(JSON.stringify(data, BufferJSON.replacer));
       const { error } = await supabase.from(TABLE_NAME).upsert({ session_id: sessionId, id, data: json });
@@ -63,6 +69,7 @@ async function useSupabaseAuthState(sessionId = "default") {
         source: `supabaseAuthState.writeData:${id}`,
         error: err,
       });
+      throw err;
     }
   };
 
@@ -71,7 +78,7 @@ async function useSupabaseAuthState(sessionId = "default") {
    * @returns {Promise<object|null>} - Promise resolving to the data or null
    */
   const readData = async (id) => {
-    if (!checkCircuit()) return null;
+    assertCircuitAvailable();
     try {
       const { data, error } = await supabase
         .from(TABLE_NAME)
@@ -98,7 +105,7 @@ async function useSupabaseAuthState(sessionId = "default") {
         source: `supabaseAuthState.readData:${id}`,
         error: err,
       });
-      return null;
+      throw err;
     }
   };
 
@@ -125,71 +132,93 @@ async function useSupabaseAuthState(sessionId = "default") {
     await writeData(creds, "creds");
   }
 
+  const persistentKeys = {
+    /**
+     * @param {string} type - Key category
+     * @param {string[]} ids - Key identifiers
+     * @returns {Promise<object>} Stored keys by identifier
+     */
+    get: async (type, ids) => {
+      assertCircuitAvailable();
+      const uniqueIds = [...new Set(ids)];
+      if (uniqueIds.length === 0) return {};
+
+      const storedIds = uniqueIds.map((id) => `${type}-${id}`);
+      try {
+        const { data: rows, error } = await supabase
+          .from(TABLE_NAME)
+          .select("id, data")
+          .eq("session_id", sessionId)
+          .in("id", storedIds);
+        if (error) throw error;
+
+        const stored = new Map((rows || []).map((row) => [row.id, row.data]));
+        const data = {};
+        for (const id of uniqueIds) {
+          const raw = stored.get(`${type}-${id}`);
+          if (raw === undefined) continue;
+
+          let value = JSON.parse(JSON.stringify(raw), BufferJSON.reviver);
+          if (type === "app-state-sync-key" && value) {
+            const { proto } = require("@whiskeysockets/baileys");
+            value = proto.Message.AppStateSyncKeyData.fromObject(value);
+          }
+          data[id] = value;
+        }
+
+        recordSuccess();
+        return data;
+      } catch (err) {
+        recordFailure(err);
+        await logError({ source: "supabaseAuthState.keys.get", error: err });
+        throw err;
+      }
+    },
+
+    /** @param {object} data - Key mutations by category */
+    set: async (data) => {
+      assertCircuitAvailable();
+      const upsertData = [];
+      const deleteData = [];
+      for (const category in data) {
+        for (const id in data[category]) {
+          const value = data[category][id];
+          const key = `${category}-${id}`;
+          if (value) {
+            const json = JSON.parse(JSON.stringify(value, BufferJSON.replacer));
+            upsertData.push({ session_id: sessionId, id: key, data: json });
+          } else {
+            deleteData.push(key);
+          }
+        }
+      }
+
+      try {
+        if (upsertData.length > 0) {
+          const { error: upsertError } = await supabase.from(TABLE_NAME).upsert(upsertData);
+          if (upsertError) throw upsertError;
+        }
+        if (deleteData.length > 0) {
+          const { error: deleteError } = await supabase
+            .from(TABLE_NAME)
+            .delete()
+            .eq("session_id", sessionId)
+            .in("id", deleteData);
+          if (deleteError) throw deleteError;
+        }
+        recordSuccess();
+      } catch (err) {
+        recordFailure(err);
+        await logError({ source: "supabaseAuthState.keys.set", error: err });
+        throw err;
+      }
+    },
+  };
+
   return {
     state: {
       creds,
-      keys: {
-        /**
-         * @param {string} type - Key or event type
-         * @param {string[]} ids - Array of identifiers
-         * @returns {Promise<object>} - Promise resolving to the sent message
-         */
-        get: async (type, ids) => {
-          /** @type {object} */
-          const data = {};
-          await Promise.all(
-            ids.map(async (/** @type {string} */ id) => {
-              let value = await readData(`${type}-${id}`);
-              if (type === "app-state-sync-key" && value) {
-                const { proto } = require("@whiskeysockets/baileys");
-                value = proto.Message.AppStateSyncKeyData.fromObject(value);
-              }
-              data[id] = value;
-            }),
-          );
-          return data;
-        },
-        /** @param {object} data - Data payload */
-        set: async (data) => {
-          if (!checkCircuit()) return;
-          const upsertData = [];
-          const deleteData = [];
-          for (const category in data) {
-            for (const id in data[category]) {
-              const value = data[category][id];
-              const key = `${category}-${id}`;
-              if (value) {
-                const json = JSON.parse(JSON.stringify(value, BufferJSON.replacer));
-                upsertData.push({ session_id: sessionId, id: key, data: json });
-              } else {
-                deleteData.push(key);
-              }
-            }
-          }
-
-          try {
-            if (upsertData.length > 0) {
-              const { error: upsertError } = await supabase.from(TABLE_NAME).upsert(upsertData);
-              if (upsertError) throw upsertError;
-            }
-            if (deleteData.length > 0) {
-              const { error: deleteError } = await supabase
-                .from(TABLE_NAME)
-                .delete()
-                .eq("session_id", sessionId)
-                .in("id", deleteData);
-              if (deleteError) throw deleteError;
-            }
-            recordSuccess();
-          } catch (err) {
-            recordFailure(err);
-            await logError({
-              source: "supabaseAuthState.keys.set",
-              error: err,
-            });
-          }
-        },
-      },
+      keys: makeCacheableSignalKeyStore(persistentKeys),
     },
     saveCreds: () => {
       return writeData(creds, "creds");

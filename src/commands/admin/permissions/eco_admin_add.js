@@ -5,7 +5,6 @@ const { isOwner } = require("../../../utils/permissionUtils");
 const { formatDisplayMention, withMentions } = require("../../../utils/userMentionUtils");
 const { resolveTargetDisplayName } = require("../../../services/displayNameService");
 const { box } = require("../../../utils/boxUtils");
-const { formatError } = require("../../../utils/formatErrorUtils");
 const { formatCommandUsage } = require("../../../utils/formatCommandUtils");
 
 const usageMessage = formatCommandUsage({
@@ -34,35 +33,31 @@ module.exports = {
       return ctx.reply("ℹ️ El creador ya tiene permisos de economía.");
     }
 
-    try {
-      const targetName = await resolveTargetDisplayName(ctx, targetId);
+    const targetName = await resolveTargetDisplayName(ctx, targetId);
 
-      await setEconomyAdmin({
-        userId: targetId,
-        userName: targetName,
-        enabled: true,
-        createIfMissing: true,
-        registration: {
-          source: "eco_admin_add",
-          scope: "target",
-          createdBy: ctx.sender,
-          displayName: targetName,
-        },
-      });
+    await setEconomyAdmin({
+      userId: targetId,
+      userName: targetName,
+      enabled: true,
+      createIfMissing: true,
+      registration: {
+        source: "eco_admin_add",
+        scope: "target",
+        createdBy: ctx.sender,
+        displayName: targetName,
+      },
+    });
 
-      await ctx.reply(
-        withMentions(
-          box("🛡️ Permiso otorgado", [
-            "",
-            `👤  ${formatDisplayMention(targetId, targetName)}`,
-            "",
-            "Ahora es administrador de economia.",
-          ]),
-          [targetId],
-        ),
-      );
-    } catch (error) {
-      await ctx.reply(formatError(error.message));
-    }
+    await ctx.reply(
+      withMentions(
+        box("🛡️ Permiso otorgado", [
+          "",
+          `👤  ${formatDisplayMention(targetId, targetName)}`,
+          "",
+          "Ahora es administrador de economia.",
+        ]),
+        [targetId],
+      ),
+    );
   },
 };

@@ -1,5 +1,6 @@
 // @ts-nocheck
 const path = require("path");
+const { randomUUID } = require("crypto");
 
 const { isAdmin, isBotAdmin, isOnGroup } = require("../utils/groupUtils");
 const { isOwner } = require("../utils/permissionUtils");
@@ -231,10 +232,11 @@ async function handleCommand(ctx) {
     }
   } catch (error) {
     const err = /** @type {{ message?: string }} */ (error);
+    const correlationId = randomUUID().slice(0, 8);
     await logCommand({
       ...logBase,
       status: "error",
-      reason: err.message || "Error desconocido",
+      reason: `Error interno [ID: ${correlationId}]`,
     });
 
     incrementErrors();
@@ -251,9 +253,10 @@ async function handleCommand(ctx) {
         resolvedCommand: command.name,
         args,
         isGroup: isOnGroup(ctx.from),
+        correlationId,
       },
     });
-    await ctx.reply("❌ Error ejecutando comando.");
+    await ctx.reply(`❌ No se pudo ejecutar el comando. ID: ${correlationId}`);
   }
 }
 

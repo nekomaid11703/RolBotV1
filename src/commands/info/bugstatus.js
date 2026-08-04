@@ -30,18 +30,14 @@ module.exports = {
       return ctx.reply(box(`📋 Bug #${report.id.slice(0, 8)}`, lines));
     }
 
-    try {
-      const reports = await getUserReports(ctx.sender);
-      if (reports.length === 0) {
-        return ctx.reply(box("📭 Reportes", ["", "No tienes reportes."]));
-      }
-
-      const lines = reports
-        .slice(0, 10)
-        .map((r) => `• #${r.id.slice(0, 8)} [${r.priority}] ${r.status} — ${r.description.slice(0, 50)}`);
-      await ctx.reply(box("📋 Tus reportes", ["", ...lines]));
-    } catch (error) {
-      await ctx.reply(formatError(error.message));
+    const reports = await getUserReports(ctx.sender);
+    if (reports.length === 0) {
+      return ctx.reply(box("📭 Reportes", ["", "No tienes reportes."]));
     }
+
+    const lines = reports
+      .slice(0, 10)
+      .map((r) => `• #${r.id.slice(0, 8)} [${r.priority}] ${r.status} — ${r.description.slice(0, 50)}`);
+    await ctx.reply(box("📋 Tus reportes", ["", ...lines]));
   },
 };

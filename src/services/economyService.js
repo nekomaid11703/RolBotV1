@@ -1,9 +1,9 @@
 // @ts-nocheck
-const { getUserProfile, getOrCreateProfile, saveUserProfile } = require("./userService");
+const { getUserProfile, getOrCreateProfile } = require("./userService");
 const {
   topBalancesCacheKey,
   invalidateTopBalancesCache,
-  invalidateUserCache,
+  invalidateUserProfileCache,
   safeSelect,
   TTLS,
   cache,
@@ -68,6 +68,22 @@ function getMoneyValue(profile) {
 }
 
 /**
+ * Persiste solo el saldo para no sobrescribir actividad concurrente.
+ * @param {string} userId
+ * @param {number} money
+ * @param {string} lastActiveAt
+ */
+async function saveMoney(userId, money, lastActiveAt = new Date().toISOString()) {
+  const payload = filterExisting("players", { money, last_active_at: lastActiveAt });
+  const { error } = await supabase.from("players").update(payload).eq("phone", userId);
+
+  if (error) throw new Error("Error guardando saldo: " + error.message);
+
+  invalidateUserProfileCache(userId);
+  invalidateTopBalancesCache();
+}
+
+/**
  *
  * @param userId
  */
@@ -111,10 +127,7 @@ async function addMoney(userId, amount, options = {}) {
     data.profile.economy.money = getMoneyValue(data.profile) + safeAmount;
     data.profile.updatedAt = new Date().toISOString();
 
-    await saveUserProfile({
-      folder: data.folder,
-      profile: data.profile,
-    });
+    await saveMoney(data.profile.creatorId, data.profile.economy.money, data.profile.updatedAt);
 
     return data.profile.economy.money;
   });
@@ -154,10 +167,7 @@ async function removeMoney(userId, amount, options = {}) {
     data.profile.economy.money = current - safeAmount;
     data.profile.updatedAt = new Date().toISOString();
 
-    await saveUserProfile({
-      folder: data.folder,
-      profile: data.profile,
-    });
+    await saveMoney(data.profile.creatorId, data.profile.economy.money, data.profile.updatedAt);
 
     return data.profile.economy.money;
   });
@@ -191,10 +201,7 @@ async function setMoney(userId, amount, options = {}) {
     data.profile.economy.money = safeAmount;
     data.profile.updatedAt = new Date().toISOString();
 
-    await saveUserProfile({
-      folder: data.folder,
-      profile: data.profile,
-    });
+    await saveMoney(data.profile.creatorId, data.profile.economy.money, data.profile.updatedAt);
 
     return data.profile.economy.money;
   });
@@ -264,8 +271,8 @@ async function transferMoney(fromUserId, toUserId, amount, options = {}) {
       });
 
       if (!rpcError && rpcResult?.success) {
-        invalidateUserCache(fromUserId);
-        invalidateUserCache(toUserId);
+        invalidateUserProfileCache(fromUserId);
+        invalidateUserProfileCache(toUserId);
         invalidateTopBalancesCache();
         return true;
       }
@@ -293,8 +300,8 @@ async function transferMoney(fromUserId, toUserId, amount, options = {}) {
         throw new Error(`Error actualizando destinatario: ${toError.message}`);
       }
 
-      invalidateUserCache(fromUserId);
-      invalidateUserCache(toUserId);
+      invalidateUserProfileCache(fromUserId);
+      invalidateUserProfileCache(toUserId);
       invalidateTopBalancesCache();
 
       return true;
@@ -394,10 +401,7 @@ async function claimDaily({ userId, userName = "usuario", registration = {} }) {
     profile.economy.money = getMoneyValue(profile) + reward;
     profile.updatedAt = new Date(now).toISOString();
 
-    await saveUserProfile({
-      folder: data.folder,
-      profile,
-    });
+    await saveMoney(profile.creatorId, profile.economy.money, profile.updatedAt);
 
     return {
       claimed: true,

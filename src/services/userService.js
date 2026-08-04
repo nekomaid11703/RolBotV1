@@ -4,7 +4,7 @@ const { filterExisting } = require("../database/columnRegistry");
 const {
   safeSingleOrNull,
   userCacheKey,
-  invalidateUserCache,
+  invalidateUserProfileCache,
   TTLS,
   cache,
   topActiveUsersCacheKey,
@@ -322,7 +322,27 @@ async function saveUserProfile({ folder: _folder, profile }) {
 
   if (error) throw new Error("Error guardando usuario: " + error.message);
 
-  invalidateUserCache(profile.creatorId);
+  invalidateUserProfileCache(profile.creatorId);
+  return profile;
+}
+
+/**
+ * Persiste solo las columnas de actividad para no sobrescribir cambios de economÃ­a concurrentes.
+ * @param {object} profile
+ */
+async function saveUserActivity(profile) {
+  const payload = filterExisting("players", {
+    username: profile.creatorName,
+    activity_messages: Number(profile.activity?.messages || 0),
+    activity_commands: Number(profile.activity?.commands || 0),
+    last_active_at: profile.metadata?.lastSeenAt || new Date().toISOString(),
+  });
+  const { error } = await supabase.from("players").update(payload).eq("phone", profile.creatorId);
+
+  if (error) throw new Error("Error guardando actividad: " + error.message);
+
+  invalidateUserProfileCache(profile.creatorId);
+  cache.invalidate((key) => key === "allUserProfiles" || key.startsWith("topActiveUsers:"));
   return profile;
 }
 
@@ -491,10 +511,7 @@ async function recordUserActivity({
 
   if (changed) {
     next.updatedAt = now;
-    await saveUserProfile({
-      folder: current.folder,
-      profile: next,
-    });
+    await saveUserActivity(next);
   }
 
   return next;
@@ -559,7 +576,6 @@ module.exports = {
   listUserProfiles,
   ensureUserProfile,
   getUserProfile,
-  saveUserProfile,
   recordUserActivity,
   getOrCreateProfile,
   getTopActiveUsers,

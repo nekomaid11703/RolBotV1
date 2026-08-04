@@ -169,15 +169,6 @@ function formatCombatStatus(session) {
 
 /**
  *
- * @param winnerName
- * @param xpGained
- */
-function formatVictory(winnerName, xpGained) {
-  return box("🎉 VICTORIA", ["", `🏆  ¡*${winnerName}* ha ganado el combate!`, `✨  XP ganada: +${xpGained}`]);
-}
-
-/**
- *
  * @param fleerName
  * @param success
  * @param chance
@@ -212,13 +203,11 @@ function formatCombatDisolved(adminName) {
 }
 
 module.exports = {
-  buildHpBar,
   formatActionMenu,
   formatReactionPrompt,
   formatCombatOpen,
   formatTurnSummary,
   formatCombatStatus,
-  formatVictory,
   formatFlee,
   formatCombatDisolved,
 };

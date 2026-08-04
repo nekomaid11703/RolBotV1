@@ -91,23 +91,14 @@ module.exports = {
  * @param {string} creatorId
  */
 async function executeDeletion(ctx, characterName, creatorId) {
-  try {
-    await deleteCharacter({
-      characterName,
-      creatorId,
-    });
+  await deleteCharacter({
+    characterName,
+    creatorId,
+  });
 
-    await ctx.react("🗑️");
+  await ctx.react("🗑️");
 
-    await ctx.reply(
-      box("🗑️ Personaje eliminado", [
-        "",
-        `👤  ${characterName.toUpperCase()}`,
-        "",
-        `Ha sido eliminado permanentemente.`,
-      ]),
-    );
-  } catch (error) {
-    await ctx.reply(formatError(error.message));
-  }
+  await ctx.reply(
+    box("🗑️ Personaje eliminado", ["", `👤  ${characterName.toUpperCase()}`, "", `Ha sido eliminado permanentemente.`]),
+  );
 }

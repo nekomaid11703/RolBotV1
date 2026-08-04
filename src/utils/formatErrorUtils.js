@@ -42,4 +42,4 @@ function formatError(message, hint = null) {
   });
 }
 
-module.exports = { formatError, formatFeedback, buildFeedbackBody, compactLines };
+module.exports = { formatError, compactLines };

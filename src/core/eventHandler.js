@@ -44,8 +44,8 @@ function registerEvents(sock) {
 
           incrementMessages();
 
-          try {
-            await recordUserActivity({
+          const activityTasks = [
+            recordUserActivity({
               creatorId: userId,
               creatorName,
               displayName: creatorName,
@@ -56,46 +56,48 @@ function registerEvents(sock) {
               messageCount: 1,
               isText: isTextMessage,
               registration,
-            });
-          } catch (error) {
-            await logError({
-              source: "recordUserActivity",
-              userId,
-              userName: creatorName,
-              groupId: ctx.from,
-              error,
-              context: {
-                pushName: rawMsg.pushName || null,
-                remoteJid: rawMsg.key?.remoteJid || null,
-                messageType: ctx.messageType,
-              },
-            });
-          }
+            }).catch((error) =>
+              logError({
+                source: "recordUserActivity",
+                userId,
+                userName: creatorName,
+                groupId: ctx.from,
+                error,
+                context: {
+                  pushName: rawMsg.pushName || null,
+                  remoteJid: rawMsg.key?.remoteJid || null,
+                  messageType: ctx.messageType,
+                },
+              }),
+            ),
+          ];
 
           if (ctx.isGroup) {
-            try {
-              await recordGroupActivity({
+            activityTasks.push(
+              recordGroupActivity({
                 groupId: ctx.from,
                 memberId: userId,
                 memberName: creatorName,
                 messageType: ctx.messageType,
                 messageCount: 1,
                 isText: isTextMessage,
-              });
-            } catch (error) {
-              await logError({
-                source: "recordGroupActivity",
-                userId,
-                userName: creatorName,
-                groupId: ctx.from,
-                error,
-                context: {
-                  messageType: ctx.messageType,
-                  remoteJid: rawMsg.key?.remoteJid || null,
-                },
-              });
-            }
+              }).catch((error) =>
+                logError({
+                  source: "recordGroupActivity",
+                  userId,
+                  userName: creatorName,
+                  groupId: ctx.from,
+                  error,
+                  context: {
+                    messageType: ctx.messageType,
+                    remoteJid: rawMsg.key?.remoteJid || null,
+                  },
+                }),
+              ),
+            );
           }
+
+          await Promise.all(activityTasks);
 
           if (!isTextMessage) {
             continue;

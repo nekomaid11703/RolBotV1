@@ -11,7 +11,7 @@ const { registerEvents } = require("./eventHandler");
 const { logSystem, logError, cleanOldLogs } = require("../services/loggerService");
 const { getResolvedSince } = require("../services/bugReportService");
 const { getOwnerJids } = require("../utils/permissionUtils");
-const { startMidnightReview } = require("../services/schedulerService");
+const { startMidnightReview, stopMidnightReview } = require("../services/schedulerService");
 const { startDashboard, stopDashboard } = require("../services/statusDashboard");
 const { stats, addEvent, incrementErrors } = require("../services/stats");
 
@@ -19,6 +19,7 @@ const MAX_RECONNECT_ATTEMPTS = Number(process.env.MAX_RECONNECT_ATTEMPTS) || 50;
 const RECONNECT_MAX_DELAY = 60000;
 const RECONNECT_INITIAL_DELAY = 2000;
 const CONNECT_TIMEOUT_MS = Number(process.env.CONNECT_TIMEOUT_MS) || 120000;
+const VERSION_FETCH_TIMEOUT_MS = 10000;
 
 /** @type {boolean} */
 let startupValidated = false;
@@ -32,8 +33,17 @@ const SUPABASE_TABLE = "bot_auth_state";
 let currentSock = null;
 let reconnectAttempts = 0;
 let restartRequiredCount = 0;
+let socketGeneration = 0;
+let disconnectedSince = null;
+let commandsLoaded = false;
+/** @type {Promise<void>|null} */
+let botStartPromise = null;
+/** @type {ReturnType<typeof setTimeout>|null} */
+let reconnectTimer = null;
 /** @type {ReturnType<typeof setInterval>|null} */
 let watchdogTimer = null;
+/** @type {ReturnType<typeof setTimeout>|null} */
+let pairingCodeTimer = null;
 let pairingCodeRequested = false;
 let pairingCodeRegistered = false;
 /** @type {string|null} */
@@ -41,13 +51,13 @@ let cachedPairingPhone = null;
 
 process.on("uncaughtException", async (err) => {
   await logError({ source: "process.uncaughtException", error: err });
-  startBot().catch((e) => logError({ source: "bot.restartAfterCrash", error: e }));
+  scheduleReconnect(0, "bot.restartAfterCrash");
 });
 
 process.on("unhandledRejection", async (reason) => {
   const err = reason instanceof Error ? reason : new Error(String(reason));
   await logError({ source: "process.unhandledRejection", error: err });
-  startBot().catch((e) => logError({ source: "bot.restartAfterRejection", error: e }));
+  scheduleReconnect(0, "bot.restartAfterRejection");
 });
 
 /**
@@ -68,32 +78,68 @@ async function forceNewSession() {
  * Clean up the current socket connection.
  * @returns {void}
  */
-function cleanupSock() {
-  if (currentSock) {
+function cleanupSock(sock = currentSock) {
+  if (!sock) return;
+
+  if (sock === currentSock) {
+    currentSock = null;
+    socketGeneration++;
+    stats.isConnected = false;
+    disconnectedSince ||= Date.now();
+    stopWatchdog();
+    stopDashboard();
+    stopMidnightReview();
+    if (pairingCodeTimer) {
+      clearTimeout(pairingCodeTimer);
+      pairingCodeTimer = null;
+    }
+  }
+
+  for (const event of ["connection.update", "creds.update", "messages.upsert"]) {
     try {
-      currentSock.removeAllListeners("connection.update");
-      currentSock.removeAllListeners("creds.update");
-      currentSock.removeAllListeners("messages.upsert");
-      currentSock.end(undefined);
+      sock.ev?.removeAllListeners(event);
     } catch {
       /* cleanup on error */
     }
-    currentSock = null;
+  }
+  try {
+    sock.end(undefined);
+  } catch {
+    /* cleanup on error */
   }
 }
 
-/** @param {object} _sock - Socket instance */
-function startWatchdog(_sock) {
+/**
+ * Keep a single pending reconnect for the active lifecycle.
+ * @param {number} delay - Delay in milliseconds
+ * @param {string} source - Error log source
+ * @returns {void}
+ */
+function scheduleReconnect(delay, source) {
+  if (reconnectTimer) clearTimeout(reconnectTimer);
+  reconnectTimer = setTimeout(async () => {
+    reconnectTimer = null;
+    cleanupSock();
+    try {
+      const pendingStart = botStartPromise;
+      if (pendingStart) await pendingStart.catch(() => undefined);
+      await startBot();
+    } catch (error) {
+      await logError({ source, error });
+    }
+  }, delay);
+}
+
+function startWatchdog() {
   stopWatchdog();
   watchdogTimer = setInterval(() => {
-    if (!stats.isConnected && stats.lastConnectionTime) {
-      const elapsed = Date.now() - stats.lastConnectionTime;
+    if (!stats.isConnected && disconnectedSince) {
+      const elapsed = Date.now() - disconnectedSince;
       if (elapsed > WATCHDOG_MAX_DISCONNECTED_MS) {
         addEvent("err", "Watchdog: bot desconectado >5min, reiniciando");
         logSystem("Watchdog reiniciando bot por desconexión prolongada");
         stopWatchdog();
-        cleanupSock();
-        startBot().catch((e) => logError({ source: "bot.watchdog", error: e }));
+        scheduleReconnect(0, "bot.watchdog");
       }
     }
   }, WATCHDOG_INTERVAL_MS);
@@ -114,7 +160,17 @@ function stopWatchdog() {
  * Start the bot and establish connection.
  * @returns {Promise<void>} Promise that resolves when complete
  */
-async function startBot() {
+function startBot() {
+  if (botStartPromise) return botStartPromise;
+  if (currentSock) return Promise.resolve();
+
+  botStartPromise = startBotOnce().finally(() => {
+    botStartPromise = null;
+  });
+  return botStartPromise;
+}
+
+async function startBotOnce() {
   try {
     pairingCodeRequested = false;
     pairingCodeRegistered = false;
@@ -170,7 +226,9 @@ async function startBot() {
     process.stdout.write("\x1b[90m[4/4] ✓\x1b[0m\n");
 
     process.stdout.write("\x1b[36mConectando con WhatsApp...\x1b[0m\n");
-    const { version } = await fetchLatestBaileysVersion();
+    const { version } = await fetchLatestBaileysVersion({
+      signal: AbortSignal.timeout(VERSION_FETCH_TIMEOUT_MS),
+    });
 
     const sock = makeWASocket({
       version,
@@ -188,9 +246,13 @@ async function startBot() {
     });
 
     currentSock = sock;
-    reconnectAttempts = 0;
+    const generation = ++socketGeneration;
+    let closeHandled = false;
 
-    loadCommands();
+    if (!commandsLoaded) {
+      loadCommands();
+      commandsLoaded = true;
+    }
     registerEvents(sock);
 
     const { restoreSessions, startCleanupInterval } = require("../services/rpg/combatState");
@@ -200,6 +262,7 @@ async function startBot() {
     await logSystem("Bot inicializado y eventos registrados", { version });
 
     sock.ev.on("connection.update", async (update) => {
+      if (currentSock !== sock || generation !== socketGeneration) return;
       const { connection, lastDisconnect, qr } = update;
 
       if (qr) {
@@ -219,7 +282,9 @@ async function startBot() {
         !pairingCodeRegistered
       ) {
         pairingCodeRequested = true;
-        setTimeout(async () => {
+        pairingCodeTimer = setTimeout(async () => {
+          pairingCodeTimer = null;
+          if (currentSock !== sock || generation !== socketGeneration) return;
           try {
             const code = await sock.requestPairingCode(/** @type {string} */ (cachedPairingPhone));
             const formattedCode = code.match(/.{1,4}/g)?.join("-") || code;
@@ -239,14 +304,23 @@ async function startBot() {
 
       if (connection === "open") {
         pairingCodeRegistered = true;
+        if (pairingCodeTimer) {
+          clearTimeout(pairingCodeTimer);
+          pairingCodeTimer = null;
+        }
         stats.isConnected = true;
         stats.lastConnectionTime = Date.now();
+        disconnectedSince = null;
+        if (reconnectTimer) {
+          clearTimeout(reconnectTimer);
+          reconnectTimer = null;
+        }
         reconnectAttempts = 0;
         restartRequiredCount = 0;
         addEvent("ok", "Bot conectado correctamente");
         await logSystem("Bot conectado correctamente");
 
-        startWatchdog(sock);
+        startWatchdog();
 
         try {
           const lastWeek = new Date(Date.now() - 7 * 86400000).toISOString();
@@ -266,12 +340,22 @@ async function startBot() {
           await logError({ source: "bot.startup.bugNotify", error: err });
         }
 
+        if (closeHandled || currentSock !== sock || generation !== socketGeneration) return;
         startDashboard();
         startMidnightReview(sock);
       }
 
       if (connection === "close") {
+        if (closeHandled) return;
+        closeHandled = true;
+        if (pairingCodeTimer) {
+          clearTimeout(pairingCodeTimer);
+          pairingCodeTimer = null;
+        }
         stats.isConnected = false;
+        disconnectedSince = Date.now();
+        stopDashboard();
+        stopMidnightReview();
         const disconnectErr = lastDisconnect?.error;
         const reason = /** @type {object} */ (disconnectErr)?.output?.statusCode;
 
@@ -286,6 +370,7 @@ async function startBot() {
 
         addEvent("err", `Conexión cerrada (${reasonName})`);
         await logSystem("Conexión cerrada", { reason: reasonName });
+        if (currentSock !== sock || generation !== socketGeneration) return;
 
         if (reason === DisconnectReason.loggedOut) {
           stopWatchdog();
@@ -293,10 +378,8 @@ async function startBot() {
           addEvent("err", "Sesión inválida, limpiando y generando nuevo QR");
           await logSystem("Sesión inválida — limpiando credenciales para nuevo QR");
           await forceNewSession();
-          cleanupSock();
-          startBot().catch((err) => {
-            logError({ source: "bot.startBot", error: err instanceof Error ? err : new Error(String(err)) });
-          });
+          if (currentSock !== sock || generation !== socketGeneration) return;
+          scheduleReconnect(0, "bot.loggedOut");
           return;
         }
 
@@ -307,27 +390,20 @@ async function startBot() {
             addEvent("err", "Sesión inválida, forzando nuevo QR");
             await logSystem("Sesión rechazada por WhatsApp — limpiando credenciales");
             await forceNewSession();
-            cleanupSock();
-            startBot().catch((err) => {
-              logError({ source: "bot.startBot", error: err instanceof Error ? err : new Error(String(err)) });
-            });
+            if (currentSock !== sock || generation !== socketGeneration) return;
+            scheduleReconnect(0, "bot.restartRequired");
             return;
           }
-          reconnectAttempts = 0;
           addEvent("warn", "Pareo exitoso, reconectando...");
           await logSystem("Reconectando tras pareo exitoso");
-          await new Promise((r) => {
-            setTimeout(r, 1000);
-          });
-          cleanupSock();
-          startBot().catch((err) => {
-            logError({ source: "bot.startBot", error: err instanceof Error ? err : new Error(String(err)) });
-          });
+          if (currentSock !== sock || generation !== socketGeneration) return;
+          scheduleReconnect(1000, "bot.restartRequired");
           return;
         }
 
         if (reconnectAttempts >= MAX_RECONNECT_ATTEMPTS) {
           await logSystem("Máximos reintentos alcanzados, deteniendo reconexión");
+          cleanupSock(sock);
           return;
         }
 
@@ -339,13 +415,8 @@ async function startBot() {
           `Reconectando en ${Math.round(delay / 1000)}s (intento ${reconnectAttempts}/${MAX_RECONNECT_ATTEMPTS})`,
         );
         await logSystem("Reconectando bot", { attempt: reconnectAttempts, max: MAX_RECONNECT_ATTEMPTS, delay });
-
-        setTimeout(() => {
-          cleanupSock();
-          startBot().catch((err) => {
-            logError({ source: "bot.startBot", error: err instanceof Error ? err : new Error(String(err)) });
-          });
-        }, delay);
+        if (currentSock !== sock || generation !== socketGeneration) return;
+        scheduleReconnect(delay, "bot.connection.close");
       }
     });
 
@@ -358,12 +429,9 @@ async function startBot() {
     if (reconnectAttempts <= MAX_RECONNECT_ATTEMPTS) {
       const delay = Math.min(RECONNECT_INITIAL_DELAY * Math.pow(2, reconnectAttempts - 1), RECONNECT_MAX_DELAY);
       await logSystem("Reintentando startBot por error externo", { attempt: reconnectAttempts, delay });
-      setTimeout(() => {
-        cleanupSock();
-        startBot().catch((e) => logError({ source: "bot.startBot", error: e }));
-      }, delay);
+      scheduleReconnect(delay, "bot.startBot");
     }
   }
 }
 
-startBot();
+module.exports = { cleanupSock, startBot };

@@ -1,7 +1,6 @@
 // @ts-nocheck
 const { addParticipant } = require("../../../utils/groupUtils");
 const { box } = require("../../../utils/boxUtils");
-const { formatError } = require("../../../utils/formatErrorUtils");
 
 module.exports = {
   name: "add",
@@ -18,11 +17,7 @@ module.exports = {
       return ctx.reply("❌ Debes proporcionar un número o enlace de invitación.\n\nUso: /add <número>");
     }
 
-    try {
-      const result = await addParticipant(ctx.sock, ctx.from, text);
-      await ctx.reply(box("➕ Usuario añadido", ["", result]));
-    } catch (error) {
-      await ctx.reply(formatError(error.message));
-    }
+    const result = await addParticipant(ctx.sock, ctx.from, text);
+    await ctx.reply(box("➕ Usuario añadido", ["", result]));
   },
 };

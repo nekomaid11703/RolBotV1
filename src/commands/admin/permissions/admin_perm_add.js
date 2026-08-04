@@ -5,7 +5,6 @@ const { isOwner } = require("../../../utils/permissionUtils");
 const { formatDisplayMention, withMentions } = require("../../../utils/userMentionUtils");
 const { resolveTargetDisplayName } = require("../../../services/displayNameService");
 const { box } = require("../../../utils/boxUtils");
-const { formatError } = require("../../../utils/formatErrorUtils");
 const { formatCommandUsage } = require("../../../utils/formatCommandUtils");
 
 const CATEGORIES = ["economy", "items"];
@@ -48,37 +47,33 @@ module.exports = {
       return ctx.reply(`\u2139\uFE0F El creador ya tiene permisos de ${CATEGORY_DISPLAY[category]}.`);
     }
 
-    try {
-      const targetName = await resolveTargetDisplayName(ctx, targetId);
+    const targetName = await resolveTargetDisplayName(ctx, targetId);
 
-      await setAdminForCategory({
-        userId: targetId,
-        userName: targetName,
-        category,
-        enabled: true,
-        createIfMissing: true,
-        registration: {
-          source: "admin_perm_add",
-          scope: "target",
-          createdBy: ctx.sender,
-          displayName: targetName,
-        },
-      });
+    await setAdminForCategory({
+      userId: targetId,
+      userName: targetName,
+      category,
+      enabled: true,
+      createIfMissing: true,
+      registration: {
+        source: "admin_perm_add",
+        scope: "target",
+        createdBy: ctx.sender,
+        displayName: targetName,
+      },
+    });
 
-      await ctx.reply(
-        withMentions(
-          box("\uD83D\uDEE1\uFE0F Permiso otorgado", [
-            "",
-            `\uD83D\uDC64  ${formatDisplayMention(targetId, targetName)}`,
-            `\uD83D\uDCC1  Categor\u00eda: *${CATEGORY_DISPLAY[category]}*`,
-            "",
-            `Ahora es administrador de ${CATEGORY_DISPLAY[category]}.`,
-          ]),
-          [targetId],
-        ),
-      );
-    } catch (error) {
-      await ctx.reply(formatError(error.message));
-    }
+    await ctx.reply(
+      withMentions(
+        box("\uD83D\uDEE1\uFE0F Permiso otorgado", [
+          "",
+          `\uD83D\uDC64  ${formatDisplayMention(targetId, targetName)}`,
+          `\uD83D\uDCC1  Categor\u00eda: *${CATEGORY_DISPLAY[category]}*`,
+          "",
+          `Ahora es administrador de ${CATEGORY_DISPLAY[category]}.`,
+        ]),
+        [targetId],
+      ),
+    );
   },
 };

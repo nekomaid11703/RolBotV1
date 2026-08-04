@@ -1,20 +1,6 @@
-const path = require("path");
-const fs = require("fs");
-
-const { box, formatCommandUsage, formatCommandForm, formatError } = require(
-  path.join(__dirname, "../src/utils/messageFormatUtils"),
-);
-
-const srcContent = fs.readFileSync(path.join(__dirname, "../src/utils/messageFormatUtils.js"), "utf8");
-
-describe("Pureza del módulo", () => {
-  const forbiddenImports = ["supabase", "characterService", "economyService", "loggerService", "aiService"];
-  for (const imp of forbiddenImports) {
-    it(`no importa '${imp}'`, () => {
-      expect(srcContent.includes(`require`) && srcContent.includes(imp)).toBe(false);
-    });
-  }
-});
+const { box } = require("../src/utils/boxUtils");
+const { formatCommandUsage, formatCommandForm } = require("../src/utils/formatCommandUtils");
+const { formatError } = require("../src/utils/formatErrorUtils");
 
 describe("box()", () => {
   it("Genera una caja con título y líneas de cuerpo", () => {

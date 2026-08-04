@@ -2,7 +2,6 @@
 const { getActiveCharacter } = require("../../../services/characterService");
 const { addItem } = require("../../../services/rpg/inventoryService");
 const { getItem, ITEMS } = require("../../../data/items");
-const { formatError } = require("../../../utils/formatErrorUtils");
 const { box } = require("../../../utils/boxUtils");
 
 module.exports = {
@@ -35,35 +34,31 @@ module.exports = {
     const qtyInput = ctx.args[1] ? parseInt(ctx.args[1], 10) : 1;
     const quantity = Math.max(1, isNaN(qtyInput) ? 1 : qtyInput);
 
-    try {
-      const activeChar = await getActiveCharacter({ creatorId: ctx.sender });
-      if (!activeChar) {
-        return ctx.reply("\u274C No tienes un personaje activo. Usa `/crear_pj`.");
-      }
-
-      const item = getItem(itemIdInput);
-      if (!item) {
-        const validIds = Object.keys(ITEMS)
-          .map((id) => `\`${id}\``)
-          .join(", ");
-        return ctx.reply(
-          `\u274C No existe ning\u00fan \u00edtem con ID \`${itemIdInput}\`.\n\nIDs v\u00e1lidos: ${validIds}`,
-        );
-      }
-
-      const result = await addItem(activeChar.id, item.id, quantity);
-
-      const lines = [
-        "",
-        `\uD83D\uDC64  Personaje: *${activeChar.name}*`,
-        `\uD83D\uDCE6  \u00cdtem a\u00f1adido: ${item.icon} *${item.name}* (\`${item.id}\`)`,
-        `\uD83D\uDD22  Cantidad a\u00f1adida: +${quantity}`,
-        `\uD83D\uDCCA  Total en inventario: ${result.total}`,
-      ];
-
-      return ctx.reply(box("\u2705 \u00cdtem agregado", lines));
-    } catch (error) {
-      return ctx.reply(formatError(error.message));
+    const activeChar = await getActiveCharacter({ creatorId: ctx.sender });
+    if (!activeChar) {
+      return ctx.reply("\u274C No tienes un personaje activo. Usa `/crear_pj`.");
     }
+
+    const item = getItem(itemIdInput);
+    if (!item) {
+      const validIds = Object.keys(ITEMS)
+        .map((id) => `\`${id}\``)
+        .join(", ");
+      return ctx.reply(
+        `\u274C No existe ning\u00fan \u00edtem con ID \`${itemIdInput}\`.\n\nIDs v\u00e1lidos: ${validIds}`,
+      );
+    }
+
+    const result = await addItem(activeChar.id, item.id, quantity);
+
+    const lines = [
+      "",
+      `\uD83D\uDC64  Personaje: *${activeChar.name}*`,
+      `\uD83D\uDCE6  \u00cdtem a\u00f1adido: ${item.icon} *${item.name}* (\`${item.id}\`)`,
+      `\uD83D\uDD22  Cantidad a\u00f1adida: +${quantity}`,
+      `\uD83D\uDCCA  Total en inventario: ${result.total}`,
+    ];
+
+    return ctx.reply(box("\u2705 \u00cdtem agregado", lines));
   },
 };

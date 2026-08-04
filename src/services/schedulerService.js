@@ -2,30 +2,47 @@
 const { midnightReview } = require("../../scripts/midnight_review");
 const { logError } = require("./loggerService");
 
+/** @type {ReturnType<typeof setTimeout>|null} */
+let schedulerTimer = null;
+let schedulerActive = false;
+let schedulerGeneration = 0;
+let currentSock = null;
+
 function startMidnightReview(sock) {
-  scheduleNext(sock);
+  currentSock = sock;
+  if (schedulerActive) return;
+  schedulerActive = true;
+  scheduleNext(++schedulerGeneration);
 }
 
-function scheduleNext(sock) {
+function scheduleNext(generation) {
   const now = new Date();
   const tomorrow = new Date(now);
   tomorrow.setDate(tomorrow.getDate() + 1);
   tomorrow.setHours(0, 0, 0, 0);
-  const msUntilMidnight = tomorrow - now;
+  const msUntilMidnight = Math.max(1, tomorrow - now);
 
-  if (msUntilMidnight <= 0) {
-    setImmediate(() => scheduleNext(sock));
-    return;
-  }
-
-  setTimeout(async () => {
+  schedulerTimer = setTimeout(async () => {
+    schedulerTimer = null;
+    if (!schedulerActive || generation !== schedulerGeneration) return;
+    const sock = currentSock;
     try {
       await midnightReview(sock);
     } catch (err) {
       logError({ source: "schedulerService", error: err instanceof Error ? err : new Error(String(err)) });
     }
-    scheduleNext(sock);
+    if (schedulerActive && generation === schedulerGeneration) scheduleNext(generation);
   }, msUntilMidnight);
 }
 
-module.exports = { startMidnightReview };
+function stopMidnightReview() {
+  schedulerActive = false;
+  schedulerGeneration++;
+  currentSock = null;
+  if (schedulerTimer) {
+    clearTimeout(schedulerTimer);
+    schedulerTimer = null;
+  }
+}
+
+module.exports = { startMidnightReview, stopMidnightReview };

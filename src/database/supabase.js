@@ -1,5 +1,5 @@
 // @ts-nocheck
-require("dotenv").config({ path: require("path").join(__dirname, "../../.env.local") });
+require("dotenv").config({ path: require("path").join(__dirname, "../../.env.local"), quiet: true });
 const { createClient } = require("@supabase/supabase-js");
 const { logSystem } = require("../services/loggerService");
 

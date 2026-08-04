@@ -1,7 +1,6 @@
 // @ts-nocheck
 const { supabase } = require("../../database/supabase");
 const { filterExisting } = require("../../database/columnRegistry");
-const { invalidateUserCache } = require("../../utils/safeQuery");
 const { logError } = require("../loggerService");
 const { getItem } = require("../../data/items");
 const { getActiveCharacter, setHp } = require("../characterService");
@@ -92,7 +91,6 @@ async function addItem(characterId, itemId, quantity = 1) {
       if (error) throw new Error(`Error añadiendo ítem: ${error.message}`);
     }
 
-    invalidateUserCache(characterId);
     return {
       itemId,
       quantity: safeQty,
@@ -135,7 +133,6 @@ async function removeItem(characterId, itemId, quantity = 1) {
       if (error) throw new Error(`Error actualizando cantidad: ${error.message}`);
     }
 
-    invalidateUserCache(characterId);
     return { itemId, removed: safeQty, remaining: Math.max(0, newQty) };
   });
 }
@@ -197,8 +194,6 @@ async function useItem(creatorId, itemId) {
       }
     }
 
-    invalidateUserCache(creatorId);
-
     return {
       itemName: item.name,
       icon: item.icon,
@@ -230,7 +225,6 @@ async function ensureTestKit(characterId) {
 }
 
 module.exports = {
-  withCharacterLock,
   getInventory,
   addItem,
   removeItem,

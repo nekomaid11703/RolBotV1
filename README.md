@@ -1,114 +1,90 @@
-# IA_rolbot — RolBotV1
+# RolBotV1
 
-Bot RPG modular para WhatsApp. Arquitectura determinista 100% code-only (sin capa de IA externa).
+Bot RPG modular para WhatsApp, basado en Baileys y Supabase. El flujo es determinista y no depende de un LLM externo.
 
-## Arquitectura
+## Flujo principal
 
-```
-┌─────────────────────────────────────────────────┐
-│  WhatsApp (Baileys)                              │
-│  └─ Bot → EventHandler → Context → Commands      │
-│       └─ Services → Supabase (PostgreSQL)         │
-│       └─ Services/rpg → Combat Engine D20         │
-├─────────────────────────────────────────────────┤
-│  MCP Servers                                     │
-│  ├─ NekoMemori    → Memoria compartida (JSONL)   │
-│  ├─ Graphify      → Knowledge graph (AST)        │
-│  └─ GitHub        → Issues, PRs, search          │
-├─────────────────────────────────────────────────┤
-│  Toolchain                                       │
-│  ESLint · Prettier · TypeScript · Vitest         │
-│  Husky · lint-staged · Knip · Stryker            │
-│  dependency-cruiser · Nodemon                    │
-└─────────────────────────────────────────────────┘
+```text
+WhatsApp (Baileys)
+  -> core/bot
+  -> core/eventHandler
+  -> core/context
+  -> core/commandHandler
+  -> commands
+  -> services
+  -> Supabase (PostgreSQL)
 ```
 
-- **100% code-only:** Sin dependencia de LLMs externos. No hay orquestador IA, ni providers, ni prompts.
-- **Motor D20:** Sistema de combate táctico determinista basado en dado de 20 caras. Sin narrativa generada.
-- **Supabase:** Única fuente de verdad. Sesiones, perfiles, economía, inventarios, combates.
+- El motor de combate D20 vive en `src/services/rpg`.
+- Los 49 módulos de comandos se cargan desde `src/commands`.
+- Supabase almacena autenticación de Baileys, perfiles, economía, actividad, inventario y combates.
+- La caché local es una optimización; Supabase sigue siendo la fuente de verdad.
 
-## Tecnologías
+## Requisitos
 
-- **Baileys** (`@whiskeysockets/baileys`) — Conexión WhatsApp
-- **Supabase** — PostgreSQL como backend único
-- **Node.js >= 18** — Entorno de ejecución
-- **MCP** — 3 servidores (NekoMemori, Graphify, GitHub)
-
-## Estructura
-
-```
-C:\IA_rolbot/
-├── RolBotV1/                  ← Proyecto principal
-│   ├── src/
-│   │   ├── core/              ← bot.js, eventHandler, commandHandler
-│   │   ├── commands/          ← 46 comandos (6 categorías)
-│   │   ├── services/          ← Economía, usuarios, grupos, personajes
-│   │   │   └── rpg/           ← Motor de combate D20, habilidades, items
-│   │   ├── config/            ← Config centralizada
-│   │   ├── database/          ← Cliente Supabase
-│   │   ├── utils/             ← Cache, formateo, roll, permisos
-│   │   └── data/              ← Catálogos (clases, razas)
-│   ├── tests/                 ← 18+ suites de prueba
-│   ├── graphify-out/          ← Knowledge graph (1207 nodos)
-│   └── ai-memory/             ← Memoria compartida NekoMemori
-├── mcp_nekomemori/            ← Servidor MCP propio (Node.js)
-├── github-mcp-server/         ← Servidor MCP GitHub (vendorizado)
-├── opencode.json              ← Config MCP principal
-├── AUDITORIA_COMPLETA.md      ← Auditoría + roadmap vivo
-└── .agents/AGENTS.md          ← Instrucciones del agente
-```
-
-## Comandos
-
-| Categoría | Comandos |
-|-----------|----------|
-| Economía | `/balance`, `/daily`, `/dar_stelas`, `/top_dinero`, `/add_stelas`, `/rem_stelas`, `/set_stelas` |
-| Personajes | `/crear_pj`, `/ver_pj`, `/mis_pj`, `/switch_pj`, `/eliminar_pj`, `/renombrar_pj`, `/editar_pj_desc` |
-| Grupo | `/actividad`, `/actividad_global`, `/add`, `/ban`, `/promote`, `/demote`, `/invite`, `/todos`, `/warn`, `/unwarn`, `/grupo_abrir`, `/grupo_cerrar`, `/top_activos` |
-| Permisos | `/eco_admin_add`, `/eco_admin_rem`, `/eco_admin_list` |
-| Información | `/help`, `/hola` |
-| Utilidades | `/dado`, `/bugreport`, `/bugstatus` |
+- Node.js 20.19 o posterior.
+- Un proyecto Supabase configurado.
+- Una sesión de WhatsApp vinculada mediante el flujo de Baileys.
 
 ## Configuración
 
 ```bash
-cp .env.local.example .env.local
-# Editar .env.local con SUPABASE_URL, SUPABASE_KEY
-npm install
-npm run dev       # Desarrollo con recarga automática
-npm start         # Producción
+npm ci
+cp .env.example .env.local
+# Completar SUPABASE_URL y SUPABASE_KEY en .env.local
+npm run dev
 ```
 
-## Toolchain
+Para producción:
 
 ```bash
-npm run check       # lint + typecheck + depcruise
-npm run check:all   # check + format:check + test:all
-npm run lint        # ESLint (0 errores)
-npm run typecheck   # TypeScript strict
-npm run test:vite   # Vitest (test runner)
-npm run format      # Prettier
-npm run depcruise   # dependency-cruiser
-npm run knip        # Dead code detection
+npm ci --omit=dev
+npm start
 ```
 
-## Estado del proyecto
+No se deben versionar `.env.local`, archivos de sesión ni directorios `auth/`.
 
-| Fase | Estado | Fecha |
-|------|--------|-------|
-| 🔴 FASE 0 — Rescate | ✅ Completado | 2026-07-14 |
-| 🟠 FASE 1 — Portabilidad | ✅ Completado | 2026-07-14 |
-| 🟡 FASE 2 — CI/CD | ⚡ Parcial | 2026-07-14 |
-| 🟢 FASE 3 — Refactor | ✅ Completado | 2026-07-14 |
-| 🔵 FASE 4 — Rendimiento | ✅ Completado | 2026-07-14 |
-| 📘 FASE 5 — Documentación | ⏳ En curso | 2026-07-14 |
+## Estructura
 
-Ver `AUDITORIA_COMPLETA.md` para el detalle completo del roadmap y checklist.
+```text
+src/
+  commands/       comandos de administración, economía, información y RPG
+  config/         límites y configuración funcional
+  core/           conexión, eventos, contexto y despacho de comandos
+  data/           catálogos del juego
+  database/       Supabase, esquema y migraciones
+  services/       casos de uso y persistencia
+    rpg/          combate e inventario
+  utils/          utilidades compartidas y caché
+tests/            pruebas Vitest
+graphify-out/     grafo de conocimiento generado
+```
 
-## Knowledge Graph
+El listado visible de comandos y su uso se obtiene con `/help` dentro de WhatsApp.
 
-El proyecto mantiene un grafo de conocimiento de 1207 nodos (funciones, clases, imports) generado por AST (tree-sitter). Sin LLM, 0 costo, 100% reproducible.
+## Calidad
 
-- `graphify query "<pregunta>"` — Buscar en el grafo
-- `graphify path "<A>" "<B>"` — Relaciones entre nodos
-- `graphify explain "<concepto>"` — Explicación de un nodo
+```bash
+npm run check:all   # lint + tipos + arquitectura + formato + 304 pruebas
+npm run knip        # archivos, exports y dependencias sin uso
+npm audit --omit=dev
+```
+
+La integración continua ejecuta `npm ci`, `npm run check:all`, `npm run knip` y la auditoría de dependencias.
+
+## Base de datos
+
+Las migraciones están en `src/database/migrations` y deben aplicarse en orden. Para instalaciones existentes es especialmente importante aplicar `003_harden_inventory_access.sql`, que revoca el acceso directo de `anon` y `authenticated` al inventario.
+
+## Graphify
+
+```bash
+npm run graphify:status
+npm run graphify:update
+```
+
+El resultado reproducible queda en `graphify-out/`.
+
+## Auditoría
+
+La auditoría técnica, las optimizaciones realizadas, la evidencia y los pasos operativos pendientes están en [AUDITORIA_COMPLETA.md](AUDITORIA_COMPLETA.md).

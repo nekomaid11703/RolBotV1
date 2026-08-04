@@ -1,5 +1,5 @@
 // @ts-nocheck
-const compactLines = require("./formatErrorUtils").compactLines;
+const { compactLines } = require("./formatErrorUtils");
 
 const LINE = "✦ ━━━━━━━━━━━━━━ ✦";
 

@@ -208,9 +208,9 @@ function executeReaction(reactionType, baseDamage, defenderChar, defenderHp, att
  * @param defenderChar
  * @param defenderHp
  * @param attackerChar
- * @param baseDamage
+ * @param _baseDamage
  */
-function chooseAiReaction(defenderChar, defenderHp, attackerChar, baseDamage) {
+function chooseAiReaction(defenderChar, defenderHp, attackerChar, _baseDamage) {
   const attackerStats = attackerChar.stats || {};
   const defenderStats = defenderChar.stats || {};
 
@@ -243,19 +243,7 @@ function executeTurn(attackerChar, defenderChar, defenderHp, chosenReaction = nu
   return executeReaction(reaction, attackInfo.baseDamage, defenderChar, defenderHp, attackerChar);
 }
 
-/**
- *
- * @param enemyLevel
- * @param isWinner
- */
-function calculateXpReward(enemyLevel = 1, isWinner = true) {
-  const lvl = Math.max(1, Number(enemyLevel) || 1);
-  const baseXp = 50 + lvl * 2;
-  return isWinner ? baseXp : Math.round(baseXp * 0.3);
-}
-
 module.exports = {
-  normalizeStats,
   applyPenalties,
   calculateDamage,
   canReact,
@@ -267,5 +255,4 @@ module.exports = {
   executeReaction,
   chooseAiReaction,
   executeTurn,
-  calculateXpReward,
 };

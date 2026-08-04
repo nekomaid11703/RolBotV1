@@ -2,7 +2,8 @@
 node_modules/
 
 # Sesiones WhatsApp (migrado a Supabase)
-src/database/auth/
+auth/
+**/auth/
 
 # Datos legacy (migrados a Supabase)
 src/database/grupos/

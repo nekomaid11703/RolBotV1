@@ -145,11 +145,15 @@ describe("characterConfig — calculateLevel", () => {
   });
 
   it("Suma de stats 100 da nivel 100", () => {
-    expect(calculateLevel({ atk: 13, def: 13, aspd: 13, ref: 13, mspd: 13, fulgor: 12, d_fulgor: 12, r_fulgor: 11 })).toBe(100);
+    expect(
+      calculateLevel({ atk: 13, def: 13, aspd: 13, ref: 13, mspd: 13, fulgor: 12, d_fulgor: 12, r_fulgor: 11 }),
+    ).toBe(100);
   });
 
   it("Suma de stats 150 da nivel 150", () => {
-    expect(calculateLevel({ atk: 19, def: 19, aspd: 19, ref: 19, mspd: 19, fulgor: 18, d_fulgor: 18, r_fulgor: 19 })).toBe(150);
+    expect(
+      calculateLevel({ atk: 19, def: 19, aspd: 19, ref: 19, mspd: 19, fulgor: 18, d_fulgor: 18, r_fulgor: 19 }),
+    ).toBe(150);
   });
 
   it("Nunca devuelve menos de LEVEL_INITIAL (100)", () => {

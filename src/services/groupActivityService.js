@@ -26,9 +26,8 @@ function topGroupMembersCacheKey(groupId, limit) {
  *
  * @param groupId
  */
-function invalidateGroupCache(groupId) {
-  const key = groupCacheKey(groupId);
-  cache.invalidate((k) => k === key || k.startsWith(`group:${groupId}`) || k.startsWith(`topGroupMembers:${groupId}`));
+function invalidateGroupRankings(groupId) {
+  cache.invalidate((key) => key.startsWith(`topGroupMembers:${groupId}`));
 }
 
 /**
@@ -134,8 +133,9 @@ async function ensureGroupActivity({ groupId, groupName = "" }) {
 /**
  *
  * @param record
+ * @param member
  */
-async function saveGroupActivity(record) {
+async function saveGroupActivity(record, member = null) {
   const { supabase } = require("../database/supabase");
   const groupPayload = filterExisting("groups", {
     group_jid: record.groupId,
@@ -152,7 +152,7 @@ async function saveGroupActivity(record) {
     throw new Error("Error guardando grupo: " + (error?.message || "upsert falló"));
   }
 
-  for (const member of Object.values(record.members)) {
+  if (member) {
     const memberPayload = filterExisting("group_members", {
       group_id: group.id,
       player_phone: member.memberId,
@@ -162,7 +162,8 @@ async function saveGroupActivity(record) {
     if (memberError) throw new Error("Error guardando miembro: " + memberError.message);
   }
 
-  invalidateGroupCache(record.groupId);
+  cache.set(groupCacheKey(record.groupId), record, TTLS.memoryContext);
+  invalidateGroupRankings(record.groupId);
 }
 
 /**
@@ -249,7 +250,7 @@ async function recordGroupActivity({
 
   if (changed) {
     record.updatedAt = now;
-    await saveGroupActivity(record);
+    await saveGroupActivity(record, record.members[cleanMemberId]);
   }
 
   return record;

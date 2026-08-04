@@ -41,39 +41,35 @@ module.exports = {
       return ctx.reply(usageMessage);
     }
 
-    try {
-      const targetProfile = await getUserProfile({ creatorId: targetId });
-      if (!targetProfile) {
-        return ctx.reply(formatError("El usuario destinatario no tiene perfil registrado."));
-      }
-
-      const targetName = await resolveTargetDisplayName(ctx, targetId);
-
-      await transferMoney(ctx.sender, targetId, amount, {
-        fromUserName: ctx.userName || "usuario",
-        toUserName: targetName,
-        toRegistration: {
-          source: "dar_stelas",
-          scope: "target",
-          createdBy: ctx.sender,
-          displayName: targetName,
-        },
-      });
-
-      const senderBalance = await getBalance(ctx.sender);
-
-      await ctx.reply(
-        box("💸 Transferencia", [
-          "",
-          `👤  Destinatario: ${formatDisplayMention(targetId, targetName)}`,
-          "",
-          `💵  Enviado: ${formatStelas(amount)}`,
-          `💰  Tu balance: ${formatStelas(senderBalance)}`,
-        ]),
-        { mentions: [targetId] },
-      );
-    } catch (error) {
-      await ctx.reply(formatError(error.message));
+    const targetProfile = await getUserProfile({ creatorId: targetId });
+    if (!targetProfile) {
+      return ctx.reply(formatError("El usuario destinatario no tiene perfil registrado."));
     }
+
+    const targetName = await resolveTargetDisplayName(ctx, targetId);
+
+    await transferMoney(ctx.sender, targetId, amount, {
+      fromUserName: ctx.userName || "usuario",
+      toUserName: targetName,
+      toRegistration: {
+        source: "dar_stelas",
+        scope: "target",
+        createdBy: ctx.sender,
+        displayName: targetName,
+      },
+    });
+
+    const senderBalance = await getBalance(ctx.sender);
+
+    await ctx.reply(
+      box("💸 Transferencia", [
+        "",
+        `👤  Destinatario: ${formatDisplayMention(targetId, targetName)}`,
+        "",
+        `💵  Enviado: ${formatStelas(amount)}`,
+        `💰  Tu balance: ${formatStelas(senderBalance)}`,
+      ]),
+      { mentions: [targetId] },
+    );
   },
 };

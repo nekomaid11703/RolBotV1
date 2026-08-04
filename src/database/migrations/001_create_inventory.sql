@@ -13,15 +13,15 @@ CREATE TABLE IF NOT EXISTS inventory (
 );
 
 ALTER TABLE inventory ENABLE ROW LEVEL SECURITY;
+ALTER TABLE inventory FORCE ROW LEVEL SECURITY;
 
 CREATE INDEX IF NOT EXISTS idx_inventory_character_id ON inventory(character_id);
 
--- Grants for Supabase / PostgREST roles
-GRANT ALL ON TABLE inventory TO anon, authenticated, service_role;
-GRANT ALL ON SEQUENCE inventory_id_seq TO anon, authenticated, service_role;
-
--- Disable RLS for server-side bot access (handled via backend locks and safeQuery)
-ALTER TABLE inventory DISABLE ROW LEVEL SECURITY;
+-- The bot uses service_role; client-facing roles must not reach inventory directly.
+REVOKE ALL PRIVILEGES ON TABLE inventory FROM PUBLIC, anon, authenticated;
+REVOKE ALL PRIVILEGES ON SEQUENCE inventory_id_seq FROM PUBLIC, anon, authenticated;
+GRANT ALL PRIVILEGES ON TABLE inventory TO service_role;
+GRANT ALL PRIVILEGES ON SEQUENCE inventory_id_seq TO service_role;
 
 -- Trigger to auto-update updated_at
 CREATE OR REPLACE FUNCTION update_inventory_updated_at()

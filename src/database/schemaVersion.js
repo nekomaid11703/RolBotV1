@@ -3,7 +3,7 @@ const { logSystem } = require("../services/loggerService");
 
 const VERSION_KEY = "_schema_version";
 const SESSION_ID = "_meta";
-const CURRENT_VERSION = "2.0.0";
+const CURRENT_VERSION = "2.1.0";
 
 /**
  *
@@ -61,4 +61,4 @@ async function checkVersion() {
   return { ok: true, stored, current: CURRENT_VERSION };
 }
 
-module.exports = { checkVersion, getStoredVersion, setStoredVersion, CURRENT_VERSION };
+module.exports = { checkVersion, setStoredVersion, CURRENT_VERSION };

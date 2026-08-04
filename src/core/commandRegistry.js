@@ -107,7 +107,6 @@ function getJsFilesRecursively(dir) {
 module.exports = {
   commands,
   aliases,
-  normalizeName,
   registerCommand,
   getJsFilesRecursively,
 };

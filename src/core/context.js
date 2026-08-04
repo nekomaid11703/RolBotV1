@@ -128,7 +128,9 @@ function createContext(sock, msg) {
 
   const userName = msg.pushName || senderNumber || senderBareJid.split("@")[0];
 
-  const mentionedJid = msg.message?.extendedTextMessage?.contextInfo?.mentionedJid || [];
+  const normalizedMessage = unwrapMessageContent(msg.message);
+  const contextInfo = Object.values(normalizedMessage).find((content) => content?.contextInfo)?.contextInfo;
+  const mentionedJid = Array.isArray(contextInfo?.mentionedJid) ? contextInfo.mentionedJid : [];
 
   const messageType = getMessageType(msg.message);
   const text = extractText(msg.message);

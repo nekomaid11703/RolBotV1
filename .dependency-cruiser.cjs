@@ -45,20 +45,9 @@ module.exports = {
       path: "node_modules",
     },
     exclude: {
-      path: [
-        "node_modules",
-        "graphify-out",
-        "logs",
-        "bugs",
-        "_archive",
-        "ai-memory",
-      ],
+      path: ["node_modules", "graphify-out", "logs", "bugs", "_archive", "ai-memory"],
     },
     includeOnly: "^src",
-    tsPreCompilationDeps: true,
-    tsConfig: {
-      fileName: "tsconfig.json",
-    },
     enhancedResolveOptions: {
       exportsFields: ["exports"],
       conditionNames: ["import", "require", "node"],
@@ -70,7 +59,6 @@ module.exports = {
       archi: {
         collapsePattern: "src/(utils|services|core|commands|database)/",
       },
-
     },
   },
 };
