@@ -1,6 +1,7 @@
 // @ts-nocheck
 const { getActiveCharacter } = require("../../../services/characterService");
 const { findSessionByCharacter, findSessionByUser } = require("../../../services/rpg/combatState");
+const { resolveCharacterEquipment } = require("../../../services/rpg/equipmentResolverService");
 const { formatCombatStatus } = require("../../../services/rpg/combatMessages");
 const { formatError } = require("../../../utils/formatErrorUtils");
 
@@ -53,7 +54,16 @@ module.exports = {
         return ctx.reply("❌ Tu personaje activo no está en un combate activo.");
       }
 
-      return ctx.reply(formatCombatStatus(session));
+      /**
+       * Resuelve el equipo de ambos bandos para mostrarlo en el estado
+       * (la UI nunca debe romperse: fallback a null).
+       */
+      const equipmentMap = await Promise.all([
+        resolveCharacterEquipment(session.challenger.character).catch(() => null),
+        resolveCharacterEquipment(session.defender.character).catch(() => null),
+      ]).then(([challenger, defender]) => ({ challenger, defender }));
+
+      return ctx.reply(formatCombatStatus(session, equipmentMap));
     } catch (error) {
       return ctx.reply(formatError(error.message));
     }

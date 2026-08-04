@@ -1,6 +1,6 @@
 // @ts-nocheck
 const { getActiveCharacter } = require("../../../services/characterService");
-const { unequipItem, EQUIPMENT_SLOTS } = require("../../../services/rpg/equipmentService");
+const { unequipItem, normalizeSlot, EQUIPMENT_SLOTS } = require("../../../services/rpg/equipmentService");
 const { formatError } = require("../../../utils/formatErrorUtils");
 const { formatCommandUsage } = require("../../../utils/formatCommandUtils");
 const { box } = require("../../../utils/boxUtils");
@@ -11,14 +11,14 @@ const usageMessage = formatCommandUsage({
   icon: "🗑️",
   title: "Desequipar",
   description: "Desequipa el ítem de un slot y lo devuelve a tu inventario.",
-  usage: "/desequipar <slot>",
-  example: "/desequipar mano_der",
-  notes: [`Slots disponibles: ${SLOTS_LIST}`],
+  usage: "/des_equipar <slot>",
+  example: "/des_equipar casco",
+  notes: [`Slots disponibles: ${SLOTS_LIST}`, "Puedes usar alias: casco, pechera, grebas, botas, mano, artefacto..."],
 });
 
 module.exports = {
   name: "desequipar",
-  aliases: ["unequip", "remove_gear"],
+  aliases: ["des_equipar", "unequip", "remove_gear"],
   description: "Desequipa el ítem de un slot de equipamiento.",
   category: "rpg",
 
@@ -29,10 +29,12 @@ module.exports = {
         return ctx.reply("❌ No tienes un personaje activo. Usa `/crear_pj` o `/switch_pj`.");
       }
 
-      const [slot] = ctx.args;
-      if (!slot) {
+      const [slotInput] = ctx.args;
+      if (!slotInput) {
         return ctx.reply(usageMessage);
       }
+
+      const slot = normalizeSlot(slotInput);
 
       const result = await unequipItem({
         characterId: activeChar.id,

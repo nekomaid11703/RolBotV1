@@ -509,7 +509,7 @@ async function startBot() {
       keepAliveIntervalMs: 30000,
       connectTimeoutMs: CONNECT_TIMEOUT_MS,
       defaultQueryTimeoutMs: QUERY_TIMEOUT_MS,
-      syncFullHistory: false,
+      syncFullHistory: true,
       markOnlineOnConnect: false,
       generateHighQualityLinkPreview: false,
       maxMsgRetryCount: 10,

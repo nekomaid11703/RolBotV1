@@ -9,6 +9,33 @@ const { MAX_INVENTORY_SIZE, MAX_STACK_SIZE } = require("../../config/inventoryCo
 const { parseQuantity } = require("../../utils/quantityUtils");
 const { createItem } = require("./itemService");
 const { setCooldown } = require("./statusService");
+const { createItemDefinition } = require("./itemFactory");
+
+/**
+ * Tipos cuyas instancias portan durabilidad/metadata derivada en `inventory.metadata`.
+ * @constant EQUIPABLE_TYPES
+ * @type {string[]}
+ */
+const EQUIPABLE_TYPES = ["weapon", "armor", "artifact"];
+
+/**
+ * Se lanza metadata inicial de un ítem equipable a partir de su definición.
+ * Defensivo: si el catálogo no expone tipo o falla la derivación, devuelve null
+ * (no rompe el alta, se mantiene backward-compat).
+ * @param {object} item - ItemDef del catálogo (con categories/modules)
+ * @returns {object|null} metadata inicial o null
+ */
+function seedItemMetadata(item) {
+  if (!item || !Array.isArray(item.categories)) return null;
+  const type = item.categories[0];
+  if (!EQUIPABLE_TYPES.includes(type)) return null;
+  try {
+    const def = createItemDefinition({ ...item, id: item.id, type });
+    return def.metadata || null;
+  } catch {
+    return null;
+  }
+}
 
 /**
  * @constant characterLocks
@@ -56,6 +83,27 @@ async function getInventory(characterId) {
   }
 
   return data || [];
+}
+
+/**
+ * Lista el inventario en orden con índice 1-based y datos del catálogo,
+ * lista para mostrar numerado y para resolver ítems por posición.
+ * @param {string|number} characterId - ID del personaje
+ * @returns {Promise<Array<{index: number, itemId: string, name: string, quantity: number, categories: string[], modules: object}>>}
+ */
+async function getInventoryList(characterId) {
+  const inv = await getInventory(characterId);
+  return inv.map((entry, i) => {
+    const def = getItem(entry.item_id);
+    return {
+      index: i + 1,
+      itemId: entry.item_id,
+      name: def?.name || entry.item_id,
+      quantity: entry.quantity,
+      categories: def?.categories || [],
+      modules: def?.modules || {},
+    };
+  });
 }
 
 /**
@@ -113,12 +161,17 @@ async function addItem(characterId, creatorId, itemId, quantity = 1) {
       if (error) throw new Error(`Error actualizando inventario: ${error.message}`);
     } else {
       /**
+       * @constant metadata
+       */
+      const metadata = seedItemMetadata(item);
+      /**
        * @constant payload
        */
       const payload = filterExisting("inventory", {
         character_id: characterId,
         item_id: itemId,
         quantity: safeQty,
+        ...(metadata ? { metadata } : {}),
       });
       const { error } = await supabase.from("inventory").insert(payload);
 
@@ -284,7 +337,6 @@ async function useItem(creatorId, itemId) {
     return {
       characterId: character.id,
       itemName: itemDef.name,
-      icon: itemDef.icon,
       modules: itemDef.modules || {},
       hpBefore,
       hpAfter,
@@ -375,6 +427,47 @@ async function ensureTempTestKit(characterId, creatorId) {
 }
 
 /**
+ * Ítems de la Familia del Hierro que se siembran al retar al dummy para probar
+ * equipo real (arma, set de armadura, artefacto y arrojadiza).
+ * @constant IRON_FAMILY_KIT
+ * @type {Array<[string, number]>}
+ */
+const IRON_FAMILY_KIT = [
+  ["espada_de_hierro", 1],
+  ["casco_de_hierro", 1],
+  ["pechera_de_hierro", 1],
+  ["grebas_de_hierro", 1],
+  ["botas_de_hierro", 1],
+  ["amuleto_de_hierro", 1],
+  ["kunai_de_hierro", 5],
+];
+
+/**
+ * Asegura que un personaje tenga la Familia del Hierro en el inventario.
+ * @param {string|number} characterId - ID del personaje
+ * @param {string} creatorId - ID del creador/usuario
+ * @returns {Promise<string[]>} Lista de items añadidos
+ */
+async function ensureIronFamilyKit(characterId, creatorId) {
+  const inv = await getInventory(characterId);
+  const existingIds = new Set(inv.map((row) => row.item_id));
+  const added = [];
+
+  for (const [itemId, qty] of IRON_FAMILY_KIT) {
+    if (!existingIds.has(itemId)) {
+      try {
+        await addItem(characterId, creatorId, itemId, qty);
+        added.push(itemId);
+      } catch (err) {
+        logError({ source: "inventoryService.ensureIronFamilyKit", error: err, characterId, itemId });
+      }
+    }
+  }
+
+  return added;
+}
+
+/**
  * Limpia los items temporales del inventario de un personaje.
  * @param {string|number} characterId - ID del personaje
  * @returns {Promise<string[]>} Lista de items temporales eliminados
@@ -412,10 +505,12 @@ async function cleanupTemporalItems(characterId) {
 
 module.exports = {
   getInventory,
+  getInventoryList,
   addItem,
   removeItem,
   useItem,
   ensureTestKit,
   ensureTempTestKit,
+  ensureIronFamilyKit,
   cleanupTemporalItems,
 };

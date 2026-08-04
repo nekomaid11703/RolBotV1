@@ -4,6 +4,110 @@ Este archivo registra los cambios significativos y decisiones arquitectónicas t
 
 ---
 
+## [2.9.0] - 2026-08-03
+
+### UI por secciones reutilizables + menú de combate data-driven + equipamiento en `/ver_pj`
+
+Segunda pasada de UI (feedback de la segunda prueba en vivo): separar las pantallas del sistema en secciones reutilizables que se alimentan directamente del registro de comandos/servicios, para que añadir/quitar funcionalidad actualice la UI sin tocar el formateador.
+
+- **Librería UI** (`src/ui/`): `sectionBuilder.composeMessage` compone cualquier mensaje a partir de secciones (arrays de líneas) separadas por línea en blanco; secciones por dominio en `src/ui/sections/` (`combatStats`, `combatSections`, `characterSections`, `equipmentSections`). `combatMessages`, `characterFormatUtils` e `inventario` ahora **componen** desde estas secciones en vez de construir líneas a mano (sin duplicación).
+- **Menú de acciones data-driven** (`src/data/combatActions.js`): `COMBAT_ACTIONS` y `REACTION_ACTIONS` son listas declarativas `{command, label, hint?, when?}` con `render` para reacciones. `formatActionMenu`/`formatReactionPrompt` (y las pantallas de combate) se generan desde el registro → el menú ya muestra `avanzar`/`retroceder`, que antes faltaban por estar hardcodeado con solo 4 acciones.
+- **Equipamiento en `/ver_pj`**: el comando resuelve el equipo con `equipmentResolverService.resolveCharacterEquipment` y `formatCharacter` muestra una sección **EQUIPO** (arma, armadura con durabilidad, material, artefactos, bonos de set) — antes no se reflejaba el equipamiento actual.
+- **Sin emojis de ítem restantes**: se eliminan los prefijos de tipo 🗡️/🧵/🛡️ de `formatEquipmentSummary` y de las líneas de arma/armadura en `atacar.js` (107/449 y armadura). Se conservan emojis de estado (HP/fatiga), encabezados de sección e iconos de stats.
+
+**Tests**: +11 (`combat_actions.test.js`×5, `section_builder.test.js`×4, equipo en `character_format.test.js`×2) — **469/469 verdes** (33 archivos). Typecheck 0. Eslint 0 errores en archivos tocados (2 preexistentes documentados en `atacar.js`).
+
+## [2.8.0] - 2026-08-03
+
+### UX de inventario + eliminación de iconos de ítems + fix HP 0 en combate
+
+Revisión del sistema de inventario (feedback de la primera prueba en vivo con el kit de hierro):
+
+- **Listado numerado**: `/inventario` muestra `N. Nombre xCantidad` con índice 1-based para referirse a los ítems cómodamente.
+- **`/equipar <n>|item_id [slot]`**: acepta el número del listado; si no se indica slot, se elige automáticamente por categoría (weapon→`mano_der`, shield→`mano_izq`, armor→slot del módulo o inferido por id/nombre, artifact→primer hueco libre). Nuevos helpers en `equipmentService`: `resolveDefaultSlot`, `resolveArmorSlot`, `normalizeSlot`, `SLOT_ALIASES` (casco, pechera, grebas, botas, mano...).
+- **`/des_equipar <slot>`**: nuevo nombre de comando (alias) y acepta alias de slot; `/usar <n>` acepta el número del listado.
+- **Eliminación de sticker/icono de ítems**: se quita el campo `icon` de las definiciones (`items.js`, `ironFamily.js`) y de todas las salidas de texto (inventario, usar, item_add, item_rem, equipar, desequipar, UI de equipo en combate, ataque). `itemFactory`/`itemService` ya no inyectan icono; `entityFactory` conserva `icon === ""`.
+- **Fix HP 0**: una sesión de combate nunca arranca con vida 0. Nuevo `combatState.resolveSessionHp` — si el HP persistido es 0/inválido, inicia con el HP máximo (p. ej. tras dejar vida 0 en un combate anterior).
+
+**Tests**: +15 (`resolveSessionHp`, `normalizeSlot`, `resolveDefaultSlot`, `getInventoryList`) → **458/458 verdes** (31 archivos). Typecheck 0. Eslint 0 errores en archivos tocados.
+
+## [2.7.0] - 2026-08-03
+
+### Dummy equipado con la Familia del Hierro + UI de combate
+
+Primera pasada integral de juego: el dummy PvE ahora usa equipo real y el sistema de combate lo muestra de punta a punta.
+
+- **`src/services/rpg/dummyEquipment.js`** (nuevo): equipo en memoria del dummy (espada, set `set_hierro` de 4 piezas, amuleto) en la misma forma que expone `getEquippedItems` para la DB. `generateDummyCharacter` lo adjunta; los resolvers lo usan **sin tocar la DB**.
+- **`equipmentResolverService`**: `getEquippedItems`/`resolveDefenderArmor` aceptan personaje (objeto) o id y resuelven el equipo en memoria del dummy; nuevo `resolveCharacterEquipment` (resumen de arma/armadura/artefactos/sets/cobertura) para la UI.
+- **UI de combate** (`combatMessages`): `formatCombatOpen` y `formatCombatStatus` ahora reciben un `equipmentMap` y dibujan arma (naturaleza+daño), piezas de armadura con durabilidad, resistencia material total, artefactos y bonos de set activos.
+- **`atacar.js`**: el ataque muestra el arma usada, el daño material, la absorción/overflow/rotura de la armadura y la durabilidad restante; los mensajes se reutilizan. El **contraataque del dummy ahora usa su espada** (resuelve su arma en memoria) y la durabilidad de su armadura se sincroniza en memoria (no escribe en la DB).
+- **`estado.js` / `retar.js`**: resuelven el equipo de ambos bandos para la apertura y el estado.
+- **Kit de hierro**: `inventoryService.ensureIronFamilyKit` siembra el set completo (+kunai x5) al retar al dummy; `/item_add` lista la familia de hierro.
+- `armorSetService`/`armorSets`: los bonos de set exponen `name` para la UI.
+
+**Tests**: +11 (`tests/dummy_equipment.test.js`: buildDummyEquipment, resolvers en memoria, resolveCharacterEquipment, UI) → **443/443 verdes** (31 archivos). Typecheck 0, eslint 0.
+
+## [2.6.0] - 2026-08-03
+
+### Familia del Hierro (primeros ítems de juego)
+
+Primeros ítems concretos construidos sobre el sistema gestor de ítems (v2.5.0):
+
+- **`src/data/ironFamily.js`**: 7 definiciones registradas en `itemCatalog` (material `hierro`, tier E):
+  - Arma equipable `espada_de_hierro` (cortante, 1 mano).
+  - Set `set_hierro` de 4 piezas: `casco`, `pechera`, `grebas`, `botas_de_hierro`.
+  - Artefacto `amuleto_de_hierro` (buff `atk: 5`).
+  - Arma arrojadiza `kunai_de_hierro` (perforante, apilable x20, consume turno de ataque).
+- **`src/data/armorSets.js`**: bonus del set (≥3 piezas) → `{ def: 10 }`.
+- **`src/data/itemCategories/throwable.js`** (nuevo módulo): arma no equipable, `trigger Throw/Use`, `consumedOnUse`.
+- **`src/services/rpg/itemFactory.js`**: nuevo tipo `throwable` en `VALID_TYPES`; los arrojadizos no portan durabilidad persistente.
+- **`src/data/items.js`**: `getItem` ahora cruza al `itemCatalog` inyectable (los ítems del catálogo son visibles para equipo/resolver/inventario). `getItemsByCategory` se mantiene sobre el catálogo base.
+
+**Tests**: +18 (`iron_family.test.js`: stats, factory, set bonus, arma no equipable, resolución de equipo con puente real) → **432/432 verdes** (30 archivos). Typecheck 0, eslint 0 errores.
+
+## [2.5.0] - 2026-08-03
+
+### Sistema Gestor de Ítems (mecánica, sin ítems concretos)
+
+`Plan: memory/plans/item_system_engine.md` — capa de gestión que construye, valida, resuelve y persiste las definiciones de ítem y su equipo. No se crearon ítems del catálogo; se prueba con fixtures sintéticos.
+
+- **`src/data/itemCatalog.js`**: registro inyectable/`lazy` de definiciones de ítem (vacío; catalogables a futuro).
+- **`src/services/rpg/itemFactory.js`**: `createItemDefinition` con validación de tipo (`weapon|armor|artifact|consumable|material|special`), normalización de tier y derivación de `metadata` (durabilidad `maxResist/currentResist` y `materialStats`) desde material+tier.
+- **`src/services/rpg/itemStatService.js`**: fórmula pura `base × tier × material` → `getWeaponStats`/`getArmorStats`/`getArtifactStats`/`getMaterialCost`.
+- **`src/services/rpg/equipmentResolverService.js`**: cruza `equipped_slots` ↔ `inventory.metadata` → `weaponInfo` / instancias `DurabilityModule` / buffs de artefactos. Backward-compat: sin arma ⇒ `weaponInfo=null`.
+- **`src/services/rpg/durabilityPersistenceService.js`**: sincroniza `currentResist`/`broken` a `inventory.metadata`; si el ítem no es reparable y llega a 0 ⇒ se elimina (destroyed). Preserva campos ajenos de metadata.
+- **`src/services/rpg/armorSetService.js`**: cobertura (total/alta/media/ligera) → penalización `MSPD` y coste de fatiga por metro; bonos de set ≥3 piezas.
+- **Integración combate (`atacar.js`)**: resuelve `weaponInfo` del atacante y `armorDurability` del defensor y los pasa a `executeAttack`/`executeReaction`; persiste durabilidad tras el golpe (fallback silencioso, backward-compat).
+
+**Tests**: +32 (factory, stat service, resolver, durabilidad, sets) → **414/414 verdes**. Typecheck 0 errores, eslint 0 errores, depcruise 3 warnings históricos.
+
+## [2.4.0] - 2026-08-03
+
+### Remediación del Sistema de Ítems y Equipamiento
+
+**Corrección de deuda técnica (auditoría código ↔ Supabase):**
+
+- **Migración 003 (`src/database/migrations/003_remediation_item_equipment.sql`, manual en Supabase):**
+  - `inventory.metadata` (JSONB) — storage para durabilidad/tier/material/broken.
+  - `characters.equipped_slots` (JSONB) — desbloquea `/equipar` y `/desequipar`.
+  - Tabla `combat_sessions` (misma DDL de `TABLE_CREATE_SQL`) — persiste sesiones de combate.
+  - Limpieza de ítems temporales huérfanos (`*_temp`) del inventario.
+
+- **Versión de schema unificada** (`src/database/schemaConstants.js`): `CURRENT_VERSION` como única fuente (2.2.0); `schemaVersion.js` y `schemaMigration.js` dejan de tener versiones duplicadas (2.0.0 vs 2.1.0).
+
+- **Esquema conocido alineado:**
+  - `columnRegistry.KNOWN_SCHEMA`: añadido `characters.category`.
+  - `schemaValidator`: añadido `inventory.metadata` y `characters.equipped_slots`.
+  - `schemaMigration.DESIRED_SCHEMA`/`COLUMN_TYPES`: tipos corregidos a **UUID** (`characters.id`, `inventory.character_id`), añadidas nuevas columnas deseadas.
+
+- **Blindaje `equipmentService.js`:** nuevo guard que, ante columna/relación inexistente (PGRST204), lanza error claro apuntando a la migración 003 en lugar de fallar en silencio o devolver `{}`. Tests de degradación añadidos (migración ausente).
+
+- **Nuevo script** `scripts/cleanup-temp-items.js` idempotente (DRY por defecto, `--apply` para ejecutar).
+
+**Verificación:** typecheck 0 errores, lint 0 errores nuevos en archivos tocados (2 errores preexistentes en `formatErrorUtils.js`), 382/382 tests verdes (24 archivos), depcruise solo 3 warnings históricos, graphify actualizado (1558 nodos). Smoke vs Supabase: `equipped_slots`, `metadata` y `combat_sessions` operativos; `schema_version=2.2.0`.
+
+---
+
 ## [2.3.1] - 2026-08-01
 
 ### Reestructuración de Raíz y Limpieza de Archivos Obsoletos

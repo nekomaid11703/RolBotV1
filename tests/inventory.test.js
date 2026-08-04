@@ -16,14 +16,14 @@ describe("items — Catálogo", () => {
     expect(Object.keys(ITEMS)).toHaveLength(7);
   });
 
-  it("Cada ítem tiene id, name, description, basePrice, modules, categories, icon", () => {
+  it("Cada ítem tiene id, name, description, basePrice, modules, categories (sin icon)", () => {
     for (const [key, item] of Object.entries(ITEMS)) {
       expect(item.id).toBe(key);
       expect(item.name).toBeTruthy();
       expect(item.description).toBeTruthy();
       expect(typeof item.basePrice).toBe("number");
       expect(Array.isArray(item.categories)).toBe(true);
-      expect(item.icon).toBeTruthy();
+      expect(item.icon).toBeUndefined();
     }
   });
 

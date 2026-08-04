@@ -2,12 +2,7 @@ const { discover } = require("./columnRegistry");
 const { supabase } = require("./supabase");
 const { logSystem } = require("../services/loggerService");
 const { setStoredVersion } = require("./schemaVersion");
-
-/**
- * @constant CURRENT_VERSION
- * @type {string}
- */
-const CURRENT_VERSION = "2.1.0";
+const { CURRENT_VERSION } = require("./schemaConstants");
 
 /**
  * @constant DESIRED_SCHEMA
@@ -20,6 +15,7 @@ const DESIRED_SCHEMA = {
     "player_phone",
     "name",
     "slug",
+    "category",
     "raza",
     "clase",
     "rango",
@@ -30,12 +26,13 @@ const DESIRED_SCHEMA = {
     "hp_actual",
     "stats",
     "slots",
+    "equipped_slots",
     "created_at",
     "updated_at",
   ],
   groups: ["id", "group_jid", "group_name", "total_messages"],
   group_members: ["group_id", "player_phone", "messages_count"],
-  inventory: ["id", "character_id", "item_id", "quantity", "created_at", "updated_at"],
+  inventory: ["id", "character_id", "item_id", "quantity", "metadata", "created_at", "updated_at"],
   combat_sessions: [
     "id",
     "is_pve",
@@ -81,10 +78,11 @@ const COLUMN_TYPES = {
   "players.activity_messages": "bigint DEFAULT 0",
   "players.activity_commands": "bigint DEFAULT 0",
   "players.last_active_at": "timestamptz",
-  "characters.id": "bigint",
+  "characters.id": "uuid",
   "characters.player_phone": "text",
   "characters.name": "text",
   "characters.slug": "text",
+  "characters.category": "text DEFAULT 'F'",
   "characters.raza": "text DEFAULT 'humano'",
   "characters.clase": "text DEFAULT 'civil'",
   "characters.rango": "text DEFAULT 'F'",
@@ -95,6 +93,7 @@ const COLUMN_TYPES = {
   "characters.hp_actual": "integer DEFAULT 100",
   "characters.stats": "jsonb",
   "characters.slots": "jsonb",
+  "characters.equipped_slots": "jsonb DEFAULT '{}'",
   "characters.created_at": "timestamptz DEFAULT now()",
   "characters.updated_at": "timestamptz DEFAULT now()",
   "groups.id": "bigint",
@@ -105,9 +104,10 @@ const COLUMN_TYPES = {
   "group_members.player_phone": "text",
   "group_members.messages_count": "bigint DEFAULT 0",
   "inventory.id": "bigint",
-  "inventory.character_id": "bigint",
+  "inventory.character_id": "uuid",
   "inventory.item_id": "text",
   "inventory.quantity": "integer DEFAULT 0",
+  "inventory.metadata": "jsonb DEFAULT '{}'",
   "inventory.created_at": "timestamptz DEFAULT now()",
   "inventory.updated_at": "timestamptz DEFAULT now()",
 };

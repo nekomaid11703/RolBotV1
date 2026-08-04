@@ -1,8 +1,7 @@
 // @ts-nocheck
 const { getActiveCharacter } = require("../../../services/characterService");
-const { useItem, getInventory } = require("../../../services/rpg/inventoryService");
+const { useItem, getInventoryList } = require("../../../services/rpg/inventoryService");
 const { findSessionByCharacter } = require("../../../services/rpg/combatState");
-const { getItem, ITEMS } = require("../../../data/items");
 const { formatError } = require("../../../utils/formatErrorUtils");
 const { box } = require("../../../utils/boxUtils");
 
@@ -12,10 +11,10 @@ async function showInventoryList(ctx) {
     return ctx.reply("❌ No tienes un personaje activo. Usa `/crear_pj` o `/switch_pj`.");
   }
 
-  const inv = await getInventory(character.id);
+  const inv = await getInventoryList(character.id);
   const lines = [];
   lines.push("");
-  lines.push("Uso: `/usar <item>`");
+  lines.push("Uso: `/usar <nº_ítem>`");
   lines.push("");
 
   if (inv.length === 0) {
@@ -23,17 +22,32 @@ async function showInventoryList(ctx) {
   } else {
     lines.push("📋 Tus ítems disponibles:");
     for (const entry of inv) {
-      const item = getItem(entry.item_id);
-      if (item) {
-        lines.push(`   · ${item.icon} ${item.name} (${item.id}) x${entry.quantity}`);
-      }
+      lines.push(`   · ${entry.index}. ${entry.name} (${entry.itemId}) x${entry.quantity}`);
     }
   }
 
   lines.push("");
-  lines.push("IDs válidos: " + Object.keys(ITEMS).join(", "));
+  lines.push("Número de tu listado de /inventario. Solo funcionan ítems consumibles.");
 
   return ctx.reply(box("📦 Usar ítem", lines));
+}
+
+/**
+ * Resuelve el itemId a partir del argumento del usuario (número o id directo).
+ * @param {string} arg - Input del usuario
+ * @param {object} character - Personaje activo
+ * @returns {Promise<{itemId: string}|{error: string}>}
+ */
+async function resolveUseTarget(arg, character) {
+  if (arg && /^\d+$/.test(arg)) {
+    const list = await getInventoryList(character.id);
+    const entry = list.find((e) => e.index === Number(arg));
+    if (!entry) {
+      return { error: `❌ No existe ningún ítem en la posición ${arg}. Usa /inventario para ver tu listado.` };
+    }
+    return { itemId: entry.itemId };
+  }
+  return { itemId: String(arg || "").toLowerCase() };
 }
 
 function updateSessionHp(session, characterId, hpAfter) {
@@ -55,10 +69,16 @@ module.exports = {
       return showInventoryList(ctx);
     }
 
-    const itemName = ctx.args[0].toLowerCase();
+    const character = await getActiveCharacter({ creatorId: ctx.sender });
+    if (!character) {
+      return ctx.reply("❌ No tienes un personaje activo. Usa `/crear_pj` o `/switch_pj`.");
+    }
+
+    const resolved = await resolveUseTarget(ctx.args[0], character);
+    if (resolved.error) return ctx.reply(resolved.error);
 
     try {
-      const result = await useItem(ctx.sender, itemName);
+      const result = await useItem(ctx.sender, resolved.itemId);
 
       const session = findSessionByCharacter(result.characterId);
       if (session) {
@@ -67,7 +87,7 @@ module.exports = {
 
       const lines = [];
       lines.push("");
-      lines.push(`📦  ${result.icon} ${result.itemName} usado`);
+      lines.push(`📦  ${result.itemName} usado`);
       lines.push(`❤️  HP: ${result.hpBefore} → ${result.hpAfter}`);
 
       return ctx.reply(box("✅ ITEM USADO", lines));

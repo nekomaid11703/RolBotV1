@@ -67,8 +67,15 @@ function setupSupabaseMock() {
   };
 
   return {
-    mockFrom, mockSelect, mockEq, mockOrder, mockInsert,
-    mockUpdateFn, mockUpdateEq, mockDeleteFn, mockDeleteEq,
+    mockFrom,
+    mockSelect,
+    mockEq,
+    mockOrder,
+    mockInsert,
+    mockUpdateFn,
+    mockUpdateEq,
+    mockDeleteFn,
+    mockDeleteEq,
     mockSupabase,
   };
 }
@@ -125,6 +132,46 @@ describe("getInventory", () => {
   });
 });
 
+describe("getInventoryList", () => {
+  it("enumera el inventario con índice 1-based y datos del catálogo", async () => {
+    mocks.mockOrder.mockResolvedValue({
+      data: [
+        { item_id: "pocion", quantity: 2 },
+        { item_id: "venda", quantity: 3 },
+      ],
+      error: null,
+    });
+    const { getInventoryList } = loadService();
+    const result = await getInventoryList(1);
+    expect(result).toEqual([
+      {
+        index: 1,
+        itemId: "pocion",
+        name: "Poción",
+        quantity: 2,
+        categories: ["consumable"],
+        modules: { heal: { amount: 40 } },
+      },
+      {
+        index: 2,
+        itemId: "venda",
+        name: "Venda",
+        quantity: 3,
+        categories: ["consumable"],
+        modules: { heal: { amount: 15 } },
+      },
+    ]);
+  });
+
+  it("mantiene el item_id como nombre si el ítem no está en catálogo", async () => {
+    mocks.mockOrder.mockResolvedValue({ data: [{ item_id: "desconocido", quantity: 1 }], error: null });
+    const { getInventoryList } = loadService();
+    const result = await getInventoryList(1);
+    expect(result[0].name).toBe("desconocido");
+    expect(result[0].categories).toEqual([]);
+  });
+});
+
 describe("addItem", () => {
   it("agrega un item nuevo al inventario vacio", async () => {
     const { addItem } = loadService();
@@ -141,9 +188,7 @@ describe("addItem", () => {
 
   it("lanza error si el item no existe", async () => {
     const { addItem } = loadService();
-    await expect(addItem(1, "user1", "inexistente", 1)).rejects.toThrow(
-      'El ítem "inexistente" no existe.'
-    );
+    await expect(addItem(1, "user1", "inexistente", 1)).rejects.toThrow('El ítem "inexistente" no existe.');
   });
 
   it("lanza error si el inventario esta lleno (nuevo item distinto)", async () => {
@@ -154,7 +199,7 @@ describe("addItem", () => {
     mocks.mockOrder.mockResolvedValue({ data: full, error: null });
     const { addItem } = loadService();
     await expect(addItem(1, "user1", "venda", 1)).rejects.toThrow(
-      `Inventario lleno (máx. ${MAX_INVENTORY_SIZE} tipos de items distintos).`
+      `Inventario lleno (máx. ${MAX_INVENTORY_SIZE} tipos de items distintos).`,
     );
   });
 
@@ -173,7 +218,7 @@ describe("addItem", () => {
     mocks.mockOrder.mockResolvedValue({ data: [{ item_id: "venda", quantity: MAX_STACK_SIZE }], error: null });
     const { addItem } = loadService();
     await expect(addItem(1, "user1", "venda", 1)).rejects.toThrow(
-      `No puedes tener más de ${MAX_STACK_SIZE} unidades del mismo ítem por ranura.`
+      `No puedes tener más de ${MAX_STACK_SIZE} unidades del mismo ítem por ranura.`,
     );
   });
 
@@ -203,17 +248,13 @@ describe("removeItem", () => {
 
   it("lanza error si no hay suficientes items", async () => {
     const { removeItem } = loadService();
-    await expect(removeItem(1, "user1", "venda", 20)).rejects.toThrow(
-      'No tienes suficientes "venda".'
-    );
+    await expect(removeItem(1, "user1", "venda", 20)).rejects.toThrow('No tienes suficientes "venda".');
   });
 
   it("lanza error si el item no existe en inventario", async () => {
     mocks.mockOrder.mockResolvedValue({ data: [], error: null });
     const { removeItem } = loadService();
-    await expect(removeItem(1, "user1", "venda", 1)).rejects.toThrow(
-      'No tienes suficientes "venda".'
-    );
+    await expect(removeItem(1, "user1", "venda", 1)).rejects.toThrow('No tienes suficientes "venda".');
   });
 });
 
@@ -258,9 +299,7 @@ describe("useItem", () => {
     const charService = require.cache[require.resolve("../src/services/characterService")];
     charService.exports.getActiveCharacter.mockResolvedValue({ ...mockCharacter, hp_actual: 100 });
     const { useItem } = loadService();
-    await expect(useItem("user1", "pocion")).rejects.toThrow(
-      "Tu personaje ya tiene la vida al máximo."
-    );
+    await expect(useItem("user1", "pocion")).rejects.toThrow("Tu personaje ya tiene la vida al máximo.");
   });
 
   it("cura al personaje y descuenta el item", async () => {
@@ -269,14 +308,13 @@ describe("useItem", () => {
     expect(result).toMatchObject({
       characterId: 1,
       itemName: "Poción",
-      icon: "🧪",
       hpBefore: 50,
       hpAfter: 90,
     });
     expect(result.modules).toEqual({ heal: { amount: 40 } });
     const charService = require.cache[require.resolve("../src/services/characterService")];
     expect(charService.exports.setHp).toHaveBeenCalledWith(
-      expect.objectContaining({ creatorId: "user1", characterName: "Kael", hp: 90 })
+      expect.objectContaining({ creatorId: "user1", characterName: "Kael", hp: 90 }),
     );
   });
 

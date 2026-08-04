@@ -23,6 +23,95 @@ const EQUIPMENT_SLOTS = {
 };
 
 /**
+ * Alias coloquiales de slots para que el jugador no tenga que recordar los ids
+ * técnicos (casco -> cabeza, grebas/pantalones -> pantalones, etc.).
+ * @constant SLOT_ALIASES
+ * @type {Record<string, string>}
+ */
+const SLOT_ALIASES = {
+  casco: "cabeza",
+  yelmo: "cabeza",
+  head: "cabeza",
+  pechera: "pecho",
+  coraza: "pecho",
+  chest: "pecho",
+  grebas: "pantalones",
+  perneras: "pantalones",
+  piernas: "pantalones",
+  legs: "pantalones",
+  botas: "botas",
+  boots: "botas",
+  mano: "mano_der",
+  mano_derecha: "mano_der",
+  mano_izquierda: "mano_izq",
+  artefacto: "artefacto_1",
+};
+
+/**
+ * Normaliza un slot/alias dado por el jugador a una clave real de EQUIPMENT_SLOTS.
+ * @param {string} slot - Slot solicitado (posiblemente alias)
+ * @returns {string} Key real del slot o el input tal cual si no es alias
+ */
+function normalizeSlot(slot) {
+  const s = String(slot || "").toLowerCase();
+  return SLOT_ALIASES[s] || s;
+}
+
+/**
+ * Determina el slot de armadura a partir del módulo o del id/nombre del ítem.
+ * @param {object} itemDef - ItemDefinition del catálogo
+ * @returns {string} Key de slot de armadura
+ */
+function resolveArmorSlot(itemDef) {
+  const explicit = itemDef.modules?.armor?.slot;
+  const armorSlots = ["cabeza", "pecho", "pantalones", "botas"];
+  if (explicit && armorSlots.includes(explicit)) return explicit;
+  const text = `${itemDef.id} ${itemDef.name}`.toLowerCase();
+  if (/casco|head|cabeza/.test(text)) return "cabeza";
+  if (/bota|boot/.test(text)) return "botas";
+  if (/greba|pantal|perner|pierna|leg/.test(text)) return "pantalones";
+  return "pecho";
+}
+
+/**
+ * Determina el slot por defecto de un ítem según su categoría:
+ * weapon -> mano_der; shield -> mano_izq; armor -> slot del módulo (o inferido);
+ * artifact -> primer hueco libre.
+ * @param {object} itemDef - ItemDefinition del catálogo
+ * @param {object} [currentSlots] - Mapa de slots ya ocupados para artefacto libre
+ * @returns {string|null} Key de slot o null si no es equipable
+ */
+function resolveDefaultSlot(itemDef, currentSlots = {}) {
+  const cats = itemDef.categories || [];
+
+  if (cats.includes("weapon")) return "mano_der";
+  if (cats.includes("shield")) return "mano_izq";
+  if (cats.includes("armor")) return resolveArmorSlot(itemDef);
+  if (cats.includes("artifact")) {
+    const order = ["artefacto_1", "artefacto_2", "artefacto_3", "artefacto_4"];
+    return order.find((s) => !currentSlots[s]) || "artefacto_1";
+  }
+  return null;
+}
+
+/**
+ * Determina si un error de Supabase corresponde a una columna o relación inexistente en la base.
+ * @param {*} error - Objeto error de Supabase/PostgREST
+ * @returns {boolean} True si el error indica una deficiencia de esquema
+ */
+function isSchemaMissingError(error) {
+  const code = error?.code;
+  return code === "PGRST204" || /does not exist|could not find/.test(String(error?.message || error?.details || ""));
+}
+
+/**
+ * @constant MIGRATION_HINT
+ * @type {string}
+ */
+const MIGRATION_HINT =
+  "equipped_slots no disponible en la DB. Ejecuta la migración 003 (src/database/migrations/003_remediation_item_equipment.sql).";
+
+/**
  * Obtiene los slots de equipamiento actuales de un personaje.
  * @param {string|number} characterId
  * @returns {Promise<object>} Mapa de slots => item_id | null
@@ -31,6 +120,7 @@ async function getEquippedSlots(characterId) {
   const { data, error } = await supabase.from("characters").select("equipped_slots").eq("id", characterId).single();
 
   if (error) {
+    if (isSchemaMissingError(error)) throw new Error(MIGRATION_HINT);
     logError({ source: "equipmentService.getEquippedSlots", error });
     return {};
   }
@@ -52,7 +142,10 @@ async function saveEquippedSlots(characterId, creatorId, slots) {
 
   const { error } = await supabase.from("characters").update(payload).eq("id", characterId);
 
-  if (error) throw new Error(`Error actualizando slots: ${error.message}`);
+  if (error) {
+    if (isSchemaMissingError(error)) throw new Error(MIGRATION_HINT);
+    throw new Error(`Error actualizando slots: ${error.message}`);
+  }
   invalidateUserCache(creatorId);
 }
 
@@ -169,6 +262,9 @@ async function unequipItem({ characterId, creatorId, slot }) {
 
 module.exports = {
   EQUIPMENT_SLOTS,
+  SLOT_ALIASES,
+  normalizeSlot,
+  resolveDefaultSlot,
   getEquippedSlots,
   equipItem,
   unequipItem,

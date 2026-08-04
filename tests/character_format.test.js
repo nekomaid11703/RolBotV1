@@ -14,62 +14,32 @@ const mockCharacter = {
 };
 
 describe("characterFormatUtils — buildHpBar", () => {
-  it("HP 100/100 genera barra llena", () => {
-    expect(buildHpBar(100, 100)).toBe("[██████████]");
-  });
-
-  it("HP 0/100 genera barra vacía", () => {
-    expect(buildHpBar(0, 100)).toBe("[░░░░░░░░░░]");
-  });
-
-  it("HP 50/100 genera barra mitad", () => {
-    expect(buildHpBar(50, 100)).toBe("[█████░░░░░]");
-  });
-
-  it("HP 75/100 genera ~8 llenos y ~2 vacíos (round)", () => {
-    const bar = buildHpBar(75, 100);
-    expect(bar).toBe("[████████░░]");
+  it.each([
+    [100, 100, "[██████████]"],
+    [0, 100, "[░░░░░░░░░░]"],
+    [50, 100, "[█████░░░░░]"],
+    [75, 100, "[████████░░]"],
+  ])("HP %i/%i genera la barra esperada", (hp, max, expected) => {
+    expect(buildHpBar(hp, max)).toBe(expected);
   });
 });
 
 describe("characterFormatUtils — formatCharacter", () => {
-  it("Incluye el nombre del personaje en mayúsculas", () => {
-    const output = formatCharacter(mockCharacter);
-    expect(output).toContain("KAEL");
-  });
-
-  it("Incluye la clase", () => {
-    const output = formatCharacter(mockCharacter);
-    expect(output).toContain("Aventurero");
-  });
-
-  it("Incluye el nivel", () => {
-    const output = formatCharacter(mockCharacter);
-    expect(output).toMatch(/\bNivel 25\b/);
-  });
-
-  it("Incluye la barra de HP", () => {
-    const output = formatCharacter(mockCharacter);
-    expect(output).toContain("75/100");
-  });
-
-  it("Incluye todas las stats", () => {
-    const output = formatCharacter(mockCharacter);
-    expect(output).toContain("ATK: 4");
-    expect(output).toContain("DEF: 1");
-    expect(output).toContain("ASPD: 3");
-    expect(output).toContain("REF: 1");
-    expect(output).toContain("MSPD: 1");
-  });
-
-  it("Incluye el conteo de items", () => {
-    const output = formatCharacter(mockCharacter);
-    expect(output).toContain("Items: 3");
-  });
-
-  it("Incluye la historia si existe", () => {
-    const output = formatCharacter(mockCharacter);
-    expect(output).toContain("reliquias antiguas");
+  it.each([
+    ["el nombre", (out) => expect(out).toContain("KAEL")],
+    ["la clase", (out) => expect(out).toContain("Aventurero")],
+    ["el nivel", (out) => expect(out).toMatch(/\bNivel 25\b/)],
+    ["la barra de HP", (out) => expect(out).toContain("75/100")],
+    [
+      "todas las stats",
+      (out) => {
+        for (const s of ["ATK: 4", "DEF: 1", "ASPD: 3", "REF: 1", "MSPD: 1"]) expect(out).toContain(s);
+      },
+    ],
+    ["el conteo de items", (out) => expect(out).toContain("Items: 3")],
+    ["la historia si existe", (out) => expect(out).toContain("reliquias antiguas")],
+  ])("Incluye %s", (label, assert) => {
+    assert(formatCharacter(mockCharacter));
   });
 
   it("Maneja personaje sin stats", () => {
@@ -92,5 +62,26 @@ describe("characterFormatUtils — formatCharacter", () => {
     const noHist = { ...mockCharacter, slots: {} };
     const output = formatCharacter(noHist);
     expect(output).not.toContain("📜");
+  });
+
+  it("Muestra la sección EQUIPO si se pasa equipment resuelto", () => {
+    const equipment = {
+      weapon: { name: "Espada de Hierro", damageNature: "cortante", baseDamage: 8 },
+      armor: [{ name: "Pechera de Hierro", coverage: "pecho", currentResist: 10, maxResist: 10, broken: false }],
+      totalCurrentResist: 10,
+      totalMaxResist: 10,
+      setBonuses: [{ name: "Hierro", count: 4, active: true, bonus: { atk: 5 } }],
+      artifacts: [{ name: "Amuleto de Hierro" }],
+    };
+    const output = formatCharacter(mockCharacter, null, null, equipment);
+    expect(output).toContain("EQUIPO");
+    expect(output).toContain("Espada de Hierro");
+    expect(output).toContain("Pechera de Hierro");
+    expect(output).not.toContain("\uD83D\uDDE1\uFE0F");
+  });
+
+  it("No muestra la sección EQUIPO sin equipment", () => {
+    const output = formatCharacter(mockCharacter);
+    expect(output).not.toContain("EQUIPO");
   });
 });

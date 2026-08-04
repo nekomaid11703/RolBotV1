@@ -2,6 +2,7 @@
 const { getActiveCharacter } = require("../../../services/characterService");
 const { addItem } = require("../../../services/rpg/inventoryService");
 const { getItem, ITEMS } = require("../../../data/items");
+const { IRON_ITEMS } = require("../../../data/ironFamily");
 const { formatError } = require("../../../utils/formatErrorUtils");
 const { box } = require("../../../utils/boxUtils");
 const { parseQuantity } = require("../../../utils/quantityUtils");
@@ -22,13 +23,21 @@ module.exports = {
   async execute(ctx) {
     if (ctx.args.length === 0) {
       /**
+       * @constant baseItems
+       */
+      const baseItems = Object.values(ITEMS).map(
+        (item) => `\u2022 \`${item.id}\` \u2014 ${item.name} (+${item.modules?.heal?.amount || 0} HP)`,
+      );
+      /**
+       * @constant ironItems
+       */
+      const ironItems = Object.values(IRON_ITEMS).map(
+        (item) => `\u2022 \`${item.id}\` \u2014 ${item.name} (${item.type})`,
+      );
+      /**
        * @constant availableItems
        */
-      const availableItems = Object.values(ITEMS)
-        .map(
-          (item) => `\u2022 \`${item.id}\` \u2014 ${item.icon} ${item.name} (+${item.modules?.heal?.amount || 0} HP)`,
-        )
-        .join("\n");
+      const availableItems = [...baseItems, "", "\uD83D\uDD28 Familia del Hierro:", ...ironItems].join("\n");
 
       return ctx.reply(
         box("\uD83D\uDCE6 Agregar \u00edtem", [
@@ -69,9 +78,7 @@ module.exports = {
         /**
          * @constant validIds
          */
-        const validIds = Object.keys(ITEMS)
-          .map((id) => `\`${id}\``)
-          .join(", ");
+        const validIds = [...Object.keys(ITEMS), ...Object.keys(IRON_ITEMS)].map((id) => `\`${id}\``).join(", ");
         return ctx.reply(
           `\u274C No existe ning\u00fan \u00edtem con ID \`${itemIdInput}\`.\n\nIDs v\u00e1lidos: ${validIds}`,
         );
@@ -89,7 +96,7 @@ module.exports = {
       const lines = [
         "",
         `\uD83D\uDC64  Personaje: *${activeChar.name}*`,
-        `\uD83D\uDCE6  \u00cdtem a\u00f1adido: ${item.icon} *${item.name}* (\`${item.id}\`)`,
+        `\uD83D\uDCE6  \u00cdtem a\u00f1adido: *${item.name}* (\`${item.id}\`)`,
         `\uD83D\uDD22  Cantidad a\u00f1adida: +${quantity}`,
         `\uD83D\uDCCA  Total en inventario: ${result.total}`,
       ];

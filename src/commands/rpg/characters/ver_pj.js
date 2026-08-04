@@ -1,6 +1,7 @@
 // @ts-nocheck
 const { getActiveCharacter } = require("../../../services/characterService");
 const { getInventory } = require("../../../services/rpg/inventoryService");
+const { resolveCharacterEquipment } = require("../../../services/rpg/equipmentResolverService");
 const { formatCharacter } = require("../../../utils/characterFormatUtils");
 const { logError } = require("../../../services/loggerService");
 
@@ -41,12 +42,18 @@ module.exports = {
     }
 
     let inventory = [];
+    let equipment = null;
     try {
       inventory = await getInventory(character.id);
     } catch (err) {
       logError({ source: "ver_pj.getInventory", error: err });
     }
+    try {
+      equipment = await resolveCharacterEquipment(character);
+    } catch (err) {
+      logError({ source: "ver_pj.resolveCharacterEquipment", error: err });
+    }
 
-    await ctx.reply(formatCharacter(character, inventory));
+    await ctx.reply(formatCharacter(character, inventory, null, equipment));
   },
 };

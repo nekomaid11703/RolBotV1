@@ -1,5 +1,6 @@
 const { supabase } = require("./supabase");
 const { logSystem } = require("../services/loggerService");
+const { CURRENT_VERSION } = require("./schemaConstants");
 
 /**
  * @constant VERSION_KEY
@@ -11,11 +12,6 @@ const VERSION_KEY = "_schema_version";
  * @type {string}
  */
 const SESSION_ID = "_meta";
-/**
- * @constant CURRENT_VERSION
- * @type {string}
- */
-const CURRENT_VERSION = "2.0.0";
 
 /**
  * Get the stored schema version from the database.

@@ -1,9 +1,28 @@
 // @ts-nocheck
 const { getActiveCharacter } = require("../../../services/characterService");
 const { createSession, createDummySession, findSessionByCharacter } = require("../../../services/rpg/combatState");
-const { ensureTempTestKit } = require("../../../services/rpg/inventoryService");
+const { ensureTempTestKit, ensureIronFamilyKit } = require("../../../services/rpg/inventoryService");
+const { resolveCharacterEquipment } = require("../../../services/rpg/equipmentResolverService");
 const { formatCombatOpen } = require("../../../services/rpg/combatMessages");
 const { formatError } = require("../../../utils/formatErrorUtils");
+
+/**
+ * Resuelve el equipo de ambos bandos para la apertura del combate.
+ * Fallback defensivo: si falla, la UI sigue mostrando el resto sin equipo.
+ * @param {object} session - Sesión de combate
+ * @returns {Promise<{challenger: object|null, defender: object|null}>}
+ */
+async function resolveOpenEquipment(session) {
+  try {
+    const [challenger, defender] = await Promise.all([
+      resolveCharacterEquipment(session.challenger.character).catch(() => null),
+      resolveCharacterEquipment(session.defender.character).catch(() => null),
+    ]);
+    return { challenger, defender };
+  } catch {
+    return { challenger: null, defender: null };
+  }
+}
 
 module.exports = {
   name: "retar",
@@ -58,12 +77,23 @@ module.exports = {
          */
         const added = await ensureTempTestKit(challengerChar.id, challengerChar.creator_id);
         /**
+         * @constant ironAdded
+         */
+        const ironAdded = await ensureIronFamilyKit(challengerChar.id, challengerChar.creator_id);
+        /**
          * @constant session
          */
         const session = await createDummySession(ctx.sender, challengerChar);
-        let msg = formatCombatOpen(session, true);
+        /**
+         * @constant equipmentMap
+         */
+        const equipmentMap = await resolveOpenEquipment(session);
+        let msg = formatCombatOpen(session, true, equipmentMap);
         if (added.length > 0) {
           msg += `\n\n🎒 Se añadieron items de prueba: ${added.join(", ")}.`;
+        }
+        if (ironAdded.length > 0) {
+          msg += `\n\n⚙️ Set de hierro añadido al inventario: ${ironAdded.join(", ")}. Equipa con \`/equipar\`.`;
         }
         return ctx.reply(msg);
       }
@@ -98,7 +128,8 @@ module.exports = {
        * @constant session
        */
       const session = await createSession(ctx.sender, targetId, challengerChar, defenderChar);
-      return ctx.reply(formatCombatOpen(session, false));
+      const equipmentMap = await resolveOpenEquipment(session);
+      return ctx.reply(formatCombatOpen(session, false, equipmentMap));
     } catch (error) {
       return ctx.reply(formatError(error.message));
     }

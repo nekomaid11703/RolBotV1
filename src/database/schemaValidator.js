@@ -28,12 +28,13 @@ const SCHEMA = {
       "hp_actual",
       "stats",
       "slots",
+      "equipped_slots",
       "created_at",
       "updated_at",
     ],
   },
   inventory: {
-    columns: ["id", "character_id", "item_id", "quantity", "created_at", "updated_at"],
+    columns: ["id", "character_id", "item_id", "quantity", "metadata", "created_at", "updated_at"],
   },
 };
 

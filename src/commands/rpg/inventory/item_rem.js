@@ -25,7 +25,7 @@ module.exports = {
        * @constant availableItems
        */
       const availableItems = Object.values(ITEMS)
-        .map((item) => `\u2022 \`${item.id}\` \u2014 ${item.icon} ${item.name}`)
+        .map((item) => `\u2022 \`${item.id}\` \u2014 ${item.name}`)
         .join("\n");
 
       return ctx.reply(
@@ -87,7 +87,7 @@ module.exports = {
       const lines = [
         "",
         `\uD83D\uDC64  Personaje: *${activeChar.name}*`,
-        `\uD83D\uDCE6  \u00cdtem quitado: ${item.icon} *${item.name}* (\`${item.id}\`)`,
+        `\uD83D\uDCE6  \u00cdtem quitado: *${item.name}* (\`${item.id}\`)`,
         `\uD83D\uDD22  Cantidad quitada: -${quantity}`,
         `\uD83D\uDCCA  Restante en inventario: ${result.remaining}`,
       ];

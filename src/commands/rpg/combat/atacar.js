@@ -18,6 +18,111 @@ const { calcFatigueCost, calcFatigueRecovery, capFatigue } = require("../../../s
 const { formatActionMenu, formatReactionPrompt, buildFatigueBar } = require("../../../services/rpg/combatMessages");
 const { formatError } = require("../../../utils/formatErrorUtils");
 const { box } = require("../../../utils/boxUtils");
+const { getItem } = require("../../../data/items");
+const {
+  getEquippedItems,
+  resolveAttackerWeapon,
+  resolveDefenderArmor,
+} = require("../../../services/rpg/equipmentResolverService");
+const { persistDurability } = require("../../../services/rpg/durabilityPersistenceService");
+
+/**
+ * Resuelve el equipo del atacante/defensor a insumos de combate, con fallback
+ * defensivo: cualquier fallo degrada a desarmado/sin armadura (backward-compat).
+ * Reutiliza una sola lectura de equipo por bando.
+ * @param {object} attackerChar - Personaje atacante
+ * @param {object} defenderChar - Personaje defensor
+ * @returns {Promise<{weaponInfo: object|null, armorEntry: object|null, weaponDef: object|null}>}
+ */
+async function resolveCombatEquipment(attackerChar, defenderChar) {
+  try {
+    const [attackerItems, defenderItems] = await Promise.all([
+      getEquippedItems(attackerChar).catch(() => []),
+      getEquippedItems(defenderChar).catch(() => []),
+    ]);
+    const [weaponInfo, armor] = await Promise.all([
+      resolveAttackerWeapon(attackerChar, attackerItems).catch(() => null),
+      resolveDefenderArmor(defenderChar, defenderItems).catch(() => null),
+    ]);
+    const weaponEntry = attackerItems.find(
+      (e) => e.def && e.def.modules && e.def.modules.weapon && e.slot === "mano_der",
+    );
+    const armorEntry = armor?.list && armor.list.length ? armor.list[0] : null;
+    return { weaponInfo, armorEntry, weaponDef: weaponEntry?.def || null };
+  } catch {
+    return { weaponInfo: null, armorEntry: null, weaponDef: null };
+  }
+}
+
+/**
+ * Persiste la durabilidad del defensor tras un golpe (fallback silencioso).
+ * El dummy (bot PvE) sincroniza su equipo en memoria en lugar de la DB.
+ * @param {object} armorEntry - { slot, itemId, instance } del resolver
+ * @param {object|null} armorDurability - Instancia DurabilityModule impactada
+ * @param {object} defenderChar - Personaje defensor
+ * @param {string} defenderUserId - Jugador (invalida caché)
+ * @returns {Promise<void>}
+ */
+async function applyDurabilityHit(armorEntry, armorDurability, defenderChar, defenderUserId) {
+  if (!armorEntry || !armorDurability || typeof armorDurability.absorbDamage !== "function") return;
+
+  if (defenderChar && defenderChar.dummyEquipment) {
+    const row = (defenderChar.dummyEquipment.inventory || []).find((r) => r.item_id === armorEntry.itemId);
+    if (row && row.metadata) {
+      row.metadata.durability = {
+        maxResist: armorDurability.maxResist,
+        currentResist: armorDurability.currentResist,
+        isRepairable: armorDurability.isRepairable,
+        broken: armorDurability.isBroken,
+      };
+    }
+    return;
+  }
+
+  try {
+    await persistDurability({
+      characterId: defenderChar.id,
+      creatorId: defenderUserId || "system",
+      itemId: armorEntry.itemId,
+      durability: {
+        maxResist: armorDurability.maxResist,
+        currentResist: armorDurability.currentResist,
+        isRepairable: armorDurability.isRepairable,
+      },
+    });
+  } catch {
+    /* fallback silencioso */
+  }
+}
+
+/**
+ * Líneas de arma/material/armadura de un ataque para el mensaje de combate.
+ * @param {object|null} weaponDef - Definición del arma equipada del atacante
+ * @param {object} attackInfo - Resultado de executeAttack
+ * @param {object|null} armorEntry - Pieza de armadura impactada del defensor
+ * @param {object} reactionResult - Resultado de executeReaction
+ * @returns {string[]}
+ */
+function buildAttackGearLines(weaponDef, attackInfo, armorEntry, reactionResult) {
+  const lines = [];
+  if (weaponDef) {
+    lines.push(`${weaponDef.name} (${attackInfo.damageNature} \u00B7 ${attackInfo.baseDamage})`);
+  }
+  if (attackInfo.damageNature && attackInfo.damageNature !== "desarmado") {
+    lines.push(`Da\u00F1o material: ${attackInfo.materialDamage}`);
+  }
+  if (reactionResult.armorAbsorption) {
+    const abs = reactionResult.armorAbsorption;
+    const status = abs.isDestroyed ? " | DESTRUIDA" : abs.isBroken ? " | ROTA" : "";
+    lines.push(
+      `\uD83D\uDEE1\uFE0F Absorci\u00F3n: ${abs.absorbed}${abs.overflow > 0 ? ` | overflow ${abs.overflow}` : ""}${status}`,
+    );
+  }
+  if (armorEntry && armorEntry.instance) {
+    lines.push(`${armorEntry.itemId}: ${armorEntry.instance.currentResist}/${armorEntry.instance.maxResist}`);
+  }
+  return lines;
+}
 
 /**
  * Returns the slots.
@@ -57,10 +162,23 @@ function applyAttackFatigue(attackerSlot) {
  * @param {*} defenderSlot - - defender slot.
  * @param {*} attackInfo - - attack info.
  * @param {*} isChallenger - - is challenger.
+ * @param {object|null} [weaponInfo] - - arma del atacante.
+ * @param {object|null} [armorEntry] - - pieza de armadura del defensor.
+ * @param {object|null} [weaponDef] - - definición del arma del atacante.
  * @returns
  * @async
  */
-async function handlePvE(ctx, session, attackerSlot, defenderSlot, attackInfo, isChallenger) {
+async function handlePvE(
+  ctx,
+  session,
+  attackerSlot,
+  defenderSlot,
+  attackInfo,
+  isChallenger,
+  weaponInfo,
+  armorEntry,
+  weaponDef,
+) {
   let aiReaction = "none";
   if (attackInfo.canReact) {
     aiReaction = chooseAiReaction(
@@ -86,6 +204,19 @@ async function handlePvE(ctx, session, attackerSlot, defenderSlot, attackInfo, i
     attackerSlot.hp,
     defenderSlot.fatigue,
     attackerSlot.fatigue,
+    attackInfo.materialDamage,
+    armorEntry?.instance || null,
+  );
+
+  /**
+   * Persiste la durabilidad desgastada de la armadura del defensor. En PvE el
+   * dummy sincroniza su equipo en memoria (no toca la DB).
+   */
+  await applyDurabilityHit(
+    armorEntry,
+    armorEntry?.instance || null,
+    defenderSlot.character,
+    defenderSlot.userId || ctx.sender,
   );
 
   /**
@@ -106,6 +237,7 @@ async function handlePvE(ctx, session, attackerSlot, defenderSlot, attackInfo, i
   const lines = [];
   lines.push("");
   lines.push(`\u2694\uFE0F *${attackerSlot.character.name}* \u2192 *${defenderSlot.character.name}*`);
+  lines.push(...buildAttackGearLines(weaponDef, attackInfo, armorEntry, reactionResult));
 
   if (reactionResult.reaction === "dodge") {
     lines.push(`\uD83D\uDCA8 *${defenderSlot.character.name}* esquiv\u00F3 (0)`);
@@ -174,6 +306,11 @@ async function handlePvECounterAttack(
   lines,
 ) {
   /**
+   * El dummy contraataca con su arma de hierro (en memoria).
+   * @constant dummyWeapon
+   */
+  const dummyWeapon = await resolveAttackerWeapon(defenderSlot.character).catch(() => null);
+  /**
    * @constant dummyAttack
    */
   const dummyAttack = executeAttack(
@@ -183,6 +320,7 @@ async function handlePvECounterAttack(
     defenderSlot.hp,
     defenderSlot.fatigue,
     attackerSlot.fatigue,
+    dummyWeapon,
   );
 
   if (dummyAttack.canReact) {
@@ -248,8 +386,17 @@ async function handlePvECounterAttack(
 
   advanceTurn(session.id, finalAttackerHp, finalDefenderHp);
 
+  /**
+   * Nombre/icono del arma del dummy para la línea de contraataque.
+   */
+  const dummyWeaponId = defenderSlot.character.dummyEquipment?.slots?.mano_der;
+  const dummyWeaponDef = dummyWeaponId ? getItem(dummyWeaponId) : null;
+
   lines.push("");
   lines.push(`\uD83E\uDD16 *${defenderSlot.character.name}* contraataca`);
+  if (dummyWeaponDef) {
+    lines.push(`${dummyWeaponDef.name} (${dummyAttack.damageNature} \u00B7 ${dummyAttack.baseDamage})`);
+  }
   lines.push(`\uD83D\uDCA5 Da\u00F1o: ${dummyReaction.finalDamage}`);
   lines.push(
     `\u2764\uFE0F *${attackerSlot.character.name}*: ${dummyReaction.defenderHpBefore}\u2192${dummyReaction.defenderHpAfter}`,
@@ -281,10 +428,11 @@ async function handlePvECounterAttack(
  * @param {*} defenderSlot - - defender slot.
  * @param {*} attackInfo - - attack info.
  * @param {*} isChallenger - - is challenger.
+ * @param {object|null} [weaponDef] - - definición del arma del atacante.
  * @returns
  * @async
  */
-async function handlePvPWithReaction(ctx, session, attackerSlot, defenderSlot, attackInfo, isChallenger) {
+async function handlePvPWithReaction(ctx, session, attackerSlot, defenderSlot, attackInfo, isChallenger, weaponDef) {
   const { evaluateDodgeFeasibility } = require("../../../services/rpg/combatEngine");
   /**
    * @constant canDodge
@@ -312,12 +460,18 @@ async function handlePvPWithReaction(ctx, session, attackerSlot, defenderSlot, a
   });
 
   /**
+   * @constant gearLines
+   */
+  const gearLines = weaponDef ? [`${weaponDef.name} (${attackInfo.damageNature} \u00B7 ${attackInfo.baseDamage})`] : [];
+
+  /**
    * @constant lines
    * @type {*[]}
    */
   const lines = [
     "",
     `\u2694\uFE0F *${attackerSlot.character.name}* \u2192 *${defenderSlot.character.name}*`,
+    ...gearLines,
     `\uD83D\uDCA5 Base: ${attackInfo.baseDamage}`,
     `\u26A1 ${buildFatigueBar(attackerSlot.fatigue, attackerSlot.character.stats.def || 1)}`,
     "",
@@ -336,10 +490,23 @@ async function handlePvPWithReaction(ctx, session, attackerSlot, defenderSlot, a
  * @param {*} defenderSlot - - defender slot.
  * @param {*} attackInfo - - attack info.
  * @param {*} isChallenger - - is challenger.
+ * @param {object|null} [weaponInfo] - - arma del atacante.
+ * @param {object|null} [armorEntry] - - pieza de armadura del defensor.
+ * @param {object|null} [weaponDef] - - definición del arma del atacante.
  * @returns
  * @async
  */
-async function handlePvP(ctx, session, attackerSlot, defenderSlot, attackInfo, isChallenger) {
+async function handlePvP(
+  ctx,
+  session,
+  attackerSlot,
+  defenderSlot,
+  attackInfo,
+  isChallenger,
+  weaponInfo,
+  armorEntry,
+  weaponDef,
+) {
   /**
    * @constant reactionResult
    */
@@ -352,6 +519,18 @@ async function handlePvP(ctx, session, attackerSlot, defenderSlot, attackInfo, i
     attackerSlot.hp,
     defenderSlot.fatigue,
     attackerSlot.fatigue,
+    attackInfo.materialDamage,
+    armorEntry?.instance || null,
+  );
+
+  /**
+   * Persiste la durabilidad desgastada de la armadura del defensor (PvP real).
+   */
+  await applyDurabilityHit(
+    armorEntry,
+    armorEntry?.instance || null,
+    defenderSlot.character,
+    defenderSlot.userId || ctx.sender,
   );
 
   /**
@@ -372,6 +551,7 @@ async function handlePvP(ctx, session, attackerSlot, defenderSlot, attackInfo, i
   const lines = [
     "",
     `\u2694\uFE0F *${attackerSlot.character.name}* \u2192 *${defenderSlot.character.name}*`,
+    ...buildAttackGearLines(weaponDef, attackInfo, armorEntry, reactionResult),
     `\uD83D\uDCA5 Da\u00F1o: ${reactionResult.finalDamage}`,
     `\u2764\uFE0F *${defenderSlot.character.name}*: ${reactionResult.defenderHpBefore}\u2192${reactionResult.defenderHpAfter}`,
     `\u26A1 ${buildFatigueBar(attackerSlot.fatigue, attackerSlot.character.stats.def || 1)}`,
@@ -478,6 +658,15 @@ module.exports = {
       applyAttackFatigue(attackerSlot);
 
       /**
+       * Resuelve equipo del atacante (arma) y defensor (armadura) a insumos de
+       * combate. Fallback defensivo: si algo falla, se queda en desarmado.
+       */
+      const { weaponInfo, armorEntry, weaponDef } = await resolveCombatEquipment(
+        attackerSlot.character,
+        defenderSlot.character,
+      );
+
+      /**
        * @constant attackInfo
        */
       const attackInfo = executeAttack(
@@ -487,17 +676,38 @@ module.exports = {
         attackerSlot.hp,
         attackerSlot.fatigue,
         defenderSlot.fatigue,
+        weaponInfo,
       );
 
       if (session.isPvE) {
-        return handlePvE(ctx, session, attackerSlot, defenderSlot, attackInfo, isChallenger);
+        return handlePvE(
+          ctx,
+          session,
+          attackerSlot,
+          defenderSlot,
+          attackInfo,
+          isChallenger,
+          weaponInfo,
+          armorEntry,
+          weaponDef,
+        );
       }
 
       if (attackInfo.canReact) {
-        return handlePvPWithReaction(ctx, session, attackerSlot, defenderSlot, attackInfo, isChallenger);
+        return handlePvPWithReaction(ctx, session, attackerSlot, defenderSlot, attackInfo, isChallenger, weaponDef);
       }
 
-      return handlePvP(ctx, session, attackerSlot, defenderSlot, attackInfo, isChallenger);
+      return handlePvP(
+        ctx,
+        session,
+        attackerSlot,
+        defenderSlot,
+        attackInfo,
+        isChallenger,
+        weaponInfo,
+        armorEntry,
+        weaponDef,
+      );
     } catch (error) {
       return ctx.reply(formatError(error.message));
     }

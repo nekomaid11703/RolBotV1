@@ -20,7 +20,6 @@ function createItem(itemId) {
     id: def.id,
     type: "item",
     name: def.name,
-    icon: def.icon,
     description: def.description,
     rarity: def.rarity || "common",
     price: def.basePrice || 0,

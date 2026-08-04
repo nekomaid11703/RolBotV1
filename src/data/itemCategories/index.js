@@ -10,6 +10,7 @@ const TemporalModule = require("./temporal");
 const WeaponModule = require("./weapon");
 const ArmorModule = require("./armor");
 const DurabilityModule = require("./durability");
+const ThrowableModule = require("./throwable");
 
 moduleRegistry.register(HealModule);
 moduleRegistry.register(BuffModule);
@@ -19,6 +20,7 @@ moduleRegistry.register(TemporalModule);
 moduleRegistry.register(WeaponModule);
 moduleRegistry.register(ArmorModule);
 moduleRegistry.register(DurabilityModule);
+moduleRegistry.register(ThrowableModule);
 
 module.exports = {
   /**

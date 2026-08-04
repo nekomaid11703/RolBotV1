@@ -1,103 +1,28 @@
 // @ts-nocheck
 const { box } = require("../../utils/boxUtils");
-const { getFatigueLevel } = require("./fatigueEngine");
-const { HP_MAX } = require("../../config/characterConfig");
-
-/**
- * Construye una barra de HP visual con icono de estado.
- * @param {number} current - HP actual
- * @param {number} [max] - HP máximo
- * @returns {string} Barra de HP formateada
- */
-function buildHpBar(current, max = HP_MAX) {
-  /**
-   * @constant pct
-   */
-  const pct = Math.max(0, Math.min(1, current / max));
-  /**
-   * @constant filled
-   */
-  const filled = Math.round(pct * 10);
-  /**
-   * @constant empty
-   */
-  const empty = 10 - filled;
-  /**
-   * @constant bar
-   */
-  const bar = "\u2588".repeat(filled) + "\u2591".repeat(empty);
-
-  let icon;
-  if (pct > 0.6) icon = "\uD83D\uDFE2";
-  else if (pct > 0.3) icon = "\uD83D\uDFE1";
-  else if (pct > 0) icon = "\uD83D\uDD34";
-  else icon = "\uD83D\uDC80";
-
-  return `${icon} [${bar}] ${current}/${max}`;
-}
-
-/**
- * Genera un resumen de estadísticas formateado en líneas.
- * @param {*} stats - Estadísticas del personaje
- * @returns {string[]} Líneas de resumen de estadísticas
- */
-function buildStatSummary(stats = {}) {
-  return [
-    `HP${stats.hp ?? 0} ATK${stats.atk ?? 0} DEF${stats.def ?? 0} ASPD${stats.aspd ?? 0}`,
-    `REF${stats.ref ?? 0} MSP${stats.mspd ?? 0} FUL${stats.fulgor ?? 0}`,
-    `DF${stats.d_fulgor ?? 0} RF${stats.r_fulgor ?? 0}`,
-  ];
-}
-
-/**
- * Construye una barra de fatiga visual con nivel y ratio.
- * @param {number} fatigue - Nivel de fatiga actual
- * @param {number} resistance - Resistencia máxima contra fatiga
- * @returns {string} Barra de fatiga formateada
- */
-function buildFatigueBar(fatigue, resistance) {
-  const { name: levelName, ratio } = getFatigueLevel(fatigue, resistance);
-  /**
-   * @constant icons
-   * @type {object}
-   */
-  const icons = { pleno: "\uD83D\uDFE2", agitado: "\uD83D\uDFE1", cansado: "\uD83D\uDD34", fatigado: "\uD83D\uDD34" };
-  /**
-   * @constant icon
-   */
-  const icon = icons[levelName] || "\u26A0\uFE0F";
-  /**
-   * @constant filled
-   */
-  const filled = Math.round(ratio * 10);
-  /**
-   * @constant empty
-   */
-  const empty = 10 - filled;
-  /**
-   * @constant bar
-   */
-  const bar = "\u2588".repeat(Math.min(10, Math.max(0, filled))) + "\u2591".repeat(Math.max(0, empty));
-  return `${icon} ${bar} ${fatigue}/${resistance}`;
-}
+const { composeMessage } = require("../../ui/sectionBuilder");
+const { buildFatigueBar, buildStatSummary } = require("../../ui/sections/combatStats");
+const {
+  combatantLines,
+  equipmentSectionLines,
+  actionMenuLines,
+  reactionPromptLines,
+} = require("../../ui/sections/combatSections");
 
 /**
  * Genera el menú de acciones disponibles para el turno actual.
+ * Delegado a combatSections (data-driven desde COMBAT_ACTIONS).
  * @param {string} characterName - Nombre del personaje en turno
+ * @param {object} [session] - Sesión de combate
  * @returns {string} Menú de acciones formateado
  */
-function formatActionMenu(characterName) {
-  return [
-    `\u2694\uFE0F Turno de *${characterName}*`,
-    "  \u2022 `/atacar` \u2014 Ataque",
-    "  \u2022 `/usar <item>` \u2014 Consumible",
-    "  \u2022 `/descansar` \u2014 Fatiga -5",
-    "  \u2022 `/huir` \u2014 Escapar",
-  ].join("\n");
+function formatActionMenu(characterName, session) {
+  return actionMenuLines(characterName, session).join("\n");
 }
 
 /**
  * Genera el prompt de reacción para el defensor ante un ataque entrante.
+ * Delegado a combatSections (data-driven desde REACTION_ACTIONS).
  * @param {string} attackerName - Nombre del atacante
  * @param {string} defenderName - Nombre del defensor
  * @param {number} baseDamage - Daño base del ataque
@@ -105,143 +30,81 @@ function formatActionMenu(characterName) {
  * @returns {string} Prompt de reacción formateado
  */
 function formatReactionPrompt(attackerName, defenderName, baseDamage, canDodgeSuccessfully = false) {
-  /**
-   * @constant dodgeLine
-   */
-  const dodgeLine = canDodgeSuccessfully
-    ? "  \u2022 `/esquivar` \u2192 \u2705 Da\u00F1o: 0"
-    : "  \u2022 `/esquivar` \u2192 \u274C Da\u00F1o: " + baseDamage;
+  return reactionPromptLines(attackerName, defenderName, baseDamage, canDodgeSuccessfully).join("\n");
+}
 
-  return [
-    `\u26A1 *${attackerName}* ataca (${baseDamage})`,
-    `\uD83D\uDCA1 *${defenderName}* reacciona:`,
-    dodgeLine,
-    "  \u2022 `/bloquear` \u2192 \uD83D\uDEE1\uFE0F Da\u00F1o: " + Math.max(1, Math.round(baseDamage * 0.75)),
-  ].join("\n");
+/**
+ * Genera las líneas de equipo de un combatiente para la UI de combate.
+ * Muestra arma, piezas de armadura con durabilidad, artefactos y bonos de set.
+ * Delegado a equipmentSections (sin emojis de ítem).
+ * @param {object} eq - Resumen de equipo (resolveCharacterEquipment)
+ * @returns {string[]} Líneas de equipo formateadas (vacío si no hay equipo)
+ */
+function formatEquipmentSummary(eq) {
+  return equipmentSectionLines(eq);
 }
 
 /**
  * Formatea el mensaje de apertura de combate con estadísticas de ambos participantes.
  * @param {*} session - Sesión de combate
  * @param {boolean} [hasTestKit] - Si el personaje tiene kit de prueba
+ * @param {{challenger: object, defender: object}} [equipmentMap] - Resumen de equipo por bando
  * @returns {string} Mensaje de apertura formateado
  */
-function formatCombatOpen(session, hasTestKit = false) {
-  /**
-   * @constant c
-   */
+function formatCombatOpen(session, hasTestKit = false, equipmentMap = {}) {
   const c = session.challenger;
-  /**
-   * @constant d
-   */
   const d = session.defender;
 
-  /**
-   * @constant cStats
-   */
-  const cStats = buildStatSummary(c.character.stats);
-  /**
-   * @constant dStats
-   */
-  const dStats = buildStatSummary(d.character.stats);
+  const cEq = equipmentSectionLines(equipmentMap?.challenger);
+  const dEq = equipmentSectionLines(equipmentMap?.defender);
 
-  /**
-   * @constant lines
-   * @type {*[]}
-   */
-  const lines = [
-    "",
-    `*${c.character.name}* Nv.${c.character.nivel || 20}`,
-    `HP ${buildHpBar(c.hp, (c.character.stats?.hp ?? 1) * 2)}`,
-    `Fat ${buildFatigueBar(c.fatigue || 0, c.character.stats.def || 1)}`,
-    cStats[0],
-    cStats[1],
-    "",
-    "      \u2694\uFE0F VS \u2694\uFE0F",
-    "",
-    `*${d.character.name}* Nv.${d.character.nivel || 20}`,
-    `HP ${buildHpBar(d.hp, (d.character.stats?.hp ?? 1) * 2)}`,
-    `Fat ${buildFatigueBar(d.fatigue || 0, d.character.stats.def || 1)}`,
-    dStats[0],
-    dStats[1],
-    "",
-  ];
-
+  const sections = [combatantLines(c)];
+  if (cEq.length > 0) sections.push(cEq);
+  sections.push(["      \u2694\uFE0F VS \u2694\uFE0F"]);
+  sections.push(combatantLines(d));
+  if (dEq.length > 0) sections.push(dEq);
   if (hasTestKit) {
-    lines.push("\uD83C\uDF92 Consumibles de prueba");
-    lines.push("");
+    sections.push(["\uD83C\uDF92 Consumibles de prueba"]);
   }
+  sections.push([
+    "\u2726 \u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501 \u2726",
+    ...actionMenuLines(c.character.name),
+  ]);
 
-  lines.push("\u2726 \u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501 \u2726");
-  lines.push(formatActionMenu(c.character.name));
-
-  return box("\u2694\uFE0F COMBATE INICIADO", lines);
+  return composeMessage({ title: "\u2694\uFE0F COMBATE INICIADO", sections });
 }
 
 /**
  * Formatea el estado completo del combate con HP, fatiga y acciones disponibles.
  * @param {*} session - Sesión de combate
+ * @param {{challenger: object, defender: object}} [equipmentMap] - Resumen de equipo por bando
  * @returns {string} Estado del combate formateado
  */
-function formatCombatStatus(session) {
-  /**
-   * @constant lines
-   * @type {*[]}
-   */
-  const lines = [];
-  /**
-   * @constant c
-   */
+function formatCombatStatus(session, equipmentMap = {}) {
   const c = session.challenger;
-  /**
-   * @constant d
-   */
   const d = session.defender;
 
-  /**
-   * @constant currentName
-   */
   const currentName = String(session.currentTurnCharId) === String(c.characterId) ? c.character.name : d.character.name;
 
-  /**
-   * @constant cStats
-   */
-  const cStats = buildStatSummary(c.character.stats);
-  /**
-   * @constant dStats
-   */
-  const dStats = buildStatSummary(d.character.stats);
+  const cEq = equipmentSectionLines(equipmentMap?.challenger);
+  const dEq = equipmentSectionLines(equipmentMap?.defender);
 
-  lines.push("");
-  lines.push(`R${session.rounds + 1} Turno *${currentName}*`);
-  lines.push("");
-  lines.push("\u2500\u2500 RETADOR \u2500\u2500");
-  lines.push(`*${c.character.name}* Nv.${c.character.nivel || 20}`);
-  lines.push(`HP ${buildHpBar(c.hp, (c.character.stats?.hp ?? 1) * 2)}`);
-  lines.push(`Fat ${buildFatigueBar(c.fatigue || 0, c.character.stats.def || 1)}`);
-  lines.push(cStats[0]);
-  lines.push(cStats[1]);
-  lines.push("");
-  lines.push("\u2500\u2500 DEFENSOR \u2500\u2500");
-  lines.push(`*${d.character.name}* Nv.${d.character.nivel || 20}`);
-  lines.push(`HP ${buildHpBar(d.hp, (d.character.stats?.hp ?? 1) * 2)}`);
-  lines.push(`Fat ${buildFatigueBar(d.fatigue || 0, d.character.stats.def || 1)}`);
-  lines.push(dStats[0]);
-  lines.push(dStats[1]);
-  lines.push("");
+  const sections = [];
+  sections.push([`R${session.rounds + 1} Turno *${currentName}*`]);
+  sections.push(["\u2500\u2500 RETADOR \u2500\u2500", ...combatantLines(c)]);
+  if (cEq.length > 0) sections.push(cEq);
+  sections.push(["\u2500\u2500 DEFENSOR \u2500\u2500", ...combatantLines(d)]);
+  if (dEq.length > 0) sections.push(dEq);
 
-  lines.push("\u2726 \u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501 \u2726");
+  sections.push(["\u2726 \u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501 \u2726"]);
   if (session.status === "waiting_reaction" && session.pendingAttack) {
-    /**
-     * @constant p
-     */
     const p = session.pendingAttack;
-    lines.push(formatReactionPrompt(p.attackerName, p.defenderName, p.baseDamage, p.canDodgeSuccessfully ?? false));
+    sections.push(reactionPromptLines(p.attackerName, p.defenderName, p.baseDamage, p.canDodgeSuccessfully ?? false));
   } else {
-    lines.push(formatActionMenu(currentName));
+    sections.push(actionMenuLines(currentName));
   }
 
-  return box("\uD83D\uDCCA ESTADO", lines);
+  return composeMessage({ title: "\uD83D\uDCCA ESTADO", sections });
 }
 
 /**
@@ -317,6 +180,7 @@ module.exports = {
   buildStatSummary,
   formatActionMenu,
   formatReactionPrompt,
+  formatEquipmentSummary,
   formatCombatOpen,
   formatCombatStatus,
   formatFlee,

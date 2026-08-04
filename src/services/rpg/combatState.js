@@ -6,6 +6,7 @@ const { logError, logSystem } = require("../loggerService");
  * @constant moduleRegistry
  */
 const moduleRegistry = require("../../modules/moduleRegistry");
+const { buildDummyEquipment } = require("./dummyEquipment");
 
 /**
  * @constant sessions
@@ -85,7 +86,23 @@ function generateDummyCharacter(challengerChar) {
       hp: dummyHp,
       ...dummyStats,
     },
+    // Equipamiento en memoria (Familia del Hierro) para que el dummy use y
+    // luzca el sistema de equipo sin tocar la DB.
+    dummyEquipment: buildDummyEquipment(),
   };
+}
+
+/**
+ * Resuelve el HP inicial de un combatiente de forma defensiva.
+ * Si el HP persistido es 0 o inválido (p. ej. vida 0 dejada por un combate
+ * anterior), inicia con el HP máximo para que una sesión nunca arranque con 0.
+ * @param {*} character - Personaje con stats y hp_actual
+ * @returns {number} HP inicial de la sesión (> 0)
+ */
+function resolveSessionHp(character) {
+  const maxHp = (character.stats?.hp ?? 1) * 2;
+  const hp = Number(character.hp_actual);
+  return Number.isFinite(hp) && hp > 0 ? Math.floor(hp) : maxHp;
 }
 
 /**
@@ -235,7 +252,7 @@ async function createSession(challengerId, defenderId, challengerChar, defenderC
       userId: challengerId,
       characterId: challengerChar.id,
       character: challengerChar,
-      hp: challengerChar.hp_actual,
+      hp: resolveSessionHp(challengerChar),
       isBot: false,
       fatigue: 0,
     },
@@ -243,7 +260,7 @@ async function createSession(challengerId, defenderId, challengerChar, defenderC
       userId: defenderId,
       characterId: defenderChar.id,
       character: defenderChar,
-      hp: defenderChar.hp_actual,
+      hp: resolveSessionHp(defenderChar),
       isBot: false,
       fatigue: 0,
     },
@@ -304,7 +321,7 @@ async function createDummySession(challengerId, challengerChar) {
       userId: challengerId,
       characterId: challengerChar.id,
       character: challengerChar,
-      hp: challengerChar.hp_actual,
+      hp: resolveSessionHp(challengerChar),
       isBot: false,
       fatigue: 0,
     },
@@ -646,6 +663,7 @@ module.exports = {
   createSession,
   createDummySession,
   generateDummyCharacter,
+  resolveSessionHp,
   getSession,
   findSessionByCharacter,
   updateDistance,

@@ -7,7 +7,27 @@ const { handleCommand } = require("./commandHandler");
 const { recordUserActivity } = require("../services/userService");
 const { recordGroupActivity } = require("../services/groupActivityService");
 const { incrementMessages } = require("../services/stats");
-const { logError } = require("../services/loggerService");
+const { logSystem, logError } = require("../services/loggerService");
+
+/**
+ * @constant ACTIVITY_TIMEOUT_MS
+ * @type {number}
+ */
+const ACTIVITY_TIMEOUT_MS = 15000;
+
+/**
+ * Rejects if the promise does not settle within the given time.
+ * @param {Promise<*>} promise - - Promise to race against the timeout.
+ * @param {number} ms - - Max wait time in milliseconds.
+ * @returns {Promise<*>} - Result of the source promise.
+ */
+function withTimeout(promise, ms) {
+  let timer = null;
+  const timeout = new Promise((_, reject) => {
+    timer = setTimeout(() => reject(new Error("activity timeout")), ms);
+  });
+  return Promise.race([promise, timeout]).finally(() => clearTimeout(timer));
+}
 
 /**
  * Determines whether the skip message.
@@ -121,10 +141,29 @@ async function processSingleMessage(rawMsg, sock) {
    */
   const ctx = createContext(sock, rawMsg);
   /**
-   * @constant isTextMessage
+   * @constant startedAt
    */
-  const isTextMessage = await recordUserAndGroupActivity(ctx, rawMsg);
-  if (!isTextMessage) return;
+  const startedAt = Date.now();
+  await logSystem("MSG_RECV", {
+    remoteJid: rawMsg?.key?.remoteJid || null,
+    fromMe: rawMsg?.key?.fromMe || false,
+    sender: ctx.sender,
+    type: ctx.messageType,
+    text: ctx.text ? ctx.text.slice(0, 40) : null,
+    pushName: rawMsg?.pushName || null,
+  });
+
+  try {
+    await withTimeout(recordUserAndGroupActivity(ctx, rawMsg), ACTIVITY_TIMEOUT_MS);
+    await logSystem("MSG_ACTIVITY_OK", { elapsedMs: Date.now() - startedAt });
+  } catch (activityError) {
+    await logSystem("MSG_ACTIVITY_TIMEOUT", {
+      elapsedMs: Date.now() - startedAt,
+      error: activityError instanceof Error ? activityError.message : String(activityError),
+    });
+  }
+
+  if (!ctx.text) return;
   await handleCommand(ctx);
 }
 

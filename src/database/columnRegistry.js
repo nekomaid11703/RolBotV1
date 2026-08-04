@@ -21,6 +21,7 @@ const KNOWN_SCHEMA = {
     "player_phone",
     "name",
     "slug",
+    "category",
     "raza",
     "clase",
     "rango",

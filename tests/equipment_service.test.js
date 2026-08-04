@@ -6,10 +6,12 @@
 
 let mockEquippedSlots = {};
 let mockSaveError = null;
+let mockSchemaError = null;
 
 function setupMocks() {
   mockEquippedSlots = {};
   mockSaveError = null;
+  mockSchemaError = null;
 
   const supabasePath = require.resolve("../src/database/supabase");
   const loggerPath = require.resolve("../src/services/loggerService");
@@ -21,11 +23,30 @@ function setupMocks() {
       return {
         select: vi.fn().mockReturnValue({
           eq: vi.fn().mockReturnValue({
-            single: vi.fn().mockResolvedValue({ data: { equipped_slots: mockEquippedSlots }, error: null }),
+            single: vi.fn().mockResolvedValue(
+              mockSchemaError
+                ? {
+                    data: null,
+                    error: {
+                      code: "PGRST204",
+                      message: `Could not find the column 'characters.${mockSchemaError}' in the schema cache`,
+                    },
+                  }
+                : { data: { equipped_slots: mockEquippedSlots }, error: null },
+            ),
           }),
         }),
         update: vi.fn().mockReturnValue({
-          eq: vi.fn().mockResolvedValue({ error: mockSaveError }),
+          eq: vi.fn().mockResolvedValue(
+            mockSchemaError
+              ? {
+                  error: {
+                    code: "PGRST204",
+                    message: `Could not find the column 'characters.${mockSchemaError}' in the schema cache`,
+                  },
+                }
+              : { error: mockSaveError },
+          ),
         }),
       };
     }
@@ -75,6 +96,64 @@ describe("EQUIPMENT_SLOTS — configuración", () => {
     expect(slots).toContain("artefacto_1");
     expect(slots).toContain("artefacto_4");
     expect(slots.length).toBe(10);
+  });
+});
+
+describe("normalizeSlot — aliases", () => {
+  const { normalizeSlot } = require("../src/services/rpg/equipmentService");
+
+  it("mapea alias coloquiales a keys reales", () => {
+    expect(normalizeSlot("casco")).toBe("cabeza");
+    expect(normalizeSlot("pechera")).toBe("pecho");
+    expect(normalizeSlot("grebas")).toBe("pantalones");
+    expect(normalizeSlot("botas")).toBe("botas");
+    expect(normalizeSlot("mano")).toBe("mano_der");
+  });
+
+  it("deja intacto un slot ya técnico", () => {
+    expect(normalizeSlot("mano_izq")).toBe("mano_izq");
+    expect(normalizeSlot("artefacto_3")).toBe("artefacto_3");
+  });
+});
+
+describe("resolveDefaultSlot — slot automático", () => {
+  const { resolveDefaultSlot } = require("../src/services/rpg/equipmentService");
+
+  it("arma (1 o 2 manos) va a mano_der", () => {
+    expect(resolveDefaultSlot({ categories: ["weapon"], modules: { weapon: { hands: 1 } } })).toBe("mano_der");
+    expect(resolveDefaultSlot({ categories: ["weapon"], modules: { weapon: { hands: 2 } } })).toBe("mano_der");
+  });
+
+  it("escudo va a mano_izq", () => {
+    expect(resolveDefaultSlot({ categories: ["shield"] })).toBe("mano_izq");
+  });
+
+  it("armadura usa el slot del módulo armor", () => {
+    expect(resolveDefaultSlot({ categories: ["armor"], modules: { armor: { slot: "cabeza" } } })).toBe("cabeza");
+    expect(resolveDefaultSlot({ categories: ["armor"], modules: { armor: { slot: "botas" } } })).toBe("botas");
+  });
+
+  it("armadura infiere slot por id/nombre si no trae módulo", () => {
+    expect(resolveDefaultSlot({ id: "casco_roto", name: "Casco", categories: ["armor"] })).toBe("cabeza");
+    expect(resolveDefaultSlot({ id: "grebas_roto", name: "Grebas", categories: ["armor"] })).toBe("pantalones");
+    expect(resolveDefaultSlot({ id: "botas_roto", name: "Botas", categories: ["armor"] })).toBe("botas");
+    expect(resolveDefaultSlot({ id: "x", name: "X", categories: ["armor"] })).toBe("pecho");
+  });
+
+  it("artefacto usa el primer hueco libre", () => {
+    expect(resolveDefaultSlot({ categories: ["artifact"] }, { artefacto_1: "a" })).toBe("artefacto_2");
+    expect(resolveDefaultSlot({ categories: ["artifact"] }, {})).toBe("artefacto_1");
+    expect(
+      resolveDefaultSlot(
+        { categories: ["artifact"] },
+        { artefacto_1: "a", artefacto_2: "b", artefacto_3: "c", artefacto_4: "d" },
+      ),
+    ).toBe("artefacto_1");
+  });
+
+  it("retorna null para no equipables", () => {
+    expect(resolveDefaultSlot({ categories: ["consumable"] })).toBeNull();
+    expect(resolveDefaultSlot({ categories: ["throwable"] })).toBeNull();
   });
 });
 
@@ -198,5 +277,37 @@ describe("unequipItem", () => {
     mockEquippedSlots = { mano_der: null };
     const { unequipItem } = require("../src/services/rpg/equipmentService");
     await expect(unequipItem({ characterId: 1, creatorId: "test", slot: "mano_der" })).rejects.toThrow("vacío");
+  });
+});
+
+describe("Degradación por esquema ausente (columna equipped_slots no existe)", () => {
+  beforeEach(() => setupMocks());
+
+  it("equipItem arroja error claro indicando la migración", async () => {
+    mockSchemaError = "equipped_slots";
+    const itemsPath = require.resolve("../src/data/items");
+    require.cache[itemsPath] = {
+      id: itemsPath,
+      filename: itemsPath,
+      loaded: true,
+      exports: {
+        getItem: (id) =>
+          id === "daga_test" ? { id: "daga_test", categories: ["weapon"], modules: { weapon: { hands: 1 } } } : null,
+        getItemsByCategory: vi.fn(),
+        ITEMS: {},
+      },
+    };
+    delete require.cache[require.resolve("../src/services/rpg/equipmentService")];
+
+    const { equipItem } = require("../src/services/rpg/equipmentService");
+    await expect(
+      equipItem({ characterId: 1, creatorId: "test", itemId: "daga_test", slot: "mano_der" }),
+    ).rejects.toThrow("migración 003");
+  });
+
+  it("unequipItem arroja con claridad indicando la migración", async () => {
+    mockSchemaError = "equipped_slots";
+    const { unequipItem } = require("../src/services/rpg/equipmentService");
+    await expect(unequipItem({ characterId: 1, creatorId: "test", slot: "mano_der" })).rejects.toThrow("migración 003");
   });
 });
