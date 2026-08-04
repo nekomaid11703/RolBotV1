@@ -516,6 +516,66 @@
       "norm_label": "entry"
     },
     {
+      "label": "src/core/bot.js",
+      "file_type": "concept",
+      "source_file": "knip.json",
+      "source_location": "L3",
+      "_origin": "ast",
+      "id": "ref_src_core_bot_js",
+      "community": 12,
+      "norm_label": "src/core/bot.js"
+    },
+    {
+      "label": "src/commands/**/*.js",
+      "file_type": "concept",
+      "source_file": "knip.json",
+      "source_location": "L3",
+      "_origin": "ast",
+      "id": "ref_src_commands_js",
+      "community": 12,
+      "norm_label": "src/commands/**/*.js"
+    },
+    {
+      "label": "src/data/**/*.js",
+      "file_type": "concept",
+      "source_file": "knip.json",
+      "source_location": "L3",
+      "_origin": "ast",
+      "id": "ref_src_data_js",
+      "community": 12,
+      "norm_label": "src/data/**/*.js"
+    },
+    {
+      "label": "src/config/**/*.js",
+      "file_type": "concept",
+      "source_file": "knip.json",
+      "source_location": "L3",
+      "_origin": "ast",
+      "id": "ref_src_config_js",
+      "community": 12,
+      "norm_label": "src/config/**/*.js"
+    },
+    {
+      "label": "scripts/**/*.js",
+      "file_type": "concept",
+      "source_file": "knip.json",
+      "source_location": "L3",
+      "_origin": "ast",
+      "id": "ref_scripts_js",
+      "community": 12,
+      "norm_label": "scripts/**/*.js"
+    },
+    {
+      "label": "tests/**/*.js",
+      "file_type": "concept",
+      "source_file": "knip.json",
+      "source_location": "L3",
+      "_origin": "ast",
+      "id": "ref_tests_js",
+      "community": 12,
+      "norm_label": "tests/**/*.js"
+    },
+    {
       "label": "project",
       "file_type": "code",
       "source_file": "knip.json",
@@ -524,6 +584,16 @@
       "id": "knip_project",
       "community": 12,
       "norm_label": "project"
+    },
+    {
+      "label": "src/**/*.js",
+      "file_type": "concept",
+      "source_file": "knip.json",
+      "source_location": "L11",
+      "_origin": "ast",
+      "id": "ref_src_js",
+      "community": 12,
+      "norm_label": "src/**/*.js"
     },
     {
       "label": "rules",
@@ -586,13 +656,33 @@
       "norm_label": "ignorebinaries"
     },
     {
+      "label": "dot",
+      "file_type": "concept",
+      "source_file": "knip.json",
+      "source_location": "L18",
+      "_origin": "ast",
+      "id": "ref_dot",
+      "community": 12,
+      "norm_label": "dot"
+    },
+    {
+      "label": "graphify",
+      "file_type": "concept",
+      "source_file": "knip.json",
+      "source_location": "L18",
+      "_origin": "ast",
+      "id": "ref_graphify",
+      "community": 12,
+      "norm_label": "graphify"
+    },
+    {
       "label": "cleanup-temp-items.js",
       "file_type": "code",
       "source_file": "scripts/cleanup-temp-items.js",
       "source_location": "L1",
       "_origin": "ast",
       "id": "scripts_cleanup_temp_items",
-      "community": 72,
+      "community": 21,
       "norm_label": "cleanup-temp-items.js"
     },
     {
@@ -602,7 +692,7 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "scripts_cleanup_temp_items_supabase",
-      "community": 72,
+      "community": 21,
       "norm_label": "{ supabase }"
     },
     {
@@ -612,7 +702,7 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "scripts_cleanup_temp_items_temp_prefixes",
-      "community": 72,
+      "community": 21,
       "norm_label": "temp_prefixes"
     },
     {
@@ -622,7 +712,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "scripts_cleanup_temp_items_say",
-      "community": 72,
+      "community": 21,
       "norm_label": "say()"
     },
     {
@@ -632,7 +722,7 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "scripts_cleanup_temp_items_main",
-      "community": 72,
+      "community": 21,
       "norm_label": "main()"
     },
     {
@@ -2752,7 +2842,7 @@
       "source_location": "L49",
       "_origin": "ast",
       "id": "src_commands_admin_permissions_admin_perm_add_execute",
-      "community": 104,
+      "community": 7,
       "norm_label": "execute()"
     },
     {
@@ -3042,7 +3132,7 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "src_commands_admin_permissions_eco_admin_add_execute",
-      "community": 104,
+      "community": 7,
       "norm_label": "execute()"
     },
     {
@@ -3102,7 +3192,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_commands_admin_permissions_eco_admin_rem",
-      "community": 104,
+      "community": 89,
       "norm_label": "eco_admin_rem.js"
     },
     {
@@ -3112,7 +3202,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_commands_admin_permissions_eco_admin_rem_seteconomyadmin_iseconomyadmin",
-      "community": 104,
+      "community": 89,
       "norm_label": "{ seteconomyadmin, iseconomyadmin }"
     },
     {
@@ -3122,7 +3212,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_commands_admin_permissions_eco_admin_rem_getfirstmentionedjid",
-      "community": 104,
+      "community": 89,
       "norm_label": "{ getfirstmentionedjid }"
     },
     {
@@ -3132,7 +3222,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_commands_admin_permissions_eco_admin_rem_isowner",
-      "community": 104,
+      "community": 89,
       "norm_label": "{ isowner }"
     },
     {
@@ -3142,7 +3232,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "src_commands_admin_permissions_eco_admin_rem_formatdisplaymention_withmentions",
-      "community": 104,
+      "community": 89,
       "norm_label": "{ formatdisplaymention, withmentions }"
     },
     {
@@ -3152,7 +3242,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "src_commands_admin_permissions_eco_admin_rem_resolvetargetdisplayname",
-      "community": 104,
+      "community": 89,
       "norm_label": "{ resolvetargetdisplayname }"
     },
     {
@@ -3162,7 +3252,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "src_commands_admin_permissions_eco_admin_rem_box",
-      "community": 104,
+      "community": 89,
       "norm_label": "{ box }"
     },
     {
@@ -3172,7 +3262,7 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "src_commands_admin_permissions_eco_admin_rem_formaterror",
-      "community": 104,
+      "community": 89,
       "norm_label": "{ formaterror }"
     },
     {
@@ -3182,7 +3272,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "src_commands_admin_permissions_eco_admin_rem_formatcommandusage",
-      "community": 104,
+      "community": 89,
       "norm_label": "{ formatcommandusage }"
     },
     {
@@ -3192,7 +3282,7 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "src_commands_admin_permissions_eco_admin_rem_usagemessage",
-      "community": 104,
+      "community": 89,
       "norm_label": "usagemessage"
     },
     {
@@ -3252,7 +3342,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_commands_economy_balance",
-      "community": 4,
+      "community": 104,
       "norm_label": "balance.js"
     },
     {
@@ -3262,7 +3352,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_commands_economy_balance_getorcreateprofile_getuserprofile",
-      "community": 4,
+      "community": 104,
       "norm_label": "{ getorcreateprofile, getuserprofile }"
     },
     {
@@ -3272,7 +3362,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_commands_economy_balance_formatstelas",
-      "community": 4,
+      "community": 104,
       "norm_label": "{ formatstelas }"
     },
     {
@@ -3282,7 +3372,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_commands_economy_balance_box",
-      "community": 4,
+      "community": 104,
       "norm_label": "{ box }"
     },
     {
@@ -3292,7 +3382,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "src_commands_economy_balance_resolvetarget",
-      "community": 4,
+      "community": 104,
       "norm_label": "resolvetarget()"
     },
     {
@@ -3302,7 +3392,7 @@
       "source_location": "L42",
       "_origin": "ast",
       "id": "src_commands_economy_balance_execute",
-      "community": 4,
+      "community": 104,
       "norm_label": "execute()"
     },
     {
@@ -3672,7 +3762,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_commands_info_bugreport",
-      "community": 109,
+      "community": 88,
       "norm_label": "bugreport.js"
     },
     {
@@ -3682,7 +3772,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_commands_info_bugreport_createreport",
-      "community": 109,
+      "community": 88,
       "norm_label": "{ createreport }"
     },
     {
@@ -3692,7 +3782,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_commands_info_bugreport_box",
-      "community": 109,
+      "community": 88,
       "norm_label": "{ box }"
     },
     {
@@ -3702,7 +3792,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "src_commands_info_bugreport_reportcooldowns",
-      "community": 109,
+      "community": 88,
       "norm_label": "reportcooldowns"
     },
     {
@@ -3712,7 +3802,7 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "src_commands_info_bugreport_execute",
-      "community": 109,
+      "community": 88,
       "norm_label": "execute()"
     },
     {
@@ -3722,7 +3812,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_commands_info_bugstatus",
-      "community": 113,
+      "community": 102,
       "norm_label": "bugstatus.js"
     },
     {
@@ -3732,7 +3822,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_commands_info_bugstatus_getreport_getuserreports",
-      "community": 113,
+      "community": 102,
       "norm_label": "{ getreport, getuserreports }"
     },
     {
@@ -3742,7 +3832,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_commands_info_bugstatus_box",
-      "community": 113,
+      "community": 102,
       "norm_label": "{ box }"
     },
     {
@@ -3752,7 +3842,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_commands_info_bugstatus_formaterror",
-      "community": 113,
+      "community": 102,
       "norm_label": "{ formaterror }"
     },
     {
@@ -3762,7 +3852,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "src_commands_info_bugstatus_execute",
-      "community": 113,
+      "community": 102,
       "norm_label": "execute()"
     },
     {
@@ -4092,7 +4182,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_commands_info_hola",
-      "community": 26,
+      "community": 7,
       "norm_label": "hola.js"
     },
     {
@@ -4102,7 +4192,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_commands_info_hola_formatdisplaymention",
-      "community": 26,
+      "community": 7,
       "norm_label": "{ formatdisplaymention }"
     },
     {
@@ -4112,7 +4202,7 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "src_commands_info_hola_execute",
-      "community": 26,
+      "community": 7,
       "norm_label": "execute()"
     },
     {
@@ -4362,7 +4452,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_commands_rpg_characters_editar_pj",
-      "community": 118,
+      "community": 10,
       "norm_label": "editar_pj.js"
     },
     {
@@ -4372,7 +4462,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_commands_rpg_characters_editar_pj_renamecharacter_updatecharacterslots_getactivecharacter",
-      "community": 118,
+      "community": 10,
       "norm_label": "{ renamecharacter, updatecharacterslots, getactivecharacter }"
     },
     {
@@ -4382,7 +4472,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_commands_rpg_characters_editar_pj_isadmin",
-      "community": 118,
+      "community": 10,
       "norm_label": "{ isadmin }"
     },
     {
@@ -4392,7 +4482,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_commands_rpg_characters_editar_pj_max_character_name_length",
-      "community": 118,
+      "community": 10,
       "norm_label": "{ max_character_name_length }"
     },
     {
@@ -4402,7 +4492,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "src_commands_rpg_characters_editar_pj_box",
-      "community": 118,
+      "community": 10,
       "norm_label": "{ box }"
     },
     {
@@ -4412,7 +4502,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "src_commands_rpg_characters_editar_pj_formaterror",
-      "community": 118,
+      "community": 10,
       "norm_label": "{ formaterror }"
     },
     {
@@ -4422,7 +4512,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "src_commands_rpg_characters_editar_pj_formatcommandusage",
-      "community": 118,
+      "community": 10,
       "norm_label": "{ formatcommandusage }"
     },
     {
@@ -4432,7 +4522,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "src_commands_rpg_characters_editar_pj_usagemessage",
-      "community": 118,
+      "community": 10,
       "norm_label": "usagemessage"
     },
     {
@@ -4442,7 +4532,7 @@
       "source_location": "L37",
       "_origin": "ast",
       "id": "src_commands_rpg_characters_editar_pj_execute",
-      "community": 83,
+      "community": 10,
       "norm_label": "execute()"
     },
     {
@@ -4772,7 +4862,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_commands_rpg_characters_ver_pj",
-      "community": 17,
+      "community": 16,
       "norm_label": "ver_pj.js"
     },
     {
@@ -4782,7 +4872,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_commands_rpg_characters_ver_pj_getactivecharacter",
-      "community": 17,
+      "community": 16,
       "norm_label": "{ getactivecharacter }"
     },
     {
@@ -4792,7 +4882,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_commands_rpg_characters_ver_pj_getinventory",
-      "community": 17,
+      "community": 16,
       "norm_label": "{ getinventory }"
     },
     {
@@ -4802,7 +4892,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_commands_rpg_characters_ver_pj_resolvecharacterequipment",
-      "community": 17,
+      "community": 16,
       "norm_label": "{ resolvecharacterequipment }"
     },
     {
@@ -4812,7 +4902,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "src_commands_rpg_characters_ver_pj_formatcharacter",
-      "community": 17,
+      "community": 16,
       "norm_label": "{ formatcharacter }"
     },
     {
@@ -4822,7 +4912,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "src_commands_rpg_characters_ver_pj_logerror",
-      "community": 17,
+      "community": 16,
       "norm_label": "{ logerror }"
     },
     {
@@ -4832,7 +4922,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "src_commands_rpg_characters_ver_pj_execute",
-      "community": 17,
+      "community": 16,
       "norm_label": "execute()"
     },
     {
@@ -4952,7 +5042,7 @@
       "source_location": "L37",
       "_origin": "ast",
       "id": "src_commands_rpg_combat_atacar_resolvecombatequipment",
-      "community": 84,
+      "community": 14,
       "norm_label": "resolvecombatequipment()"
     },
     {
@@ -4992,7 +5082,7 @@
       "source_location": "L145",
       "_origin": "ast",
       "id": "src_commands_rpg_combat_atacar_applyattackfatigue",
-      "community": 84,
+      "community": 42,
       "norm_label": "applyattackfatigue()"
     },
     {
@@ -5042,7 +5132,7 @@
       "source_location": "L590",
       "_origin": "ast",
       "id": "src_commands_rpg_combat_atacar_execute",
-      "community": 84,
+      "community": 38,
       "norm_label": "execute()"
     },
     {
@@ -5162,7 +5252,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_commands_rpg_combat_bloquear",
-      "community": 84,
+      "community": 87,
       "norm_label": "bloquear.js"
     },
     {
@@ -5172,7 +5262,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_commands_rpg_combat_bloquear_getactivecharacter_addxp_sethp",
-      "community": 84,
+      "community": 87,
       "norm_label": "{ getactivecharacter, addxp, sethp }"
     },
     {
@@ -5182,7 +5272,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_commands_rpg_combat_bloquear_findsessionbycharacter_advanceturn_endsession",
-      "community": 84,
+      "community": 87,
       "norm_label": "{ findsessionbycharacter, advanceturn, endsession }"
     },
     {
@@ -5192,7 +5282,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_commands_rpg_combat_bloquear_executereaction_calculatexpreward",
-      "community": 84,
+      "community": 87,
       "norm_label": "{ executereaction, calculatexpreward }"
     },
     {
@@ -5202,7 +5292,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "src_commands_rpg_combat_bloquear_calcfatiguecost_calcfatiguerecovery_capfatigue",
-      "community": 84,
+      "community": 87,
       "norm_label": "{ calcfatiguecost, calcfatiguerecovery, capfatigue }"
     },
     {
@@ -5212,7 +5302,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "src_commands_rpg_combat_bloquear_formatactionmenu_buildfatiguebar",
-      "community": 84,
+      "community": 87,
       "norm_label": "{ formatactionmenu, buildfatiguebar }"
     },
     {
@@ -5222,7 +5312,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "src_commands_rpg_combat_bloquear_box",
-      "community": 84,
+      "community": 87,
       "norm_label": "{ box }"
     },
     {
@@ -5242,7 +5332,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_commands_rpg_combat_descansar",
-      "community": 16,
+      "community": 84,
       "norm_label": "descansar.js"
     },
     {
@@ -5252,7 +5342,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_commands_rpg_combat_descansar_getactivecharacter_sethp",
-      "community": 16,
+      "community": 84,
       "norm_label": "{ getactivecharacter, sethp }"
     },
     {
@@ -5262,7 +5352,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_commands_rpg_combat_descansar_findsessionbycharacter_findsessionbyuser_advanceturn_setpendingreaction_endsession",
-      "community": 16,
+      "community": 84,
       "norm_label": "{\r\n  findsessionbycharacter,\r\n  findsessionbyuser,\r\n  advanceturn,\r\n  setpendingreaction,\r\n  endsession,\r\n}"
     },
     {
@@ -5272,7 +5362,7 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "src_commands_rpg_combat_descansar_executeattack_executereaction_evaluatedodgefeasibility",
-      "community": 16,
+      "community": 84,
       "norm_label": "{ executeattack, executereaction, evaluatedodgefeasibility }"
     },
     {
@@ -5282,7 +5372,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "src_commands_rpg_combat_descansar_calcfatiguerecovery_capfatigue",
-      "community": 16,
+      "community": 84,
       "norm_label": "{ calcfatiguerecovery, capfatigue }"
     },
     {
@@ -5292,7 +5382,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "src_commands_rpg_combat_descansar_formatactionmenu_formatreactionprompt_buildfatiguebar",
-      "community": 16,
+      "community": 84,
       "norm_label": "{ formatactionmenu, formatreactionprompt, buildfatiguebar }"
     },
     {
@@ -5302,7 +5392,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "src_commands_rpg_combat_descansar_box",
-      "community": 16,
+      "community": 84,
       "norm_label": "{ box }"
     },
     {
@@ -5322,7 +5412,7 @@
       "source_location": "L52",
       "_origin": "ast",
       "id": "src_commands_rpg_combat_descansar_buildrestlines",
-      "community": 16,
+      "community": 84,
       "norm_label": "buildrestlines()"
     },
     {
@@ -5332,7 +5422,7 @@
       "source_location": "L61",
       "_origin": "ast",
       "id": "src_commands_rpg_combat_descansar_builddummyattacklines",
-      "community": 16,
+      "community": 84,
       "norm_label": "builddummyattacklines()"
     },
     {
@@ -5342,7 +5432,7 @@
       "source_location": "L67",
       "_origin": "ast",
       "id": "src_commands_rpg_combat_descansar_buildkolines",
-      "community": 16,
+      "community": 84,
       "norm_label": "buildkolines()"
     },
     {
@@ -5352,7 +5442,7 @@
       "source_location": "L73",
       "_origin": "ast",
       "id": "src_commands_rpg_combat_descansar_builddivider",
-      "community": 16,
+      "community": 84,
       "norm_label": "builddivider()"
     },
     {
@@ -5372,7 +5462,7 @@
       "source_location": "L156",
       "_origin": "ast",
       "id": "src_commands_rpg_combat_descansar_handlepvprest",
-      "community": 16,
+      "community": 84,
       "norm_label": "handlepvprest()"
     },
     {
@@ -5382,7 +5472,7 @@
       "source_location": "L175",
       "_origin": "ast",
       "id": "src_commands_rpg_combat_descansar_execute",
-      "community": 16,
+      "community": 84,
       "norm_label": "execute()"
     },
     {
@@ -5532,7 +5622,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_commands_rpg_combat_huir",
-      "community": 84,
+      "community": 5,
       "norm_label": "huir.js"
     },
     {
@@ -5542,7 +5632,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_commands_rpg_combat_huir_getactivecharacter_sethp",
-      "community": 84,
+      "community": 5,
       "norm_label": "{ getactivecharacter, sethp }"
     },
     {
@@ -5552,7 +5642,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_commands_rpg_combat_huir_findsessionbycharacter_endsession_advanceturn_setpendingreaction",
-      "community": 84,
+      "community": 5,
       "norm_label": "{\r\n  findsessionbycharacter,\r\n  endsession,\r\n  advanceturn,\r\n  setpendingreaction,\r\n}"
     },
     {
@@ -5562,7 +5652,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "src_commands_rpg_combat_huir_rollflee_executeattack_executereaction",
-      "community": 84,
+      "community": 5,
       "norm_label": "{ rollflee, executeattack, executereaction }"
     },
     {
@@ -5572,7 +5662,7 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "src_commands_rpg_combat_huir_calcfatiguecost_capfatigue",
-      "community": 84,
+      "community": 5,
       "norm_label": "{ calcfatiguecost, capfatigue }"
     },
     {
@@ -5582,7 +5672,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "src_commands_rpg_combat_huir_formatflee_formatactionmenu_formatreactionprompt_buildfatiguebar",
-      "community": 84,
+      "community": 5,
       "norm_label": "{\r\n  formatflee,\r\n  formatactionmenu,\r\n  formatreactionprompt,\r\n  buildfatiguebar,\r\n}"
     },
     {
@@ -5592,7 +5682,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "src_commands_rpg_combat_huir_box",
-      "community": 84,
+      "community": 5,
       "norm_label": "{ box }"
     },
     {
@@ -5612,7 +5702,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_commands_rpg_combat_retar",
-      "community": 38,
+      "community": 16,
       "norm_label": "retar.js"
     },
     {
@@ -5622,7 +5712,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_commands_rpg_combat_retar_getactivecharacter",
-      "community": 38,
+      "community": 16,
       "norm_label": "{ getactivecharacter }"
     },
     {
@@ -5632,7 +5722,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_commands_rpg_combat_retar_createsession_createdummysession_findsessionbycharacter",
-      "community": 38,
+      "community": 16,
       "norm_label": "{ createsession, createdummysession, findsessionbycharacter }"
     },
     {
@@ -5642,7 +5732,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_commands_rpg_combat_retar_ensuretemptestkit_ensureironfamilykit",
-      "community": 38,
+      "community": 16,
       "norm_label": "{ ensuretemptestkit, ensureironfamilykit }"
     },
     {
@@ -5652,7 +5742,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "src_commands_rpg_combat_retar_resolvecharacterequipment",
-      "community": 38,
+      "community": 16,
       "norm_label": "{ resolvecharacterequipment }"
     },
     {
@@ -5662,7 +5752,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "src_commands_rpg_combat_retar_formatcombatopen",
-      "community": 38,
+      "community": 16,
       "norm_label": "{ formatcombatopen }"
     },
     {
@@ -5672,7 +5762,7 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "src_commands_rpg_combat_retar_resolveopenequipment",
-      "community": 38,
+      "community": 16,
       "norm_label": "resolveopenequipment()"
     },
     {
@@ -5682,7 +5772,7 @@
       "source_location": "L38",
       "_origin": "ast",
       "id": "src_commands_rpg_combat_retar_execute",
-      "community": 38,
+      "community": 16,
       "norm_label": "execute()"
     },
     {
@@ -5982,7 +6072,7 @@
       "source_location": "L36",
       "_origin": "ast",
       "id": "src_commands_rpg_inventory_equipar_resolvetarget",
-      "community": 28,
+      "community": 20,
       "norm_label": "resolvetarget()"
     },
     {
@@ -6002,7 +6092,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_commands_rpg_inventory_inventario",
-      "community": 27,
+      "community": 28,
       "norm_label": "inventario.js"
     },
     {
@@ -6012,7 +6102,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_commands_rpg_inventory_inventario_getactivecharacter",
-      "community": 27,
+      "community": 28,
       "norm_label": "{ getactivecharacter }"
     },
     {
@@ -6022,7 +6112,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_commands_rpg_inventory_inventario_getinventorylist",
-      "community": 27,
+      "community": 28,
       "norm_label": "{ getinventorylist }"
     },
     {
@@ -6032,7 +6122,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_commands_rpg_inventory_inventario_composemessage",
-      "community": 27,
+      "community": 28,
       "norm_label": "{ composemessage }"
     },
     {
@@ -6042,7 +6132,7 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "src_commands_rpg_inventory_inventario_execute",
-      "community": 27,
+      "community": 28,
       "norm_label": "execute()"
     },
     {
@@ -6382,7 +6472,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_config_combatbalance",
-      "community": 42,
+      "community": 22,
       "norm_label": "combatbalance.js"
     },
     {
@@ -6392,7 +6482,7 @@
       "source_location": "L131",
       "_origin": "ast",
       "id": "src_config_combatbalance_fatigue_speed_stats",
-      "community": 42,
+      "community": 22,
       "norm_label": "fatigue_speed_stats"
     },
     {
@@ -6402,7 +6492,7 @@
       "source_location": "L141",
       "_origin": "ast",
       "id": "src_config_combatbalance_fatigue_thresholds",
-      "community": 42,
+      "community": 22,
       "norm_label": "fatigue_thresholds"
     },
     {
@@ -6952,7 +7042,7 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "src_core_commandhandler_getactorid",
-      "community": 87,
+      "community": 3,
       "norm_label": "getactorid()"
     },
     {
@@ -6962,7 +7052,7 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "src_core_commandhandler_serializechatcommand",
-      "community": 87,
+      "community": 3,
       "norm_label": "serializechatcommand()"
     },
     {
@@ -6972,7 +7062,7 @@
       "source_location": "L32",
       "_origin": "ast",
       "id": "src_core_commandhandler_loadcommands",
-      "community": 21,
+      "community": 15,
       "norm_label": "loadcommands()"
     },
     {
@@ -7062,7 +7152,7 @@
       "source_location": "L150",
       "_origin": "ast",
       "id": "src_core_commandhandler_checkpermission",
-      "community": 87,
+      "community": 3,
       "norm_label": "checkpermission()"
     },
     {
@@ -7072,7 +7162,7 @@
       "source_location": "L158",
       "_origin": "ast",
       "id": "src_core_commandhandler_recordactivity",
-      "community": 87,
+      "community": 3,
       "norm_label": "recordactivity()"
     },
     {
@@ -7082,7 +7172,7 @@
       "source_location": "L189",
       "_origin": "ast",
       "id": "src_core_commandhandler_handlecommanderror",
-      "community": 87,
+      "community": 3,
       "norm_label": "handlecommanderror()"
     },
     {
@@ -7092,7 +7182,7 @@
       "source_location": "L218",
       "_origin": "ast",
       "id": "src_core_commandhandler_handlecommand",
-      "community": 87,
+      "community": 3,
       "norm_label": "handlecommand()"
     },
     {
@@ -7102,7 +7192,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_core_commandregistry",
-      "community": 21,
+      "community": 15,
       "norm_label": "commandregistry.js"
     },
     {
@@ -7112,7 +7202,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_core_commandregistry_fs",
-      "community": 21,
+      "community": 15,
       "norm_label": "fs"
     },
     {
@@ -7122,7 +7212,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_core_commandregistry_path",
-      "community": 21,
+      "community": 15,
       "norm_label": "path"
     },
     {
@@ -7132,7 +7222,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "src_core_commandregistry_commands",
-      "community": 21,
+      "community": 15,
       "norm_label": "commands"
     },
     {
@@ -7142,7 +7232,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "src_core_commandregistry_aliases",
-      "community": 21,
+      "community": 15,
       "norm_label": "aliases"
     },
     {
@@ -7152,7 +7242,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "src_core_commandregistry_normalizename",
-      "community": 21,
+      "community": 15,
       "norm_label": "normalizename()"
     },
     {
@@ -7162,7 +7252,7 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "src_core_commandregistry_validatecommand",
-      "community": 21,
+      "community": 15,
       "norm_label": "validatecommand()"
     },
     {
@@ -7172,7 +7262,7 @@
       "source_location": "L59",
       "_origin": "ast",
       "id": "src_core_commandregistry_registeralias",
-      "community": 21,
+      "community": 15,
       "norm_label": "registeralias()"
     },
     {
@@ -7182,7 +7272,7 @@
       "source_location": "L94",
       "_origin": "ast",
       "id": "src_core_commandregistry_registercommand",
-      "community": 21,
+      "community": 15,
       "norm_label": "registercommand()"
     },
     {
@@ -7192,7 +7282,7 @@
       "source_location": "L112",
       "_origin": "ast",
       "id": "src_core_commandregistry_getjsfilesrecursively",
-      "community": 21,
+      "community": 15,
       "norm_label": "getjsfilesrecursively()"
     },
     {
@@ -7379,7 +7469,7 @@
       "label": "processSingleMessage()",
       "file_type": "code",
       "source_file": "src/core/eventHandler.js",
-      "source_location": "L157",
+      "source_location": "L159",
       "_origin": "ast",
       "id": "src_core_eventhandler_processsinglemessage",
       "community": 68,
@@ -7389,7 +7479,7 @@
       "label": "registerEvents()",
       "file_type": "code",
       "source_file": "src/core/eventHandler.js",
-      "source_location": "L194",
+      "source_location": "L196",
       "_origin": "ast",
       "id": "src_core_eventhandler_registerevents",
       "community": 68,
@@ -7402,7 +7492,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_core_supabaseauthstate",
-      "community": 72,
+      "community": 0,
       "norm_label": "supabaseauthstate.js"
     },
     {
@@ -7412,7 +7502,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_core_supabaseauthstate_bufferjson_initauthcreds_makecacheablesignalkeystore",
-      "community": 72,
+      "community": 0,
       "norm_label": "{ bufferjson, initauthcreds, makecacheablesignalkeystore }"
     },
     {
@@ -7422,7 +7512,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_core_supabaseauthstate_supabase",
-      "community": 72,
+      "community": 0,
       "norm_label": "{ supabase }"
     },
     {
@@ -7432,7 +7522,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_core_supabaseauthstate_logerror",
-      "community": 72,
+      "community": 0,
       "norm_label": "{ logerror }"
     },
     {
@@ -7442,7 +7532,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "src_core_supabaseauthstate_usesupabaseauthstate",
-      "community": 72,
+      "community": 0,
       "norm_label": "usesupabaseauthstate()"
     },
     {
@@ -8202,7 +8292,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_data_items",
-      "community": 73,
+      "community": 82,
       "norm_label": "items.js"
     },
     {
@@ -8212,7 +8302,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "src_data_items_itemcatalog",
-      "community": 73,
+      "community": 82,
       "norm_label": "itemcatalog"
     },
     {
@@ -8222,7 +8312,7 @@
       "source_location": "L21",
       "_origin": "ast",
       "id": "src_data_items_items",
-      "community": 73,
+      "community": 82,
       "norm_label": "items"
     },
     {
@@ -8242,7 +8332,7 @@
       "source_location": "L109",
       "_origin": "ast",
       "id": "src_data_items_getitemsbycategory",
-      "community": 73,
+      "community": 82,
       "norm_label": "getitemsbycategory()"
     },
     {
@@ -8252,7 +8342,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_data_materialdata",
-      "community": 69,
+      "community": 11,
       "norm_label": "materialdata.js"
     },
     {
@@ -8262,7 +8352,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_data_materialdata_gettiermultiplier",
-      "community": 69,
+      "community": 11,
       "norm_label": "{ gettiermultiplier }"
     },
     {
@@ -8272,7 +8362,7 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "src_data_materialdata_materials",
-      "community": 69,
+      "community": 11,
       "norm_label": "materials"
     },
     {
@@ -8292,7 +8382,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_database_columnregistry",
-      "community": 37,
+      "community": 75,
       "norm_label": "columnregistry.js"
     },
     {
@@ -8302,7 +8392,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_database_columnregistry_supabase",
-      "community": 37,
+      "community": 75,
       "norm_label": "{ supabase }"
     },
     {
@@ -8312,7 +8402,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_database_columnregistry_logsystem",
-      "community": 37,
+      "community": 75,
       "norm_label": "{ logsystem }"
     },
     {
@@ -8322,7 +8412,7 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "src_database_columnregistry_known_schema",
-      "community": 37,
+      "community": 75,
       "norm_label": "known_schema"
     },
     {
@@ -8332,7 +8422,7 @@
       "source_location": "L65",
       "_origin": "ast",
       "id": "src_database_columnregistry_discover",
-      "community": 91,
+      "community": 75,
       "norm_label": "discover()"
     },
     {
@@ -8356,6 +8446,206 @@
       "norm_label": "filterexisting()"
     },
     {
+      "label": "001_create_inventory.sql",
+      "file_type": "code",
+      "source_file": "src/database/migrations/001_create_inventory.sql",
+      "source_location": null,
+      "_origin": "ast",
+      "id": "src_database_migrations_001_create_inventory",
+      "community": 101,
+      "norm_label": "001_create_inventory.sql"
+    },
+    {
+      "label": "inventory",
+      "file_type": "code",
+      "source_file": "src/database/migrations/001_create_inventory.sql",
+      "source_location": "L5",
+      "_origin": "ast",
+      "id": "src_database_migrations_001_create_inventory_inventory",
+      "community": 101,
+      "norm_label": "inventory"
+    },
+    {
+      "label": "update_inventory_updated_at()",
+      "file_type": "code",
+      "source_file": "src/database/migrations/001_create_inventory.sql",
+      "source_location": "L27",
+      "_origin": "ast",
+      "id": "src_database_migrations_001_create_inventory_update_inventory_updated_at",
+      "community": 101,
+      "norm_label": "update_inventory_updated_at()"
+    },
+    {
+      "label": "trg_inventory_updated_at",
+      "file_type": "code",
+      "source_file": "src/database/migrations/001_create_inventory.sql",
+      "source_location": "L36",
+      "_origin": "ast",
+      "id": "src_database_migrations_001_create_inventory_trg_inventory_updated_at",
+      "community": 101,
+      "norm_label": "trg_inventory_updated_at"
+    },
+    {
+      "label": "002_add_item_metadata_and_equipment.sql",
+      "file_type": "code",
+      "source_file": "src/database/migrations/002_add_item_metadata_and_equipment.sql",
+      "source_location": null,
+      "_origin": "ast",
+      "id": "src_database_migrations_002_add_item_metadata_and_equipment",
+      "community": 113,
+      "norm_label": "002_add_item_metadata_and_equipment.sql"
+    },
+    {
+      "label": "inventory",
+      "file_type": "code",
+      "source_file": "src/database/migrations/002_add_item_metadata_and_equipment.sql",
+      "source_location": "L5",
+      "_origin": "ast",
+      "id": "src_database_migrations_002_add_item_metadata_and_equipment_inventory",
+      "community": 113,
+      "norm_label": "inventory"
+    },
+    {
+      "label": "characters",
+      "file_type": "code",
+      "source_file": "src/database/migrations/002_add_item_metadata_and_equipment.sql",
+      "source_location": "L22",
+      "_origin": "ast",
+      "id": "src_database_migrations_002_add_item_metadata_and_equipment_characters",
+      "community": 113,
+      "norm_label": "characters"
+    },
+    {
+      "label": "002_rename_stats_keys.sql",
+      "file_type": "code",
+      "source_file": "src/database/migrations/002_rename_stats_keys.sql",
+      "source_location": null,
+      "_origin": "ast",
+      "id": "src_database_migrations_002_rename_stats_keys",
+      "community": 116,
+      "norm_label": "002_rename_stats_keys.sql"
+    },
+    {
+      "label": "003_remediation_item_equipment.sql",
+      "file_type": "code",
+      "source_file": "src/database/migrations/003_remediation_item_equipment.sql",
+      "source_location": null,
+      "_origin": "ast",
+      "id": "src_database_migrations_003_remediation_item_equipment",
+      "community": 107,
+      "norm_label": "003_remediation_item_equipment.sql"
+    },
+    {
+      "label": "inventory",
+      "file_type": "code",
+      "source_file": "src/database/migrations/003_remediation_item_equipment.sql",
+      "source_location": "L8",
+      "_origin": "ast",
+      "id": "src_database_migrations_003_remediation_item_equipment_inventory",
+      "community": 107,
+      "norm_label": "inventory"
+    },
+    {
+      "label": "characters",
+      "file_type": "code",
+      "source_file": "src/database/migrations/003_remediation_item_equipment.sql",
+      "source_location": "L25",
+      "_origin": "ast",
+      "id": "src_database_migrations_003_remediation_item_equipment_characters",
+      "community": 107,
+      "norm_label": "characters"
+    },
+    {
+      "label": "combat_sessions",
+      "file_type": "code",
+      "source_file": "src/database/migrations/003_remediation_item_equipment.sql",
+      "source_location": "L32",
+      "_origin": "ast",
+      "id": "src_database_migrations_003_remediation_item_equipment_combat_sessions",
+      "community": 107,
+      "norm_label": "combat_sessions"
+    },
+    {
+      "label": "004_harden_inventory_access.sql",
+      "file_type": "code",
+      "source_file": "src/database/migrations/004_harden_inventory_access.sql",
+      "source_location": null,
+      "_origin": "ast",
+      "id": "src_database_migrations_004_harden_inventory_access",
+      "community": 93,
+      "norm_label": "004_harden_inventory_access.sql"
+    },
+    {
+      "label": "inventory",
+      "file_type": "code",
+      "source_file": "src/database/migrations/004_harden_inventory_access.sql",
+      "source_location": "L4",
+      "_origin": "ast",
+      "id": "src_database_migrations_004_harden_inventory_access_inventory",
+      "community": 93,
+      "norm_label": "inventory"
+    },
+    {
+      "label": "combat_sessions",
+      "file_type": "code",
+      "source_file": "src/database/migrations/004_harden_inventory_access.sql",
+      "source_location": "L12",
+      "_origin": "ast",
+      "id": "src_database_migrations_004_harden_inventory_access_combat_sessions",
+      "community": 93,
+      "norm_label": "combat_sessions"
+    },
+    {
+      "label": "bot_auth_state",
+      "file_type": "code",
+      "source_file": "src/database/migrations/004_harden_inventory_access.sql",
+      "source_location": "L23",
+      "_origin": "ast",
+      "id": "src_database_migrations_004_harden_inventory_access_bot_auth_state",
+      "community": 93,
+      "norm_label": "bot_auth_state"
+    },
+    {
+      "label": "players",
+      "file_type": "code",
+      "source_file": "src/database/migrations/004_harden_inventory_access.sql",
+      "source_location": "L25",
+      "_origin": "ast",
+      "id": "src_database_migrations_004_harden_inventory_access_players",
+      "community": 93,
+      "norm_label": "players"
+    },
+    {
+      "label": "groups",
+      "file_type": "code",
+      "source_file": "src/database/migrations/004_harden_inventory_access.sql",
+      "source_location": "L27",
+      "_origin": "ast",
+      "id": "src_database_migrations_004_harden_inventory_access_groups",
+      "community": 93,
+      "norm_label": "groups"
+    },
+    {
+      "label": "group_members",
+      "file_type": "code",
+      "source_file": "src/database/migrations/004_harden_inventory_access.sql",
+      "source_location": "L29",
+      "_origin": "ast",
+      "id": "src_database_migrations_004_harden_inventory_access_group_members",
+      "community": 93,
+      "norm_label": "group_members"
+    },
+    {
+      "label": "characters",
+      "file_type": "code",
+      "source_file": "src/database/migrations/004_harden_inventory_access.sql",
+      "source_location": "L31",
+      "_origin": "ast",
+      "id": "src_database_migrations_004_harden_inventory_access_characters",
+      "community": 93,
+      "norm_label": "characters"
+    },
+    {
       "label": "schemaConstants.js",
       "file_type": "code",
       "source_file": "src/database/schemaConstants.js",
@@ -8372,7 +8662,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_database_schemamigration",
-      "community": 91,
+      "community": 37,
       "norm_label": "schemamigration.js"
     },
     {
@@ -8382,7 +8672,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_database_schemamigration_discover",
-      "community": 91,
+      "community": 37,
       "norm_label": "{ discover }"
     },
     {
@@ -8392,7 +8682,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_database_schemamigration_supabase",
-      "community": 91,
+      "community": 37,
       "norm_label": "{ supabase }"
     },
     {
@@ -8402,7 +8692,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_database_schemamigration_logsystem",
-      "community": 91,
+      "community": 37,
       "norm_label": "{ logsystem }"
     },
     {
@@ -8412,7 +8702,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_database_schemamigration_setstoredversion",
-      "community": 91,
+      "community": 37,
       "norm_label": "{ setstoredversion }"
     },
     {
@@ -8422,7 +8712,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "src_database_schemamigration_current_version",
-      "community": 91,
+      "community": 37,
       "norm_label": "{ current_version }"
     },
     {
@@ -8432,7 +8722,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "src_database_schemamigration_desired_schema",
-      "community": 91,
+      "community": 37,
       "norm_label": "desired_schema"
     },
     {
@@ -8442,7 +8732,7 @@
       "source_location": "L56",
       "_origin": "ast",
       "id": "src_database_schemamigration_table_create_sql",
-      "community": 91,
+      "community": 37,
       "norm_label": "table_create_sql"
     },
     {
@@ -8452,7 +8742,7 @@
       "source_location": "L82",
       "_origin": "ast",
       "id": "src_database_schemamigration_column_types",
-      "community": 91,
+      "community": 37,
       "norm_label": "column_types"
     },
     {
@@ -8462,7 +8752,7 @@
       "source_location": "L128",
       "_origin": "ast",
       "id": "src_database_schemamigration_detectmissingcolumns",
-      "community": 91,
+      "community": 37,
       "norm_label": "detectmissingcolumns()"
     },
     {
@@ -8472,7 +8762,7 @@
       "source_location": "L162",
       "_origin": "ast",
       "id": "src_database_schemamigration_generatemigrationsql",
-      "community": 91,
+      "community": 37,
       "norm_label": "generatemigrationsql()"
     },
     {
@@ -8482,7 +8772,7 @@
       "source_location": "L192",
       "_origin": "ast",
       "id": "src_database_schemamigration_logmigrationinfo",
-      "community": 91,
+      "community": 37,
       "norm_label": "logmigrationinfo()"
     },
     {
@@ -8492,7 +8782,7 @@
       "source_location": "L220",
       "_origin": "ast",
       "id": "src_database_schemamigration_createmissingtables",
-      "community": 91,
+      "community": 37,
       "norm_label": "createmissingtables()"
     },
     {
@@ -8502,7 +8792,7 @@
       "source_location": "L255",
       "_origin": "ast",
       "id": "src_database_schemamigration_runstartupmigration",
-      "community": 91,
+      "community": 37,
       "norm_label": "runstartupmigration()"
     },
     {
@@ -8662,7 +8952,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_database_supabase",
-      "community": 72,
+      "community": 21,
       "norm_label": "supabase.js"
     },
     {
@@ -8672,7 +8962,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_database_supabase_createclient",
-      "community": 72,
+      "community": 21,
       "norm_label": "{ createclient }"
     },
     {
@@ -8682,7 +8972,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_database_supabase_logsystem",
-      "community": 72,
+      "community": 21,
       "norm_label": "{ logsystem }"
     },
     {
@@ -8692,7 +8982,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "src_database_supabase_assertservicerolekey",
-      "community": 72,
+      "community": 21,
       "norm_label": "assertservicerolekey()"
     },
     {
@@ -8702,7 +8992,7 @@
       "source_location": "L50",
       "_origin": "ast",
       "id": "src_database_supabase_supabase",
-      "community": 72,
+      "community": 21,
       "norm_label": "supabase"
     },
     {
@@ -9132,7 +9422,7 @@
       "source_location": "L134",
       "_origin": "ast",
       "id": "src_services_bugreportservice_determinepriority",
-      "community": 109,
+      "community": 88,
       "norm_label": "determinepriority()"
     },
     {
@@ -9152,7 +9442,7 @@
       "source_location": "L160",
       "_origin": "ast",
       "id": "src_services_bugreportservice_determinecategory",
-      "community": 109,
+      "community": 88,
       "norm_label": "determinecategory()"
     },
     {
@@ -9162,7 +9452,7 @@
       "source_location": "L179",
       "_origin": "ast",
       "id": "src_services_bugreportservice_getrole",
-      "community": 7,
+      "community": 88,
       "norm_label": "getrole()"
     },
     {
@@ -9172,7 +9462,7 @@
       "source_location": "L212",
       "_origin": "ast",
       "id": "src_services_bugreportservice_getdailycount",
-      "community": 109,
+      "community": 88,
       "norm_label": "getdailycount()"
     },
     {
@@ -9182,7 +9472,7 @@
       "source_location": "L234",
       "_origin": "ast",
       "id": "src_services_bugreportservice_createreport",
-      "community": 109,
+      "community": 88,
       "norm_label": "createreport()"
     },
     {
@@ -9192,7 +9482,7 @@
       "source_location": "L336",
       "_origin": "ast",
       "id": "src_services_bugreportservice_getreport",
-      "community": 113,
+      "community": 102,
       "norm_label": "getreport()"
     },
     {
@@ -9202,7 +9492,7 @@
       "source_location": "L355",
       "_origin": "ast",
       "id": "src_services_bugreportservice_getuserreports",
-      "community": 113,
+      "community": 102,
       "norm_label": "getuserreports()"
     },
     {
@@ -9212,7 +9502,7 @@
       "source_location": "L376",
       "_origin": "ast",
       "id": "src_services_bugreportservice_getresolvedsince",
-      "community": 1,
+      "community": 0,
       "norm_label": "getresolvedsince()"
     },
     {
@@ -9462,7 +9752,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_services_displaynameservice",
-      "community": 76,
+      "community": 26,
       "norm_label": "displaynameservice.js"
     },
     {
@@ -9472,7 +9762,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_services_displaynameservice_getgroupmetadata",
-      "community": 76,
+      "community": 26,
       "norm_label": "{ getgroupmetadata }"
     },
     {
@@ -9482,7 +9772,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_services_displaynameservice_getuserprofile",
-      "community": 76,
+      "community": 26,
       "norm_label": "{ getuserprofile }"
     },
     {
@@ -9492,7 +9782,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "src_services_displaynameservice_cleantext",
-      "community": 76,
+      "community": 26,
       "norm_label": "cleantext()"
     },
     {
@@ -9502,7 +9792,7 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "src_services_displaynameservice_ismeaningfuldisplayname",
-      "community": 76,
+      "community": 26,
       "norm_label": "ismeaningfuldisplayname()"
     },
     {
@@ -9512,7 +9802,7 @@
       "source_location": "L59",
       "_origin": "ast",
       "id": "src_services_displaynameservice_findparticipantdisplayname",
-      "community": 76,
+      "community": 26,
       "norm_label": "findparticipantdisplayname()"
     },
     {
@@ -9522,7 +9812,7 @@
       "source_location": "L95",
       "_origin": "ast",
       "id": "src_services_displaynameservice_extractmentionlabelfromcontext",
-      "community": 76,
+      "community": 26,
       "norm_label": "extractmentionlabelfromcontext()"
     },
     {
@@ -9532,7 +9822,7 @@
       "source_location": "L136",
       "_origin": "ast",
       "id": "src_services_displaynameservice_resolvetargetdisplayname",
-      "community": 76,
+      "community": 26,
       "norm_label": "resolvetargetdisplayname()"
     },
     {
@@ -9542,7 +9832,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_services_economyadminhelper",
-      "community": 102,
+      "community": 76,
       "norm_label": "economyadminhelper.js"
     },
     {
@@ -9552,7 +9842,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_services_economyadminhelper_getfirstmentionedjid_extractamountfromargs",
-      "community": 102,
+      "community": 76,
       "norm_label": "{ getfirstmentionedjid, extractamountfromargs }"
     },
     {
@@ -9562,7 +9852,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_services_economyadminhelper_formatdisplaymention",
-      "community": 102,
+      "community": 76,
       "norm_label": "{ formatdisplaymention }"
     },
     {
@@ -9572,7 +9862,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_services_economyadminhelper_resolvetargetdisplayname",
-      "community": 102,
+      "community": 76,
       "norm_label": "{ resolvetargetdisplayname }"
     },
     {
@@ -9582,7 +9872,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_services_economyadminhelper_box",
-      "community": 102,
+      "community": 76,
       "norm_label": "{ box }"
     },
     {
@@ -9592,7 +9882,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "src_services_economyadminhelper_formatcommandusage",
-      "community": 102,
+      "community": 76,
       "norm_label": "{ formatcommandusage }"
     },
     {
@@ -9602,7 +9892,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "src_services_economyadminhelper_formatstelas",
-      "community": 102,
+      "community": 76,
       "norm_label": "{ formatstelas }"
     },
     {
@@ -9612,7 +9902,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "src_services_economyadminhelper_usagecache",
-      "community": 102,
+      "community": 76,
       "norm_label": "usagecache"
     },
     {
@@ -9622,7 +9912,7 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "src_services_economyadminhelper_getusage",
-      "community": 102,
+      "community": 76,
       "norm_label": "getusage()"
     },
     {
@@ -9632,7 +9922,7 @@
       "source_location": "L42",
       "_origin": "ast",
       "id": "src_services_economyadminhelper_executeeconomyaction",
-      "community": 102,
+      "community": 76,
       "norm_label": "executeeconomyaction()"
     },
     {
@@ -10182,7 +10472,7 @@
       "source_location": "L61",
       "_origin": "ast",
       "id": "src_services_loggerservice_safestringify",
-      "community": 87,
+      "community": 40,
       "norm_label": "safestringify()"
     },
     {
@@ -10242,7 +10532,7 @@
       "source_location": "L170",
       "_origin": "ast",
       "id": "src_services_loggerservice_logsystem",
-      "community": 91,
+      "community": 48,
       "norm_label": "logsystem()"
     },
     {
@@ -10252,7 +10542,7 @@
       "source_location": "L189",
       "_origin": "ast",
       "id": "src_services_loggerservice_logcommand",
-      "community": 87,
+      "community": 40,
       "norm_label": "logcommand()"
     },
     {
@@ -10262,7 +10552,7 @@
       "source_location": "L222",
       "_origin": "ast",
       "id": "src_services_loggerservice_logerror",
-      "community": 17,
+      "community": 16,
       "norm_label": "logerror()"
     },
     {
@@ -10402,7 +10692,7 @@
       "source_location": "L101",
       "_origin": "ast",
       "id": "src_services_permissionservice_haseconomypermission",
-      "community": 3,
+      "community": 104,
       "norm_label": "haseconomypermission()"
     },
     {
@@ -10442,7 +10732,7 @@
       "source_location": "L175",
       "_origin": "ast",
       "id": "src_services_permissionservice_getcategorylabel",
-      "community": 74,
+      "community": 3,
       "norm_label": "getcategorylabel()"
     },
     {
@@ -10462,7 +10752,7 @@
       "source_location": "L218",
       "_origin": "ast",
       "id": "src_services_permissionservice_haspermissionforcategory",
-      "community": 3,
+      "community": 104,
       "norm_label": "haspermissionforcategory()"
     },
     {
@@ -10872,7 +11162,7 @@
       "source_location": "L585",
       "_origin": "ast",
       "id": "src_services_rpg_combatengine_executeturn",
-      "community": 42,
+      "community": 5,
       "norm_label": "executeturn()"
     },
     {
@@ -11152,7 +11442,7 @@
       "source_location": "L42",
       "_origin": "ast",
       "id": "src_services_rpg_combatstate_generatedummycharacter",
-      "community": 38,
+      "community": 19,
       "norm_label": "generatedummycharacter()"
     },
     {
@@ -11422,7 +11712,7 @@
       "source_location": "L32",
       "_origin": "ast",
       "id": "src_services_rpg_dummyequipment_builddummyequipment",
-      "community": 38,
+      "community": 19,
       "norm_label": "builddummyequipment()"
     },
     {
@@ -11602,7 +11892,7 @@
       "source_location": "L88",
       "_origin": "ast",
       "id": "src_services_rpg_equipmentresolverservice_resolveattackerweapon",
-      "community": 84,
+      "community": 14,
       "norm_label": "resolveattackerweapon()"
     },
     {
@@ -11632,7 +11922,7 @@
       "source_location": "L179",
       "_origin": "ast",
       "id": "src_services_rpg_equipmentresolverservice_resolvecharacterequipment",
-      "community": 95,
+      "community": 69,
       "norm_label": "resolvecharacterequipment()"
     },
     {
@@ -12062,7 +12352,7 @@
       "source_location": "L73",
       "_origin": "ast",
       "id": "src_services_rpg_inventoryservice_getinventory",
-      "community": 17,
+      "community": 16,
       "norm_label": "getinventory()"
     },
     {
@@ -12102,7 +12392,7 @@
       "source_location": "L252",
       "_origin": "ast",
       "id": "src_services_rpg_inventoryservice_useitem",
-      "community": 90,
+      "community": 28,
       "norm_label": "useitem()"
     },
     {
@@ -12112,7 +12402,7 @@
       "source_location": "L353",
       "_origin": "ast",
       "id": "src_services_rpg_inventoryservice_ensuretestkit",
-      "community": 17,
+      "community": 16,
       "norm_label": "ensuretestkit()"
     },
     {
@@ -12122,7 +12412,7 @@
       "source_location": "L394",
       "_origin": "ast",
       "id": "src_services_rpg_inventoryservice_ensuretemptestkit",
-      "community": 17,
+      "community": 16,
       "norm_label": "ensuretemptestkit()"
     },
     {
@@ -12142,7 +12432,7 @@
       "source_location": "L451",
       "_origin": "ast",
       "id": "src_services_rpg_inventoryservice_ensureironfamilykit",
-      "community": 17,
+      "community": 16,
       "norm_label": "ensureironfamilykit()"
     },
     {
@@ -12152,7 +12442,7 @@
       "source_location": "L475",
       "_origin": "ast",
       "id": "src_services_rpg_inventoryservice_cleanuptemporalitems",
-      "community": 17,
+      "community": 16,
       "norm_label": "cleanuptemporalitems()"
     },
     {
@@ -12242,7 +12532,7 @@
       "source_location": "L56",
       "_origin": "ast",
       "id": "src_services_rpg_itemfactory_derivemetadata",
-      "community": 69,
+      "community": 94,
       "norm_label": "derivemetadata()"
     },
     {
@@ -12372,7 +12662,7 @@
       "source_location": "L71",
       "_origin": "ast",
       "id": "src_services_rpg_itemstatservice_getartifactstats",
-      "community": 14,
+      "community": 69,
       "norm_label": "getartifactstats()"
     },
     {
@@ -12582,7 +12872,7 @@
       "source_location": "L25",
       "_origin": "ast",
       "id": "src_services_stats_incrementcommands",
-      "community": 87,
+      "community": 3,
       "norm_label": "incrementcommands()"
     },
     {
@@ -12592,7 +12882,7 @@
       "source_location": "L32",
       "_origin": "ast",
       "id": "src_services_stats_incrementerrors",
-      "community": 87,
+      "community": 3,
       "norm_label": "incrementerrors()"
     },
     {
@@ -12912,7 +13202,7 @@
       "source_location": "L339",
       "_origin": "ast",
       "id": "src_services_userservice_getuserprofile",
-      "community": 76,
+      "community": 104,
       "norm_label": "getuserprofile()"
     },
     {
@@ -13082,7 +13372,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_ui_sectionbuilder",
-      "community": 27,
+      "community": 31,
       "norm_label": "sectionbuilder.js"
     },
     {
@@ -13092,7 +13382,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_ui_sectionbuilder_box",
-      "community": 27,
+      "community": 31,
       "norm_label": "{ box }"
     },
     {
@@ -13102,7 +13392,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "src_ui_sectionbuilder_tolines",
-      "community": 27,
+      "community": 31,
       "norm_label": "tolines()"
     },
     {
@@ -13112,7 +13402,7 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "src_ui_sectionbuilder_composemessage",
-      "community": 27,
+      "community": 31,
       "norm_label": "composemessage()"
     },
     {
@@ -13122,7 +13412,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_ui_sections_charactersections",
-      "community": 75,
+      "community": 31,
       "norm_label": "charactersections.js"
     },
     {
@@ -13132,7 +13422,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_ui_sections_charactersections_levelable_stats_hp_max",
-      "community": 75,
+      "community": 31,
       "norm_label": "{ levelable_stats, hp_max }"
     },
     {
@@ -13142,7 +13432,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_ui_sections_charactersections_getitem",
-      "community": 75,
+      "community": 31,
       "norm_label": "{ getitem }"
     },
     {
@@ -13152,7 +13442,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_ui_sections_charactersections_equipmentsummarylines",
-      "community": 75,
+      "community": 31,
       "norm_label": "{ equipmentsummarylines }"
     },
     {
@@ -13162,7 +13452,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "src_ui_sections_charactersections_composemessage",
-      "community": 75,
+      "community": 31,
       "norm_label": "{ composemessage }"
     },
     {
@@ -13172,7 +13462,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "src_ui_sections_charactersections_buildhpbar",
-      "community": 75,
+      "community": 31,
       "norm_label": "buildhpbar()"
     },
     {
@@ -13182,7 +13472,7 @@
       "source_location": "L25",
       "_origin": "ast",
       "id": "src_ui_sections_charactersections_formathpstate",
-      "community": 75,
+      "community": 31,
       "norm_label": "formathpstate()"
     },
     {
@@ -13192,7 +13482,7 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "src_ui_sections_charactersections_statslines",
-      "community": 75,
+      "community": 31,
       "norm_label": "statslines()"
     },
     {
@@ -13202,7 +13492,7 @@
       "source_location": "L52",
       "_origin": "ast",
       "id": "src_ui_sections_charactersections_resolveinventory",
-      "community": 75,
+      "community": 31,
       "norm_label": "resolveinventory()"
     },
     {
@@ -13212,7 +13502,7 @@
       "source_location": "L64",
       "_origin": "ast",
       "id": "src_ui_sections_charactersections_inventorysectionlines",
-      "community": 75,
+      "community": 31,
       "norm_label": "inventorysectionlines()"
     },
     {
@@ -13222,7 +13512,7 @@
       "source_location": "L88",
       "_origin": "ast",
       "id": "src_ui_sections_charactersections_headerlines",
-      "community": 75,
+      "community": 31,
       "norm_label": "headerlines()"
     },
     {
@@ -13232,7 +13522,7 @@
       "source_location": "L103",
       "_origin": "ast",
       "id": "src_ui_sections_charactersections_charactersheet",
-      "community": 75,
+      "community": 31,
       "norm_label": "charactersheet()"
     },
     {
@@ -13462,7 +13752,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_utils_cacheservice",
-      "community": 93,
+      "community": 27,
       "norm_label": "cacheservice.js"
     },
     {
@@ -13542,7 +13832,7 @@
       "source_location": "L103",
       "_origin": "ast",
       "id": "src_utils_cacheservice_cache",
-      "community": 93,
+      "community": 27,
       "norm_label": "cache"
     },
     {
@@ -13552,7 +13842,7 @@
       "source_location": "L109",
       "_origin": "ast",
       "id": "src_utils_cacheservice_ttls",
-      "community": 93,
+      "community": 27,
       "norm_label": "ttls"
     },
     {
@@ -13562,7 +13852,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_utils_characterformatutils",
-      "community": 75,
+      "community": 31,
       "norm_label": "characterformatutils.js"
     },
     {
@@ -13572,7 +13862,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_utils_characterformatutils_charactersheet_buildhpbar_formathpstate",
-      "community": 75,
+      "community": 31,
       "norm_label": "{ charactersheet, buildhpbar, formathpstate }"
     },
     {
@@ -13582,7 +13872,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "src_utils_characterformatutils_formatcharacter",
-      "community": 75,
+      "community": 31,
       "norm_label": "formatcharacter()"
     },
     {
@@ -13592,7 +13882,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_utils_commandparseutils",
-      "community": 102,
+      "community": 76,
       "norm_label": "commandparseutils.js"
     },
     {
@@ -13602,7 +13892,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "src_utils_commandparseutils_getfirstmentionedjid",
-      "community": 104,
+      "community": 76,
       "norm_label": "getfirstmentionedjid()"
     },
     {
@@ -13612,7 +13902,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "src_utils_commandparseutils_parsepositiveinteger",
-      "community": 102,
+      "community": 76,
       "norm_label": "parsepositiveinteger()"
     },
     {
@@ -13622,7 +13912,7 @@
       "source_location": "L48",
       "_origin": "ast",
       "id": "src_utils_commandparseutils_extractamountfromargs",
-      "community": 102,
+      "community": 76,
       "norm_label": "extractamountfromargs()"
     },
     {
@@ -13762,7 +14052,7 @@
       "source_location": "L41",
       "_origin": "ast",
       "id": "src_utils_formaterrorutils_formaterror",
-      "community": 118,
+      "community": 10,
       "norm_label": "formaterror()"
     },
     {
@@ -14142,7 +14432,7 @@
       "source_location": "L118",
       "_origin": "ast",
       "id": "src_utils_permissionutils_getownerjids",
-      "community": 48,
+      "community": 74,
       "norm_label": "getownerjids()"
     },
     {
@@ -14412,7 +14702,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_utils_usermentionutils",
-      "community": 26,
+      "community": 7,
       "norm_label": "usermentionutils.js"
     },
     {
@@ -14422,7 +14712,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "src_utils_usermentionutils_cleantext",
-      "community": 26,
+      "community": 7,
       "norm_label": "cleantext()"
     },
     {
@@ -14432,7 +14722,7 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "src_utils_usermentionutils_ismeaningfuldisplayname",
-      "community": 26,
+      "community": 7,
       "norm_label": "ismeaningfuldisplayname()"
     },
     {
@@ -14442,7 +14732,7 @@
       "source_location": "L58",
       "_origin": "ast",
       "id": "src_utils_usermentionutils_formatrealmentiontag",
-      "community": 26,
+      "community": 7,
       "norm_label": "formatrealmentiontag()"
     },
     {
@@ -14452,7 +14742,7 @@
       "source_location": "L82",
       "_origin": "ast",
       "id": "src_utils_usermentionutils_formatdisplaymention",
-      "community": 26,
+      "community": 7,
       "norm_label": "formatdisplaymention()"
     },
     {
@@ -14462,7 +14752,7 @@
       "source_location": "L105",
       "_origin": "ast",
       "id": "src_utils_usermentionutils_getprofiledisplayname",
-      "community": 26,
+      "community": 7,
       "norm_label": "getprofiledisplayname()"
     },
     {
@@ -14482,7 +14772,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_activity_ux_optimization_test",
-      "community": 93,
+      "community": 27,
       "norm_label": "activity_ux_optimization.test.js"
     },
     {
@@ -14492,7 +14782,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_activity_ux_optimization_test_supabase",
-      "community": 93,
+      "community": 27,
       "norm_label": "{ supabase }"
     },
     {
@@ -14502,7 +14792,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "tests_activity_ux_optimization_test_cache_ttls",
-      "community": 93,
+      "community": 27,
       "norm_label": "{ cache, ttls }"
     },
     {
@@ -14512,7 +14802,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "tests_activity_ux_optimization_test_createcontext",
-      "community": 93,
+      "community": 27,
       "norm_label": "createcontext"
     },
     {
@@ -14522,7 +14812,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "tests_activity_ux_optimization_test_recordgroupactivity",
-      "community": 93,
+      "community": 27,
       "norm_label": "{ recordgroupactivity }"
     },
     {
@@ -14532,7 +14822,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "tests_activity_ux_optimization_test_recorduseractivity",
-      "community": 93,
+      "community": 27,
       "norm_label": "{ recorduseractivity }"
     },
     {
@@ -14542,7 +14832,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "tests_activity_ux_optimization_test_addmoney_getbalance_transfermoney",
-      "community": 93,
+      "community": 27,
       "norm_label": "{ addmoney, getbalance, transfermoney }"
     },
     {
@@ -14552,7 +14842,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "tests_activity_ux_optimization_test_todos",
-      "community": 93,
+      "community": 27,
       "norm_label": "todos"
     },
     {
@@ -14562,7 +14852,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "tests_activity_ux_optimization_test_cachedprofile",
-      "community": 93,
+      "community": 27,
       "norm_label": "cachedprofile()"
     },
     {
@@ -14672,7 +14962,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_bugreport_command_test",
-      "community": 117,
+      "community": 109,
       "norm_label": "bugreport_command.test.js"
     },
     {
@@ -14682,7 +14972,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_bugreport_command_test_servicepath",
-      "community": 117,
+      "community": 109,
       "norm_label": "servicepath"
     },
     {
@@ -14692,7 +14982,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "tests_bugreport_command_test_commandpath",
-      "community": 117,
+      "community": 109,
       "norm_label": "commandpath"
     },
     {
@@ -14702,7 +14992,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "tests_bugreport_command_test_createreport",
-      "community": 117,
+      "community": 109,
       "norm_label": "createreport"
     },
     {
@@ -14712,7 +15002,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "tests_bugreport_command_test_bugreport",
-      "community": 117,
+      "community": 109,
       "norm_label": "bugreport"
     },
     {
@@ -14722,7 +15012,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_cache_state_test",
-      "community": 93,
+      "community": 27,
       "norm_label": "cache_state.test.js"
     },
     {
@@ -14732,7 +15022,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_cache_state_test_crypto",
-      "community": 93,
+      "community": 27,
       "norm_label": "crypto"
     },
     {
@@ -14742,7 +15032,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "tests_cache_state_test_getcachekey",
-      "community": 93,
+      "community": 27,
       "norm_label": "getcachekey()"
     },
     {
@@ -14782,7 +15072,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_character_format_test",
-      "community": 75,
+      "community": 31,
       "norm_label": "character_format.test.js"
     },
     {
@@ -14792,7 +15082,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_character_format_test_formatcharacter_buildhpbar_formathpstate",
-      "community": 75,
+      "community": 31,
       "norm_label": "{ formatcharacter, buildhpbar, formathpstate }"
     },
     {
@@ -14802,7 +15092,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "tests_character_format_test_mockcharacter",
-      "community": 75,
+      "community": 31,
       "norm_label": "mockcharacter"
     },
     {
@@ -15016,14 +15306,14 @@
       "norm_label": "db"
     },
     {
-      "label": "{\n  createSession,\n  findSessionByCharacter,\n  findSessionByUser,\n  getSession,\n  removeSession,\n  restoreSessions,\n  updateDistance,\n}",
+      "label": "{\r\n  createSession,\r\n  findSessionByCharacter,\r\n  findSessionByUser,\r\n  getSession,\r\n  removeSession,\r\n  restoreSessions,\r\n  updateDistance,\r\n}",
       "file_type": "code",
       "source_file": "tests/combat_state_persistence.test.js",
       "source_location": "L6",
       "_origin": "ast",
       "id": "tests_combat_state_persistence_test_createsession_findsessionbycharacter_findsessionbyuser_getsession_removesession_restoresessions_updatedistance",
       "community": 38,
-      "norm_label": "{\n  createsession,\n  findsessionbycharacter,\n  findsessionbyuser,\n  getsession,\n  removesession,\n  restoresessions,\n  updatedistance,\n}"
+      "norm_label": "{\r\n  createsession,\r\n  findsessionbycharacter,\r\n  findsessionbyuser,\r\n  getsession,\r\n  removesession,\r\n  restoresessions,\r\n  updatedistance,\r\n}"
     },
     {
       "label": "{ supabase }",
@@ -15092,7 +15382,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_command_handler_error_test",
-      "community": 89,
+      "community": 15,
       "norm_label": "command_handler_error.test.js"
     },
     {
@@ -15102,7 +15392,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_command_handler_error_test_cachedmodules",
-      "community": 89,
+      "community": 15,
       "norm_label": "cachedmodules"
     },
     {
@@ -15112,7 +15402,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "tests_command_handler_error_test_mockcommonjsmodule",
-      "community": 89,
+      "community": 15,
       "norm_label": "mockcommonjsmodule()"
     },
     {
@@ -15122,7 +15412,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "tests_command_handler_error_test_logcommand",
-      "community": 89,
+      "community": 15,
       "norm_label": "logcommand"
     },
     {
@@ -15132,7 +15422,7 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "tests_command_handler_error_test_logerror",
-      "community": 89,
+      "community": 15,
       "norm_label": "logerror"
     },
     {
@@ -15142,7 +15432,7 @@
       "source_location": "L31",
       "_origin": "ast",
       "id": "tests_command_handler_error_test_handlerpath",
-      "community": 89,
+      "community": 15,
       "norm_label": "handlerpath"
     },
     {
@@ -15152,7 +15442,7 @@
       "source_location": "L33",
       "_origin": "ast",
       "id": "tests_command_handler_error_test_handlecommand",
-      "community": 89,
+      "community": 15,
       "norm_label": "{ handlecommand }"
     },
     {
@@ -15162,7 +15452,7 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "tests_command_handler_error_test_commands_aliases",
-      "community": 89,
+      "community": 15,
       "norm_label": "{ commands, aliases }"
     },
     {
@@ -15522,7 +15812,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_event_handler_activity_test",
-      "community": 15,
+      "community": 72,
       "norm_label": "event_handler_activity.test.js"
     },
     {
@@ -15532,7 +15822,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_event_handler_activity_test_cachedmodules",
-      "community": 15,
+      "community": 72,
       "norm_label": "cachedmodules"
     },
     {
@@ -15542,7 +15832,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "tests_event_handler_activity_test_mockcommonjsmodule",
-      "community": 15,
+      "community": 72,
       "norm_label": "mockcommonjsmodule()"
     },
     {
@@ -15552,7 +15842,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "tests_event_handler_activity_test_recorduseractivity",
-      "community": 15,
+      "community": 72,
       "norm_label": "recorduseractivity"
     },
     {
@@ -15562,7 +15852,7 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "tests_event_handler_activity_test_recordgroupactivity",
-      "community": 15,
+      "community": 72,
       "norm_label": "recordgroupactivity"
     },
     {
@@ -15572,7 +15862,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "tests_event_handler_activity_test_handlecommand",
-      "community": 15,
+      "community": 72,
       "norm_label": "handlecommand"
     },
     {
@@ -15582,7 +15872,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "tests_event_handler_activity_test_logsystem",
-      "community": 15,
+      "community": 72,
       "norm_label": "logsystem"
     },
     {
@@ -15592,7 +15882,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "tests_event_handler_activity_test_logerror",
-      "community": 15,
+      "community": 72,
       "norm_label": "logerror"
     },
     {
@@ -15602,7 +15892,7 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "tests_event_handler_activity_test_incrementmessages",
-      "community": 15,
+      "community": 72,
       "norm_label": "incrementmessages"
     },
     {
@@ -15612,7 +15902,7 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "tests_event_handler_activity_test_createcontext",
-      "community": 15,
+      "community": 72,
       "norm_label": "createcontext"
     },
     {
@@ -15622,7 +15912,7 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "tests_event_handler_activity_test_handlerpath",
-      "community": 15,
+      "community": 72,
       "norm_label": "handlerpath"
     },
     {
@@ -15632,7 +15922,7 @@
       "source_location": "L36",
       "_origin": "ast",
       "id": "tests_event_handler_activity_test_registerevents",
-      "community": 15,
+      "community": 72,
       "norm_label": "{ registerevents }"
     },
     {
@@ -15642,7 +15932,7 @@
       "source_location": "L38",
       "_origin": "ast",
       "id": "tests_event_handler_activity_test_rawmessage",
-      "community": 15,
+      "community": 72,
       "norm_label": "rawmessage"
     },
     {
@@ -15652,7 +15942,7 @@
       "source_location": "L49",
       "_origin": "ast",
       "id": "tests_event_handler_activity_test_registermessagelistener",
-      "community": 15,
+      "community": 72,
       "norm_label": "registermessagelistener()"
     },
     {
@@ -15692,7 +15982,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_help_test",
-      "community": 21,
+      "community": 15,
       "norm_label": "help.test.js"
     },
     {
@@ -15702,7 +15992,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_help_test_helpmodule",
-      "community": 21,
+      "community": 15,
       "norm_label": "helpmodule"
     },
     {
@@ -15712,7 +16002,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "tests_help_test_commands_aliases_registercommand",
-      "community": 21,
+      "community": 15,
       "norm_label": "{ commands, aliases, registercommand }"
     },
     {
@@ -15722,7 +16012,7 @@
       "source_location": "L61",
       "_origin": "ast",
       "id": "tests_help_test_exechelp",
-      "community": 21,
+      "community": 15,
       "norm_label": "exechelp()"
     },
     {
@@ -15732,7 +16022,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_inventory_test",
-      "community": 73,
+      "community": 82,
       "norm_label": "inventory.test.js"
     },
     {
@@ -15742,7 +16032,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_inventory_test_max_inventory_size_max_stack_size",
-      "community": 73,
+      "community": 82,
       "norm_label": "{ max_inventory_size, max_stack_size }"
     },
     {
@@ -15752,7 +16042,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "tests_inventory_test_items_getitem_getitemsbycategory",
-      "community": 73,
+      "community": 82,
       "norm_label": "{ items, getitem, getitemsbycategory }"
     },
     {
@@ -16382,7 +16672,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_permission_service_test",
-      "community": 74,
+      "community": 3,
       "norm_label": "permission_service.test.js"
     },
     {
@@ -16392,7 +16682,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_permission_service_test_getcategorylabel",
-      "community": 74,
+      "community": 3,
       "norm_label": "{ getcategorylabel }"
     },
     {
@@ -16422,7 +16712,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_schema_runtime_test",
-      "community": 37,
+      "community": 75,
       "norm_label": "schema_runtime.test.js"
     },
     {
@@ -16432,7 +16722,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_schema_runtime_test_supabase",
-      "community": 37,
+      "community": 75,
       "norm_label": "{ supabase }"
     },
     {
@@ -16442,7 +16732,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "tests_schema_runtime_test_discover_known_schema",
-      "community": 37,
+      "community": 75,
       "norm_label": "{ discover, known_schema }"
     },
     {
@@ -16452,7 +16742,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "tests_schema_runtime_test_checkhealth",
-      "community": 37,
+      "community": 75,
       "norm_label": "{ checkhealth }"
     },
     {
@@ -16462,7 +16752,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "tests_schema_runtime_test_schemaversion",
-      "community": 37,
+      "community": 75,
       "norm_label": "schemaversion"
     },
     {
@@ -16472,7 +16762,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "tests_schema_runtime_test_loggerservice",
-      "community": 37,
+      "community": 75,
       "norm_label": "loggerservice"
     },
     {
@@ -16482,7 +16772,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "tests_schema_runtime_test_schemamigrationpath",
-      "community": 37,
+      "community": 75,
       "norm_label": "schemamigrationpath"
     },
     {
@@ -16492,7 +16782,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "tests_schema_runtime_test_mockschema",
-      "community": 37,
+      "community": 75,
       "norm_label": "mockschema()"
     },
     {
@@ -16502,7 +16792,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_section_builder_test",
-      "community": 27,
+      "community": 31,
       "norm_label": "section_builder.test.js"
     },
     {
@@ -16512,7 +16802,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "tests_section_builder_test_composemessage",
-      "community": 27,
+      "community": 31,
       "norm_label": "{ composemessage }"
     },
     {
@@ -16522,7 +16812,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "tests_section_builder_test_box",
-      "community": 27,
+      "community": 31,
       "norm_label": "{ box }"
     },
     {
@@ -16532,7 +16822,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_security_boundaries_test",
-      "community": 88,
+      "community": 17,
       "norm_label": "security_boundaries.test.js"
     },
     {
@@ -16542,7 +16832,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_security_boundaries_test_crypto",
-      "community": 88,
+      "community": 17,
       "norm_label": "crypto"
     },
     {
@@ -16552,7 +16842,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "tests_security_boundaries_test_fs",
-      "community": 88,
+      "community": 17,
       "norm_label": "fs"
     },
     {
@@ -16562,7 +16852,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "tests_security_boundaries_test_fsp",
-      "community": 88,
+      "community": 17,
       "norm_label": "fsp"
     },
     {
@@ -16572,7 +16862,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "tests_security_boundaries_test_os",
-      "community": 88,
+      "community": 17,
       "norm_label": "os"
     },
     {
@@ -16582,7 +16872,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "tests_security_boundaries_test_path",
-      "community": 88,
+      "community": 17,
       "norm_label": "path"
     },
     {
@@ -16592,7 +16882,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "tests_security_boundaries_test_readable",
-      "community": 88,
+      "community": 17,
       "norm_label": "{ readable }"
     },
     {
@@ -16602,7 +16892,7 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "tests_security_boundaries_test_downloadmediamessage",
-      "community": 88,
+      "community": 17,
       "norm_label": "downloadmediamessage"
     },
     {
@@ -16612,7 +16902,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "tests_security_boundaries_test_discover",
-      "community": 88,
+      "community": 17,
       "norm_label": "discover"
     },
     {
@@ -16622,7 +16912,7 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "tests_security_boundaries_test_setstoredversion",
-      "community": 88,
+      "community": 17,
       "norm_label": "setstoredversion"
     },
     {
@@ -16632,7 +16922,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "tests_security_boundaries_test_supabase",
-      "community": 88,
+      "community": 17,
       "norm_label": "supabase"
     },
     {
@@ -16642,7 +16932,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "tests_security_boundaries_test_cachedmodules",
-      "community": 88,
+      "community": 17,
       "norm_label": "cachedmodules"
     },
     {
@@ -16652,7 +16942,7 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "tests_security_boundaries_test_mockcommonjsmodule",
-      "community": 88,
+      "community": 17,
       "norm_label": "mockcommonjsmodule()"
     },
     {
@@ -16662,7 +16952,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "tests_security_boundaries_test_bugreportservicepath",
-      "community": 88,
+      "community": 17,
       "norm_label": "bugreportservicepath"
     },
     {
@@ -16672,7 +16962,7 @@
       "source_location": "L29",
       "_origin": "ast",
       "id": "tests_security_boundaries_test_createreport",
-      "community": 88,
+      "community": 17,
       "norm_label": "{ createreport }"
     },
     {
@@ -16682,7 +16972,7 @@
       "source_location": "L30",
       "_origin": "ast",
       "id": "tests_security_boundaries_test_schemamigrationpath",
-      "community": 88,
+      "community": 17,
       "norm_label": "schemamigrationpath"
     },
     {
@@ -16692,7 +16982,7 @@
       "source_location": "L32",
       "_origin": "ast",
       "id": "tests_security_boundaries_test_runstartupmigration",
-      "community": 88,
+      "community": 17,
       "norm_label": "{ runstartupmigration }"
     },
     {
@@ -16702,7 +16992,7 @@
       "source_location": "L47",
       "_origin": "ast",
       "id": "tests_security_boundaries_test_restoreenv",
-      "community": 88,
+      "community": 17,
       "norm_label": "restoreenv()"
     },
     {
@@ -16712,7 +17002,7 @@
       "source_location": "L52",
       "_origin": "ast",
       "id": "tests_security_boundaries_test_loadownerconfig",
-      "community": 88,
+      "community": 17,
       "norm_label": "loadownerconfig()"
     },
     {
@@ -16722,7 +17012,7 @@
       "source_location": "L59",
       "_origin": "ast",
       "id": "tests_security_boundaries_test_loadownerchecker",
-      "community": 88,
+      "community": 17,
       "norm_label": "loadownerchecker()"
     },
     {
@@ -16732,7 +17022,7 @@
       "source_location": "L70",
       "_origin": "ast",
       "id": "tests_security_boundaries_test_imagemessage",
-      "community": 88,
+      "community": 17,
       "norm_label": "imagemessage()"
     },
     {
@@ -16742,7 +17032,7 @@
       "source_location": "L122",
       "_origin": "ast",
       "id": "tests_security_boundaries_test_createwithimage",
-      "community": 109,
+      "community": 88,
       "norm_label": "createwithimage()"
     },
     {
@@ -16752,7 +17042,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_supabase_auth_state_test",
-      "community": 119,
+      "community": 117,
       "norm_label": "supabase_auth_state.test.js"
     },
     {
@@ -16762,7 +17052,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_supabase_auth_state_test_cachedmodules",
-      "community": 119,
+      "community": 117,
       "norm_label": "cachedmodules"
     },
     {
@@ -16772,7 +17062,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "tests_supabase_auth_state_test_mockcommonjsmodule",
-      "community": 119,
+      "community": 117,
       "norm_label": "mockcommonjsmodule()"
     },
     {
@@ -16782,7 +17072,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "tests_supabase_auth_state_test_loadauthstate",
-      "community": 119,
+      "community": 117,
       "norm_label": "loadauthstate()"
     },
     {
@@ -16792,7 +17082,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_supabase_config_test",
-      "community": 72,
+      "community": 21,
       "norm_label": "supabase_config.test.js"
     },
     {
@@ -16802,7 +17092,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_supabase_config_test_assertservicerolekey",
-      "community": 72,
+      "community": 21,
       "norm_label": "{ assertservicerolekey }"
     },
     {
@@ -16812,7 +17102,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "tests_supabase_config_test_syntheticjwt",
-      "community": 72,
+      "community": 21,
       "norm_label": "syntheticjwt()"
     },
     {
@@ -16822,7 +17112,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_test_supabase_schema",
-      "community": 72,
+      "community": 21,
       "norm_label": "test_supabase_schema.js"
     },
     {
@@ -16832,7 +17122,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "tests_test_supabase_schema_assert",
-      "community": 72,
+      "community": 21,
       "norm_label": "assert"
     },
     {
@@ -16842,7 +17132,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "tests_test_supabase_schema_supabase",
-      "community": 72,
+      "community": 21,
       "norm_label": "{ supabase }"
     },
     {
@@ -16852,7 +17142,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "tests_test_supabase_schema_required_tables",
-      "community": 72,
+      "community": 21,
       "norm_label": "required_tables"
     },
     {
@@ -16862,7 +17152,7 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "tests_test_supabase_schema_run",
-      "community": 72,
+      "community": 21,
       "norm_label": "run()"
     },
     {
@@ -18166,6 +18456,56 @@
       "norm_label": "td-007 | arma arrojadiza no lanzable en combate real | abierto"
     },
     {
+      "label": "TD-008 | Scripts de graphify rotos tras merge perf/harden | abierto (2026-08-04)",
+      "file_type": "document",
+      "source_file": "memory/technical_debt.md",
+      "source_location": "L35",
+      "_origin": "ast",
+      "id": "memory_technical_debt_td_008_scripts_de_graphify_rotos_tras_merge_perf_harden_abierto_2026_08_04",
+      "community": 96,
+      "norm_label": "td-008 | scripts de graphify rotos tras merge perf/harden | abierto (2026-08-04)"
+    },
+    {
+      "label": "TD-009 | Colisi\u00f3n de numeraci\u00f3n de migraciones `002_*` | abierto (2026-08-04)",
+      "file_type": "document",
+      "source_file": "memory/technical_debt.md",
+      "source_location": "L39",
+      "_origin": "ast",
+      "id": "memory_technical_debt_td_009_colisi\u00f3n_de_numeraci\u00f3n_de_migraciones_002_abierto_2026_08_04",
+      "community": 96,
+      "norm_label": "td-009 | colision de numeracion de migraciones `002_*` | abierto (2026-08-04)"
+    },
+    {
+      "label": "TD-010 | Directorios ignorados pero trackeados | abierto (2026-08-04)",
+      "file_type": "document",
+      "source_file": "memory/technical_debt.md",
+      "source_location": "L43",
+      "_origin": "ast",
+      "id": "memory_technical_debt_td_010_directorios_ignorados_pero_trackeados_abierto_2026_08_04",
+      "community": 96,
+      "norm_label": "td-010 | directorios ignorados pero trackeados | abierto (2026-08-04)"
+    },
+    {
+      "label": "TD-011 | Documentaci\u00f3n desactualizada vs herramienta real | abierto (2026-08-04)",
+      "file_type": "document",
+      "source_file": "memory/technical_debt.md",
+      "source_location": "L47",
+      "_origin": "ast",
+      "id": "memory_technical_debt_td_011_documentaci\u00f3n_desactualizada_vs_herramienta_real_abierto_2026_08_04",
+      "community": 96,
+      "norm_label": "td-011 | documentacion desactualizada vs herramienta real | abierto (2026-08-04)"
+    },
+    {
+      "label": "TD-012 | `test_supabase_schema.js` sin runner | abierto (2026-08-04)",
+      "file_type": "document",
+      "source_file": "memory/technical_debt.md",
+      "source_location": "L51",
+      "_origin": "ast",
+      "id": "memory_technical_debt_td_012_test_supabase_schema_js_sin_runner_abierto_2026_08_04",
+      "community": 96,
+      "norm_label": "td-012 | `test_supabase_schema.js` sin runner | abierto (2026-08-04)"
+    },
+    {
       "label": "random_report.md",
       "file_type": "document",
       "source_file": "scripts/simulation_output/random_report.md",
@@ -18668,6 +19008,83 @@
       "confidence_score": 1.0
     },
     {
+      "relation": "extends",
+      "confidence": "EXTRACTED",
+      "source_file": "knip.json",
+      "source_location": "L3",
+      "weight": 1.0,
+      "context": "import",
+      "source": "knip_entry",
+      "target": "ref_scripts_js",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "extends",
+      "confidence": "EXTRACTED",
+      "source_file": "knip.json",
+      "source_location": "L3",
+      "weight": 1.0,
+      "context": "import",
+      "source": "knip_entry",
+      "target": "ref_src_commands_js",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "extends",
+      "confidence": "EXTRACTED",
+      "source_file": "knip.json",
+      "source_location": "L3",
+      "weight": 1.0,
+      "context": "import",
+      "source": "knip_entry",
+      "target": "ref_src_config_js",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "extends",
+      "confidence": "EXTRACTED",
+      "source_file": "knip.json",
+      "source_location": "L3",
+      "weight": 1.0,
+      "context": "import",
+      "source": "knip_entry",
+      "target": "ref_src_core_bot_js",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "extends",
+      "confidence": "EXTRACTED",
+      "source_file": "knip.json",
+      "source_location": "L3",
+      "weight": 1.0,
+      "context": "import",
+      "source": "knip_entry",
+      "target": "ref_src_data_js",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "extends",
+      "confidence": "EXTRACTED",
+      "source_file": "knip.json",
+      "source_location": "L3",
+      "weight": 1.0,
+      "context": "import",
+      "source": "knip_entry",
+      "target": "ref_tests_js",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "extends",
+      "confidence": "EXTRACTED",
+      "source_file": "knip.json",
+      "source_location": "L11",
+      "weight": 1.0,
+      "context": "import",
+      "source": "knip_project",
+      "target": "ref_src_js",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "knip.json",
@@ -18705,6 +19122,28 @@
       "weight": 1.0,
       "source": "knip_rules",
       "target": "knip_rules_files",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "extends",
+      "confidence": "EXTRACTED",
+      "source_file": "knip.json",
+      "source_location": "L18",
+      "weight": 1.0,
+      "context": "import",
+      "source": "knip_ignorebinaries",
+      "target": "ref_dot",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "extends",
+      "confidence": "EXTRACTED",
+      "source_file": "knip.json",
+      "source_location": "L18",
+      "weight": 1.0,
+      "context": "import",
+      "source": "knip_ignorebinaries",
+      "target": "ref_graphify",
       "confidence_score": 1.0
     },
     {
@@ -39347,7 +39786,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/core/eventHandler.js",
-      "source_location": "L187",
+      "source_location": "L189",
       "weight": 1.0,
       "source": "src_core_eventhandler_processsinglemessage",
       "target": "src_core_commandhandler_handlecommand"
@@ -39844,7 +40283,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/core/eventHandler.js",
-      "source_location": "L157",
+      "source_location": "L159",
       "weight": 1.0,
       "source": "src_core_eventhandler",
       "target": "src_core_eventhandler_processsinglemessage",
@@ -39884,7 +40323,7 @@
       "relation": "indirect_call",
       "confidence": "INFERRED",
       "source_file": "src/core/eventHandler.js",
-      "source_location": "L217",
+      "source_location": "L219",
       "weight": 1.0,
       "context": "collection",
       "source": "src_core_eventhandler",
@@ -40015,7 +40454,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/core/eventHandler.js",
-      "source_location": "L161",
+      "source_location": "L163",
       "weight": 1.0,
       "source": "src_core_eventhandler_processsinglemessage",
       "target": "src_core_eventhandler_createcontext",
@@ -40026,7 +40465,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/core/eventHandler.js",
-      "source_location": "L176",
+      "source_location": "L178",
       "weight": 1.0,
       "source": "src_core_eventhandler_processsinglemessage",
       "target": "src_core_eventhandler_withtimeout",
@@ -40037,7 +40476,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/core/eventHandler.js",
-      "source_location": "L201",
+      "source_location": "L203",
       "weight": 1.0,
       "source": "src_core_eventhandler_registerevents",
       "target": "src_core_eventhandler_shouldskipmessage",
@@ -40048,7 +40487,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/core/eventHandler.js",
-      "source_location": "L176",
+      "source_location": "L178",
       "weight": 1.0,
       "source": "src_core_eventhandler_processsinglemessage",
       "target": "src_core_eventhandler_recorduserandgroupactivity",
@@ -40060,7 +40499,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/core/eventHandler.js",
-      "source_location": "L114",
+      "source_location": "L115",
       "weight": 1.0,
       "source": "src_core_eventhandler_recorduserandgroupactivity",
       "target": "src_services_groupactivityservice_recordgroupactivity"
@@ -40071,7 +40510,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/core/eventHandler.js",
-      "source_location": "L95",
+      "source_location": "L94",
       "weight": 1.0,
       "source": "src_core_eventhandler_recorduserandgroupactivity",
       "target": "src_services_loggerservice_logerror"
@@ -40093,7 +40532,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/core/eventHandler.js",
-      "source_location": "L81",
+      "source_location": "L80",
       "weight": 1.0,
       "source": "src_core_eventhandler_recorduserandgroupactivity",
       "target": "src_services_userservice_recorduseractivity"
@@ -40104,7 +40543,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/core/eventHandler.js",
-      "source_location": "L166",
+      "source_location": "L168",
       "weight": 1.0,
       "source": "src_core_eventhandler_processsinglemessage",
       "target": "src_services_loggerservice_logsystem"
@@ -40114,7 +40553,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/core/eventHandler.js",
-      "source_location": "L202",
+      "source_location": "L204",
       "weight": 1.0,
       "source": "src_core_eventhandler_registerevents",
       "target": "src_core_eventhandler_processsinglemessage",
@@ -40126,7 +40565,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/core/eventHandler.js",
-      "source_location": "L204",
+      "source_location": "L206",
       "weight": 1.0,
       "source": "src_core_eventhandler_registerevents",
       "target": "src_services_loggerservice_logerror"
@@ -42539,6 +42978,166 @@
       "weight": 1.0,
       "source": "src_services_userservice_saveuserprofile",
       "target": "src_database_columnregistry_filterexisting"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/database/migrations/001_create_inventory.sql",
+      "source_location": "L5",
+      "weight": 1.0,
+      "source": "src_database_migrations_001_create_inventory",
+      "target": "src_database_migrations_001_create_inventory_inventory",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/database/migrations/001_create_inventory.sql",
+      "source_location": "L36",
+      "weight": 1.0,
+      "source": "src_database_migrations_001_create_inventory",
+      "target": "src_database_migrations_001_create_inventory_trg_inventory_updated_at",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/database/migrations/001_create_inventory.sql",
+      "source_location": "L27",
+      "weight": 1.0,
+      "source": "src_database_migrations_001_create_inventory",
+      "target": "src_database_migrations_001_create_inventory_update_inventory_updated_at",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "triggers",
+      "confidence": "EXTRACTED",
+      "source_file": "src/database/migrations/001_create_inventory.sql",
+      "source_location": "L36",
+      "weight": 1.0,
+      "source": "src_database_migrations_001_create_inventory_trg_inventory_updated_at",
+      "target": "src_database_migrations_001_create_inventory_update_inventory_updated_at",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/database/migrations/002_add_item_metadata_and_equipment.sql",
+      "source_location": "L22",
+      "weight": 1.0,
+      "source": "src_database_migrations_002_add_item_metadata_and_equipment",
+      "target": "src_database_migrations_002_add_item_metadata_and_equipment_characters",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/database/migrations/002_add_item_metadata_and_equipment.sql",
+      "source_location": "L5",
+      "weight": 1.0,
+      "source": "src_database_migrations_002_add_item_metadata_and_equipment",
+      "target": "src_database_migrations_002_add_item_metadata_and_equipment_inventory",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/database/migrations/003_remediation_item_equipment.sql",
+      "source_location": "L25",
+      "weight": 1.0,
+      "source": "src_database_migrations_003_remediation_item_equipment",
+      "target": "src_database_migrations_003_remediation_item_equipment_characters",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/database/migrations/003_remediation_item_equipment.sql",
+      "source_location": "L32",
+      "weight": 1.0,
+      "source": "src_database_migrations_003_remediation_item_equipment",
+      "target": "src_database_migrations_003_remediation_item_equipment_combat_sessions",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/database/migrations/003_remediation_item_equipment.sql",
+      "source_location": "L8",
+      "weight": 1.0,
+      "source": "src_database_migrations_003_remediation_item_equipment",
+      "target": "src_database_migrations_003_remediation_item_equipment_inventory",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/database/migrations/004_harden_inventory_access.sql",
+      "source_location": "L23",
+      "weight": 1.0,
+      "source": "src_database_migrations_004_harden_inventory_access",
+      "target": "src_database_migrations_004_harden_inventory_access_bot_auth_state",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/database/migrations/004_harden_inventory_access.sql",
+      "source_location": "L31",
+      "weight": 1.0,
+      "source": "src_database_migrations_004_harden_inventory_access",
+      "target": "src_database_migrations_004_harden_inventory_access_characters",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/database/migrations/004_harden_inventory_access.sql",
+      "source_location": "L12",
+      "weight": 1.0,
+      "source": "src_database_migrations_004_harden_inventory_access",
+      "target": "src_database_migrations_004_harden_inventory_access_combat_sessions",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/database/migrations/004_harden_inventory_access.sql",
+      "source_location": "L29",
+      "weight": 1.0,
+      "source": "src_database_migrations_004_harden_inventory_access",
+      "target": "src_database_migrations_004_harden_inventory_access_group_members",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/database/migrations/004_harden_inventory_access.sql",
+      "source_location": "L27",
+      "weight": 1.0,
+      "source": "src_database_migrations_004_harden_inventory_access",
+      "target": "src_database_migrations_004_harden_inventory_access_groups",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/database/migrations/004_harden_inventory_access.sql",
+      "source_location": "L4",
+      "weight": 1.0,
+      "source": "src_database_migrations_004_harden_inventory_access",
+      "target": "src_database_migrations_004_harden_inventory_access_inventory",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/database/migrations/004_harden_inventory_access.sql",
+      "source_location": "L25",
+      "weight": 1.0,
+      "source": "src_database_migrations_004_harden_inventory_access",
+      "target": "src_database_migrations_004_harden_inventory_access_players",
+      "confidence_score": 1.0
     },
     {
       "relation": "imports_from",
@@ -60896,6 +61495,56 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
+      "source_file": "memory/technical_debt.md",
+      "source_location": "L35",
+      "weight": 1.0,
+      "source": "memory_technical_debt_deuda_t\u00e9cnica_registrada",
+      "target": "memory_technical_debt_td_008_scripts_de_graphify_rotos_tras_merge_perf_harden_abierto_2026_08_04",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "memory/technical_debt.md",
+      "source_location": "L39",
+      "weight": 1.0,
+      "source": "memory_technical_debt_deuda_t\u00e9cnica_registrada",
+      "target": "memory_technical_debt_td_009_colisi\u00f3n_de_numeraci\u00f3n_de_migraciones_002_abierto_2026_08_04",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "memory/technical_debt.md",
+      "source_location": "L43",
+      "weight": 1.0,
+      "source": "memory_technical_debt_deuda_t\u00e9cnica_registrada",
+      "target": "memory_technical_debt_td_010_directorios_ignorados_pero_trackeados_abierto_2026_08_04",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "memory/technical_debt.md",
+      "source_location": "L47",
+      "weight": 1.0,
+      "source": "memory_technical_debt_deuda_t\u00e9cnica_registrada",
+      "target": "memory_technical_debt_td_011_documentaci\u00f3n_desactualizada_vs_herramienta_real_abierto_2026_08_04",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "memory/technical_debt.md",
+      "source_location": "L51",
+      "weight": 1.0,
+      "source": "memory_technical_debt_deuda_t\u00e9cnica_registrada",
+      "target": "memory_technical_debt_td_012_test_supabase_schema_js_sin_runner_abierto_2026_08_04",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
       "source_file": "scripts/simulation_output/random_report.md",
       "source_location": "L1",
       "weight": 1.0,
@@ -61155,5 +61804,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "fdabbe67d1903d01901a3130f8c3f99fdca3c0c4"
+  "built_at_commit": "8921276831c467e43c4efe060ca8ede698418991"
 }

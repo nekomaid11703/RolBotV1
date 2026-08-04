@@ -100,11 +100,13 @@
   "98": "knip-wrapper.mjs",
   "99": "durability.js",
   "100": "weapon.js",
+  "101": "001_create_inventory.sql",
   "102": "eco_admin_list.js",
   "103": "Decisiones Técnicas",
   "104": "getActiveCharacter",
   "105": "listCharacters",
   "106": "moduleRegistry.js",
+  "107": "003_remediation_item_equipment.sql",
   "108": "ModuleBase.js",
   "109": "invite.js",
   "110": "buff.js",
@@ -113,8 +115,7 @@
   "113": "demote.js",
   "114": "Entity",
   "115": "bugreport.js",
-  "117": "groupConfig.js",
+  "116": "002_rename_stats_keys.sql",
   "118": "command_format.test.js",
-  "119": "supabase_auth_state.test.js",
   "124": "throwable.js"
 }

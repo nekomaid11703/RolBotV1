@@ -77,63 +77,65 @@ async function recordUserAndGroupActivity(ctx, rawMsg) {
 
   incrementMessages();
 
-  const activityTasks = [
-    recordUserActivity({
-      creatorId: userId,
-      creatorName,
-      displayName: creatorName,
-      pushName: rawMsg.pushName || creatorName,
-      senderJid: ctx.senderJid || ctx.sender,
-      senderNumber: ctx.senderNumber || null,
-      messageType: ctx.messageType,
-      messageCount: 1,
-      isText: isTextMessage,
-      registration,
-    }).then(
-      () => null,
-      async (error) => {
-        await logError({
-          source: "recordUserActivity",
-          userId,
-          userName: creatorName,
-          groupId: ctx.from,
-          error,
-          context: {
-            pushName: rawMsg.pushName || null,
-            remoteJid: rawMsg.key?.remoteJid || null,
-            messageType: ctx.messageType,
-          },
-        });
-        return error;
-      },
-    ),
-  ];
+  const userActivityPromise = recordUserActivity({
+    creatorId: userId,
+    creatorName,
+    displayName: creatorName,
+    pushName: rawMsg.pushName || creatorName,
+    senderJid: ctx.senderJid || ctx.sender,
+    senderNumber: ctx.senderNumber || null,
+    messageType: ctx.messageType,
+    messageCount: 1,
+    isText: isTextMessage,
+    registration,
+  }).then(
+    () => null,
+    async (error) => {
+      await logError({
+        source: "recordUserActivity",
+        userId,
+        userName: creatorName,
+        groupId: ctx.from,
+        error,
+        context: {
+          pushName: rawMsg.pushName || null,
+          remoteJid: rawMsg.key?.remoteJid || null,
+          messageType: ctx.messageType,
+        },
+      });
+      return error;
+    },
+  );
+
+  const activityTasks = [userActivityPromise];
 
   if (ctx.isGroup) {
     activityTasks.push(
-      recordGroupActivity({
-        groupId: ctx.from,
-        memberId: userId,
-        memberName: creatorName,
-        messageType: ctx.messageType,
-        messageCount: 1,
-        isText: isTextMessage,
-      }).then(
-        () => null,
-        async (error) => {
-          await logError({
-            source: "recordGroupActivity",
-            userId,
-            userName: creatorName,
-            groupId: ctx.from,
-            error,
-            context: {
-              messageType: ctx.messageType,
-              remoteJid: rawMsg.key?.remoteJid || null,
-            },
-          });
-          return error;
-        },
+      userActivityPromise.then(() =>
+        recordGroupActivity({
+          groupId: ctx.from,
+          memberId: userId,
+          memberName: creatorName,
+          messageType: ctx.messageType,
+          messageCount: 1,
+          isText: isTextMessage,
+        }).then(
+          () => null,
+          async (error) => {
+            await logError({
+              source: "recordGroupActivity",
+              userId,
+              userName: creatorName,
+              groupId: ctx.from,
+              error,
+              context: {
+                messageType: ctx.messageType,
+                remoteJid: rawMsg.key?.remoteJid || null,
+              },
+            });
+            return error;
+          },
+        ),
       ),
     );
   }

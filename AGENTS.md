@@ -1,6 +1,6 @@
 ## graphify — Knowledge Graph (Code-Only)
 
-Este proyecto tiene un knowledge graph activo en `graphify-out/` con **1831 nodos, 4002 aristas y 118 comunidades** que reflejan la arquitectura real del código **sin dependencias de IA externas**. El grafo se construye exclusivamente por **AST (tree-sitter)**, sin ningún LLM externo — **0 costo, 0 API keys, 100% reproducible**.
+Este proyecto tiene un knowledge graph activo en `graphify-out/` con **1865 nodos, 4032 aristas y 120 comunidades** que reflejan la arquitectura real del código **sin dependencias de IA externas**. El grafo se construye exclusivamente por **AST (tree-sitter)**, sin ningún LLM externo — **0 costo, 0 API keys, 100% reproducible**.
 
 **El chatbot es 100% código puro.** No tiene capa de IA interna (sin narración, roleplay, ni clasificación por IA). DeepSeek v4 flash (gratuito e ilimitado) lo usa exclusivamente el agente programador para:
 
@@ -12,11 +12,11 @@ Este proyecto tiene un knowledge graph activo en `graphify-out/` con **1831 nodo
 
 ### Instalación y dependencias
 
-Graphify se invoca mediante el ejecutable global `graphify` (versión validada: 0.9.9).
+Graphify se invoca mediante el módulo Python `graphify` (versión validada: 0.9.12). El binario desnudo `graphify` NO está en el PATH; usar siempre `python -m graphify` (los scripts npm ya lo resuelven así).
 
 ```bash
 # Verificar instalación
-graphify --version
+python -m graphify --version
 
 # Reconstruir grafo completo (después de cambios mayores)
 npm run graphify:rebuild
@@ -30,7 +30,7 @@ npm run graphify:cluster
 
 ### Reglas operativas del repositorio:
 
-- **Consulta pre-acción**: Para preguntas sobre el código, primero ejecutar `graphify query "<pregunta>"`. Usar `graphify path "<A>" "<B>"` para relaciones y `graphify explain "<concepto>"` para explicaciones.
+- **Consulta pre-acción**: Para preguntas sobre el código, primero ejecutar `npm run graphify:query -- "<pregunta>"`. Usar `npm run graphify:path -- "<A>" "<B>"` para relaciones y `npm run graphify:explain -- "<concepto>"` para explicaciones.
 - **Actualización post-modificación**: Después de modificar código, ejecutar `npm run graphify:update` (incremental, AST). Para cambios mayores: `npm run graphify:rebuild`.
 - **Archivos sucios**: Dirty files en `graphify-out/` son esperados tras updates incrementales. No omitir graphify por eso.
 - **Wiki**: Si `graphify-out/wiki/index.md` existe, usarla para navegación amplia.
@@ -46,16 +46,15 @@ npm run graphify:query        # Consulta por BFS/DFS
 npm run graphify:path         # Camino más corto entre 2 nodos
 
 # Auditoría: encontrar puntos de alto acoplamiento
-graphify explain "logError"           # God node — edges
-graphify explain "supabase"           # God node — edges
+npm run graphify:explain -- "logError"           # God node — edges
+npm run graphify:explain -- "supabase"           # God node — edges
 
 # Investigación: trazar flujo completo
-graphify path "startBot" "supabase"
-graphify query "cómo se procesa un comando" --dfs
+npm run graphify:path -- "startBot" "supabase"
 
 # Búsqueda: encontrar dónde se usa algo
-graphify query "dónde se llama addMoney"
-graphify query "qué comandos usan el servicio de economía"
+npm run graphify:query -- "dónde se llama addMoney"
+npm run graphify:query -- "qué comandos usan el servicio de economía" --dfs
 ```
 
 ### Hook post-commit:

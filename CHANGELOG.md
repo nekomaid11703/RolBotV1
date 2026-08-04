@@ -5,11 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased] - 2026-08-04
+## [1.6.0] - 2026-08-04
 
 ### Added
 
-- Persistencia de `combat_sessions.distance` y migración idempotente `004_harden_inventory_access.sql`.
+- **Sistema de ítems v1.6**: equipo equipable por slot, durabilidad y absorción de material.
+- **Equipo del dummy (PvE)**: el maniquí resuelve su equipo vía `equipmentResolverService` en el combate.
+- **UI por secciones**: `src/ui/sectionBuilder.js` (`composeMessage`) + secciones de combate, personaje y equipo; menú de combate y reacciones data-driven vía `src/data/combatActions.js`.
+- **Persistencia de `combat_sessions.distance`** y migración idempotente `004_harden_inventory_access.sql`.
 - Pruebas de límites de seguridad, ciclo de vida, caché, actividad/UX y persistencia de combate.
 - Reporte técnico y resumen en formato WhatsApp.
 
@@ -18,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Integración de la auditoría de `main` sobre `AI_rolbot` sin retirar los sistemas v1.6.
 - Escrituras de actividad, economía y combate reducidas o acotadas por dominio.
 - Reconexión de Baileys, almacenamiento de auth, respuestas de error, menciones y helpers administrativos endurecidos.
+- `recordGroupActivity` encadenado tras `recordUserActivity` para respetar el FK `group_members.player_phone → players`.
 - Toolchain reproducible con 528 pruebas, Knip limpio, cero violaciones de arquitectura y cero vulnerabilidades auditadas.
 
 ### Security
@@ -25,6 +29,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Eliminado el alias owner codificado y corregido el sentinel de permisos denegados.
 - Multimedia de `/bugreport` limitada por MIME, tamaño, streaming y ruta segura.
 - RLS forzado y privilegios revocados para `inventory` y `combat_sessions`.
+
+## [1.5.0] - 2026-07-25
+
+### Added
+
+- **Sistema modular universal**: `ModuleBase`, `moduleRegistry` y `Entity` — ítems definidos por módulos con hooks (`TurnStart`, `TurnEnd`, `CombatEnd`, `Use`) y condiciones.
+- **Mecánica de distancia v1.5**: distancia inicial 5m, alcance efectivo por MSPD/arma, penalización ASPD por bloque de 5m, `/avanzar` y `/retroceder`, IA del dummy con toma de decisiones por distancia.
+- **Sistema de fatiga**: 4 niveles con penalidades de velocidad, costos por acción y recuperación.
+- Simulación de balance (`scripts/simulate_battles.js`) con parámetros centralizados en `combatBalance.js`.
+
+### Changed
+
+- Hooks de combate conectados a producción (`combatState`, `combatEngine`, `statusService`).
+- Constantes de balance migradas a `src/config/combatBalance.js`.
+
+## [1.4.0] - 2026-07-24
+
+### Changed
+
+- **Refactor completo de stats**: HP leveleable, stats base = 1 y nueva fórmula de DEF.
+
+## [1.3.0] - 2026-07-24
+
+### Added
+
+- **Inventario conectado a Supabase**: tabla `inventory` con `character_id` FK, catálogo de consumibles y comandos `/inventario` y `/usar` con bloqueo `withCharacterLock`.
+- **Combate melee determinista**: sesiones en memoria con expiración (10 min reto, 48 h turno), reacciones bloquear/esquivar, umbrales activos por HP y comandos `/retar`, `/estado` y `/disolver_combate`.
 
 ## [1.2.0] - 2026-07-23
 

@@ -97,6 +97,24 @@ describe("eventHandler activity observability", () => {
     expect(logSystem).toHaveBeenCalledWith("MSG_ACTIVITY_OK", expect.any(Object));
   });
 
+  it("encadena recordGroupActivity tras recordUserActivity para respetar el FK group_members->players", async () => {
+    const calls = [];
+    recordUserActivity.mockImplementation(async () => {
+      calls.push("recordUserActivity");
+      return {};
+    });
+    recordGroupActivity.mockImplementation(async () => {
+      calls.push("recordGroupActivity");
+      return {};
+    });
+    const listener = registerMessageListener();
+
+    await listener({ messages: [rawMessage], type: "notify" });
+
+    expect(calls).toEqual(["recordUserActivity", "recordGroupActivity"]);
+    expect(recordGroupActivity).toHaveBeenCalled();
+  });
+
   it("registra error y no OK cuando falla una escritura de actividad", async () => {
     recordUserActivity.mockRejectedValueOnce(new Error("database unavailable"));
     const listener = registerMessageListener();
