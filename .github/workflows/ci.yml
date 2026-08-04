@@ -12,12 +12,6 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
-      - run: npm run lint
-      - run: npm run typecheck
-      - run: npm run depcruise
-      - run: npm run format:check
-      - run: npm run test:vite
-        env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
-          OWNER_PHONE: ${{ secrets.OWNER_PHONE }}
+      - run: npm run check:all
+      - run: npm run knip
+      - run: npm audit --omit=dev

@@ -4,7 +4,6 @@ const { createSession, createDummySession, findSessionByCharacter } = require(".
 const { ensureTempTestKit, ensureIronFamilyKit } = require("../../../services/rpg/inventoryService");
 const { resolveCharacterEquipment } = require("../../../services/rpg/equipmentResolverService");
 const { formatCombatOpen } = require("../../../services/rpg/combatMessages");
-const { formatError } = require("../../../utils/formatErrorUtils");
 
 /**
  * Resuelve el equipo de ambos bandos para la apertura del combate.
@@ -52,86 +51,80 @@ module.exports = {
       );
     }
 
-    try {
+    /**
+     * @constant challengerChar
+     */
+    const challengerChar = await getActiveCharacter({ creatorId: ctx.sender });
+    if (!challengerChar) {
+      return ctx.reply("❌ No tienes un personaje activo. Usa `/crear_pj`.");
+    }
+
+    /**
+     * @constant existingSession
+     */
+    const existingSession = findSessionByCharacter(challengerChar.id);
+    if (existingSession) {
+      return ctx.reply(
+        `❌ Tu personaje activo **${challengerChar.name}** ya está en un combate activo. Usa \`/estado\` para ver el avance.`,
+      );
+    }
+
+    if (isDummy) {
       /**
-       * @constant challengerChar
+       * @constant added
        */
-      const challengerChar = await getActiveCharacter({ creatorId: ctx.sender });
-      if (!challengerChar) {
-        return ctx.reply("❌ No tienes un personaje activo. Usa `/crear_pj`.");
-      }
-
+      const added = await ensureTempTestKit(challengerChar.id, challengerChar.creator_id);
       /**
-       * @constant existingSession
+       * @constant ironAdded
        */
-      const existingSession = findSessionByCharacter(challengerChar.id);
-      if (existingSession) {
-        return ctx.reply(
-          `❌ Tu personaje activo **${challengerChar.name}** ya está en un combate activo. Usa \`/estado\` para ver el avance.`,
-        );
-      }
-
-      if (isDummy) {
-        /**
-         * @constant added
-         */
-        const added = await ensureTempTestKit(challengerChar.id, challengerChar.creator_id);
-        /**
-         * @constant ironAdded
-         */
-        const ironAdded = await ensureIronFamilyKit(challengerChar.id, challengerChar.creator_id);
-        /**
-         * @constant session
-         */
-        const session = await createDummySession(ctx.sender, challengerChar);
-        /**
-         * @constant equipmentMap
-         */
-        const equipmentMap = await resolveOpenEquipment(session);
-        let msg = formatCombatOpen(session, true, equipmentMap);
-        if (added.length > 0) {
-          msg += `\n\n🎒 Se añadieron items de prueba: ${added.join(", ")}.`;
-        }
-        if (ironAdded.length > 0) {
-          msg += `\n\n⚙️ Set de hierro añadido al inventario: ${ironAdded.join(", ")}. Equipa con \`/equipar\`.`;
-        }
-        return ctx.reply(msg);
-      }
-
-      /**
-       * @constant targetId
-       */
-      const targetId = mentioned[0];
-      if (targetId === ctx.sender) {
-        return ctx.reply("❌ No puedes retarte a ti mismo.");
-      }
-
-      /**
-       * @constant defenderChar
-       */
-      const defenderChar = await getActiveCharacter({ creatorId: targetId });
-      if (!defenderChar) {
-        return ctx.reply("❌ Ese usuario no tiene un personaje activo.");
-      }
-
-      /**
-       * @constant existingDefenderSession
-       */
-      const existingDefenderSession = findSessionByCharacter(defenderChar.id);
-      if (existingDefenderSession) {
-        return ctx.reply(
-          `❌ El personaje activo de ese usuario (**${defenderChar.name}**) ya está librando un combate.`,
-        );
-      }
-
+      const ironAdded = await ensureIronFamilyKit(challengerChar.id, challengerChar.creator_id);
       /**
        * @constant session
        */
-      const session = await createSession(ctx.sender, targetId, challengerChar, defenderChar);
+      const session = await createDummySession(ctx.sender, challengerChar);
+      /**
+       * @constant equipmentMap
+       */
       const equipmentMap = await resolveOpenEquipment(session);
-      return ctx.reply(formatCombatOpen(session, false, equipmentMap));
-    } catch (error) {
-      return ctx.reply(formatError(error.message));
+      let msg = formatCombatOpen(session, true, equipmentMap);
+      if (added.length > 0) {
+        msg += `\n\n🎒 Se añadieron items de prueba: ${added.join(", ")}.`;
+      }
+      if (ironAdded.length > 0) {
+        msg += `\n\n⚙️ Set de hierro añadido al inventario: ${ironAdded.join(", ")}. Equipa con \`/equipar\`.`;
+      }
+      return ctx.reply(msg);
     }
+
+    /**
+     * @constant targetId
+     */
+    const targetId = mentioned[0];
+    if (targetId === ctx.sender) {
+      return ctx.reply("❌ No puedes retarte a ti mismo.");
+    }
+
+    /**
+     * @constant defenderChar
+     */
+    const defenderChar = await getActiveCharacter({ creatorId: targetId });
+    if (!defenderChar) {
+      return ctx.reply("❌ Ese usuario no tiene un personaje activo.");
+    }
+
+    /**
+     * @constant existingDefenderSession
+     */
+    const existingDefenderSession = findSessionByCharacter(defenderChar.id);
+    if (existingDefenderSession) {
+      return ctx.reply(`❌ El personaje activo de ese usuario (**${defenderChar.name}**) ya está librando un combate.`);
+    }
+
+    /**
+     * @constant session
+     */
+    const session = await createSession(ctx.sender, targetId, challengerChar, defenderChar);
+    const equipmentMap = await resolveOpenEquipment(session);
+    return ctx.reply(formatCombatOpen(session, false, equipmentMap));
   },
 };

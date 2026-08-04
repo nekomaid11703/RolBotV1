@@ -54,16 +54,17 @@ module.exports = {
    * @param {*} ctx - execution context.
    */
   async execute(ctx) {
+    const userId = ctx.userId || ctx.sender;
     /**
      * @constant result
      */
     const result = await claimDaily({
-      userId: ctx.sender,
+      userId,
       userName: ctx.userName,
       registration: {
         source: "daily",
         scope: "self",
-        createdBy: ctx.sender,
+        createdBy: userId,
       },
     });
 

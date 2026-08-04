@@ -3,7 +3,6 @@ const { getActiveCharacter } = require("../../../services/characterService");
 const { addItem } = require("../../../services/rpg/inventoryService");
 const { getItem, ITEMS } = require("../../../data/items");
 const { IRON_ITEMS } = require("../../../data/ironFamily");
-const { formatError } = require("../../../utils/formatErrorUtils");
 const { box } = require("../../../utils/boxUtils");
 const { parseQuantity } = require("../../../utils/quantityUtils");
 
@@ -61,49 +60,45 @@ module.exports = {
      */
     const quantity = parseQuantity(ctx.args[1]);
 
-    try {
-      /**
-       * @constant activeChar
-       */
-      const activeChar = await getActiveCharacter({ creatorId: ctx.sender });
-      if (!activeChar) {
-        return ctx.reply("\u274C No tienes un personaje activo. Usa `/crear_pj`.");
-      }
-
-      /**
-       * @constant item
-       */
-      const item = getItem(itemIdInput);
-      if (!item) {
-        /**
-         * @constant validIds
-         */
-        const validIds = [...Object.keys(ITEMS), ...Object.keys(IRON_ITEMS)].map((id) => `\`${id}\``).join(", ");
-        return ctx.reply(
-          `\u274C No existe ning\u00fan \u00edtem con ID \`${itemIdInput}\`.\n\nIDs v\u00e1lidos: ${validIds}`,
-        );
-      }
-
-      /**
-       * @constant result
-       */
-      const result = await addItem(activeChar.id, activeChar.creator_id, item.id, quantity);
-
-      /**
-       * @constant lines
-       * @type {*[]}
-       */
-      const lines = [
-        "",
-        `\uD83D\uDC64  Personaje: *${activeChar.name}*`,
-        `\uD83D\uDCE6  \u00cdtem a\u00f1adido: *${item.name}* (\`${item.id}\`)`,
-        `\uD83D\uDD22  Cantidad a\u00f1adida: +${quantity}`,
-        `\uD83D\uDCCA  Total en inventario: ${result.total}`,
-      ];
-
-      return ctx.reply(box("\u2705 \u00cdtem agregado", lines));
-    } catch (error) {
-      return ctx.reply(formatError(error.message));
+    /**
+     * @constant activeChar
+     */
+    const activeChar = await getActiveCharacter({ creatorId: ctx.sender });
+    if (!activeChar) {
+      return ctx.reply("\u274C No tienes un personaje activo. Usa `/crear_pj`.");
     }
+
+    /**
+     * @constant item
+     */
+    const item = getItem(itemIdInput);
+    if (!item) {
+      /**
+       * @constant validIds
+       */
+      const validIds = [...Object.keys(ITEMS), ...Object.keys(IRON_ITEMS)].map((id) => `\`${id}\``).join(", ");
+      return ctx.reply(
+        `\u274C No existe ning\u00fan \u00edtem con ID \`${itemIdInput}\`.\n\nIDs v\u00e1lidos: ${validIds}`,
+      );
+    }
+
+    /**
+     * @constant result
+     */
+    const result = await addItem(activeChar.id, activeChar.creator_id, item.id, quantity);
+
+    /**
+     * @constant lines
+     * @type {*[]}
+     */
+    const lines = [
+      "",
+      `\uD83D\uDC64  Personaje: *${activeChar.name}*`,
+      `\uD83D\uDCE6  \u00cdtem a\u00f1adido: *${item.name}* (\`${item.id}\`)`,
+      `\uD83D\uDD22  Cantidad a\u00f1adida: +${quantity}`,
+      `\uD83D\uDCCA  Total en inventario: ${result.total}`,
+    ];
+
+    return ctx.reply(box("\u2705 \u00cdtem agregado", lines));
   },
 };

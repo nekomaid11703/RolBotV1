@@ -1,5 +1,6 @@
 // @ts-nocheck
 const path = require("path");
+const { randomUUID } = require("crypto");
 const { isAdmin, isBotAdmin, isOnGroup } = require("../utils/groupUtils");
 const { isOwner } = require("../utils/permissionUtils");
 const { hasEconomyPermission, hasPermissionForCategory, getCategoryLabel } = require("../services/permissionService");
@@ -7,6 +8,26 @@ const { recordUserActivity } = require("../services/userService");
 const { logSystem, logCommand, logError } = require("../services/loggerService");
 const { incrementCommands, incrementErrors, addEvent } = require("../services/stats");
 const { commands, aliases, registerCommand, getJsFilesRecursively } = require("./commandRegistry");
+
+const chatCommandTails = new Map();
+
+function getActorId(ctx) {
+  return ctx.userId || ctx.sender || ctx.senderJid;
+}
+
+async function serializeChatCommand(chatId, task) {
+  const key = String(chatId || "unknown-chat");
+  const previous = chatCommandTails.get(key) || Promise.resolve();
+  // ponytail: per-chat ordering covers normal group combat; use DB/session locks if combat later spans chats.
+  const current = previous.catch(() => undefined).then(task);
+  chatCommandTails.set(key, current);
+
+  try {
+    return await current;
+  } finally {
+    if (chatCommandTails.get(key) === current) chatCommandTails.delete(key);
+  }
+}
 
 function loadCommands() {
   const commandsPath = path.join(__dirname, "../commands");
@@ -42,7 +63,8 @@ function loadCommands() {
 
 async function logDenied(ctx, logBase, reason, message) {
   await logCommand({ ...logBase, status: "denied", reason });
-  return ctx.reply(message);
+  await ctx.reply(message);
+  return true;
 }
 
 async function checkGroupOnly(ctx, command, logBase) {
@@ -134,9 +156,10 @@ async function checkPermission(ctx, command, logBase) {
 }
 
 async function recordActivity(ctx, commandName, command) {
+  const actorId = getActorId(ctx);
   try {
     await recordUserActivity({
-      creatorId: ctx.senderJid || ctx.sender,
+      creatorId: actorId,
       creatorName: ctx.userName,
       displayName: ctx.userName,
       pushName: ctx.userName,
@@ -148,13 +171,13 @@ async function recordActivity(ctx, commandName, command) {
       registration: {
         source: "command",
         scope: isOnGroup(ctx.from) ? "group" : "self",
-        createdBy: ctx.senderJid || ctx.sender,
+        createdBy: actorId,
       },
     });
   } catch (activityError) {
     await logError({
       source: `command-activity:${command.name}`,
-      userId: ctx.senderJid || ctx.sender,
+      userId: actorId,
       userName: ctx.userName,
       groupId: ctx.from,
       error: activityError,
@@ -165,10 +188,11 @@ async function recordActivity(ctx, commandName, command) {
 
 async function handleCommandError(ctx, error, command, commandName, args, logBase) {
   const err = /** @type {{ message?: string }} */ (error);
+  const correlationId = randomUUID().slice(0, 8);
   await logCommand({
     ...logBase,
     status: "error",
-    reason: err.message || "Error desconocido",
+    reason: `Error interno [ID: ${correlationId}]`,
   });
 
   incrementErrors();
@@ -176,13 +200,19 @@ async function handleCommandError(ctx, error, command, commandName, args, logBas
 
   await logError({
     source: `command:${command.name}`,
-    userId: ctx.senderJid || ctx.sender,
+    userId: getActorId(ctx),
     userName: ctx.userName,
     groupId: ctx.from,
     error,
-    context: { inputCommand: commandName, resolvedCommand: command.name, args, isGroup: isOnGroup(ctx.from) },
+    context: {
+      inputCommand: commandName,
+      resolvedCommand: command.name,
+      args,
+      isGroup: isOnGroup(ctx.from),
+      correlationId,
+    },
   });
-  await ctx.reply("❌ Error ejecutando comando.");
+  await ctx.reply(`❌ No se pudo ejecutar el comando. ID: ${correlationId}`);
 }
 
 async function handleCommand(ctx) {
@@ -210,7 +240,7 @@ async function handleCommand(ctx) {
   ctx.commandName = command.name;
 
   const logBase = {
-    userId: ctx.senderJid || ctx.sender,
+    userId: getActorId(ctx),
     userPhone: ctx.senderNumber || null,
     userName: ctx.userName,
     groupId: ctx.from,
@@ -219,21 +249,23 @@ async function handleCommand(ctx) {
     args,
   };
 
-  const denied = await checkPermission(ctx, command, logBase);
-  if (denied) return;
+  return serializeChatCommand(ctx.from, async () => {
+    const denied = await checkPermission(ctx, command, logBase);
+    if (denied) return;
 
-  try {
-    await command.execute(ctx);
+    try {
+      await command.execute(ctx);
 
-    incrementCommands();
-    addEvent("cmd", `/${command.name} — ${ctx.userName}`);
+      incrementCommands();
+      addEvent("cmd", `/${command.name} — ${ctx.userName}`);
 
-    await logCommand({ ...logBase, status: "success" });
+      await logCommand({ ...logBase, status: "success" });
 
-    await recordActivity(ctx, commandName, command);
-  } catch (error) {
-    await handleCommandError(ctx, error, command, commandName, args, logBase);
-  }
+      await recordActivity(ctx, commandName, command);
+    } catch (error) {
+      await handleCommandError(ctx, error, command, commandName, args, logBase);
+    }
+  });
 }
 
 module.exports = {

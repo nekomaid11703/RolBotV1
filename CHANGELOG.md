@@ -5,9 +5,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased] - 2026-08-04
+
+### Added
+
+- Persistencia de `combat_sessions.distance` y migración idempotente `004_harden_inventory_access.sql`.
+- Pruebas de límites de seguridad, ciclo de vida, caché, actividad/UX y persistencia de combate.
+- Reporte técnico y resumen en formato WhatsApp.
+
+### Changed
+
+- Integración de la auditoría de `main` sobre `AI_rolbot` sin retirar los sistemas v1.6.
+- Escrituras de actividad, economía y combate reducidas o acotadas por dominio.
+- Reconexión de Baileys, almacenamiento de auth, respuestas de error, menciones y helpers administrativos endurecidos.
+- Toolchain reproducible con 528 pruebas, Knip limpio, cero violaciones de arquitectura y cero vulnerabilidades auditadas.
+
+### Security
+
+- Eliminado el alias owner codificado y corregido el sentinel de permisos denegados.
+- Multimedia de `/bugreport` limitada por MIME, tamaño, streaming y ruta segura.
+- RLS forzado y privilegios revocados para `inventory` y `combat_sessions`.
+
 ## [1.2.0] - 2026-07-23
 
 ### Added
+
 - **Fatigue System** (`fatigueEngine.js`): Nueva mecánica de combate que evita el esquive perpetuo
   - 4 niveles de fatiga: Pleno (0%), Agitado (-20%), Cansado (-40%), Fatigado (-60%) en velocidades (ASPD, MSPD, REF)
   - Costos de fatiga por acción: atacar (+3), esquivar (+6), bloquear (+1), huir (+4), usar ítem (+2)
@@ -19,6 +41,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **7 tests adicionales** en `combat_engine.test.js` (integración fatiga+HP, fatiga en reacciones)
 
 ### Changed
+
 - `combatEngine.js`: Todas las funciones reciben parámetros opcionales de fatiga y la integran en cálculos
 - `combatState.js`: Sesiones de combate ahora trackean `fatigue` por participante
 - `atacar.js`, `esquivar.js`, `bloquear.js`, `huir.js`: Aplican costos/recuperación de fatiga según acción
@@ -27,12 +50,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.1.0] - 2026-07-22
 
 ### Added
+
 - **userService tests**: 14 tests for `sanitizeName` (accent stripping, whitespace normalization, forbidden chars, edge cases)
 - **combatState tests**: 16 tests for `generateDummyCharacter`, `isSessionActive`, `isSessionExpired` (pure logic, no DB)
 - **permissionService tests**: 6 tests for `getCategoryLabel` (category label mapping)
 - **economyService tests**: 5 tests for config constants (`DAILY_BASE_REWARD`, `DAILY_COOLDOWN_HOURS`, etc.)
 
 ### Changed
+
 - Test suite expanded from 237 to 289 tests (+52 tests, +22% coverage), then cleaned to 263 tests (-26 low-value tests)
 - 19 test files (down from 22, removed 3 low-quality files)
 - `cache_state.test.js` deleted: tested local-only function, not a real module
@@ -46,6 +71,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.0.0] - 2026-07-22
 
 ### Added
+
 - **Help System**: Reorganized into 3 sections (Administrador/Creador/Comunes) with subcategories (RPG, Economía, Grupo, Permisos, Info)
 - **Permission System**: Generic extensible permission system with `adminPerm` flag on commands. Categories stored in `bot_auth_state.data.categories` map
 - **Permission Commands**: `admin_perm_add`, `admin_perm_rem`, `admin_perm_list` for managing category-based admin permissions
@@ -60,6 +86,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Schema Migration**: Version 2.1.0 with `combat_sessions` table creation
 
 ### Changed
+
 - Help command reorganized from 4 flat categories to 3 permission-based sections
 - All 33 command `category:` strings updated (rpg, admin, info)
 - `dar_item` renamed to `item_add` (alias preserved for backward compatibility)
@@ -69,11 +96,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `bot.js`: Added `restoreSessions()` and `startCleanupInterval()` on startup
 
 ### Fixed
+
 - Combat session persistence across bot restarts
 - Timer-based combat expiry using verification instead of setTimeout
 - Auto-cleanup of expired combat sessions
 
 ### Technical
+
 - 17 test files with 237 passing tests
 - ESLint configuration updated for scripts directory
 - Supabase RPC integration for table creation

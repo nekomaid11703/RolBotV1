@@ -10,7 +10,6 @@ const {
 const { executeAttack, executeReaction, evaluateDodgeFeasibility } = require("../../../services/rpg/combatEngine");
 const { calcFatigueRecovery, capFatigue } = require("../../../services/rpg/fatigueEngine");
 const { formatActionMenu, formatReactionPrompt, buildFatigueBar } = require("../../../services/rpg/combatMessages");
-const { formatError } = require("../../../utils/formatErrorUtils");
 const { box } = require("../../../utils/boxUtils");
 
 async function getRestContext(ctx) {
@@ -98,7 +97,7 @@ async function handlePvECounterattack(ctx, session, resterSlot, opponentSlot, is
       opponentSlot.character.stats.def || 0,
     );
 
-    advanceTurn(session.id, resterSlot.hp, opponentSlot.hp);
+    await advanceTurn(session.id, resterSlot.hp, opponentSlot.hp);
 
     await setPendingReaction(session.id, {
       attackerChar: opponentSlot.character,
@@ -134,7 +133,7 @@ async function handlePvECounterattack(ctx, session, resterSlot, opponentSlot, is
   const finalAttackerHp = isChallenger ? dummyReaction.defenderHpAfter : opponentSlot.hp;
   const finalDefenderHp = isChallenger ? opponentSlot.hp : dummyReaction.defenderHpAfter;
 
-  advanceTurn(session.id, finalAttackerHp, finalDefenderHp);
+  await advanceTurn(session.id, finalAttackerHp, finalDefenderHp);
 
   buildDummyAttackLines(lines, opponentSlot, resterSlot, dummyAttack);
   lines.push(`\uD83D\uDCA5 Da\u00F1o: ${dummyReaction.finalDamage}`);
@@ -144,12 +143,8 @@ async function handlePvECounterattack(ctx, session, resterSlot, opponentSlot, is
 
   if (dummyReaction.ko) {
     buildKoLines(lines, resterSlot);
-    endSession(session.id, opponentSlot.character.id);
-    try {
-      await setHp({ creatorId: ctx.sender, characterName: resterSlot.character.name, hp: 0 });
-    } catch (_e) {
-      /* empty */
-    }
+    await endSession(session.id, opponentSlot.character.id);
+    await setHp({ creatorId: ctx.sender, characterName: resterSlot.character.name, hp: 0 });
     return ctx.reply(box("\uD83D\uDCA4 DESCANSO", lines));
   }
 
@@ -158,8 +153,8 @@ async function handlePvECounterattack(ctx, session, resterSlot, opponentSlot, is
   return ctx.reply(box("\uD83D\uDCA4 DESCANSO", lines));
 }
 
-function handlePvPRest(ctx, session, resterSlot, opponentSlot, lines) {
-  advanceTurn(session.id, resterSlot.hp, opponentSlot.hp);
+async function handlePvPRest(ctx, session, resterSlot, opponentSlot, lines) {
+  await advanceTurn(session.id, resterSlot.hp, opponentSlot.hp);
 
   buildDivider(lines);
   const nextTurnCharName =
@@ -178,33 +173,29 @@ module.exports = {
   category: "rpg",
 
   async execute(ctx) {
-    try {
-      const restCtx = await getRestContext(ctx);
-      if (restCtx.error) return ctx.reply(restCtx.error);
+    const restCtx = await getRestContext(ctx);
+    if (restCtx.error) return ctx.reply(restCtx.error);
 
-      const recovery = calcFatigueRecovery(
-        "rest",
-        restCtx.resterSlot.fatigue,
-        restCtx.resterSlot.character.stats.def || 1,
+    const recovery = calcFatigueRecovery(
+      "rest",
+      restCtx.resterSlot.fatigue,
+      restCtx.resterSlot.character.stats.def || 1,
+    );
+    restCtx.resterSlot.fatigue = capFatigue(restCtx.resterSlot.fatigue - recovery);
+
+    const lines = buildRestLines(restCtx.resterSlot, recovery);
+
+    if (restCtx.session.isPvE) {
+      return handlePvECounterattack(
+        ctx,
+        restCtx.session,
+        restCtx.resterSlot,
+        restCtx.opponentSlot,
+        restCtx.isChallenger,
+        lines,
       );
-      restCtx.resterSlot.fatigue = capFatigue(restCtx.resterSlot.fatigue - recovery);
-
-      const lines = buildRestLines(restCtx.resterSlot, recovery);
-
-      if (restCtx.session.isPvE) {
-        return handlePvECounterattack(
-          ctx,
-          restCtx.session,
-          restCtx.resterSlot,
-          restCtx.opponentSlot,
-          restCtx.isChallenger,
-          lines,
-        );
-      }
-
-      return handlePvPRest(ctx, restCtx.session, restCtx.resterSlot, restCtx.opponentSlot, lines);
-    } catch (error) {
-      return ctx.reply(formatError(error.message));
     }
+
+    return handlePvPRest(ctx, restCtx.session, restCtx.resterSlot, restCtx.opponentSlot, lines);
   },
 };

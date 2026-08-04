@@ -1,22 +1,22 @@
 ## graphify — Knowledge Graph (Code-Only)
 
-Este proyecto tiene un knowledge graph activo en `graphify-out/` con **851 nodos, 1709 aristas, 70 comunidades** que reflejan la arquitectura real del código **sin dependencias de IA externas**. El grafo se construye exclusivamente por **AST (tree-sitter)**, sin ningún LLM externo — **0 costo, 0 API keys, 100% reproducible**.
+Este proyecto tiene un knowledge graph activo en `graphify-out/` con **1831 nodos, 4002 aristas y 118 comunidades** que reflejan la arquitectura real del código **sin dependencias de IA externas**. El grafo se construye exclusivamente por **AST (tree-sitter)**, sin ningún LLM externo — **0 costo, 0 API keys, 100% reproducible**.
 
 **El chatbot es 100% código puro.** No tiene capa de IA interna (sin narración, roleplay, ni clasificación por IA). DeepSeek v4 flash (gratuito e ilimitado) lo usa exclusivamente el agente programador para:
 
-| Ámbito | Herramienta | Qué hace |
-|--------|-------------|----------|
-| **Análisis estructural** | graphify (AST) | Extrae funciones, clases, imports, llamadas - determinista |
-| **Comprensión semántica** | DeepSeek (agente) | Interpreta el grafo, responde preguntas, explica relaciones |
-| **Búsqueda en código** | graphify query + DeepSeek | Navega el grafo (NetworkX), DeepSeek sintetiza la respuesta |
+| Ámbito                    | Herramienta               | Qué hace                                                    |
+| ------------------------- | ------------------------- | ----------------------------------------------------------- |
+| **Análisis estructural**  | graphify (AST)            | Extrae funciones, clases, imports, llamadas - determinista  |
+| **Comprensión semántica** | DeepSeek (agente)         | Interpreta el grafo, responde preguntas, explica relaciones |
+| **Búsqueda en código**    | graphify query + DeepSeek | Navega el grafo (NetworkX), DeepSeek sintetiza la respuesta |
 
 ### Instalación y dependencias
 
-Graphify es el paquete PyPI `graphifyy` (v0.9.12). Ya instalado globalmente en este entorno.
+Graphify se invoca mediante el ejecutable global `graphify` (versión validada: 0.9.9).
 
 ```bash
 # Verificar instalación
-python -m graphify info .
+graphify --version
 
 # Reconstruir grafo completo (después de cambios mayores)
 npm run graphify:rebuild
@@ -28,7 +28,7 @@ npm run graphify:update
 npm run graphify:cluster
 ```
 
-### Reglas operativas (complementan `c:\IA_rolbot\.agents\AGENTS.md`):
+### Reglas operativas del repositorio:
 
 - **Consulta pre-acción**: Para preguntas sobre el código, primero ejecutar `graphify query "<pregunta>"`. Usar `graphify path "<A>" "<B>"` para relaciones y `graphify explain "<concepto>"` para explicaciones.
 - **Actualización post-modificación**: Después de modificar código, ejecutar `npm run graphify:update` (incremental, AST). Para cambios mayores: `npm run graphify:rebuild`.

@@ -8,6 +8,7 @@ const { resolveTargetDisplayName } = require("../../services/displayNameService"
 const { box } = require("../../utils/boxUtils");
 const { formatError } = require("../../utils/formatErrorUtils");
 const { formatCommandUsage } = require("../../utils/formatCommandUtils");
+const { isSameIdentity } = require("../../utils/identityUtils");
 
 /**
  * @constant usageMessage
@@ -34,6 +35,7 @@ module.exports = {
    * @returns {any}
    */
   async execute(ctx) {
+    const senderId = ctx.userId || ctx.sender;
     /**
      * @constant targetId
      */
@@ -43,7 +45,7 @@ module.exports = {
       return ctx.reply(usageMessage);
     }
 
-    if (targetId === ctx.sender) {
+    if (isSameIdentity(targetId, senderId)) {
       return ctx.reply(formatError("No puedes enviarte stelas a ti mismo."));
     }
 
@@ -56,48 +58,44 @@ module.exports = {
       return ctx.reply(usageMessage);
     }
 
-    try {
-      /**
-       * @constant targetProfile
-       */
-      const targetProfile = await getUserProfile({ creatorId: targetId });
-      if (!targetProfile) {
-        return ctx.reply(formatError("El usuario destinatario no tiene perfil registrado."));
-      }
-
-      /**
-       * @constant targetName
-       */
-      const targetName = await resolveTargetDisplayName(ctx, targetId);
-
-      await transferMoney(ctx.sender, targetId, amount, {
-        fromUserName: ctx.userName || "usuario",
-        toUserName: targetName,
-        toRegistration: {
-          source: "dar_stelas",
-          scope: "target",
-          createdBy: ctx.sender,
-          displayName: targetName,
-        },
-      });
-
-      /**
-       * @constant senderBalance
-       */
-      const senderBalance = await getBalance(ctx.sender);
-
-      await ctx.reply(
-        box("💸 Transferencia", [
-          "",
-          `👤  Destinatario: ${formatDisplayMention(targetId, targetName)}`,
-          "",
-          `💵  Enviado: ${formatStelas(amount)}`,
-          `💰  Tu balance: ${formatStelas(senderBalance)}`,
-        ]),
-        { mentions: [targetId] },
-      );
-    } catch (error) {
-      await ctx.reply(formatError(error.message));
+    /**
+     * @constant targetProfile
+     */
+    const targetProfile = await getUserProfile({ creatorId: targetId });
+    if (!targetProfile) {
+      return ctx.reply(formatError("El usuario destinatario no tiene perfil registrado."));
     }
+
+    /**
+     * @constant targetName
+     */
+    const targetName = await resolveTargetDisplayName(ctx, targetId);
+
+    await transferMoney(senderId, targetId, amount, {
+      fromUserName: ctx.userName || "usuario",
+      toUserName: targetName,
+      toRegistration: {
+        source: "dar_stelas",
+        scope: "target",
+        createdBy: senderId,
+        displayName: targetName,
+      },
+    });
+
+    /**
+     * @constant senderBalance
+     */
+    const senderBalance = await getBalance(senderId);
+
+    await ctx.reply(
+      box("💸 Transferencia", [
+        "",
+        `👤  Destinatario: ${formatDisplayMention(targetId, targetName)}`,
+        "",
+        `💵  Enviado: ${formatStelas(amount)}`,
+        `💰  Tu balance: ${formatStelas(senderBalance)}`,
+      ]),
+      { mentions: [targetId] },
+    );
   },
 };

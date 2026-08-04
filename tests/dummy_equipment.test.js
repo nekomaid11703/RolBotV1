@@ -108,13 +108,19 @@ describe("resolveCharacterEquipment — resumen para UI", () => {
 describe("UI de combate — muestra el equipo", () => {
   function makeSession() {
     const dummy = generateDummyCharacter(makeChallenger());
-    const challenger = makeChallenger();
+    const challenger = { ...makeChallenger(), dummyEquipment: { slots: {}, inventory: [] } };
     return {
       rounds: 0,
       status: "waiting_action",
       currentTurnCharId: String(challenger.id),
       challenger: { userId: "u1", characterId: String(challenger.id), character: challenger, hp: 40, fatigue: 0 },
-      defender: { userId: "bot_dummy", characterId: String(dummy.id), character: dummy, hp: dummy.hp_actual, fatigue: 0 },
+      defender: {
+        userId: "bot_dummy",
+        characterId: String(dummy.id),
+        character: dummy,
+        hp: dummy.hp_actual,
+        fatigue: 0,
+      },
       distance: 5,
     };
   }
@@ -138,10 +144,5 @@ describe("UI de combate — muestra el equipo", () => {
     expect(msg).toContain("Espada de Hierro");
     expect(msg).toContain("Material:");
     expect(msg).toContain("Set *Hierro*");
-  });
-
-  it("formatEquipmentSummary devuelve [] sin equipo (backward-compat)", async () => {
-    const lines = [];
-    expect(lines).toHaveLength(0);
   });
 });

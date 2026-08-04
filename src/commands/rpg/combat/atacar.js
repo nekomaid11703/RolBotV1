@@ -14,7 +14,7 @@ const {
   calculateXpReward,
   checkAttackRange,
 } = require("../../../services/rpg/combatEngine");
-const { calcFatigueCost, calcFatigueRecovery, capFatigue } = require("../../../services/rpg/fatigueEngine");
+const { calcFatigueCost, capFatigue } = require("../../../services/rpg/fatigueEngine");
 const { formatActionMenu, formatReactionPrompt, buildFatigueBar } = require("../../../services/rpg/combatMessages");
 const { formatError } = require("../../../utils/formatErrorUtils");
 const { box } = require("../../../utils/boxUtils");
@@ -79,20 +79,16 @@ async function applyDurabilityHit(armorEntry, armorDurability, defenderChar, def
     return;
   }
 
-  try {
-    await persistDurability({
-      characterId: defenderChar.id,
-      creatorId: defenderUserId || "system",
-      itemId: armorEntry.itemId,
-      durability: {
-        maxResist: armorDurability.maxResist,
-        currentResist: armorDurability.currentResist,
-        isRepairable: armorDurability.isRepairable,
-      },
-    });
-  } catch {
-    /* fallback silencioso */
-  }
+  await persistDurability({
+    characterId: defenderChar.id,
+    creatorId: defenderUserId || "system",
+    itemId: armorEntry.itemId,
+    durability: {
+      maxResist: armorDurability.maxResist,
+      currentResist: armorDurability.currentResist,
+      isRepairable: armorDurability.isRepairable,
+    },
+  });
 }
 
 /**
@@ -228,7 +224,7 @@ async function handlePvE(
    */
   const newDefenderHp = isChallenger ? reactionResult.defenderHpAfter : session.defender.hp;
 
-  advanceTurn(session.id, newAttackerHp, newDefenderHp, session.isPvE);
+  await advanceTurn(session.id, newAttackerHp, newDefenderHp, session.isPvE);
 
   /**
    * @constant lines
@@ -259,10 +255,8 @@ async function handlePvE(
      * @constant xpReward
      */
     const xpReward = calculateXpReward(defenderSlot.character.nivel || 1, true);
-    endSession(session.id, attackerSlot.character.id);
-    try {
-      await addXp({ creatorId: ctx.sender, characterName: attackerSlot.character.name, cantidad: xpReward });
-    } catch {}
+    await endSession(session.id, attackerSlot.character.id);
+    await addXp({ creatorId: ctx.sender, characterName: attackerSlot.character.name, cantidad: xpReward });
 
     lines.push("");
     lines.push(`\uD83D\uDC80 *${defenderSlot.character.name}* cay\u00F3`);
@@ -384,7 +378,7 @@ async function handlePvECounterAttack(
    */
   const finalDefenderHp = isChallenger ? prevDefenderHp : dummyReaction.defenderHpAfter;
 
-  advanceTurn(session.id, finalAttackerHp, finalDefenderHp);
+  await advanceTurn(session.id, finalAttackerHp, finalDefenderHp);
 
   /**
    * Nombre/icono del arma del dummy para la línea de contraataque.
@@ -403,10 +397,8 @@ async function handlePvECounterAttack(
   );
 
   if (dummyReaction.ko) {
-    endSession(session.id, defenderSlot.character.id);
-    try {
-      await setHp({ creatorId: ctx.sender, characterName: attackerSlot.character.name, hp: 0 });
-    } catch {}
+    await endSession(session.id, defenderSlot.character.id);
+    await setHp({ creatorId: ctx.sender, characterName: attackerSlot.character.name, hp: 0 });
 
     lines.push("");
     lines.push(`\uD83D\uDC80 *${attackerSlot.character.name}* cay\u00F3`);
@@ -542,7 +534,7 @@ async function handlePvP(
    */
   const newDefenderHp = isChallenger ? reactionResult.defenderHpAfter : session.defender.hp;
 
-  advanceTurn(session.id, newAttackerHp, newDefenderHp);
+  await advanceTurn(session.id, newAttackerHp, newDefenderHp);
 
   /**
    * @constant lines
@@ -562,15 +554,13 @@ async function handlePvP(
      * @constant xpReward
      */
     const xpReward = calculateXpReward(defenderSlot.character.nivel || 1, true);
-    endSession(session.id, attackerSlot.character.id);
-    try {
-      await addXp({
-        creatorId: attackerSlot.userId,
-        characterName: attackerSlot.character.name,
-        cantidad: xpReward,
-      });
-      await setHp({ creatorId: defenderSlot.userId, characterName: defenderSlot.character.name, hp: 0 });
-    } catch {}
+    await endSession(session.id, attackerSlot.character.id);
+    await addXp({
+      creatorId: attackerSlot.userId,
+      characterName: attackerSlot.character.name,
+      cantidad: xpReward,
+    });
+    await setHp({ creatorId: defenderSlot.userId, characterName: defenderSlot.character.name, hp: 0 });
 
     lines.push("");
     lines.push(`\uD83D\uDC80 *${defenderSlot.character.name}* cay\u00F3`);
@@ -598,106 +588,89 @@ module.exports = {
    * @returns {any}
    */
   async execute(ctx) {
-    try {
-      /**
-       * @constant activeChar
-       */
-      const activeChar = await getActiveCharacter({ creatorId: ctx.sender });
-      if (!activeChar) {
-        return ctx.reply("\u274C No tienes un personaje activo. Usa `/crear_pj` o `/switch_pj`.");
-      }
+    /**
+     * @constant activeChar
+     */
+    const activeChar = await getActiveCharacter({ creatorId: ctx.sender });
+    if (!activeChar) {
+      return ctx.reply("\u274C No tienes un personaje activo. Usa `/crear_pj` o `/switch_pj`.");
+    }
 
-      /**
-       * @constant session
-       */
-      const session = findSessionByCharacter(activeChar.id);
+    /**
+     * @constant session
+     */
+    const session = findSessionByCharacter(activeChar.id);
 
-      if (!session) {
+    if (!session) {
+      /**
+       * @constant userSession
+       */
+      const userSession = findSessionByUser(ctx.sender);
+      if (userSession) {
         /**
-         * @constant userSession
+         * @constant charInCombatName
          */
-        const userSession = findSessionByUser(ctx.sender);
-        if (userSession) {
-          /**
-           * @constant charInCombatName
-           */
-          const charInCombatName =
-            userSession.challenger.userId === ctx.sender
-              ? userSession.challenger.character.name
-              : userSession.defender.character.name;
+        const charInCombatName =
+          userSession.challenger.userId === ctx.sender
+            ? userSession.challenger.character.name
+            : userSession.defender.character.name;
 
-          return ctx.reply(
-            `\u2694\uFE0F Tu personaje activo (**${activeChar.name}**) no est\u00E1 en combate.\n\n` +
-              `\uD83D\uDCA1 Tu personaje **${charInCombatName}** tiene un combate activo.\n` +
-              `Usa \`/switch_pj ${charInCombatName}\` para retomar su turno.`,
-          );
-        }
-
-        return ctx.reply("\u274C No est\u00E1s en combate. Usa `/retar @usuario` o `/retar dummy`.");
-      }
-
-      if (session.status === "waiting_reaction") {
-        return ctx.reply("\u274C Hay ataque pendiente. Usa `/esquivar` o `/bloquear`.");
-      }
-
-      if (String(session.currentTurnCharId) !== String(activeChar.id)) {
-        return ctx.reply("\u274C No es tu turno. Espera.");
-      }
-      const { isChallenger, attackerSlot, defenderSlot } = getSlots(session, activeChar);
-
-      const { canAttack, effectiveRange } = checkAttackRange(session.distance || 5, activeChar.stats);
-      if (!canAttack) {
         return ctx.reply(
-          formatError(
-            `\uD83D\uDCDD *${activeChar.name}* est\u00E1 a **${session.distance || 5}m** del objetivo (alcance: ${effectiveRange}m).`,
-            `Ac\u00E9rcate usando \`/avanzar <metros>\` antes de atacar.`,
-          ),
+          `\u2694\uFE0F Tu personaje activo (**${activeChar.name}**) no est\u00E1 en combate.\n\n` +
+            `\uD83D\uDCA1 Tu personaje **${charInCombatName}** tiene un combate activo.\n` +
+            `Usa \`/switch_pj ${charInCombatName}\` para retomar su turno.`,
         );
       }
 
-      applyAttackFatigue(attackerSlot);
+      return ctx.reply("\u274C No est\u00E1s en combate. Usa `/retar @usuario` o `/retar dummy`.");
+    }
 
-      /**
-       * Resuelve equipo del atacante (arma) y defensor (armadura) a insumos de
-       * combate. Fallback defensivo: si algo falla, se queda en desarmado.
-       */
-      const { weaponInfo, armorEntry, weaponDef } = await resolveCombatEquipment(
-        attackerSlot.character,
-        defenderSlot.character,
+    if (session.status === "waiting_reaction") {
+      return ctx.reply("\u274C Hay ataque pendiente. Usa `/esquivar` o `/bloquear`.");
+    }
+
+    if (String(session.currentTurnCharId) !== String(activeChar.id)) {
+      return ctx.reply("\u274C No es tu turno. Espera.");
+    }
+    const { isChallenger, attackerSlot, defenderSlot } = getSlots(session, activeChar);
+
+    /**
+     * Resuelve el equipo antes de validar el alcance para respetar el rango
+     * propio del arma equipada.
+     */
+    const { weaponInfo, armorEntry, weaponDef } = await resolveCombatEquipment(
+      attackerSlot.character,
+      defenderSlot.character,
+    );
+
+    const distance = session.distance ?? 5;
+    const { canAttack, effectiveRange } = checkAttackRange(distance, activeChar.stats, weaponInfo?.weaponRange ?? 0);
+    if (!canAttack) {
+      return ctx.reply(
+        formatError(
+          `\uD83D\uDCDD *${activeChar.name}* est\u00E1 a **${distance}m** del objetivo (alcance: ${effectiveRange}m).`,
+          `Ac\u00E9rcate usando \`/avanzar <metros>\` antes de atacar.`,
+        ),
       );
+    }
 
-      /**
-       * @constant attackInfo
-       */
-      const attackInfo = executeAttack(
-        attackerSlot.character,
-        defenderSlot.character,
-        defenderSlot.hp,
-        attackerSlot.hp,
-        attackerSlot.fatigue,
-        defenderSlot.fatigue,
-        weaponInfo,
-      );
+    applyAttackFatigue(attackerSlot);
 
-      if (session.isPvE) {
-        return handlePvE(
-          ctx,
-          session,
-          attackerSlot,
-          defenderSlot,
-          attackInfo,
-          isChallenger,
-          weaponInfo,
-          armorEntry,
-          weaponDef,
-        );
-      }
+    /**
+     * @constant attackInfo
+     */
+    const attackInfo = executeAttack(
+      attackerSlot.character,
+      defenderSlot.character,
+      defenderSlot.hp,
+      attackerSlot.hp,
+      attackerSlot.fatigue,
+      defenderSlot.fatigue,
+      weaponInfo,
+    );
 
-      if (attackInfo.canReact) {
-        return handlePvPWithReaction(ctx, session, attackerSlot, defenderSlot, attackInfo, isChallenger, weaponDef);
-      }
-
-      return handlePvP(
+    if (session.isPvE) {
+      return handlePvE(
         ctx,
         session,
         attackerSlot,
@@ -708,8 +681,22 @@ module.exports = {
         armorEntry,
         weaponDef,
       );
-    } catch (error) {
-      return ctx.reply(formatError(error.message));
     }
+
+    if (attackInfo.canReact) {
+      return handlePvPWithReaction(ctx, session, attackerSlot, defenderSlot, attackInfo, isChallenger, weaponDef);
+    }
+
+    return handlePvP(
+      ctx,
+      session,
+      attackerSlot,
+      defenderSlot,
+      attackInfo,
+      isChallenger,
+      weaponInfo,
+      armorEntry,
+      weaponDef,
+    );
   },
 };

@@ -17,7 +17,7 @@ class WeaponModule extends ModuleBase {
     this.tier = config.tier || "E";
   }
 
-  onAttack(context) {
+  onAttack(_context) {
     return {
       type: "weapon",
       damageNature: this.damageNature,

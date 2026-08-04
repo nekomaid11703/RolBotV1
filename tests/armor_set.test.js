@@ -19,10 +19,7 @@ describe("getCoverage", () => {
   });
 
   it("Usa la pieza más pesada (mayor penalización MSPD)", () => {
-    const effect = getCoverage([
-      { coverage: "ligera" },
-      { coverage: "total" },
-    ]);
+    const effect = getCoverage([{ coverage: "ligera" }, { coverage: "total" }]);
     expect(effect.coverage).toBe("total");
     expect(effect.mspdPenalty).toBe(0.4);
   });
@@ -60,10 +57,7 @@ describe("countSetPieces / resolveSetBonuses", () => {
   });
 
   it("No activa el bono con 2 piezas", () => {
-    const parts = [
-      { setId: "guardian" },
-      { setId: "guardian" },
-    ];
+    const parts = [{ setId: "guardian" }, { setId: "guardian" }];
     const result = resolveSetBonuses(parts, { guardian: { bonus: { def: 20 } } });
     expect(result[0].active).toBe(false);
     expect(result[0].bonus).toBeNull();

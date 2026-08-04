@@ -15,5 +15,5 @@
     "dependencies": "off",
     "devDependencies": "off"
   },
-  "ignoreBinaries": ["dot"]
+  "ignoreBinaries": ["dot", "graphify"]
 }

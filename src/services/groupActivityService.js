@@ -2,6 +2,21 @@
 const { GROUP_TOP_LIMIT } = require("../config/groupConfig");
 const { supabase } = require("../database/supabase");
 const { filterExisting } = require("../database/columnRegistry");
+
+const groupActivityTails = new Map();
+
+async function withGroupActivityLock(groupId, task) {
+  const key = String(groupId || "unknown-group");
+  const previous = groupActivityTails.get(key) || Promise.resolve();
+  const current = previous.catch(() => undefined).then(task);
+  groupActivityTails.set(key, current);
+
+  try {
+    return await current;
+  } finally {
+    if (groupActivityTails.get(key) === current) groupActivityTails.delete(key);
+  }
+}
 const { safeSingleOrNull } = require("../utils/safeQuery");
 const { cache, TTLS } = require("../utils/cacheService");
 
@@ -25,12 +40,8 @@ function topGroupMembersCacheKey(groupId, limit) {
 /**
  * @param {*} groupId
  */
-function invalidateGroupCache(groupId) {
-  /**
-   * @constant key
-   */
-  const key = groupCacheKey(groupId);
-  cache.invalidate((k) => k === key || k.startsWith(`group:${groupId}`) || k.startsWith(`topGroupMembers:${groupId}`));
+function invalidateGroupRankings(groupId) {
+  cache.invalidate((key) => key.startsWith(`topGroupMembers:${groupId}`));
 }
 
 /**
@@ -145,15 +156,15 @@ async function ensureGroupActivity({ groupId, groupName = "" }) {
   let record = await getGroupActivity(groupId);
   if (!record) {
     record = buildDefaultGroupRecord({ groupId, groupName });
-    await saveGroupActivity(record);
   }
   return record;
 }
 
 /**
  * @param {*} record
+ * @param {*} member
  */
-async function saveGroupActivity(record) {
+async function saveGroupActivity(record, member = null) {
   const { supabase } = require("../database/supabase");
   /**
    * @constant groupPayload
@@ -173,7 +184,7 @@ async function saveGroupActivity(record) {
     throw new Error("Error guardando grupo: " + (error?.message || "upsert falló"));
   }
 
-  for (const member of Object.values(record.members)) {
+  if (member) {
     /**
      * @constant memberPayload
      */
@@ -186,7 +197,8 @@ async function saveGroupActivity(record) {
     if (memberError) throw new Error("Error guardando miembro: " + memberError.message);
   }
 
-  invalidateGroupCache(record.groupId);
+  cache.set(groupCacheKey(record.groupId), record, TTLS.memoryContext);
+  invalidateGroupRankings(record.groupId);
 }
 
 /**
@@ -201,7 +213,7 @@ async function saveGroupActivity(record) {
 }".
  * @returns
  */
-async function recordGroupActivity({
+async function recordGroupActivityUnlocked({
   groupId,
   groupName = "",
   memberId,
@@ -217,7 +229,12 @@ async function recordGroupActivity({
   /**
    * @constant record
    */
-  const record = await ensureGroupActivity({ groupId, groupName });
+  const current = await ensureGroupActivity({ groupId, groupName });
+  const record = {
+    ...current,
+    totals: { ...current.totals },
+    members: { ...current.members },
+  };
   /**
    * @constant now
    */
@@ -262,10 +279,10 @@ async function recordGroupActivity({
       record.totals[bucket] = Number(record.totals[bucket] || 0) + safeMessageCount;
     }
 
-    let member = record.members[cleanMemberId];
+    let member = record.members[cleanMemberId] ? { ...record.members[cleanMemberId] } : null;
 
     if (!member) {
-      member = record.members[cleanMemberId] = {
+      member = {
         memberId: cleanMemberId,
         memberName: cleanMemberName,
         messages: 0,
@@ -282,6 +299,7 @@ async function recordGroupActivity({
         lastMessageType: normalizedType,
       };
     }
+    record.members[cleanMemberId] = member;
 
     member.memberName = cleanMemberName || member.memberName || "usuario";
     member.messages = Number(member.messages || 0) + safeMessageCount;
@@ -302,10 +320,14 @@ async function recordGroupActivity({
 
   if (changed) {
     record.updatedAt = now;
-    await saveGroupActivity(record);
+    await saveGroupActivity(record, record.members[cleanMemberId]);
   }
 
   return record;
+}
+
+async function recordGroupActivity(options) {
+  return withGroupActivityLock(options?.groupId, () => recordGroupActivityUnlocked(options));
 }
 
 /**

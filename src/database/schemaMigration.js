@@ -45,6 +45,7 @@ const DESIRED_SCHEMA = {
     "last_turn_at",
     "winner_id",
     "rounds",
+    "distance",
   ],
 };
 
@@ -65,8 +66,15 @@ const TABLE_CREATE_SQL = {
       "created_at" BIGINT NOT NULL,
       "last_turn_at" BIGINT NOT NULL,
       "winner_id" TEXT,
-      "rounds" INTEGER DEFAULT 0
+      "rounds" INTEGER DEFAULT 0,
+      "distance" INTEGER NOT NULL DEFAULT 5 CHECK (distance >= 0)
     );
+
+    ALTER TABLE combat_sessions ENABLE ROW LEVEL SECURITY;
+    ALTER TABLE combat_sessions FORCE ROW LEVEL SECURITY;
+
+    REVOKE ALL PRIVILEGES ON TABLE combat_sessions FROM PUBLIC, anon, authenticated;
+    GRANT ALL PRIVILEGES ON TABLE combat_sessions TO service_role;
   `,
 };
 
@@ -110,6 +118,7 @@ const COLUMN_TYPES = {
   "inventory.metadata": "jsonb DEFAULT '{}'",
   "inventory.created_at": "timestamptz DEFAULT now()",
   "inventory.updated_at": "timestamptz DEFAULT now()",
+  "combat_sessions.distance": "integer NOT NULL DEFAULT 5 CHECK (distance >= 0)",
 };
 
 /**
@@ -201,7 +210,7 @@ async function logMigrationInfo() {
     }
   }
 
-  return { ok: sql.length === 0, sql };
+  return { ok: missing.length === 0, sql };
 }
 
 /**
@@ -249,7 +258,11 @@ async function runStartupMigration() {
    * @constant result
    */
   const result = await logMigrationInfo();
-  await setStoredVersion(CURRENT_VERSION);
+  if (result.ok) {
+    await setStoredVersion(CURRENT_VERSION);
+  } else {
+    await logSystem(`Migration: versión ${CURRENT_VERSION} no registrada porque el schema sigue incompleto`);
+  }
   return result;
 }
 

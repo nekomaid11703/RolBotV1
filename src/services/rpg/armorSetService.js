@@ -93,7 +93,6 @@ function resolveSetBonuses(armorParts = [], sets = {}) {
 }
 
 module.exports = {
-  COVERAGE_RULES,
   SET_BONUS_THRESHOLD,
   getCoverage,
   getMovementFatigueWithCoverage,

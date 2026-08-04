@@ -152,9 +152,7 @@ function buildItem(id) {
 }
 
 module.exports = {
-  VALID_TYPES,
   validateDefinition,
   createItemDefinition,
-  instantiateEntity,
   buildItem,
 };

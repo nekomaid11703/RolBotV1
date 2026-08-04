@@ -27,7 +27,10 @@ function getWeaponStats(def) {
   const mat = getMaterialStats(def.material || "madera", tier);
   const weapon = def.modules?.weapon || {};
 
-  const baseDamage = Math.max(1, Math.round((Number(weapon.baseDamage) || 10) * mult * (mat.afilabilidad / EDGE_SCALE)));
+  const baseDamage = Math.max(
+    1,
+    Math.round((Number(weapon.baseDamage) || 10) * mult * (mat.afilabilidad / EDGE_SCALE)),
+  );
 
   return {
     damageNature: weapon.damageNature || "cortante",

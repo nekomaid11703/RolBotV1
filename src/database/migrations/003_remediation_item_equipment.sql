@@ -40,9 +40,15 @@ CREATE TABLE IF NOT EXISTS combat_sessions (
   "created_at" BIGINT NOT NULL,
   "last_turn_at" BIGINT NOT NULL,
   "winner_id" TEXT,
-  "rounds" INTEGER DEFAULT 0
+  "rounds" INTEGER DEFAULT 0,
+  "distance" INTEGER NOT NULL DEFAULT 5 CHECK (distance >= 0)
 );
 
-GRANT ALL ON TABLE combat_sessions TO anon, authenticated, service_role;
+-- Backend-only table: both manual and automatic creation paths use this boundary.
+ALTER TABLE combat_sessions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE combat_sessions FORCE ROW LEVEL SECURITY;
+
+REVOKE ALL PRIVILEGES ON TABLE combat_sessions FROM PUBLIC, anon, authenticated;
+GRANT ALL PRIVILEGES ON TABLE combat_sessions TO service_role;
 
 NOTIFY pgrst, 'reload schema';

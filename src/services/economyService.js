@@ -1,9 +1,9 @@
 // @ts-nocheck
-const { getUserProfile, getOrCreateProfile, saveUserProfile } = require("./userService");
+const { getUserProfile, getOrCreateProfile } = require("./userService");
 const {
   topBalancesCacheKey,
   invalidateTopBalancesCache,
-  invalidateUserCache,
+  invalidateUserProfileCache,
   safeSelect,
   TTLS,
   cache,
@@ -71,6 +71,28 @@ function getMoneyValue(profile) {
   return Number(profile?.economy?.money || 0);
 }
 
+function invalidateEconomyCaches(...userIds) {
+  for (const userId of new Set(userIds.filter(Boolean))) {
+    invalidateUserProfileCache(userId);
+  }
+  invalidateTopBalancesCache();
+}
+
+/**
+ * Persists only economy columns to avoid overwriting concurrent activity changes.
+ * @param {*} userId
+ * @param {*} money
+ * @param {*} lastActiveAt
+ */
+async function saveMoney(userId, money, lastActiveAt = new Date().toISOString(), aliases = []) {
+  const payload = filterExisting("players", { money, last_active_at: lastActiveAt });
+  const { error } = await supabase.from("players").update(payload).eq("phone", userId);
+
+  if (error) throw new Error("Error guardando saldo: " + error.message);
+
+  invalidateEconomyCaches(userId, ...aliases);
+}
+
 /**
  * @param {*} userId
  * @returns
@@ -121,15 +143,12 @@ async function addMoney(userId, amount, options = {}) {
       throw new Error("El usuario no tiene perfil.");
     }
 
-    data.profile.economy.money = getMoneyValue(data.profile) + safeAmount;
-    data.profile.updatedAt = new Date().toISOString();
+    const nextMoney = getMoneyValue(data.profile) + safeAmount;
+    const updatedAt = new Date().toISOString();
 
-    await saveUserProfile({
-      folder: data.folder,
-      profile: data.profile,
-    });
+    await saveMoney(data.profile.creatorId, nextMoney, updatedAt, [userId]);
 
-    return data.profile.economy.money;
+    return nextMoney;
   });
 }
 
@@ -173,15 +192,12 @@ async function removeMoney(userId, amount, options = {}) {
       throw new Error("Dinero insuficiente.");
     }
 
-    data.profile.economy.money = current - safeAmount;
-    data.profile.updatedAt = new Date().toISOString();
+    const nextMoney = current - safeAmount;
+    const updatedAt = new Date().toISOString();
 
-    await saveUserProfile({
-      folder: data.folder,
-      profile: data.profile,
-    });
+    await saveMoney(data.profile.creatorId, nextMoney, updatedAt, [userId]);
 
-    return data.profile.economy.money;
+    return nextMoney;
   });
 }
 
@@ -216,15 +232,11 @@ async function setMoney(userId, amount, options = {}) {
       throw new Error("El usuario no tiene perfil.");
     }
 
-    data.profile.economy.money = safeAmount;
-    data.profile.updatedAt = new Date().toISOString();
+    const updatedAt = new Date().toISOString();
 
-    await saveUserProfile({
-      folder: data.folder,
-      profile: data.profile,
-    });
+    await saveMoney(data.profile.creatorId, safeAmount, updatedAt, [userId]);
 
-    return data.profile.economy.money;
+    return safeAmount;
   });
 }
 
@@ -301,20 +313,25 @@ async function transferMoney(fromUserId, toUserId, amount, options = {}) {
         throw new Error("El usuario destino no tiene perfil.");
       }
 
+      const canonicalFromId = fromData.profile.creatorId || fromUserId;
+      const canonicalToId = toData.profile.creatorId || toUserId;
+
+      if (canonicalFromId === canonicalToId) {
+        throw new Error("No puedes transferirte a ti mismo.");
+      }
+
       /**
        * @constant now
        */
       const now = new Date().toISOString();
       const { data: rpcResult, error: rpcError } = await supabase.rpc("transfer_money", {
-        from_phone: fromUserId,
-        to_phone: toUserId,
+        from_phone: canonicalFromId,
+        to_phone: canonicalToId,
         amount: safeAmount,
       });
 
       if (!rpcError && rpcResult?.success) {
-        invalidateUserCache(fromUserId);
-        invalidateUserCache(toUserId);
-        invalidateTopBalancesCache();
+        invalidateEconomyCaches(fromUserId, toUserId, canonicalFromId, canonicalToId);
         return true;
       }
 
@@ -331,7 +348,7 @@ async function transferMoney(fromUserId, toUserId, amount, options = {}) {
        * @constant fromPayload
        */
       const fromPayload = filterExisting("players", { money: fromNewMoney, last_active_at: now });
-      const { error: fromError } = await supabase.from("players").update(fromPayload).eq("phone", fromUserId);
+      const { error: fromError } = await supabase.from("players").update(fromPayload).eq("phone", canonicalFromId);
 
       if (fromError) {
         throw new Error(`Error actualizando remitente: ${fromError.message}`);
@@ -341,14 +358,17 @@ async function transferMoney(fromUserId, toUserId, amount, options = {}) {
        * @constant toPayload
        */
       const toPayload = filterExisting("players", { money: toNewMoney, last_active_at: now });
-      const { error: toError } = await supabase.from("players").update(toPayload).eq("phone", toUserId);
+      const { error: toError } = await supabase.from("players").update(toPayload).eq("phone", canonicalToId);
 
       if (toError) {
         /**
          * @constant rollbackPayload
          */
         const rollbackPayload = filterExisting("players", { money: current, last_active_at: now });
-        const { error: rollbackError } = await supabase.from("players").update(rollbackPayload).eq("phone", fromUserId);
+        const { error: rollbackError } = await supabase
+          .from("players")
+          .update(rollbackPayload)
+          .eq("phone", canonicalFromId);
         if (rollbackError) {
           logError({ source: "economyService.transferMoney.rollback", error: new Error(rollbackError.message) });
           throw new Error(`Rollback falló: ${rollbackError.message}`);
@@ -356,9 +376,7 @@ async function transferMoney(fromUserId, toUserId, amount, options = {}) {
         throw new Error(`Error actualizando destinatario: ${toError.message}`);
       }
 
-      invalidateUserCache(fromUserId);
-      invalidateUserCache(toUserId);
-      invalidateTopBalancesCache();
+      invalidateEconomyCaches(fromUserId, toUserId, canonicalFromId, canonicalToId);
 
       return true;
     }),
@@ -490,13 +508,10 @@ async function claimDaily({ userId, userName = "usuario", registration = {} }) {
       throw new Error("Error guardando racha diaria: " + upsertError.message);
     }
 
-    profile.economy.money = getMoneyValue(profile) + reward;
-    profile.updatedAt = new Date(now).toISOString();
+    const nextMoney = getMoneyValue(profile) + reward;
+    const updatedAt = new Date(now).toISOString();
 
-    await saveUserProfile({
-      folder: data.folder,
-      profile,
-    });
+    await saveMoney(profile.creatorId, nextMoney, updatedAt, [userId]);
 
     return {
       claimed: true,
@@ -504,7 +519,7 @@ async function claimDaily({ userId, userName = "usuario", registration = {} }) {
       reward,
       bonus,
       streak: nextStreak,
-      balance: getMoneyValue(profile),
+      balance: nextMoney,
       nextClaimAt: new Date(now + cooldownMs).toISOString(),
     };
   });

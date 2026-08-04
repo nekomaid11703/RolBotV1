@@ -527,75 +527,71 @@ module.exports = {
       }
     }
 
-    try {
-      /**
-       * @constant form
-       */
-      const form = parseFormLines(fullText.split("\n"));
-      /**
-       * @constant raceKeys
-       */
-      const raceKeys = Object.keys(RACES);
-      /**
-       * @constant raceId
-       */
-      const raceId = form.raza || raceKeys[0];
-      /**
-       * @constant raceConfig
-       */
-      const raceConfig = RACES[raceId];
+    /**
+     * @constant form
+     */
+    const form = parseFormLines(fullText.split("\n"));
+    /**
+     * @constant raceKeys
+     */
+    const raceKeys = Object.keys(RACES);
+    /**
+     * @constant raceId
+     */
+    const raceId = form.raza || raceKeys[0];
+    /**
+     * @constant raceConfig
+     */
+    const raceConfig = RACES[raceId];
 
-      /**
-       * @constant validationError
-       */
-      const validationError = validateForm(form, raceConfig);
-      if (validationError) {
-        return ctx.reply(validationError);
-      }
-
-      /**
-       * @constant claseId
-       */
-      const claseId = form.clase
-        .toLowerCase()
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "");
-
-      if (!validarClase(claseId)) {
-        return ctx.reply(formatError(`Clase "${form.clase}" no válida.`, buildTemplate(raceConfig)));
-      }
-
-      /**
-       * @constant statDistribution
-       */
-      const statDistribution = resolveStatDistribution(form.hasCustomStats, form.statDistribution);
-
-      /**
-       * @constant character
-       */
-      const character = await createCharacter({
-        creatorId: ctx.sender,
-        creatorName: ctx.userName,
-        characterName: form.name,
-        raza: raceId,
-        clase: claseId,
-        statDistribution,
-        historia: form.historia,
-      });
-
-      await setActiveCharacter({
-        targetCreatorId: ctx.sender,
-        targetCreatorName: ctx.userName,
-        characterName: form.name,
-        requesterId: ctx.sender,
-        requesterIsAdmin: false,
-      });
-
-      await ctx.react("🎉");
-
-      await ctx.reply(buildCharacterCreatedBox(character, raceConfig));
-    } catch (error) {
-      await ctx.reply(formatError(error.message));
+    /**
+     * @constant validationError
+     */
+    const validationError = validateForm(form, raceConfig);
+    if (validationError) {
+      return ctx.reply(validationError);
     }
+
+    /**
+     * @constant claseId
+     */
+    const claseId = form.clase
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "");
+
+    if (!validarClase(claseId)) {
+      return ctx.reply(formatError(`Clase "${form.clase}" no válida.`, buildTemplate(raceConfig)));
+    }
+
+    /**
+     * @constant statDistribution
+     */
+    const statDistribution = resolveStatDistribution(form.hasCustomStats, form.statDistribution);
+
+    /**
+     * @constant character
+     */
+    const character = await createCharacter({
+      creatorId: ctx.sender,
+      creatorName: ctx.userName,
+      characterName: form.name,
+      raza: raceId,
+      clase: claseId,
+      statDistribution,
+      historia: form.historia,
+    });
+
+    await setActiveCharacter({
+      targetCreatorId: ctx.sender,
+      targetCreatorName: ctx.userName,
+      characterName: form.name,
+      requesterId: ctx.sender,
+      requesterIsAdmin: false,
+    });
+
+    await ctx.react("🎉");
+
+    await ctx.reply(buildCharacterCreatedBox(character, raceConfig));
   },
 };

@@ -1,5 +1,5 @@
 const { setMoney } = require("../../services/economyService");
-const { executeEconomyAction } = require("../../utils/economyAdminHelper");
+const { executeEconomyAction } = require("../../services/economyAdminHelper");
 
 module.exports = {
   name: "set_stelas",

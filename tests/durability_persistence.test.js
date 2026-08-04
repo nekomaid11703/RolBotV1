@@ -23,7 +23,11 @@ function setupMocks() {
       select: vi.fn().mockReturnValue({
         eq: vi.fn().mockReturnValue({
           eq: vi.fn().mockReturnValue({
-            maybeSingle: vi.fn().mockResolvedValue(mockError ? { data: null, error: mockError } : { data: mockInventoryRow, error: null }),
+            maybeSingle: vi
+              .fn()
+              .mockResolvedValue(
+                mockError ? { data: null, error: mockError } : { data: mockInventoryRow, error: null },
+              ),
           }),
         }),
       }),

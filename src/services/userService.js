@@ -4,11 +4,26 @@ const { filterExisting } = require("../database/columnRegistry");
 const {
   safeSingleOrNull,
   userCacheKey,
-  invalidateUserCache,
+  invalidateUserProfileCache,
   TTLS,
   cache,
   topActiveUsersCacheKey,
 } = require("../utils/safeQuery");
+
+const userActivityTails = new Map();
+
+async function withUserActivityLock(userId, task) {
+  const key = String(userId || "unknown-user");
+  const previous = userActivityTails.get(key) || Promise.resolve();
+  const current = previous.catch(() => undefined).then(task);
+  userActivityTails.set(key, current);
+
+  try {
+    return await current;
+  } finally {
+    if (userActivityTails.get(key) === current) userActivityTails.delete(key);
+  }
+}
 
 /**
  * @param {*} text
@@ -379,7 +394,28 @@ async function saveUserProfile({ folder: _folder, profile }) {
 
   if (error) throw new Error("Error guardando usuario: " + error.message);
 
-  invalidateUserCache(profile.creatorId);
+  invalidateUserProfileCache(profile.creatorId);
+  return profile;
+}
+
+/**
+ * Persists activity columns without overwriting concurrent economy changes.
+ * @param {object} profile
+ * @returns {Promise<object>}
+ */
+async function saveUserActivity(profile) {
+  const payload = filterExisting("players", {
+    username: profile.creatorName,
+    activity_messages: Number(profile.activity?.messages || 0),
+    activity_commands: Number(profile.activity?.commands || 0),
+    last_active_at: profile.metadata?.lastSeenAt || new Date().toISOString(),
+  });
+  const { error } = await supabase.from("players").update(payload).eq("phone", profile.creatorId);
+
+  if (error) throw new Error("Error guardando actividad: " + error.message);
+
+  invalidateUserProfileCache(profile.creatorId);
+  cache.invalidate((key) => key === "allUserProfiles" || key.startsWith("topActiveUsers:"));
   return profile;
 }
 
@@ -504,7 +540,11 @@ const METADATA_UPDATERS = [
 ];
 
 function updateProfileMetadata(next, data) {
-  return METADATA_UPDATERS.some((updater) => updater(next, data));
+  let changed = false;
+  for (const updater of METADATA_UPDATERS) {
+    changed = updater(next, data) || changed;
+  }
+  return changed;
 }
 
 /**
@@ -550,7 +590,7 @@ function updateActivityCounts(next, { safeMessageCount, safeCommandCount, normal
  * @param {object} options
  * @returns {Promise<object|null>}
  */
-async function recordUserActivity(options) {
+async function recordUserActivityUnlocked(options) {
   const {
     creatorId,
     creatorName = "usuario",
@@ -610,10 +650,14 @@ async function recordUserActivity(options) {
 
   if (metaChanged || activityChanged) {
     next.updatedAt = now;
-    await saveUserProfile({ folder: current.folder, profile: next });
+    await saveUserActivity(next);
   }
 
   return next;
+}
+
+async function recordUserActivity(options) {
+  return withUserActivityLock(options?.creatorId, () => recordUserActivityUnlocked(options));
 }
 
 /**
@@ -708,7 +752,6 @@ module.exports = {
   listUserProfiles,
   ensureUserProfile,
   getUserProfile,
-  saveUserProfile,
   recordUserActivity,
   getOrCreateProfile,
   getTopActiveUsers,

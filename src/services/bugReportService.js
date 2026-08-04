@@ -10,7 +10,11 @@ const path = require("path");
 /**
  * @constant fs
  */
-const fs = require("fs/promises");
+const fs = require("fs");
+const fsp = require("fs/promises");
+const { once } = require("events");
+const { Transform } = require("stream");
+const { pipeline } = require("stream/promises");
 const { supabase } = require("../database/supabase");
 const { isOwner, getOwnerJids } = require("../utils/permissionUtils");
 const { getGroupMetadata } = require("../utils/groupUtils");
@@ -22,6 +26,82 @@ const { logSystem, logError } = require("./loggerService");
  * @type {string}
  */
 const SESSION_ID = "bug_report";
+const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
+const IMAGE_EXTENSIONS = new Map([
+  ["image/jpeg", "jpg"],
+  ["image/png", "png"],
+  ["image/webp", "webp"],
+]);
+
+function getImageExtension(mimetype) {
+  const normalized = String(mimetype || "")
+    .split(";", 1)[0]
+    .trim()
+    .toLowerCase();
+  const extension = IMAGE_EXTENSIONS.get(normalized);
+  if (!extension) {
+    throw new Error("Formato de imagen no permitido. Usa JPEG, PNG o WebP.");
+  }
+  return extension;
+}
+
+function assertDeclaredImageSize(fileLength) {
+  if (fileLength === null || fileLength === undefined) return;
+
+  let bytes;
+  try {
+    bytes = BigInt(String(fileLength));
+  } catch {
+    throw new Error("El tamaño declarado de la imagen no es válido.");
+  }
+
+  if (bytes < 0n || bytes > BigInt(MAX_IMAGE_BYTES)) {
+    throw new Error("La imagen supera el límite de 5 MiB.");
+  }
+}
+
+async function saveImage(msg, id) {
+  const image = msg.message.imageMessage;
+  const extension = getImageExtension(image.mimetype);
+  assertDeclaredImageSize(image.fileLength);
+
+  const mediaDir = path.resolve(process.cwd(), "bugs", "media");
+  const fileName = `${id}.${extension}`;
+  const filePath = path.resolve(mediaDir, fileName);
+  if (path.dirname(filePath) !== mediaDir) {
+    throw new Error("Nombre de archivo de imagen no válido.");
+  }
+
+  const mediaStream = await downloadMediaMessage(msg, "stream", {}, {});
+  await fsp.mkdir(mediaDir, { recursive: true });
+
+  let receivedBytes = 0;
+  let fileCreated = false;
+  const sizeLimiter = new Transform({
+    transform(chunk, _encoding, callback) {
+      receivedBytes += chunk.length;
+      callback(receivedBytes > MAX_IMAGE_BYTES ? new Error("La imagen supera el límite de 5 MiB.") : null, chunk);
+    },
+  });
+  const output = fs.createWriteStream(filePath, { flags: "wx" });
+
+  try {
+    await once(output, "open");
+    fileCreated = true;
+    await pipeline(mediaStream, sizeLimiter, output);
+    const stat = await fsp.stat(filePath);
+    if (!stat.isFile() || stat.size !== receivedBytes || stat.size > MAX_IMAGE_BYTES) {
+      throw new Error("La imagen descargada no es válida.");
+    }
+  } catch (error) {
+    output.destroy();
+    mediaStream.destroy?.();
+    if (fileCreated) await fsp.rm(filePath, { force: true });
+    throw error;
+  }
+
+  return path.posix.join("bugs", "media", fileName);
+}
 
 /**
  * @constant PRIORITY_KEYWORDS
@@ -189,23 +269,10 @@ async function createReport({ sock, groupId, userId, userName, description, msg 
   let mediaUrl = null;
   if (msg && msg.message && msg.message.imageMessage) {
     try {
-      /**
-       * @constant buffer
-       */
-      const buffer = await downloadMediaMessage(msg, "buffer", {}, {});
-      /**
-       * @constant mediaDir
-       */
-      const mediaDir = path.join(process.cwd(), "bugs", "media");
-      await fs.mkdir(mediaDir, { recursive: true });
-      /**
-       * @constant ext
-       */
-      const ext = (msg.message.imageMessage.mimetype || "image/png").split("/")[1] || "png";
-      await fs.writeFile(path.join(mediaDir, `${id}.${ext}`), buffer);
-      mediaUrl = `bugs/media/${id}.${ext}`;
+      mediaUrl = await saveImage(msg, id);
     } catch (err) {
       await logError({ source: "bugReportService.createReport.media", error: err });
+      throw err;
     }
   }
 
@@ -230,7 +297,14 @@ async function createReport({ sock, groupId, userId, userName, description, msg 
     resolvedBy: null,
   };
   const { error } = await supabase.from("bot_auth_state").insert({ session_id: SESSION_ID, id, data: report });
-  if (error) throw new Error(`Error guardando reporte: ${error.message}`);
+  if (error) {
+    if (mediaUrl) {
+      await fsp
+        .rm(path.resolve(process.cwd(), mediaUrl), { force: true })
+        .catch((cleanupError) => logError({ source: "bugReportService.createReport.cleanup", error: cleanupError }));
+    }
+    throw new Error(`Error guardando reporte: ${error.message}`);
+  }
 
   await logSystem("Bug report creado", { id, userId, priority, category });
 

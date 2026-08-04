@@ -1,114 +1,110 @@
-# IA_rolbot — RolBotV1
+# RolBotV1
 
-Bot RPG modular para WhatsApp. Arquitectura determinista 100% code-only (sin capa de IA externa).
+Bot RPG modular para WhatsApp, construido con Baileys, Node.js y Supabase. La rama activa es `AI_rolbot` y conserva el sistema v1.6 de ítems, equipamiento, distancia, fatiga y UI por secciones.
 
 ## Arquitectura
 
-```
-┌─────────────────────────────────────────────────┐
-│  WhatsApp (Baileys)                              │
-│  └─ Bot → EventHandler → Context → Commands      │
-│       └─ Services → Supabase (PostgreSQL)         │
-│       └─ Services/rpg → Combat Engine D20         │
-├─────────────────────────────────────────────────┤
-│  MCP Servers                                     │
-│  ├─ NekoMemori    → Memoria compartida (JSONL)   │
-│  ├─ Graphify      → Knowledge graph (AST)        │
-│  └─ GitHub        → Issues, PRs, search          │
-├─────────────────────────────────────────────────┤
-│  Toolchain                                       │
-│  ESLint · Prettier · TypeScript · Vitest         │
-│  Husky · lint-staged · Knip · Stryker            │
-│  dependency-cruiser · Nodemon                    │
-└─────────────────────────────────────────────────┘
+```text
+WhatsApp (Baileys)
+  → eventHandler → context → commandHandler
+  → commands → services → Supabase
+                       └→ services/rpg → motor D20
 ```
 
-- **100% code-only:** Sin dependencia de LLMs externos. No hay orquestador IA, ni providers, ni prompts.
-- **Motor D20:** Sistema de combate táctico determinista basado en dado de 20 caras. Sin narrativa generada.
-- **Supabase:** Única fuente de verdad. Sesiones, perfiles, economía, inventarios, combates.
+- **Código determinista:** no necesita un LLM ni una API de IA para funcionar.
+- **Supabase como fuente de verdad:** perfiles, economía, inventario, permisos, autenticación y combates.
+- **Persistencia segura:** los cambios críticos se confirman en Supabase antes de publicarse en memoria o responder como exitosos.
+- **Límites claros:** `dependency-cruiser` valida las capas y el grafo de Graphify refleja el código actual.
 
-## Tecnologías
+## Requisitos
 
-- **Baileys** (`@whiskeysockets/baileys`) — Conexión WhatsApp
-- **Supabase** — PostgreSQL como backend único
-- **Node.js >= 18** — Entorno de ejecución
-- **MCP** — 3 servidores (NekoMemori, Graphify, GitHub)
+- Node.js `>=20.19.0`
+- Proyecto Supabase con las migraciones de `src/database/migrations/`
+- Número de WhatsApp disponible para vinculación
+- Graphify global `0.9.9` solo si se va a mantener el knowledge graph
 
-## Estructura
-
-```
-C:\IA_rolbot/
-├── RolBotV1/                  ← Proyecto principal
-│   ├── src/
-│   │   ├── core/              ← bot.js, eventHandler, commandHandler
-│   │   ├── commands/          ← 46 comandos (6 categorías)
-│   │   ├── services/          ← Economía, usuarios, grupos, personajes
-│   │   │   └── rpg/           ← Motor de combate D20, habilidades, items
-│   │   ├── config/            ← Config centralizada
-│   │   ├── database/          ← Cliente Supabase
-│   │   ├── utils/             ← Cache, formateo, roll, permisos
-│   │   └── data/              ← Catálogos (clases, razas)
-│   ├── tests/                 ← 18+ suites de prueba
-│   ├── graphify-out/          ← Knowledge graph (1207 nodos)
-│   └── ai-memory/             ← Memoria compartida NekoMemori
-├── mcp_nekomemori/            ← Servidor MCP propio (Node.js)
-├── github-mcp-server/         ← Servidor MCP GitHub (vendorizado)
-├── opencode.json              ← Config MCP principal
-├── AUDITORIA_COMPLETA.md      ← Auditoría + roadmap vivo
-└── .agents/AGENTS.md          ← Instrucciones del agente
-```
-
-## Comandos
-
-| Categoría | Comandos |
-|-----------|----------|
-| Economía | `/balance`, `/daily`, `/dar_stelas`, `/top_dinero`, `/add_stelas`, `/rem_stelas`, `/set_stelas` |
-| Personajes | `/crear_pj`, `/ver_pj`, `/mis_pj`, `/switch_pj`, `/eliminar_pj`, `/renombrar_pj`, `/editar_pj_desc` |
-| Grupo | `/actividad`, `/actividad_global`, `/add`, `/ban`, `/promote`, `/demote`, `/invite`, `/todos`, `/warn`, `/unwarn`, `/grupo_abrir`, `/grupo_cerrar`, `/top_activos` |
-| Permisos | `/eco_admin_add`, `/eco_admin_rem`, `/eco_admin_list` |
-| Información | `/help`, `/hola` |
-| Utilidades | `/dado`, `/bugreport`, `/bugstatus` |
-
-## Configuración
+## Instalación
 
 ```bash
 cp .env.example .env.local
-# Editar .env.local con SUPABASE_URL, SUPABASE_KEY
-npm install
-npm run dev       # Desarrollo con recarga automática
-npm start         # Producción
+npm ci
+npm run check:all
+npm start
 ```
 
-## Toolchain
+Completa en `.env.local`:
+
+- `SUPABASE_URL`
+- `SUPABASE_SERVICE_ROLE_KEY` con la clave backend `service_role`; `SUPABASE_KEY` se acepta solo por compatibilidad deprecada
+- `OWNER_PHONE` y, solo si hacen falta, `OWNER_ALIASES`
+- `PAIRING_PHONE_NUMBER` cuando se use `npm start code`
+
+No confirmes un despliegue como sano hasta probar vinculación, recepción, respuesta, multimedia, restauración de sesión y reconexión contra los servicios reales.
+
+## Migraciones
+
+En una instalación v1.6 existente, aplica y verifica como mínimo:
+
+1. `003_remediation_item_equipment.sql`: completa metadatos, equipo y `combat_sessions`.
+2. `004_harden_inventory_access.sql`: endurece RLS/permisos y añade `distance` de forma idempotente.
+
+Las tablas privadas del bot —incluidas `bot_auth_state`, perfiles, personajes, inventario y combates— quedan reservadas a `service_role`; `anon` y `authenticated` no deben tener acceso directo.
+
+## Funciones principales
+
+- Economía: balance, daily, transferencias y administración de stelas.
+- Personajes: creación, edición, selección, progresión y ficha por secciones.
+- Inventario v2: materiales, tiers, durabilidad, equipo, sets y familia de hierro.
+- Combate PvP/PvE: D20, distancia, fatiga, reacciones, dummy equipado y persistencia.
+- Administración: actividad, moderación, permisos por categoría y control de grupos.
+- Operación: reportes de bugs con multimedia limitada, dashboard, scheduler y reconexión protegida.
+
+## Estructura
+
+```text
+src/
+├── commands/          comandos de WhatsApp
+├── config/            configuración central
+├── core/              conexión, contexto y despacho
+├── data/              catálogos RPG
+├── database/          Supabase, esquema y migraciones
+├── modules/           módulos componibles de ítems
+├── services/          casos de uso y persistencia
+│   └── rpg/           combate, inventario y equipo
+├── ui/                composición de respuestas
+└── utils/             utilidades puras
+tests/                 pruebas Vitest
+graphify-out/          knowledge graph generado
+```
+
+## Calidad
 
 ```bash
-npm run check       # lint + typecheck + depcruise
-npm run check:all   # check + format:check + test
-npm run lint        # ESLint (0 errores)
-npm run typecheck   # TypeScript strict
-npm test            # Vitest (test runner)
-npm run format      # Prettier
-npm run depcruise   # dependency-cruiser
-npm run knip        # Dead code detection
+npm run check:all       # lint + tipos + arquitectura + formato + pruebas
+npm run knip            # archivos/exports sin consumidores
+npm audit --omit=dev    # vulnerabilidades de producción
+npm run graphify:update # refresca el grafo después de cambios
 ```
 
-## Estado del proyecto
+Estado verificado el 2026-08-04:
 
-| Fase | Estado | Fecha |
-|------|--------|-------|
-| 🔴 FASE 0 — Rescate | ✅ Completado | 2026-07-14 |
-| 🟠 FASE 1 — Portabilidad | ✅ Completado | 2026-07-14 |
-| 🟡 FASE 2 — CI/CD | ⚡ Parcial | 2026-07-14 |
-| 🟢 FASE 3 — Refactor | ✅ Completado | 2026-07-14 |
-| 🔵 FASE 4 — Rendimiento | ✅ Completado | 2026-07-14 |
-| 📘 FASE 5 — Documentación | ⏳ En curso | 2026-07-14 |
+- ESLint: 0 errores y 0 advertencias.
+- TypeScript/JSDoc: correcto.
+- Dependency Cruiser: 0 violaciones.
+- Prettier: correcto.
+- Vitest: 44 archivos y 528 pruebas correctas.
+- Knip: sin hallazgos.
+- `npm audit --omit=dev`: 0 vulnerabilidades.
 
-Ver `AUDITORIA_COMPLETA.md` para el detalle completo del roadmap y checklist.
+Consulta [AUDITORIA_COMPLETA.md](AUDITORIA_COMPLETA.md) para la auditoría técnica y [REPORTE_WHATSAPP.md](REPORTE_WHATSAPP.md) para el resumen listo para compartir.
 
-## Knowledge Graph
+## Knowledge graph
 
-El proyecto mantiene un grafo de conocimiento de 1207 nodos (funciones, clases, imports) generado por AST (tree-sitter). Sin LLM, 0 costo, 100% reproducible.
+```bash
+graphify query "cómo se procesa un comando"
+graphify path "startBot" "supabase"
+npm run graphify:status
+npm run graphify:update
+```
 
-- `graphify query "<pregunta>"` — Buscar en el grafo
-- `graphify path "<A>" "<B>"` — Relaciones entre nodos
-- `graphify explain "<concepto>"` — Explicación de un nodo
+Graphify es una herramienta de desarrollo; el bot no depende de ella en producción.

@@ -34,83 +34,83 @@ class ModuleBase {
 
   /**
    * Condition.
-   * @param {*} context - - execution context.
+   * @param {*} _context - - execution context.
    * @returns {*}
    */
-  condition(context) {
+  condition(_context) {
     return true;
   }
 
   /**
    * Registers a listener for the use event.
-   * @param {*} context - - execution context.
+   * @param {*} _context - - execution context.
    * @returns {*}
    */
-  onUse(context) {
+  onUse(_context) {
     return null;
   }
   /**
    * Registers a listener for the equip event.
-   * @param {*} context - - execution context.
+   * @param {*} _context - - execution context.
    * @returns {*}
    */
-  onEquip(context) {
+  onEquip(_context) {
     return null;
   }
   /**
    * Registers a listener for the unequip event.
-   * @param {*} context - - execution context.
+   * @param {*} _context - - execution context.
    * @returns {*}
    */
-  onUnequip(context) {
+  onUnequip(_context) {
     return null;
   }
   /**
    * Registers a listener for the attack event.
-   * @param {*} context - - execution context.
+   * @param {*} _context - - execution context.
    * @returns {*}
    */
-  onAttack(context) {
+  onAttack(_context) {
     return null;
   }
   /**
    * Registers a listener for the hit event.
-   * @param {*} context - - execution context.
+   * @param {*} _context - - execution context.
    * @returns {*}
    */
-  onHit(context) {
+  onHit(_context) {
     return null;
   }
   /**
    * Registers a listener for the turn start event.
-   * @param {*} context - - execution context.
+   * @param {*} _context - - execution context.
    * @returns {*}
    */
-  onTurnStart(context) {
+  onTurnStart(_context) {
     return null;
   }
   /**
    * Registers a listener for the turn end event.
-   * @param {*} context - - execution context.
+   * @param {*} _context - - execution context.
    * @returns {*}
    */
-  onTurnEnd(context) {
+  onTurnEnd(_context) {
     return null;
   }
   /**
    * Registers a listener for the acquire event.
-   * @param {*} context - - execution context.
+   * @param {*} _context - - execution context.
    * @returns {*}
    */
-  onAcquire(context) {
+  onAcquire(_context) {
     return null;
   }
   /**
    * Registers a listener for the lose event.
-   * @param {*} context - - execution context.
+   * @param {*} _context - - execution context.
    * @returns {*}
    */
-  onLose(context) {
+  onLose(_context) {
     return null;
   }
 }

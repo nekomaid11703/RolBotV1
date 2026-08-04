@@ -1,1 +1,1 @@
-require("./src/core/bot");
+require("./src/core/bot").startBot();

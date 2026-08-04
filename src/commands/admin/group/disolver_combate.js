@@ -28,7 +28,7 @@ module.exports = {
        */
       const session = findSessionByUser(ctx.sender);
       if (session) {
-        removeSession(session.id);
+        await removeSession(session.id);
         return ctx.reply(formatCombatDisolved(ctx.userName));
       }
       return ctx.reply(
@@ -49,7 +49,7 @@ module.exports = {
       return ctx.reply("❌ Ese usuario no está en un combate activo.");
     }
 
-    removeSession(session.id);
+    await removeSession(session.id);
     return ctx.reply(formatCombatDisolved(ctx.userName));
   },
 };

@@ -134,7 +134,11 @@ describe("resolveDefenderArmor", () => {
   it("Construye DurabilityModule por pieza con metadata", async () => {
     mockSlots = { pecho: "pechera_hierro" };
     mockInventory = [
-      { item_id: "pechera_hierro", quantity: 1, metadata: { durability: { maxResist: 80, currentResist: 40, isRepairable: true } } },
+      {
+        item_id: "pechera_hierro",
+        quantity: 1,
+        metadata: { durability: { maxResist: 80, currentResist: 40, isRepairable: true } },
+      },
     ];
     const { resolveDefenderArmor } = require("../src/services/rpg/equipmentResolverService");
     const armor = await resolveDefenderArmor(1);

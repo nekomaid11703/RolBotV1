@@ -4,7 +4,6 @@ const { getFirstMentionedJid } = require("../../../utils/commandParseUtils");
 const { formatDisplayMention, withMentions } = require("../../../utils/userMentionUtils");
 const { resolveTargetDisplayName } = require("../../../services/displayNameService");
 const { box } = require("../../../utils/boxUtils");
-const { formatError } = require("../../../utils/formatErrorUtils");
 
 module.exports = {
   name: "warn",
@@ -30,60 +29,56 @@ module.exports = {
       return ctx.reply("❌ Debes mencionar al usuario que deseas advertir.\n\nUso: /warn @usuario [motivo]");
     }
 
-    try {
-      /**
-       * @constant reason
-       */
-      const reason = ctx.args.slice(1).join(" ").trim() || "Sin motivo especificado";
-      /**
-       * @constant targetName
-       */
-      const targetName = await resolveTargetDisplayName(ctx, targetId);
-      /**
-       * @constant currentWarns
-       */
-      const currentWarns = await getWarns(ctx.from, targetId);
-      /**
-       * @constant warnCount
-       */
-      const warnCount = currentWarns.count;
+    /**
+     * @constant reason
+     */
+    const reason = ctx.args.slice(1).join(" ").trim() || "Sin motivo especificado";
+    /**
+     * @constant targetName
+     */
+    const targetName = await resolveTargetDisplayName(ctx, targetId);
+    /**
+     * @constant currentWarns
+     */
+    const currentWarns = await getWarns(ctx.from, targetId);
+    /**
+     * @constant warnCount
+     */
+    const warnCount = currentWarns.count;
 
-      await addWarn(ctx.from, targetId, {
-        reason,
-        moderatorId: ctx.sender,
-        moderatorName: ctx.userName,
-      });
+    await addWarn(ctx.from, targetId, {
+      reason,
+      moderatorId: ctx.sender,
+      moderatorName: ctx.userName,
+    });
 
-      if (warnCount + 1 >= MAX_WARNS) {
-        await ctx.reply(
-          withMentions(
-            box("⚠️ Usuario advertido", [
-              "",
-              `👤  ${formatDisplayMention(targetId, targetName)}`,
-              `📋 Motivo: ${reason}`,
-              "",
-              `❗ Warn ${warnCount + 1}/${MAX_WARNS}`,
-              `🚨 Límite alcanzado.`,
-            ]),
-            [targetId],
-          ),
-        );
-      } else {
-        await ctx.reply(
-          withMentions(
-            box("⚠️ Usuario advertido", [
-              "",
-              `👤  ${formatDisplayMention(targetId, targetName)}`,
-              `📋 Motivo: ${reason}`,
-              "",
-              `❗ Warn ${warnCount + 1}/${MAX_WARNS}`,
-            ]),
-            [targetId],
-          ),
-        );
-      }
-    } catch (error) {
-      await ctx.reply(formatError(error.message));
+    if (warnCount + 1 >= MAX_WARNS) {
+      await ctx.reply(
+        withMentions(
+          box("⚠️ Usuario advertido", [
+            "",
+            `👤  ${formatDisplayMention(targetId, targetName)}`,
+            `📋 Motivo: ${reason}`,
+            "",
+            `❗ Warn ${warnCount + 1}/${MAX_WARNS}`,
+            `🚨 Límite alcanzado.`,
+          ]),
+          [targetId],
+        ),
+      );
+    } else {
+      await ctx.reply(
+        withMentions(
+          box("⚠️ Usuario advertido", [
+            "",
+            `👤  ${formatDisplayMention(targetId, targetName)}`,
+            `📋 Motivo: ${reason}`,
+            "",
+            `❗ Warn ${warnCount + 1}/${MAX_WARNS}`,
+          ]),
+          [targetId],
+        ),
+      );
     }
   },
 };

@@ -1,4 +1,6 @@
 // @ts-nocheck
+const fs = require("fs");
+const path = require("path");
 
 describe("Mecánica de Distancia v1.5", () => {
   // --- combatConfig constants ---
@@ -140,6 +142,20 @@ describe("Mecánica de Distancia v1.5", () => {
       const stats = { mspd: 1 };
       const result = checkAttackRange(0, stats);
       expect(result.canAttack).toBe(true);
+    });
+  });
+
+  describe("comando atacar", () => {
+    it("preserva distancia cero y aplica el rango del arma equipada", () => {
+      const source = fs.readFileSync(path.join(__dirname, "../src/commands/rpg/combat/atacar.js"), "utf8");
+      const equipmentResolution = source.indexOf("const { weaponInfo, armorEntry, weaponDef }");
+      const rangeCheck = source.indexOf("const { canAttack, effectiveRange }", equipmentResolution);
+
+      expect(equipmentResolution).toBeGreaterThan(-1);
+      expect(rangeCheck).toBeGreaterThan(equipmentResolution);
+      expect(source).toContain("const distance = session.distance ?? 5;");
+      expect(source.slice(rangeCheck, rangeCheck + 220)).toContain("weaponInfo?.weaponRange ?? 0");
+      expect(source).not.toContain("session.distance || 5");
     });
   });
 

@@ -1,6 +1,5 @@
 // @ts-nocheck
 const { cache, TTLS } = require("./cacheService");
-const { logSystem } = require("../services/loggerService");
 const { hasColumn } = require("../database/columnRegistry");
 
 /**
@@ -113,7 +112,22 @@ function invalidateUserCache(creatorId) {
    * @constant key
    */
   const key = userCacheKey(creatorId);
-  cache.invalidate((k) => k === key || k.startsWith(`user:${creatorId}`) || k.startsWith(`characters:${creatorId}`));
+  cache.invalidate(
+    (k) =>
+      k === key ||
+      k.startsWith(`user:${creatorId}`) ||
+      k.startsWith(`characters:${creatorId}`) ||
+      k.startsWith(`activeCharacter:${creatorId}`),
+  );
+}
+
+/**
+ * Invalidates profile data without evicting character caches.
+ * @param {*} creatorId
+ */
+function invalidateUserProfileCache(creatorId) {
+  const key = userCacheKey(creatorId);
+  cache.invalidate((k) => k === key || k.startsWith(`user:${creatorId}`));
 }
 
 /**
@@ -171,7 +185,9 @@ function safeSelect(table, ...columnGroups) {
      */
     const exists = hasColumn(table, col);
     if (!exists) {
-      logSystem(`safeSelect: columna "${col}" omitida en "${table}" (no existe en DB)`);
+      process.emitWarning(`safeSelect: columna "${col}" omitida en "${table}" (no existe en DB)`, {
+        code: "ROLBOT_SCHEMA_COLUMN_MISSING",
+      });
     }
     return exists;
   });
@@ -192,6 +208,7 @@ module.exports = {
   topGroupMembersCacheKey,
   topActiveUsersCacheKey,
   invalidateUserCache,
+  invalidateUserProfileCache,
   invalidateGroupCache,
   invalidateTopBalancesCache,
   invalidateTopActiveUsersCache,

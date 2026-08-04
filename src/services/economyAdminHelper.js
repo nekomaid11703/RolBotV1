@@ -1,10 +1,9 @@
-const { getFirstMentionedJid, extractAmountFromArgs } = require("./commandParseUtils");
-const { formatDisplayMention } = require("./userMentionUtils");
-const { resolveTargetDisplayName } = require("../services/displayNameService");
-const { box } = require("./boxUtils");
-const { formatError } = require("./formatErrorUtils");
-const { formatCommandUsage } = require("./formatCommandUtils");
-const { formatStelas } = require("./economyUtils");
+const { getFirstMentionedJid, extractAmountFromArgs } = require("../utils/commandParseUtils");
+const { formatDisplayMention } = require("../utils/userMentionUtils");
+const { resolveTargetDisplayName } = require("./displayNameService");
+const { box } = require("../utils/boxUtils");
+const { formatCommandUsage } = require("../utils/formatCommandUtils");
+const { formatStelas } = require("../utils/economyUtils");
 
 /**
  * @constant usageCache
@@ -67,37 +66,33 @@ async function executeEconomyAction(
     return ctx.reply(getUsage(usage));
   }
 
-  try {
-    /**
-     * @constant targetName
-     */
-    const targetName = await resolveTargetDisplayName(ctx, targetId);
-    /**
-     * @constant balance
-     */
-    const balance = await serviceFn(targetId, amount, {
-      createIfMissing,
-      userName: targetName,
-      registration: {
-        source: ctx.command || "economy_admin",
-        scope: "target",
-        createdBy: ctx.sender,
-        displayName: targetName,
-      },
-    });
+  /**
+   * @constant targetName
+   */
+  const targetName = await resolveTargetDisplayName(ctx, targetId);
+  /**
+   * @constant balance
+   */
+  const balance = await serviceFn(targetId, amount, {
+    createIfMissing,
+    userName: targetName,
+    registration: {
+      source: ctx.command || "economy_admin",
+      scope: "target",
+      createdBy: ctx.sender,
+      displayName: targetName,
+    },
+  });
 
-    /**
-     * @constant lines
-     * @type {*[]}
-     */
-    const lines = ["", `👤  ${formatDisplayMention(targetId, targetName)}`];
-    if (showAmount) lines.push("", `💵  ${amountLabel}: ${formatStelas(amount)}`);
-    lines.push(`💰  Balance: ${formatStelas(balance)}`);
+  /**
+   * @constant lines
+   * @type {*[]}
+   */
+  const lines = ["", `👤  ${formatDisplayMention(targetId, targetName)}`];
+  if (showAmount) lines.push("", `💵  ${amountLabel}: ${formatStelas(amount)}`);
+  lines.push(`💰  Balance: ${formatStelas(balance)}`);
 
-    await ctx.reply(box(boxTitle, lines), { mentions: [targetId] });
-  } catch (error) {
-    await ctx.reply(formatError(/** @type {Error} */ (error).message));
-  }
+  await ctx.reply(box(boxTitle, lines), { mentions: [targetId] });
 }
 
 module.exports = { executeEconomyAction };

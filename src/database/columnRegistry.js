@@ -49,6 +49,7 @@ const KNOWN_SCHEMA = {
     "last_turn_at",
     "winner_id",
     "rounds",
+    "distance",
   ],
 };
 
@@ -57,7 +58,7 @@ let cache = null;
 let lastDiscovery = 0;
 
 /**
- * Descubre dinámicamente el esquema de columnas uniendo el esquema canónico conocido con las columnas en BD.
+ * Descubre las columnas realmente accesibles en la base de datos.
  * @param {boolean} [force]
  * @returns {Promise<Record<string, Set<string> | null>>}
  */
@@ -81,14 +82,24 @@ async function discover(force = false) {
        */
       const knownCols = KNOWN_SCHEMA[table] || [];
       try {
-        const { data } = await supabase.from(table).select("*").limit(1);
+        const { data, error } = await supabase.from(table).select("*").limit(1);
+        if (error) return { table, keys: null };
         /**
          * @constant fetchedKeys
          */
         const fetchedKeys = data && data.length > 0 ? Object.keys(data[0]) : [];
-        return { table, keys: new Set([...knownCols, ...fetchedKeys]) };
+        if (fetchedKeys.length > 0) return { table, keys: new Set(fetchedKeys) };
+
+        const probes = await Promise.all(
+          knownCols.map(async (column) => {
+            const { error: columnError } = await supabase.from(table).select(column).limit(1);
+            return columnError ? null : column;
+          }),
+        );
+        const discoveredColumns = /** @type {string[]} */ (probes.filter((column) => typeof column === "string"));
+        return { table, keys: new Set(discoveredColumns) };
       } catch {
-        return { table, keys: new Set(knownCols) };
+        return { table, keys: null };
       }
     }),
   );

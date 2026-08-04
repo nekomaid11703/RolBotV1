@@ -123,4 +123,4 @@ function characterSheet(character, opts = {}) {
   return composeMessage({ title: `\uD83C\uDFAD ${String(character.name || "").toUpperCase()}`, sections });
 }
 
-module.exports = { characterSheet, buildHpBar, formatHpState, statsLines, inventorySectionLines, headerLines };
+module.exports = { characterSheet, buildHpBar, formatHpState };

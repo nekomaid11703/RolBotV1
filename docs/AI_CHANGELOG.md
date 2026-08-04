@@ -318,7 +318,7 @@ Primeros ítems concretos construidos sobre el sistema gestor de ítems (v2.5.0)
 
 #### 🔴 FASE 0 — RESCATE (Seguridad)
 - **0.1:** `.env.example` creado con placeholders de todas las variables (SUPABASE, GITHUB_PAT, OWNER_PHONE, OWNER_ALIASES). Las keys reales deben rotarse manualmente.
-- **0.2:** PII telefónica (`573156602784`) movida de `permissionsConfig.js:4` a env var `OWNER_PHONE`.
+- **0.2:** PII telefónica (`15550000000`) movida de `permissionsConfig.js:4` a env var `OWNER_PHONE`.
 - **0.3:** `supabase.js` reemplaza placeholder silencioso por throw FATAL si no hay credenciales.
 - **0.4:** `.gitignore` creado en raíz del workspace. Basura documentada para eliminación manual.
 - **0.5:** `nodemon.json` ignora `ai-memory/`, `bugs/`, `graphify-out/`, `_archive/`.

@@ -2,7 +2,6 @@
 const { getActiveCharacter } = require("../../../services/characterService");
 const { useItem, getInventoryList } = require("../../../services/rpg/inventoryService");
 const { findSessionByCharacter } = require("../../../services/rpg/combatState");
-const { formatError } = require("../../../utils/formatErrorUtils");
 const { box } = require("../../../utils/boxUtils");
 
 async function showInventoryList(ctx) {
@@ -77,22 +76,18 @@ module.exports = {
     const resolved = await resolveUseTarget(ctx.args[0], character);
     if (resolved.error) return ctx.reply(resolved.error);
 
-    try {
-      const result = await useItem(ctx.sender, resolved.itemId);
+    const result = await useItem(ctx.sender, resolved.itemId);
 
-      const session = findSessionByCharacter(result.characterId);
-      if (session) {
-        updateSessionHp(session, result.characterId, result.hpAfter);
-      }
-
-      const lines = [];
-      lines.push("");
-      lines.push(`📦  ${result.itemName} usado`);
-      lines.push(`❤️  HP: ${result.hpBefore} → ${result.hpAfter}`);
-
-      return ctx.reply(box("✅ ITEM USADO", lines));
-    } catch (error) {
-      return ctx.reply(formatError(error.message));
+    const session = findSessionByCharacter(result.characterId);
+    if (session) {
+      updateSessionHp(session, result.characterId, result.hpAfter);
     }
+
+    const lines = [];
+    lines.push("");
+    lines.push(`📦  ${result.itemName} usado`);
+    lines.push(`❤️  HP: ${result.hpBefore} → ${result.hpAfter}`);
+
+    return ctx.reply(box("✅ ITEM USADO", lines));
   },
 };

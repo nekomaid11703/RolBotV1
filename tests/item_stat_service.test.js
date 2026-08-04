@@ -4,7 +4,12 @@
  */
 
 const { createItemDefinition } = require("../src/services/rpg/itemFactory");
-const { getWeaponStats, getArmorStats, getArtifactStats, getMaterialCost } = require("../src/services/rpg/itemStatService");
+const {
+  getWeaponStats,
+  getArmorStats,
+  getArtifactStats,
+  getMaterialCost,
+} = require("../src/services/rpg/itemStatService");
 
 describe("getWeaponStats — base × tier × material", () => {
   it("Aplica el multiplicador de tier al daño base", () => {
@@ -39,7 +44,7 @@ describe("getWeaponStats — base × tier × material", () => {
 describe("getArmorStats", () => {
   it("Deriva maxResist y bonusDef de la resistencia del material × tier", () => {
     const stats = getArmorStats(createItemDefinition({ id: "pech", type: "armor", material: "titanio", tier: "A" }));
-expect(stats.maxResist).toBeGreaterThan(0);
+    expect(stats.maxResist).toBeGreaterThan(0);
     expect(stats.bonusDef).toBeGreaterThan(0);
     expect(stats.coverage).toBe("media");
     expect(stats.slot).toBe("pecho");
@@ -49,7 +54,11 @@ expect(stats.maxResist).toBeGreaterThan(0);
 describe("getArtifactStats", () => {
   it("Devuelve buffs y efectos configurados", () => {
     const stats = getArtifactStats(
-      createItemDefinition({ id: "amuleto", type: "artifact", modules: { buff: { stats: { atk: 5 }, effects: ["+10 ASPD"] } } }),
+      createItemDefinition({
+        id: "amuleto",
+        type: "artifact",
+        modules: { buff: { stats: { atk: 5 }, effects: ["+10 ASPD"] } },
+      }),
     );
     expect(stats.buffs).toEqual({ atk: 5 });
     expect(stats.effects).toContain("+10 ASPD");

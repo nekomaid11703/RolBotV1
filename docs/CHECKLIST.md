@@ -1,7 +1,8 @@
 # Checklist del Proyecto — RolBotV1
 
-> Estado actualizado al 21 de Julio de 2026.  
+> Estado general actualizado al 4 de agosto de 2026.
 > Leyenda: `[x]` Completado · `[/]` En progreso · `[ ]` Pendiente
+> Las cifras incluidas dentro de fases antiguas son hitos históricos; el estado actual validado es 44 archivos y 528 pruebas.
 
 ---
 
@@ -46,6 +47,7 @@
 ## ✅ FASE 2 — Completar Versión 1.0: Inventario y Combate Melee (COMPLETADO)
 
 ### 2.1 Módulo de Inventario Básico (Consumibles)
+
 - [x] **Configuración y Catálogo**:
   - [x] Crear `src/config/inventoryConfig.js` (MAX_INVENTORY_SIZE = 20, stacks de 99).
   - [x] Crear `src/data/items.js` (catálogo precios inflados: venda=100, pocion=180, tonico=280, antidoto=200; efectos: venda=+15HP, pocion=+40HP, tonico=+80HP, antidoto=+25HP).
@@ -60,6 +62,7 @@
   - [x] Crear `tests/inventory.test.js` (14 tests en Vitest).
 
 ### 2.2 Motor de Combate Melee Determinista (D20-style)
+
 - [x] **Fundación**:
   - [x] Crear `src/config/combatConfig.js` (timeouts: 10 min reto, 48 horas turno).
   - [x] Crear `src/services/rpg/combatState.js` para sesiones en memoria activa.
@@ -84,7 +87,6 @@
 
 ---
 
-
 ## ✅ FASE 2.5 — Stats Magicas y 21 Razas Canon (COMPLETADO)
 
 - [x] **8 stats levelables**: ATK, DEF, ASPD, REF, MSPD, FULGOR, D_FULGOR, R_FULGOR
@@ -99,12 +101,9 @@
 
 ---
 
-## 🟠 FASE 3 — Calidad Avanzada y Arquitectura (PENDIENTE)
+## 🟠 FASE 3 — Calidad Avanzada y Arquitectura (PARCIAL)
 
-- [ ] **3.1 Resolver Violaciones de Capas (depcruise)**:
-  - [ ] Desacoplar `src/utils/safeQuery.js` de `loggerService.js`.
-  - [ ] Desacoplar `src/utils/groupAdminHelper.js` de `displayNameService.js`.
-  - [ ] Desacoplar `src/utils/economyAdminHelper.js` de `displayNameService.js`.
+- [x] **3.1 Resolver Violaciones de Capas (depcruise)**: 0 violaciones; los helpers administrativos viven en `src/services/` y `safeQuery` ya no depende de servicios.
 - [ ] **3.2 Remoción Gradual de `@ts-nocheck`**:
   - [ ] Retirar `@ts-nocheck` en `src/core/` (bot.js, commandHandler.js, context.js).
   - [ ] Retirar `@ts-nocheck` en `src/services/` (userService.js, economyService.js, characterService.js).
@@ -118,7 +117,7 @@
 
 ## 🔵 FASE 4 — Resiliencia y Operación (PENDIENTE)
 
-- [ ] **4.1 Reconexión Baileys**: Exponential backoff + jitter en `bot.js`.
+- [x] **4.1 Reconexión Baileys**: arranque, socket, watchdog y temporizador de reconexión protegidos.
 - [ ] **4.2 Rate Limiting**: Limitador de tasa por usuario/grupo para prevenir spam.
 - [ ] **4.3 Structured Logging**: Logs en formato JSON rotativo en `loggerService.js`.
-- [ ] **4.4 Dashboard de Monitoreo**: Métricas de uptime, RAM y tasa de errores en `statusDashboard.js`.
+- [x] **4.4 Dashboard de Monitoreo**: métricas operativas en `statusDashboard.js`.

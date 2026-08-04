@@ -9,7 +9,6 @@ const {
 } = require("../../../services/rpg/equipmentService");
 const { getInventoryList } = require("../../../services/rpg/inventoryService");
 const { getItem } = require("../../../data/items");
-const { formatError } = require("../../../utils/formatErrorUtils");
 const { formatCommandUsage } = require("../../../utils/formatCommandUtils");
 const { box } = require("../../../utils/boxUtils");
 
@@ -58,49 +57,44 @@ module.exports = {
   category: "rpg",
 
   async execute(ctx) {
-    try {
-      const activeChar = await getActiveCharacter({ creatorId: ctx.sender });
-      if (!activeChar) {
-        return ctx.reply("❌ No tienes un personaje activo. Usa `/crear_pj` o `/switch_pj`.");
-      }
-
-      const [target, slotInput] = ctx.args;
-      if (!target) {
-        return ctx.reply(usageMessage);
-      }
-
-      const resolved = await resolveTarget(target, activeChar);
-      if (resolved.error) return ctx.reply(resolved.error);
-      const { itemId } = resolved;
-
-      const itemDef = getItem(itemId);
-      let slot = slotInput ? normalizeSlot(slotInput) : null;
-
-      if (!slot) {
-        const currentSlots = await getEquippedSlots(activeChar.id);
-        slot = resolveDefaultSlot(itemDef, currentSlots);
-        if (!slot) {
-          return ctx.reply("❌ Este ítem no es equipable. Los consumibles se usan con `/usar <n>`.");
-        }
-      }
-
-      const result = await equipItem({
-        characterId: activeChar.id,
-        creatorId: ctx.sender,
-        itemId,
-        slot,
-      });
-
-      const lines = [`✅ *${activeChar.name}* equipó *${itemDef.name}* en [${result.slot}]`];
-
-      if (result.autoUnequipped.length > 0) {
-        lines.push(`🔄 Auto-desequipado: ${result.autoUnequipped.join(", ")}`);
-      }
-
-      return ctx.reply(box("⚔️ EQUIP", lines));
-    } catch (error) {
-      const msg = error instanceof Error ? error.message : String(error);
-      return ctx.reply(formatError(msg));
+    const activeChar = await getActiveCharacter({ creatorId: ctx.sender });
+    if (!activeChar) {
+      return ctx.reply("❌ No tienes un personaje activo. Usa `/crear_pj` o `/switch_pj`.");
     }
+
+    const [target, slotInput] = ctx.args;
+    if (!target) {
+      return ctx.reply(usageMessage);
+    }
+
+    const resolved = await resolveTarget(target, activeChar);
+    if (resolved.error) return ctx.reply(resolved.error);
+    const { itemId } = resolved;
+
+    const itemDef = getItem(itemId);
+    let slot = slotInput ? normalizeSlot(slotInput) : null;
+
+    if (!slot) {
+      const currentSlots = await getEquippedSlots(activeChar.id);
+      slot = resolveDefaultSlot(itemDef, currentSlots);
+      if (!slot) {
+        return ctx.reply("❌ Este ítem no es equipable. Los consumibles se usan con `/usar <n>`.");
+      }
+    }
+
+    const result = await equipItem({
+      characterId: activeChar.id,
+      creatorId: ctx.sender,
+      itemId,
+      slot,
+    });
+
+    const lines = [`✅ *${activeChar.name}* equipó *${itemDef.name}* en [${result.slot}]`];
+
+    if (result.autoUnequipped.length > 0) {
+      lines.push(`🔄 Auto-desequipado: ${result.autoUnequipped.join(", ")}`);
+    }
+
+    return ctx.reply(box("⚔️ EQUIP", lines));
   },
 };

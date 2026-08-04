@@ -1,6 +1,5 @@
 const { supabase } = require("./supabase");
 const { logSystem, logError } = require("../services/loggerService");
-const { discover } = require("./columnRegistry");
 const { checkVersion } = require("./schemaVersion");
 
 /**
@@ -36,6 +35,22 @@ const SCHEMA = {
   inventory: {
     columns: ["id", "character_id", "item_id", "quantity", "metadata", "created_at", "updated_at"],
   },
+  combat_sessions: {
+    columns: [
+      "id",
+      "is_pve",
+      "challenger",
+      "defender",
+      "current_turn_char_id",
+      "status",
+      "pending_attack",
+      "created_at",
+      "last_turn_at",
+      "winner_id",
+      "rounds",
+      "distance",
+    ],
+  },
 };
 
 /**
@@ -60,16 +75,8 @@ async function checkHealth() {
     Promise.all(
       Object.entries(SCHEMA).map(async ([table, { columns }]) => {
         try {
-          const { data, error } = await supabase.from(table).select("*").limit(1);
-          if (error) return `Tabla "${table}" inaccesible: ${error.message}`;
-          if (data && data.length > 0) {
-            /**
-             * @constant missing
-             */
-            const missing = columns.filter((col) => !(col in data[0]));
-            if (missing.length > 0)
-              return { warn: true, msg: `Tabla "${table}" sin columnas esperadas: ${missing.join(", ")}` };
-          }
+          const { error } = await supabase.from(table).select(columns.join(",")).limit(1);
+          if (error) return `Tabla "${table}" inaccesible o incompleta: ${error.message}`;
           return null;
         } catch (err) {
           return `Tabla "${table}" error: ${err instanceof Error ? err.message : String(err)}`;
@@ -88,16 +95,16 @@ async function checkHealth() {
     ),
   ]);
 
+  /** @type {string[]} */
   const errors = [];
+  /** @type {string[]} */
   const warnings = [];
 
   for (const r of tableResults) {
-    if (!r) continue;
-    if (typeof r === "string") errors.push(r);
-    else warnings.push(r.msg);
+    if (r) errors.push(r);
   }
   for (const r of colResults) {
-    if (r) warnings.push(r);
+    if (r) errors.push(r);
   }
 
   return { errors, warnings };
@@ -143,4 +150,4 @@ async function verifyStartup() {
   return results;
 }
 
-module.exports = { verifyStartup };
+module.exports = { verifyStartup, checkHealth };

@@ -16,7 +16,7 @@ class ArmorModule extends ModuleBase {
     this.bonusDef = config.bonusDef || 5;
   }
 
-  onEquip(context) {
+  onEquip(_context) {
     return {
       type: "armor",
       slot: this.slot,
@@ -26,7 +26,7 @@ class ArmorModule extends ModuleBase {
     };
   }
 
-  onUnequip(context) {
+  onUnequip(_context) {
     return {
       type: "armor_unequip",
       slot: this.slot,

@@ -152,23 +152,36 @@ function createContext(sock, msg) {
   const senderJid = isGroup ? msg.key.participant || msg.participant || from : from;
 
   /**
+   * Baileys keeps the routable LID in participant/remoteJid and exposes the
+   * stable phone-number JID separately when WhatsApp provides it.
+   */
+  const senderPn = normalizeJid(
+    isGroup
+      ? msg.key.participantPn || msg.participantPn || msg.key.senderPn || msg.senderPn
+      : msg.key.senderPn || msg.senderPn || msg.key.participantPn || msg.participantPn,
+  );
+
+  /**
    * @constant senderNumber
    */
-  const senderNumber = extractPhoneNumber(senderJid) || null;
+  const senderNumber = extractPhoneNumber(senderPn || senderJid) || null;
   /**
    * @constant senderBareJid
    */
   const senderBareJid = normalizeJid(senderJid);
+  const userId = senderPn || senderBareJid;
 
   /**
    * @constant userName
    */
   const userName = msg.pushName || senderNumber || senderBareJid.split("@")[0];
 
-  /**
-   * @constant mentionedJid
-   */
-  const mentionedJid = msg.message?.extendedTextMessage?.contextInfo?.mentionedJid || [];
+  const normalizedMessage = unwrapMessageContent(msg.message);
+  const contentMentions = Object.values(normalizedMessage)
+    .map((content) => content?.contextInfo?.mentionedJid)
+    .find((mentions) => Array.isArray(mentions));
+  const contextMentions = normalizedMessage.messageContextInfo?.mentionedJid;
+  const mentionedJid = contentMentions || (Array.isArray(contextMentions) ? contextMentions : []);
 
   /**
    * @constant messageType
@@ -186,9 +199,10 @@ function createContext(sock, msg) {
     chatJid: from,
     sender: senderJid,
     senderJid,
+    senderPn: senderPn || null,
     senderNumber,
     senderBareJid,
-    userId: senderJid,
+    userId,
     userName,
     isGroup,
     text,

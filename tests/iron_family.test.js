@@ -173,10 +173,30 @@ describe("Resolución de equipo (puente real al catálogo)", () => {
       return { select: vi.fn(), update: vi.fn() };
     });
 
-    require.cache[supabasePath] = { id: supabasePath, filename: supabasePath, loaded: true, exports: { supabase: { from: mockFrom } } };
-    require.cache[loggerPath] = { id: loggerPath, filename: loggerPath, loaded: true, exports: { logError: vi.fn(), logSystem: vi.fn() } };
-    require.cache[columnRegistryPath] = { id: columnRegistryPath, filename: columnRegistryPath, loaded: true, exports: { filterExisting: vi.fn((_t, p) => p) } };
-    require.cache[safeQueryPath] = { id: safeQueryPath, filename: safeQueryPath, loaded: true, exports: { invalidateUserCache: vi.fn() } };
+    require.cache[supabasePath] = {
+      id: supabasePath,
+      filename: supabasePath,
+      loaded: true,
+      exports: { supabase: { from: mockFrom } },
+    };
+    require.cache[loggerPath] = {
+      id: loggerPath,
+      filename: loggerPath,
+      loaded: true,
+      exports: { logError: vi.fn(), logSystem: vi.fn() },
+    };
+    require.cache[columnRegistryPath] = {
+      id: columnRegistryPath,
+      filename: columnRegistryPath,
+      loaded: true,
+      exports: { filterExisting: vi.fn((_t, p) => p) },
+    };
+    require.cache[safeQueryPath] = {
+      id: safeQueryPath,
+      filename: safeQueryPath,
+      loaded: true,
+      exports: { invalidateUserCache: vi.fn() },
+    };
 
     delete require.cache[require.resolve("../src/services/rpg/equipmentService")];
     delete require.cache[require.resolve("../src/services/rpg/equipmentResolverService")];
@@ -196,7 +216,13 @@ describe("Resolución de equipo (puente real al catálogo)", () => {
 
   it("Pechera equipada con metadata → DurabilityModule de la pieza", async () => {
     mockSlots = { pecho: "pechera_de_hierro" };
-    mockInventory = [{ item_id: "pechera_de_hierro", quantity: 1, metadata: { durability: { maxResist: 62, currentResist: 30, isRepairable: true } } }];
+    mockInventory = [
+      {
+        item_id: "pechera_de_hierro",
+        quantity: 1,
+        metadata: { durability: { maxResist: 62, currentResist: 30, isRepairable: true } },
+      },
+    ];
     const { resolveDefenderArmor } = require("../src/services/rpg/equipmentResolverService");
     const armor = await resolveDefenderArmor(1);
     expect(armor.list.length).toBe(1);

@@ -22,7 +22,7 @@ function resolveTarget(ctx) {
   }
 
   return {
-    userId: ctx.sender,
+    userId: ctx.userId || ctx.sender,
     isSelf: true,
   };
 }
@@ -50,12 +50,12 @@ module.exports = {
      */
     const data = target.isSelf
       ? await getOrCreateProfile({
-          creatorId: ctx.sender,
+          creatorId: target.userId,
           creatorName: ctx.userName,
           registration: {
             source: "balance",
             scope: "self",
-            createdBy: ctx.sender,
+            createdBy: target.userId,
           },
         })
       : await getUserProfile({

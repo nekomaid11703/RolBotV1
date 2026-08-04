@@ -59,7 +59,11 @@ async function persistDurability({ characterId, creatorId, itemId, durability })
     [METADATA_COLUMN]: metadata,
     updated_at: new Date().toISOString(),
   });
-  const { error } = await supabase.from("inventory").update(payload).eq("character_id", characterId).eq("item_id", itemId);
+  const { error } = await supabase
+    .from("inventory")
+    .update(payload)
+    .eq("character_id", characterId)
+    .eq("item_id", itemId);
 
   if (error) {
     if (/does not exist|could not find|PGRST204/.test(String(error.message || ""))) {

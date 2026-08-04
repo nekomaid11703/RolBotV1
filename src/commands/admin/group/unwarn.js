@@ -4,7 +4,6 @@ const { getFirstMentionedJid } = require("../../../utils/commandParseUtils");
 const { formatDisplayMention, withMentions } = require("../../../utils/userMentionUtils");
 const { resolveTargetDisplayName } = require("../../../services/displayNameService");
 const { box } = require("../../../utils/boxUtils");
-const { formatError } = require("../../../utils/formatErrorUtils");
 
 module.exports = {
   name: "unwarn",
@@ -30,39 +29,35 @@ module.exports = {
       return ctx.reply("❌ Debes mencionar al usuario.\n\nUso: /unwarn @usuario");
     }
 
-    try {
-      /**
-       * @constant currentWarns
-       */
-      const currentWarns = await getWarns(ctx.from, targetId);
-      /**
-       * @constant warnCount
-       */
-      const warnCount = currentWarns.count;
+    /**
+     * @constant currentWarns
+     */
+    const currentWarns = await getWarns(ctx.from, targetId);
+    /**
+     * @constant warnCount
+     */
+    const warnCount = currentWarns.count;
 
-      if (warnCount <= 0) {
-        return ctx.reply("❌ Ese usuario no tiene warns activos.");
-      }
-
-      /**
-       * @constant targetName
-       */
-      const targetName = await resolveTargetDisplayName(ctx, targetId);
-      await deleteWarn(ctx.from, targetId);
-
-      await ctx.reply(
-        withMentions(
-          box("✅ Warn eliminado", [
-            "",
-            `👤  ${formatDisplayMention(targetId, targetName)}`,
-            "",
-            `Warns restantes: ${warnCount - 1}`,
-          ]),
-          [targetId],
-        ),
-      );
-    } catch (error) {
-      await ctx.reply(formatError(error.message));
+    if (warnCount <= 0) {
+      return ctx.reply("❌ Ese usuario no tiene warns activos.");
     }
+
+    /**
+     * @constant targetName
+     */
+    const targetName = await resolveTargetDisplayName(ctx, targetId);
+    await deleteWarn(ctx.from, targetId);
+
+    await ctx.reply(
+      withMentions(
+        box("✅ Warn eliminado", [
+          "",
+          `👤  ${formatDisplayMention(targetId, targetName)}`,
+          "",
+          `Warns restantes: ${warnCount - 1}`,
+        ]),
+        [targetId],
+      ),
+    );
   },
 };

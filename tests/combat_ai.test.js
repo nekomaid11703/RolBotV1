@@ -1,21 +1,19 @@
 const { createDummySession, removeSession } = require("../src/services/rpg/combatState");
 const CombatAI = require("../src/services/rpg/combatAI");
+const { supabase } = require("../src/database/supabase");
 
-vi.mock("../../src/database/supabase", () => ({
-  supabase: {
-    from: vi.fn(() => ({
-      upsert: vi.fn(async () => ({ error: null })),
-      delete: vi.fn(() => ({
-        eq: vi.fn(async () => ({ error: null })),
-      })),
-      select: vi.fn(() => ({
-        eq: vi.fn(() => ({
-          maybeSingle: vi.fn(async () => ({ data: null })),
-        })),
-      })),
+beforeEach(() => {
+  vi.spyOn(supabase, "from").mockImplementation(() => ({
+    upsert: vi.fn(async () => ({ error: null })),
+    delete: vi.fn(() => ({
+      eq: vi.fn(async () => ({ error: null })),
     })),
-  },
-}));
+  }));
+});
+
+afterEach(() => {
+  vi.restoreAllMocks();
+});
 
 describe("CombatAI & Dummy Generation", () => {
   const challengerChar = {

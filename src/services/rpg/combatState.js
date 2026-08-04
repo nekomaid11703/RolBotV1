@@ -13,7 +13,26 @@ const { buildDummyEquipment } = require("./dummyEquipment");
  * @type {Map<*, *>}
  */
 const sessions = new Map();
+/** @type {Map<string, *>} */
+const persistedSnapshots = new Map();
 let cleanupInterval = null;
+
+function cloneSession(session) {
+  return structuredClone(session);
+}
+
+function rememberPersistedSession(session) {
+  persistedSnapshots.set(session.id, cloneSession(session));
+}
+
+function restorePersistedSession(session) {
+  const snapshot = persistedSnapshots.get(session.id);
+  if (!snapshot) return;
+  for (const key of Object.keys(session)) {
+    if (!(key in snapshot)) delete session[key];
+  }
+  Object.assign(session, cloneSession(snapshot));
+}
 
 /**
  * Genera un personaje dummy para combate de práctica PvE.
@@ -57,7 +76,7 @@ function generateDummyCharacter(challengerChar) {
     /**
      * @constant variation
      */
-    const variation = Math.floor((Math.random() * 0.4 - 0.2) * basePerStat); // eslint-disable-line sonarjs/pseudo-random
+    const variation = Math.floor((Math.random() * 0.4 - 0.2) * basePerStat);
     dummyStats[key] = Math.max(1, basePerStat + variation);
   }
 
@@ -77,7 +96,7 @@ function generateDummyCharacter(challengerChar) {
   const dummyHp = Math.max(1, Math.floor(totalPoints / keys.length));
 
   return {
-    id: `dummy_${Date.now()}_${Math.floor(Math.random() * 1000)}`, // eslint-disable-line sonarjs/pseudo-random
+    id: `dummy_${Date.now()}_${Math.floor(Math.random() * 1000)}`,
 
     name: "Maniqu\u00ed de Pr\u00e1ctica",
     nivel: totalPoints,
@@ -127,13 +146,13 @@ async function saveSession(session) {
       last_turn_at: session.lastTurnAt,
       winner_id: session.winnerId,
       rounds: session.rounds,
+      distance: session.distance,
     };
     const { error } = await supabase.from("combat_sessions").upsert(payload, { onConflict: "id" });
-    if (error) {
-      logError({ source: "combatState.saveSession", error });
-    }
+    if (error) throw error;
   } catch (err) {
-    logError({ source: "combatState.saveSession", error: err });
+    await logError({ source: "combatState.saveSession", error: err });
+    throw err;
   }
 }
 
@@ -144,12 +163,35 @@ async function saveSession(session) {
 async function deleteSessionFromDb(sessionId) {
   try {
     const { error } = await supabase.from("combat_sessions").delete().eq("id", sessionId);
-    if (error) {
-      logError({ source: "combatState.deleteSessionFromDb", error });
-    }
+    if (error) throw error;
   } catch (err) {
-    logError({ source: "combatState.deleteSessionFromDb", error: err });
+    await logError({ source: "combatState.deleteSessionFromDb", error: err });
+    throw err;
   }
+}
+
+/**
+ * Persiste el siguiente estado antes de publicarlo en la caché en memoria.
+ * @param {*} session - Sesión actual
+ * @param {(next: *) => void} mutate - Cambio a aplicar sobre una copia
+ * @returns {Promise<*>} Sesión actualizada
+ */
+async function persistSessionUpdate(session, mutate) {
+  const next = {
+    ...session,
+    challenger: { ...session.challenger },
+    defender: { ...session.defender },
+  };
+  mutate(next);
+  try {
+    await saveSession(next);
+  } catch (error) {
+    restorePersistedSession(session);
+    throw error;
+  }
+  Object.assign(session, next);
+  rememberPersistedSession(session);
+  return session;
 }
 
 /**
@@ -163,10 +205,7 @@ async function loadSessionsFromDb() {
       .select("*")
       .in("status", [SESSION_STATES.WAITING_ACTION, SESSION_STATES.WAITING_REACTION]);
 
-    if (error) {
-      logError({ source: "combatState.loadSessionsFromDb", error });
-      return [];
-    }
+    if (error) throw error;
 
     return (data || []).map((row) => ({
       id: row.id,
@@ -180,10 +219,11 @@ async function loadSessionsFromDb() {
       lastTurnAt: row.last_turn_at,
       winnerId: row.winner_id,
       rounds: row.rounds,
+      distance: Number(row.distance ?? 5),
     }));
   } catch (err) {
-    logError({ source: "combatState.loadSessionsFromDb", error: err });
-    return [];
+    await logError({ source: "combatState.loadSessionsFromDb", error: err });
+    throw err;
   }
 }
 
@@ -273,8 +313,9 @@ async function createSession(challengerId, defenderId, challengerChar, defenderC
     rounds: 0,
   };
 
-  sessions.set(sessionId, session);
   await saveSession(session);
+  rememberPersistedSession(session);
+  sessions.set(sessionId, session);
 
   return session;
 }
@@ -285,9 +326,11 @@ async function createSession(challengerId, defenderId, challengerChar, defenderC
  */
 async function updateDistance(sessionId, newDistance) {
   const session = sessions.get(sessionId);
-  if (!session) return;
-  session.distance = newDistance;
-  session.lastTurnAt = Date.now();
+  if (!session || !isSessionActive(session)) return null;
+  return persistSessionUpdate(session, (next) => {
+    next.distance = newDistance;
+    next.lastTurnAt = Date.now();
+  });
 }
 
 /**
@@ -343,8 +386,9 @@ async function createDummySession(challengerId, challengerChar) {
     distance: 5,
   };
 
-  sessions.set(sessionId, session);
   await saveSession(session);
+  rememberPersistedSession(session);
+  sessions.set(sessionId, session);
 
   return session;
 }
@@ -377,8 +421,10 @@ function findSessionByCharacter(characterId) {
       String(session.defender.characterId) === targetIdStr
     ) {
       if (isSessionExpired(session)) {
-        expireSession(session.id, "timeout");
-        continue;
+        void expireSession(session.id, "timeout").catch((error) =>
+          logError({ source: "combatState.findSessionByCharacter", error }),
+        );
+        return session;
       }
       return session;
     }
@@ -396,8 +442,10 @@ function findSessionByUser(userId) {
     if (!isSessionActive(session)) continue;
     if (session.challenger.userId === userId || session.defender.userId === userId) {
       if (isSessionExpired(session)) {
-        expireSession(session.id, "timeout");
-        continue;
+        void expireSession(session.id, "timeout").catch((error) =>
+          logError({ source: "combatState.findSessionByUser", error }),
+        );
+        return session;
       }
       return session;
     }
@@ -472,24 +520,22 @@ async function advanceTurn(sessionId, newAttackerHp, newDefenderHp, skipRound = 
     actor: session.currentTurnCharId,
   });
 
-  session.challenger.hp = newAttackerHp;
-  session.defender.hp = newDefenderHp;
-  session.lastTurnAt = Date.now();
-  if (!skipRound) session.rounds += 1;
-  session.pendingAttack = null;
-  session.status = SESSION_STATES.WAITING_ACTION;
+  await persistSessionUpdate(session, (next) => {
+    next.challenger.hp = newAttackerHp;
+    next.defender.hp = newDefenderHp;
+    next.lastTurnAt = Date.now();
+    if (!skipRound) next.rounds += 1;
+    next.pendingAttack = null;
+    next.status = SESSION_STATES.WAITING_ACTION;
 
-  session.currentTurnCharId =
-    session.currentTurnCharId === session.challenger.characterId
-      ? session.defender.characterId
-      : session.challenger.characterId;
+    next.currentTurnCharId =
+      next.currentTurnCharId === next.challenger.characterId ? next.defender.characterId : next.challenger.characterId;
+  });
 
   triggerModuleEvent(session, "TurnStart", {
     session,
     actor: session.currentTurnCharId,
   });
-
-  await saveSession(session);
 
   return session;
 }
@@ -507,10 +553,11 @@ async function setPendingReaction(sessionId, pendingData) {
   const session = sessions.get(sessionId);
   if (!session || !isSessionActive(session)) return null;
 
-  session.status = SESSION_STATES.WAITING_REACTION;
-  session.pendingAttack = pendingData;
-  await saveSession(session);
-  return session;
+  return persistSessionUpdate(session, (next) => {
+    next.status = SESSION_STATES.WAITING_REACTION;
+    next.pendingAttack = pendingData;
+    next.lastTurnAt = Date.now();
+  });
 }
 
 /**
@@ -526,12 +573,12 @@ async function endSession(sessionId, winnerCharId) {
   const session = sessions.get(sessionId);
   if (!session) return null;
 
-  session.status = SESSION_STATES.COMPLETED;
-  session.winnerId = winnerCharId;
+  await persistSessionUpdate(session, (next) => {
+    next.status = SESSION_STATES.COMPLETED;
+    next.winnerId = winnerCharId;
+  });
 
   triggerModuleEvent(session, "CombatEnd", { session, winnerId: winnerCharId });
-
-  await saveSession(session);
   const { cleanupTemporalItems } = require("./inventoryService");
   /**
    * @constant challengerId
@@ -542,8 +589,12 @@ async function endSession(sessionId, winnerCharId) {
    */
   const defenderId = session.defender.characterId;
   await Promise.all([
-    cleanupTemporalItems(challengerId).catch(() => {}),
-    cleanupTemporalItems(defenderId).catch(() => {}),
+    cleanupTemporalItems(challengerId).catch((error) =>
+      logError({ source: "combatState.cleanupTemporalItems", error, context: { characterId: challengerId } }),
+    ),
+    cleanupTemporalItems(defenderId).catch((error) =>
+      logError({ source: "combatState.cleanupTemporalItems", error, context: { characterId: defenderId } }),
+    ),
   ]);
 
   return session;
@@ -562,11 +613,9 @@ async function expireSession(sessionId, _reason) {
   const session = sessions.get(sessionId);
   if (!session) return null;
 
-  session.status = SESSION_STATES.EXPIRED;
-
-  await saveSession(session);
-
-  return session;
+  return persistSessionUpdate(session, (next) => {
+    next.status = SESSION_STATES.EXPIRED;
+  });
 }
 
 /**
@@ -574,8 +623,9 @@ async function expireSession(sessionId, _reason) {
  * @param {string} sessionId - - ID de la sesión a eliminar.
  */
 async function removeSession(sessionId) {
-  sessions.delete(sessionId);
   await deleteSessionFromDb(sessionId);
+  sessions.delete(sessionId);
+  persistedSnapshots.delete(sessionId);
 }
 
 /**
@@ -616,8 +666,7 @@ async function cleanup() {
   }
 
   for (const id of toRemove) {
-    sessions.delete(id);
-    await deleteSessionFromDb(id);
+    await removeSession(id);
   }
 
   if (toExpire.length > 0 || toRemove.length > 0) {
@@ -640,6 +689,7 @@ async function restoreSessions() {
       await saveSession(session);
     } else {
       sessions.set(session.id, session);
+      rememberPersistedSession(session);
     }
   }
 
@@ -653,7 +703,7 @@ function startCleanupInterval() {
   if (cleanupInterval) return;
   cleanupInterval = setInterval(
     () => {
-      cleanup();
+      cleanup().catch((error) => logError({ source: "combatState.cleanup", error }));
     },
     5 * 60 * 1000,
   );

@@ -24,7 +24,11 @@ const ACTIVITY_TIMEOUT_MS = 15000;
 function withTimeout(promise, ms) {
   let timer = null;
   const timeout = new Promise((_, reject) => {
-    timer = setTimeout(() => reject(new Error("activity timeout")), ms);
+    timer = setTimeout(() => {
+      const error = new Error("activity timeout");
+      error.code = "ACTIVITY_TIMEOUT";
+      reject(error);
+    }, ms);
   });
   return Promise.race([promise, timeout]).finally(() => clearTimeout(timer));
 }
@@ -52,7 +56,7 @@ async function recordUserAndGroupActivity(ctx, rawMsg) {
   /**
    * @constant userId
    */
-  const userId = ctx.senderJid || ctx.sender;
+  const userId = ctx.userId || ctx.senderJid || ctx.sender;
   /**
    * @constant creatorName
    */
@@ -73,57 +77,72 @@ async function recordUserAndGroupActivity(ctx, rawMsg) {
 
   incrementMessages();
 
-  try {
-    await recordUserActivity({
+  const activityTasks = [
+    recordUserActivity({
       creatorId: userId,
       creatorName,
       displayName: creatorName,
       pushName: rawMsg.pushName || creatorName,
-      senderJid: userId,
+      senderJid: ctx.senderJid || ctx.sender,
       senderNumber: ctx.senderNumber || null,
       messageType: ctx.messageType,
       messageCount: 1,
       isText: isTextMessage,
       registration,
-    });
-  } catch (error) {
-    await logError({
-      source: "recordUserActivity",
-      userId,
-      userName: creatorName,
-      groupId: ctx.from,
-      error,
-      context: {
-        pushName: rawMsg.pushName || null,
-        remoteJid: rawMsg.key?.remoteJid || null,
-        messageType: ctx.messageType,
+    }).then(
+      () => null,
+      async (error) => {
+        await logError({
+          source: "recordUserActivity",
+          userId,
+          userName: creatorName,
+          groupId: ctx.from,
+          error,
+          context: {
+            pushName: rawMsg.pushName || null,
+            remoteJid: rawMsg.key?.remoteJid || null,
+            messageType: ctx.messageType,
+          },
+        });
+        return error;
       },
-    });
-  }
+    ),
+  ];
 
   if (ctx.isGroup) {
-    try {
-      await recordGroupActivity({
+    activityTasks.push(
+      recordGroupActivity({
         groupId: ctx.from,
         memberId: userId,
         memberName: creatorName,
         messageType: ctx.messageType,
         messageCount: 1,
         isText: isTextMessage,
-      });
-    } catch (error) {
-      await logError({
-        source: "recordGroupActivity",
-        userId,
-        userName: creatorName,
-        groupId: ctx.from,
-        error,
-        context: {
-          messageType: ctx.messageType,
-          remoteJid: rawMsg.key?.remoteJid || null,
+      }).then(
+        () => null,
+        async (error) => {
+          await logError({
+            source: "recordGroupActivity",
+            userId,
+            userName: creatorName,
+            groupId: ctx.from,
+            error,
+            context: {
+              messageType: ctx.messageType,
+              remoteJid: rawMsg.key?.remoteJid || null,
+            },
+          });
+          return error;
         },
-      });
-    }
+      ),
+    );
+  }
+
+  const failures = (await Promise.all(activityTasks)).filter(Boolean);
+  if (failures.length > 0) {
+    const error = new AggregateError(failures, `${failures.length} actividad(es) no se pudieron persistir`);
+    error.code = "ACTIVITY_WRITE_FAILED";
+    throw error;
   }
 
   return isTextMessage;
@@ -157,7 +176,8 @@ async function processSingleMessage(rawMsg, sock) {
     await withTimeout(recordUserAndGroupActivity(ctx, rawMsg), ACTIVITY_TIMEOUT_MS);
     await logSystem("MSG_ACTIVITY_OK", { elapsedMs: Date.now() - startedAt });
   } catch (activityError) {
-    await logSystem("MSG_ACTIVITY_TIMEOUT", {
+    const event = activityError?.code === "ACTIVITY_TIMEOUT" ? "MSG_ACTIVITY_TIMEOUT" : "MSG_ACTIVITY_ERROR";
+    await logSystem(event, {
       elapsedMs: Date.now() - startedAt,
       error: activityError instanceof Error ? activityError.message : String(activityError),
     });

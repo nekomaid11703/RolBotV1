@@ -34,17 +34,6 @@ function formatReactionPrompt(attackerName, defenderName, baseDamage, canDodgeSu
 }
 
 /**
- * Genera las líneas de equipo de un combatiente para la UI de combate.
- * Muestra arma, piezas de armadura con durabilidad, artefactos y bonos de set.
- * Delegado a equipmentSections (sin emojis de ítem).
- * @param {object} eq - Resumen de equipo (resolveCharacterEquipment)
- * @returns {string[]} Líneas de equipo formateadas (vacío si no hay equipo)
- */
-function formatEquipmentSummary(eq) {
-  return equipmentSectionLines(eq);
-}
-
-/**
  * Formatea el mensaje de apertura de combate con estadísticas de ambos participantes.
  * @param {*} session - Sesión de combate
  * @param {boolean} [hasTestKit] - Si el personaje tiene kit de prueba
@@ -180,7 +169,6 @@ module.exports = {
   buildStatSummary,
   formatActionMenu,
   formatReactionPrompt,
-  formatEquipmentSummary,
   formatCombatOpen,
   formatCombatStatus,
   formatFlee,

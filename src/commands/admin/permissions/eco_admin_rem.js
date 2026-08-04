@@ -70,33 +70,29 @@ module.exports = {
       );
     }
 
-    try {
-      await setEconomyAdmin({
-        userId: targetId,
-        userName: targetName,
-        enabled: false,
-        createIfMissing: false,
-        registration: {
-          source: "eco_admin_rem",
-          scope: "target",
-          createdBy: ctx.sender,
-          displayName: targetName,
-        },
-      });
+    await setEconomyAdmin({
+      userId: targetId,
+      userName: targetName,
+      enabled: false,
+      createIfMissing: false,
+      registration: {
+        source: "eco_admin_rem",
+        scope: "target",
+        createdBy: ctx.sender,
+        displayName: targetName,
+      },
+    });
 
-      await ctx.reply(
-        withMentions(
-          box("🛡️ Permiso retirado", [
-            "",
-            `👤  ${formatDisplayMention(targetId, targetName)}`,
-            "",
-            "Ya no es administrador de economia.",
-          ]),
-          [targetId],
-        ),
-      );
-    } catch (error) {
-      await ctx.reply(formatError(error.message));
-    }
+    await ctx.reply(
+      withMentions(
+        box("🛡️ Permiso retirado", [
+          "",
+          `👤  ${formatDisplayMention(targetId, targetName)}`,
+          "",
+          "Ya no es administrador de economia.",
+        ]),
+        [targetId],
+      ),
+    );
   },
 };
