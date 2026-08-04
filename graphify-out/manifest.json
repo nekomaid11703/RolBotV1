@@ -160,13 +160,13 @@
     "semantic_hash": ""
   },
   "tests/test_supabase_schema.js": {
-    "mtime": 1784072083.2085261,
-    "ast_hash": "ca50c8a899d8e5625258dcd01f487350",
+    "mtime": 1785878952.537163,
+    "ast_hash": "b13d74b32ed682de3086dd60c9998486",
     "semantic_hash": ""
   },
   "AGENTS.md": {
-    "mtime": 1785871722.520076,
-    "ast_hash": "5d15c02c4da3b3a6492e639f2a2ca035",
+    "mtime": 1785878672.2872362,
+    "ast_hash": "63ee7ead586683e17156691336b1c1d0",
     "semantic_hash": ""
   },
   "CHANGELOG.md": {
@@ -714,11 +714,6 @@
     "ast_hash": "53aedbc32dfe5d23f518914668b1618b",
     "semantic_hash": ""
   },
-  "src/database/migrations/002_rename_stats_keys.sql": {
-    "mtime": 1784769728.8482378,
-    "ast_hash": "22ce3ae63de54572781644a8021848c3",
-    "semantic_hash": ""
-  },
   "src/services/rpg/combatEngine.js": {
     "mtime": 1785857111.5489476,
     "ast_hash": "d0df8298db515a9d3257cd1e6308f2fe",
@@ -1195,8 +1190,8 @@
     "semantic_hash": ""
   },
   "memory/technical_debt.md": {
-    "mtime": 1785872616.3550463,
-    "ast_hash": "047e30b03ab737745af1b11f08b51694",
+    "mtime": 1785878846.711231,
+    "ast_hash": "c602ab3507fc12dc17d8777a8f557561",
     "semantic_hash": ""
   },
   "src/data/armorSets.js": {
@@ -1352,6 +1347,11 @@
   "tests/supabase_config.test.js": {
     "mtime": 1785871733.633905,
     "ast_hash": "6f063386a1a46b38a94687506ee5b6dd",
+    "semantic_hash": ""
+  },
+  "src/database/migrations/005_rename_stats_keys.sql": {
+    "mtime": 1784769728.8482378,
+    "ast_hash": "22ce3ae63de54572781644a8021848c3",
     "semantic_hash": ""
   }
 }

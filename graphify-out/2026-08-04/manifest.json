@@ -50,8 +50,8 @@
     "semantic_hash": ""
   },
   "src/core/eventHandler.js": {
-    "mtime": 1785871731.071205,
-    "ast_hash": "694ff942ce0430fc08c302ddd0ddb813",
+    "mtime": 1785878027.910515,
+    "ast_hash": "67a2d9a8c54ea48982a023d73a47320e",
     "semantic_hash": ""
   },
   "src/core/supabaseAuthState.js": {
@@ -1195,8 +1195,8 @@
     "semantic_hash": ""
   },
   "memory/technical_debt.md": {
-    "mtime": 1785857105.5036192,
-    "ast_hash": "072c702940a4249cd12b8aa05d0e70f7",
+    "mtime": 1785872616.3550463,
+    "ast_hash": "047e30b03ab737745af1b11f08b51694",
     "semantic_hash": ""
   },
   "src/data/armorSets.js": {
@@ -1270,62 +1270,62 @@
     "semantic_hash": ""
   },
   "src/database/migrations/004_harden_inventory_access.sql": {
-    "mtime": 1785867429.4032671,
-    "ast_hash": "7aff4f7c2d62d6787c1d14e3e566a403",
+    "mtime": 1785871731.3164208,
+    "ast_hash": "c319fee9260dd847448ddb3b35b4a6c4",
     "semantic_hash": ""
   },
   "tests/activity_ux_optimization.test.js": {
-    "mtime": 1785867788.2765794,
+    "mtime": 1785871732.7014081,
     "ast_hash": "c07baf93727168786f48504af8a28b21",
     "semantic_hash": ""
   },
   "tests/bot_lifecycle.test.js": {
-    "mtime": 1785864182.2725368,
+    "mtime": 1785871732.709417,
     "ast_hash": "cb7df9ec4ca2ed857188d0ffc99a9e72",
     "semantic_hash": ""
   },
   "tests/bugreport_command.test.js": {
-    "mtime": 1785864182.2735338,
+    "mtime": 1785871732.7114165,
     "ast_hash": "b19d59be7b4091fc52b62e44cde924a1",
     "semantic_hash": ""
   },
   "tests/cache_state.test.js": {
-    "mtime": 1785864235.6143446,
+    "mtime": 1785871732.7134216,
     "ast_hash": "26063c78ec6ee9676c7d2c9b4502f6dc",
     "semantic_hash": ""
   },
   "tests/command_handler_error.test.js": {
-    "mtime": 1785867844.880789,
+    "mtime": 1785871732.722425,
     "ast_hash": "778045c148f61f7a5b2fb8455b7c3f67",
     "semantic_hash": ""
   },
   "tests/security_boundaries.test.js": {
-    "mtime": 1785867691.7339382,
+    "mtime": 1785871733.6209135,
     "ast_hash": "b84a917ead38f9f6da80e35c5a774aa3",
     "semantic_hash": ""
   },
   "tests/supabase_auth_state.test.js": {
-    "mtime": 1785864182.279519,
+    "mtime": 1785871733.6319163,
     "ast_hash": "332337f1f187a8d96182e641339b84d8",
     "semantic_hash": ""
   },
   "AUDITORIA_COMPLETA.md": {
-    "mtime": 1785867995.5603068,
-    "ast_hash": "3fd4d32b9fd580f267eb053e6944388b",
+    "mtime": 1785871722.5530767,
+    "ast_hash": "7a6817fd93ede39ad192f8baaf052fac",
     "semantic_hash": ""
   },
   "tests/combat_state_persistence.test.js": {
-    "mtime": 1785867724.7740722,
-    "ast_hash": "36c7ae85b48e37f42e1f434522decc71",
+    "mtime": 1785871732.7204163,
+    "ast_hash": "f7551eef0b1af6efee5c15aa872eb155",
     "semantic_hash": ""
   },
   "src/services/economyAdminHelper.js": {
-    "mtime": 1785866165.6760633,
+    "mtime": 1785871731.7009022,
     "ast_hash": "22629e6afbad8ec7c780380e84b0a129",
     "semantic_hash": ""
   },
   "src/services/groupAdminHelper.js": {
-    "mtime": 1785866165.645581,
+    "mtime": 1785871731.711915,
     "ast_hash": "1c2b87c9b841f434454feec72df5de86",
     "semantic_hash": ""
   },
@@ -1335,23 +1335,23 @@
     "semantic_hash": ""
   },
   "REPORTE_WHATSAPP.md": {
-    "mtime": 1785867995.561304,
-    "ast_hash": "94ea7473389c3048d51b963d2d010b95",
+    "mtime": 1785871722.5720706,
+    "ast_hash": "d962cb6dde81f0d1004e5ac903258fbf",
     "semantic_hash": ""
   },
   "tests/event_handler_activity.test.js": {
-    "mtime": 1785867717.3034494,
-    "ast_hash": "9821f4e71205d157c0c0dd5c0349b248",
+    "mtime": 1785878196.0957937,
+    "ast_hash": "accb876bb8e2df3de58cc2ea13a6912b",
     "semantic_hash": ""
   },
   "tests/schema_runtime.test.js": {
-    "mtime": 1785867736.2716413,
-    "ast_hash": "8e13fc1cf201c2dd7e563087812de73f",
+    "mtime": 1785871733.6189165,
+    "ast_hash": "e8ba4dcece178591d48422cd3b4bf168",
     "semantic_hash": ""
   },
   "tests/supabase_config.test.js": {
-    "mtime": 1785867684.8749523,
-    "ast_hash": "8bcd5979b52534a98fe8cd3b3ca3a0d6",
+    "mtime": 1785871733.633905,
+    "ast_hash": "6f063386a1a46b38a94687506ee5b6dd",
     "semantic_hash": ""
   }
 }

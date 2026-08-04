@@ -118,5 +118,7 @@
   "116": "002_rename_stats_keys.sql",
   "117": "supabase_auth_state.test.js",
   "118": "command_format.test.js",
+  "119": "test_supabase_schema.js",
+  "120": "005_rename_stats_keys.sql",
   "124": "throwable.js"
 }

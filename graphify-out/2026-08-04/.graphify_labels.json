@@ -116,6 +116,7 @@
   "114": "Entity",
   "115": "bugreport.js",
   "116": "002_rename_stats_keys.sql",
+  "117": "supabase_auth_state.test.js",
   "118": "command_format.test.js",
   "124": "throwable.js"
 }
