@@ -1,6 +1,6 @@
 # Guía de Creación de Ítems
 
-> Versión: 1.1.0 — Reglas canónicas para crear ítems coherentes con el sistema.
+> Versión: 1.2.0 — Reglas canónicas para crear ítems coherentes con el sistema.
 > Fuente de verdad: `docs/item_system_specification.md` + código en `src/`.
 
 ## 1. Anatomía de un ítem
@@ -74,20 +74,40 @@ La pieza MÁS pesada del conjunto impone la regla. La cobertura NO modifica la d
 - **Meta (velocista): 64.6%** — falla el target ≤55%: hallazgo del MOTOR (bono de set {def:+10} y amuleto {atk:+5} refuerzan la ventaja), no del simulador.
 - **El nivel no predice victoria** (36.2% para el mayor nivel): progresión real viene del EQUIPO (tier), no de las stats.
 
+## 7.1a. Re-baseline v2: techo de 20 rounds + HP×3 + cobertura coherente (baseline 2000 sims)
+
+Decisión de diseño (usuario): una pelea de más de 20 rounds se vuelve aburrida → `MAX_ROUNDS` 50→20 (solo simulación). El sweep de fatiga demostró que la fatiga NO acorta la cola larga (6 candidatos × 2000 sims, todos ~9.3-9.7 rounds: el driver real es el dodge determinista mspd>aspd, mantenido por decisión); la palanca efectiva fue **HP_STAT_MULTIPLIER 5→3** (pool medio 215→~130). Además la cobertura ahora se sortea UNA vez por fighter (antes "la más pesada manda" aplastaba la varianza: 65% total / 0.5% ligera).
+
+| Métrica | techo 50 + HP5 | techo 20 + HP3 |
+|---------|----------------|----------------|
+| Turnos subset parejo | 12.06 (target 7.0 ❌) | **7.50 ✅** |
+| Ventaja primer atacante | 2.1% ✅ | 2.6% ✅ |
+| Timeouts | 88 (4.4%) | 184 (9.2%) — piso del dodge determinista |
+| Duración media / P90 | ~12 / 26 | **7.20 / 20** |
+| Cobertura dominante | total 65% (sin varianza) | alta 55% (escudo fijo) · total 24% · media 11% · ligera 10% |
+| Rests P50/P90 | 3/4 | 2/2 |
+| Meta | velocista 64.6% ❌ | tanque 67.1% ❌ (motor, sin maquillar) |
+
+El desempate de timeout por HP residual (regla del motor) queda expuesto como sesgo medido: 62% de los timeouts tienen al perdedor con ≥50% del HP del ganador (combates aún disputados al corte).
+
 ## 7.2. Experimentos de equipamiento (16 presets × 1000 sims, `run_equipment_experiments.js`)
+
+Resultados bajo el balance actual (techo 20 + HP×3):
 
 | Preset | Efecto medido |
 |--------|---------------|
-| amuleto_off → on | ATK medio 46→54, rounds 12.8→10.2, KO 96.9% — acelera el combate |
-| escudo_off → on | Sin efecto significativo (rounds 12.0→12.1) — el escudo suma resistencia, no modifica el meta |
-| cobertura ligera/media | Invierten la ventaja del primer atacante (48.7/47.2%) — el costo de aproximación pesa |
-| cobertura alta/total | Primer atacante ≈52% — empate; combates más largos (10.9→11.6 rounds) |
-| set_off → on | {def:+10} alarga combates 9.2→12.1 rounds — el bono defensivo es real y medible |
-| naturaleza_estoque | La más letal: KO 98%, 8.9 rounds (perforante ignora atk/def) |
-| naturaleza_maza | La más lenta: 16.8 rounds, KO 90.2% (contundente se mitiga con def) |
-| tier E → A | Progresión clara: rounds 15.1→9.2 — el tier es progresión de daño, no balance |
+| amuleto_off → on | Rounds 7.8→6.9, KO 87.2%→91.0% — acelera el combate |
+| escudo_off → on | Winrate 49.2%→53.4%, rounds 7.2→7.0 — ahora SÍ importa (con HP bajo, la resistencia decide) |
+| cobertura ligera/media | Primer atacante 48.4/45.7% — la aproximación pesa (antes: 48.7/47.2%) |
+| cobertura alta/total | Primer atacante 50.1/51.5% — empate |
+| set_off → on | {def:+10} alarga combates 5.5→7.0 rounds y da winrate 46.2%→52.1% |
+| naturaleza_estoque | La más letal: KO 96.7%, 5.6 rounds (perforante ignora atk/def) |
+| naturaleza_maza | La más lenta: 9.2 rounds, KO 83.9% (contundente se mitiga con def) |
+| tier E → A | Progresión clara: rounds 9.1→6.0, KO 84.7%→93.2% |
 
-**Conclusión**: las mecánicas de cobertura/set/amuleto/durabilidad por piezas quedan VALIDADAS en la simulación con efectos medibles y esperables. Los fallos de targets restantes provienen del motor real (tickets de balance pendientes), no del simulador.
+Resultados de la pasada anterior (techo 50 + HP5) archivados en `AI_CHANGELOG.md [2.10.0]`.
+
+**Conclusión**: las mecánicas de cobertura/set/amuleto/durabilidad por piezas quedan VALIDADAS en la simulación con efectos medibles y esperables, y las jerarquías se mantienen bajo el nuevo balance (todo ~40% más corto). Los fallos de targets restantes provienen del motor real (tickets de balance pendientes), no del simulador.
 
 ## 8. Reglas de oro
 

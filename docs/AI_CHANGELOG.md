@@ -4,6 +4,26 @@ Este archivo registra los cambios significativos y decisiones arquitectónicas t
 
 ---
 
+## [2.11.0] - 2026-08-05
+
+### Techo de 20 rounds + balance de duración (HP×3) + cobertura coherente por fighter + re-baseline
+
+Decisión de diseño del usuario: una pelea de más de 20 rounds se vuelve aburrida → el simulador ahora usa `MAX_ROUNDS=20` (solo simulación; el motor real no se toca).
+
+- **`scripts/simulate_combat/config.js`**: `MAX_ROUNDS` 50→20, `FATIGUE_SNAPSHOT_TURNS` recortado a `[1,5,10,15,20]`, `HP_STAT_MULTIPLIER` 5→3 (HP pool medio ~215→~130: los KOs llegan antes sin tocar fatiga del motor).
+- **`scripts/simulate_combat/fighterGenerator.js`**: la cobertura se sortea UNA vez por fighter (todas las piezas iguales) en vez de por pieza con "la más pesada manda" — antes el baseline quedaba con 65% "total" / 0.5% "ligera" sin varianza real; ahora ~25% cada cobertura.
+- **`scripts/simulate_combat/audit.js`**: labels dinámicos ("round ${maxRounds+1}", "Batallas ≥ ${maxRounds}"); nuevas métricas de sesgo del desempate por HP residual en timeouts (perdedor ≥50% HP del ganador, gap de HP P50/P90).
+
+**Resultados (baseline 2000 sims, techo 20 + HP×3)**: integridad 0 issues; turnos subset parejo 7.50 (target 7.0 ✅, antes 12.06); ventaja primer atacante 2.6% ✅ (antes 2.1% con techo 50); timeouts 9.2% (antes 4.4% con techo 50 — piso estructural del dodge determinista, ver abajo); duración media 7.20 (antes ~12); P90 20 (antes 26); cobertura ahora alta 55% / total 24% / media 11% / ligera 10% (el escudo fijo "alta" explica el 55%); meta tanque 67.1% (target ≤55% ⚠️ — hallazgo del motor, sin maquillar).
+
+**Sweep de fatiga (6 candidatos × 2000 sims via `run_experiments.js`)**: `FATIGUE_ATK_COST_SCALE` 0.10/0.15, `FATIGUE_RECOVERY_MAX` 10/8, y combos — todos quedaron en 286-329 timeouts y ~9.3-9.7 rounds: la fatiga NO es el driver de la cola larga. El driver real es el **dodge determinista** (`combatEngine.attemptDodge`: mspd > aspd → esquiva siempre; 69% de los timeouts tienen un lado con dodge perfecto). Decisión del usuario: mantener el dodge determinista → el ~8-9% de timeouts es el piso estructural aceptado. **HP×3 fue la palanca efectiva** (timeouts 15.7%→8.2%, turnos 9.81→7.73; HP×2 invertía la ventaja del primer atacante a −2.6% y dejaba P50 en 4 → descartado).
+
+**Experimentación (16 presets × 1000 sims, bajo el nuevo balance)**: todo acortó ~40% vs la pasada (amuleto 7.8→6.9 rounds, maza 16.8→9.2, tier E 15.1→9.1); jerarquías se mantienen (estoque más letal KO 96.7% / maza más lenta 9.2 rounds; tier E→A KO 84.7%→93.2%); el escudo ahora importa (winrate 49.2%→53.4%, antes sin efecto); set_on sigue alargando (5.5→7.0 rounds) y da ventaja (46.2%→52.1%).
+
+Lint 0, typecheck 0. Hallazgos del motor sin tocar (tickets pendientes): nivel no predice victoria (34.5%), meta tanque 67.1%, desempate por HP residual en timeout, set bonus/amuleto solo UI, `getMovementFatigueWithCoverage` sin consumidor real.
+
+
+
 ## [2.10.0] - 2026-08-04
 
 ### Catálogo de ítems real (Familia del Hierro) en la simulación + re-baseline con soft cap + experimentos de equipamiento

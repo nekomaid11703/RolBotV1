@@ -1,0 +1,12 @@
+{
+  "tag": "fat_r8",
+  "timestamp": "2026-08-05T03:14:14.147Z",
+  "numSims": 2000,
+  "overrides": [
+    {
+      "mod": "combatConfig",
+      "key": "FATIGUE_RECOVERY_MAX",
+      "value": 8
+    }
+  ]
+}

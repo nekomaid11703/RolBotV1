@@ -1,12 +1,12 @@
 # Combat Simulation Report
-Generated: 2026-08-05 02:25:48 | 1000 simulations | Max 50 rounds
+Generated: 2026-08-05 03:22:00 | 1000 simulations | Max 20 rounds
 
 Config: numSims=1000
 
 ## Balance Targets
 | Target | Objetivo | Valor actual | Estado |
 |--------|----------|--------------|--------|
-| Turnos promedio (nivel/equipo similares) | 7.0 | 15.4 | FAIL |
+| Turnos promedio (nivel/equipo similares) | 7.0 | 8.4 | FAIL |
 | Ventaja del primer atacante (sobre 50%) | 0.1 | 0.0 | PASS |
 | Winrate de la build meta (max por personalidad) | 0.6 | 0.6 | FAIL |
 
@@ -14,278 +14,274 @@ Config: numSims=1000
 | Metric | Value |
 |--------|-------|
 | Total simulations | 1000 |
-| KO victories | 937 (93.7%) |
-| Timeouts (draws) | 63 (6.3%) |
-| Avg rounds (all) | 12.8 |
-| Avg rounds (KO only) | 10.2 |
-| Rounds P50 / P90 / Max | 7 / 33 / 51 |
+| KO victories | 872 (87.2%) |
+| Timeouts (draws) | 128 (12.8%) |
+| Avg rounds (all) | 7.8 |
+| Avg rounds (KO only) | 5.8 |
+| Rounds P50 / P90 / Max | 5 / 21 / 21 |
 
 ## Turns (matched level & equipment)
 | Metric | Value |
 |--------|-------|
-| Battles in subset | 159 |
-| Avg rounds | 15.4 |
-| P50 / P90 | 10 / 45 |
+| Battles in subset | 143 |
+| Avg rounds | 8.4 |
+| P50 / P90 | 6 / 21 |
 
 ## First Attacker Advantage
 | Metric | Value |
 |--------|-------|
-| First attacker wins | 538/1000 |
-| Winrate | 53.8% |
-| Advantage over 50% | 3.8% |
-| Draws | 1 |
+| First attacker wins | 531/1000 |
+| Winrate | 53.1% |
+| Advantage over 50% | 3.1% |
+| Draws | 0 |
 
 ## Win Rates by Personality
 | Personality | Wins | Total | Win Rate | Meta? |
 |-------------|------|-------|----------|-------|
-| Tanque | 77 | 142 | 54.2% |  |
-| Asesino | 57 | 144 | 39.6% |  |
-| Esquivo | 66 | 141 | 46.8% |  |
-| Equilibrado | 71 | 126 | 56.3% |  |
-| Extremista ATK | 64 | 145 | 44.1% |  |
-| Extremista DEF | 73 | 140 | 52.1% |  |
-| Extremista ASPD | 62 | 128 | 48.4% |  |
-| Extremista REF | 68 | 145 | 46.9% |  |
-| Velocista | 81 | 145 | 55.9% |  |
-| Berserker | 75 | 166 | 45.2% |  |
-| Guardian | 84 | 135 | 62.2% | YES |
-| Estratega | 91 | 156 | 58.3% |  |
-| Gladiador | 69 | 137 | 50.4% |  |
-| Magus | 61 | 150 | 40.7% |  |
+| Tanque | 106 | 166 | 63.9% | YES |
+| Asesino | 59 | 140 | 42.1% |  |
+| Esquivo | 71 | 157 | 45.2% |  |
+| Equilibrado | 91 | 165 | 55.2% |  |
+| Extremista ATK | 61 | 126 | 48.4% |  |
+| Extremista DEF | 92 | 152 | 60.5% |  |
+| Extremista ASPD | 60 | 143 | 42.0% |  |
+| Extremista REF | 51 | 133 | 38.3% |  |
+| Velocista | 86 | 141 | 61.0% |  |
+| Berserker | 49 | 117 | 41.9% |  |
+| Guardian | 87 | 152 | 57.2% |  |
+| Estratega | 77 | 142 | 54.2% |  |
+| Gladiador | 61 | 128 | 47.7% |  |
+| Magus | 49 | 138 | 35.5% |  |
 
 ## Resource Management (per battle)
 | Metric | Avg | P50 |
 |--------|-----|-----|
-| Items used | 1.5 | 1 |
-| Heal applied | 91.2 | - |
-| Rests | 6.7 | 3 |
-| Advances | 4.4 | - |
-| Retreats | 0.2 | - |
-| Battles with item use | 54.1% | - |
+| Items used | 1.1 | 0 |
+| Heal applied | 55.3 | - |
+| Rests | 3.0 | 1 |
+| Advances | 3.6 | - |
+| Retreats | 0.1 | - |
+| Battles with item use | 43.3% | - |
 
 ## Data Variance
 | Metric | Value |
 |--------|-------|
-| Weapon presence | 90.5% |
+| Weapon presence | 89.5% |
 | Armor presence | 100.0% |
-| ATK spread (stddev) | 33.44 (avg 45.54) |
-| ASPD spread (stddev) | 31.68 (avg 54.84) |
-| Equipment tier A | 272 (13.6%) |
-| Equipment tier B | 447 (22.4%) |
-| Equipment tier C | 510 (25.5%) |
-| Equipment tier E | 771 (38.6%) |
-| Level 100-199 | 478 |
-| Level 200-299 | 530 |
-| Level 300-399 | 494 |
-| Level 400-500 | 498 |
+| ATK spread (stddev) | 32.46 (avg 42.50) |
+| ASPD spread (stddev) | 31.48 (avg 53.11) |
+| Equipment tier A | 243 (12.2%) |
+| Equipment tier B | 425 (21.3%) |
+| Equipment tier C | 518 (25.9%) |
+| Equipment tier E | 814 (40.7%) |
+| Level 100-199 | 501 |
+| Level 200-299 | 537 |
+| Level 300-399 | 511 |
+| Level 400-500 | 451 |
 
 ### Weapon Natures
 | Nature | Count |
 |--------|-------|
-| contundente | 621 |
-| cortante | 597 |
-| desarmado | 190 |
-| perforante | 592 |
+| contundente | 585 |
+| cortante | 608 |
+| desarmado | 211 |
+| perforante | 596 |
 
 ## Equipment Analysis
 ### Coverage (dominante)
 | Coverage | Count | Winrate |
 |----------|-------|---------|
-| alta | 624 | 47.4% |
-| ligera | 8 | 37.5% |
-| media | 58 | 48.3% |
-| total | 1310 | 51.3% |
+| alta | 1093 | 51.0% |
+| ligera | 201 | 41.3% |
+| media | 199 | 49.7% |
+| total | 507 | 51.5% |
 
 ### Set pieces
 | Pieces | Count | Winrate |
 |--------|-------|---------|
-| 1-2 | 56 | 41.1% |
-| 3+ | 1944 | 50.2% |
-Set bonus active: 50.2% (1944) vs inactive 41.1% (56)
+| 1-2 | 52 | 55.8% |
+| 3+ | 1948 | 49.8% |
+Set bonus active: 49.8% (1948) vs inactive 55.8% (52)
 
 ### Amulet
 With amulet: 0.0% (0) vs without 50.0% (2000)
 
 ### Shield
-With shield: 50.0% (1199) vs without 49.8% (801)
+With shield: 50.6% (1169) vs without 49.1% (831)
 
 ### Weapon tier
 | Tier | Count | Winrate |
 |------|-------|---------|
-| A | 243 | 67.5% |
-| B | 409 | 58.9% |
-| C | 464 | 48.9% |
-| E | 694 | 41.4% |
-| desarmado | 190 | 42.1% |
+| A | 217 | 73.7% |
+| B | 387 | 58.7% |
+| C | 463 | 50.5% |
+| E | 722 | 41.8% |
+| desarmado | 211 | 36.5% |
 
 ### Nature by level bracket
-- **100-199**: contundente: 158, cortante: 129, desarmado: 48, perforante: 143
-- **200-299**: contundente: 153, cortante: 166, desarmado: 57, perforante: 154
-- **300-399**: contundente: 159, cortante: 155, desarmado: 41, perforante: 139
-- **400-500**: contundente: 151, cortante: 147, desarmado: 44, perforante: 156
+- **100-199**: contundente: 157, cortante: 153, desarmado: 56, perforante: 135
+- **200-299**: contundente: 154, cortante: 161, desarmado: 58, perforante: 164
+- **300-399**: contundente: 132, cortante: 163, desarmado: 57, perforante: 159
+- **400-500**: contundente: 142, cortante: 131, desarmado: 40, perforante: 138
 
 ## Magic Stats Contribution
 | Stat | High winrate | High count | Low winrate | Low count | Diff |
 |------|--------------|------------|-------------|-----------|------|
-| fulgor | 41.0% | 512 | 53.0% | 1488 | -12.0pp |
-| d_fulgor | 41.0% | 512 | 53.0% | 1488 | -12.0pp |
-| r_fulgor | 40.5% | 513 | 53.2% | 1487 | -12.6pp |
+| fulgor | 38.2% | 510 | 54.0% | 1490 | -15.8pp |
+| d_fulgor | 38.8% | 498 | 53.7% | 1502 | -15.0pp |
+| r_fulgor | 38.2% | 511 | 54.1% | 1489 | -15.9pp |
 
 ## Average Damage Per Attack
 | Personality | Avg | Min | Max | P25 | P50 | P75 |
 |-------------|-----|-----|-----|-----|-----|-----|
-| Tanque | 11.5 | 0 | 128 | 0 | 7 | 17 |
-| Asesino | 56.1 | 0 | 128 | 39 | 55 | 76 |
-| Esquivo | 12.4 | 0 | 128 | 0 | 0 | 19 |
-| Equilibrado | 22.4 | 0 | 128 | 0 | 19 | 32 |
-| Extremista ATK | 57.0 | 0 | 128 | 44 | 58 | 75 |
-| Extremista DEF | 4.3 | 0 | 96 | 0 | 0 | 0 |
-| Extremista ASPD | 42.5 | 9 | 128 | 19 | 37 | 56 |
-| Extremista REF | 23.2 | 0 | 128 | 6 | 18 | 33 |
-| Velocista | 18.3 | 0 | 128 | 6 | 13 | 20 |
-| Berserker | 62.0 | 0 | 128 | 46 | 60 | 84 |
-| Guardian | 10.9 | 0 | 128 | 0 | 3 | 14 |
-| Estratega | 26.8 | 0 | 128 | 13 | 19 | 34 |
-| Gladiador | 45.0 | 0 | 128 | 19 | 40 | 62 |
-| Magus | 45.0 | 9 | 128 | 24 | 38 | 61 |
+| Tanque | 16.4 | 0 | 128 | 0 | 8 | 23 |
+| Asesino | 58.8 | 0 | 128 | 40 | 56 | 78 |
+| Esquivo | 14.9 | 0 | 128 | 0 | 9 | 19 |
+| Equilibrado | 26.8 | 0 | 128 | 0 | 20 | 36 |
+| Extremista ATK | 52.5 | 0 | 128 | 22 | 55 | 74 |
+| Extremista DEF | 8.6 | 0 | 128 | 0 | 0 | 8 |
+| Extremista ASPD | 47.4 | 6 | 128 | 19 | 45 | 65 |
+| Extremista REF | 23.2 | 0 | 128 | 8 | 16 | 34 |
+| Velocista | 17.5 | 0 | 128 | 6 | 13 | 20 |
+| Berserker | 50.5 | 19 | 128 | 32 | 49 | 68 |
+| Guardian | 11.5 | 0 | 128 | 0 | 3 | 19 |
+| Estratega | 28.4 | 0 | 128 | 14 | 20 | 37 |
+| Gladiador | 46.8 | 0 | 128 | 26 | 45 | 57 |
+| Magus | 36.7 | 8 | 128 | 19 | 30 | 46 |
 
 ## Dodge Effectiveness
 | Personality | Attempts | Successes | Rate |
 |-------------|----------|-----------|------|
-| Tanque | 316 | 316 | 100.0% |
-| Asesino | 273 | 273 | 100.0% |
-| Esquivo | 1475 | 1475 | 100.0% |
-| Equilibrado | 849 | 849 | 100.0% |
-| Extremista ATK | 353 | 353 | 100.0% |
-| Extremista DEF | 292 | 292 | 100.0% |
-| Extremista ASPD | 65 | 65 | 100.0% |
-| Extremista REF | 169 | 169 | 100.0% |
-| Velocista | 952 | 952 | 100.0% |
-| Berserker | 173 | 173 | 100.0% |
-| Guardian | 607 | 607 | 100.0% |
-| Estratega | 607 | 607 | 100.0% |
-| Gladiador | 277 | 277 | 100.0% |
-| Magus | 296 | 296 | 100.0% |
+| Tanque | 111 | 111 | 100.0% |
+| Asesino | 75 | 75 | 100.0% |
+| Esquivo | 684 | 684 | 100.0% |
+| Equilibrado | 536 | 536 | 100.0% |
+| Extremista ATK | 26 | 26 | 100.0% |
+| Extremista DEF | 238 | 238 | 100.0% |
+| Extremista ASPD | 168 | 168 | 100.0% |
+| Extremista REF | 152 | 152 | 100.0% |
+| Velocista | 242 | 242 | 100.0% |
+| Berserker | 111 | 111 | 100.0% |
+| Guardian | 313 | 313 | 100.0% |
+| Estratega | 126 | 126 | 100.0% |
+| Gladiador | 48 | 48 | 100.0% |
+| Magus | 151 | 151 | 100.0% |
 
 ## Block Effectiveness
 | Personality | Chosen | Total Defended | Rate |
 |-------------|--------|----------------|------|
-| Tanque | 6 | 1538 | 0.4% |
-| Asesino | 10 | 763 | 1.3% |
-| Esquivo | 394 | 2055 | 19.2% |
-| Equilibrado | 35 | 1605 | 2.2% |
-| Extremista ATK | 103 | 1084 | 9.5% |
-| Extremista DEF | 430 | 1894 | 22.7% |
-| Extremista ASPD | 76 | 802 | 9.5% |
-| Extremista REF | 895 | 1241 | 72.1% |
-| Velocista | 0 | 1548 | 0.0% |
-| Berserker | 99 | 995 | 9.9% |
-| Guardian | 2 | 1490 | 0.1% |
-| Estratega | 731 | 1615 | 45.3% |
-| Gladiador | 227 | 853 | 26.6% |
-| Magus | 236 | 1092 | 21.6% |
+| Tanque | 14 | 874 | 1.6% |
+| Asesino | 3 | 334 | 0.9% |
+| Esquivo | 200 | 1023 | 19.6% |
+| Equilibrado | 14 | 1029 | 1.4% |
+| Extremista ATK | 69 | 454 | 15.2% |
+| Extremista DEF | 240 | 997 | 24.1% |
+| Extremista ASPD | 58 | 602 | 9.6% |
+| Extremista REF | 496 | 712 | 69.7% |
+| Velocista | 0 | 530 | 0.0% |
+| Berserker | 103 | 525 | 19.6% |
+| Guardian | 1 | 991 | 0.1% |
+| Estratega | 438 | 708 | 61.9% |
+| Gladiador | 156 | 465 | 33.5% |
+| Magus | 141 | 621 | 22.7% |
 
 ## Fatigue Progression (Avg)
 | Turn | Tanque | Asesino | Esquivo | Equilibrado | Extremista ATK | Extremista DEF | Extremista ASPD | Extremista REF | Velocista | Berserker | Guardian | Estratega | Gladiador | Magus |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 1 | 13 | 14 | 15 | 15 | 11 | 11 | 10 | 10 | 5 | 10 | 12 | 12 | 9 | 18 |
-| 5 | 24 | 21 | 18 | 23 | 20 | 20 | 18 | 13 | 11 | 19 | 21 | 16 | 17 | 24 |
-| 10 | 28 | 21 | 20 | 27 | 21 | 24 | 18 | 12 | 16 | 19 | 25 | 15 | 17 | 24 |
-| 15 | 30 | 21 | 24 | 27 | 21 | 28 | 18 | 12 | 16 | 20 | 26 | 15 | 18 | 24 |
-| 20 | 30 | 21 | 25 | 27 | 22 | 30 | 19 | 13 | 16 | 20 | 26 | 16 | 18 | 25 |
-| 25 | 30 | 21 | 26 | 27 | 22 | 30 | 19 | 13 | 16 | 20 | 26 | 16 | 18 | 25 |
-| 30 | 29 | 21 | 26 | 27 | 22 | 30 | 18 | 13 | 15 | 20 | 26 | 16 | 19 | 25 |
-| 40 | 29 | 22 | 28 | 27 | 23 | 29 | 18 | 14 | 15 | 20 | 26 | 16 | 19 | 25 |
-| 50 | 29 | 22 | 29 | 27 | 23 | 28 | 19 | 14 | 15 | 20 | 26 | 17 | 19 | 25 |
+| 1 | 14 | 14 | 13 | 18 | 13 | 11 | 10 | 9 | 6 | 12 | 13 | 15 | 9 | 16 |
+| 5 | 23 | 20 | 17 | 23 | 20 | 19 | 16 | 12 | 11 | 19 | 22 | 17 | 17 | 21 |
+| 10 | 26 | 21 | 19 | 25 | 20 | 23 | 16 | 12 | 14 | 19 | 24 | 17 | 16 | 21 |
+| 15 | 28 | 21 | 20 | 25 | 20 | 27 | 17 | 12 | 17 | 20 | 27 | 17 | 16 | 21 |
+| 20 | 28 | 21 | 22 | 26 | 20 | 28 | 17 | 13 | 16 | 20 | 29 | 18 | 17 | 21 |
 
 ## Personality Matchup Matrix
 (Row wins vs Column X% of the time)
 |  | vs Tanque | vs Asesino | vs Esquivo | vs Equilibrado | vs Extremista ATK | vs Extremista DEF | vs Extremista ASPD | vs Extremista REF | vs Velocista | vs Berserker | vs Guardian | vs Estratega | vs Gladiador | vs Magus |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Tanque | 50.0% | 90.9% | 62.5% | 45.5% | 71.4% | 44.4% | 44.4% | 50.0% | 22.2% | 64.7% | 0.0% | 61.5% | 50.0% | 61.5% |
-| Asesino | 9.1% | 50.0% | 16.7% | 62.5% | 12.5% | 33.3% | 54.5% | 75.0% | 40.0% | 21.4% | 9.1% | 50.0% | 62.5% | 45.5% |
-| Esquivo | 37.5% | 83.3% | 50.0% | 25.0% | 88.9% | 25.0% | 50.0% | 55.6% | 40.0% | 60.0% | 38.5% | 37.5% | 18.2% | 70.0% |
-| Equilibrado | 54.5% | 37.5% | 75.0% | 50.0% | 80.0% | 50.0% | 100.0% | 50.0% | 45.5% | 58.3% | 36.4% | 42.9% | 66.7% | 69.2% |
-| Extremista ATK | 28.6% | 87.5% | 11.1% | 20.0% | 50.0% | 30.0% | 63.6% | 46.7% | 0.0% | 62.5% | 29.4% | 44.4% | 50.0% | 75.0% |
-| Extremista DEF | 55.6% | 66.7% | 75.0% | 50.0% | 70.0% | 50.0% | 42.9% | 42.9% | 58.3% | 71.4% | 40.0% | 18.2% | 50.0% | 22.2% |
-| Extremista ASPD | 55.6% | 45.5% | 50.0% | 0.0% | 36.4% | 57.1% | 50.0% | 50.0% | 33.3% | 63.6% | 60.0% | 44.4% | 71.4% | 42.9% |
-| Extremista REF | 50.0% | 25.0% | 44.4% | 50.0% | 53.3% | 57.1% | 50.0% | 50.0% | 53.3% | 37.5% | 25.0% | 42.9% | 30.0% | 81.8% |
-| Velocista | 66.7% | 60.0% | 60.0% | 54.5% | 100.0% | 41.7% | 66.7% | 46.7% | 50.0% | 60.0% | 71.4% | 46.2% | 50.0% | 52.6% |
-| Berserker | 35.3% | 78.6% | 40.0% | 41.7% | 37.5% | 28.6% | 36.4% | 62.5% | 40.0% | 50.0% | 50.0% | 35.7% | 25.0% | 69.2% |
-| Guardian | 100.0% | 90.9% | 61.5% | 63.6% | 70.6% | 60.0% | 40.0% | 75.0% | 28.6% | 50.0% | 50.0% | 46.2% | 77.8% | 37.5% |
-| Estratega | 38.5% | 50.0% | 62.5% | 57.1% | 55.6% | 81.8% | 55.6% | 57.1% | 53.8% | 64.3% | 53.8% | 50.0% | 69.2% | 71.4% |
-| Gladiador | 50.0% | 37.5% | 81.8% | 33.3% | 50.0% | 50.0% | 28.6% | 70.0% | 50.0% | 75.0% | 22.2% | 30.8% | 50.0% | 61.5% |
-| Magus | 38.5% | 54.5% | 30.0% | 30.8% | 25.0% | 77.8% | 57.1% | 18.2% | 47.4% | 30.8% | 62.5% | 28.6% | 38.5% | 50.0% |
+| Tanque | 50.0% | 44.4% | 70.0% | 66.7% | 90.0% | 70.0% | 100.0% | 75.0% | 61.1% | 60.0% | 28.6% | 38.9% | 70.0% | 70.0% |
+| Asesino | 55.6% | 50.0% | 42.9% | 16.7% | 25.0% | 42.9% | 55.6% | 62.5% | 10.0% | 57.1% | 22.2% | 71.4% | 40.0% | 45.5% |
+| Esquivo | 30.0% | 57.1% | 50.0% | 50.0% | 62.5% | 36.4% | 66.7% | 58.8% | 7.7% | 33.3% | 37.5% | 44.4% | 44.4% | 50.0% |
+| Equilibrado | 33.3% | 83.3% | 50.0% | 50.0% | 65.0% | 46.7% | 42.9% | 61.5% | 50.0% | 85.7% | 72.7% | 38.5% | 33.3% | 66.7% |
+| Extremista ATK | 10.0% | 75.0% | 37.5% | 35.0% | 50.0% | 20.0% | 66.7% | 58.3% | 42.9% | 70.0% | 25.0% | 71.4% | 57.1% | 75.0% |
+| Extremista DEF | 30.0% | 57.1% | 63.6% | 53.3% | 80.0% | 50.0% | 55.6% | 93.3% | 30.0% | 90.9% | 35.7% | 71.4% | 61.5% | 81.8% |
+| Extremista ASPD | 0.0% | 44.4% | 33.3% | 57.1% | 33.3% | 44.4% | 50.0% | 37.5% | 45.5% | 54.5% | 30.0% | 50.0% | 44.4% | 70.0% |
+| Extremista REF | 25.0% | 37.5% | 41.2% | 38.5% | 41.7% | 6.7% | 62.5% | 50.0% | 16.7% | 46.2% | 22.2% | 100.0% | 37.5% | 100.0% |
+| Velocista | 38.9% | 90.0% | 92.3% | 50.0% | 57.1% | 70.0% | 54.5% | 83.3% | 50.0% | 62.5% | 46.2% | 40.0% | 77.8% | 53.8% |
+| Berserker | 40.0% | 42.9% | 66.7% | 14.3% | 30.0% | 9.1% | 45.5% | 53.8% | 37.5% | 50.0% | 33.3% | 33.3% | 66.7% | 87.5% |
+| Guardian | 71.4% | 77.8% | 62.5% | 27.3% | 75.0% | 64.3% | 70.0% | 77.8% | 53.8% | 66.7% | 50.0% | 41.7% | 36.4% | 50.0% |
+| Estratega | 61.1% | 28.6% | 55.6% | 61.5% | 28.6% | 28.6% | 50.0% | 0.0% | 60.0% | 66.7% | 58.3% | 50.0% | 76.9% | 64.7% |
+| Gladiador | 30.0% | 60.0% | 55.6% | 66.7% | 42.9% | 38.5% | 55.6% | 62.5% | 22.2% | 33.3% | 63.6% | 23.1% | 50.0% | 83.3% |
+| Magus | 30.0% | 54.5% | 50.0% | 33.3% | 25.0% | 18.2% | 30.0% | 0.0% | 46.2% | 12.5% | 50.0% | 35.3% | 16.7% | 50.0% |
 
 ## Stat vs Win Rate Heatmap
 ### atk
 | Range | Win Rate | Count |
 |-------|----------|-------|
-| 1-15 | 46.9% | 507 |
-| 16-30 | 48.8% | 414 |
-| 31-50 | 56.0% | 309 |
-| 51-70 | 49.2% | 185 |
-| 71-100 | 50.4% | 585 |
+| 1-15 | 46.3% | 542 |
+| 16-30 | 52.2% | 446 |
+| 31-50 | 51.5% | 332 |
+| 51-70 | 51.1% | 178 |
+| 71-100 | 50.6% | 502 |
 
 ### def
 | Range | Win Rate | Count |
 |-------|----------|-------|
-| 1-15 | 22.2% | 9 |
-| 16-30 | 34.3% | 423 |
-| 31-50 | 47.8% | 776 |
-| 51-70 | 57.9% | 290 |
-| 71-100 | 62.4% | 502 |
+| 1-15 | 33.3% | 9 |
+| 16-30 | 35.0% | 391 |
+| 31-50 | 45.9% | 750 |
+| 51-70 | 55.2% | 308 |
+| 71-100 | 63.8% | 542 |
 
 ### aspd
 | Range | Win Rate | Count |
 |-------|----------|-------|
-| 1-15 | 42.0% | 245 |
-| 16-30 | 44.3% | 379 |
-| 31-50 | 48.3% | 356 |
-| 51-70 | 53.0% | 266 |
-| 71-100 | 55.0% | 754 |
+| 1-15 | 47.3% | 245 |
+| 16-30 | 45.9% | 416 |
+| 31-50 | 51.2% | 375 |
+| 51-70 | 45.4% | 240 |
+| 71-100 | 54.1% | 724 |
 
 ### ref
 | Range | Win Rate | Count |
 |-------|----------|-------|
-| 1-15 | 41.7% | 422 |
-| 16-30 | 43.5% | 504 |
-| 31-50 | 49.2% | 358 |
-| 51-70 | 59.4% | 239 |
-| 71-100 | 60.0% | 477 |
+| 1-15 | 41.6% | 473 |
+| 16-30 | 46.8% | 468 |
+| 31-50 | 49.2% | 362 |
+| 51-70 | 64.5% | 228 |
+| 71-100 | 55.2% | 469 |
 
 ### mspd
 | Range | Win Rate | Count |
 |-------|----------|-------|
-| 1-15 | 45.6% | 796 |
-| 16-30 | 42.1% | 542 |
-| 31-50 | 49.8% | 319 |
-| 51-70 | 76.6% | 128 |
-| 71-100 | 70.2% | 215 |
+| 1-15 | 44.5% | 760 |
+| 16-30 | 43.1% | 564 |
+| 31-50 | 50.6% | 344 |
+| 51-70 | 72.2% | 144 |
+| 71-100 | 75.0% | 188 |
 
 ### fulgor
 | Range | Win Rate | Count |
 |-------|----------|-------|
-| 1-15 | 52.1% | 1590 |
-| 16-30 | 41.9% | 222 |
-| 31-50 | 39.9% | 148 |
-| 51-70 | 47.1% | 34 |
-| 71-100 | 33.3% | 6 |
+| 1-15 | 52.8% | 1593 |
+| 16-30 | 40.8% | 255 |
+| 31-50 | 33.9% | 121 |
+| 51-70 | 46.4% | 28 |
+| 71-100 | 33.3% | 3 |
 
 ### d_fulgor
 | Range | Win Rate | Count |
 |-------|----------|-------|
-| 1-15 | 52.3% | 1602 |
-| 16-30 | 38.2% | 220 |
-| 31-50 | 45.5% | 143 |
-| 51-70 | 33.3% | 30 |
-| 71-100 | 40.0% | 5 |
+| 1-15 | 52.9% | 1594 |
+| 16-30 | 39.9% | 258 |
+| 31-50 | 35.7% | 112 |
+| 51-70 | 36.4% | 33 |
+| 71-100 | 33.3% | 3 |
 
 ### r_fulgor
 | Range | Win Rate | Count |
 |-------|----------|-------|
-| 1-15 | 51.7% | 1595 |
-| 16-30 | 42.9% | 224 |
-| 31-50 | 44.0% | 141 |
-| 51-70 | 45.9% | 37 |
-| 71-100 | 0.0% | 3 |
+| 1-15 | 52.6% | 1593 |
+| 16-30 | 43.4% | 242 |
+| 31-50 | 30.5% | 131 |
+| 51-70 | 50.0% | 34 |
+| 71-100 | 0.0% | 0 |

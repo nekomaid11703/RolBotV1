@@ -190,17 +190,24 @@ if (draws.length === 0) {
   const hpLeft = draws.map((s) => [s.hpCurveA[s.hpCurveA.length - 1], s.hpCurveB[s.hpCurveB.length - 1]]);
   const bothAlive = hpLeft.filter(([a, b]) => a > 0 && b > 0).length;
   const distEnd = draws.map((s) => s.distanceCurve[s.distanceCurve.length - 1] ?? 0);
-  const fatigueHigh = draws.filter((s) => s.fatigueCurveA["50"] >= 90 || s.fatigueCurveB["50"] >= 90).length;
+  const lastFatKey = Math.max(...Object.keys(draws[0].fatigueCurveA ?? { "1": 0 }).map(Number));
+  const fatigueHigh = draws.filter((s) => s.fatigueCurveA[lastFatKey] >= 90 || s.fatigueCurveB[lastFatKey] >= 90).length;
   const hpLow = draws.filter((s) => Math.min(s.hpCurveA[s.hpCurveA.length - 1], s.hpCurveB[s.hpCurveB.length - 1]) <= 5).length;
+  // Sesgo del desempate por HP residual (regla del motor: gana el de más HP en timeout).
+  const hpGap = hpLeft.map(([a, b]) => Math.abs(a - b) / Math.max(1, Math.max(a, b)));
+  const closeFights = hpLeft.filter(([a, b]) => Math.min(a, b) >= 0.5 * Math.max(a, b)).length;
+  const hpGapSorted = hpGap.sort((a, b) => a - b);
   log(`| Métrica | Valor |`);
   log(`|---------|-------|`);
   log(`| Timeouts | ${draws.length} (${fmtPct(draws.length / sims.length)}) |`);
-  log(`| Ambos vivos al round 51 | ${bothAlive}/${draws.length} |`);
+  log(`| Ambos vivos al round ${config.maxRounds + 1} | ${bothAlive}/${draws.length} |`);
   log(`| Con fatiga ≥ 90 al final | ${fatigueHigh}/${draws.length} |`);
   log(`| Con algún HP ≤ 5 al final | ${hpLow}/${draws.length} |`);
   log(`| Distancia final P50 | ${distEnd.sort((a, b) => a - b)[Math.floor(distEnd.length / 2)]} m |`);
+  log(`| Timeouts con perdedor ≥ 50% HP del ganador | ${closeFights}/${draws.length} |`);
+  log(`| Gap de HP relativo al corte (P50/P90) | ${fmtPct(hpGapSorted[Math.floor(hpGapSorted.length / 2)])} / ${fmtPct(hpGapSorted[Math.floor(hpGapSorted.length * 0.9)])} |`);
   log("");
-  log("**Diagnóstico**: los timeouts rara vez son peleas trabadas; son fatiga acumulada → daño colapsado. El techo de 50 rounds NO debería recortar combates decisivos.");
+  log("**Diagnóstico**: los timeouts rara vez son peleas trabadas; son fatiga acumulada → daño colapsado. El desempate por HP residual favorece builds defensivas (sesgo medido arriba). El techo recorta combates decisivos solo cuando el perdedor conserva ≥50% del HP del ganador.");
   log("");
 }
 
@@ -558,11 +565,11 @@ log("");
 {
   const rounds = sims.map((s) => s.totalRounds).sort((a, b) => a - b);
   const p = (q) => rounds[Math.floor(q * rounds.length)];
-  const tail = rounds.filter((r) => r >= 20).length;
+  const tail = rounds.filter((r) => r >= config.maxRounds).length;
   log(`| Métrica | Valor |`);
   log(`|---------|-------|`);
   log(`| P50 / P90 / P99 / Max | ${p(0.5)} / ${p(0.9)} / ${p(0.99)} / ${rounds[rounds.length - 1]} |`);
-  log(`| Batallas ≥ 20 rounds | ${tail} (${fmtPct(tail / rounds.length)}) |`);
+  log(`| Batallas ≥ ${config.maxRounds} rounds (techo) | ${tail} (${fmtPct(tail / rounds.length)}) |`);
   log(`| Duración media | ${(rounds.reduce((a, b) => a + b, 0) / rounds.length).toFixed(2)} |`);
 }
 log("");

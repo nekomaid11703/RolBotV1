@@ -275,11 +275,14 @@ function generateEquipment(level, opts = {}) {
   let forcedCount = null;
   if (opts.setPieces === "full") forcedCount = ARMOR_SLOTS.length;
   else if (opts.setPieces === "max2") forcedCount = 2;
+  // La cobertura se sortea UNA vez por fighter (todas las piezas iguales),
+  // como haría un jugador coherente con su estilo; sortearla por pieza con
+  // "la más pesada manda" aplastaba la varianza (65% terminaban en "total").
+  const coverage = opts.coverage || COVERAGES[Math.floor(Math.random() * COVERAGES.length)];
   let added = 0;
   for (const slot of ARMOR_SLOTS) {
     const present = forcedCount != null ? added < forcedCount : Math.random() >= NO_PIECE_CHANCE;
     if (!present) continue;
-    const coverage = opts.coverage || COVERAGES[Math.floor(Math.random() * COVERAGES.length)];
     armorList.push(deriveArmorPiece(slot, coverage, tierKey));
     added++;
   }

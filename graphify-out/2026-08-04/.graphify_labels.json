@@ -128,5 +128,17 @@
   "126": "run_experiments.js",
   "127": "handleCommand",
   "128": "command_handler_error.test.js",
-  "129": "formatters.js"
+  "129": "formatters.js",
+  "130": "Combat Simulation Report",
+  "131": "Combat Simulation Report",
+  "132": "Combat Simulation Report",
+  "133": "logError",
+  "134": "combat_engine.test.js",
+  "135": "schemaValidator.js",
+  "136": "Guía de Creación de Ítems",
+  "137": "columnRegistry.js",
+  "138": "characterConfig.js",
+  "139": "schedulerService.js",
+  "140": "huir.js",
+  "141": "LRUCache"
 }

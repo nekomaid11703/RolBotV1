@@ -86,16 +86,17 @@ const WEIGHT_JITTER = 0.15;
 const STAT_SOFT_CAP = 75;
 
 const DEFAULT_NUM_SIMS = 500;
-const MAX_ROUNDS = 50;
+// Techo de rounds (decisión de diseño: una pelea > 20 rounds es aburrida).
+const MAX_ROUNDS = 20;
 const LEVEL_MIN = 100;
 const LEVEL_MAX = 500;
 const LEVEL_DIFF_MAX_PCT = 0.5;
 const STAT_CLAMP = { min: 1, max: 100 };
-const HP_STAT_MULTIPLIER = 5;
+const HP_STAT_MULTIPLIER = 3;
 const PHYSICAL_STATS = ["atk", "def", "aspd", "ref", "mspd"];
 const MAGIC_STATS = ["fulgor", "d_fulgor", "r_fulgor"];
 const GENERATED_STATS = [...PHYSICAL_STATS, "hp"];
-const FATIGUE_SNAPSHOT_TURNS = [1, 5, 10, 15, 20, 25, 30, 40, 50];
+const FATIGUE_SNAPSHOT_TURNS = [1, 5, 10, 15, 20];
 
 // ── Variación de stats mágicas (reasignación de presupuesto: nivel total constante) ──
 const MAGIC_ALLOC_CHANCE = 0.3;
