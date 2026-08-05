@@ -1,21 +1,24 @@
 // @ts-nocheck
 "use strict";
 
+// ── Personalidades: especialización tipo jugador humano ─────────────────────
+// Un jugador prioriza los puntos a favor de su estilo de pelea: 60-80% del
+// presupuesto se concentra en 2-3 stats clave; el resto es mínimo (>0).
 const PERSONALITIES = {
   tanque: {
     label: "Tanque",
-    description: "Alta DEF + ASPD — tanquea hits, bloquea frecuentemente",
-    weights: { atk: 8, def: 18, aspd: 12, ref: 5, mspd: 7, hp: 12 },
+    description: "DEF + HP — aguanta el daño y bloquea",
+    weights: { atk: 2, def: 30, aspd: 7, ref: 3, mspd: 3, hp: 15 },
   },
   asesino: {
     label: "Asesino",
-    description: "Alta ATK + ASPD — rapido y golpes fuertes",
-    weights: { atk: 20, def: 3, aspd: 15, ref: 4, mspd: 8, hp: 5 },
+    description: "ATK + ASPD — golpes rápidos y fuertes",
+    weights: { atk: 24, def: 2, aspd: 20, ref: 4, mspd: 6, hp: 4 },
   },
   esquivo: {
     label: "Esquivo",
-    description: "Alta REF + DEF — esquiva y contraataca",
-    weights: { atk: 8, def: 12, aspd: 8, ref: 14, mspd: 8, hp: 8 },
+    description: "REF + MSPD — esquiva y contraataca",
+    weights: { atk: 3, def: 10, aspd: 6, ref: 26, mspd: 10, hp: 5 },
   },
   equilibrado: {
     label: "Equilibrado",
@@ -24,55 +27,63 @@ const PERSONALITIES = {
   },
   extremista_ataque: {
     label: "Extremista ATK",
-    description: "Maximo ATK + ASPD — golpes rapidos y devastadores",
-    weights: { atk: 35, def: 3, aspd: 15, ref: 2, mspd: 5, hp: 4 },
+    description: "Maximo ATK — golpes devastadores",
+    weights: { atk: 42, def: 1, aspd: 10, ref: 2, mspd: 1, hp: 4 },
   },
   extremista_defensa: {
     label: "Extremista DEF",
-    description: "Maxima DEF + REF — pared que esquiva y contraataca",
-    weights: { atk: 3, def: 35, aspd: 5, ref: 12, mspd: 5, hp: 14 },
+    description: "Maxima DEF + HP — pared imparable",
+    weights: { atk: 1, def: 42, aspd: 1, ref: 3, mspd: 1, hp: 12 },
   },
   extremista_velocidad: {
     label: "Extremista ASPD",
-    description: "Maxima ASPD + ATK — mil golpes devastadores",
-    weights: { atk: 15, def: 3, aspd: 35, ref: 5, mspd: 2, hp: 4 },
+    description: "Maxima ASPD + ATK — mil golpes",
+    weights: { atk: 10, def: 1, aspd: 42, ref: 2, mspd: 1, hp: 4 },
   },
   extremista_reflejos: {
     label: "Extremista REF",
-    description: "Maximos REF + ASPD — esquiva perfecta y contraataque rapido",
-    weights: { atk: 5, def: 3, aspd: 15, ref: 35, mspd: 2, hp: 5 },
+    description: "Maximos REF + ASPD — esquiva perfecta",
+    weights: { atk: 2, def: 1, aspd: 10, ref: 42, mspd: 1, hp: 4 },
   },
   velocista: {
     label: "Velocista",
-    description: "Maxima MSPD + ASPD — huidor garantizado, esquiva por velocidad",
-    weights: { atk: 8, def: 5, aspd: 12, ref: 5, mspd: 20, hp: 6 },
+    description: "Maxima MSPD + ASPD — huidor garantizado",
+    weights: { atk: 2, def: 2, aspd: 15, ref: 6, mspd: 30, hp: 5 },
   },
   berserker: {
     label: "Berserker",
-    description: "ATK maximo, DEF minimo — glass cannon, alto riesgo",
-    weights: { atk: 30, def: 1, aspd: 12, ref: 3, mspd: 4, hp: 3 },
+    description: "ATK maximo, DEF minimo — glass cannon",
+    weights: { atk: 40, def: 1, aspd: 12, ref: 2, mspd: 1, hp: 4 },
   },
   guardian: {
     label: "Guardian",
-    description: "DEF + MSPD — tanque lento pero indestructible",
-    weights: { atk: 5, def: 22, aspd: 8, ref: 5, mspd: 10, hp: 16 },
+    description: "DEF + HP + MSPD — tanque lento e indestructible",
+    weights: { atk: 2, def: 26, aspd: 4, ref: 4, mspd: 6, hp: 18 },
   },
   estratega: {
     label: "Estratega",
-    description: "REF + ASPD moderado — contraataques frequentes",
-    weights: { atk: 10, def: 8, aspd: 12, ref: 15, mspd: 5, hp: 7 },
+    description: "REF + ASPD — contraataques frecuentes",
+    weights: { atk: 6, def: 5, aspd: 14, ref: 24, hp: 8, mspd: 3 },
   },
   gladiador: {
     label: "Gladiador",
     description: "ATK + ASPD + REF — ofensivo pero reactivo",
-    weights: { atk: 15, def: 6, aspd: 14, ref: 10, mspd: 5, hp: 8 },
+    weights: { atk: 22, def: 4, aspd: 16, ref: 10, hp: 6, mspd: 2 },
   },
   magus: {
     label: "Magus",
-    description: "ASPD + fulgor — hibrido fisico-magico rapido",
-    weights: { atk: 12, def: 5, aspd: 18, ref: 8, mspd: 7, hp: 6 },
+    description: "ASPD + ATK — hibrido fisico-magico rapido",
+    weights: { atk: 14, def: 4, aspd: 24, ref: 8, hp: 6, mspd: 4 },
   },
 };
+
+// Jitter de especialización (±15%) para que no sean clones exactos.
+const WEIGHT_JITTER = 0.15;
+
+// Soft cap de asignación de puntos: a partir de esta stat, el peso marginal
+// de esa stat decae linealmente hasta 0 en el clamp (jugador que diversifica
+// al acercarse al cap → evita la saturación que aplana los datos).
+const STAT_SOFT_CAP = 75;
 
 const DEFAULT_NUM_SIMS = 500;
 const MAX_ROUNDS = 50;
@@ -115,21 +126,51 @@ const RETREAT_HP_RATIO = 0.25;
 const RETREAT_MAX_DISTANCE = 12;
 const RETREAT_MAX_FATIGUE_RATIO = 0.4;
 
-// ── Equipamiento (compatible con la familia de hierro del juego) ──
+// ── Catálogo base: Familia del Hierro (material: hierro, setId: set_hierro) ──
+// Las stats finales se DERIVAN con las fórmulas reales del motor
+// (itemStatService: base × tier × material), nunca con números planos.
+const IRON_FAMILY = {
+  material: "hierro",
+  setId: "set_hierro",
+  weaponPool: [
+    { id: "espada_de_hierro", name: "Espada de Hierro", damageNature: "cortante", nominalDamage: 20, hands: 1, weaponRange: 1 },
+    { id: "estoque_de_hierro", name: "Estoque de Hierro", damageNature: "perforante", nominalDamage: 14, hands: 1, weaponRange: 1 },
+    { id: "maza_de_hierro", name: "Maza de Hierro", damageNature: "contundente", nominalDamage: 22, hands: 1, weaponRange: 1 },
+  ],
+  armorSlotBase: {
+    cabeza: "Casco de Hierro",
+    pecho: "Pechera de Hierro",
+    pantalones: "Grebas de Hierro",
+    botas: "Botas de Hierro",
+  },
+  coverageSuffix: { ligera: "Ligero", media: "", alta: "Alto", total: "Total" },
+  shield: { id: "escudo_de_hierro", name: "Escudo de Hierro", slot: "mano_izq", coverage: "alta" },
+  amulet: { id: "amuleto_de_hierro", name: "Amuleto de Hierro", slot: "artefacto_1", buff: { atk: 5 } },
+};
+
+// Slots corporales y grados de cobertura (spec §4).
+const ARMOR_SLOTS = ["cabeza", "pecho", "pantalones", "botas"];
+const COVERAGES = ["ligera", "media", "alta", "total"];
+
+// Tier de calidad asignado al equipo por bracket de nivel (probabilístico).
+const TIER_BRACKETS = [
+  { minLevel: 100, maxLevel: 199, tier: "E" },
+  { minLevel: 200, maxLevel: 299, tier: "C" },
+  { minLevel: 300, maxLevel: 399, tier: "B" },
+  { minLevel: 400, maxLevel: 500, tier: "A" },
+];
+// 60% tier del bracket, 30% uno inferior, 10% dos inferiores.
+const TIER_DOWN_CHANCES = [0.6, 0.3, 0.1];
+
+// Probabilidades de equipamiento por generación.
 const NO_WEAPON_CHANCE = 0.1;
-const NO_ARMOR_CHANCE = 0.1;
-const WEAPONS_BY_TIER = [
-  { tierKey: "T1", minLevel: 0, weapon: { name: "Daga de hierro", damageNature: "perforante", tier: "B", baseDamage: 9, weaponRange: 1 } },
-  { tierKey: "T2", minLevel: 200, weapon: { name: "Espada de hierro", damageNature: "cortante", tier: "C", baseDamage: 16, weaponRange: 1 } },
-  { tierKey: "T3", minLevel: 350, weapon: { name: "Lanza de hierro", damageNature: "perforante", tier: "C", baseDamage: 20, weaponRange: 2 } },
-  { tierKey: "T4", minLevel: 500, weapon: { name: "Hacha de hierro", damageNature: "contundente", tier: "D", baseDamage: 26, weaponRange: 1 } },
-];
-const ARMOR_BY_TIER = [
-  { tierKey: "T1", minLevel: 0, armor: { name: "Armadura de cuero", bonusDef: 4, durability: 15 } },
-  { tierKey: "T2", minLevel: 200, armor: { name: "Cota de malla", bonusDef: 8, durability: 30 } },
-  { tierKey: "T3", minLevel: 350, armor: { name: "Placas de hierro", bonusDef: 14, durability: 50 } },
-  { tierKey: "T4", minLevel: 500, armor: { name: "Armadura pesada", bonusDef: 22, durability: 80 } },
-];
+const NO_PIECE_CHANCE = 0.1; // por slot corporal
+const SHIELD_CHANCE = 0.6; // escudo en mano_izq (arma de 1 mano)
+const AMULET_CHANCE = 0.4; // amuleto en artefacto_1
+
+// Bono de set: ≥3 piezas del mismo setId activan el bono (código: SET_BONUS_THRESHOLD = 3).
+const SET_BONUS_THRESHOLD = 3;
+const SET_BONUS = { def: 10 };
 
 // ── Subconjunto "nivel y equipo similares" ──
 const MATCHED_LEVEL_DIFF_PCT = 0.1;
@@ -222,10 +263,17 @@ const SIM_CONFIG = {
   RETREAT_HP_RATIO,
   RETREAT_MAX_DISTANCE,
   RETREAT_MAX_FATIGUE_RATIO,
+  IRON_FAMILY,
+  ARMOR_SLOTS,
+  COVERAGES,
+  TIER_BRACKETS,
+  TIER_DOWN_CHANCES,
   NO_WEAPON_CHANCE,
-  NO_ARMOR_CHANCE,
-  WEAPONS_BY_TIER,
-  ARMOR_BY_TIER,
+  NO_PIECE_CHANCE,
+  SHIELD_CHANCE,
+  AMULET_CHANCE,
+  SET_BONUS_THRESHOLD,
+  SET_BONUS,
   MATCHED_LEVEL_DIFF_PCT,
   MAGIC_HIGH_THRESHOLD,
   BALANCE_TARGETS,
@@ -233,6 +281,8 @@ const SIM_CONFIG = {
 
 module.exports = {
   PERSONALITIES,
+  WEIGHT_JITTER,
+  STAT_SOFT_CAP,
   DEFAULT_NUM_SIMS,
   MAX_ROUNDS,
   LEVEL_MIN,
@@ -261,10 +311,17 @@ module.exports = {
   RETREAT_HP_RATIO,
   RETREAT_MAX_DISTANCE,
   RETREAT_MAX_FATIGUE_RATIO,
+  IRON_FAMILY,
+  ARMOR_SLOTS,
+  COVERAGES,
+  TIER_BRACKETS,
+  TIER_DOWN_CHANCES,
   NO_WEAPON_CHANCE,
-  NO_ARMOR_CHANCE,
-  WEAPONS_BY_TIER,
-  ARMOR_BY_TIER,
+  NO_PIECE_CHANCE,
+  SHIELD_CHANCE,
+  AMULET_CHANCE,
+  SET_BONUS_THRESHOLD,
+  SET_BONUS,
   MATCHED_LEVEL_DIFF_PCT,
   MAGIC_HIGH_THRESHOLD,
   BALANCE_TARGETS,

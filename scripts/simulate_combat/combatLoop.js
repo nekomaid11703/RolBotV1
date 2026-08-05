@@ -6,9 +6,9 @@ const {
   calcFatigueRecovery,
   calcFatigueCost,
   getFatigueLevel,
-  calculateMovementFatigue,
   getMovementRange,
 } = require("../../src/services/rpg/fatigueEngine");
+const { getCoverage, getMovementFatigueWithCoverage } = require("../../src/services/rpg/armorSetService");
 const {
   MAX_ROUNDS,
   FATIGUE_SNAPSHOT_TURNS,
@@ -46,20 +46,31 @@ function fatigueRatio(state) {
 /**
  * Wrapper de durabilidad de armadura con el mismo contrato que el motor real
  * (DurabilityModule.absorbDamage).
- * @param {object} armor
+ *
+ * Mecánica VALIDADA en la simulación (pendiente en el motor real): el daño
+ * material se reparte entre las piezas de la lista EN ORDEN — cada pieza
+ * absorbe hasta su resistencia y el exceso pasa a la siguiente. El motor real
+ * hoy solo impacta la primera pieza (atacar.js: armor.list[0]).
+ * @param {Array<object>} armorPieces - Piezas con currentResist (se mutan)
  */
-function createDurability(armor) {
-  let current = armor.currentDurability;
+function createDurability(armorPieces) {
+  const pieces = (armorPieces || []).filter((p) => p && typeof p.currentResist === "number");
 
   return {
     absorbDamage(materialDamage) {
-      const absorbed = Math.min(current, materialDamage);
-      current = Math.max(0, current - absorbed);
+      let remaining = materialDamage;
+      for (const piece of pieces) {
+        if (remaining <= 0) break;
+        const absorbed = Math.min(piece.currentResist, remaining);
+        piece.currentResist = Math.max(0, piece.currentResist - absorbed);
+        remaining -= absorbed;
+      }
+      const allBroken = pieces.length > 0 && pieces.every((p) => p.currentResist <= 0);
       return {
-        absorbed,
-        overflow: Math.max(0, materialDamage - absorbed),
-        isBroken: current <= 0,
-        isDestroyed: current <= 0,
+        absorbed: materialDamage - remaining,
+        overflow: remaining,
+        isBroken: allBroken,
+        isDestroyed: allBroken,
       };
     },
   };
@@ -138,7 +149,9 @@ function performAttack(actor, opponent) {
   const attackerChar = characterShape(actor.fighter, actor.hp);
   const defenderChar = characterShape(opponent.fighter, opponent.hp);
   const weaponInfo = actor.fighter.equipment.weapon;
-  const armorDurability = opponent.fighter.equipment.armor ? createDurability(opponent.fighter.equipment.armor) : null;
+  const armorDurability = opponent.fighter.equipment.armorList?.length
+    ? createDurability(opponent.fighter.equipment.armorList)
+    : null;
 
   const attackInfo = executeAttack(
     attackerChar,
@@ -256,10 +269,12 @@ function executeHalfTurn(actor, opponent, distance, roundNum, isA) {
   }
 
   if (shouldRetreat(actor, distance)) {
-    const meters = Math.min(getMovementRange(actor.fighter.stats.mspd || 0), MAX_DISTANCE - distance);
+    const coverage = getCoverage(actor.fighter.equipment.armorList || []);
+    const mspd = Math.max(1, Math.floor((actor.fighter.stats.mspd || 0) * (1 - coverage.mspdPenalty)));
+    const meters = Math.min(getMovementRange(mspd), MAX_DISTANCE - distance);
     if (meters > 0) {
       distance += meters;
-      actor.fatigue += calculateMovementFatigue(meters);
+      actor.fatigue += getMovementFatigueWithCoverage(meters, actor.fighter.equipment.armorList || []);
       actor.retreats++;
       entries.push({
         round: roundNum,
@@ -278,10 +293,12 @@ function executeHalfTurn(actor, opponent, distance, roundNum, isA) {
   const { canAttack } = checkAttackRange(distance, actor.fighter.stats, weaponRange);
 
   if (!canAttack) {
-    const meters = Math.min(getMovementRange(actor.fighter.stats.mspd || 0), distance);
+    const coverage = getCoverage(actor.fighter.equipment.armorList || []);
+    const mspd = Math.max(1, Math.floor((actor.fighter.stats.mspd || 0) * (1 - coverage.mspdPenalty)));
+    const meters = Math.min(getMovementRange(mspd), distance);
     if (meters > 0) {
       distance -= meters;
-      actor.fatigue += calculateMovementFatigue(meters);
+      actor.fatigue += getMovementFatigueWithCoverage(meters, actor.fighter.equipment.armorList || []);
       actor.advances++;
       entries.push({
         round: roundNum,

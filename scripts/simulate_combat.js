@@ -16,13 +16,14 @@ const { formatMarkdownReport } = require("./simulate_combat/formatters");
  * @param {object} opts - Opciones ya parseadas (numSims, verbose, ...)
  * @param {string|null} [outDir] - Directorio de salida (default: simulation_output)
  * @param {string|null} [tag] - Si se indica, escribe en outDir/experiments/<tag>_raw.json y <tag>_report.md
+ * @param {object} [fighterOpts] - Opciones de generación de equipo (presets de experimento)
  */
-function runSimulation(opts, outDir = null, tag = null) {
+function runSimulation(opts, outDir = null, tag = null, fighterOpts = null) {
   const startTime = Date.now();
   const allMetrics = [];
 
   for (let i = 0; i < opts.numSims; i++) {
-    const { fighterA, fighterB } = generateFighterPair();
+    const { fighterA, fighterB } = generateFighterPair(fighterOpts);
     const result = simulateCombat(fighterA, fighterB);
     const metrics = collectMetrics(result);
     allMetrics.push(metrics);
@@ -53,6 +54,7 @@ function runSimulation(opts, outDir = null, tag = null) {
       maxRounds: MAX_ROUNDS,
       timestamp: new Date().toISOString(),
       simConfig: SIM_CONFIG,
+      fighterOpts: fighterOpts || null,
     },
     metrics: allMetrics,
     report,

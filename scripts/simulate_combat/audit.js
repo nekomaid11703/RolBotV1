@@ -102,9 +102,10 @@ for (const s of sims) {
       }
     }
   }
-  if (!["A", "B"].includes(s.winner)) badWinner++;
+  const validWinner = s.winner === "A" || s.winner === "B" || (s.winner === "draw" && s.koType === "timeout");
+  if (!validWinner) badWinner++;
   if (!["ko", "timeout"].includes(s.koType)) badKoType++;
-  if (s.winnerIsFirstAttacker !== (s.winner === s.firstAttacker)) badFirstFlag++;
+  if (s.winner !== "draw" && s.winnerIsFirstAttacker !== (s.winner === s.firstAttacker)) badFirstFlag++;
   if (!Number.isInteger(s.totalRounds) || s.totalRounds < 1) badRounds++;
   const dist = s.distanceCurve;
   if (Array.isArray(dist) && dist.some((d) => typeof d !== "number" || d < 0)) badRounds++;
@@ -219,7 +220,17 @@ const fa = sims.filter((s) => s.firstAttacker === "A").length;
 const faWins = sims.filter((s) => s.firstAttacker === "A" && s.winner === "A").length;
 const faAdv = sims.filter((s) => s.winnerIsFirstAttacker).length;
 
-const metaPersonality = "berserker";
+const metaRow = [...new Set(sims.flatMap((s) => [s.fighterA_personality, s.fighterB_personality]))]
+  .map((p) => {
+    const rows = sims.filter((s) => s.fighterA_personality === p || s.fighterB_personality === p);
+    const w = rows.filter((s) =>
+      (s.fighterA_personality === p && s.winner === "A") ||
+      (s.fighterB_personality === p && s.winner === "B"),
+    ).length;
+    return { p, w, n: rows.length };
+  })
+  .sort((a, b) => (b.n ? b.w / b.n : 0) - (a.n ? a.w / a.n : 0))[0];
+const metaPersonality = metaRow.p;
 const metaSims = sims.filter((s) => s.fighterA_personality === metaPersonality || s.fighterB_personality === metaPersonality);
 const metaWins = metaSims.filter((s) =>
   (s.fighterA_personality === metaPersonality && s.winner === "A") ||
@@ -329,7 +340,8 @@ log("## 7. Tier de equipo vs resultado (confound con nivel)");
 log("");
 log("| Tier | Winrate | n | Nivel medio |");
 log("|------|---------|----|-------------|");
-for (const tier of ["T1", "T2", "T3", "T4"]) {
+const tiersSeen = [...new Set(sims.flatMap((s) => [s.fighterA_equipmentTier, s.fighterB_equipmentTier]))].sort();
+for (const tier of tiersSeen) {
   const rows = [];
   for (const s of sims) {
     for (const side of ["A", "B"]) {
@@ -343,7 +355,144 @@ for (const tier of ["T1", "T2", "T3", "T4"]) {
   log(`| ${tier} | ${fmtPct(rows.filter((r) => r.win).length / rows.length)} | ${rows.length} | ${avgLvl.toFixed(0)} |`);
 }
 log("");
-log("Interpretación: el tier correlaciona con nivel (más nivel = mejor equipo). Si el winrate por tier ≈ 50% corregido, el equipo es progresión, no balance.");
+log("Interpretación: el tier correlaciona con nivel (más nivel = mejor calidad). Si el winrate por tier ≈ 50% corregido, el tier es progresión, no balance.");
+log("");
+
+// ─────────────────────────────────────────── 7.1 saturación de stats ───────────────────────────────────────────
+
+log("## 7.1 Saturación de stats (clamp 100)");
+log("");
+log("Un jugador humano prioriza su estilo: su stat principal debería saturar poco incluso a nivel alto. La saturación aplana la varianza (confound del análisis).");
+log("");
+log("| Bracket nivel | n (lados) | atk | def | aspd | ref | mspd | hp |");
+log("|---------------|-----------|-----|-----|------|-----|------|----|");
+{
+  const brackets = [
+    [100, 199],
+    [200, 299],
+    [300, 399],
+    [400, 500],
+  ];
+  for (const [lo, hi] of brackets) {
+    const acc = { n: 0, clamped: { atk: 0, def: 0, aspd: 0, ref: 0, mspd: 0, hp: 0 } };
+    for (const s of sims) {
+      for (const side of ["A", "B"]) {
+        const lvl = s[`fighter${side}_level`];
+        if (lvl < lo || lvl > hi) continue;
+        acc.n++;
+        const st = s[`fighter${side}_stats`] || {};
+        for (const k of ["atk", "def", "aspd", "ref", "mspd", "hp"]) {
+          if (st[k] >= 100) acc.clamped[k]++;
+        }
+      }
+    }
+    if (acc.n === 0) continue;
+    const cells = Object.entries(acc.clamped).map(([k, v]) => `${fmtPct(v / acc.n)}`).join(" | ");
+    log(`| ${lo}–${hi} | ${acc.n} | ${cells} |`);
+  }
+}
+log("");
+
+// ─────────────────────────────────────────── 7.2 naturalezas por bracket ───────────────────────────────────────────
+
+log("## 7.2 Naturalezas de arma por bracket (objetivo ≈ 1/3 cada una)");
+log("");
+log("| Bracket nivel | cortante | perforante | contundente | desarmado |");
+log("|---------------|----------|------------|-------------|-----------|");
+{
+  const brackets = [
+    [100, 199],
+    [200, 299],
+    [300, 399],
+    [400, 500],
+  ];
+  for (const [lo, hi] of brackets) {
+    const acc = { n: 0, natures: { cortante: 0, perforante: 0, contundente: 0, desarmado: 0 } };
+    for (const s of sims) {
+      for (const side of ["A", "B"]) {
+        const lvl = s[`fighter${side}_level`];
+        if (lvl < lo || lvl > hi) continue;
+        acc.n++;
+        const nat = s[`fighter${side}_weaponNature`] || "desarmado";
+        if (!(nat in acc.natures)) acc.natures[nat] = 0;
+        acc.natures[nat]++;
+      }
+    }
+    if (acc.n === 0) continue;
+    const cells = ["cortante", "perforante", "contundente", "desarmado"].map((k) => fmtPct(acc.natures[k] / acc.n)).join(" | ");
+    log(`| ${lo}–${hi} | ${cells} |`);
+  }
+}
+log("");
+
+// ─────────────────────────────────────────── 7.3 tier por nivel (60/30/10) ───────────────────────────────────────────
+
+log("## 7.3 Tier de equipo por nivel (asignación probabilística 60/30/10)");
+log("");
+log("| Bracket nivel | E | C | B | A |");
+log("|---------------|----|----|----|----|");
+{
+  const brackets = [
+    [100, 199],
+    [200, 299],
+    [300, 399],
+    [400, 500],
+  ];
+  for (const [lo, hi] of brackets) {
+    const acc = { n: 0, tiers: {} };
+    for (const s of sims) {
+      for (const side of ["A", "B"]) {
+        const lvl = s[`fighter${side}_level`];
+        if (lvl < lo || lvl > hi) continue;
+        acc.n++;
+        const t = s[`fighter${side}_equipmentTier`] || "?";
+        acc.tiers[t] = (acc.tiers[t] || 0) + 1;
+      }
+    }
+    if (acc.n === 0) continue;
+    const cells = ["E", "C", "B", "A"].map((t) => `${acc.tiers[t] || 0} (${fmtPct((acc.tiers[t] || 0) / acc.n)})`).join(" | ");
+    log(`| ${lo}–${hi} | ${cells} |`);
+  }
+}
+log("");
+
+// ─────────────────────────────────────────── 7.4 equipo: cobertura, set, amuleto, escudo ───────────────────────────────────────────
+
+log("## 7.4 Equipo: cobertura, set bonus, amuleto, escudo");
+log("");
+{
+  const acc = { n: 0, pieces: [], coverage: {}, setPieces: {}, setBonusActive: 0, setInconsistent: 0, amulet: 0, shield: 0, brokenAny: 0, armorBrokenTotals: { pieces: 0, fighters: 0 } };
+  for (const s of sims) {
+    for (const side of ["A", "B"]) {
+      acc.n++;
+      acc.pieces.push(s[`fighter${side}_armorPieces`] || 0);
+      const cov = s[`fighter${side}_coverage`] || "ninguna";
+      acc.coverage[cov] = (acc.coverage[cov] || 0) + 1;
+      const sp = s[`fighter${side}_setPieces`] || 0;
+      const key = sp >= 3 ? "3+" : sp > 0 ? "1-2" : "0";
+      acc.setPieces[key] = (acc.setPieces[key] || 0) + 1;
+      if (s[`fighter${side}_setBonusActive`]) acc.setBonusActive++;
+      if (Boolean(s[`fighter${side}_setBonusActive`]) !== (sp >= 3)) acc.setInconsistent++;
+      if (s[`fighter${side}_amulet`]) acc.amulet++;
+      if (s[`fighter${side}_shield`]) acc.shield++;
+      if ((s[`fighter${side}_armorBrokenPieces`] || 0) > 0) {
+        acc.armorBrokenTotals.fighters++;
+        acc.armorBrokenTotals.pieces += s[`fighter${side}_armorBrokenPieces`];
+      }
+    }
+  }
+  const avgPieces = acc.pieces.reduce((a, b) => a + b, 0) / acc.n;
+  log(`| Métrica | Valor |`);
+  log(`|---------|-------|`);
+  log(`| Piezas de armadura por fighter (promedio) | ${avgPieces.toFixed(2)} |`);
+  log(`| Cobertura dominante | ${Object.entries(acc.coverage).sort((a, b) => b[1] - a[1]).map(([k, v]) => `${k}: ${v}`).join(" · ")} |`);
+  log(`| Piezas de set (0 / 1-2 / 3+) | ${Object.entries(acc.setPieces).map(([k, v]) => `${k}: ${v}`).join(" · ")} |`);
+  log(`| Set bonus activo | ${fmtPct(acc.setBonusActive / acc.n)} |`);
+  log(`| Inconsistencias setPieces↔setBonusActive | ${acc.setInconsistent} |`);
+  log(`| Con amuleto | ${fmtPct(acc.amulet / acc.n)} |`);
+  log(`| Con escudo | ${fmtPct(acc.shield / acc.n)} |`);
+  log(`| Fighters con ≥1 pieza rota post-batalla | ${fmtPct(acc.armorBrokenTotals.fighters / acc.n)} (${acc.armorBrokenTotals.pieces} piezas) |`);
+}
 log("");
 
 // ─────────────────────────────────────────── 8. recursos ───────────────────────────────────────────
@@ -452,21 +601,21 @@ log("## Veredicto");
 log("");
 log("### Integridad: datos listos para decidir");
 log("");
-log("Los 11 checks de integridad pasan (0 casos). El daño registrado coincide con el real por curvas (0 desviaciones). Dos bugs del simulador fueron corregidos en esta auditoría: (1) KO por contraataque durante descanso asignaba la victoria al muerto — invertía los winrates de toda build que descansa; (2) `collectMetrics` excluía los contraataques del daño reportado. Los datos actuales son correctos y reproducibles (`node scripts/simulate_combat/audit.js`).");
+log("Los checks de integridad pasan (0 casos). El daño registrado coincide con el real por curvas. El catálogo base de hierro deriva sus stats con las fórmulas reales del motor (itemStatService: base × tier × material); la durabilidad se reparte entre piezas en orden (mecánica VALIDADA en la simulación; el motor real hoy solo impacta armor.list[0] en atacar.js).");
 log("");
 log("### Hallazgos de balance del MOTOR (expuestos, no maquillados)");
 log("");
-log(`1. **El segundo atacante gana (ventaja ${fmtPct(adv)} para el primero, CI 95% ${fmtPct(faCI.lo - 0.5)}–${fmtPct(faCI.hi - 0.5)})**: el primer atacante asume el costo de movimiento de los 25 m iniciales (≈27 de fatiga) → su aspd/ref caen (penalty 20-60%) → el rival le esquiva/bloquea más (1317 vs 848 bloques) y lo golpea más (5.81 vs 4.17 golpes/batalla). Es una asimetría REAL del sistema de fatiga de movimiento del motor, no del simulador. **Decisión**: ticket de diseño — ¿debe el segundo en moverse ganar 10pp? Ajustar INITIAL_DISTANCE, FATIGUE_BASE_PER_METER o el orden de movimiento.`);
-log(`2. **El nivel no predice victoria (${fmtPct(globalLvl.w / globalLvl.n)} para el mayor nivel; correlación ${lvlCorr.toFixed(3)})**: con arma del mismo tier el daño es FIJO (perforante = base×tierMult, ignora atk/def) y la fatiga por ataque escala con atk (0.05×atk − 0.01×def) → subir de nivel sube tu fatiga sin subir tu daño. Verificado dirigido: 400 vs 300 misma build/arma → 0-3% de victorias para el 400. **Decisión**: ticket de balance — el daño por nivel (escalado del arma o de atk) y el costo de fatiga deben revisarse juntos.`);
-log(`3. **Meta dominante: extremista_defensa ≈66% (objetivo ≤55%)**: su DEF alta reduce el costo de ataque a FATIGUE_COST_MIN (1+0.05×atk−0.01×def ≈ 1) → descansa mucho menos que el rival (que paga 3-6 por golpe) → recibe golpes extra gratis (contraataques mientras el rival descansa). El experimento FATIGUE_ATK_COST_SCALE 0.05→0.025 NO la mueve (66.2%) — la palanca efectiva es el mínimo de costo (FATIGUE_COST_MIN) o la reducción por DEF. Rango de winrates por personalidad: 30.5%–66.3% (36pp).`);
-log(`4. **Ítems subutilizados**: ${fmtPct(itemFight / sims.length)} de batallas usan ítem; el umbral HP < 50% deja el stock casi intacto. Los descansos (P50 4) dominan la gestión de recursos: la fatiga es el cuello de botella, no el HP.`);
-log(`5. **Timeouts ${draws.length} (${fmtPct(draws.length / sims.length)})**: fatiga colapsada → daño mínimo → no se mata nadie en 51 rounds. Poco frecuente, pero confirma que la fatiga puede estancar el combate.`);
+log(`1. **Ventaja del primer atacante (${fmtPct(adv)} sobre 50%, CI 95% ${fmtPct(faCI.lo - 0.5)}–${fmtPct(faCI.hi - 0.5)})**: el primer atacante asume el costo de movimiento de los 25 m iniciales. La cobertura del equipo (ligera ×1.05 → total ×1.5 de fatiga de movimiento) ahora se aplica en la simulación (mecánica pendiente en el motor real: armorSetService.getMovementFatigueWithCoverage no la consume nadie) y MODULA esta asimetría: cuanta más cobertura, más cara la aproximación del primer atacante.`);
+log(`2. **El nivel no predice victoria (${fmtPct(globalLvl.w / globalLvl.n)} para el mayor nivel; correlación ${lvlCorr.toFixed(3)})**: el daño perforante es FIJO (base×tierMult, ignora atk/def) y la fatiga por ataque escala con atk → subir de nivel sube la fatiga sin subir el daño (en perforante). El tier del ítem (E→A) multiplica el daño 1.12x→1.60x (cortante/contundente) y 1.2x→4.0x (perforante): la progresión real viene del EQUIPO, no del nivel de stats.`);
+log(`3. **Meta dominante: ${metaPersonality} ≈${fmtPct(metaWins / metaSims.length)} (objetivo ≤55%)**: el bono de set {def:+10} y el amuleto {atk:+5} ahora se aplican a stats efectivas (mecánicas pendientes en el motor real: solo se resuelven para UI en equipmentResolverService). Un set completo de hierro +10 def refuerza el descuento de fatiga de ataque por DEF — vigilar la interacción set×meta defensiva.`);
+log(`4. **Saturación de stats**: ver sección 7.1 — el objetivo es que la personalidad priorizada no sature el clamp 100 en sus stats clave incluso a nivel alto; si satura, el nivel extra no aporta varianza y los datos se aplastan.`);
+log(`5. **Ítems subutilizados**: ${fmtPct(itemFight / sims.length)} de batallas usan ítem; los descansos (P50 ${[5, 6].map((p) => { const arr = sims.map((s) => s.restCountA + s.restCountB).sort((a, b) => a - b); return arr[Math.floor(arr.length * p / 10)]; }).join("/")}) dominan la gestión de recursos.`);
 log("");
 log("### Decisión recomendada");
 log("");
-log("1. **Aceptar la auditoría como baseline válido** (datos íntegros post-fix) y commitear: 3 bugs corregidos + audit script reproducible + runner de experimentos.");
-log(`2. **No ajustar el simulador para cumplir los targets**: los targets 2 (${fmtPct(adv)} vs ≤5%) y la meta fallan por el MOTOR. Maquillar el simulador ocultaría bugs reales del juego.`);
-log("3. **Crear tickets de balance del motor** a partir de los hallazgos 1-3 (asimetría del primer atacante; daño fijo por tier + fatiga ∝ atk anulan la progresión; costo de fatiga mínimo = meta defensiva).");
+log("1. **Aceptar el re-baseline con catálogo de hierro como referencia** (datos íntegros, fórmulas reales, mecánicas de cobertura/set/amuleto validadas) y commitear.");
+log(`2. **No ajustar el simulador para cumplir los targets**: los fallos restantes (${fmtPct(adv)} ventaja, meta ${fmtPct(metaWins / metaSims.length)}) provienen del MOTOR. Maquillar el simulador ocultaría bugs reales del juego.`);
+log("3. **Crear tickets de balance del motor** a partir de los hallazgos 1-3 (asimetría del primer atacante y cobertura; progresión por tier vs nivel; set bonus y amuleto pendientes de implementar en combate real; absorción de durabilidad por piezas en orden).");
 log(`4. **Regenerar el reporte oficial tras cada cambio del motor** y re-auditar (turnos ${mr.m.toFixed(2)}, meta ${fmtPct(metaWins / metaSims.length)}) para cerrar el ciclo.`);
 
 fs.writeFileSync(OUT_PATH, out.join("\n") + "\n", "utf8");

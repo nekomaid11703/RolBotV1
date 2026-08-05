@@ -2,6 +2,29 @@
 "use strict";
 
 const { PHYSICAL_STATS } = require("./config");
+const { getCoverage } = require("../../src/services/rpg/armorSetService");
+
+/**
+ * Resumen de equipo de un fighter para las métricas.
+ * @param {object} equipment
+ * @returns {object} Métricas de equipo
+ */
+function equipmentMetrics(equipment) {
+  const pieces = equipment.armorList || [];
+  const coverage = getCoverage(pieces);
+  return {
+    weaponTier: equipment.weapon?.tier || null,
+    armorPieces: pieces.length,
+    armorMaxResist: pieces.reduce((acc, p) => acc + (p.maxResist || 0), 0),
+    armorLeftResist: pieces.reduce((acc, p) => acc + (p.currentResist || 0), 0),
+    armorBrokenPieces: pieces.filter((p) => (p.currentResist || 0) <= 0).length,
+    coverage: coverage.coverage,
+    setPieces: equipment.setPieces || 0,
+    setBonusActive: Boolean(equipment.setBonusActive),
+    amulet: Boolean(equipment.amulet),
+    shield: Boolean(equipment.shield),
+  };
+}
 
 /**
  *
@@ -66,6 +89,8 @@ function collectMetrics(result) {
 
   const fighterA = result.fighterA;
   const fighterB = result.fighterB;
+  const eqA = equipmentMetrics(fighterA.equipment);
+  const eqB = equipmentMetrics(fighterB.equipment);
 
   return {
     fighterA_personality: fighterA.personality,
@@ -84,8 +109,28 @@ function collectMetrics(result) {
     fighterB_weaponRange: fighterB.equipment.weapon?.weaponRange || 0,
     fighterA_equipmentTier: fighterA.equipment.tierKey,
     fighterB_equipmentTier: fighterB.equipment.tierKey,
+    fighterA_weaponTier: eqA.weaponTier,
+    fighterB_weaponTier: eqB.weaponTier,
     fighterA_armorBonusDef: fighterA.equipment.armor?.bonusDef || 0,
     fighterB_armorBonusDef: fighterB.equipment.armor?.bonusDef || 0,
+    fighterA_armorPieces: eqA.armorPieces,
+    fighterB_armorPieces: eqB.armorPieces,
+    fighterA_armorMaxResist: eqA.armorMaxResist,
+    fighterB_armorMaxResist: eqB.armorMaxResist,
+    fighterA_armorLeftResist: eqA.armorLeftResist,
+    fighterB_armorLeftResist: eqB.armorLeftResist,
+    fighterA_armorBrokenPieces: eqA.armorBrokenPieces,
+    fighterB_armorBrokenPieces: eqB.armorBrokenPieces,
+    fighterA_coverage: eqA.coverage,
+    fighterB_coverage: eqB.coverage,
+    fighterA_setPieces: eqA.setPieces,
+    fighterB_setPieces: eqB.setPieces,
+    fighterA_setBonusActive: eqA.setBonusActive,
+    fighterB_setBonusActive: eqB.setBonusActive,
+    fighterA_amulet: eqA.amulet,
+    fighterB_amulet: eqB.amulet,
+    fighterA_shield: eqA.shield,
+    fighterB_shield: eqB.shield,
     winner: result.winner,
     koType: result.koType,
     firstAttacker: result.firstAttacker,

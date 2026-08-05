@@ -4,6 +4,22 @@ Este archivo registra los cambios significativos y decisiones arquitectónicas t
 
 ---
 
+## [2.10.0] - 2026-08-04
+
+### Catálogo de ítems real (Familia del Hierro) en la simulación + re-baseline con soft cap + experimentos de equipamiento
+
+Reemplaza el catálogo inventado de la simulación por el catálogo base de hierro derivado con las fórmulas REALES del motor (`itemStatService`: base × tier × material), con personalidades tipo jugador (especializadas 60-80% en 2-3 stats) y valida mecánicas pendientes del motor. Los ítems se crean SOLO en la simulación; cuando estén probados se implementarán en `src/data/` (revisando además cómo se almacenan los ítems ya creados).
+
+- **`scripts/simulate_combat/config.js`**: `PERSONALITIES` rediseñadas (tanque, asesino, esquivo, equilibrado, extremista_*, velocista, berserker, guardian, estratega, gladiador, magus), `IRON_FAMILY` (weaponPool espada cortante 20 / estoque perforante 14 / maza contundente 22; armorSlotBase cabeza/pecho/pantalones/botas; coverageSuffix ligera/media/alta/total; escudo en `mano_izq` cobertura alta; amuleto `{atk:+5}`), `TIER_BRACKETS` (E/C/B/A) con asignación probabilística 60/30/10, `SHIELD_CHANCE=0.6`, `AMULET_CHANCE=0.4`, `SET_BONUS={def:10}`, `STAT_SOFT_CAP=75`.
+- **Soft cap de asignación de puntos** (`fighterGenerator.js`): `allocateDelta` reparte el presupuesto de nivel punto a punto según pesos de personalidad con decay cuadrático desde el soft cap — el jugador diversifica al acercarse al clamp 100 (elimina la saturación que aplastaba la varianza). `scaleToLevel` re-gasta el delta con los pesos del propio fighter (adiós al escalado por ratio). `capToMaxLevel` recorta el exceso de nivel por buffs (suma ≤ 500).
+- **`combatLoop.js`**: cobertura real aplicada a movimiento (mspd penalizada + `getMovementFatigueWithCoverage`); durabilidad por piezas EN ORDEN (`createDurability` reparte el daño material entre `armorList` — mecánica validada en sim, pendiente en motor real que solo impacta `armor.list[0]`).
+- **Métricas/auditoría**: `metricsCollector` (equipmentTier, coverage, setPieces, amulet, shield, armorBrokenPieces...), `aggregator`/`formatters` (sección "Equipment Analysis" con winrates), `audit.js` (7.1 saturación por bracket, 7.2 naturalezas ≈1/3, 7.3 tier por nivel 60/30/10, 7.4 equipo; veredicto con backticks escapados; accepta `draw` por timeout con HP igual).
+- **`scripts/simulate_combat/run_equipment_experiments.js`** (nuevo): 16 presets × 1000 sims (amuleto on/off, escudo on/off, cobertura ligera→total, set on/off, naturaleza espada/estoque/maza, tier E/C/A) → `scripts/simulation_output/experiments/`.
+- **`docs/item_creation_guide.md`** (nueva): reglas canónicas de creación de ítems + resultados del re-baseline y experimentos.
+
+**Resultados (baseline 2000 sims)**: integridad 0 issues; saturación 0% en brackets bajos (máx 20.5% def en 400-500); naturalezas ≈1/3; tier 60/30/10; ventaja primer atacante 2.1% (target ≤5% ✅); meta velocista 64.6% (target ≤55% ❌ — hallazgo del motor); turnos 12.06 (target 7.0 ❌). **Experimentación**: amuleto acelera (rounds 12.8→10.2, ATK +8), set alarga combates (9.2→12.1 rounds), cobertura ligera/media invierte la ventaja del primer atacante, tier E→A reduce rounds 15.1→9.2, estoque es la naturaleza más letal (KO 98%). Lint 0, typecheck 0.
+
+
 ## [2.9.0] - 2026-08-03
 
 ### UI por secciones reutilizables + menú de combate data-driven + equipamiento en `/ver_pj`

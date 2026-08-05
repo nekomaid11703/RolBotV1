@@ -160,6 +160,15 @@ function aggregate(allMetrics) {
   let weaponPresent = 0;
   let armorPresent = 0;
 
+  // ── Equipo: cobertura, set, amuleto, escudo, tier de arma, naturaleza por nivel ──
+  const coverageStats = {};
+  const setPiecesStats = {};
+  const setBonusStats = { active: { wins: 0, total: 0 }, inactive: { wins: 0, total: 0 } };
+  const amuletStats = { with: { wins: 0, total: 0 }, without: { wins: 0, total: 0 } };
+  const shieldStats = { with: { wins: 0, total: 0 }, without: { wins: 0, total: 0 } };
+  const weaponTierStats = {};
+  const natureByLevel = {};
+
   // ── Target: contribución mágica ──
   const magicHigh = {};
   const magicLow = {};
@@ -268,6 +277,44 @@ function aggregate(allMetrics) {
     }
     for (const armor of [m.fighterA_armorBonusDef, m.fighterB_armorBonusDef]) {
       if (armor > 0) armorPresent++;
+    }
+    for (const side of ["A", "B"]) {
+      const prefix = `fighter${side}`;
+      const won = m.winner === side;
+
+      const cov = m[`${prefix}_coverage`] || "ninguna";
+      coverageStats[cov] = coverageStats[cov] || { wins: 0, total: 0 };
+      coverageStats[cov].total++;
+      if (won) coverageStats[cov].wins++;
+
+      const sp = m[`${prefix}_setPieces`] || 0;
+      const spKey = sp >= 3 ? "3+" : sp > 0 ? `1-2` : "0";
+      setPiecesStats[spKey] = setPiecesStats[spKey] || { wins: 0, total: 0 };
+      setPiecesStats[spKey].total++;
+      if (won) setPiecesStats[spKey].wins++;
+
+      const sbKey = m[`${prefix}_setBonusActive`] ? "active" : "inactive";
+      setBonusStats[sbKey].total++;
+      if (won) setBonusStats[sbKey].wins++;
+
+      const amKey = m[`${prefix}_amulet`] ? "with" : "without";
+      amuletStats[amKey].total++;
+      if (won) amuletStats[amKey].wins++;
+
+      const shKey = m[`${prefix}_shield`] ? "with" : "without";
+      shieldStats[shKey].total++;
+      if (won) shieldStats[shKey].wins++;
+
+      const wt = m[`${prefix}_weaponTier`] || "desarmado";
+      weaponTierStats[wt] = weaponTierStats[wt] || { wins: 0, total: 0 };
+      weaponTierStats[wt].total++;
+      if (won) weaponTierStats[wt].wins++;
+
+      const lvl = m[`${prefix}_level`];
+      const bracket = lvl < 200 ? "100-199" : lvl < 300 ? "200-299" : lvl < 400 ? "300-399" : "400-500";
+      natureByLevel[bracket] = natureByLevel[bracket] || {};
+      const nat = m[`${prefix}_weaponNature`] || "desarmado";
+      natureByLevel[bracket][nat] = (natureByLevel[bracket][nat] || 0) + 1;
     }
     for (const lvl of [m.fighterA_level, m.fighterB_level]) {
       if (lvl < 200) levelBrackets["100-199"]++;
@@ -419,6 +466,22 @@ function aggregate(allMetrics) {
       rate: totalFighters > 0 ? equipmentTierCount[tier] / totalFighters : 0,
     };
   }
+
+  // ── Equipo: cobertura, set, amuleto, escudo, tier de arma, naturaleza por nivel ──
+  function toWinRate(acc) {
+    const out = {};
+    for (const [key, cell] of Object.entries(acc)) {
+      out[key] = { count: cell.total, winrate: cell.total > 0 ? cell.wins / cell.total : 0 };
+    }
+    return out;
+  }
+  variance.coverage = toWinRate(coverageStats);
+  variance.setPieces = toWinRate(setPiecesStats);
+  variance.setBonus = toWinRate(setBonusStats);
+  variance.amulet = toWinRate(amuletStats);
+  variance.shield = toWinRate(shieldStats);
+  variance.weaponTier = toWinRate(weaponTierStats);
+  variance.natureByLevel = natureByLevel;
 
   // ── Contribución mágica ──
   const magicContribution = {};

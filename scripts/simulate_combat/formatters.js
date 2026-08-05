@@ -142,6 +142,50 @@ function formatMarkdownReport(report, config = {}) {
   }
   lines.push("");
 
+  // ── Equipo: cobertura, set, amuleto, escudo, tier de arma ──
+  lines.push("## Equipment Analysis");
+  lines.push("### Coverage (dominante)");
+  lines.push("| Coverage | Count | Winrate |");
+  lines.push("|----------|-------|---------|");
+  for (const cov of Object.keys(report.variance.coverage).sort()) {
+    const c = report.variance.coverage[cov];
+    lines.push(`| ${cov} | ${c.count} | ${pct(c.winrate)} |`);
+  }
+  lines.push("");
+  lines.push("### Set pieces");
+  lines.push("| Pieces | Count | Winrate |");
+  lines.push("|--------|-------|---------|");
+  for (const key of Object.keys(report.variance.setPieces).sort()) {
+    const c = report.variance.setPieces[key];
+    lines.push(`| ${key} | ${c.count} | ${pct(c.winrate)} |`);
+  }
+  lines.push(`Set bonus active: ${pct(report.variance.setBonus.active.winrate)} (${report.variance.setBonus.active.count}) vs inactive ${pct(report.variance.setBonus.inactive.winrate)} (${report.variance.setBonus.inactive.count})`);
+  lines.push("");
+  lines.push("### Amulet");
+  lines.push(`With amulet: ${pct(report.variance.amulet.with.winrate)} (${report.variance.amulet.with.count}) vs without ${pct(report.variance.amulet.without.winrate)} (${report.variance.amulet.without.count})`);
+  lines.push("");
+  lines.push("### Shield");
+  lines.push(`With shield: ${pct(report.variance.shield.with.winrate)} (${report.variance.shield.with.count}) vs without ${pct(report.variance.shield.without.winrate)} (${report.variance.shield.without.count})`);
+  lines.push("");
+  lines.push("### Weapon tier");
+  lines.push("| Tier | Count | Winrate |");
+  lines.push("|------|-------|---------|");
+  for (const tier of Object.keys(report.variance.weaponTier).sort()) {
+    const t = report.variance.weaponTier[tier];
+    lines.push(`| ${tier} | ${t.count} | ${pct(t.winrate)} |`);
+  }
+  lines.push("");
+  lines.push("### Nature by level bracket");
+  for (const bracket of Object.keys(report.variance.natureByLevel).sort()) {
+    const counts = report.variance.natureByLevel[bracket];
+    const parts = Object.entries(counts)
+      .sort()
+      .map(([nat, n]) => `${nat}: ${n}`)
+      .join(", ");
+    lines.push(`- **${bracket}**: ${parts}`);
+  }
+  lines.push("");
+
   // ── Contribución mágica ──
   lines.push("## Magic Stats Contribution");
   lines.push("| Stat | High winrate | High count | Low winrate | Low count | Diff |");

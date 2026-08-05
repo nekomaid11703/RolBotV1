@@ -118,5 +118,15 @@
   "116": "002_rename_stats_keys.sql",
   "117": "supabase_auth_state.test.js",
   "118": "command_format.test.js",
-  "124": "throwable.js"
+  "119": "test_supabase_schema.js",
+  "120": "005_rename_stats_keys.sql",
+  "121": "admin_perm_rem.js",
+  "122": "aggregator.js",
+  "123": "descansar.js",
+  "124": "throwable.js",
+  "125": "items.js",
+  "126": "run_experiments.js",
+  "127": "handleCommand",
+  "128": "command_handler_error.test.js",
+  "129": "formatters.js"
 }
