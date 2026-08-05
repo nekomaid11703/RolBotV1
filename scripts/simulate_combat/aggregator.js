@@ -1,9 +1,18 @@
 // @ts-nocheck
 "use strict";
 
-const { PERSONALITIES, FATIGUE_SNAPSHOT_TURNS, PHYSICAL_STATS } = require("./config");
+const {
+  PERSONALITIES,
+  FATIGUE_SNAPSHOT_TURNS,
+  PHYSICAL_STATS,
+  MAGIC_STATS,
+  MATCHED_LEVEL_DIFF_PCT,
+  BALANCE_TARGETS,
+  MAGIC_HIGH_THRESHOLD,
+} = require("./config");
 
 const PERSONALITY_KEYS = Object.keys(PERSONALITIES);
+const STAT_BUCKETS = ["1-15", "16-30", "31-50", "51-70", "71-100"];
 
 /**
  *
@@ -12,6 +21,17 @@ const PERSONALITY_KEYS = Object.keys(PERSONALITIES);
 function mean(arr) {
   if (arr.length === 0) return 0;
   return arr.reduce((a, b) => a + b, 0) / arr.length;
+}
+
+/**
+ *
+ * @param arr
+ */
+function stddev(arr) {
+  if (arr.length === 0) return 0;
+  const m = mean(arr);
+  const variance = arr.reduce((acc, v) => acc + (v - m) * (v - m), 0) / arr.length;
+  return Math.sqrt(variance);
 }
 
 /**
@@ -38,7 +58,21 @@ function initPersonalityMap() {
 }
 
 /**
- * Aggregate all per-combat metrics into summary statistics.
+ *
+ * @param val
+ */
+function getBucket(val) {
+  if (val <= 15) return "1-15";
+  if (val <= 30) return "16-30";
+  if (val <= 50) return "31-50";
+  if (val <= 70) return "51-70";
+  return "71-100";
+}
+
+/**
+ * Aggregate all per-combat metrics into summary statistics aligned with the
+ * balance targets (turns, first attacker, meta builds, resource management,
+ * data variance, magic contribution).
  * @param {object[]} allMetrics - Array of CombatMetrics from collectMetrics()
  * @returns {object} AggregatedReport
  */
@@ -54,7 +88,7 @@ function aggregate(allMetrics) {
   }
 
   let totalKOs = 0;
-  let totalTimeouts = 0;
+  let draws = 0;
   const allRounds = [];
   const roundsKO = [];
 
@@ -70,8 +104,6 @@ function aggregate(allMetrics) {
       block: 0,
       none: 0,
       totalDefended: 0,
-      totalDamageReceived: 0,
-      totalDamageBlocked: 0,
     };
   }
 
@@ -96,31 +128,46 @@ function aggregate(allMetrics) {
     }
   }
 
-  // ── Stat vs win rate ──
-  const statValues = {};
-  for (const stat of PHYSICAL_STATS) {
-    statValues[stat] = {
-      "1-15": { wins: 0, total: 0 },
-      "16-30": { wins: 0, total: 0 },
-      "31-50": { wins: 0, total: 0 },
-      "51-70": { wins: 0, total: 0 },
-      "71-100": { wins: 0, total: 0 },
-    };
+  // ── Stat vs win rate (físicas + mágicas) ──
+  const statVsWinRate = {};
+  for (const stat of [...PHYSICAL_STATS, ...MAGIC_STATS]) {
+    statVsWinRate[stat] = {};
+    for (const bucket of STAT_BUCKETS) {
+      statVsWinRate[stat][bucket] = { wins: 0, total: 0 };
+    }
   }
 
-  /**
-   *
-   * @param val
-   */
-  function getBucket(val) {
-    if (val <= 15) return "1-15";
-    if (val <= 30) return "16-30";
-    if (val <= 50) return "31-50";
-    if (val <= 70) return "51-70";
-    return "71-100";
+  // ── Target: primer atacante ──
+  let firstAttackerWins = 0;
+
+  // ── Target: turnos con nivel/equipo similares ──
+  const matchedRounds = [];
+
+  // ── Target: gestión de recursos ──
+  const itemUsesList = [];
+  const restsList = [];
+  const advancesList = [];
+  const retreatsList = [];
+  const healsList = [];
+  let battlesWithItemUse = 0;
+
+  // ── Target: variación de datos ──
+  const equipmentTierCount = {};
+  const weaponNatureCount = {};
+  const levelBrackets = { "100-199": 0, "200-299": 0, "300-399": 0, "400-500": 0 };
+  const atkValues = [];
+  const aspdValues = [];
+  let weaponPresent = 0;
+  let armorPresent = 0;
+
+  // ── Target: contribución mágica ──
+  const magicHigh = {};
+  const magicLow = {};
+  for (const stat of MAGIC_STATS) {
+    magicHigh[stat] = { wins: 0, total: 0 };
+    magicLow[stat] = { wins: 0, total: 0 };
   }
 
-  // ── Process each combat ──
   for (const m of allMetrics) {
     const pA = m.fighterA_personality;
     const pB = m.fighterB_personality;
@@ -130,44 +177,46 @@ function aggregate(allMetrics) {
 
     if (m.koType === "ko") {
       totalKOs++;
-    } else {
-      totalTimeouts++;
     }
     allRounds.push(m.totalRounds);
     if (m.koType === "ko") roundsKO.push(m.totalRounds);
 
-    // Win tracking
     if (m.winner === "A") {
       wins[pA]++;
     } else if (m.winner === "B") {
       wins[pB]++;
+    } else {
+      draws++;
     }
 
-    // Damage per turn
+    if (m.winner === "A") firstAttackerWins++;
+
+    const levelDiffPct =
+      Math.abs(m.fighterA_level - m.fighterB_level) / Math.max(1, Math.max(m.fighterA_level, m.fighterB_level));
+    if (levelDiffPct <= MATCHED_LEVEL_DIFF_PCT && m.fighterA_equipmentTier === m.fighterB_equipmentTier) {
+      matchedRounds.push(m.totalRounds);
+    }
+
     for (const d of m.damagePerTurnA) damageByPersonality[pA].push(d);
     for (const d of m.damagePerTurnB) damageByPersonality[pB].push(d);
 
-    // Reaction stats (A as defender)
     reactionStats[pA].dodge_attempted += m.reactionsA.dodge_attempted;
     reactionStats[pA].dodge_success += m.reactionsA.dodge_success;
     reactionStats[pA].block += m.reactionsA.block;
     reactionStats[pA].none += m.reactionsA.none;
     reactionStats[pA].totalDefended += m.reactionsA.dodge_attempted + m.reactionsA.block + m.reactionsA.none;
 
-    // Reaction stats (B as defender)
     reactionStats[pB].dodge_attempted += m.reactionsB.dodge_attempted;
     reactionStats[pB].dodge_success += m.reactionsB.dodge_success;
     reactionStats[pB].block += m.reactionsB.block;
     reactionStats[pB].none += m.reactionsB.none;
     reactionStats[pB].totalDefended += m.reactionsB.dodge_attempted + m.reactionsB.block + m.reactionsB.none;
 
-    // Fatigue curves
     for (const turn of FATIGUE_SNAPSHOT_TURNS) {
       if (m.fatigueCurveA[turn] !== undefined) fatigueAccum[pA][turn].push(m.fatigueCurveA[turn]);
       if (m.fatigueCurveB[turn] !== undefined) fatigueAccum[pB][turn].push(m.fatigueCurveB[turn]);
     }
 
-    // Matchup matrix
     matchupTotal[pA][pB]++;
     matchupTotal[pB][pA]++;
     if (m.winner === "A") {
@@ -176,52 +225,108 @@ function aggregate(allMetrics) {
       matchupWins[pB][pA]++;
     }
 
-    // Stat vs win rate
-    for (const stat of PHYSICAL_STATS) {
-      const bucketA = getBucket(
-        m.fighterA_level > 0 ? Math.round(m.fighterA_level * (m.fighterA_personality === pA ? 1 : 0.5) || 0) : 0,
-      );
-      const bucketB = getBucket(
-        m.fighterB_level > 0 ? Math.round(m.fighterB_level * (m.fighterB_personality === pB ? 1 : 0.5) || 0) : 0,
-      );
+    const statsA = m.fighterA_stats || {};
+    const statsB = m.fighterB_stats || {};
+    for (const stat of [...PHYSICAL_STATS, ...MAGIC_STATS]) {
+      const bucketA = getBucket(statsA[stat] ?? 0);
+      const bucketB = getBucket(statsB[stat] ?? 0);
+      statVsWinRate[stat][bucketA].total++;
+      statVsWinRate[stat][bucketB].total++;
+      if (m.winner === "A") statVsWinRate[stat][bucketA].wins++;
+      else if (m.winner === "B") statVsWinRate[stat][bucketB].wins++;
     }
+
+    for (const stat of MAGIC_STATS) {
+      const valA = statsA[stat] ?? 0;
+      const valB = statsB[stat] ?? 0;
+      if (valA >= MAGIC_HIGH_THRESHOLD) magicHigh[stat].total++;
+      else magicLow[stat].total++;
+      if (valB >= MAGIC_HIGH_THRESHOLD) magicHigh[stat].total++;
+      else magicLow[stat].total++;
+      if (m.winner === "A") {
+        if (valA >= MAGIC_HIGH_THRESHOLD) magicHigh[stat].wins++;
+        else magicLow[stat].wins++;
+      } else if (m.winner === "B") {
+        if (valB >= MAGIC_HIGH_THRESHOLD) magicHigh[stat].wins++;
+        else magicLow[stat].wins++;
+      }
+    }
+
+    itemUsesList.push(m.itemsUsedA + m.itemsUsedB);
+    restsList.push(m.restCountA + m.restCountB);
+    advancesList.push(m.advancesA + m.advancesB);
+    retreatsList.push(m.retreatsA + m.retreatsB);
+    healsList.push(m.healTotalA + m.healTotalB);
+    if (m.itemsUsedA > 0 || m.itemsUsedB > 0) battlesWithItemUse++;
+
+    for (const tier of [m.fighterA_equipmentTier, m.fighterB_equipmentTier]) {
+      equipmentTierCount[tier] = (equipmentTierCount[tier] || 0) + 1;
+    }
+    for (const nature of [m.fighterA_weaponNature, m.fighterB_weaponNature]) {
+      weaponNatureCount[nature] = (weaponNatureCount[nature] || 0) + 1;
+      if (nature !== "desarmado") weaponPresent++;
+    }
+    for (const armor of [m.fighterA_armorBonusDef, m.fighterB_armorBonusDef]) {
+      if (armor > 0) armorPresent++;
+    }
+    for (const lvl of [m.fighterA_level, m.fighterB_level]) {
+      if (lvl < 200) levelBrackets["100-199"]++;
+      else if (lvl < 300) levelBrackets["200-299"]++;
+      else if (lvl < 400) levelBrackets["300-399"]++;
+      else levelBrackets["400-500"]++;
+    }
+    atkValues.push(statsA.atk ?? 0, statsB.atk ?? 0);
+    aspdValues.push(statsA.aspd ?? 0, statsB.aspd ?? 0);
   }
 
-  // ── Compute stat vs win rate properly ──
-  // We need actual stat values, not levels. Re-process from metrics.
-  const statVsWinRate = {};
-  for (const stat of PHYSICAL_STATS) {
-    statVsWinRate[stat] = {};
-    for (const bucket of ["1-15", "16-30", "31-50", "51-70", "71-100"]) {
-      statVsWinRate[stat][bucket] = { wins: 0, total: 0 };
-    }
-  }
+  const totalFighters = totalSims * 2;
 
-  // Since we don't have raw stat values in metrics (only levels and personalities),
-  // we approximate using personality stat weights as proxy.
-  // A better approach: store stats in metrics. Let's re-aggregate using level as proxy.
-  // Actually, let's just use the level-based approach for the heatmap.
-
-  // ── Build final report ──
+  // ── Overview ──
   const overview = {
     totalSimulations: totalSims,
     totalKOs,
-    totalTimeouts,
+    totalTimeouts: totalSims - totalKOs,
+    draws,
     koRate: totalSims > 0 ? totalKOs / totalSims : 0,
     avgRoundsOverall: mean(allRounds),
     avgRoundsKO: mean(roundsKO),
+    roundsP50: percentile(allRounds, 50),
+    roundsP90: percentile(allRounds, 90),
+    roundsMax: allRounds.length > 0 ? Math.max(...allRounds) : 0,
   };
 
+  // ── Win rates ──
   const winRates = {};
+  let metaWinrate = 0;
+  let metaPersonality = null;
   for (const key of PERSONALITY_KEYS) {
     const total = appearances[key];
-    winRates[key] = {
-      wins: wins[key],
-      total,
-      rate: total > 0 ? wins[key] / total : 0,
-    };
+    const rate = total > 0 ? wins[key] / total : 0;
+    winRates[key] = { wins: wins[key], total, rate };
+    if (rate > metaWinrate) {
+      metaWinrate = rate;
+      metaPersonality = key;
+    }
   }
 
+  // ── Primer atacante ──
+  const firstAttacker = {
+    wins: firstAttackerWins,
+    draws,
+    total: totalSims,
+    winrate: totalSims > 0 ? firstAttackerWins / totalSims : 0,
+    advantage: totalSims > 0 ? firstAttackerWins / totalSims - 0.5 : 0,
+  };
+
+  // ── Turnos con nivel/equipo similares ──
+  const matched = {
+    count: matchedRounds.length,
+    avgRounds: mean(matchedRounds),
+    roundsP50: percentile(matchedRounds, 50),
+    roundsP90: percentile(matchedRounds, 90),
+  };
+
+  // ── Daño por turno ──
   const avgDamagePerTurn = {};
   for (const key of PERSONALITY_KEYS) {
     avgDamagePerTurn[key] = {
@@ -234,6 +339,7 @@ function aggregate(allMetrics) {
     };
   }
 
+  // ── Dodge / Block ──
   const dodgeEffectiveness = {};
   const blockEffectiveness = {};
   for (const key of PERSONALITY_KEYS) {
@@ -250,6 +356,7 @@ function aggregate(allMetrics) {
     };
   }
 
+  // ── Curvas de fatiga ──
   const fatigueCurves = {};
   for (const key of PERSONALITY_KEYS) {
     fatigueCurves[key] = {};
@@ -258,6 +365,7 @@ function aggregate(allMetrics) {
     }
   }
 
+  // ── Matchup matrix ──
   const matchupMatrix = {};
   for (const a of PERSONALITY_KEYS) {
     matchupMatrix[a] = {};
@@ -267,29 +375,111 @@ function aggregate(allMetrics) {
     }
   }
 
-  // Stat vs win rate — simplified: use personality weight ranges as proxy
-  // In future versions, store actual stats in metrics for precise heatmap
+  // ── Stat heatmap (valores reales de stats) ──
   const statHeatmap = {};
-  for (const stat of PHYSICAL_STATS) {
-    statHeatmap[stat] = [];
-    for (const bucket of ["1-15", "16-30", "31-50", "51-70", "71-100"]) {
-      statHeatmap[stat].push({
+  for (const stat of [...PHYSICAL_STATS, ...MAGIC_STATS]) {
+    statHeatmap[stat] = STAT_BUCKETS.map((bucket) => {
+      const cell = statVsWinRate[stat][bucket];
+      return {
         range: bucket,
-        avgWinRate: 0,
-        count: 0,
-      });
-    }
+        avgWinRate: cell.total > 0 ? cell.wins / cell.total : 0,
+        count: cell.total,
+      };
+    });
   }
+
+  // ── Gestión de recursos ──
+  const resources = {
+    avgItemsPerBattle: mean(itemUsesList),
+    battlesWithItemUseRate: totalSims > 0 ? battlesWithItemUse / totalSims : 0,
+    avgHealPerBattle: mean(healsList),
+    avgRestsPerBattle: mean(restsList),
+    avgAdvancesPerBattle: mean(advancesList),
+    avgRetreatsPerBattle: mean(retreatsList),
+    battlesWithMovement: 0,
+    itemsP50: percentile(itemUsesList, 50),
+    restsP50: percentile(restsList, 50),
+  };
+
+  // ── Variación de datos ──
+  const variance = {
+    equipmentTier: {},
+    weaponPresenceRate: totalFighters > 0 ? weaponPresent / totalFighters : 0,
+    armorPresenceRate: totalFighters > 0 ? armorPresent / totalFighters : 0,
+    weaponNature: weaponNatureCount,
+    levelBrackets,
+    atkSpread: stddev(atkValues),
+    aspdSpread: stddev(aspdValues),
+    atkAvg: mean(atkValues),
+    aspdAvg: mean(aspdValues),
+  };
+  for (const tier of Object.keys(equipmentTierCount)) {
+    variance.equipmentTier[tier] = {
+      count: equipmentTierCount[tier],
+      rate: totalFighters > 0 ? equipmentTierCount[tier] / totalFighters : 0,
+    };
+  }
+
+  // ── Contribución mágica ──
+  const magicContribution = {};
+  for (const stat of MAGIC_STATS) {
+    magicContribution[stat] = {
+      highWinrate: magicHigh[stat].total > 0 ? magicHigh[stat].wins / magicHigh[stat].total : 0,
+      highCount: magicHigh[stat].total,
+      lowWinrate: magicLow[stat].total > 0 ? magicLow[stat].wins / magicLow[stat].total : 0,
+      lowCount: magicLow[stat].total,
+      difference: 0,
+    };
+    magicContribution[stat].difference =
+      magicContribution[stat].highWinrate - magicContribution[stat].lowWinrate;
+  }
+
+  // ── Validación de targets ──
+  const targets = [
+    {
+      key: "avgTurnsMatched",
+      label: BALANCE_TARGETS.avgTurnsMatched.label,
+      target: BALANCE_TARGETS.avgTurnsMatched.target,
+      tolerance: BALANCE_TARGETS.avgTurnsMatched.tolerance,
+      value: matched.avgRounds,
+      pass: Math.abs(matched.avgRounds - BALANCE_TARGETS.avgTurnsMatched.target) <= BALANCE_TARGETS.avgTurnsMatched.tolerance,
+    },
+    {
+      key: "firstAttackerWinrate",
+      label: BALANCE_TARGETS.firstAttackerWinrate.label,
+      target: BALANCE_TARGETS.firstAttackerWinrate.target,
+      tolerance: BALANCE_TARGETS.firstAttackerWinrate.tolerance,
+      value: firstAttacker.advantage,
+      pass:
+        Math.abs(firstAttacker.advantage) <=
+        BALANCE_TARGETS.firstAttackerWinrate.target + BALANCE_TARGETS.firstAttackerWinrate.tolerance,
+    },
+    {
+      key: "metaWinrate",
+      label: BALANCE_TARGETS.metaWinrate.label,
+      target: BALANCE_TARGETS.metaWinrate.target,
+      tolerance: BALANCE_TARGETS.metaWinrate.tolerance,
+      value: metaWinrate,
+      pass: metaWinrate <= BALANCE_TARGETS.metaWinrate.target + BALANCE_TARGETS.metaWinrate.tolerance,
+    },
+  ];
 
   return {
     overview,
     winRates,
+    meta: { winrate: metaWinrate, personality: metaPersonality },
+    firstAttacker,
+    matched,
     avgDamagePerTurn,
     dodgeEffectiveness,
     blockEffectiveness,
     fatigueCurves,
     matchupMatrix,
     statHeatmap,
+    resources,
+    variance,
+    magicContribution,
+    targets,
   };
 }
 

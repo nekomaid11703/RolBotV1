@@ -1,6 +1,8 @@
 // @ts-nocheck
 "use strict";
 
+const { PHYSICAL_STATS } = require("./config");
+
 /**
  *
  * @param result
@@ -16,50 +18,102 @@ function collectMetrics(result) {
 
   let restCountA = 0;
   let restCountB = 0;
+  let itemsUsedA = 0;
+  let itemsUsedB = 0;
+  let healTotalA = 0;
+  let healTotalB = 0;
+  let advancesA = 0;
+  let advancesB = 0;
+  let retreatsA = 0;
+  let retreatsB = 0;
+  let weaponHitsA = 0;
+  let weaponHitsB = 0;
 
   for (const entry of result.log) {
-    const isRest = entry.reaction === "rest" || entry.attacker === "A_rest" || entry.attacker === "B_rest";
+    const isA = entry.attacker.startsWith("A");
 
-    if (entry.attacker === "A" || entry.attacker === "B_counter") {
-      if (!isRest) {
+    if (entry.action === "attack") {
+      if (isA) {
+        weaponHitsA++;
         damagePerTurnA.push(entry.finalDamage);
         totalDamageA += entry.finalDamage;
-      }
-      trackReaction(reactionsB, entry.reaction);
-    } else if (entry.attacker === "B" || entry.attacker === "A_counter") {
-      if (!isRest) {
+        trackReaction(reactionsB, entry.reaction);
+      } else {
+        weaponHitsB++;
         damagePerTurnB.push(entry.finalDamage);
         totalDamageB += entry.finalDamage;
+        trackReaction(reactionsA, entry.reaction);
       }
-      trackReaction(reactionsA, entry.reaction);
+    } else if (entry.action === "rest") {
+      if (isA) restCountA++;
+      else restCountB++;
+    } else if (entry.action === "item") {
+      if (isA) {
+        itemsUsedA++;
+        healTotalA += entry.heal;
+      } else {
+        itemsUsedB++;
+        healTotalB += entry.heal;
+      }
+    } else if (entry.action === "advance") {
+      if (isA) advancesA++;
+      else advancesB++;
+    } else if (entry.action === "retreat") {
+      if (isA) retreatsA++;
+      else retreatsB++;
     }
-
-    if (entry.attacker === "A_rest") restCountA++;
-    if (entry.attacker === "B_rest") restCountB++;
   }
 
+  const fighterA = result.fighterA;
+  const fighterB = result.fighterB;
+
   return {
-    fighterA_personality: result.fighterA.personality,
-    fighterB_personality: result.fighterB.personality,
-    fighterA_level: result.fighterA.nivel,
-    fighterB_level: result.fighterB.nivel,
-    fighterA_race: result.fighterA.race,
-    fighterB_race: result.fighterB.race,
+    fighterA_personality: fighterA.personality,
+    fighterB_personality: fighterB.personality,
+    fighterA_level: fighterA.nivel,
+    fighterB_level: fighterB.nivel,
+    fighterA_race: fighterA.race,
+    fighterB_race: fighterB.race,
+    fighterA_stats: fighterA.stats,
+    fighterB_stats: fighterB.stats,
+    fighterA_weapon: fighterA.equipment.weapon?.name || "desarmado",
+    fighterB_weapon: fighterB.equipment.weapon?.name || "desarmado",
+    fighterA_weaponNature: fighterA.equipment.weapon?.damageNature || "desarmado",
+    fighterB_weaponNature: fighterB.equipment.weapon?.damageNature || "desarmado",
+    fighterA_weaponRange: fighterA.equipment.weapon?.weaponRange || 0,
+    fighterB_weaponRange: fighterB.equipment.weapon?.weaponRange || 0,
+    fighterA_equipmentTier: fighterA.equipment.tierKey,
+    fighterB_equipmentTier: fighterB.equipment.tierKey,
+    fighterA_armorBonusDef: fighterA.equipment.armor?.bonusDef || 0,
+    fighterB_armorBonusDef: fighterB.equipment.armor?.bonusDef || 0,
     winner: result.winner,
     koType: result.koType,
+    firstAttacker: result.firstAttacker,
+    winnerIsFirstAttacker: result.winner === result.firstAttacker,
     totalRounds: result.totalRounds,
     damagePerTurnA,
     damagePerTurnB,
     totalDamageA,
     totalDamageB,
+    weaponHitsA,
+    weaponHitsB,
     reactionsA,
     reactionsB,
     restCountA,
     restCountB,
+    itemsUsedA,
+    itemsUsedB,
+    healTotalA,
+    healTotalB,
+    advancesA,
+    advancesB,
+    retreatsA,
+    retreatsB,
     fatigueCurveA: result.fatigueCurveA,
     fatigueCurveB: result.fatigueCurveB,
     hpCurveA: result.hpCurveA,
     hpCurveB: result.hpCurveB,
+    distanceCurve: result.distanceCurve,
   };
 }
 
@@ -83,4 +137,4 @@ function trackReaction(stats, reaction) {
   }
 }
 
-module.exports = { collectMetrics };
+module.exports = { collectMetrics, PHYSICAL_STATS };

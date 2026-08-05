@@ -1,9 +1,29 @@
 // @ts-nocheck
 "use strict";
 
-const { executeTurn, executeAttack } = require("../../src/services/rpg/combatEngine");
-const { calcFatigueRecovery, calcFatigueCost, getFatigueLevel } = require("../../src/services/rpg/fatigueEngine");
-const { MAX_ROUNDS, FATIGUE_SNAPSHOT_TURNS } = require("./config");
+const { executeAttack, executeReaction, chooseAiReaction, checkAttackRange } = require("../../src/services/rpg/combatEngine");
+const {
+  calcFatigueRecovery,
+  calcFatigueCost,
+  getFatigueLevel,
+  calculateMovementFatigue,
+  getMovementRange,
+} = require("../../src/services/rpg/fatigueEngine");
+const {
+  MAX_ROUNDS,
+  FATIGUE_SNAPSHOT_TURNS,
+  REST_FATIGUE_RATIO,
+  REST_LOW_HP_RATIO,
+  REST_LOW_FATIGUE_RATIO,
+  ITEM_USE_HP_RATIO,
+  ITEM_USE_MAX_FATIGUE_RATIO,
+  ITEM_USE_FATIGUE_COST,
+  INITIAL_DISTANCE,
+  MAX_DISTANCE,
+  RETREAT_HP_RATIO,
+  RETREAT_MAX_DISTANCE,
+  RETREAT_MAX_FATIGUE_RATIO,
+} = require("./config");
 
 /**
  *
@@ -12,6 +32,37 @@ const { MAX_ROUNDS, FATIGUE_SNAPSHOT_TURNS } = require("./config");
  */
 function characterShape(fighter, currentHp) {
   return { name: fighter.name, stats: fighter.stats, hp_actual: currentHp };
+}
+
+/**
+ *
+ * @param state
+ */
+function fatigueRatio(state) {
+  const resistance = state.fighter.stats.def || 1;
+  return getFatigueLevel(state.fatigue, resistance).ratio;
+}
+
+/**
+ * Wrapper de durabilidad de armadura con el mismo contrato que el motor real
+ * (DurabilityModule.absorbDamage).
+ * @param {object} armor
+ */
+function createDurability(armor) {
+  let current = armor.currentDurability;
+
+  return {
+    absorbDamage(materialDamage) {
+      const absorbed = Math.min(current, materialDamage);
+      current = Math.max(0, current - absorbed);
+      return {
+        absorbed,
+        overflow: Math.max(0, materialDamage - absorbed),
+        isBroken: current <= 0,
+        isDestroyed: current <= 0,
+      };
+    },
+  };
 }
 
 /**
@@ -31,70 +82,224 @@ function applyReactionFatigue(reaction, defenderState) {
 
 /**
  *
- * @param fighterState
+ * @param state
  */
-function shouldRest(fighterState) {
-  const resistance = fighterState.fighter.stats.def || 1;
-  const { ratio } = getFatigueLevel(fighterState.fatigue, resistance);
-  if (ratio > 0.5) return true;
-  if (ratio > 0.3 && fighterState.hp < 50) return true;
+function shouldRest(state) {
+  const ratio = fatigueRatio(state);
+  if (ratio > REST_FATIGUE_RATIO) return true;
+  if (ratio > REST_LOW_FATIGUE_RATIO && state.hp < state.fighter.hp * REST_LOW_HP_RATIO) return true;
   return false;
 }
 
 /**
  *
- * @param resterState
- * @param attackerState
- * @param resterIsA
- * @param roundNum
+ * @param state
  */
-function executeRestTurn(resterState, attackerState, resterIsA, roundNum) {
-  const logEntries = [];
-  const resistance = resterState.fighter.stats.def || 1;
-  const recovery = calcFatigueRecovery("rest", resterState.fatigue, resistance);
-  resterState.fatigue = Math.max(0, resterState.fatigue - recovery);
+function shouldUseItem(state) {
+  if (state.items.length === 0) return false;
+  if (state.hp >= state.fighter.hp * ITEM_USE_HP_RATIO) return false;
+  if (fatigueRatio(state) > ITEM_USE_MAX_FATIGUE_RATIO) return false;
+  return true;
+}
 
-  logEntries.push({
-    round: roundNum,
-    half: resterIsA ? 1 : 2,
-    attacker: resterIsA ? "A_rest" : "B_rest",
-    baseDamage: 0,
-    reaction: "rest",
-    finalDamage: 0,
-    dodged: false,
-    hpAfter: resterState.hp,
-    recovery,
-  });
+/**
+ *
+ * @param state
+ * @param distance
+ */
+function shouldRetreat(state, distance) {
+  if (state.hp >= state.fighter.hp * RETREAT_HP_RATIO) return false;
+  if (distance >= RETREAT_MAX_DISTANCE) return false;
+  if (fatigueRatio(state) > RETREAT_MAX_FATIGUE_RATIO) return false;
+  return true;
+}
 
-  const attackerChar = characterShape(attackerState.fighter, attackerState.hp);
-  const resterChar = characterShape(resterState.fighter, resterState.hp);
+/**
+ *
+ * @param state
+ */
+function useItem(state) {
+  const item = state.items[0];
+  const maxHp = state.fighter.hp;
+  const heal = Math.min(item.heal, Math.max(0, maxHp - state.hp));
+  state.hp += heal;
+  state.items.shift();
+  state.fatigue += ITEM_USE_FATIGUE_COST;
+  return { name: item.name, heal };
+}
 
-  attackerState.fatigue += calcFatigueCost("attack", attackerState.fighter.stats);
+/**
+ * Ejecuta un ataque completo del actor contra el oponente (con reacción).
+ * @param {object} actor
+ * @param {object} opponent
+ * @returns {object} Entrada de log del ataque
+ */
+function performAttack(actor, opponent) {
+  const attackerChar = characterShape(actor.fighter, actor.hp);
+  const defenderChar = characterShape(opponent.fighter, opponent.hp);
+  const weaponInfo = actor.fighter.equipment.weapon;
+  const armorDurability = opponent.fighter.equipment.armor ? createDurability(opponent.fighter.equipment.armor) : null;
 
-  const reactionResult = executeTurn(
+  const attackInfo = executeAttack(
     attackerChar,
-    resterChar,
-    resterState.hp,
-    null,
-    attackerState.fatigue,
-    resterState.fatigue,
+    defenderChar,
+    opponent.hp,
+    actor.hp,
+    actor.fatigue,
+    opponent.fatigue,
+    weaponInfo,
   );
 
-  applyReactionFatigue(reactionResult.reaction, resterState);
-  resterState.hp = reactionResult.defenderHpAfter;
+  const reactionType = attackInfo.canReact
+    ? chooseAiReaction(defenderChar, opponent.hp, attackerChar, attackInfo.baseDamage, actor.hp, opponent.fatigue, actor.fatigue)
+    : "none";
 
-  logEntries.push({
-    round: roundNum,
-    half: resterIsA ? 1 : 2,
-    attacker: resterIsA ? "B_counter" : "A_counter",
-    baseDamage: reactionResult.baseDamage,
+  const reactionResult = executeReaction(
+    reactionType,
+    attackInfo.baseDamage,
+    defenderChar,
+    opponent.hp,
+    attackerChar,
+    actor.hp,
+    opponent.fatigue,
+    actor.fatigue,
+    attackInfo.materialDamage,
+    armorDurability,
+  );
+
+  actor.fatigue += calcFatigueCost("attack", actor.fighter.stats);
+  applyReactionFatigue(reactionResult.reaction, opponent);
+
+  const hpBefore = opponent.hp;
+  const finalDamage = reactionResult.finalDamage;
+  opponent.hp = reactionResult.defenderHpAfter;
+  actor.damageDealt += finalDamage;
+  opponent.damageTaken += finalDamage;
+
+  return {
+    action: "attack",
+    weapon: weaponInfo?.name || "desarmado",
+    damageNature: attackInfo.damageNature,
+    baseDamage: attackInfo.baseDamage,
+    materialDamage: attackInfo.materialDamage,
     reaction: reactionResult.reaction,
-    finalDamage: reactionResult.finalDamage,
+    finalDamage,
     dodged: reactionResult.dodged,
-    hpAfter: resterState.hp,
+    defenderHpBefore: hpBefore,
+    hpAfter: opponent.hp,
+  };
+}
+
+/**
+ * Half-turn de descanso: el descansante recupera fatiga y el oponente ataca.
+ * @param {object} rester
+ * @param {object} attacker
+ * @param {number} roundNum
+ * @param {boolean} isA
+ * @param {string} actorTag
+ */
+function restHalfTurn(rester, attacker, roundNum, isA, actorTag) {
+  const entries = [];
+
+  const resistance = rester.fighter.stats.def || 1;
+  const recovery = calcFatigueRecovery("rest", rester.fatigue, resistance);
+  rester.fatigue = Math.max(0, rester.fatigue - recovery);
+  rester.rests++;
+
+  entries.push({
+    round: roundNum,
+    half: isA ? 1 : 2,
+    attacker: `${actorTag}_rest`,
+    action: "rest",
+    recovery,
+    hpAfter: rester.hp,
   });
 
-  return { logEntries, resterKo: resterState.hp <= 0 };
+  const counter = performAttack(attacker, rester);
+  const counterTag = isA ? "B_counter" : "A_counter";
+  entries.push({ round: roundNum, half: isA ? 1 : 2, attacker: counterTag, ...counter });
+
+  return { entries, ko: rester.hp <= 0, winner: rester.hp <= 0 ? (isA ? "B" : "A") : null };
+}
+
+/**
+ * Ejecuta el medio turno de un combatiente.
+ * Cadena de decisión (config-driven): descanso > ítem > retirada > avance > ataque.
+ * @param {object} actor
+ * @param {object} opponent
+ * @param {number} distance
+ * @param {number} roundNum
+ * @param {boolean} isA
+ * @returns {{ entries: Array, distance: number, ko: boolean }}
+ */
+function executeHalfTurn(actor, opponent, distance, roundNum, isA) {
+  const entries = [];
+  const actorTag = isA ? "A" : "B";
+
+  if (shouldRest(actor)) {
+    const rest = restHalfTurn(actor, opponent, roundNum, isA, actorTag);
+    return { entries: rest.entries, distance, ko: rest.ko, winner: rest.winner };
+  }
+
+  if (shouldUseItem(actor)) {
+    const used = useItem(actor);
+    entries.push({
+      round: roundNum,
+      half: isA ? 1 : 2,
+      attacker: `${actorTag}_item`,
+      action: "item",
+      item: used.name,
+      heal: used.heal,
+      hpAfter: actor.hp,
+    });
+    return { entries, distance, ko: false };
+  }
+
+  if (shouldRetreat(actor, distance)) {
+    const meters = Math.min(getMovementRange(actor.fighter.stats.mspd || 0), MAX_DISTANCE - distance);
+    if (meters > 0) {
+      distance += meters;
+      actor.fatigue += calculateMovementFatigue(meters);
+      actor.retreats++;
+      entries.push({
+        round: roundNum,
+        half: isA ? 1 : 2,
+        attacker: `${actorTag}_retreat`,
+        action: "retreat",
+        meters,
+        distance,
+        hpAfter: actor.hp,
+      });
+    }
+    return { entries, distance, ko: false };
+  }
+
+  const weaponRange = actor.fighter.equipment.weapon?.weaponRange || 0;
+  const { canAttack } = checkAttackRange(distance, actor.fighter.stats, weaponRange);
+
+  if (!canAttack) {
+    const meters = Math.min(getMovementRange(actor.fighter.stats.mspd || 0), distance);
+    if (meters > 0) {
+      distance -= meters;
+      actor.fatigue += calculateMovementFatigue(meters);
+      actor.advances++;
+      entries.push({
+        round: roundNum,
+        half: isA ? 1 : 2,
+        attacker: `${actorTag}_advance`,
+        action: "advance",
+        meters,
+        distance,
+        hpAfter: actor.hp,
+      });
+    }
+    return { entries, distance, ko: false };
+  }
+
+  const attack = performAttack(actor, opponent);
+  entries.push({ round: roundNum, half: isA ? 1 : 2, attacker: actorTag, ...attack });
+
+  return { entries, distance, ko: opponent.hp <= 0, winner: opponent.hp <= 0 ? (isA ? "A" : "B") : null };
 }
 
 /**
@@ -103,14 +308,37 @@ function executeRestTurn(resterState, attackerState, resterIsA, roundNum) {
  * @param fighterB
  */
 function simulateCombat(fighterA, fighterB) {
-  const stateA = { fighter: fighterA, hp: fighterA.hp, fatigue: 0 };
-  const stateB = { fighter: fighterB, hp: fighterB.hp, fatigue: 0 };
+  const stateA = {
+    fighter: fighterA,
+    hp: fighterA.hp,
+    fatigue: 0,
+    items: [...fighterA.loadout],
+    rests: 0,
+    advances: 0,
+    retreats: 0,
+    damageDealt: 0,
+    damageTaken: 0,
+  };
+  const stateB = {
+    fighter: fighterB,
+    hp: fighterB.hp,
+    fatigue: 0,
+    items: [...fighterB.loadout],
+    rests: 0,
+    advances: 0,
+    retreats: 0,
+    damageDealt: 0,
+    damageTaken: 0,
+  };
+
+  let distance = INITIAL_DISTANCE;
 
   const log = [];
   const fatigueSnapshotsA = {};
   const fatigueSnapshotsB = {};
   const hpCurveA = [stateA.hp];
   const hpCurveB = [stateB.hp];
+  const distanceCurve = [distance];
 
   let round = 0;
   let winner = null;
@@ -119,37 +347,14 @@ function simulateCombat(fighterA, fighterB) {
   while (round < MAX_ROUNDS) {
     const roundNum = round + 1;
 
-    // HALF-TURN 1: A acts
-    if (shouldRest(stateA)) {
-      const rest = executeRestTurn(stateA, stateB, true, roundNum);
-      for (const e of rest.logEntries) log.push(e);
-      if (rest.resterKo) {
-        winner = "B";
-        koType = "ko";
-        break;
-      }
-    } else {
-      const attackerCharA = characterShape(stateA.fighter, stateA.hp);
-      const defenderCharB = characterShape(stateB.fighter, stateB.hp);
-      const result1 = executeTurn(attackerCharA, defenderCharB, stateB.hp, null, stateA.fatigue, stateB.fatigue);
-      stateA.fatigue += calcFatigueCost("attack", stateA.fighter.stats);
-      applyReactionFatigue(result1.reaction, stateB);
-      stateB.hp = result1.defenderHpAfter;
-      log.push({
-        round: roundNum,
-        half: 1,
-        attacker: "A",
-        baseDamage: result1.baseDamage,
-        reaction: result1.reaction,
-        finalDamage: result1.finalDamage,
-        dodged: result1.dodged,
-        hpAfter: stateB.hp,
-      });
-      if (stateB.hp <= 0) {
-        winner = "A";
-        koType = "ko";
-        break;
-      }
+    const halfA = executeHalfTurn(stateA, stateB, distance, roundNum, true);
+    for (const entry of halfA.entries) log.push(entry);
+    distance = halfA.distance;
+    distanceCurve.push(distance);
+    if (halfA.winner) {
+      winner = halfA.winner;
+      koType = "ko";
+      break;
     }
 
     if (FATIGUE_SNAPSHOT_TURNS.includes(roundNum)) {
@@ -157,37 +362,14 @@ function simulateCombat(fighterA, fighterB) {
       fatigueSnapshotsB[roundNum] = stateB.fatigue;
     }
 
-    // HALF-TURN 2: B acts
-    if (shouldRest(stateB)) {
-      const rest = executeRestTurn(stateB, stateA, false, roundNum);
-      for (const e of rest.logEntries) log.push(e);
-      if (rest.resterKo) {
-        winner = "A";
-        koType = "ko";
-        break;
-      }
-    } else {
-      const attackerCharB = characterShape(stateB.fighter, stateB.hp);
-      const defenderCharA = characterShape(stateA.fighter, stateA.hp);
-      const result2 = executeTurn(attackerCharB, defenderCharA, stateA.hp, null, stateB.fatigue, stateA.fatigue);
-      stateB.fatigue += calcFatigueCost("attack", stateB.fighter.stats);
-      applyReactionFatigue(result2.reaction, stateA);
-      stateA.hp = result2.defenderHpAfter;
-      log.push({
-        round: roundNum,
-        half: 2,
-        attacker: "B",
-        baseDamage: result2.baseDamage,
-        reaction: result2.reaction,
-        finalDamage: result2.finalDamage,
-        dodged: result2.dodged,
-        hpAfter: stateA.hp,
-      });
-      if (stateA.hp <= 0) {
-        winner = "B";
-        koType = "ko";
-        break;
-      }
+    const halfB = executeHalfTurn(stateB, stateA, distance, roundNum, false);
+    for (const entry of halfB.entries) log.push(entry);
+    distance = halfB.distance;
+    distanceCurve.push(distance);
+    if (halfB.winner) {
+      winner = halfB.winner;
+      koType = "ko";
+      break;
     }
 
     if (FATIGUE_SNAPSHOT_TURNS.includes(roundNum)) {
@@ -217,12 +399,16 @@ function simulateCombat(fighterA, fighterB) {
     fighterB: { ...fighterB },
     winner,
     koType,
+    firstAttacker: "A",
     totalRounds: round + (winner ? 1 : 0),
     log,
     fatigueCurveA: fatigueSnapshotsA,
     fatigueCurveB: fatigueSnapshotsB,
     hpCurveA,
     hpCurveB,
+    distanceCurve,
+    stateA: { hp: stateA.hp, fatigue: stateA.fatigue, rests: stateA.rests, advances: stateA.advances, retreats: stateA.retreats, damageDealt: stateA.damageDealt, damageTaken: stateA.damageTaken, itemsLeft: stateA.items.length },
+    stateB: { hp: stateB.hp, fatigue: stateB.fatigue, rests: stateB.rests, advances: stateB.advances, retreats: stateB.retreats, damageDealt: stateB.damageDealt, damageTaken: stateB.damageTaken, itemsLeft: stateB.items.length },
   };
 }
 
