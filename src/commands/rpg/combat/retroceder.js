@@ -1,7 +1,8 @@
 const { getActiveCharacter } = require("../../../services/characterService");
-const { findSessionByCharacter, updateDistance } = require("../../../services/rpg/combatState");
+const { findSessionByCharacter, updateDistance, advanceTurn } = require("../../../services/rpg/combatState");
 const { calculateMovementFatigue, capFatigue, getMovementRange } = require("../../../services/rpg/fatigueEngine");
 const { checkAttackRange } = require("../../../services/rpg/combatEngine");
+const { runDummyTurn } = require("../../../services/rpg/dummyTurnService");
 const { formatMovement, formatOutOfRange, formatActionMenu } = require("../../../services/rpg/combatMessages");
 const { formatError } = require("../../../utils/formatErrorUtils");
 const { formatCommandUsage } = require("../../../utils/formatCommandUtils");
@@ -103,26 +104,32 @@ module.exports = {
     const attackerStats = activeChar.stats;
     const { canAttack, effectiveRange } = checkAttackRange(newDistance, attackerStats);
 
-    if (canAttack) {
-      const lines = [
-        formatMovement(activeChar.name, "retreated", meters, newDistance, fatigueCost),
-        "",
-        `\u2705 *${activeChar.name}* puede atacar (${newDistance}m \u2264 ${effectiveRange}m)`,
-        "",
-        "\u2726 \u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501 \u2726",
-        formatActionMenu(activeChar.name),
-      ];
+    // Opción 1: moverse consume el turno. Fuera de rango → solo mover (sin atacar).
+    const movementLine = formatMovement(activeChar.name, "retreated", meters, newDistance, fatigueCost);
 
-      return ctx.reply(box("\u21A9\uFE0F RETROCESO", lines));
+    if (session.isPvE) {
+      // Turno del jugador gastado: pasa el turno al dummy y lo resuelve (ataca o avanza).
+      await advanceTurn(session.id, session.challenger.hp, session.defender.hp, true);
+      return runDummyTurn(ctx, session, isChallenger, [movementLine]);
     }
 
+    await advanceTurn(session.id, session.challenger.hp, session.defender.hp);
+
     const lines = [
-      formatMovement(activeChar.name, "retreated", meters, newDistance, fatigueCost),
+      movementLine,
       "",
-      formatOutOfRange(activeChar.name, meters, newDistance, effectiveRange),
+      canAttack
+        ? `\u2705 *${activeChar.name}* qued\u00F3 en rango (${newDistance}m \u2264 ${effectiveRange}m)`
+        : formatOutOfRange(activeChar.name, meters, newDistance, effectiveRange),
+      "",
+      "\u23E9 Turno gastado en el movimiento.",
       "",
       "\u2726 \u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501 \u2726",
-      formatActionMenu(activeChar.name),
+      formatActionMenu(
+        session.currentTurnCharId === session.challenger.characterId
+          ? session.challenger.character.name
+          : session.defender.character.name,
+      ),
     ];
 
     return ctx.reply(box("\u21A9\uFE0F RETROCESO", lines));

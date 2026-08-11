@@ -3,7 +3,7 @@ const { supabase } = require("../../database/supabase");
 const { getEquippedSlots } = require("./equipmentService");
 const { getCategory } = require("../../data/itemCategories");
 const { getItem } = require("../../data/items");
-const { getWeaponStats, getArmorStats, getArtifactStats } = require("./itemStatService");
+const { getWeaponStats, getProjectileStats, getArmorStats, getArtifactStats } = require("./itemStatService");
 const { resolveSetBonuses, getCoverage } = require("./armorSetService");
 const { ARMOR_SETS } = require("../../data/armorSets");
 
@@ -83,7 +83,7 @@ async function getEquippedItems(characterOrId) {
  * Resuelve el arma equipada del atacante a insumos de combate.
  * @param {object} character - Personaje atacante
  * @param {Array<object>} [equipped] - Salida de getEquippedItems (opcional, evita doble query)
- * @returns {Promise<object|null>} { damageNature, tier, baseDamage, hands, weaponRange } | null
+ * @returns {Promise<object|null>} { damageNature, tier, baseDamage, hands, weaponRange, ranged } | null
  */
 async function resolveAttackerWeapon(character, equipped = null) {
   const items = equipped || (await getEquippedItems(character));
@@ -99,13 +99,37 @@ async function resolveAttackerWeapon(character, equipped = null) {
 
   const def = weaponEntry.def;
   const stats = getWeaponStats(def);
-  return {
+  const weaponInfo = {
     damageNature: stats.damageNature,
     tier: stats.tier,
     baseDamage: stats.baseDamage,
     hands: stats.hands,
     weaponRange: stats.weaponRange,
+    ranged: stats.ranged,
   };
+
+  // Proyectil (arco): la flecha aporta el daño base. Se resuelve desde el
+  // ítem de munición del inventario; sin flechas el arco no daña (→ desarmado).
+  if (stats.ranged) {
+    const weaponDef = def.modules?.weapon || {};
+    const arrowId = weaponDef.arrowId || "flecha_de_hierro";
+    const arrowRow = items.find((e) => e.itemId === arrowId);
+    const arrowDef = arrowRow?.def || getItem(arrowId) || null;
+    const arrowStats = arrowDef ? getProjectileStats(arrowDef) : null;
+    if (arrowStats) {
+      weaponInfo.arrow = {
+        id: arrowId,
+        tier: arrowStats.tier,
+        baseDamage: arrowStats.baseDamage,
+        damageNature: arrowStats.damageNature,
+        material: arrowDef.material || "hierro",
+      };
+    } else {
+      weaponInfo.arrow = null;
+    }
+  }
+
+  return weaponInfo;
 }
 
 /**
@@ -114,7 +138,7 @@ async function resolveAttackerWeapon(character, equipped = null) {
  * Acepta character (objeto) o characterId.
  * @param {object|string|number} characterOrId - Personaje o ID del defensor
  * @param {Array<object>} [equipped] - Salida de getEquippedItems (opcional)
- * @returns {Promise<{list: Array<object>, totalMaxResist: number, totalCurrentResist: number}>}
+ * @returns {Promise<{list: Array<object>, totalMaxResist: number, totalCurrentResist: number, totalBonusDef: number}>}
  */
 async function resolveDefenderArmor(characterOrId, equipped = null) {
   const items = equipped || (await getEquippedItems(characterOrId));
@@ -123,6 +147,7 @@ async function resolveDefenderArmor(characterOrId, equipped = null) {
   const list = [];
   let totalMaxResist = 0;
   let totalCurrentResist = 0;
+  let totalBonusDef = 0;
 
   for (const entry of items) {
     const armorDef = (entry.def?.modules || {}).armor;
@@ -133,6 +158,7 @@ async function resolveDefenderArmor(characterOrId, equipped = null) {
     const dur = metadata.durability || {};
     const maxResist = Math.max(1, Number(dur.maxResist) || getArmorStats(entry.def).maxResist);
     const currentResist = Number.isFinite(Number(dur.currentResist)) ? Number(dur.currentResist) : maxResist;
+    const bonusDef = Math.round(maxResist / 2);
 
     const instance = new DurabilityClass({
       maxResist,
@@ -140,14 +166,16 @@ async function resolveDefenderArmor(characterOrId, equipped = null) {
       isRepairable: dur.isRepairable !== false,
       isBroken: Boolean(dur.isBroken || dur.broken) || currentResist <= 0,
       slot: armorDef.slot,
+      bonusDef,
     });
 
-    list.push({ slot: entry.slot, itemId: entry.itemId, instance });
+    list.push({ slot: entry.slot, itemId: entry.itemId, instance, bonusDef });
     totalMaxResist += maxResist;
     totalCurrentResist += currentResist;
+    totalBonusDef += bonusDef;
   }
 
-  return { list, totalMaxResist, totalCurrentResist };
+  return { list, totalMaxResist, totalCurrentResist, totalBonusDef };
 }
 
 /**

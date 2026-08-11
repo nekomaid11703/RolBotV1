@@ -167,6 +167,9 @@ function aggregate(allMetrics) {
   const amuletStats = { with: { wins: 0, total: 0 }, without: { wins: 0, total: 0 } };
   const shieldStats = { with: { wins: 0, total: 0 }, without: { wins: 0, total: 0 } };
   const weaponTierStats = {};
+  const weaponMaterialStats = {};
+  const weaponMaterialRarityStats = {};
+  const armorMaterialStats = {};
   const natureByLevel = {};
 
   // ── Target: contribución mágica ──
@@ -309,6 +312,21 @@ function aggregate(allMetrics) {
       weaponTierStats[wt] = weaponTierStats[wt] || { wins: 0, total: 0 };
       weaponTierStats[wt].total++;
       if (won) weaponTierStats[wt].wins++;
+
+      const wmat = m[`${prefix}_weaponMaterial`] || "desarmado";
+      weaponMaterialStats[wmat] = weaponMaterialStats[wmat] || { wins: 0, total: 0 };
+      weaponMaterialStats[wmat].total++;
+      if (won) weaponMaterialStats[wmat].wins++;
+
+      const wmatRarity = m[`${prefix}_weaponMaterialRarity`] || "ninguno";
+      weaponMaterialRarityStats[wmatRarity] = weaponMaterialRarityStats[wmatRarity] || { wins: 0, total: 0 };
+      weaponMaterialRarityStats[wmatRarity].total++;
+      if (won) weaponMaterialRarityStats[wmatRarity].wins++;
+
+      const amat = m[`${prefix}_armorMaterial`] || "ninguno";
+      armorMaterialStats[amat] = armorMaterialStats[amat] || { wins: 0, total: 0 };
+      armorMaterialStats[amat].total++;
+      if (won) armorMaterialStats[amat].wins++;
 
       const lvl = m[`${prefix}_level`];
       const bracket = lvl < 200 ? "100-199" : lvl < 300 ? "200-299" : lvl < 400 ? "300-399" : "400-500";
@@ -481,6 +499,9 @@ function aggregate(allMetrics) {
   variance.amulet = toWinRate(amuletStats);
   variance.shield = toWinRate(shieldStats);
   variance.weaponTier = toWinRate(weaponTierStats);
+  variance.weaponMaterial = toWinRate(weaponMaterialStats);
+  variance.weaponMaterialRarity = toWinRate(weaponMaterialRarityStats);
+  variance.armorMaterial = toWinRate(armorMaterialStats);
   variance.natureByLevel = natureByLevel;
 
   // ── Contribución mágica ──

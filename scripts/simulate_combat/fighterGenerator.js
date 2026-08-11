@@ -2,7 +2,8 @@
 "use strict";
 
 const { RACES } = require("../../src/config/characterConfig");
-const { getWeaponStats, getArmorStats } = require("../../src/services/rpg/itemStatService");
+const { getWeaponStats, getProjectileStats, getArmorStats } = require("../../src/services/rpg/itemStatService");
+const { generateLoadout: generateFamilyLoadout } = require("./familyGenerator");
 const {
   PERSONALITIES,
   WEIGHT_JITTER,
@@ -19,6 +20,7 @@ const {
   ITEM_STOCK_MIN,
   ITEM_STOCK_MAX,
   IRON_FAMILY,
+  ARROW,
   ARMOR_SLOTS,
   COVERAGES,
   TIER_BRACKETS,
@@ -174,11 +176,14 @@ function pickTierByLevel(level) {
 
 /**
  * Deriva las stats de un arma con la fórmula real (base × tier × material).
+ * Si el arma es ranged (arco), la flecha es un ítem separado con tier propio:
+ * el arco aporta el multiplicador de tier (baseDamage 0) y la flecha el daño base.
  * @param {object} poolEntry - Entrada de IRON_FAMILY.weaponPool
  * @param {string} tier
+ * @param {string} [arrowTier] - Tier de la flecha (independiente del arco)
  * @returns {object} Arma con stats derivadas
  */
-function deriveWeapon(poolEntry, tier) {
+function deriveWeapon(poolEntry, tier, arrowTier) {
   const def = {
     tier,
     material: IRON_FAMILY.material,
@@ -188,10 +193,39 @@ function deriveWeapon(poolEntry, tier) {
         baseDamage: poolEntry.nominalDamage,
         hands: poolEntry.hands,
         weaponRange: poolEntry.weaponRange,
+        ranged: poolEntry.ranged === true,
       },
     },
   };
   const stats = getWeaponStats(def);
+
+  if (poolEntry.ranged === true) {
+    // Flecha separada: baseDamage fijo por material (sin escalado de tier,
+    // solo AERO al alcance/falloff) — misma fórmula que el pool y el bot real.
+    const arrowDef = {
+      tier: arrowTier || tier,
+      material: ARROW.material,
+      modules: {
+        weapon: {
+          damageNature: ARROW.damageNature,
+          baseDamage: ARROW.nominalDamage,
+          hands: 1,
+          weaponRange: 0,
+        },
+      },
+    };
+    const arrowStats = getProjectileStats(arrowDef);
+    return {
+      ...poolEntry,
+      ...stats,
+      name: poolEntry.name,
+      tier,
+      material: IRON_FAMILY.material,
+      baseDamage: arrowStats.baseDamage,
+      arrow: { id: ARROW.id, name: ARROW.name, tier: arrowTier || tier, baseDamage: arrowStats.baseDamage },
+    };
+  }
+
   return { ...poolEntry, ...stats, name: poolEntry.name, tier, material: IRON_FAMILY.material };
 }
 
@@ -201,23 +235,24 @@ function deriveWeapon(poolEntry, tier) {
  * @param {string} slot
  * @param {string} coverage
  * @param {string} tier
+ * @param {string} [material] - Material (default: IRON_FAMILY.material)
  * @returns {object} Pieza con stats derivadas
  */
-function deriveArmorPiece(slot, coverage, tier) {
+function deriveArmorPiece(slot, coverage, tier, material = IRON_FAMILY.material) {
   const base = IRON_FAMILY.armorSlotBase[slot];
   const suffix = IRON_FAMILY.coverageSuffix[coverage];
   const name = `${base}${suffix ? ` ${suffix}` : ""}`;
   const def = {
     tier,
-    material: IRON_FAMILY.material,
+    material,
     setId: IRON_FAMILY.setId,
     modules: { armor: { slot, coverage } },
   };
   const stats = getArmorStats(def);
   return {
-    id: `${slot}_${coverage}`,
+    id: `${slot}_${coverage}_${material}`,
     name,
-    material: IRON_FAMILY.material,
+    material,
     tier,
     ...stats,
     currentResist: stats.maxResist,
@@ -249,74 +284,22 @@ function deriveShield(tier) {
 }
 
 /**
- * Genera el equipamiento completo de un luchador: arma (3 naturalezas),
- * piezas por slot (4 slots × 4 coberturas), escudo en mano_izq y amuleto.
- * El tier de calidad es probabilístico por bracket de nivel.
+ * Genera el equipamiento completo de un luchador a través del generador de
+ * familias (scripts/simulate_combat/familyGenerator.js): el equipo se deriva
+ * desde los MATERIALES (peso por rareza desplazado por nivel), el tier se
+ * asigna según nivel + rareza del material, y cada pieza sortea su cobertura.
+ * Es una capa fina de compatibilidad sobre generateLoadout para mantener los
+ * presets de experimento (tier, weapon, coverage, shield, amulet, setPieces).
  *
  * `opts` permite forzar condiciones (presets de experimento):
  *   tier, weapon (id del pool), coverage (todas las piezas), shield,
- *   amulet, setPieces ("full" | "max2").
+ *   amulet, setPieces ("full" | "max2"), material, family.
  * @param {number} level
  * @param {object} [opts]
  * @returns {{ tierKey: string, weapon: object|null, armorList: Array<object>, armor: object|null, shield: object|null, amulet: object|null, setPieces: number, setBonusActive: boolean }}
  */
 function generateEquipment(level, opts = {}) {
-  opts = opts || {};
-  const tierKey = opts.tier || pickTierByLevel(level);
-
-  const pool = IRON_FAMILY.weaponPool;
-  const forcedWeapon = opts.weapon ? pool.find((w) => w.id === opts.weapon) : null;
-  const hasWeapon = forcedWeapon ? true : Math.random() >= NO_WEAPON_CHANCE;
-  const weapon = hasWeapon
-    ? deriveWeapon(forcedWeapon || pool[Math.floor(Math.random() * pool.length)], tierKey)
-    : null;
-
-  const armorList = [];
-  let forcedCount = null;
-  if (opts.setPieces === "full") forcedCount = ARMOR_SLOTS.length;
-  else if (opts.setPieces === "max2") forcedCount = 2;
-  // La cobertura se sortea UNA vez por fighter (todas las piezas iguales),
-  // como haría un jugador coherente con su estilo; sortearla por pieza con
-  // "la más pesada manda" aplastaba la varianza (65% terminaban en "total").
-  const coverage = opts.coverage || COVERAGES[Math.floor(Math.random() * COVERAGES.length)];
-  let added = 0;
-  for (const slot of ARMOR_SLOTS) {
-    const present = forcedCount != null ? added < forcedCount : Math.random() >= NO_PIECE_CHANCE;
-    if (!present) continue;
-    armorList.push(deriveArmorPiece(slot, coverage, tierKey));
-    added++;
-  }
-
-  let shield = null;
-  const wantShield = opts.shield != null ? opts.shield : Math.random() < SHIELD_CHANCE;
-  if (wantShield) {
-    shield = deriveShield(tierKey);
-    armorList.push(shield);
-  }
-
-  let amulet = null;
-  if (opts.amulet != null) {
-    if (opts.amulet) amulet = { ...IRON_FAMILY.amulet };
-  } else if (Math.random() < AMULET_CHANCE) {
-    amulet = { ...IRON_FAMILY.amulet };
-  }
-
-  const setPieces = armorList.filter((p) => p.setId === IRON_FAMILY.setId).length;
-  const setBonusActive = setPieces >= SET_BONUS_THRESHOLD;
-
-  const armorBonusDef = armorList.reduce((acc, p) => acc + (p.bonusDef || 0), 0);
-  const armorMaxResist = armorList.reduce((acc, p) => acc + (p.maxResist || 0), 0);
-
-  return {
-    tierKey,
-    weapon,
-    armorList,
-    armor: armorList.length ? { bonusDef: armorBonusDef, maxResist: armorMaxResist, pieces: armorList.length } : null,
-    shield,
-    amulet,
-    setPieces,
-    setBonusActive,
-  };
+  return generateFamilyLoadout(level, opts);
 }
 
 /**

@@ -7,6 +7,7 @@ const {
   setPendingReaction,
   endSession,
 } = require("../../../services/rpg/combatState");
+const { runDummyTurn } = require("../../../services/rpg/dummyTurnService");
 const {
   executeAttack,
   executeReaction,
@@ -18,7 +19,6 @@ const { calcFatigueCost, capFatigue } = require("../../../services/rpg/fatigueEn
 const { formatActionMenu, formatReactionPrompt, buildFatigueBar } = require("../../../services/rpg/combatMessages");
 const { formatError } = require("../../../utils/formatErrorUtils");
 const { box } = require("../../../utils/boxUtils");
-const { getItem } = require("../../../data/items");
 const {
   getEquippedItems,
   resolveAttackerWeapon,
@@ -264,152 +264,9 @@ async function handlePvE(
     return ctx.reply(box("\u2694\uFE0F ATAQUE", lines));
   }
 
-  return handlePvECounterAttack(
-    ctx,
-    session,
-    attackerSlot,
-    defenderSlot,
-    isChallenger,
-    newAttackerHp,
-    newDefenderHp,
-    lines,
-  );
-}
-
-/**
- * Handles the pv e counter attack.
- * @param {*} ctx - - execution context.
- * @param {*} session - - session object.
- * @param {*} attackerSlot - - attacker slot.
- * @param {*} defenderSlot - - defender slot.
- * @param {*} isChallenger - - is challenger.
- * @param {*} prevAttackerHp - - prev attacker hp.
- * @param {*} prevDefenderHp - - prev defender hp.
- * @param {*} lines - - lines.
- * @returns
- * @async
- */
-async function handlePvECounterAttack(
-  ctx,
-  session,
-  attackerSlot,
-  defenderSlot,
-  isChallenger,
-  prevAttackerHp,
-  prevDefenderHp,
-  lines,
-) {
-  /**
-   * El dummy contraataca con su arma de hierro (en memoria).
-   * @constant dummyWeapon
-   */
-  const dummyWeapon = await resolveAttackerWeapon(defenderSlot.character).catch(() => null);
-  /**
-   * @constant dummyAttack
-   */
-  const dummyAttack = executeAttack(
-    defenderSlot.character,
-    attackerSlot.character,
-    attackerSlot.hp,
-    defenderSlot.hp,
-    defenderSlot.fatigue,
-    attackerSlot.fatigue,
-    dummyWeapon,
-  );
-
-  if (dummyAttack.canReact) {
-    const { evaluateDodgeFeasibility } = require("../../../services/rpg/combatEngine");
-    /**
-     * @constant canDodge
-     */
-    const canDodge = evaluateDodgeFeasibility(
-      attackerSlot.character.stats,
-      attackerSlot.hp,
-      defenderSlot.character.stats,
-      defenderSlot.hp,
-      attackerSlot.fatigue,
-      defenderSlot.fatigue,
-      attackerSlot.character.stats.def || 0,
-      defenderSlot.character.stats.def || 0,
-    );
-
-    await setPendingReaction(session.id, {
-      attackerChar: defenderSlot.character,
-      defenderChar: attackerSlot.character,
-      attackerUserId: defenderSlot.userId,
-      defenderUserId: attackerSlot.userId,
-      baseDamage: dummyAttack.baseDamage,
-      defenderHp: attackerSlot.hp,
-      isChallengerAttacking: false,
-      canDodgeSuccessfully: canDodge,
-    });
-
-    lines.push("");
-    lines.push(`\uD83E\uDD16 Contraataque (${dummyAttack.baseDamage})`);
-    lines.push("");
-    lines.push("\u2726 \u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501 \u2726");
-    lines.push(
-      formatReactionPrompt(defenderSlot.character.name, attackerSlot.character.name, dummyAttack.baseDamage, canDodge),
-    );
-
-    return ctx.reply(box("\uD83E\uDD16 CONTRAATAQUE", lines));
-  }
-
-  /**
-   * @constant dummyReaction
-   */
-  const dummyReaction = executeReaction(
-    "none",
-    dummyAttack.baseDamage,
-    attackerSlot.character,
-    attackerSlot.hp,
-    defenderSlot.character,
-    defenderSlot.hp,
-    attackerSlot.fatigue,
-    defenderSlot.fatigue,
-  );
-
-  /**
-   * @constant finalAttackerHp
-   */
-  const finalAttackerHp = isChallenger ? dummyReaction.defenderHpAfter : prevAttackerHp;
-  /**
-   * @constant finalDefenderHp
-   */
-  const finalDefenderHp = isChallenger ? prevDefenderHp : dummyReaction.defenderHpAfter;
-
-  await advanceTurn(session.id, finalAttackerHp, finalDefenderHp);
-
-  /**
-   * Nombre/icono del arma del dummy para la línea de contraataque.
-   */
-  const dummyWeaponId = defenderSlot.character.dummyEquipment?.slots?.mano_der;
-  const dummyWeaponDef = dummyWeaponId ? getItem(dummyWeaponId) : null;
-
-  lines.push("");
-  lines.push(`\uD83E\uDD16 *${defenderSlot.character.name}* contraataca`);
-  if (dummyWeaponDef) {
-    lines.push(`${dummyWeaponDef.name} (${dummyAttack.damageNature} \u00B7 ${dummyAttack.baseDamage})`);
-  }
-  lines.push(`\uD83D\uDCA5 Da\u00F1o: ${dummyReaction.finalDamage}`);
-  lines.push(
-    `\u2764\uFE0F *${attackerSlot.character.name}*: ${dummyReaction.defenderHpBefore}\u2192${dummyReaction.defenderHpAfter}`,
-  );
-
-  if (dummyReaction.ko) {
-    await endSession(session.id, defenderSlot.character.id);
-    await setHp({ creatorId: ctx.sender, characterName: attackerSlot.character.name, hp: 0 });
-
-    lines.push("");
-    lines.push(`\uD83D\uDC80 *${attackerSlot.character.name}* cay\u00F3`);
-    return ctx.reply(box("\u2694\uFE0F ATAQUE", lines));
-  }
-
-  lines.push("");
-  lines.push("\u2726 \u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501 \u2726");
-  lines.push(formatActionMenu(attackerSlot.character.name));
-
-  return ctx.reply(box("\u2694\uFE0F ATAQUE", lines));
+  // Opción 1 (1 acción/turno): el ataque gastó el turno del jugador. El dummy
+  // resuelve su turno autónomo (ataca si está en rango, avanza si no).
+  return runDummyTurn(ctx, session, isChallenger, lines);
 }
 
 /**

@@ -1,0 +1,51 @@
+{
+  "config": {
+    "numSims": 200,
+    "levels": [
+      150
+    ],
+    "modes": [
+      "actual"
+    ],
+    "weapon": [
+      "cortante"
+    ],
+    "coverage": [
+      "total"
+    ],
+    "mirrorOnly": false,
+    "nominal": 20,
+    "maxRounds": 30
+  },
+  "rows": [
+    {
+      "level": 150,
+      "material": "acero",
+      "matB": "piedra",
+      "rarity": "poco_comun",
+      "rarityB": "comun",
+      "tier": "D",
+      "tierB": "E",
+      "mode": "actual",
+      "modeLabel": "Motor actual",
+      "weapon": "cortante",
+      "covA": "total",
+      "covB": "total",
+      "winsA": 100,
+      "winsB": 100,
+      "timeouts": 0,
+      "winrateA": 50,
+      "avgRounds": 7,
+      "maxRounds": 8,
+      "avgDmgA": 10.6,
+      "avgHpLossA": 51.5,
+      "avgOverflowPerHit": 0,
+      "avgSoakPerHit": 2.8,
+      "avgDefReductionPerHit": 11.5,
+      "avgAbsorbedPerFightA": 147,
+      "avgMaxResistA": 324,
+      "avgBrokenPiecesA": 1.5
+    }
+  ],
+  "timestamp": "2026-08-08T17:42:03.833Z"
+}

@@ -6,10 +6,49 @@ const {
   MSPD_TO_METERS,
   ASPD_PENALTY_DISTANCE_BLOCK,
   ASPD_PENALTY_PER_5M,
+  DAMAGE_DEFENSE_SCALE,
+  DEF_MITIGATION_CAP,
+  PIERCE_ATK_SCALE,
+  PIERCE_WEAPON_SCALE,
+  CONTUNDENTE_BODY_SCALE,
+  CONTUNDENTE_MATERIAL_MULT,
+  WEAPON_BASE_ATK_WEIGHT,
+  WEAPON_ATK_REF,
+  DISTANCE_REF_BLOCK,
+  DISTANCE_REF_BONUS,
+  PROJECTILE_FALL_OFF_RATE,
+  PROJECTILE_MIN_SCALE,
+  MAX_DISTANCE,
+  BOW_DAMAGE_MULT,
+  BOW_SPEED_BASE,
+  BOW_ASPD_BASE,
+  AERO,
+  ATK_RANGE_SCALE,
+  FALLOFF_K,
+  BOW_RANGE_MIN,
+  PROJECTILE_ATK_SCALE,
 } = require("../../config/combatConfig");
 const { applyFatiguePenalties } = require("./fatigueEngine");
 const { randomFloat } = require("../../utils/randomUtils");
-const { getTierPenaltyBonus, getSpecialTierMult } = require("../../config/tierConfig");
+const { getTierPenaltyBonus, normalizeTier } = require("../../config/tierConfig");
+const {
+  BLOCK_PREFER_DEF_THRESHOLD,
+  ARMOR_USE_BONUS_DEF_TO_DEF,
+  ARMOR_SOAK_RATIO,
+  ARMOR_OVERFLOW_TO_HP,
+} = require("../../config/combatConfig");
+
+/**
+ * Factor de mitigación por DEF con escala y techo tuneables.
+ * factor = DAMAGE_DEFENSE_SCALE / (DAMAGE_DEFENSE_SCALE + defEfectiva)
+ * defEfectiva = DEF_MITIGATION_CAP > 0 ? min(def, DEF_MITIGATION_CAP) : def
+ * @param {number} def
+ * @returns {number}
+ */
+function mitigationFactor(def = 0) {
+  const capped = DEF_MITIGATION_CAP > 0 ? Math.min(DEF_MITIGATION_CAP, Math.max(0, def)) : Math.max(0, def);
+  return DAMAGE_DEFENSE_SCALE / (DAMAGE_DEFENSE_SCALE + capped);
+}
 
 /**
  * Normaliza las estadísticas a un formato consistente con valores por defecto.
@@ -92,7 +131,7 @@ function calculateDamage(
   /**
    * @constant rawDamage
    */
-  const rawDamage = Math.floor(atkPenalized.atk * (100 / (100 + defPenalized.def)));
+  const rawDamage = Math.floor(atkPenalized.atk * mitigationFactor(defPenalized.def));
   return Number.isFinite(rawDamage) ? Math.max(DAMAGE_MIN, rawDamage) : DAMAGE_MIN;
 }
 
@@ -119,6 +158,7 @@ function canReact(
   defenderRes = 0,
   attackerRes = 0,
   attackerAspdPenalty = 0,
+  distanceRefBonus = 0,
 ) {
   /**
    * @constant defPenalized
@@ -128,7 +168,7 @@ function canReact(
    * @constant atkPenalized
    */
   const atkPenalized = applyPenalties(attackerStats, attackerHp, attackerFatigue, attackerRes);
-  return defPenalized.ref > Math.max(0, atkPenalized.aspd + attackerAspdPenalty);
+  return defPenalized.ref + distanceRefBonus > Math.max(0, atkPenalized.aspd + attackerAspdPenalty);
 }
 
 /**
@@ -278,67 +318,152 @@ function attemptDodge(
 }
 
 /**
+ * Alcance efectivo de un arma a distancia (arco):
+ * velocidad = atk × ATK_RANGE_SCALE + BOW_SPEED_BASE(tierArco)
+ * alcance  = clamp(velocidad × AERO(tierFlecha), BOW_RANGE_MIN, MAX_DISTANCE)
+ * Si el weaponInfo ya trae `weaponRange` (arma con alcance fijo), se usa ese.
+ * @param {object|null} weaponInfo - Info del arma ({ ranged, tier, weaponRange, arrow })
+ * @param {*} [stats] - Stats del atacante (para ATK)
+ * @returns {number} Alcance efectivo en metros
+ */
+function getEffectiveWeaponRange(weaponInfo, stats = {}) {
+  if (!weaponInfo?.ranged) return Math.max(1, weaponInfo?.weaponRange || 1);
+  const bowTier = normalizeTier(weaponInfo.tier || "E");
+  const arrowTier = normalizeTier(weaponInfo.arrow?.tier || bowTier);
+  const speed = (Number(stats.atk) || 0) * ATK_RANGE_SCALE + (weaponInfo.bowSpeedBase ?? (BOW_SPEED_BASE[bowTier] || 1));
+  const range = speed * (AERO[arrowTier] || 1);
+  return Math.max(BOW_RANGE_MIN, Math.min(MAX_DISTANCE, Math.round(range)));
+}
+
+/**
+ * Escala de daño del proyectil según la distancia al borde de su alcance.
+ * scale = 1 - (distancia/alcance)^FALLOFF_K → 0 en el borde.
+ * @param {object|null} weaponInfo - Info del arma ({ ranged, tier, arrow })
+ * @param {number} distance - Distancia del ataque (metros)
+ * @param {*} [stats] - Stats del atacante (para el alcance dinámico del arco)
+ * @returns {number} Escala de daño (1 en boca de cañón, 0 en el borde)
+ */
+function getProjectileScale(weaponInfo, distance, stats = {}) {
+  const range = getEffectiveWeaponRange(weaponInfo, stats);
+  const t = Math.min(1, Math.max(0, distance / range));
+  return Math.max(0, 1 - Math.pow(t, FALLOFF_K));
+}
+
+/**
+ * Calcula la ventaja de reflejos del defensor según la distancia del ataque.
+ * Melee: cuenta la distancia de sprint recorrida (distancia − alcance natural).
+ * Ranged: cuenta la distancia recorrida por el proyectil.
+ * @param {object|null} weaponInfo - Info del arma
+ * @param {number} distance - Distancia del ataque (metros)
+ * @returns {number} Bonus de REF para el defensor
+ */
+function getDistanceRefBonus(weaponInfo, distance) {
+  if (!weaponInfo) return 0;
+  const ranged = Boolean(weaponInfo.ranged);
+  const naturalRange = BASE_ATTACK_RANGE + (weaponInfo.weaponRange || 0);
+  const coveredDistance = ranged ? distance : Math.max(0, distance - naturalRange);
+  return Math.floor(coveredDistance / DISTANCE_REF_BLOCK) * DISTANCE_REF_BONUS;
+}
+
+/**
  * Calcula el daño de un arma según su naturaleza (cortante, contundente, perforante).
  * Para combate desarmado o sin weaponInfo, delega a calculateDamage.
  * @param {*} attackerStats - Stats penalizadas del atacante
  * @param {*} defenderStats - Stats penalizadas del defensor
- * @param {object|null} weaponInfo - Info del módulo weapon: { damageNature, tier, baseDamage }
- * @returns {{ bodyDamage: number, materialDamage: number, nature: string }}
+ * @param {object|null} weaponInfo - Info del módulo weapon: { damageNature, tier, baseDamage, ranged, weaponRange }
+ * @param {number} [distance] - Distancia del ataque (metros)
+ * @returns {{ bodyDamage: number, materialDamage: number, nature: string, ranged: boolean }}
  */
-function calculateWeaponDamage(attackerStats, defenderStats, weaponInfo) {
+function calculateWeaponDamage(attackerStats, defenderStats, weaponInfo, distance = 0) {
   const nature = weaponInfo?.damageNature || "desarmado";
   const tier = weaponInfo?.tier || "E";
   const weaponBase = Math.max(0, Number(weaponInfo?.baseDamage) || 0);
+  const weaponBaseScaled = Math.floor(
+    weaponBase *
+      (1 - WEAPON_BASE_ATK_WEIGHT + WEAPON_BASE_ATK_WEIGHT * Math.min(1, Math.max(0, (attackerStats.atk || 0) / WEAPON_ATK_REF))),
+  );
+  const ranged = Boolean(weaponInfo?.ranged);
 
   if (!weaponInfo || nature === "desarmado") {
     // Fórmula clásica sin arma: atk del atacante vs def del defensor
-    const raw = Math.floor(attackerStats.atk * (100 / (100 + defenderStats.def)));
+    const raw = Math.floor(attackerStats.atk * mitigationFactor(defenderStats.def));
     const bodyDamage = Number.isFinite(raw) ? Math.max(DAMAGE_MIN, raw) : DAMAGE_MIN;
-    return { bodyDamage, materialDamage: bodyDamage, nature: "desarmado" };
+    return { bodyDamage, materialDamage: bodyDamage, nature: "desarmado", ranged: false };
   }
 
   if (nature === "cortante") {
     // Penetra la defensa natural un 12%-84% según tier
     const penetration = getTierPenaltyBonus(tier);
     const effectiveDef = Math.max(0, Math.floor(defenderStats.def * (1 - penetration)));
-    const rawDamage = Math.floor(0.8 * attackerStats.atk) + weaponBase;
-    const bodyDamage = Math.max(DAMAGE_MIN, Math.floor(rawDamage * (100 / (100 + effectiveDef))));
-    return { bodyDamage, materialDamage: bodyDamage, nature: "cortante" };
+    const rawDamage = Math.floor(0.8 * attackerStats.atk) + weaponBaseScaled;
+    const bodyDamage = Math.max(DAMAGE_MIN, Math.floor(rawDamage * mitigationFactor(effectiveDef)));
+    return { bodyDamage, materialDamage: bodyDamage, nature: "cortante", ranged: false };
   }
 
   if (nature === "contundente") {
-    // Daño corporal: fórmula normal. Daño material: multiplicado por tier (1.2x-6.0x)
-    const materialMult = getSpecialTierMult(tier);
-    const rawBody = Math.floor(attackerStats.atk * (100 / (100 + defenderStats.def)));
+    // Cuerpo: atk mitigado por DEF + componente del arma (CONTUNDENTE_BODY_SCALE).
+    // Material: multiplicador fijo (CONTUNDENTE_MATERIAL_MULT) del cuerpo: rompe armadura
+    // sin destruirla en un solo golpe (anti-equipamiento, no anti-una-sola-pieza).
+    const rawBody =
+      Math.floor(attackerStats.atk * mitigationFactor(defenderStats.def)) +
+      Math.floor(weaponBaseScaled * CONTUNDENTE_BODY_SCALE);
     const bodyDamage = Math.max(DAMAGE_MIN, rawBody);
-    const materialDamage = Math.max(DAMAGE_MIN, Math.floor(bodyDamage * materialMult));
-    return { bodyDamage, materialDamage, nature: "contundente" };
+    const materialDamage = Math.max(DAMAGE_MIN, Math.floor(bodyDamage * CONTUNDENTE_MATERIAL_MULT));
+    return { bodyDamage, materialDamage, nature: "contundente", ranged: false };
+  }
+
+  if (nature === "proyectil") {
+    // Daño por proyectil (arco + flecha): la flecha aporta baseDamage, el tier del
+    // arco multiplica, el falloff decae con la distancia. Ignora DEF natural.
+    // Material: mitiga la Resistencia Material (×0.5, spec §2-C).
+    const arrowBase = Math.max(0, Number(weaponInfo?.arrow?.baseDamage) || 0);
+    if (arrowBase <= 0) {
+      // Sin flecha: el arco no aporta daño propio → desarmado.
+      const raw = Math.floor(attackerStats.atk * mitigationFactor(defenderStats.def));
+      const bodyDamage = Number.isFinite(raw) ? Math.max(DAMAGE_MIN, raw) : DAMAGE_MIN;
+      return { bodyDamage, materialDamage: bodyDamage, nature: "desarmado", ranged: false };
+    }
+    const projectileScale = getProjectileScale(weaponInfo, distance, attackerStats);
+    const bowMult = BOW_DAMAGE_MULT[normalizeTier(tier)] || 1.2;
+    // El daño del arco escala con ATK del atacante (PROJECTILE_ATK_SCALE) además
+    // del daño de la flecha × tier, para no quedarse atrás del melee a nivel alto.
+    const atkBonus = Math.floor((Number(attackerStats.atk) || 0) * PROJECTILE_ATK_SCALE);
+    const bodyDamage = Math.max(DAMAGE_MIN, Math.floor((arrowBase * bowMult + atkBonus) * projectileScale));
+    const materialDamage = Math.max(DAMAGE_MIN, Math.floor(bodyDamage * 0.5));
+    return { bodyDamage, materialDamage, nature: "proyectil", ranged: true };
   }
 
   if (nature === "perforante") {
-    // Ignora 100% defensa corporal, daño fijo * mult de tier. Mitad vs material.
-    const tierMult = getSpecialTierMult(tier);
-    const bodyDamage = Math.max(DAMAGE_MIN, Math.floor(weaponBase * tierMult));
+    // Melee (estoque/lanza/kunai): daño por ATK + componente del arma, ignora DEF natural.
+    // Material: mitiga la Resistencia Material (×0.5, spec §2-C).
+    const bodyDamage =
+      Math.max(DAMAGE_MIN, Math.floor(PIERCE_ATK_SCALE * attackerStats.atk)) +
+      Math.floor(weaponBaseScaled * PIERCE_WEAPON_SCALE);
     const materialDamage = Math.max(DAMAGE_MIN, Math.floor(bodyDamage * 0.5));
-    return { bodyDamage, materialDamage, nature: "perforante" };
+    return { bodyDamage, materialDamage, nature: "perforante", ranged: false };
   }
 
   // Naturaleza desconocida: fallback a desarmado
-  const raw = Math.floor(attackerStats.atk * (100 / (100 + defenderStats.def)));
+  const raw = Math.floor(attackerStats.atk * mitigationFactor(defenderStats.def));
   const bodyDamage = Number.isFinite(raw) ? Math.max(DAMAGE_MIN, raw) : DAMAGE_MIN;
-  return { bodyDamage, materialDamage: bodyDamage, nature: "desarmado" };
+  return { bodyDamage, materialDamage: bodyDamage, nature: "desarmado", ranged: false };
 }
 
 /**
  * Determina la velocidad de reacción del atacante según la naturaleza del arma.
- * Perforante: usa ATK en lugar de ASPD como velocidad de estocada.
+ * Perforante melee: usa ASPD (velocidad natural). Perforante a distancia (arco):
+ * usa ATK (fuerza al tensar la cuerda, difícil de reaccionar) + BOW_ASPD_BASE
+ * del tier del arco. Resto: ASPD.
  * @param {*} atkPenalized - Stats penalizadas del atacante
  * @param {string} [nature] - Naturaleza del arma
+ * @param {object|null} [weaponInfo] - Info del arma ({ ranged, tier, bowAspdBase })
  * @returns {number} Velocidad efectiva del ataque
  */
-function resolveAttackerSpeed(atkPenalized, nature) {
-  if (nature === "perforante") {
-    return atkPenalized.atk; // STR reemplaza a ASPD
+function resolveAttackerSpeed(atkPenalized, nature, weaponInfo) {
+  if (nature === "proyectil") {
+    const tier = normalizeTier(weaponInfo.tier || "E");
+    const aspdBase = weaponInfo.bowAspdBase ?? (BOW_ASPD_BASE[tier] || 5);
+    return atkPenalized.atk + aspdBase;
   }
   return atkPenalized.aspd;
 }
@@ -352,7 +477,8 @@ function resolveAttackerSpeed(atkPenalized, nature) {
  * @param {number} attackerHp - HP actual del atacante
  * @param {number} [attackerFatigue] - Fatiga del atacante
  * @param {number} [defenderFatigue] - Fatiga del defensor
- * @param {object|null} [weaponInfo] - Info del arma equipada ({ damageNature, tier, baseDamage })
+ * @param {object|null} [weaponInfo] - Info del arma equipada ({ damageNature, tier, baseDamage, ranged, weaponRange })
+ * @param {number} [distance] - Distancia del ataque (metros)
  * @returns {*} Información del ataque ejecutado
  */
 function executeAttack(
@@ -363,6 +489,7 @@ function executeAttack(
   attackerFatigue = 0,
   defenderFatigue = 0,
   weaponInfo = null,
+  distance = 0,
 ) {
   const attackerStats = attackerChar.stats || {};
   const defenderStats = defenderChar.stats || {};
@@ -373,14 +500,17 @@ function executeAttack(
   const atkPenalized = applyPenalties(attackerStats, attackerHp, attackerFatigue, attackerRes);
   const defPenalized = applyPenalties(defenderStats, defenderHp, defenderFatigue, defenderRes);
 
-  // Calcular daño según naturaleza del arma
-  const damageResult = calculateWeaponDamage(atkPenalized, defPenalized, weaponInfo);
+  // Calcular daño según naturaleza del arma (perforante ranged decae con la distancia)
+  const damageResult = calculateWeaponDamage(atkPenalized, defPenalized, weaponInfo, distance);
 
-  // Velocidad de ataque efectiva (perforante usa ATK, resto usa ASPD)
-  const attackerEffectiveSpeed = resolveAttackerSpeed(atkPenalized, damageResult.nature);
+  // Velocidad de ataque efectiva (arco usa ATK, resto usa ASPD)
+  const attackerEffectiveSpeed = resolveAttackerSpeed(atkPenalized, damageResult.nature, weaponInfo);
 
-  // Chequeo de reacción usando velocidad efectiva
-  const reactPossible = defPenalized.ref > Math.max(0, attackerEffectiveSpeed);
+  // Ventaja de reflejos del defensor según la distancia del ataque
+  const distanceRefBonus = getDistanceRefBonus(weaponInfo, distance);
+
+  // Chequeo de reacción usando velocidad efectiva y la ventaja por distancia
+  const reactPossible = defPenalized.ref + distanceRefBonus > Math.max(0, attackerEffectiveSpeed);
 
   return {
     attackerName: attackerChar.name,
@@ -388,7 +518,9 @@ function executeAttack(
     baseDamage: damageResult.bodyDamage,
     materialDamage: damageResult.materialDamage,
     damageNature: damageResult.nature,
+    ranged: damageResult.ranged,
     canReact: reactPossible,
+    distanceRefBonus,
     defenderHpBefore: defenderHp,
   };
 }
@@ -408,6 +540,49 @@ function applyMaterialAbsorption(materialDamage, armorDurability) {
     return { absorbed: 0, overflow: materialDamage, isBroken: false, isDestroyed: false };
   }
   return armorDurability.absorbDamage(materialDamage);
+}
+
+/**
+ * Modo de armadura (Fase C Iteración 1 — aprobado "full"):
+ * bonusDef→DEF + soak relativo + overflow→daño a HP (spec §3).
+ * Aplica la mecánica validada en el harness experimental a la aplicación de
+ * daño real, gobernada por las constantes de combatConfig.js.
+ * @param {object} ctx - { finalDamage, materialDamage, dodged, defenderStats, armorBonusDef, armorAbsorption, hasArmor }
+ * @returns {{ finalDamage: number, soakApplied: number, defReduction: number, overflowToHp: number }}
+ */
+function applyArmorMode(ctx) {
+  const { finalDamage, materialDamage, dodged, defenderStats = {}, armorBonusDef = 0, armorAbsorption = null, hasArmor = false } = ctx;
+
+  let outDamage = dodged ? 0 : finalDamage;
+  let soakApplied = 0;
+  let defReduction = 0;
+  let overflowToHp = 0;
+
+  // bonusDef → DEF: mitiga el daño corporal con la fórmula real del motor.
+  if (ARMOR_USE_BONUS_DEF_TO_DEF && hasArmor && armorBonusDef > 0) {
+    const baseDef = defenderStats.def || 0;
+    const factorBase = mitigationFactor(baseDef);
+    const factorBoosted = mitigationFactor(baseDef + armorBonusDef);
+    if (factorBase > 0) {
+      const reductionRatio = 1 - factorBoosted / factorBase;
+      defReduction = Math.floor(outDamage * reductionRatio);
+      outDamage = Math.max(0, outDamage - defReduction);
+    }
+  }
+
+  // Soak relativo: la armadura absorbe un % del daño corporal entrante.
+  if (ARMOR_SOAK_RATIO > 0 && hasArmor) {
+    soakApplied = Math.floor(outDamage * ARMOR_SOAK_RATIO);
+    outDamage = Math.max(0, outDamage - soakApplied);
+  }
+
+  // Overflow → HP: el material no absorbido por la armadura daña la salud corporal.
+  if (ARMOR_OVERFLOW_TO_HP && materialDamage > 0 && !dodged && armorAbsorption) {
+    overflowToHp = armorAbsorption.overflow || 0;
+    outDamage += overflowToHp;
+  }
+
+  return { finalDamage: outDamage, soakApplied, defReduction, overflowToHp };
 }
 
 /**
@@ -482,19 +657,42 @@ function executeReaction(
     armorAbsorption = applyMaterialAbsorption(materialDamage, armorDurability);
   }
 
-  const defenderHpAfter = Math.max(0, defenderHp - finalDamage);
+  // Modo de armadura (Fase C Iteración 1 — "full"): bonusDef→DEF + soak + overflow→HP.
+  // `hasArmor` exige pieza con resistencia disponible (no rota/agotada) para
+  // def/soak; el overflow→HP aplica siempre que hubo material no absorbido.
+  const hasArmor = Boolean(
+    armorDurability &&
+      typeof armorDurability.maxResist === "number" &&
+      armorDurability.currentResist > 0 &&
+      !armorDurability.isBroken,
+  );
+  const armorBonusDef = hasArmor ? armorDurability.bonusDef || Math.round(armorDurability.maxResist / 2) : 0;
+  const armorMode = applyArmorMode({
+    finalDamage,
+    materialDamage,
+    dodged,
+    defenderStats,
+    armorBonusDef,
+    armorAbsorption,
+    hasArmor,
+  });
+
+  const defenderHpAfter = Math.max(0, defenderHp - armorMode.finalDamage);
 
   return {
     attackerName: attackerChar.name,
     defenderName: defenderChar.name,
     baseDamage,
     reaction,
-    finalDamage,
+    finalDamage: armorMode.finalDamage,
     dodged,
     defenderHpBefore: defenderHp,
     defenderHpAfter,
     ko: defenderHpAfter <= 0,
     armorAbsorption, // null si no hay armadura/material damage
+    soakApplied: armorMode.soakApplied,
+    defReduction: armorMode.defReduction,
+    overflowToHp: armorMode.overflowToHp,
   };
 }
 
@@ -507,6 +705,7 @@ function executeReaction(
  * @param {number} attackerHp - HP del atacante
  * @param {number} [defenderFatigue] - Fatiga del defensor
  * @param {number} [attackerFatigue] - Fatiga del atacante
+ * @param {number} [distanceRefBonus] - Ventaja de reflejos por distancia del atacante
  * @returns {string} Reacción elegida ('dodge', 'block', 'none')
  */
 function chooseAiReaction(
@@ -517,6 +716,8 @@ function chooseAiReaction(
   attackerHp,
   defenderFatigue = 0,
   attackerFatigue = 0,
+  distanceRefBonus = 0,
+  defenderEquipment = null,
 ) {
   /**
    * @constant attackerStats
@@ -547,26 +748,35 @@ function chooseAiReaction(
     attackerFatigue,
     defenderRes,
     attackerRes,
+    0,
+    distanceRefBonus,
   );
   if (!reactPossible) {
     return "none";
   }
 
-  /**
-   * @constant dodgeCheck
-   */
-  const dodgeCheck = attemptDodge(
-    defenderStats,
-    defenderHp,
-    attackerStats,
-    attackerHp,
-    defenderFatigue,
-    attackerFatigue,
-    defenderRes,
-    attackerRes,
-  );
-  if (dodgeCheck.dodged) {
-    return "dodge";
+  // IA basada en equipamiento: si el defensor tiene escudo o una armadura con
+  // bonusDef alto, prefiere BLOQUEAR (aguanta con durabilidad). Si no, esquiva
+  // cuando su MSPD supera la velocidad de ataque (comportamiento anterior).
+  const eq = defenderEquipment || {};
+  const hasShield = Boolean(eq.shield);
+  const armorBonusDef = eq.armor?.bonusDef || 0;
+  const preferBlock = hasShield || armorBonusDef >= BLOCK_PREFER_DEF_THRESHOLD;
+
+  if (!preferBlock) {
+    const dodgeCheck = attemptDodge(
+      defenderStats,
+      defenderHp,
+      attackerStats,
+      attackerHp,
+      defenderFatigue,
+      attackerFatigue,
+      defenderRes,
+      attackerRes,
+    );
+    if (dodgeCheck.dodged) {
+      return "dodge";
+    }
   }
   return "block";
 }
@@ -690,6 +900,7 @@ module.exports = {
   calculateDamage,
   calculateWeaponDamage,
   applyMaterialAbsorption,
+  applyArmorMode,
   resolveAttackerSpeed,
   canReact,
   evaluateDodgeFeasibility,
@@ -703,4 +914,6 @@ module.exports = {
   calculateXpReward,
   checkAttackRange,
   getAspdPenalty,
+  getProjectileScale,
+  getEffectiveWeaponRange,
 };

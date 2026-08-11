@@ -56,8 +56,8 @@ describe("Mecánica de Distancia v1.5", () => {
       expect(calculateMovementFatigue(4)).toBe(4);
     });
 
-    it("retorna 10 para 5 metros (2 fat/metro)", () => {
-      expect(calculateMovementFatigue(5)).toBe(10);
+    it("retorna 6 para 5 metros (1 fat/metro + 1 por bloque)", () => {
+      expect(calculateMovementFatigue(5)).toBe(6);
     });
 
     it("retorna mayor coste para más metros", () => {
@@ -233,14 +233,15 @@ describe("Mecánica de Distancia v1.5", () => {
       expect(mspd20).toBe(mspd10 * 2);
     });
 
-    it("Fatiga por movimiento escala con distancia", () => {
+    it("Fatiga por movimiento escala linealmente con distancia", () => {
       const { calculateMovementFatigue } = require("../src/services/rpg/fatigueEngine");
 
       const fatigue5 = calculateMovementFatigue(5);
       const fatigue10 = calculateMovementFatigue(10);
 
-      // Fatiga escala: más metros = más coste por metro
-      expect(fatigue10).toBeGreaterThan(fatigue5 * 2);
+      // Fatiga LINEAL: 10m = 5m + (coste lineal de 5m adicionales) + 1 bloque extra.
+      // No es cuadrática: correr distancias largas no debe colapsar el ASPD.
+      expect(fatigue10).toBe(fatigue5 + 5 + 1);
     });
   });
 

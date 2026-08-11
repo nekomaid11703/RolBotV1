@@ -1,0 +1,29 @@
+{
+  "config": {
+    "numSims": 300,
+    "personalityA": "tanque",
+    "personalityB": "matatanques",
+    "weaponA": null,
+    "weaponB": "estoque_de_hierro",
+    "overrides": [],
+    "timestamp": "2026-08-07T18:50:16.698Z"
+  },
+  "summary": {
+    "winsA": 197,
+    "winsB": 103,
+    "winrateA": 65.66666666666666,
+    "winrateB": 34.333333333333336,
+    "avgRounds": 5.736666666666666,
+    "avgRoundsA": 5.624365482233503,
+    "avgRoundsB": 5.951456310679611,
+    "koTypes": {
+      "A": {
+        "ko": 195,
+        "timeout": 2
+      },
+      "B": {
+        "ko": 103
+      }
+    }
+  }
+}

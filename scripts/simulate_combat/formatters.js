@@ -175,6 +175,30 @@ function formatMarkdownReport(report, config = {}) {
     lines.push(`| ${tier} | ${t.count} | ${pct(t.winrate)} |`);
   }
   lines.push("");
+  lines.push("### Weapon material");
+  lines.push("| Material | Count | Winrate |");
+  lines.push("|----------|-------|---------|");
+  for (const mat of Object.keys(report.variance.weaponMaterial).sort()) {
+    const m = report.variance.weaponMaterial[mat];
+    lines.push(`| ${mat} | ${m.count} | ${pct(m.winrate)} |`);
+  }
+  lines.push("");
+  lines.push("### Weapon material rarity");
+  lines.push("| Rarity | Count | Winrate |");
+  lines.push("|--------|-------|---------|");
+  for (const r of Object.keys(report.variance.weaponMaterialRarity).sort()) {
+    const m = report.variance.weaponMaterialRarity[r];
+    lines.push(`| ${r} | ${m.count} | ${pct(m.winrate)} |`);
+  }
+  lines.push("");
+  lines.push("### Armor material");
+  lines.push("| Material | Count | Winrate |");
+  lines.push("|----------|-------|---------|");
+  for (const mat of Object.keys(report.variance.armorMaterial).sort()) {
+    const m = report.variance.armorMaterial[mat];
+    lines.push(`| ${mat} | ${m.count} | ${pct(m.winrate)} |`);
+  }
+  lines.push("");
   lines.push("### Nature by level bracket");
   for (const bracket of Object.keys(report.variance.natureByLevel).sort()) {
     const counts = report.variance.natureByLevel[bracket];

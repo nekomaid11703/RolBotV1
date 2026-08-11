@@ -15,6 +15,7 @@ const {
   FATIGUE_SCALE_PER_5M,
   FATIGUE_DISTANCE_BLOCK,
   MOVEMENT_FATIGUE_MIN,
+  MOVEMENT_FATIGUE_DEF_REF,
   MSPD_TO_METERS,
 } = require("../../config/combatConfig");
 
@@ -161,13 +162,30 @@ function capFatigue(fatigue) {
 
 /**
  * Calculate fatigue cost for moving a given distance.
+ * Fórmula LINEAL: coste por metro (FATIGUE_BASE_PER_METER) + coste adicional
+ * POR BLOQUE de 5m (FATIGUE_SCALE_PER_5M). La versión anterior multiplicaba
+ * blocks × meters × scale (cuadrática), que hacía prohibitivo correr cualquier
+ * distancia >10m y colapsaba el ASPD del melee tras avanzar (dodge perpetuo a
+ * niveles bajos).
+ *
+ * Escalado por condición física: si se pasa `resistance` (DEF del luchador), el
+ * coste se multiplica por def/MOVEMENT_FATIGUE_DEF_REF, de modo que el ratio
+ * fatiga/resistencia tras un desplazamiento es constante en todos los niveles.
+ * Sin `resistance` devuelve el coste bruto (comportamiento original).
  * @param {number} meters
+ * @param {number} [resistance] - DEF del luchador (escala por condición)
  * @returns {number}
  */
-function calculateMovementFatigue(meters) {
+function calculateMovementFatigue(meters, resistance) {
   if (meters <= 0) return 0;
   const blocks = Math.floor(meters / FATIGUE_DISTANCE_BLOCK);
-  return Math.max(MOVEMENT_FATIGUE_MIN, meters * FATIGUE_BASE_PER_METER + blocks * meters * FATIGUE_SCALE_PER_5M);
+  const base = meters * FATIGUE_BASE_PER_METER + blocks * FATIGUE_SCALE_PER_5M;
+  const def = Number(resistance) || 0;
+  if (def > 0) {
+    const scaled = (base * def) / MOVEMENT_FATIGUE_DEF_REF;
+    return Math.max(MOVEMENT_FATIGUE_MIN, Math.round(scaled));
+  }
+  return Math.max(MOVEMENT_FATIGUE_MIN, base);
 }
 
 /**

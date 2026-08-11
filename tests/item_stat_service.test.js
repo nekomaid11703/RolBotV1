@@ -6,6 +6,7 @@
 const { createItemDefinition } = require("../src/services/rpg/itemFactory");
 const {
   getWeaponStats,
+  getProjectileStats,
   getArmorStats,
   getArtifactStats,
   getMaterialCost,
@@ -38,6 +39,74 @@ describe("getWeaponStats — base × tier × material", () => {
     expect(stats.damageNature).toBe("perforante");
     expect(stats.hands).toBe(2);
     expect(stats.tier).toBe("B");
+  });
+});
+
+describe("getProjectileStats — flecha fija por material, SIN escalado de tier", () => {
+  it("El daño base NO crece con el tier (el tier solo aporta AERO)", () => {
+    const arrowDef = (tier) =>
+      createItemDefinition({
+        id: "flecha",
+        type: "weapon",
+        material: "hierro",
+        tier,
+        modules: { weapon: { damageNature: "proyectil", baseDamage: 12, hands: 1, weaponRange: 0 } },
+      });
+    const e = getProjectileStats(arrowDef("E"));
+    const n = getProjectileStats(arrowDef("N"));
+    expect(e.baseDamage).toBeGreaterThan(0);
+    expect(n.baseDamage).toBe(e.baseDamage);
+    expect(n.tier).toBe("N");
+  });
+
+  it("El material con mayor afilabilidad produce más daño al mismo tier", () => {
+    const madera = getProjectileStats(
+      createItemDefinition({
+        id: "f",
+        type: "weapon",
+        material: "madera",
+        tier: "B",
+        modules: { weapon: { damageNature: "proyectil", baseDamage: 12, hands: 1, weaponRange: 0 } },
+      }),
+    );
+    const acero = getProjectileStats(
+      createItemDefinition({
+        id: "f",
+        type: "weapon",
+        material: "acero",
+        tier: "B",
+        modules: { weapon: { damageNature: "proyectil", baseDamage: 12, hands: 1, weaponRange: 0 } },
+      }),
+    );
+    expect(acero.baseDamage).toBeGreaterThanOrEqual(madera.baseDamage);
+  });
+
+  it("Proyectil de tier alto NO explota con doble escalado (flecha fija × BOW_DAMAGE_MULT)", () => {
+    const { calculateWeaponDamage } = require("../src/services/rpg/combatEngine");
+    const stats = { atk: 99, def: 99, aspd: 99, ref: 99, mspd: 99, hp: 99, fulgor: 1, d_fulgor: 1, r_fulgor: 1 };
+    const weaponInfo = (tier) => ({
+      damageNature: "proyectil",
+      tier,
+      baseDamage: 0,
+      hands: 2,
+      weaponRange: 20,
+      ranged: true,
+      arrow: { ...getProjectileStats(arrowFor(tier)), id: "f", material: "hierro" },
+    });
+    const arrowFor = (tier) =>
+      createItemDefinition({
+        id: "f",
+        type: "weapon",
+        material: "hierro",
+        tier,
+        modules: { weapon: { damageNature: "proyectil", baseDamage: 12, hands: 1, weaponRange: 0 } },
+      });
+    const { bodyDamage: e } = calculateWeaponDamage(stats, stats, weaponInfo("E"), 12);
+    const { bodyDamage: n } = calculateWeaponDamage(stats, stats, weaponInfo("N"), 12);
+    // Antes del fix el proyectil crecía ×23 E→N; con flecha fija el crecimiento
+    // viene solo de BOW_DAMAGE_MULT (1.2 → 7.6) ≈ ×6.3.
+    expect(n).toBeGreaterThan(e);
+    expect(n / e).toBeLessThan(10);
   });
 });
 

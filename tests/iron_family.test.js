@@ -15,10 +15,10 @@ const { EQUIPMENT_SLOTS } = require("../src/services/rpg/equipmentService");
 describe("IRON_STATS — material hierro", () => {
   it("Expone las 4 estadísticas base del hierro", () => {
     expect(IRON_STATS).toEqual({
-      afilabilidad: 45,
-      conduccion_magica: 20,
-      resistencia_material: 55,
-      flexibilidad: 25,
+      afilabilidad: 30,
+      conduccion_magica: 30,
+      resistencia_material: 30,
+      flexibilidad: 30,
     });
   });
 });

@@ -14,10 +14,10 @@ const { createItemDefinition } = require("../services/rpg/itemFactory");
  * @type {{afilabilidad: number, conduccion_magica: number, resistencia_material: number, flexibilidad: number}}
  */
 const IRON_STATS = {
-  afilabilidad: 45,
-  conduccion_magica: 20,
-  resistencia_material: 55,
-  flexibilidad: 25,
+  afilabilidad: 30,
+  conduccion_magica: 30,
+  resistencia_material: 30,
+  flexibilidad: 30,
 };
 
 /**

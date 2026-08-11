@@ -6,13 +6,22 @@
  * Verifica integridad, sesgos de métricas, robustez estadística (CI 95%),
  * confounds (nivel×build, magia×nivel, tier×nivel) y casos límite (draws).
  * Salida: scripts/simulation_output/audit_report.md
+ * Uso: node scripts/simulate_combat/audit.js [--raw <path>]
  */
 
 const fs = require("fs");
 const path = require("path");
 
-const RAW_PATH = path.join(__dirname, "..", "simulation_output", "raw_data.json");
-const OUT_PATH = path.join(__dirname, "..", "simulation_output", "audit_report.md");
+const args = process.argv.slice(2);
+const optRaw = (() => {
+  const i = args.indexOf("--raw");
+  return i >= 0 ? path.resolve(args[i + 1]) : null;
+})();
+
+const RAW_PATH = optRaw || path.join(__dirname, "..", "simulation_output", "raw_data.json");
+const OUT_PATH = optRaw
+  ? optRaw.replace(/\.json$/, "_audit.md")
+  : path.join(__dirname, "..", "simulation_output", "audit_report.md");
 
 const { metrics, config } = JSON.parse(fs.readFileSync(RAW_PATH, "utf8"));
 const sims = Array.isArray(metrics) ? metrics : Object.values(metrics);

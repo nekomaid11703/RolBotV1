@@ -4,6 +4,25 @@ Este archivo registra los cambios significativos y decisiones arquitectónicas t
 
 ---
 
+## [2.12.0] - 2026-08-06
+
+### Generador de familias de ítems tester (múltiples materiales + tiers) + IA de equipamiento + informe detallado + re-baseline
+
+La simulación deja de depender del catálogo plano de hierro y pasa a generar equipo con **materiales reales del motor** (`materialData`), tiers por material, munición para arcos, y una IA de combate que reacciona al equipamiento. Los ítems siguen siendo SOLO tester (en memoria, sin registrar en el catálogo real).
+
+- **`scripts/simulate_combat/families.config.js`** (nuevo): pesos de rareza de material (común 40% / poco común 30% / raro 15% / épico 10% / legendario 3% / mítico 2%), techo de tier por material (común→C, poco común→B, raro→A, épico/legendario/mítico→S), familias editables (hierro + madera), stock de flechas y umbral de bloqueo (`BLOCK_PREFER_DEF_THRESHOLD=60`).
+- **`scripts/simulate_combat/familyGenerator.js`** (nuevo): registro en memoria `createFamily/removeFamily/editFamily/listFamilies` (persistencia opcional en `families.state.json` ignorada por git — solo cambios del CLI), `rollMaterial` (peso por rareza desplazado por nivel), `rollTier` (E–S según nivel + rareza del material), builders de arma/armadura/escudo/amuleto/municion con **stats reales del motor** (`base × tier × material` vía `itemStatService`), y `generateLoadout` (1 arma + munición si ranged + armadura con cobertura por pieza + escudo si 1 mano + amuleto). `rollTier` simula crafteo: tier del material como techo, con probabilidad de tier inferior.
+- **`scripts/simulate_combat/fighterGenerator.js`**: `generateEquipment` delega en `generateLoadout` (presets de experimento siguen funcionando). Fix de nombre redundante (`Arco de Hierro de Acero` → `Arco de Hierro`).
+- **IA de equipamiento** (`combatEngine.chooseAiReaction`): prefiere **bloquear** si hay escudo o `bonusDef ≥ 60`; el arquero sin flechas pasa a **desarmado** y se acerca (un ranged sin proyectil ya no "ataca a distancia" con daño 0). Umbral movido a `combatConfig.BLOCK_PREFER_DEF_THRESHOLD`.
+- **`scripts/simulate_combat/manage_families.js`** (nuevo): CLI `list/show/add/edit/rm` sobre `families.config.js` (persistencia probada entre ejecuciones).
+- **`scripts/simulate_combat/generate_family_report.js`** (nuevo): informe markdown detallado de equipamientos generados (stats, arma con naturaleza/tier/material/daño/alcance/municion, piezas de armadura con cobertura/maxResist/bonusDef, escudo, amuleto con buff, piezas de set y bono activo, stats de material por pieza) → `scripts/simulation_output/family_report.md`.
+- **Métricas** (`metricsCollector`/`aggregator`/`formatters`): secciones con winrate por material, rareza del material del arma, material de armadura y munición en el reporte.
+
+**Re-baseline (2000 sims, nuevo generador)**: integridad 0 issues; turnos subset parejo 6.03 (target 7.0 ✅, CI 5.45–6.62); ventaja primer atacante −4.4% (⚠️ ahora el 2º atacante gana — el primer atacante asume la fatiga de los 25 m iniciales, agravada por coberturas pesadas); meta gladiador 69.2% (target ≤55% ⚠️, hallazgo del motor, sin maquillar); set bonus activo 97.6% (todas las piezas comparten `setId` de familia); naturalezas por bracket desviadas de 1/3 (perforante ~44% porque el arco suma munición perforante). Hallazgos del motor pendientes: asimetría del primer atacante, progresión por tier vs nivel (el nivel no predice victoria), set bonus/amuleto solo UI, `getMovementFatigueWithCoverage` sin consumidor real.
+
+Lint 0, typecheck 0, 532/532 tests verdes.
+
+
 ## [2.11.0] - 2026-08-05
 
 ### Techo de 20 rounds + balance de duración (HP×3) + cobertura coherente por fighter + re-baseline

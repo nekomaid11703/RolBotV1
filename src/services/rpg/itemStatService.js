@@ -1,5 +1,5 @@
 const { normalizeTier, getTierMultiplier } = require("../../config/tierConfig");
-const { getMaterialStats } = require("../../data/materialData");
+const { getMaterialStats, MATERIALS } = require("../../data/materialData");
 
 /**
  * Servicio de resolución de estadísticas finales de un ítem a partir de su
@@ -19,18 +19,19 @@ const EDGE_SCALE = 50;
 /**
  * Resuelve la estadística de un arma a partir de su definición.
  * @param {import("./itemFactory").ItemDefinition} def - ItemDefinition (weapon)
- * @returns {object} { damageNature, tier, hands, baseDamage, weaponRange }
+ * @returns {object} { damageNature, tier, hands, baseDamage, weaponRange, ranged }
  */
 function getWeaponStats(def) {
   const tier = normalizeTier(def.tier || "E");
   const mult = getTierMultiplier(tier);
   const mat = getMaterialStats(def.material || "madera", tier);
   const weapon = def.modules?.weapon || {};
+  const ranged = Boolean(weapon.ranged);
 
-  const baseDamage = Math.max(
-    1,
-    Math.round((Number(weapon.baseDamage) || 10) * mult * (mat.afilabilidad / EDGE_SCALE)),
-  );
+  // Armas a distancia (arco): el daño lo aporta el proyectil, el arco no tiene baseDamage propio.
+  const baseDamage = ranged
+    ? 0
+    : Math.max(1, Math.round((Number(weapon.baseDamage) || 10) * mult * (mat.afilabilidad / EDGE_SCALE)));
 
   return {
     damageNature: weapon.damageNature || "cortante",
@@ -38,6 +39,33 @@ function getWeaponStats(def) {
     hands: weapon.hands || 1,
     baseDamage,
     weaponRange: weapon.weaponRange || 1,
+    ranged,
+  };
+}
+
+/**
+ * Resuelve la estadística de un proyectil (flecha) a partir de su definición.
+ * El daño base es FIJO por material (nominal × afilabilidad / EDGE_SCALE), SIN
+ * multiplicador de tier: el tier de la flecha solo aporta aerodinámica (AERO)
+ * al alcance/falloff. El tier del arco aplica su multiplicador (BOW_DAMAGE_MULT).
+ * Fuente única de la fórmula usada por el pool y el bot real (evita doble escalado).
+ * @param {import("./itemFactory").ItemDefinition} def - ItemDefinition (weapon/proyectil)
+ * @returns {object} { damageNature, tier, baseDamage, hands, weaponRange, ranged }
+ */
+function getProjectileStats(def) {
+  const tier = normalizeTier(def.tier || "E");
+  const weapon = def.modules?.weapon || {};
+  // Afilabilidad BASE del material (sin multiplicador de tier): la flecha no
+  // escala por tier (el tier solo aporta AERO al alcance/falloff).
+  const baseAfi = MATERIALS[def.material || "madera"]?.baseStats?.afilabilidad ?? 45;
+  const baseDamage = Math.max(1, Math.round((Number(weapon.baseDamage) || 10) * (baseAfi / EDGE_SCALE)));
+  return {
+    damageNature: weapon.damageNature || "proyectil",
+    tier,
+    baseDamage,
+    hands: weapon.hands || 1,
+    weaponRange: weapon.weaponRange || 0,
+    ranged: false,
   };
 }
 
@@ -111,6 +139,7 @@ function defaultBaseCost(rarity, mult) {
 
 module.exports = {
   getWeaponStats,
+  getProjectileStats,
   getArmorStats,
   getArtifactStats,
   getMaterialCost,

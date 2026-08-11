@@ -190,28 +190,83 @@ describe("calculateWeaponDamage — Naturalezas de daño", () => {
     expect(cortanteDmg).toBeGreaterThan(desarmadoDmg);
   });
 
-  it("Contundente: materialDamage > bodyDamage (multiplicador tier)", () => {
+  it("Contundente: materialDamage > bodyDamage (multiplicador fijo 1.5x)", () => {
     const weaponInfo = { damageNature: "contundente", tier: "C", baseDamage: 0 };
     const { bodyDamage, materialDamage, nature } = calculateWeaponDamage(ATK_STATS, DEF_STATS, weaponInfo);
     expect(materialDamage).toBeGreaterThan(bodyDamage);
     expect(nature).toBe("contundente");
-    // tier C = 2.0x
-    expect(materialDamage).toBe(Math.max(1, Math.floor(bodyDamage * 2.0)));
+    // Multiplicador material fijo = 1.5x del cuerpo (rompe armadura sin destruir en 1 golpe)
+    expect(materialDamage).toBe(Math.max(1, Math.floor(bodyDamage * 1.5)));
   });
 
-  it("Perforante: ignora defensa, baseDamage * tierMult, material = mitad", () => {
-    const weaponInfo = { damageNature: "perforante", tier: "E", baseDamage: 40 };
-    const { bodyDamage, materialDamage, nature } = calculateWeaponDamage(ATK_STATS, DEF_STATS, weaponInfo);
-    const expected = Math.max(1, Math.floor(40 * 1.2)); // tier E = 1.2x
+  it("Perforante melee: PIERCE_ATK_SCALE*ATK + base completo, material = mitad", () => {
+    const weaponInfo = { damageNature: "perforante", tier: "E", baseDamage: 40, ranged: false };
+    const { bodyDamage, materialDamage, nature, ranged } = calculateWeaponDamage(ATK_STATS, DEF_STATS, weaponInfo);
+    const expected = Math.max(1, Math.floor(0.6 * 100)) + Math.floor(40 * 1.0); // 60 + 40 = 100
     expect(bodyDamage).toBe(expected);
     expect(materialDamage).toBe(Math.max(1, Math.floor(expected * 0.5)));
     expect(nature).toBe("perforante");
+    expect(ranged).toBe(false);
   });
 
-  it("Perforante: daño corporal es independiente de la DEF del defensor", () => {
+  it("Proyectil (arco): arrow.baseDamage * BOW_DAMAGE_MULT * falloff + atk*PROJECTILE_ATK_SCALE, ignora DEF", () => {
+    const weaponInfo = {
+      damageNature: "proyectil",
+      tier: "C",
+      baseDamage: 0,
+      ranged: true,
+      weaponRange: 20,
+      arrow: { tier: "C", baseDamage: 30 },
+    };
+    const { bodyDamage, materialDamage, nature, ranged } = calculateWeaponDamage(ATK_STATS, DEF_STATS, weaponInfo, 10);
+    // Alcance efectivo (atk 100 → 25 + BOW_SPEED_BASE C 14 = 39; × AERO C 1.2 = 46.8 → 47)
+    // scale = 1 - (10/47)^2 ≈ 0.9547; tier C = 2.6x → floor((30*2.6 + 100*0.5)*0.9547) = 122
+    const expected = Math.max(1, Math.floor((30 * 2.6 + 100 * 0.5) * (1 - Math.pow(10 / 47, 2))));
+    expect(bodyDamage).toBe(expected);
+    expect(materialDamage).toBe(Math.max(1, Math.floor(expected * 0.5)));
+    expect(nature).toBe("proyectil");
+    expect(ranged).toBe(true);
+  });
+
+  it("Proyectil: el daño decae con la distancia y llega a 0 en el borde", () => {
+    const weaponInfo = {
+      damageNature: "proyectil",
+      tier: "B",
+      baseDamage: 0,
+      ranged: true,
+      weaponRange: 20,
+      arrow: { tier: "B", baseDamage: 50 },
+    };
+    const { bodyDamage: dmgNear } = calculateWeaponDamage(ATK_STATS, DEF_STATS, weaponInfo, 0);
+    const { bodyDamage: dmgMid } = calculateWeaponDamage(ATK_STATS, DEF_STATS, weaponInfo, 20);
+    // Alcance efectivo (atk 100 → 25 + BOW_SPEED_BASE B 19 = 44; × AERO B 1.45 = 63.8 → 64)
+    const { bodyDamage: dmgBorde } = calculateWeaponDamage(ATK_STATS, DEF_STATS, weaponInfo, 64);
+    expect(dmgNear).toBeGreaterThan(dmgMid);
+    // FALLOFF_K=2: scale = 1 - (20/64)^2 ≈ 0.9023; tier B = 3.5x → floor((50*3.5 + 100*0.5)*0.9023) = 203
+    expect(dmgMid).toBe(Math.max(1, Math.floor((50 * 3.5 + 100 * 0.5) * (1 - Math.pow(20 / 64, 2)))));
+    // En el borde el falloff llega a 0 (sin piso mínimo).
+    expect(dmgBorde).toBe(1);
+  });
+
+  it("Proyectil sin flecha: vuelve a daño desarmado (no hace daño propio)", () => {
+    const weaponInfo = {
+      damageNature: "proyectil",
+      tier: "B",
+      baseDamage: 0,
+      ranged: true,
+      weaponRange: 20,
+      arrow: null,
+    };
+    const { bodyDamage, nature, ranged } = calculateWeaponDamage(ATK_STATS, DEF_STATS, weaponInfo, 10);
+    expect(nature).toBe("desarmado");
+    expect(ranged).toBe(false);
+    expect(bodyDamage).toBe(Math.max(1, Math.floor(ATK_STATS.atk * (100 / (100 + DEF_STATS.def)))));
+  });
+
+  it("Perforante melee: daño corporal es independiente de la DEF del defensor", () => {
     const weakDef = { ...DEF_STATS, def: 1 };
     const strongDef = { ...DEF_STATS, def: 999 };
-    const weaponInfo = { damageNature: "perforante", tier: "B", baseDamage: 50 };
+    const weaponInfo = { damageNature: "perforante", tier: "B", baseDamage: 50, ranged: false };
     const { bodyDamage: dmgWeak } = calculateWeaponDamage(ATK_STATS, weakDef, weaponInfo);
     const { bodyDamage: dmgStrong } = calculateWeaponDamage(ATK_STATS, strongDef, weaponInfo);
     expect(dmgWeak).toBe(dmgStrong);
@@ -233,8 +288,13 @@ describe("resolveAttackerSpeed — Velocidad de ataque según naturaleza", () =>
     expect(resolveAttackerSpeed(atkPenalized, "contundente")).toBe(60);
   });
 
-  it("Perforante usa ATK en lugar de ASPD", () => {
-    expect(resolveAttackerSpeed(atkPenalized, "perforante")).toBe(90);
+  it("Perforante melee usa ASPD (velocidad natural)", () => {
+    expect(resolveAttackerSpeed(atkPenalized, "perforante", { ranged: false })).toBe(60);
+  });
+
+  it("Proyectil (arco) usa ATK + BOW_ASPD_BASE (tier E por defecto)", () => {
+    // 90 (ATK) + BOW_ASPD_BASE E = 5 → 95
+    expect(resolveAttackerSpeed(atkPenalized, "proyectil", { ranged: true })).toBe(95);
   });
 });
 

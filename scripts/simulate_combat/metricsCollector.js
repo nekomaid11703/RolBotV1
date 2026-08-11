@@ -3,6 +3,16 @@
 
 const { PHYSICAL_STATS } = require("./config");
 const { getCoverage } = require("../../src/services/rpg/armorSetService");
+const { MATERIALS } = require("../../src/data/materialData");
+
+/**
+ * Rareza de un material (o "desarmado"/"ninguno").
+ * @param {string} materialId
+ * @returns {string}
+ */
+function materialRarityOf(materialId) {
+  return MATERIALS[materialId]?.rarity || "ninguno";
+}
 
 /**
  * Resumen de equipo de un fighter para las métricas.
@@ -14,6 +24,9 @@ function equipmentMetrics(equipment) {
   const coverage = getCoverage(pieces);
   return {
     weaponTier: equipment.weapon?.tier || null,
+    weaponMaterial: equipment.weapon?.material || "desarmado",
+    weaponMaterialRarity: materialRarityOf(equipment.weapon?.material),
+    armorMaterials: pieces.filter((p) => p.slot !== "mano_izq").map((p) => p.material),
     armorPieces: pieces.length,
     armorMaxResist: pieces.reduce((acc, p) => acc + (p.maxResist || 0), 0),
     armorLeftResist: pieces.reduce((acc, p) => acc + (p.currentResist || 0), 0),
@@ -23,6 +36,7 @@ function equipmentMetrics(equipment) {
     setBonusActive: Boolean(equipment.setBonusActive),
     amulet: Boolean(equipment.amulet),
     shield: Boolean(equipment.shield),
+    ammo: equipment.ammo?.count || 0,
   };
 }
 
@@ -111,6 +125,14 @@ function collectMetrics(result) {
     fighterB_equipmentTier: fighterB.equipment.tierKey,
     fighterA_weaponTier: eqA.weaponTier,
     fighterB_weaponTier: eqB.weaponTier,
+    fighterA_weaponMaterial: eqA.weaponMaterial,
+    fighterB_weaponMaterial: eqB.weaponMaterial,
+    fighterA_weaponMaterialRarity: eqA.weaponMaterialRarity,
+    fighterB_weaponMaterialRarity: eqB.weaponMaterialRarity,
+    fighterA_armorMaterial: eqA.armorMaterials[0] || "ninguno",
+    fighterB_armorMaterial: eqB.armorMaterials[0] || "ninguno",
+    fighterA_ammo: eqA.ammo,
+    fighterB_ammo: eqB.ammo,
     fighterA_armorBonusDef: fighterA.equipment.armor?.bonusDef || 0,
     fighterB_armorBonusDef: fighterB.equipment.armor?.bonusDef || 0,
     fighterA_armorPieces: eqA.armorPieces,

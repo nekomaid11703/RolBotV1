@@ -32,6 +32,7 @@ const PRESETS = {
   naturaleza_espada: { weapon: "espada_de_hierro" },
   naturaleza_estoque: { weapon: "estoque_de_hierro" },
   naturaleza_maza: { weapon: "maza_de_hierro" },
+  naturaleza_arco: { weapon: "arco_de_hierro" },
   tier_e: { tier: "E" },
   tier_c: { tier: "C" },
   tier_a: { tier: "A" },

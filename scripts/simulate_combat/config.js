@@ -10,21 +10,6 @@ const PERSONALITIES = {
     description: "DEF + HP — aguanta el daño y bloquea",
     weights: { atk: 2, def: 30, aspd: 7, ref: 3, mspd: 3, hp: 15 },
   },
-  asesino: {
-    label: "Asesino",
-    description: "ATK + ASPD — golpes rápidos y fuertes",
-    weights: { atk: 24, def: 2, aspd: 20, ref: 4, mspd: 6, hp: 4 },
-  },
-  esquivo: {
-    label: "Esquivo",
-    description: "REF + MSPD — esquiva y contraataca",
-    weights: { atk: 3, def: 10, aspd: 6, ref: 26, mspd: 10, hp: 5 },
-  },
-  equilibrado: {
-    label: "Equilibrado",
-    description: "Distribucion pareja en stats fisicas",
-    weights: { atk: 10, def: 10, aspd: 10, ref: 10, mspd: 10, hp: 10 },
-  },
   extremista_ataque: {
     label: "Extremista ATK",
     description: "Maximo ATK — golpes devastadores",
@@ -44,11 +29,6 @@ const PERSONALITIES = {
     label: "Extremista REF",
     description: "Maximos REF + ASPD — esquiva perfecta",
     weights: { atk: 2, def: 1, aspd: 10, ref: 42, mspd: 1, hp: 4 },
-  },
-  velocista: {
-    label: "Velocista",
-    description: "Maxima MSPD + ASPD — huidor garantizado",
-    weights: { atk: 2, def: 2, aspd: 15, ref: 6, mspd: 30, hp: 5 },
   },
   berserker: {
     label: "Berserker",
@@ -74,6 +54,16 @@ const PERSONALITIES = {
     label: "Magus",
     description: "ASPD + ATK — hibrido fisico-magico rapido",
     weights: { atk: 14, def: 4, aspd: 24, ref: 8, hp: 6, mspd: 4 },
+  },
+  matatanques: {
+    label: "Matatanques",
+    description: "ATK + HP + ASPD — bruiser que aguanta y destroza",
+    weights: { atk: 24, def: 4, aspd: 14, ref: 4, mspd: 4, hp: 10 },
+  },
+  rompescudos: {
+    label: "Rompescudos",
+    description: "ATK + ASPD + REF — asalta, esquiva y contraataca",
+    weights: { atk: 26, def: 2, aspd: 16, ref: 8, mspd: 2, hp: 6 },
   },
 };
 
@@ -121,11 +111,18 @@ const ITEM_POOL = [
 ];
 
 // ── Posicionamiento ──
-const INITIAL_DISTANCE = 25;
+const INITIAL_DISTANCE = 10;
 const MAX_DISTANCE = 100;
 const RETREAT_HP_RATIO = 0.25;
 const RETREAT_MAX_DISTANCE = 12;
 const RETREAT_MAX_FATIGUE_RATIO = 0.4;
+
+// ── Kite ──
+// Fracción del movementRange que el arquero puede retroceder MIENTRAS dispara.
+// El equilibrio Fase B encontró 1.0: el arquero kitea a velocidad completa y el
+// melee (con avance-y-ataque en un turno) cierra distancia simétricamente.
+// Valores <1 rompen el 50/50 en contra del proyectil.
+const KITE_MOVE_RATIO = 1.0;
 
 // ── Catálogo base: Familia del Hierro (material: hierro, setId: set_hierro) ──
 // Las stats finales se DERIVAN con las fórmulas reales del motor
@@ -137,6 +134,7 @@ const IRON_FAMILY = {
     { id: "espada_de_hierro", name: "Espada de Hierro", damageNature: "cortante", nominalDamage: 20, hands: 1, weaponRange: 1 },
     { id: "estoque_de_hierro", name: "Estoque de Hierro", damageNature: "perforante", nominalDamage: 14, hands: 1, weaponRange: 1 },
     { id: "maza_de_hierro", name: "Maza de Hierro", damageNature: "contundente", nominalDamage: 22, hands: 1, weaponRange: 1 },
+    { id: "arco_de_hierro", name: "Arco de Hierro", damageNature: "proyectil", nominalDamage: 0, hands: 2, weaponRange: 20, ranged: true },
   ],
   armorSlotBase: {
     cabeza: "Casco de Hierro",
@@ -147,6 +145,16 @@ const IRON_FAMILY = {
   coverageSuffix: { ligera: "Ligero", media: "", alta: "Alto", total: "Total" },
   shield: { id: "escudo_de_hierro", name: "Escudo de Hierro", slot: "mano_izq", coverage: "alta" },
   amulet: { id: "amuleto_de_hierro", name: "Amuleto de Hierro", slot: "artefacto_1", buff: { atk: 5 } },
+};
+
+// ── Flechas: proyectil del arco (ítem separado con tier propio) ──
+// La flecha aporta el daño base del ataque ranged; el tier del arco multiplica.
+const ARROW = {
+  id: "flecha_de_hierro",
+  name: "Flecha de Hierro",
+  damageNature: "proyectil",
+  nominalDamage: 12,
+  material: "hierro",
 };
 
 // Slots corporales y grados de cobertura (spec §4).
@@ -239,9 +247,15 @@ OUTPUT
 `);
 }
 
+// ── Modo de armadura experimental (Iteración 1 Fase C) ─────────────────────
+// actual | def | soak | overflow | full. Ver experimentalArmor.js.
+// El runner (run_armor_modes.js) lo sobreescribe por modo a medir.
+const ARMOR_MODE = "actual";
+
 const SIM_CONFIG = {
   DEFAULT_NUM_SIMS,
   MAX_ROUNDS,
+  ARMOR_MODE,
   LEVEL_MIN,
   LEVEL_MAX,
   LEVEL_DIFF_MAX_PCT,
@@ -280,12 +294,17 @@ const SIM_CONFIG = {
   BALANCE_TARGETS,
 };
 
+// ── Modo de armadura experimental (Iteración 1 Fase C) ─────────────────────
+// actual | def | soak | overflow | full. Ver experimentalArmor.js.
+// El runner (run_armor_modes.js) lo sobreescribe por modo a medir.
+
 module.exports = {
   PERSONALITIES,
   WEIGHT_JITTER,
   STAT_SOFT_CAP,
   DEFAULT_NUM_SIMS,
   MAX_ROUNDS,
+  ARMOR_MODE,
   LEVEL_MIN,
   LEVEL_MAX,
   LEVEL_DIFF_MAX_PCT,
@@ -312,7 +331,9 @@ module.exports = {
   RETREAT_HP_RATIO,
   RETREAT_MAX_DISTANCE,
   RETREAT_MAX_FATIGUE_RATIO,
+  KITE_MOVE_RATIO,
   IRON_FAMILY,
+  ARROW,
   ARMOR_SLOTS,
   COVERAGES,
   TIER_BRACKETS,

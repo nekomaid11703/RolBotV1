@@ -1,0 +1,28 @@
+{
+  "config": {
+    "numSims": 300,
+    "personalityA": "extremista_defensa",
+    "personalityB": "matatanques",
+    "overrides": [],
+    "timestamp": "2026-08-07T18:47:49.037Z"
+  },
+  "summary": {
+    "winsA": 206,
+    "winsB": 94,
+    "winrateA": 68.66666666666667,
+    "winrateB": 31.333333333333336,
+    "avgRounds": 8.46,
+    "avgRoundsA": 7.587378640776699,
+    "avgRoundsB": 10.372340425531915,
+    "koTypes": {
+      "A": {
+        "ko": 200,
+        "timeout": 6
+      },
+      "B": {
+        "ko": 85,
+        "timeout": 9
+      }
+    }
+  }
+}

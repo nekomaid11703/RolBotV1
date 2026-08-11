@@ -14,6 +14,7 @@ class DurabilityModule extends ModuleBase {
     this.currentResist = config.currentResist ?? this.maxResist;
     this.isRepairable = Boolean(config.isRepairable); // Solo si es true adquiere "broken", sino se destruye
     this.isBroken = Boolean(config.isBroken);
+    this.bonusDef = config.bonusDef || Math.round(this.maxResist / 2);
   }
 
   /**

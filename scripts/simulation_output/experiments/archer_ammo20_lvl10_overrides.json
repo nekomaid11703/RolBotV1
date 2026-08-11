@@ -1,0 +1,12 @@
+{
+  "tag": "archer_ammo20_lvl10",
+  "timestamp": "2026-08-06T19:47:14.164Z",
+  "numSims": 10000,
+  "overrides": [
+    {
+      "mod": "simConfig",
+      "key": "LEVEL_DIFF_MAX_PCT",
+      "value": 0.1
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "tag": "ang_p_cap40_escala160",
+  "timestamp": "2026-08-07T18:12:19.926Z",
+  "numSims": 2000,
+  "overrides": [
+    {
+      "mod": "combatBalance",
+      "key": "DEF_MITIGATION_CAP",
+      "value": 40
+    },
+    {
+      "mod": "combatBalance",
+      "key": "DAMAGE_DEFENSE_SCALE",
+      "value": 160
+    }
+  ]
+}

@@ -46,14 +46,16 @@ function getCoverage(armorParts = []) {
 }
 
 /**
- * Aplica el coste de fatiga de movimiento penalizado por cobertura.
+ * Aplica el coste de fatiga de movimiento penalizado por cobertura y escalado
+ * por condición física (DEF del luchador).
  * @param {number} meters - Distancia a desplazarse
  * @param {Array<object>} armorParts - Piezas de armadura equipadas
+ * @param {number} [resistance] - DEF del luchador (escala por condición)
  * @returns {number}
  */
-function getMovementFatigueWithCoverage(meters, armorParts = []) {
+function getMovementFatigueWithCoverage(meters, armorParts = [], resistance) {
   const { fatigueMult } = getCoverage(armorParts);
-  return Math.round(calculateMovementFatigue(meters) * fatigueMult);
+  return Math.round(calculateMovementFatigue(meters, resistance) * fatigueMult);
 }
 
 /**

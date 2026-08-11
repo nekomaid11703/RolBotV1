@@ -16,10 +16,16 @@
  *   node scripts/simulate_combat/run_experiments.js -n 2000 --tag exp_fatiga_050 \
  *     --overrides combatConfig.FATIGUE_ATK_COST_SCALE=0.025,combatBalance.FATIGUE_BASE_PER_METER=0.5
  *
- * Módulos soportados: combatConfig | combatBalance | tierConfig
+ * Módulos soportados: combatConfig | combatBalance | tierConfig | simConfig
  * (tierConfig: solo valores planos del export, p.ej. TIERS.C.mult; las
  *  funciones getTierPenaltyBonus/getSpecialTierMult usan constantes
- *  internas del módulo y requieren editar tierConfig.js a mano).
+ *  internas del módulo y requieren editar tierConfig.js a mano.
+ *  simConfig: constantes del simulador, p.ej. simConfig.LEVEL_DIFF_MAX_PCT=0.1).
+ *
+ * La KEY puede ser una ruta anidada para mutar objetos: por ejemplo
+ *   simConfig.PERSONALITIES.extremista_defensa.weights.def=28
+ * muta el peso "def" de la personalidad en memoria (el pool del simulador
+ * es el objeto vivo; purgar el cache NO restaura valores mutados de simConfig).
  */
 
 const path = require("path");
@@ -32,6 +38,7 @@ const MODULES = {
   combatConfig: path.join(REPO_ROOT, "src", "config", "combatConfig.js"),
   combatBalance: path.join(REPO_ROOT, "src", "config", "combatBalance.js"),
   tierConfig: path.join(REPO_ROOT, "src", "config", "tierConfig.js"),
+  simConfig: path.join(SIM_DIR, "config.js"),
 };
 
 function printUsage() {
@@ -68,10 +75,10 @@ function parseArgs(argv) {
           .filter(Boolean)
           .map((raw) => {
             const eq = raw.lastIndexOf("=");
-            const modKey = raw.slice(0, eq);
+            const modPath = raw.slice(0, eq);
             const value = Number(raw.slice(eq + 1));
-            const dot = modKey.lastIndexOf(".");
-            return { mod: modKey.slice(0, dot), key: modKey.slice(dot + 1), value };
+            const dot = modPath.indexOf(".");
+            return { mod: modPath.slice(0, dot), key: modPath.slice(dot + 1), value };
           });
         break;
       case "-v":
@@ -101,21 +108,35 @@ function applyOverrides(overrides) {
   const applied = [];
   for (const { mod, key, value } of overrides) {
     if (!loaded[mod]) throw new Error(`Módulo desconocido: ${mod} (esperado: ${Object.keys(MODULES).join(" | ")})`);
-    if (!(key in loaded[mod])) {
+    const parts = key.split(".");
+    let cursor = loaded[mod];
+    for (let i = 0; i < parts.length - 1; i++) {
+      if (cursor[parts[i]] == null || typeof cursor[parts[i]] !== "object") {
+        throw new Error(`${mod} no tiene la ruta "${parts.slice(0, i + 1).join(".")}" (objeto)`);
+      }
+      cursor = cursor[parts[i]];
+    }
+    const leaf = parts[parts.length - 1];
+    if (!(leaf in cursor)) {
       throw new Error(`${mod} no exporta "${key}"`);
     }
-    const before = loaded[mod][key];
-    loaded[mod][key] = value;
+    const before = cursor[leaf];
+    cursor[leaf] = value;
     applied.push(`${mod}.${key} = ${value} (antes: ${JSON.stringify(before)})`);
   }
   // Los módulos del motor desestructuran las constantes al requerir; limpiar el
-  // cache obliga a re-ejecutar la desestructuración con los valores mutados.
+  // cache de los CONSUMIDORES obliga a re-ejecutar la desestructuración con los
+  // valores mutados. Los propios módulos overrideados NO se purgan: si se
+  // re-ejecutaran, sus constantes volverían al valor original y el override se
+  // perdería (bug: el diff máximo de nivel salía 50% en vez del 10% pedido).
+  const purgedModules = new Set(Object.values(MODULES).map((p) => path.resolve(p)));
   for (const key of Object.keys(require.cache)) {
     const k = key.replace(/\\/g, "/");
     if (
-      k.includes("/src/config/") ||
-      k.includes("/src/services/rpg/") ||
-      k.includes("/scripts/simulate_combat/")
+      (k.includes("/src/config/") ||
+        k.includes("/src/services/rpg/") ||
+        k.includes("/scripts/simulate_combat/")) &&
+      !purgedModules.has(path.resolve(key))
     ) {
       delete require.cache[key];
     }
