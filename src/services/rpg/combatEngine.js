@@ -27,6 +27,8 @@ const {
   FALLOFF_K,
   BOW_RANGE_MIN,
   PROJECTILE_ATK_SCALE,
+  FULGOR_ATK_SCALE,
+  MAGIC_DEFENSE_SCALE,
 } = require("../../config/combatConfig");
 const { applyFatiguePenalties } = require("./fatigueEngine");
 const { randomFloat } = require("../../utils/randomUtils");
@@ -330,7 +332,8 @@ function getEffectiveWeaponRange(weaponInfo, stats = {}) {
   if (!weaponInfo?.ranged) return Math.max(1, weaponInfo?.weaponRange || 1);
   const bowTier = normalizeTier(weaponInfo.tier || "E");
   const arrowTier = normalizeTier(weaponInfo.arrow?.tier || bowTier);
-  const speed = (Number(stats.atk) || 0) * ATK_RANGE_SCALE + (weaponInfo.bowSpeedBase ?? (BOW_SPEED_BASE[bowTier] || 1));
+  const speed =
+    (Number(stats.atk) || 0) * ATK_RANGE_SCALE + (weaponInfo.bowSpeedBase ?? (BOW_SPEED_BASE[bowTier] || 1));
   const range = speed * (AERO[arrowTier] || 1);
   return Math.max(BOW_RANGE_MIN, Math.min(MAX_DISTANCE, Math.round(range)));
 }
@@ -380,7 +383,9 @@ function calculateWeaponDamage(attackerStats, defenderStats, weaponInfo, distanc
   const weaponBase = Math.max(0, Number(weaponInfo?.baseDamage) || 0);
   const weaponBaseScaled = Math.floor(
     weaponBase *
-      (1 - WEAPON_BASE_ATK_WEIGHT + WEAPON_BASE_ATK_WEIGHT * Math.min(1, Math.max(0, (attackerStats.atk || 0) / WEAPON_ATK_REF))),
+      (1 -
+        WEAPON_BASE_ATK_WEIGHT +
+        WEAPON_BASE_ATK_WEIGHT * Math.min(1, Math.max(0, (attackerStats.atk || 0) / WEAPON_ATK_REF))),
   );
   const ranged = Boolean(weaponInfo?.ranged);
 
@@ -441,6 +446,22 @@ function calculateWeaponDamage(attackerStats, defenderStats, weaponInfo, distanc
       Math.floor(weaponBaseScaled * PIERCE_WEAPON_SCALE);
     const materialDamage = Math.max(DAMAGE_MIN, Math.floor(bodyDamage * 0.5));
     return { bodyDamage, materialDamage, nature: "perforante", ranged: false };
+  }
+
+  if (nature === "mágico") {
+    // Daño mágico directo (espejo de cortante, §11.5.2): término de stats.
+    // La habilidad NO tiene obsolescencia; el término plano vive en el FOCO
+    // (canalizeBase, espejo de baseDamage) → obsolescencia programada (P2):
+    // un foco viejo canaliza menos → el mago necesita forjarse. canalizeScale
+    // (si lo expone el foco) multiplica el canal como palanca fina de balance.
+    // Mitiga contra la resistencia mágica (r_fulgor) del defensor, no la DEF natural.
+    const magicDef = MAGIC_DEFENSE_SCALE / (MAGIC_DEFENSE_SCALE + Math.max(0, defenderStats.r_fulgor || 0));
+    const canalizeBase = Math.max(0, Number(weaponInfo?.canalizeBase) || 0);
+    const canalize = Math.max(1, Number(weaponInfo?.canalizeScale) || 1);
+    const raw = Math.floor(FULGOR_ATK_SCALE * (attackerStats.fulgor || 0) + canalizeBase) * canalize;
+    const bodyDamage = Math.max(DAMAGE_MIN, Math.floor(raw * magicDef));
+    const materialDamage = Math.max(DAMAGE_MIN, Math.floor(bodyDamage * 0.5));
+    return { bodyDamage, materialDamage, nature: "mágico", ranged: false };
   }
 
   // Naturaleza desconocida: fallback a desarmado
@@ -551,7 +572,15 @@ function applyMaterialAbsorption(materialDamage, armorDurability) {
  * @returns {{ finalDamage: number, soakApplied: number, defReduction: number, overflowToHp: number }}
  */
 function applyArmorMode(ctx) {
-  const { finalDamage, materialDamage, dodged, defenderStats = {}, armorBonusDef = 0, armorAbsorption = null, hasArmor = false } = ctx;
+  const {
+    finalDamage,
+    materialDamage,
+    dodged,
+    defenderStats = {},
+    armorBonusDef = 0,
+    armorAbsorption = null,
+    hasArmor = false,
+  } = ctx;
 
   let outDamage = dodged ? 0 : finalDamage;
   let soakApplied = 0;
@@ -662,9 +691,9 @@ function executeReaction(
   // def/soak; el overflow→HP aplica siempre que hubo material no absorbido.
   const hasArmor = Boolean(
     armorDurability &&
-      typeof armorDurability.maxResist === "number" &&
-      armorDurability.currentResist > 0 &&
-      !armorDurability.isBroken,
+    typeof armorDurability.maxResist === "number" &&
+    armorDurability.currentResist > 0 &&
+    !armorDurability.isBroken,
   );
   const armorBonusDef = hasArmor ? armorDurability.bonusDef || Math.round(armorDurability.maxResist / 2) : 0;
   const armorMode = applyArmorMode({

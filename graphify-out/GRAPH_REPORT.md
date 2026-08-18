@@ -1,16 +1,16 @@
-# Graph Report - RolBotV1  (2026-08-08)
+# Graph Report - RolBotV1  (2026-08-18)
 
 ## Corpus Check
-- 508 files · ~36,296,230 words
+- 583 files · ~36,555,079 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 4637 nodes · 6983 edges · 241 communities (213 shown, 28 thin omitted)
-- Extraction: 95% EXTRACTED · 5% INFERRED · 0% AMBIGUOUS · INFERRED: 328 edges (avg confidence: 0.51)
+- 5037 nodes · 7591 edges · 266 communities (237 shown, 29 thin omitted)
+- Extraction: 95% EXTRACTED · 5% INFERRED · 0% AMBIGUOUS · INFERRED: 358 edges (avg confidence: 0.51)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `88a0e721`
+- Built from commit: `6b0ef2ee`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -239,10 +239,10 @@
 - Matchup extremista_defensa vs extremista_ataque
 - Entity
 - run_phase_c.js
-- eco_admin_rem.js
+- generate_family_report.js
 - run_natures_lab.js
 - dar_stelas.js
-- eliminar_pj.js
+- spell_forge_tree_service.test.js
 - activity_ux_optimization.test.js
 - characterConfig.js
 - Laboratorio Fase C — Arma vs Grados de Armadura
@@ -253,6 +253,31 @@
 - clases.js
 - ban.js
 - promote.js
+- Laboratorio Modos de Armadura × Nivel (Iteración 1 Fase C)
+- removeSession
+- Laboratorio Modos de Armadura × Nivel (Iteración 1 Fase C)
+- Laboratorio Modos de Armadura × Nivel (Iteración 1 Fase C)
+- Laboratorio Fase C — Arma vs Grados de Armadura
+- Laboratorio Modos de Armadura × Nivel (Iteración 1 Fase C)
+- Laboratorio Modos de Armadura × Nivel (Iteración 1 Fase C)
+- Laboratorio Modos de Armadura × Nivel (Fase C)
+- Laboratorio Modos de Armadura × Nivel (Iteración 1 Fase C)
+- Laboratorio Modos de Armadura × Nivel (Iteración 1 Fase C)
+- Laboratorio Modos de Armadura × Nivel (Iteración 1 Fase C)
+- armorSets.js
+- context.js
+- durabilityPersistenceService.js
+- runSimulation
+- LRUCache
+- listCharacters
+- retar.js
+- statusService.js
+- magic_channel.test.js
+- focus.js
+- admin_perm_rem.js
+- logSystem
+- heal.js
+- Entity
 
 ## God Nodes (most connected - your core abstractions)
 1. `box()` - 101 edges
@@ -262,30 +287,30 @@
 5. `formatError()` - 30 edges
 6. `formatDisplayMention()` - 30 edges
 7. `filterExisting()` - 29 edges
-8. `resolveTargetDisplayName()` - 29 edges
-9. `findSessionByCharacter()` - 28 edges
-10. `supabase` - 27 edges
+8. `supabase` - 29 edges
+9. `resolveTargetDisplayName()` - 29 edges
+10. `findSessionByCharacter()` - 28 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `deriveShield()` --calls--> `getArmorStats()`  [EXTRACTED]
   scripts/simulate_combat/fighterGenerator.js → src/services/rpg/itemStatService.js
 - `midnightReview()` --calls--> `logError()`  [EXTRACTED]
   scripts/midnight_review.js → src/services/loggerService.js
-- `midnightReview()` --calls--> `logSystem()`  [EXTRACTED]
-  scripts/midnight_review.js → src/services/loggerService.js
 - `scheduleNext()` --calls--> `midnightReview()`  [EXTRACTED]
   src/services/schedulerService.js → scripts/midnight_review.js
+- `simulateBattle()` --calls--> `checkAttackRange()`  [EXTRACTED]
+  scripts/simulate_battles.js → src/services/rpg/combatEngine.js
 - `simulateBattle()` --calls--> `executeAttack()`  [EXTRACTED]
   scripts/simulate_battles.js → src/services/rpg/combatEngine.js
 
 ## Import Cycles
 - None detected.
 
-## Communities (241 total, 28 thin omitted)
+## Communities (266 total, 29 thin omitted)
 
 ### Community 0 - "bot.js"
-Cohesion: 0.09
-Nodes (36): cleanupSock(), { default: makeWASocket, DisconnectReason, fetchLatestBaileysVersion }, forceNewSession(), { getOwnerJids }, { getResolvedSince }, { loadCommands }, { logSystem, logError, cleanOldLogs }, P (+28 more)
+Cohesion: 0.11
+Nodes (32): cleanupSock(), { default: makeWASocket, DisconnectReason, fetchLatestBaileysVersion }, forceNewSession(), { getOwnerJids }, { getResolvedSince }, { loadCommands }, { logSystem, logError, cleanOldLogs }, P (+24 more)
 
 ### Community 1 - "bugReportService.js"
 Cohesion: 0.12
@@ -296,36 +321,42 @@ Cohesion: 0.08
 Nodes (23): 1. Diagnostico del Sistema Actual, 2.1 Core: `Module` (la unidad minima de comportamiento), 2.2 `ModuleBase` — clase base, 2.3 `ModuleRegistry` — registro central, 2.4 `Entity` — composicion de modulos (reemplaza a createItem), 2.5 Trigger Executor Pipeline, 2.6 Capa de Definiciones, 2.7 Capa de Servicios — orquestadores genericos (+15 more)
 
 ### Community 3 - "loggerService.js"
-Cohesion: 0.11
-Nodes (30): chatCommandTails, checkAdminOnly(), checkBotAdminOnly(), checkCreatorOnly(), checkEconomyAdmin(), checkGroupOnly(), checkPermission(), { commands, aliases, registerCommand, getJsFilesRecursively } (+22 more)
+Cohesion: 0.13
+Nodes (26): chatCommandTails, checkAdminOnly(), checkBotAdminOnly(), checkCreatorOnly(), checkEconomyAdmin(), checkGroupOnly(), checkPermission(), { commands, aliases, registerCommand, getJsFilesRecursively } (+18 more)
 
 ### Community 4 - "characterService.js"
-Cohesion: 0.15
-Nodes (23): appendHistoriaLine(), { box }, buildCharacterCreatedBox(), buildRaceList(), buildRaceSummary(), buildTemplate(), { createCharacter, setActiveCharacter }, execute() (+15 more)
+Cohesion: 0.12
+Nodes (28): appendHistoriaLine(), { box }, buildCharacterCreatedBox(), buildRaceList(), buildRaceSummary(), buildTemplate(), { createCharacter, setActiveCharacter }, execute() (+20 more)
 
 ### Community 5 - "economyAdminHelper.js"
-Cohesion: 0.09
-Nodes (51): applyDurabilityHit(), buildAttackGearLines(), handlePvE(), handlePvP(), handlePvPWithReaction(), { box }, { calcFatigueCost, calcFatigueRecovery, capFatigue }, execute() (+43 more)
+Cohesion: 0.05
+Nodes (102): applyReactionFatigue(), applyAttackFatigue(), applyDurabilityHit(), { box }, buildAttackGearLines(), { calcFatigueCost, capFatigue }, execute(), {
+  executeAttack,
+  executeReaction,
+  chooseAiReaction,
+  calculateXpReward,
+  checkAttackRange,
+} (+94 more)
 
 ### Community 6 - "crear_pj.js"
-Cohesion: 0.12
-Nodes (27): { addMoney }, execute(), { executeEconomyAction }, execute(), { executeEconomyAction }, { removeMoney }, execute(), { executeEconomyAction } (+19 more)
+Cohesion: 0.14
+Nodes (14): ARMOR_SETS, getSet(), { createItemDefinition }, define(), IRON_ITEMS, IRON_STATS, itemCatalog, { ARMOR_SETS, getSet } (+6 more)
 
 ### Community 7 - "box"
-Cohesion: 0.10
-Nodes (26): { box }, { formatCount, formatDate }, { formatDisplayMention, withMentions }, { getFirstMentionedJid }, { getGroupMemberActivity, getGroupActivity }, { getGroupMetadata }, { getUserProfile }, { resolveTargetDisplayName } (+18 more)
+Cohesion: 0.04
+Nodes (110): { box }, execute(), { formatCount, formatDate }, { formatDisplayMention, withMentions }, { getFirstMentionedJid }, { getGroupMemberActivity, getGroupActivity }, { getGroupMetadata }, { getUserProfile } (+102 more)
 
 ### Community 8 - "test_logger_service.js"
 Cohesion: 0.29
 Nodes (9): check(), { execSync }, exists(), firstExisting(), fs, path, ROOT, run() (+1 more)
 
 ### Community 9 - "characterConfig.js"
-Cohesion: 0.11
-Nodes (24): { aggregate }, { collectMetrics }, parseArgs(), printUsage(), SIM_CONFIG, { formatMarkdownReport }, formatMarkdownReport(), num() (+16 more)
+Cohesion: 0.10
+Nodes (27): { aggregate }, { collectMetrics }, simulateCombat(), FATIGUE_SNAPSHOT_TURNS, parseArgs(), printUsage(), SIM_CONFIG, { formatMarkdownReport } (+19 more)
 
 ### Community 10 - "characterProgressionService.js"
 Cohesion: 0.08
-Nodes (47): { BLOCK_PREFER_DEF_THRESHOLD }, FAMILIES, MATERIAL_RARITY_ORDER, MATERIAL_RARITY_WEIGHTS, TIER_CAPS, TIER_ORDER, {
+Nodes (42): { BLOCK_PREFER_DEF_THRESHOLD }, FAMILIES, MATERIAL_RARITY_WEIGHTS, TIER_CAPS, {
   ARMOR_SLOTS,
   COVERAGES,
   NO_WEAPON_CHANCE,
@@ -340,7 +371,7 @@ Nodes (47): { BLOCK_PREFER_DEF_THRESHOLD }, FAMILIES, MATERIAL_RARITY_ORDER, MAT
   BOW_SPEED_BASE,
   BOW_ASPD_BASE,
   AERO,
-} (+39 more)
+}, buildAmulet(), buildArmorPiece() (+34 more)
 
 ### Community 11 - "userService.js"
 Cohesion: 0.06
@@ -352,31 +383,20 @@ Nodes (18): entry, ignoreBinaries, project, rules, dependencies, devDependencies
 
 ### Community 13 - "getUserProfile"
 Cohesion: 0.10
-Nodes (27): buildDefaultProfile(), buildRegistration(), ensureUserProfile(), { filterExisting }, getTopActiveUsers(), METADATA_UPDATERS, normalizeActivity(), normalizeProfile() (+19 more)
+Nodes (25): buildDefaultProfile(), buildRegistration(), ensureUserProfile(), { filterExisting }, getTopActiveUsers(), METADATA_UPDATERS, normalizeActivity(), normalizeProfile() (+17 more)
 
 ### Community 14 - "unwarn.js"
-Cohesion: 0.09
-Nodes (27): { box }, { calcFatigueCost, capFatigue }, {
-  executeAttack,
-  executeReaction,
-  chooseAiReaction,
-  calculateXpReward,
-  checkAttackRange,
-}, {
-  findSessionByCharacter,
-  findSessionByUser,
-  advanceTurn,
-  setPendingReaction,
-  endSession,
-}, { formatActionMenu, formatReactionPrompt, buildFatigueBar }, { formatError }, { getActiveCharacter, addXp, setHp }, {
-  getEquippedItems,
-  resolveAttackerWeapon,
-  resolveDefenderArmor,
-} (+19 more)
+Cohesion: 0.11
+Nodes (31): CONTUNDENTE_PERFORANTE_MULT, getSpecialTierMult(), getTierMultiplier(), normalizeTier(), TIERS, getMaterialStats(), { getTierMultiplier }, MATERIALS (+23 more)
 
 ### Community 15 - "economyService.js"
-Cohesion: 0.13
-Nodes (18): loadCommands(), aliases, commands, fs, getJsFilesRecursively(), normalizeName(), path, registerAlias() (+10 more)
+Cohesion: 0.25
+Nodes (7): getCastEfficiency(), refineSpell(), { getCategory }, { MAX_HITS_PER_SPELL }, SpellModule, VALID_RECIPE, {
+  validateSpellRecipe,
+  buildSpellDefinition,
+  refineSpell,
+  fingerprintSpell,
+}
 
 ### Community 16 - "test_helpers.js"
 Cohesion: 0.07
@@ -396,23 +416,50 @@ Nodes (32): 10. Checklist para crear un ítem válido, 11. Pendiente / en expans
 
 ### Community 20 - "box"
 Cohesion: 0.09
-Nodes (36): { box }, execute(), { formatCommandUsage }, { getActiveCharacter }, SLOTS_LIST, { unequipItem, normalizeSlot, EQUIPMENT_SLOTS }, usageMessage, { box } (+28 more)
+Nodes (33): { box }, { formatCommandUsage }, { getActiveCharacter }, SLOTS_LIST, { unequipItem, normalizeSlot, EQUIPMENT_SLOTS }, usageMessage, { box }, {
+  equipItem,
+  getEquippedSlots,
+  normalizeSlot,
+  resolveDefaultSlot,
+  EQUIPMENT_SLOTS,
+} (+25 more)
 
 ### Community 21 - "stryker.config.json"
 Cohesion: 0.06
 Nodes (31): Amulet, aspd, atk, Average Damage Per Attack, Balance Targets, Block Effectiveness, Combat Simulation Report, Coverage (dominante) (+23 more)
 
 ### Community 22 - "resolveTargetDisplayName"
-Cohesion: 0.06
-Nodes (51): simulateBattle(), { box }, { calculateMovementFatigue, capFatigue, getMovementRange }, { checkAttackRange }, execute(), { findSessionByCharacter, updateDistance, advanceTurn }, { formatCommandUsage }, { formatError } (+43 more)
+Cohesion: 0.07
+Nodes (39): { applyFatiguePenalties }, {
+  calcFatigueCost,
+  calcFatigueRecovery,
+  capFatigue,
+  calculateMovementFatigue,
+  getMovementRange,
+}, {
+  executeAttack,
+  executeReaction,
+  checkAttackRange,
+  getAspdPenalty,
+}, generateBattlePair(), generateRandomCharacter(), {
+  INITIAL_DISTANCE,
+  SIM_AI_DODGE_CHANCE,
+  SIM_MIN_LEVEL,
+  SIM_MAX_LEVEL,
+  SIM_MAX_LEVEL_DIFF,
+  SIM_MAX_TURNS,
+  SIM_DEFAULT_BATTLE_COUNT,
+  SIM_HP_MULTIPLIER,
+  SIM_STAT_BASE,
+}, runSimulation(), simulateBattle() (+31 more)
 
 ### Community 23 - "eliminar_pj.js"
-Cohesion: 0.18
-Nodes (10): ArmorModule, BuffModule, DamageModule, DurabilityModule, EquipableModule, HealModule, moduleRegistry, TemporalModule (+2 more)
+Cohesion: 0.12
+Nodes (14): BuffModule, ModuleBase, ArmorModule, BuffModule, DamageModule, DurabilityModule, EquipableModule, FocusModule (+6 more)
 
 ### Community 24 - "characterSkillUtils.js"
-Cohesion: 0.07
-Nodes (22): Entity, moduleRegistry, ModuleBase, moduleRegistry, registry, A, B, BadMod (+14 more)
+Cohesion: 0.09
+Nodes (17): A, B, BadMod, BuffModule, ConditionalMod, { Entity, createEntity }, HealModule, HighMod (+9 more)
 
 ### Community 25 - "eco_admin_rem.js"
 Cohesion: 0.06
@@ -427,8 +474,8 @@ Cohesion: 0.06
 Nodes (31): Amulet, aspd, atk, Average Damage Per Attack, Balance Targets, Block Effectiveness, Combat Simulation Report, Coverage (dominante) (+23 more)
 
 ### Community 28 - "set_stelas.js"
-Cohesion: 0.17
-Nodes (17): analyzeCombatLog(), applyPhaseEquipment(), buildStressArmor(), buildStressWeapon(), fs, getArmorStatsViaService(), { getMaterialStats }, { getWeaponStats, getProjectileStats } (+9 more)
+Cohesion: 0.09
+Nodes (37): deriveWeapon(), buildLabWeapon(), buildLabFighter(), attachAmmo(), buildLabFighter(), buildLabWeapon(), { buildStressFighter }, EXPERIMENTS_DIR (+29 more)
 
 ### Community 29 - "combatEngine.js"
 Cohesion: 0.23
@@ -439,13 +486,8 @@ Cohesion: 0.23
 Nodes (15): getRecentErrors(), formatDuration(), getMemory(), getUptime(), stats, bar(), buildErrorLines(), cachedErrors (+7 more)
 
 ### Community 31 - "dado.js"
-Cohesion: 0.13
-Nodes (24): COMBAT_ACTIONS, REACTION_ACTIONS, { box }, { buildFatigueBar, buildStatSummary }, {
-  combatantLines,
-  equipmentSectionLines,
-  actionMenuLines,
-  reactionPromptLines,
-}, { composeMessage }, formatCombatOpen(), formatCombatStatus() (+16 more)
+Cohesion: 0.07
+Nodes (40): { composeMessage }, execute(), { getActiveCharacter }, { getInventoryList }, COMBAT_ACTIONS, REACTION_ACTIONS, formatCombatStatus(), { box } (+32 more)
 
 ### Community 32 - "formatError"
 Cohesion: 0.11
@@ -456,20 +498,12 @@ Cohesion: 0.25
 Nodes (7): forbiddenImports, fs, logger, loggerPath, LOGS_DIR, path, srcContent
 
 ### Community 34 - "inventario.js"
-Cohesion: 0.29
-Nodes (10): aggregate(), getBucket(), initPersonalityMap(), mean(), percentile(), {
-  PERSONALITIES,
-  FATIGUE_SNAPSHOT_TURNS,
-  PHYSICAL_STATS,
-  MAGIC_STATS,
-  MATCHED_LEVEL_DIFF_PCT,
-  BALANCE_TARGETS,
-  MAGIC_HIGH_THRESHOLD,
-}, PERSONALITY_KEYS, STAT_BUCKETS (+2 more)
+Cohesion: 0.12
+Nodes (27): { addMoney }, execute(), { executeEconomyAction }, execute(), { executeEconomyAction }, { removeMoney }, execute(), { executeEconomyAction } (+19 more)
 
 ### Community 35 - "LRUCache"
-Cohesion: 0.15
-Nodes (9): hasColumn(), { cache, TTLS }, cachedRead(), groupCacheKey(), { hasColumn }, invalidateGroupCache(), safeSelect(), topBalancesCacheKey() (+1 more)
+Cohesion: 0.10
+Nodes (26): TIER_ORDER, deriveArmorPiece(), allocateStats(), ARCHETYPES, { ARMOR_MODES }, ARMOR_SLOTS, armorConsumption(), attachAmmo() (+18 more)
 
 ### Community 36 - "graphify — Knowledge Graph (Code-Only)"
 Cohesion: 0.33
@@ -480,48 +514,48 @@ Cohesion: 0.06
 Nodes (31): Amulet, aspd, atk, Average Damage Per Attack, Balance Targets, Block Effectiveness, Combat Simulation Report, Coverage (dominante) (+23 more)
 
 ### Community 38 - "grupo_cerrar.js"
-Cohesion: 0.06
-Nodes (57): execute(), { findSessionByUser, removeSession }, { formatCombatDisolved }, execute(), getRestContext(), execute(), { findSessionByCharacter, findSessionByUser }, { formatCombatStatus } (+49 more)
+Cohesion: 0.10
+Nodes (36): SESSION_STATES, applyElementalHit(), { buildDummyEquipment, IRON_DUMMY_LOADOUT }, cleanup(), cloneSession(), createDummySession(), createSession(), decaySlotAura() (+28 more)
 
 ### Community 39 - "invite.js"
-Cohesion: 0.07
-Nodes (37): { addParticipant }, { box }, execute(), { demoteFromAdmin }, execute(), { executeGroupAction }, { box }, execute() (+29 more)
+Cohesion: 0.11
+Nodes (19): ARCANE_DUMMY_LOADOUT, { getItem }, IRON_DUMMY_LOADOUT, { buildDummyEquipment, ARCANE_DUMMY_LOADOUT }, CHALLENGER_STATS, { executeAttack }, { FULGOR_COST_BASE }, { generateDummyCharacter } (+11 more)
 
 ### Community 40 - "actividad.js"
-Cohesion: 0.22
-Nodes (12): appendToLog(), ensureLogsDir(), fsp, getErrorsByDate(), getLogFileName(), LOG_PREFIX, LOGS_DIR, parseErrorEntries() (+4 more)
+Cohesion: 0.20
+Nodes (14): appendToLog(), ensureLogsDir(), fsp, getErrorsByDate(), getLogFileName(), LOG_PREFIX, logCommand(), LOGS_DIR (+6 more)
 
 ### Community 41 - "add.js"
 Cohesion: 0.21
 Nodes (8): extractTag(), files, fixFile(), fs, isCloseComment(), isOpenComment(), path, srcDir
 
 ### Community 42 - "message_format.test.js"
-Cohesion: 0.11
-Nodes (31): deriveWeapon(), buildLabFighter(), CONTUNDENTE_PERFORANTE_MULT, getSpecialTierMult(), getTierMultiplier(), getTierPenaltyBonus(), normalizeTier(), TIERS (+23 more)
+Cohesion: 0.18
+Nodes (17): buildAliasStr(), buildOutputHeader(), buildSectionContent(), buildSubcatBlock(), collectUniqueCommands(), { commands }, execute(), getFilteredSectionCmds() (+9 more)
 
 ### Community 43 - "supabase.js"
 Cohesion: 0.06
 Nodes (31): Antes y después en la rama v1.6, Auditoría profunda e integración de RolBotV1, Cambios implementados, Combate y persistencia, Conexión y ciclo de vida, Deuda restante priorizada, Evidencia reproducible, Integración sin pérdida de v1.6 (+23 more)
 
 ### Community 46 - "Plan: Implementacion de Stats Magicas + Correcciones"
-Cohesion: 0.14
-Nodes (18): GROUP_ACTIVITY_ROOT, path, buildDefaultGroupRecord(), { cache, TTLS }, ensureGroupActivity(), { filterExisting }, { GROUP_TOP_LIMIT }, groupActivityTails (+10 more)
+Cohesion: 0.15
+Nodes (20): GROUP_ACTIVITY_ROOT, path, buildDefaultGroupRecord(), { cache, TTLS }, ensureGroupActivity(), { filterExisting }, getGroupActivity(), getTopGroupMembers() (+12 more)
 
 ### Community 47 - "characterConfig.js"
 Cohesion: 0.06
 Nodes (31): Amulet, aspd, atk, Average Damage Per Attack, Balance Targets, Block Effectiveness, Combat Simulation Report, Coverage (dominante) (+23 more)
 
 ### Community 48 - "midnight_review.js"
-Cohesion: 0.29
-Nodes (10): { getOpenReports, getStats, markStale }, { getOwnerJids }, { logSystem, logError }, midnightReview(), getOpenReports(), getStats(), { logSystem }, markStale() (+2 more)
+Cohesion: 0.13
+Nodes (18): loadCommands(), aliases, commands, fs, getJsFilesRecursively(), normalizeName(), path, registerAlias() (+10 more)
 
 ### Community 64 - "item_add.js"
 Cohesion: 0.14
 Nodes (17): addCritLines(), addDropLine(), addModifierLine(), { box }, DADOS_PERMITIDOS, execute(), { formatCommandUsage }, formatDisplayRoll() (+9 more)
 
 ### Community 68 - "renombrar_pj.js"
-Cohesion: 0.23
-Nodes (12): createContext, { handleCommand }, { incrementMessages }, { logSystem, logError }, processSingleMessage(), { recordGroupActivity }, { recordUserActivity }, recordUserAndGroupActivity() (+4 more)
+Cohesion: 0.20
+Nodes (14): createContext, { handleCommand }, { incrementMessages }, { logSystem, logError }, processSingleMessage(), { recordGroupActivity }, { recordUserActivity }, recordUserAndGroupActivity() (+6 more)
 
 ### Community 69 - "schemaMigration.js"
 Cohesion: 0.06
@@ -532,20 +566,20 @@ Cohesion: 0.14
 Nodes (13): 1. Sistema de Tiers (E, D, C, B, A, S, N), 2. Naturalezas de Daño Físico y Fórmulas de Combate, 3. Sistema de Materiales y Crafteo, 4. Equipamiento, Slots y Cobertura de Armadura, 5. Clasificación de Categorías Generales de Ítems, 🗡️ A. Cortante (Ej: Espadas, Katanas, Hachas), 🔨 B. Contundente (Ej: Mazos, Martillos, Garrotes), Bonos de Set (+5 more)
 
 ### Community 71 - "inventoryService.js"
-Cohesion: 0.10
-Nodes (31): execute(), { formatCharacter }, { getActiveCharacter }, { getInventory }, { logError }, { resolveCharacterEquipment }, logError(), addItem() (+23 more)
+Cohesion: 0.11
+Nodes (28): execute(), { formatCharacter }, { getActiveCharacter }, { getInventory }, { logError }, { resolveCharacterEquipment }, logError(), addItem() (+20 more)
 
 ### Community 72 - "supabase.js"
 Cohesion: 0.14
 Nodes (11): cachedModules, createContext, handleCommand, handlerPath, incrementMessages, logError, logSystem, rawMessage (+3 more)
 
 ### Community 73 - "inventory_service.test.js"
-Cohesion: 0.25
-Nodes (3): { MAX_INVENTORY_SIZE, MAX_STACK_SIZE }, MOCK_INVENTORY_DATA, mockOrderImpl
+Cohesion: 0.07
+Nodes (33): execute(), { executeGroupAction }, { removeParticipant }, { demoteFromAdmin }, execute(), { executeGroupAction }, { box }, execute() (+25 more)
 
 ### Community 74 - "admin_perm_list.js"
-Cohesion: 0.22
-Nodes (18): { normalizeJid, uniqueStrings }, OWNER_ALIASES, createContext(), { extractPhoneNumber, normalizeJid }, extractText(), getMessageType(), isTextLikeMessageType(), TEXT_MESSAGE_TYPES (+10 more)
+Cohesion: 0.05
+Nodes (53): { box }, CATEGORY_DISPLAY, execute(), { getOwnerRecords }, { listAdminsForCategory, listAllCategories, getCategoryLabel }, { box }, CATEGORIES, CATEGORY_DISPLAY (+45 more)
 
 ### Community 75 - "atacar.js"
 Cohesion: 0.06
@@ -568,8 +602,8 @@ Cohesion: 0.06
 Nodes (34): Amulet, Armor material, aspd, atk, Average Damage Per Attack, Balance Targets, Block Effectiveness, Combat Simulation Report (+26 more)
 
 ### Community 80 - "editar_pj.js"
-Cohesion: 0.21
-Nodes (13): simulateCombat(), FATIGUE_SNAPSHOT_TURNS, runPair(), fs, generatePair(), generateRandomFighter(), generateRandomStats(), main() (+5 more)
+Cohesion: 0.08
+Nodes (20): hasColumn(), cache, TTLS, { cache, TTLS }, cachedRead(), charactersCacheKey(), groupCacheKey(), { hasColumn } (+12 more)
 
 ### Community 81 - "atacar.js"
 Cohesion: 0.15
@@ -580,18 +614,8 @@ Cohesion: 0.06
 Nodes (34): Amulet, Armor material, aspd, atk, Average Damage Per Attack, Balance Targets, Block Effectiveness, Combat Simulation Report (+26 more)
 
 ### Community 83 - "items.js"
-Cohesion: 0.21
-Nodes (23): execute(), DEFAULT_CHARACTER_SLOTS, filterExisting(), createCharacter(), {
-  DEFAULT_CHARACTER_STATS,
-  DEFAULT_CHARACTER_SLOTS,
-  RACES,
-  LEVELABLE_STATS,
-  LEVEL_INITIAL,
-  FREE_POINTS_AT_CREATION,
-  calculateLevel,
-  xpForNextLevel,
-  RANGOS,
-}, deleteCharacter(), distribuirPunto(), { filterExisting } (+15 more)
+Cohesion: 0.15
+Nodes (30): calculateLevel(), DEFAULT_CHARACTER_SLOTS, DEFAULT_CHARACTER_STATS, LEVELABLE_STATS, RACES, RANGOS, xpForNextLevel(), filterExisting() (+22 more)
 
 ### Community 84 - "clases.js"
 Cohesion: 0.06
@@ -630,16 +654,22 @@ Cohesion: 0.25
 Nodes (7): bot_auth_state, characters, combat_sessions, group_members, groups, inventory, players
 
 ### Community 94 - "buff.js"
-Cohesion: 0.13
-Nodes (19): { createItemDefinition }, define(), IRON_ITEMS, IRON_STATS, itemCatalog, itemCatalog, registry, createEntity() (+11 more)
+Cohesion: 0.20
+Nodes (14): ACTIVATIONS, CHANNEL_BY_NATURE, EFFECT_TARGETS, EFFECT_WEIGHTS, FATIGUE_SPEED_STATS, FATIGUE_THRESHOLDS, MOMENTS, RESULT_TYPE_WEIGHTS (+6 more)
 
 ### Community 95 - "listCharacters"
-Cohesion: 0.13
-Nodes (26): { applyFatiguePenalties }, applyMaterialAbsorption(), applyPenalties(), attemptBlock(), attemptDodge(), { BLOCK_PREFER_DEF_THRESHOLD }, calculateDamage(), calculateWeaponDamage() (+18 more)
+Cohesion: 0.06
+Nodes (54): { BASE_ATTACK_RANGE, KITE_FATIGUE_MULTIPLIER }, {
+  calcFatigueRecovery,
+  calcFatigueCost,
+  capFatigue,
+  getFatigueLevel,
+  getMovementRange,
+}, characterShape(), createDurability(), { executeAttack, executeReaction, chooseAiReaction, getEffectiveWeaponRange }, executeHalfTurn(), fatigueRatio(), { getArmorMode, applyArmorMode } (+46 more)
 
 ### Community 96 - "combatBalance.js"
-Cohesion: 0.13
-Nodes (14): Deuda Técnica Registrada, TD-001 | Versionado de schema duplicado | resuelto (2026-08-03), TD-002 | Migraciones no aplicables por RPC `exec_sql` inexistente | resuelto (2026-08-03), TD-003 | Esquema conocido desincronizado | resuelto (2026-08-03), TD-004 | `exec_sql` con `security definer` no deseado | abierto, TD-005 | Equipo en contraataques y reacciones no resuelto | abierto, TD-006 | `itemCatalog` inyectable | resuelto parcialmente (2026-08-03), TD-007 | Arma arrojadiza no lanzable en combate real | abierto (+6 more)
+Cohesion: 0.12
+Nodes (15): Deuda Técnica Registrada, TD-001 | Versionado de schema duplicado | resuelto (2026-08-03), TD-002 | Migraciones no aplicables por RPC `exec_sql` inexistente | resuelto (2026-08-03), TD-003 | Esquema conocido desincronizado | resuelto (2026-08-03), TD-004 | `exec_sql` con `security definer` no deseado | abierto, TD-005 | Equipo en contraataques y reacciones no resuelto | abierto, TD-006 | `itemCatalog` inyectable | resuelto parcialmente (2026-08-03), TD-007 | Arma arrojadiza no lanzable en combate real | abierto (+7 more)
 
 ### Community 97 - "durabilityPersistenceService.js"
 Cohesion: 0.08
@@ -650,20 +680,20 @@ Cohesion: 0.67
 Nodes (3): inventory, trg_inventory_updated_at, update_inventory_updated_at()
 
 ### Community 102 - "eco_admin_list.js"
-Cohesion: 0.16
-Nodes (16): buildHpBar(), characterSheet(), { composeMessage }, { equipmentSummaryLines }, formatHpState(), { getItem }, headerLines(), inventorySectionLines() (+8 more)
+Cohesion: 0.27
+Nodes (10): fs, generatePair(), generateRandomFighter(), generateRandomStats(), main(), path, quintileBuckets(), randomLevel() (+2 more)
 
 ### Community 103 - "Decisiones Técnicas"
-Cohesion: 0.18
-Nodes (10): 2026-08-03 — Aplicación de DDL: script SQL manual (no RPC `exec_sql`), 2026-08-03 — Capa de sistema gestor de ítems (infraestructura, sin catálogo), 2026-08-03 � Dummy equipado y equipo en memoria (PvE), 2026-08-03 — Familia del Hierro: puente de catálogo, 2026-08-03 — Fuente única de versión de schema, 2026-08-03 — Integración combate: solo ataque principal (backward-compat), 2026-08-03 — Persistencia de equipamiento: columna `equipped_slots`, 2026-08-03 — UI por secciones reutilizables + registro declarativo de acciones de combate (+2 more)
+Cohesion: 0.14
+Nodes (13): 2026-08-03 — Aplicación de DDL: script SQL manual (no RPC `exec_sql`), 2026-08-03 — Capa de sistema gestor de ítems (infraestructura, sin catálogo), 2026-08-03 � Dummy equipado y equipo en memoria (PvE), 2026-08-03 — Familia del Hierro: puente de catálogo, 2026-08-03 — Fuente única de versión de schema, 2026-08-03 — Integración combate: solo ataque principal (backward-compat), 2026-08-03 — Persistencia de equipamiento: columna `equipped_slots`, 2026-08-03 — UI por secciones reutilizables + registro declarativo de acciones de combate (+5 more)
 
 ### Community 104 - "getActiveCharacter"
-Cohesion: 0.06
-Nodes (44): { box }, CATEGORY_DISPLAY, execute(), { getOwnerRecords }, { listAdminsForCategory, listAllCategories, getCategoryLabel }, { box }, CATEGORIES, CATEGORY_DISPLAY (+36 more)
+Cohesion: 0.38
+Nodes (6): { box }, execute(), { formatError }, { getReport, getUserReports }, getReport(), getUserReports()
 
 ### Community 105 - "listCharacters"
-Cohesion: 0.10
-Nodes (23): { box }, execute(), { formatStelas }, { getOrCreateProfile, getUserProfile }, resolveTarget(), { box }, { claimDaily }, { DAILY_COOLDOWN_HOURS } (+15 more)
+Cohesion: 0.13
+Nodes (14): Detalle por nivel/modo/arma (espejo + none-vs-total), Invariantes (por nivel), Laboratorio Modos de Armadura × Nivel (Fase C), Nivel 100 — winrate A% (diagonal espejo, fila A = columna B), Nivel 120 — winrate A% (diagonal espejo, fila A = columna B), Nivel 140 — winrate A% (diagonal espejo, fila A = columna B), Nivel 160 — winrate A% (diagonal espejo, fila A = columna B), Nivel 180 — winrate A% (diagonal espejo, fila A = columna B) (+6 more)
 
 ### Community 106 - "audit_family_generator.js"
 Cohesion: 0.06
@@ -674,8 +704,8 @@ Cohesion: 0.50
 Nodes (3): characters, combat_sessions, inventory
 
 ### Community 108 - "ModuleBase.js"
-Cohesion: 0.20
-Nodes (4): ArmorModule, ModuleBase, ModuleBase, TemporalModule
+Cohesion: 0.22
+Nodes (15): EFFECT_DEF_SCHEMA, EFFECT_DEFS, ELEMENT_PERSISTENCE, ELEMENT_REACTIONS, FULGOR_NATURES, SPELL_APPLICATIONS, SPELL_KINDS, SPELL_NATURES (+7 more)
 
 ### Community 109 - "invite.js"
 Cohesion: 0.40
@@ -742,8 +772,8 @@ Cohesion: 0.06
 Nodes (31): Amulet, aspd, atk, Average Damage Per Attack, Balance Targets, Block Effectiveness, Combat Simulation Report, Coverage (dominante) (+23 more)
 
 ### Community 128 - "command_handler_error.test.js"
-Cohesion: 0.08
-Nodes (29): { box }, { formatCommandUsage }, { formatDisplayMention, withMentions }, { getFirstMentionedJid }, { isOwner }, { resolveTargetDisplayName }, { setEconomyAdmin }, usageMessage (+21 more)
+Cohesion: 0.12
+Nodes (16): 1. Objetivo, 2.1 Tipo de hechizo (forma de resolución) — 5 valores, 2.2 Tipo de aplicación — 2 valores, 2.3 Naturaleza de fulgor — 2 familias, 2.4 Reacciones elementales (orden de aplicación: pasivo @ dominante), 2.5 Efectos (registro extensible — NO se crean aún, solo el sistema), 2. Taxonomía nueva (sistema simplificado), 3.1 `spellTree.js` — esqueleto de datos (+8 more)
 
 ### Community 129 - "formatters.js"
 Cohesion: 0.06
@@ -767,7 +797,7 @@ Nodes (31): Amulet, aspd, atk, Average Damage Per Attack, Balance Targets, Block
 
 ### Community 134 - "iron_family.test.js"
 Cohesion: 0.13
-Nodes (13): { box }, CATEGORIES, CATEGORY_DISPLAY, { formatCommandUsage }, { formatDisplayMention, withMentions }, { getFirstMentionedJid }, { isOwner }, { resolveTargetDisplayName } (+5 more)
+Nodes (17): execute(), { findSessionByCharacter, findSessionByUser }, { formatCombatStatus }, { getActiveCharacter }, { resolveCharacterEquipment }, expireSession(), findSessionByCharacter(), findSessionByUser() (+9 more)
 
 ### Community 135 - "schemaValidator.js"
 Cohesion: 0.06
@@ -778,12 +808,12 @@ Cohesion: 0.15
 Nodes (12): 1. Anatomía de un ítem, 2. Fórmulas derivadas (NO inventar números), 3. Naturalezas de daño (`combatEngine.js:288-330`), 4. Cobertura de armadura (`armorSetService.js`), 5. Slots de equipo (spec §4), 6. Set bonus (`armorSets.js`, `armorSetService.js`), 7.1. Resultados del re-baseline con catálogo de hierro (baseline 2000 sims), 7.1a. Re-baseline v2: techo de 20 rounds + HP×3 + cobertura coherente (baseline 2000 sims) (+4 more)
 
 ### Community 137 - "columnRegistry.js"
-Cohesion: 0.10
-Nodes (28): discover(), COLUMN_TYPES, createMissingTables(), { CURRENT_VERSION }, DESIRED_SCHEMA, detectMissingColumns(), { discover }, generateMigrationSQL() (+20 more)
+Cohesion: 0.07
+Nodes (34): discover(), KNOWN_SCHEMA, COLUMN_TYPES, createMissingTables(), { CURRENT_VERSION }, DESIRED_SCHEMA, detectMissingColumns(), { discover } (+26 more)
 
 ### Community 138 - "composeMessage"
-Cohesion: 0.12
-Nodes (19): { box }, execute(), { formatCommandUsage }, { formatError }, { getCharacterNames }, { isAdmin }, { MAX_CHARACTER_NAME_LENGTH }, { renameCharacter } (+11 more)
+Cohesion: 0.03
+Nodes (82): { addParticipant }, { box }, execute(), { box }, { formatCommandUsage }, { formatDisplayMention, withMentions }, { formatError }, { getFirstMentionedJid } (+74 more)
 
 ### Community 139 - "schedulerService.js"
 Cohesion: 0.06
@@ -806,29 +836,32 @@ Cohesion: 0.06
 Nodes (31): Amulet, aspd, atk, Average Damage Per Attack, Balance Targets, Block Effectiveness, Combat Simulation Report, Coverage (dominante) (+23 more)
 
 ### Community 144 - "characterSections.js"
-Cohesion: 0.09
-Nodes (41): { applyFatiguePenalties }, {
-  calcFatigueCost,
-  calcFatigueRecovery,
-  capFatigue,
-  calculateMovementFatigue,
-  getMovementRange,
-}, {
-  executeAttack,
-  executeReaction,
-  checkAttackRange,
-  getAspdPenalty,
-}, generateBattlePair(), generateRandomCharacter(), {
-  INITIAL_DISTANCE,
-  SIM_AI_DODGE_CHANCE,
-  SIM_MIN_LEVEL,
-  SIM_MAX_LEVEL,
-  SIM_MAX_LEVEL_DIFF,
-  SIM_MAX_TURNS,
-  SIM_DEFAULT_BATTLE_COUNT,
-  SIM_HP_MULTIPLIER,
-  SIM_STAT_BASE,
-}, runSimulation(), STAT_KEYS (+33 more)
+Cohesion: 0.12
+Nodes (16): buildResponse(), fs, {
+  FULGOR_COST_BASE,
+  FULGOR_DILUTED_MIN,
+  SPELL_TIER_BRACKETS,
+  SPELL_DOMINIO_REQ,
+  RESULT_TYPE_WEIGHTS,
+  SPELL_NATURES,
+  SPELL_ROLES,
+  EFFECT_TYPES,
+  EFFECT_TARGETS,
+  ACTIVATIONS,
+  MOMENTS,
+  TARGETS,
+  EFFECT_WEIGHTS,
+  TARGET_WEIGHTS,
+  CHANNEL_BY_NATURE,
+}, HTML_FILE, http, {
+  loadUserSpells,
+  readUserSpellRecipes,
+  registerSpellRecipe,
+  saveUserSpellRecipe,
+  deleteUserSpellRecipe,
+}, {
+  MATERIALS,
+}, normalizeRecipe() (+8 more)
 
 ### Community 145 - "Auditoría de datos crudos de la simulación"
 Cohesion: 0.10
@@ -875,24 +908,32 @@ Cohesion: 0.06
 Nodes (34): Amulet, Armor material, aspd, atk, Average Damage Per Attack, Balance Targets, Block Effectiveness, Combat Simulation Report (+26 more)
 
 ### Community 156 - "editar_pj.js"
-Cohesion: 0.25
-Nodes (7): { box }, { formatCommandUsage }, { formatError }, { isAdmin }, { MAX_CHARACTER_NAME_LENGTH }, { renameCharacter, updateCharacterSlots, getActiveCharacter }, usageMessage
+Cohesion: 0.22
+Nodes (18): { normalizeJid, uniqueStrings }, OWNER_ALIASES, createContext(), { extractPhoneNumber, normalizeJid }, extractText(), getMessageType(), isTextLikeMessageType(), TEXT_MESSAGE_TYPES (+10 more)
 
 ### Community 157 - "config.js"
-Cohesion: 0.15
-Nodes (34): execute(), { box }, execute(), { formatCount, formatDate, medal }, { formatDisplayMention, withMentions }, { getFirstMentionedJid }, { getTopActiveUsers, getUserProfile }, { resolveTargetDisplayName } (+26 more)
+Cohesion: 0.22
+Nodes (8): Detalle por nivel/modo/arma (espejo + none-vs-total), Invariantes (por nivel), Laboratorio Modos de Armadura × Nivel (Fase C), Nivel 100 — winrate A% (diagonal espejo, fila A = columna B), Nivel 150 — winrate A% (diagonal espejo, fila A = columna B), Nivel 199 — winrate A% (diagonal espejo, fila A = columna B), Nivel 250 — winrate A% (diagonal espejo, fila A = columna B), Nivel 300 — winrate A% (diagonal espejo, fila A = columna B)
 
 ### Community 158 - "durabilityPersistenceService.js"
-Cohesion: 0.36
-Nodes (5): { filterExisting }, { invalidateUserCache }, persistDurability(), readMetadata(), { supabase }
+Cohesion: 0.25
+Nodes (10): { buildSpellDefinition }, deleteUserSpellRecipe(), fs, itemCatalog, loadUserSpells(), path, readUserSpellRecipes(), registerSpellRecipe() (+2 more)
+
+### Community 159 - "damage.js"
+Cohesion: 0.22
+Nodes (8): Detalle por nivel/modo/arma (espejo + none-vs-total), Invariantes (por nivel), Laboratorio Modos de Armadura × Nivel (Fase C), Nivel 100 — winrate A% (diagonal espejo, fila A = columna B), Nivel 150 — winrate A% (diagonal espejo, fila A = columna B), Nivel 199 — winrate A% (diagonal espejo, fila A = columna B), Nivel 250 — winrate A% (diagonal espejo, fila A = columna B), Nivel 300 — winrate A% (diagonal espejo, fila A = columna B)
+
+### Community 160 - "runSimulation"
+Cohesion: 0.22
+Nodes (8): Contundente — winrate A% (A=covA vs B=covB, misma arma), Cortante — winrate A% (A=covA vs B=covB, misma arma), Daño promedio por golpe (A), Duración por par (avgRounds), Invariantes, Laboratorio Fase C — Arma vs Grados de Armadura, Perforante — winrate A% (A=covA vs B=covB, misma arma), Proyectil — winrate A% (A=covA vs B=covB, misma arma)
 
 ### Community 161 - "clases.js"
 Cohesion: 0.06
 Nodes (34): Amulet, Armor material, aspd, atk, Average Damage Per Attack, Balance Targets, Block Effectiveness, Combat Simulation Report (+26 more)
 
 ### Community 162 - "moduleRegistry.js"
-Cohesion: 0.10
-Nodes (23): { addItem }, { box }, execute(), { getActiveCharacter }, { getItem, ITEMS }, { IRON_ITEMS }, { parseQuantity }, { box } (+15 more)
+Cohesion: 0.12
+Nodes (18): { addItem }, { box }, execute(), { getActiveCharacter }, { getItem, ITEMS }, { IRON_ITEMS }, { parseQuantity }, { box } (+10 more)
 
 ### Community 163 - "Maniquí 13: Extremista ATK Yordle (nivel 122)"
 Cohesion: 0.06
@@ -901,6 +942,14 @@ Nodes (34): Amulet, Armor material, aspd, atk, Average Damage Per Attack, Balanc
 ### Community 164 - "Maniquí 15: Gladiador Elfo (nivel 125)"
 Cohesion: 0.06
 Nodes (34): Amulet, Armor material, aspd, atk, Average Damage Per Attack, Balance Targets, Block Effectiveness, Combat Simulation Report (+26 more)
+
+### Community 165 - "Maniquí 20: Extremista DEF No Muerto (nivel 129)"
+Cohesion: 0.25
+Nodes (7): Detalle por nivel/modo/arma (espejo + none-vs-total), Invariantes (por nivel), Laboratorio Modos de Armadura × Nivel (Fase C), Nivel 100 — winrate A% (diagonal espejo, fila A = columna B), Nivel 150 — winrate A% (diagonal espejo, fila A = columna B), Nivel 250 — winrate A% (diagonal espejo, fila A = columna B), Nivel 300 — winrate A% (diagonal espejo, fila A = columna B)
+
+### Community 166 - "damage.js"
+Cohesion: 0.29
+Nodes (6): Detalle por nivel/modo/arma (espejo + none-vs-total), Invariantes (por nivel), Laboratorio Modos de Armadura × Nivel (Iteración 1 Fase C), Nivel 100 — winrate A% (diagonal espejo, fila A = columna B), Nivel 300 — winrate A% (diagonal espejo, fila A = columna B), Nivel 500 — winrate A% (diagonal espejo, fila A = columna B)
 
 ### Community 167 - "ConditionalMod"
 Cohesion: 0.06
@@ -955,24 +1004,32 @@ Cohesion: 0.06
 Nodes (34): Amulet, Armor material, aspd, atk, Average Damage Per Attack, Balance Targets, Block Effectiveness, Combat Simulation Report (+26 more)
 
 ### Community 180 - "supabase.js"
-Cohesion: 0.09
-Nodes (21): main(), say(), { supabase }, TEMP_PREFIXES, KNOWN_SCHEMA, { logSystem }, { supabase }, assertServiceRoleKey() (+13 more)
+Cohesion: 0.07
+Nodes (24): main(), say(), { supabase }, TEMP_PREFIXES, { BufferJSON, initAuthCreds, makeCacheableSignalKeyStore }, { logError }, { supabase }, useSupabaseAuthState() (+16 more)
 
 ### Community 181 - "run_balance_sweep.js"
 Cohesion: 0.08
 Nodes (22): args, balance, cross, { getEffectiveWeaponRange }, { getWeaponStats, getProjectileStats }, header, keys, mirrorOnly (+14 more)
 
 ### Community 182 - "generate_family_report.js"
-Cohesion: 0.21
-Nodes (12): fighterSection(), { generateFighter }, { getSpecialTierMult }, main(), materialLine(), { materialName }, { MATERIALS, getMaterialStats }, parseArgs() (+4 more)
+Cohesion: 0.13
+Nodes (16): ARCANE_GEAR, ARCANE_SPELLS, { buildSpellDefinition }, { createItemDefinition }, define(), itemCatalog, { ARCANE_SPELLS, ARCANE_GEAR }, { buildDummyEquipment } (+8 more)
 
 ### Community 183 - "getActiveCharacter"
-Cohesion: 0.23
-Nodes (9): { composeMessage }, execute(), { getActiveCharacter }, { getInventoryList }, { box }, composeMessage(), toLines(), { box } (+1 more)
+Cohesion: 0.29
+Nodes (10): aggregate(), getBucket(), initPersonalityMap(), mean(), percentile(), {
+  PERSONALITIES,
+  FATIGUE_SNAPSHOT_TURNS,
+  PHYSICAL_STATS,
+  MAGIC_STATS,
+  MATCHED_LEVEL_DIFF_PCT,
+  BALANCE_TARGETS,
+  MAGIC_HIGH_THRESHOLD,
+}, PERSONALITY_KEYS, STAT_BUCKETS (+2 more)
 
 ### Community 184 - "usar.js"
 Cohesion: 0.29
-Nodes (10): { box }, execute(), { findSessionByCharacter }, { getActiveCharacter }, resolveUseTarget(), showInventoryList(), updateSessionHp(), { useItem, getInventoryList } (+2 more)
+Nodes (6): Detalle por nivel/modo/arma (espejo + none-vs-total), Invariantes (por nivel), Laboratorio Modos de Armadura × Nivel (Iteración 1 Fase C), Nivel 150 — winrate A% (diagonal espejo, fila A = columna B), Nivel 250 — winrate A% (diagonal espejo, fila A = columna B), Nivel 299 — winrate A% (diagonal espejo, fila A = columna B)
 
 ### Community 185 - "run_matchup.js"
 Cohesion: 0.31
@@ -991,8 +1048,8 @@ Cohesion: 0.40
 Nodes (4): Invariantes, Resultados por par (winrate A), Stress Test — Fase A (none), ⚠️ Timeouts detectados (8 pares)
 
 ### Community 189 - "help.js"
-Cohesion: 0.18
-Nodes (17): buildAliasStr(), buildOutputHeader(), buildSectionContent(), buildSubcatBlock(), collectUniqueCommands(), { commands }, execute(), getFilteredSectionCmds() (+9 more)
+Cohesion: 0.10
+Nodes (12): itemCatalog, registry, getItemsByCategory(), itemCatalog, ITEMS, { createEntity }, { getItem: getRawItem }, { MAX_INVENTORY_SIZE, MAX_STACK_SIZE } (+4 more)
 
 ### Community 190 - "Stress Test — Fase A (none)"
 Cohesion: 0.40
@@ -1007,8 +1064,8 @@ Cohesion: 0.40
 Nodes (4): Invariantes, Resultados por par (winrate A), Stress Test — Fase A (weapon), ⚠️ Timeouts detectados (3 pares)
 
 ### Community 193 - "createReport"
-Cohesion: 0.22
-Nodes (9): { box }, { createReport }, execute(), reportCooldowns, createReport(), determineCategory(), determinePriority(), getDailyCount() (+1 more)
+Cohesion: 0.19
+Nodes (15): collectMetrics(), equipmentMetrics(), { getCoverage }, materialRarityOf(), { MATERIALS }, { PHYSICAL_STATS }, trackReaction(), { calculateMovementFatigue } (+7 more)
 
 ### Community 194 - "Stress Test — Fase A (weapon)"
 Cohesion: 0.40
@@ -1023,8 +1080,8 @@ Cohesion: 0.40
 Nodes (4): Invariantes, Resultados por par (winrate A), Stress Test — Fase A (full), ⚠️ Timeouts detectados (2 pares)
 
 ### Community 197 - "bugstatus.js"
-Cohesion: 0.38
-Nodes (6): { box }, execute(), { formatError }, { getReport, getUserReports }, getReport(), getUserReports()
+Cohesion: 0.14
+Nodes (7): ArmorModule, ModuleBase, ModuleBase, TemporalModule, ModuleBase, moduleRegistry, registry
 
 ### Community 198 - "Stress Test — Fase A (full)"
 Cohesion: 0.40
@@ -1135,52 +1192,42 @@ Cohesion: 0.50
 Nodes (3): Matchup extremista_defensa vs extremista_ataque, Tipos de KO (A):, Tipos de KO (B):
 
 ### Community 225 - "Entity"
-Cohesion: 0.10
-Nodes (22): ARMOR_SETS, getSet(), { calculateMovementFatigue }, countSetPieces(), COVERAGE_RULES, resolveSetBonuses(), { ARMOR_SETS }, { getCategory } (+14 more)
+Cohesion: 0.14
+Nodes (20): resolveCombatEquipment(), getItem(), { ARMOR_SETS }, buildEntriesFromDummy(), { getCategory }, getEquippedItems(), { getEquippedSlots }, getInventoryWithMetadata() (+12 more)
 
 ### Community 226 - "run_phase_c.js"
-Cohesion: 0.13
-Nodes (21): deriveArmorPiece(), allocateStats(), ARCHETYPES, ARMOR_SLOTS, armorConsumption(), attachAmmo(), buildArmorSet(), buildLabWeapon() (+13 more)
+Cohesion: 0.11
+Nodes (24): MATERIAL_RARITY_ORDER, rollMaterial(), allocateStats(), ARCHETYPES, ARMOR_SLOTS, armorConsumption(), attachAmmo(), buildArmorSet() (+16 more)
 
-### Community 227 - "eco_admin_rem.js"
-Cohesion: 0.13
-Nodes (15): { box }, { formatCommandUsage }, { formatDisplayMention, withMentions }, { formatError }, { getFirstMentionedJid }, { isOwner }, { resolveTargetDisplayName }, { setEconomyAdmin, isEconomyAdmin } (+7 more)
+### Community 227 - "generate_family_report.js"
+Cohesion: 0.21
+Nodes (12): fighterSection(), { generateFighter }, { getSpecialTierMult }, main(), materialLine(), { materialName }, { MATERIALS, getMaterialStats }, parseArgs() (+4 more)
 
 ### Community 228 - "run_natures_lab.js"
-Cohesion: 0.18
-Nodes (14): attachAmmo(), buildLabFighter(), buildLabWeapon(), { buildStressFighter }, EXPERIMENTS_DIR, fs, { getWeaponStats, getProjectileStats }, main() (+6 more)
+Cohesion: 0.29
+Nodes (6): Detalle por nivel/modo/arma (espejo + none-vs-total), Invariantes (por nivel), Laboratorio Modos de Armadura × Nivel (Iteración 1 Fase C), Nivel 150 — winrate A% (diagonal espejo, fila A = columna B), Nivel 250 — winrate A% (diagonal espejo, fila A = columna B), Nivel 299 — winrate A% (diagonal espejo, fila A = columna B)
 
 ### Community 229 - "dar_stelas.js"
-Cohesion: 0.15
-Nodes (13): { box }, { formatCommandUsage }, { formatDisplayMention }, { formatError }, { formatStelas }, { getFirstMentionedJid, extractAmountFromArgs }, { getUserProfile }, { isSameIdentity } (+5 more)
+Cohesion: 0.29
+Nodes (6): Detalle por nivel/modo/arma (espejo + none-vs-total), Invariantes (por nivel), Laboratorio Modos de Armadura × Nivel (Iteración 1 Fase C), Nivel 400 — winrate A% (diagonal espejo, fila A = columna B), Nivel 450 — winrate A% (diagonal espejo, fila A = columna B), Nivel 500 — winrate A% (diagonal espejo, fila A = columna B)
 
-### Community 230 - "eliminar_pj.js"
-Cohesion: 0.16
-Nodes (13): { box }, execute(), executeDeletion(), { formatCommandUsage }, { formatError }, { listCharacters, deleteCharacter }, pendingConfirmations, usageMessage (+5 more)
+### Community 230 - "spell_forge_tree_service.test.js"
+Cohesion: 0.19
+Nodes (5): buildSpellDefinition(), deriveDamageNature(), fingerprintSpell(), {
+  validateSpellRecipe,
+  buildSpellDefinition,
+  fingerprintSpell,
+  computeSpellCost,
+  deriveDamageNature,
+}, weaponDeReceta()
 
 ### Community 231 - "activity_ux_optimization.test.js"
-Cohesion: 0.16
-Nodes (10): cache, TTLS, { addMoney, getBalance, transferMoney }, { cache, TTLS }, createContext, { recordGroupActivity }, { recordUserActivity }, { supabase } (+2 more)
+Cohesion: 0.29
+Nodes (6): Detalle por nivel/modo/arma (espejo + none-vs-total), Invariantes (por nivel), Laboratorio Modos de Armadura × Nivel (Iteración 1 Fase C), Nivel 400 — winrate A% (diagonal espejo, fila A = columna B), Nivel 450 — winrate A% (diagonal espejo, fila A = columna B), Nivel 500 — winrate A% (diagonal espejo, fila A = columna B)
 
 ### Community 232 - "characterConfig.js"
 Cohesion: 0.29
-Nodes (8): calculateLevel(), DEFAULT_CHARACTER_STATS, LEVELABLE_STATS, RACES, RANGOS, xpForNextLevel(), { CLASES }, {
-  LEVELABLE_STATS,
-  HP_MAX,
-  DEFAULT_CHARACTER_STATS,
-  RACES,
-  LEVEL_INITIAL,
-  LEVEL_MAX,
-  FREE_POINTS_AT_CREATION,
-  XP_CURVE_BASE,
-  XP_CURVE_EXPONENT,
-  xpForNextLevel,
-  calculateLevel,
-  RANGOS,
-
-  MAX_CHARACTER_NAME_LENGTH,
-  MAX_CHARACTERS_PER_USER,
-}
+Nodes (6): Detalle por nivel/modo/arma (espejo + none-vs-total), Invariantes (por nivel), Laboratorio Modos de Armadura × Nivel (Iteración 1 Fase C), Nivel 100 — winrate A% (diagonal espejo, fila A = columna B), Nivel 150 — winrate A% (diagonal espejo, fila A = columna B), Nivel 199 — winrate A% (diagonal espejo, fila A = columna B)
 
 ### Community 233 - "Laboratorio Fase C — Arma vs Grados de Armadura"
 Cohesion: 0.22
@@ -1191,47 +1238,145 @@ Cohesion: 0.22
 Nodes (8): Contundente — winrate A% (A=covA vs B=covB, misma arma), Cortante — winrate A% (A=covA vs B=covB, misma arma), Daño promedio por golpe (A), Duración por par (avgRounds), Invariantes, Laboratorio Fase C — Arma vs Grados de Armadura, Perforante — winrate A% (A=covA vs B=covB, misma arma), Proyectil — winrate A% (A=covA vs B=covB, misma arma)
 
 ### Community 235 - "statusService.js"
+Cohesion: 0.29
+Nodes (6): Detalle por nivel/modo/arma (espejo + none-vs-total), Invariantes (por nivel), Laboratorio Modos de Armadura × Nivel (Iteración 1 Fase C), Nivel 100 — winrate A% (diagonal espejo, fila A = columna B), Nivel 150 — winrate A% (diagonal espejo, fila A = columna B), Nivel 199 — winrate A% (diagonal espejo, fila A = columna B)
+
+### Community 236 - "metricsCollector.js"
+Cohesion: 0.29
+Nodes (6): Detalle por nivel/modo/arma (espejo + none-vs-total), Invariantes (por nivel), Laboratorio Modos de Armadura × Nivel (Iteración 1 Fase C), Nivel 250 — winrate A% (diagonal espejo, fila A = columna B), Nivel 350 — winrate A% (diagonal espejo, fila A = columna B), Nivel 399 — winrate A% (diagonal espejo, fila A = columna B)
+
+### Community 237 - "equipment_resolver.test.js"
+Cohesion: 0.29
+Nodes (6): Detalle por nivel/modo/arma (espejo + none-vs-total), Invariantes (por nivel), Laboratorio Modos de Armadura × Nivel (Iteración 1 Fase C), Nivel 250 — winrate A% (diagonal espejo, fila A = columna B), Nivel 350 — winrate A% (diagonal espejo, fila A = columna B), Nivel 399 — winrate A% (diagonal espejo, fila A = columna B)
+
+### Community 238 - "clases.js"
+Cohesion: 0.29
+Nodes (6): Detalle por nivel/modo/arma (espejo + none-vs-total), Invariantes (por nivel), Laboratorio Modos de Armadura × Nivel (Iteración 1 Fase C), Nivel 300 — winrate A% (diagonal espejo, fila A = columna B), Nivel 400 — winrate A% (diagonal espejo, fila A = columna B), Nivel 450 — winrate A% (diagonal espejo, fila A = columna B)
+
+### Community 239 - "ban.js"
+Cohesion: 0.29
+Nodes (6): Detalle por nivel/modo/arma (espejo + none-vs-total), Invariantes (por nivel), Laboratorio Modos de Armadura × Nivel (Iteración 1 Fase C), Nivel 300 — winrate A% (diagonal espejo, fila A = columna B), Nivel 400 — winrate A% (diagonal espejo, fila A = columna B), Nivel 450 — winrate A% (diagonal espejo, fila A = columna B)
+
+### Community 240 - "promote.js"
+Cohesion: 0.29
+Nodes (6): Detalle por nivel/modo/arma (espejo + none-vs-total), Invariantes (por nivel), Laboratorio Modos de Armadura × Nivel (Iteración 1 Fase C), Nivel 100 — winrate A% (diagonal espejo, fila A = columna B), Nivel 300 — winrate A% (diagonal espejo, fila A = columna B), Nivel 500 — winrate A% (diagonal espejo, fila A = columna B)
+
+### Community 241 - "Laboratorio Modos de Armadura × Nivel (Iteración 1 Fase C)"
+Cohesion: 0.29
+Nodes (6): Detalle por nivel/modo/arma (espejo + none-vs-total), Invariantes (por nivel), Laboratorio Modos de Armadura × Nivel (Iteración 1 Fase C), Nivel 100 — winrate A% (diagonal espejo, fila A = columna B), Nivel 300 — winrate A% (diagonal espejo, fila A = columna B), Nivel 500 — winrate A% (diagonal espejo, fila A = columna B)
+
+### Community 242 - "removeSession"
+Cohesion: 0.22
+Nodes (9): execute(), { findSessionByUser, removeSession }, { formatCombatDisolved }, formatCombatDisolved(), deleteSessionFromDb(), removeSession(), CombatAI, { createDummySession, removeSession } (+1 more)
+
+### Community 243 - "Laboratorio Modos de Armadura × Nivel (Iteración 1 Fase C)"
+Cohesion: 0.33
+Nodes (5): Detalle por nivel/modo/arma (espejo + none-vs-total), Invariantes (por nivel), Laboratorio Modos de Armadura × Nivel (Iteración 1 Fase C), Nivel 450 — winrate A% (diagonal espejo, fila A = columna B), Nivel 500 — winrate A% (diagonal espejo, fila A = columna B)
+
+### Community 244 - "Laboratorio Modos de Armadura × Nivel (Iteración 1 Fase C)"
+Cohesion: 0.33
+Nodes (5): Detalle por nivel/modo/arma (espejo + none-vs-total), Invariantes (por nivel), Laboratorio Modos de Armadura × Nivel (Iteración 1 Fase C), Nivel 450 — winrate A% (diagonal espejo, fila A = columna B), Nivel 500 — winrate A% (diagonal espejo, fila A = columna B)
+
+### Community 245 - "Laboratorio Fase C — Arma vs Grados de Armadura"
+Cohesion: 0.33
+Nodes (5): Cortante — winrate A% (A=covA vs B=covB, misma arma), Daño promedio por golpe (A), Duración por par (avgRounds), Invariantes, Laboratorio Fase C — Arma vs Grados de Armadura
+
+### Community 246 - "Laboratorio Modos de Armadura × Nivel (Iteración 1 Fase C)"
+Cohesion: 0.40
+Nodes (4): Detalle por nivel/modo/arma (espejo + none-vs-total), Invariantes (por nivel), Laboratorio Modos de Armadura × Nivel (Iteración 1 Fase C), Nivel 100 — winrate A% (diagonal espejo, fila A = columna B)
+
+### Community 247 - "Laboratorio Modos de Armadura × Nivel (Iteración 1 Fase C)"
+Cohesion: 0.40
+Nodes (4): Detalle por nivel/modo/arma (espejo + none-vs-total), Invariantes (por nivel), Laboratorio Modos de Armadura × Nivel (Iteración 1 Fase C), Nivel 100 — winrate A% (diagonal espejo, fila A = columna B)
+
+### Community 248 - "Laboratorio Modos de Armadura × Nivel (Fase C)"
+Cohesion: 0.40
+Nodes (4): Detalle por nivel/modo/arma (espejo + none-vs-total), Invariantes (por nivel), Laboratorio Modos de Armadura × Nivel (Fase C), Nivel 150 — winrate A% (diagonal espejo, fila A = columna B)
+
+### Community 249 - "Laboratorio Modos de Armadura × Nivel (Iteración 1 Fase C)"
+Cohesion: 0.40
+Nodes (4): Detalle por nivel/modo/arma (espejo + none-vs-total), Invariantes (por nivel), Laboratorio Modos de Armadura × Nivel (Iteración 1 Fase C), Nivel 250 — winrate A% (diagonal espejo, fila A = columna B)
+
+### Community 250 - "Laboratorio Modos de Armadura × Nivel (Iteración 1 Fase C)"
+Cohesion: 0.40
+Nodes (4): Detalle por nivel/modo/arma (espejo + none-vs-total), Invariantes (por nivel), Laboratorio Modos de Armadura × Nivel (Iteración 1 Fase C), Nivel 250 — winrate A% (diagonal espejo, fila A = columna B)
+
+### Community 251 - "Laboratorio Modos de Armadura × Nivel (Iteración 1 Fase C)"
+Cohesion: 0.40
+Nodes (4): Detalle por nivel/modo/arma (espejo + none-vs-total), Invariantes (por nivel), Laboratorio Modos de Armadura × Nivel (Iteración 1 Fase C), Nivel 300 — winrate A% (diagonal espejo, fila A = columna B)
+
+### Community 252 - "armorSets.js"
+Cohesion: 0.24
+Nodes (10): SPELL_DOMINIO_REQ, computeSpellCost(), { createItemDefinition }, crypto, fulgorCostDerivado(), { getMaterialCost }, {
+  MAX_HITS_PER_SPELL,
+  SPELL_POTENCIA_WEIGHT,
+  SPELL_FINEZA_WEIGHT,
+  SPELL_ELEMENT_POWER_WEIGHT,
+  RANGE_REF,
+  CAST_REF,
+  CD_REF,
+  RESULT_TYPE_WEIGHTS,
+  SPELL_TIER_BRACKETS,
+  SPELL_DOMINIO_REQ,
+  SPELL_NATURES,
+  SPELL_ROLES,
+  EFFECT_TYPES,
+  EFFECT_TARGETS,
+  EFFECT_WEIGHTS,
+  TARGET_WEIGHTS,
+  CHANNEL_BY_NATURE,
+}, rarityPorTier() (+2 more)
+
+### Community 253 - "context.js"
+Cohesion: 0.21
+Nodes (9): { box }, { claimDaily }, { DAILY_COOLDOWN_HOURS }, execute(), formatProgressBar(), { formatStelas, formatDuration }, formatStreakLabel(), formatDuration() (+1 more)
+
+### Community 254 - "durabilityPersistenceService.js"
+Cohesion: 0.36
+Nodes (5): { filterExisting }, { invalidateUserCache }, persistDurability(), readMetadata(), { supabase }
+
+### Community 255 - "runSimulation"
+Cohesion: 0.26
+Nodes (11): { box }, execute(), { findSessionByCharacter }, { getActiveCharacter }, resolveUseTarget(), showInventoryList(), updateSessionHp(), { useItem, getInventoryList } (+3 more)
+
+### Community 257 - "listCharacters"
+Cohesion: 0.22
+Nodes (9): { box }, { createReport }, execute(), reportCooldowns, createReport(), determineCategory(), determinePriority(), getDailyCount() (+1 more)
+
+### Community 258 - "retar.js"
+Cohesion: 0.28
+Nodes (8): { createSession, createDummySession, findSessionByCharacter }, { ensureTempTestKit, ensureIronFamilyKit }, execute(), { formatCombatOpen }, { getActiveCharacter }, { resolveCharacterEquipment }, resolveOpenEquipment(), formatCombatOpen()
+
+### Community 259 - "statusService.js"
 Cohesion: 0.33
 Nodes (8): addEffect(), { filterExisting }, getActiveEffects(), getCooldowns(), { logError }, saveSlots(), setCooldown(), { supabase }
 
-### Community 236 - "metricsCollector.js"
-Cohesion: 0.36
-Nodes (7): collectMetrics(), equipmentMetrics(), { getCoverage }, materialRarityOf(), { MATERIALS }, { PHYSICAL_STATS }, trackReaction()
+### Community 260 - "magic_channel.test.js"
+Cohesion: 0.29
+Nodes (3): ModuleBase, SpellModule, SpellModule
 
-### Community 237 - "equipment_resolver.test.js"
-Cohesion: 0.25
-Nodes (6): resolveArtifacts(), amuleto_guardian, espada_mano, mockInventory, mockSlots, pechera_hierro
-
-### Community 238 - "clases.js"
-Cohesion: 0.48
-Nodes (5): CLASES, getClase(), listarClases(), validarClase(), { CLASES, getClase, listarClases, validarClase }
-
-### Community 239 - "ban.js"
-Cohesion: 0.50
-Nodes (4): execute(), { executeGroupAction }, { removeParticipant }, removeParticipant()
-
-### Community 240 - "promote.js"
-Cohesion: 0.50
-Nodes (4): execute(), { executeGroupAction }, { promoteToAdmin }, promoteToAdmin()
+### Community 263 - "logSystem"
+Cohesion: 0.29
+Nodes (11): { getOpenReports, getStats, markStale }, { getOwnerJids }, { logSystem, logError }, midnightReview(), logSystem(), getOpenReports(), getStats(), { logSystem } (+3 more)
 
 ## Knowledge Gaps
-- **3078 isolated node(s):** `husky.sh script`, `$schema`, `src/core/bot.js`, `src/commands/**/*.js`, `src/data/**/*.js` (+3073 more)
+- **3309 isolated node(s):** `husky.sh script`, `$schema`, `src/core/bot.js`, `src/commands/**/*.js`, `src/data/**/*.js` (+3304 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **28 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **29 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `box()` connect `config.js` to `command_handler_error.test.js`, `characterService.js`, `economyAdminHelper.js`, `iron_family.test.js`, `box`, `composeMessage`, `unwarn.js`, `box`, `resolveTargetDisplayName`, `editar_pj.js`, `dado.js`, `moduleRegistry.js`, `grupo_cerrar.js`, `invite.js`, `getActiveCharacter`, `usar.js`, `item_add.js`, `createReport`, `bugstatus.js`, `items.js`, `eco_admin_rem.js`, `dar_stelas.js`, `eliminar_pj.js`, `getActiveCharacter`, `listCharacters`?**
-  _High betweenness centrality (0.019) - this node is a cross-community bridge._
-- **Why does `supabase` connect `supabase.js` to `bot.js`, `bugReportService.js`, `Entity`, `crear_pj.js`, `grupo_cerrar.js`, `getActiveCharacter`, `columnRegistry.js`, `inventoryService.js`, `statusService.js`, `invite.js`, `getUserProfile`, `Plan: Implementacion de Stats Magicas + Correcciones`, `activity_ux_optimization.test.js`, `midnight_review.js`, `items.js`, `box`, `durabilityPersistenceService.js`, `listCharacters`?**
+- **Why does `box()` connect `box` to `item_add.js`, `listCharacters`, `moduleRegistry.js`, `characterService.js`, `economyAdminHelper.js`, `getActiveCharacter`, `inventory_service.test.js`, `composeMessage`, `admin_perm_list.js`, `removeSession`, `box`, `resolveTargetDisplayName`, `dado.js`, `context.js`, `runSimulation`?**
+  _High betweenness centrality (0.023) - this node is a cross-community bridge._
+- **Why does `supabase` connect `supabase.js` to `bugReportService.js`, `inventario.js`, `Entity`, `statusService.js`, `grupo_cerrar.js`, `logSystem`, `inventoryService.js`, `columnRegistry.js`, `admin_perm_list.js`, `inventory_service.test.js`, `iron_family.test.js`, `getUserProfile`, `Plan: Implementacion de Stats Magicas + Correcciones`, `editar_pj.js`, `removeSession`, `items.js`, `box`, `durabilityPersistenceService.js`?**
   _High betweenness centrality (0.012) - this node is a cross-community bridge._
-- **Why does `logError()` connect `inventoryService.js` to `bot.js`, `bugReportService.js`, `createReport`, `loggerService.js`, `renombrar_pj.js`, `economyAdminHelper.js`, `crear_pj.js`, `grupo_cerrar.js`, `actividad.js`, `columnRegistry.js`, `statusService.js`, `midnight_review.js`, `box`?**
-  _High betweenness centrality (0.008) - this node is a cross-community bridge._
+- **Why does `logError()` connect `inventoryService.js` to `bot.js`, `bugReportService.js`, `listCharacters`, `loggerService.js`, `renombrar_pj.js`, `inventario.js`, `grupo_cerrar.js`, `logSystem`, `actividad.js`, `columnRegistry.js`, `economyAdminHelper.js`, `iron_family.test.js`, `statusService.js`, `removeSession`, `supabase.js`, `box`?**
+  _High betweenness centrality (0.005) - this node is a cross-community bridge._
 - **What connects `husky.sh script`, `$schema`, `src/core/bot.js` to the rest of the system?**
-  _3078 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _3309 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `bot.js` be split into smaller, more focused modules?**
-  _Cohesion score 0.09102564102564102 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.10588235294117647 - nodes in this community are weakly interconnected._
 - **Should `bugReportService.js` be split into smaller, more focused modules?**
   _Cohesion score 0.12280701754385964 - nodes in this community are weakly interconnected._
 - **Should `groupActivityService.js` be split into smaller, more focused modules?**

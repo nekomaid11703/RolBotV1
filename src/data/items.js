@@ -13,6 +13,8 @@
 const itemCatalog = require("./itemCatalog");
 // Carga las familias del catálogo inyectable (auto-registran sus definiciones).
 require("./ironFamily");
+// Carga los hechizos creados por el usuario en el Spell Lab (si existen).
+require("./userSpells").loadUserSpells();
 
 /**
  * @constant ITEMS

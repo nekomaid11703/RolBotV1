@@ -11,6 +11,8 @@ const WeaponModule = require("./weapon");
 const ArmorModule = require("./armor");
 const DurabilityModule = require("./durability");
 const ThrowableModule = require("./throwable");
+const SpellModule = require("./spell");
+const FocusModule = require("./focus");
 
 moduleRegistry.register(HealModule);
 moduleRegistry.register(BuffModule);
@@ -21,6 +23,8 @@ moduleRegistry.register(WeaponModule);
 moduleRegistry.register(ArmorModule);
 moduleRegistry.register(DurabilityModule);
 moduleRegistry.register(ThrowableModule);
+moduleRegistry.register(SpellModule);
+moduleRegistry.register(FocusModule);
 
 module.exports = {
   /**

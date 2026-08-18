@@ -6,7 +6,8 @@ const { logError, logSystem } = require("../loggerService");
  * @constant moduleRegistry
  */
 const moduleRegistry = require("../../modules/moduleRegistry");
-const { buildDummyEquipment } = require("./dummyEquipment");
+const { buildDummyEquipment, IRON_DUMMY_LOADOUT } = require("./dummyEquipment");
+const { resolveElementReaction } = require("./spellEffects");
 
 /**
  * @constant sessions
@@ -37,9 +38,12 @@ function restorePersistedSession(session) {
 /**
  * Genera un personaje dummy para combate de práctica PvE.
  * @param {*} challengerChar - Personaje del retador para escalar estadísticas del dummy
+ * @param {object} [options] - { loadout, minFulgor }
+ * @param {Array<{slot: string, itemId: string}>} [options.loadout] - Loadout del dummy (default hierro)
+ * @param {number} [options.minFulgor] - Batería mínima garantizada (dummy mágico)
  * @returns {*} Personaje dummy generado
  */
-function generateDummyCharacter(challengerChar) {
+function generateDummyCharacter(challengerChar, options = {}) {
   /**
    * @constant stats
    */
@@ -90,10 +94,19 @@ function generateDummyCharacter(challengerChar) {
   const diff = totalPoints - currentSum;
   dummyStats.atk = Math.max(1, dummyStats.atk + diff);
 
+  // Batería mínima garantizada para el dummy mágico (B.3): el lanzamiento diluido
+  // con la batería base es viable (eff = fulgor_actual/coste ≥ FULGOR_DILUTED_MIN).
+  const minFulgor = Number(options.minFulgor);
+  if (Number.isFinite(minFulgor) && minFulgor > 0) {
+    dummyStats.fulgor = Math.max(dummyStats.fulgor || 0, Math.ceil(minFulgor));
+  }
+
   /**
    * @constant dummyHp
    */
   const dummyHp = Math.max(1, Math.floor(totalPoints / keys.length));
+
+  const loadout = Array.isArray(options.loadout) ? options.loadout : IRON_DUMMY_LOADOUT;
 
   return {
     id: `dummy_${Date.now()}_${Math.floor(Math.random() * 1000)}`,
@@ -105,9 +118,9 @@ function generateDummyCharacter(challengerChar) {
       hp: dummyHp,
       ...dummyStats,
     },
-    // Equipamiento en memoria (Familia del Hierro) para que el dummy use y
-    // luzca el sistema de equipo sin tocar la DB.
-    dummyEquipment: buildDummyEquipment(),
+    // Equipamiento en memoria (Familia del Hierro por defecto) para que el dummy
+    // use y luzca el sistema de equipo sin tocar la DB.
+    dummyEquipment: buildDummyEquipment(loadout),
   };
 }
 
@@ -122,6 +135,17 @@ function resolveSessionHp(character) {
   const maxHp = (character.stats?.hp ?? 1) * 2;
   const hp = Number(character.hp_actual);
   return Number.isFinite(hp) && hp > 0 ? Math.floor(hp) : maxHp;
+}
+
+/**
+ * Resuelve la batería de fulgor inicial de un personaje en sesión.
+ * La batería NO se regenera en combate (§11.5.2 / P4): se inicializa a la stat fulgor.
+ * @param {*} character - Personaje que entra en combate
+ * @returns {number} Fulgor actual (≥ 0)
+ */
+function resolveSessionFulgor(character) {
+  const fulgor = Number(character.stats?.fulgor);
+  return Number.isFinite(fulgor) && fulgor > 0 ? Math.floor(fulgor) : 0;
 }
 
 /**
@@ -293,16 +317,20 @@ async function createSession(challengerId, defenderId, challengerChar, defenderC
       characterId: challengerChar.id,
       character: challengerChar,
       hp: resolveSessionHp(challengerChar),
+      fulgor: resolveSessionFulgor(challengerChar),
       isBot: false,
       fatigue: 0,
+      aura: { pasiva: null, turnos: 0 },
     },
     defender: {
       userId: defenderId,
       characterId: defenderChar.id,
       character: defenderChar,
       hp: resolveSessionHp(defenderChar),
+      fulgor: resolveSessionFulgor(defenderChar),
       isBot: false,
       fatigue: 0,
+      aura: { pasiva: null, turnos: 0 },
     },
     currentTurnCharId: challengerChar.id,
     status: SESSION_STATES.WAITING_ACTION,
@@ -337,9 +365,10 @@ async function updateDistance(sessionId, newDistance) {
  * Crea una sesión de combate PvE contra un personaje dummy.
  * @param {string} challengerId - ID del usuario retador
  * @param {*} challengerChar - Personaje del retador
+ * @param {object} [options] - Opciones del dummy { loadout, minFulgor }
  * @returns {Promise<*>} Sesión de combate PvE creada
  */
-async function createDummySession(challengerId, challengerChar) {
+async function createDummySession(challengerId, challengerChar, options = {}) {
   if (getActiveSessionCount() >= MAX_ACTIVE_SESSIONS) {
     throw new Error(`L\u00edmite de ${MAX_ACTIVE_SESSIONS} sesiones activas alcanzado.`);
   }
@@ -347,7 +376,7 @@ async function createDummySession(challengerId, challengerChar) {
   /**
    * @constant dummyChar
    */
-  const dummyChar = generateDummyCharacter(challengerChar);
+  const dummyChar = generateDummyCharacter(challengerChar, options);
   /**
    * @constant sessionId
    */
@@ -365,16 +394,20 @@ async function createDummySession(challengerId, challengerChar) {
       characterId: challengerChar.id,
       character: challengerChar,
       hp: resolveSessionHp(challengerChar),
+      fulgor: resolveSessionFulgor(challengerChar),
       isBot: false,
       fatigue: 0,
+      aura: { pasiva: null, turnos: 0 },
     },
     defender: {
       userId: "bot_dummy",
       characterId: dummyChar.id,
       character: dummyChar,
       hp: dummyChar.hp_actual,
+      fulgor: resolveSessionFulgor(dummyChar),
       isBot: true,
       fatigue: 0,
+      aura: { pasiva: null, turnos: 0 },
     },
     currentTurnCharId: challengerChar.id,
     status: SESSION_STATES.WAITING_ACTION,
@@ -523,6 +556,8 @@ async function advanceTurn(sessionId, newAttackerHp, newDefenderHp, skipRound = 
   await persistSessionUpdate(session, (next) => {
     next.challenger.hp = newAttackerHp;
     next.defender.hp = newDefenderHp;
+    decaySlotAura(next.challenger);
+    decaySlotAura(next.defender);
     next.lastTurnAt = Date.now();
     if (!skipRound) next.rounds += 1;
     next.pendingAttack = null;
@@ -538,6 +573,75 @@ async function advanceTurn(sessionId, newAttackerHp, newDefenderHp, skipRound = 
   });
 
   return session;
+}
+
+/**
+ * Decrementa la ventana de imbuición de un slot y la limpia al llegar a cero.
+ * @param {object} slot - Slot (challenger/defender) con estado `aura`
+ */
+function decaySlotAura(slot) {
+  if (!slot.aura || !slot.aura.pasiva) return;
+  slot.aura.turnos = Math.max(0, (Number(slot.aura.turnos) || 0) - 1);
+  if (slot.aura.turnos <= 0) {
+    slot.aura = { pasiva: null, turnos: 0 };
+  }
+}
+
+/**
+ * Devuelve el slot (challenger/defender) de la sesión por ID de personaje.
+ * @param {*} session - Sesión de combate
+ * @param {string} targetId - ID de personaje del objetivo
+ * @returns {object|null} Slot correspondiente o null
+ */
+function resolveSlotByCharacterId(session, targetId) {
+  const id = String(targetId);
+  if (String(session.challenger.characterId) === id) return session.challenger;
+  if (String(session.defender.characterId) === id) return session.defender;
+  return null;
+}
+
+/**
+ * Aplica un golpe elemental a un objetivo de la sesión y resuelve la reacción.
+ *
+ * El estado de imbuición del slot (`aura`) alimenta `resolveElementReaction`:
+ *  - sin aura previa → imprime el elemento dominante (aura pasiva);
+ *  - mismo elemento → refresca la ventana;
+ *  - par con reacción → evento instantáneo (multiplicador + efectos) y consume
+ *    el aura;
+ *  - par sin reacción → el dominante reemplaza la aura.
+ *
+ * Aplica la nueva aura según `auraResultante` (persistencia en la sesión).
+ * @param {string} sessionId - ID de la sesión
+ * @param {string} targetId - ID del personaje objetivo
+ * @param {string} dominante - Elemento entrante del golpe/hechizo
+ * @returns {Promise<object|null>} Decisión de reacción (+ multiplicador/efectos)
+ *   y aura aplicada; null si la sesión o el objetivo no existen
+ */
+async function applyElementalHit(sessionId, targetId, dominante) {
+  const session = sessions.get(sessionId);
+  const target = session ? resolveSlotByCharacterId(session, targetId) : null;
+  if (!session || !target) return null;
+
+  const res = resolveElementReaction(
+    { objetivo: { auraPasiva: target.aura?.pasiva ?? null, turnosAura: target.aura?.turnos ?? 0 } },
+    dominante,
+  );
+
+  await persistSessionUpdate(session, (next) => {
+    const nextTarget =
+      String(next.challenger.characterId) === String(targetId) ? next.challenger : next.defender;
+    if (res.auraResultante && res.auraResultante.pasiva) {
+      nextTarget.aura = { pasiva: res.auraResultante.pasiva, turnos: res.auraResultante.turnos };
+    } else {
+      nextTarget.aura = { pasiva: null, turnos: 0 };
+    }
+  });
+
+  // El aura aplicada (madre de datos: la sesión persistida) viaja en el resultado
+  // para que el llamador pueda leer el estado de imbuición tras el golpe.
+  const nextTarget = resolveSlotByCharacterId(session, targetId);
+  res.sessionAura = { ...(nextTarget.aura || { pasiva: null, turnos: 0 }) };
+  return res;
 }
 
 /**
@@ -714,11 +818,14 @@ module.exports = {
   createDummySession,
   generateDummyCharacter,
   resolveSessionHp,
+  resolveSessionFulgor,
   getSession,
   findSessionByCharacter,
   updateDistance,
   findSessionByUser,
   advanceTurn,
+  applyElementalHit,
+  resolveSlotByCharacterId,
   setPendingReaction,
   isSessionActive,
   isSessionExpired,

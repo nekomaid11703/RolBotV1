@@ -1,5 +1,8 @@
 // @ts-nocheck
 const { getItem } = require("../../data/items");
+// Carga la semilla del catálogo arcano para que el loadout del dummy mágico
+// resuelva sus hechizos vía getItem (mismo patrón que IRON_DUMMY_LOADOUT).
+require("../../data/arcaneFamily");
 
 /**
  * Equipamiento en memoria del dummy PvE (Familia del Hierro).
@@ -25,14 +28,23 @@ const IRON_DUMMY_LOADOUT = [
 ];
 
 /**
+ * Loadout del dummy mágico: el hechizo va en `mano_der` (el lanzamiento se
+ * modela como ataque mágico, P7: reutiliza executeAttack/resolveAttackerWeapon).
+ * @constant ARCANE_DUMMY_LOADOUT
+ * @type {Array<{slot: string, itemId: string}>}
+ */
+const ARCANE_DUMMY_LOADOUT = [{ slot: "mano_der", itemId: "hechizo_doom" }];
+
+/**
  * Construye el equipo del dummy: mapa de slots + filas "inventory" con metadata
  * (durabilidad a plena resistencia, reparable).
+ * @param {Array<{slot: string, itemId: string}>} [loadout] - Loadout base (default hierro)
  * @returns {{ slots: Record<string,string>, inventory: Array<object> }}
  */
-function buildDummyEquipment() {
+function buildDummyEquipment(loadout = IRON_DUMMY_LOADOUT) {
   const slots = {};
   const inventory = [];
-  for (const { slot, itemId } of IRON_DUMMY_LOADOUT) {
+  for (const { slot, itemId } of loadout) {
     const def = getItem(itemId);
     if (!def) continue;
     slots[slot] = itemId;
@@ -50,4 +62,4 @@ function buildDummyEquipment() {
   return { slots, inventory };
 }
 
-module.exports = { buildDummyEquipment, IRON_DUMMY_LOADOUT };
+module.exports = { buildDummyEquipment, IRON_DUMMY_LOADOUT, ARCANE_DUMMY_LOADOUT };

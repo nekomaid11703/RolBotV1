@@ -3,7 +3,13 @@ const { supabase } = require("../../database/supabase");
 const { getEquippedSlots } = require("./equipmentService");
 const { getCategory } = require("../../data/itemCategories");
 const { getItem } = require("../../data/items");
-const { getWeaponStats, getProjectileStats, getArmorStats, getArtifactStats } = require("./itemStatService");
+const {
+  getWeaponStats,
+  getProjectileStats,
+  getArmorStats,
+  getArtifactStats,
+  getSpellStats,
+} = require("./itemStatService");
 const { resolveSetBonuses, getCoverage } = require("./armorSetService");
 const { ARMOR_SETS } = require("../../data/armorSets");
 
@@ -89,15 +95,72 @@ async function resolveAttackerWeapon(character, equipped = null) {
   const items = equipped || (await getEquippedItems(character));
 
   // Usar el slot de mano derecha; si contiene un arma a 2 manos, devuelve la def.
-  // Preferir la def con módulo weapon
-  const weaponEntry = items.find((e) => {
-    if (e.slot !== "mano_der" || !e.def) return false;
-    return Boolean((e.def.modules || {}).weapon);
-  });
+  // Preferir la def con módulo weapon, luego spell (hechizo como ataque mágico),
+  // y luego focus (báculo/varita que canaliza hechizos).
+  const weaponEntry =
+    items.find((e) => {
+      if (e.slot !== "mano_der" || !e.def) return false;
+      return Boolean((e.def.modules || {}).weapon);
+    }) ||
+    items.find((e) => {
+      if (e.slot !== "mano_der" || !e.def) return false;
+      return Boolean((e.def.modules || {}).spell);
+    }) ||
+    items.find((e) => {
+      if (e.slot !== "mano_der" || !e.def) return false;
+      return Boolean((e.def.modules || {}).focus);
+    });
 
   if (!weaponEntry) return null;
 
   const def = weaponEntry.def;
+
+  // Foco (módulo focus): canaliza hechizos cargados (spellIds). El primer
+  // hechizo cargado disponible en el catálogo es el que se lanza; sin hechizo
+  // cargado cae a desarmado (C.5) — no se puede "lanzar nada".
+  if ((def.modules || {}).focus) {
+    const focus = def.modules.focus;
+    const spellIds = Array.isArray(focus.spellIds) ? focus.spellIds : [];
+    const spellId = spellIds.find((id) => {
+      const d = getItem(id);
+      return d && (d.modules || {}).spell;
+    });
+    if (!spellId) return null;
+    const spell = getItem(spellId).modules.spell;
+    const nature = spell.damageNature || (spell.spellNature === "objeto" ? "perforante" : "mágico");
+    const focusStats = getSpellStats(def);
+    return {
+      damageNature: nature,
+      tier: def.tier || "E",
+      baseDamage: Number(spell.baseDamage) || 0,
+      hands: focus.slotHeld === "2h" ? 2 : 1,
+      weaponRange: Number(spell.range) || 1,
+      ranged: false,
+      fulgorCost: Number(spell.fulgorCost) || 0,
+      spellNature: spell.spellNature || "mágico",
+      canalizeBase: focusStats.canalizeBase,
+      canalizeScale: focusStats.canalizeScale,
+    };
+  }
+
+  // Hechizo (módulo spell): el lanzamiento se modela como ataque de naturaleza
+  // mágica (o física si spellNature === "objeto"). Reusa weaponInfo para que
+  // executeAttack/calculateWeaponDamage traten el lanzamiento sin bifurcar.
+  if ((def.modules || {}).spell) {
+    const spell = def.modules.spell;
+    const nature = spell.damageNature || (spell.spellNature === "objeto" ? "perforante" : "mágico");
+    return {
+      damageNature: nature,
+      tier: def.tier || "E",
+      baseDamage: Number(spell.baseDamage) || 0,
+      hands: 1,
+      weaponRange: Number(spell.range) || 1,
+      ranged: false,
+      fulgorCost: Number(spell.fulgorCost) || 0,
+      spellNature: spell.spellNature || "mágico",
+    };
+  }
+
   const stats = getWeaponStats(def);
   const weaponInfo = {
     damageNature: stats.damageNature,

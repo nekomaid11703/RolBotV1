@@ -11,9 +11,29 @@ const { getTierMultiplier } = require("../config/tierConfig");
  */
 
 /**
+ * Entrada del catálogo de materiales.
+ * @typedef {object} MaterialEntry
+ * @property {string} id
+ * @property {string} name
+ * @property {string} rarity
+ * @property {MaterialStats} baseStats
+ */
+
+/**
  * Catálogo de Materiales por Categorías
+ * @type {Record<string, MaterialEntry>}
  */
 const MATERIALS = {
+  // ── Conceptuales (no-físicos) ─────────────────────────────────────────────
+  // Materia etérea: representación técnica de ítems que NO son objetos físicos
+  // (hechizos). Neutra en todas las stats físicas; no es forjable ni seleccionable.
+  etereo: {
+    id: "etereo",
+    name: "Etéreo",
+    rarity: "comun",
+    baseStats: { afilabilidad: 1, conduccion_magica: 1, resistencia_material: 1, flexibilidad: 1 },
+  },
+
   // ── Comunes (presupuesto 80) ─────────────────────────────────────────────
   madera: {
     id: "madera",

@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Spell Lab — Constructor de hechizos (árbol)</title>
+<style>
+  :root {
+    --bg: #0f1420; --panel: #1a2130; --border: #2c3750; --text: #e6ecff;
+    --muted: #8b98b8; --accent: #7c8cff; --ok: #4ade80; --err: #f87171;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font-family: system-ui, sans-serif; }
+  header { padding: 16px 24px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+  header h1 { font-size: 18px; margin: 0; }
+  header small { color: var(--muted); }
+  main { display: grid; grid-template-columns: 360px 1fr; gap: 16px; padding: 20px; }
+  @media (max-width: 980px) { main { grid-template-columns: 1fr; } }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
+  .panel h2 { font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); margin: 0 0 12px; }
+  label { display: block; font-size: 12px; color: var(--muted); margin: 10px 0 4px; }
+  input, select { width: 100%; background: #121826; border: 1px solid var(--border); color: var(--text); border-radius: 6px; padding: 7px 9px; font-size: 13px; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .row3 { display: grid; grid-template-columns: 1.2fr 1.2fr .8fr; gap: 8px; align-items: end; }
+  button { background: var(--accent); color: #0b0f1a; border: none; border-radius: 6px; padding: 9px 12px; font-size: 13px; font-weight: 600; cursor: pointer; margin-top: 10px; }
+  button.ghost { background: transparent; border: 1px solid var(--border); color: var(--text); }
+  button.danger { background: transparent; border: 1px solid var(--err); color: var(--err); }
+  button:disabled { opacity: 0.5; cursor: not-allowed; }
+  .effects-list { display: flex; flex-direction: column; gap: 6px; margin-top: 6px; }
+  .effect-row { display: grid; grid-template-columns: 1.1fr 1fr .9fr .9fr 30px; gap: 6px; align-items: center; }
+  .step { border: 1px solid var(--border); border-radius: 8px; padding: 10px; margin-top: 10px; }
+  .step h3 { margin: 0 0 6px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--accent); }
+  .step .breadcrumb { font-size: 10px; color: var(--muted); margin-bottom: 6px; }
+  .preview { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
+  .metric { background: #121826; border: 1px solid var(--border); border-radius: 6px; padding: 8px; text-align: center; }
+  .metric .k { font-size: 11px; color: var(--muted); }
+  .metric .v { font-size: 20px; font-weight: 700; }
+  .tier-chip { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 11px; background: var(--accent); color: #0b0f1a; }
+  .chip { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 11px; border: 1px solid var(--border); color: var(--muted); }
+  .status { font-size: 12px; margin-top: 8px; min-height: 18px; }
+  .status.ok { color: var(--ok); }
+  .status.err { color: var(--err); }
+  .spell-card { border: 1px solid var(--border); border-radius: 8px; padding: 10px; margin-bottom: 8px; }
+  .spell-card .head { display: flex; justify-content: space-between; align-items: center; }
+  .spell-card .tags { color: var(--muted); font-size: 11px; margin-top: 4px; }
+  code { background: #121826; padding: 1px 5px; border-radius: 4px; font-size: 12px; }
+  .mono { font-family: ui-monospace, monospace; }
+  .hint { font-size: 11px; color: var(--muted); margin-top: 4px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>✨ Spell Lab</h1>
+  <small>Constructor por <b>árbol</b> — conectado al generador real</small>
+</header>
+
+<main>
+  <div>
+    <section class="panel">
+      <h2>Receta del hechizo</h2>
+      <div class="row">
+        <div>
+          <label>Nombre</label>
+          <input id="name" placeholder="Llama Infernal" />
+        </div>
+        <div>
+          <label>ID (auto-desde-nombre)</label>
+          <input id="id" placeholder="auto-desde-nombre" />
+        </div>
+      </div>
+
+      <!-- Paso 1: Naturaleza -->
+      <div class="step" id="step-naturaleza">
+        <h3>Paso 1 · Naturaleza</h3>
+        <div class="breadcrumb" id="bc-naturaleza">Raíz del árbol de forja.</div>
+        <label>Naturaleza (raíz)</label>
+        <select id="naturaleza"></select>
+        <div id="subtype-wrap" style="display:none">
+          <label>Sub-tipo</label>
+          <select id="subtype"></select>
+        </div>
+      </div>
+
+      <!-- Paso 2: Rol -->
+      <div class="step" id="step-role" style="display:none">
+        <h3>Paso 2 · Rol / objetivo</h3>
+        <div class="breadcrumb" id="bc-role"></div>
+        <label>Rol</label>
+        <select id="role"></select>
+      </div>
+
+      <!-- Paso 3 + 4: Activación y momento -->
+      <div class="step" id="step-activacion" style="display:none">
+        <h3>Paso 3 + 4 · Activación y momento de uso</h3>
+        <div class="breadcrumb" id="bc-activacion"></div>
+        <div class="row">
+          <div>
+            <label>Activación</label>
+            <select id="activation"></select>
+          </div>
+          <div>
+            <label>Momento de uso</label>
+            <select id="moment"></select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Paso 5: Efectos -->
+      <div class="step" id="step-effects" style="display:none">
+        <h3>Paso 5 · Efectos (componentes)</h3>
+        <div class="breadcrumb" id="bc-effects"></div>
+        <div class="effects-list" id="effects-list"></div>
+        <button class="ghost" id="add-effect" style="width:auto;margin-top:6px">+ Efecto</button>
+      </div>
+
+      <!-- Paso 6: Recursos -->
+      <div class="step">
+        <h3>Paso 6 · Recursos</h3>
+        <div class="row">
+          <div>
+            <label>Coste</label>
+            <select id="cost-type">
+              <option value="por_uso">Por uso</option>
+              <option value="por_turno">Por turno</option>
+              <option value="por_metro">Por metro</option>
+            </select>
+          </div>
+          <div>
+            <label>Fulgor</label>
+            <input id="cost-fulgor" type="number" min="0" value="3" />
+          </div>
+        </div>
+        <div class="row">
+          <div>
+            <label>Casteo (turnos)</label>
+            <input id="castTime" type="number" min="1" value="1" />
+          </div>
+          <div>
+            <label>Cooldown (turnos)</label>
+            <input id="cooldown" type="number" min="0" value="0" />
+          </div>
+        </div>
+        <div class="row">
+          <div>
+            <label>Alcance (range)</label>
+            <input id="range" type="number" min="0" value="3" />
+          </div>
+          <div>
+            <label>Precio base</label>
+            <input id="basePrice" type="number" min="0" value="500" />
+          </div>
+        </div>
+      </div>
+
+      <button id="save" disabled>Guardar en motor</button>
+      <div class="status" id="status"></div>
+    </section>
+  </div>
+
+  <div>
+    <section class="panel">
+      <h2>Métricas derivadas (en vivo)</h2>
+      <div class="preview" id="preview">
+        <div class="metric"><div class="k">Potencia</div><div class="v" id="m-potencia">–</div></div>
+        <div class="metric"><div class="k">Fineza</div><div class="v" id="m-fineza">–</div></div>
+        <div class="metric"><div class="k">Costo fino</div><div class="v" id="m-costo">–</div></div>
+        <div class="metric"><div class="k">Fulgor cost</div><div class="v" id="m-fulgor">–</div></div>
+      </div>
+      <div style="text-align:center; margin-top:10px; font-size:12px; color:var(--muted)" id="tier-line">
+        Tier: <span class="tier-chip" id="m-tier">–</span> &nbsp; <span class="chip" id="m-rarity">–</span> &nbsp; Dominio req: <b id="m-dominio">–</b> &nbsp; Canal: <span class="chip" id="m-channel">–</span>
+      </div>
+      <pre class="mono" id="cost-detail" style="background:#121826;border:1px solid var(--border);border-radius:6px;padding:10px;font-size:12px;margin-top:10px;white-space:pre-wrap"></pre>
+    </section>
+
+    <section class="panel" style="margin-top:16px">
+      <h2>Hechizos guardados (desplegados en el motor)</h2>
+      <div id="spells"></div>
+      <button class="ghost" id="refresh">Refrescar lista</button>
+    </section>
+  </div>
+</main>
+
+<script>
+// ─────────────────────────────────────────────────────────────
+// Taxonomía consumida del servidor (fuente única, sin hardcodear).
+let T = null;
+let effects = [];
+let debounceTimer = null;
+let currentRecipe = null;
+
+const NATURE_LABEL = {
+  primordial: "Primordial (luz / oscuridad / caos)",
+  elemental: "Elemental (hydro / pyro / geo / anemo / electro / cryo)",
+  material: "Material (forma / filo / peso)",
+  conceptual: "Conceptual (regeneración / deterioro / modificación / potenciación / transmutación)",
+};
+const EFFECT_LABEL = {
+  dano: "Daño", sanacion: "Sanación", escudo: "Escudo", aura: "Aura",
+  movimiento: "Movimiento", control: "Control", invocacion: "Invocación",
+  imbuicion: "Imbuición", regeneracion: "Regeneración", transmutacion: "Transmutación",
+};
+const ELEMENT_LABEL = {
+  hydro: "Hydro", pyro: "Pyro", geo: "Geo", anemo: "Anemo", electro: "Electro", cryo: "Cryo",
+  luz: "Luz", oscuridad: "Oscuridad", caos: "Caos",
+};
+
+async function init() {
+  try {
+    const res = await fetch("/api/taxonomy");
+    T = await res.json();
+    document.getElementById("save").disabled = true;
+    populateNaturaleza();
+    syncTree();
+    schedulePreview();
+    listSpells();
+  } catch (err) {
+    setStatus("No se pudo cargar la taxonomía del servidor: " + err.message, false);
+  }
+}
+
+function slugify(name) {
+  const s = String(name || "").toLowerCase()
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
+  return s || "";
+}
+function autoId() {
+  const rid = document.getElementById("id").value.trim();
+  if (rid) return rid;
+  return slugify(document.getElementById("name").value) || "hechizo_sin_nombre";
+}
+
+function fill(sel, options, selected) {
+  sel.innerHTML = "";
+  for (const opt of options) {
+    const o = document.createElement("option");
+    o.value = opt.key;
+    o.textContent = opt.label;
+    if (opt.key === selected) o.selected = true;
+    sel.appendChild(o);
+  }
+}
+
+function populateNaturaleza() {
+  fill(document.getElementById("naturaleza"),
+    Object.keys(T.SPELL_NATURES).map(k => ({ key: k, label: NATURE_LABEL[k] || k })),
+    null);
+}
+
+// Reads estado de selects y desbloquea las siguientes secciones (progressive disclosure).
+function syncTree() {
+  const naturaleza = document.getElementById("naturaleza").value;
+  const natura = T.SPELL_NATURES[naturaleza];
+  document.getElementById("bc-naturaleza").textContent = `Raíz elegida: ${naturaleza}. Sub-tipos: ${natura.subtypes.join(", ")}. Roles posibles: ${natura.roles.join(", ")}.`;
+
+  // Sub-tipo
+  const subtypeWrap = document.getElementById("subtype-wrap");
+  subtypeWrap.style.display = naturaleza ? "block" : "none";
+  const prevSubtype = document.getElementById("subtype").value;
+  fill(document.getElementById("subtype"),
+    naturaleza ? natura.subtypes.map(k => ({ key: k, label: k })) : [],
+    prevSubtype && natura.subtypes.includes(prevSubtype) ? prevSubtype : natura.subtypes[0]);
+
+  // Rol
+  const roleStep = document.getElementById("step-role");
+  const roleSel = document.getElementById("role");
+  const prevRole = roleSel.value;
+  fill(roleSel, naturaleza ? natura.roles.map(k => ({ key: k, label: k })) : [],
+    prevRole && natura.roles.includes(prevRole) ? prevRole : natura.roles[0]);
+  roleStep.style.display = naturaleza ? "block" : "none";
+  const role = roleSel.value || "";
+  document.getElementById("bc-role").textContent = role
+    ? `Rol: ${role}. Efectos: ${T.SPELL_ROLES[role].effects.join(", ")}.`
+    : "Elige un rol para continuar.";
+
+  // Activación + momento
+  const stepAct = document.getElementById("step-activacion");
+  if (role && T.SPELL_ROLES[role]) {
+    const rules = T.SPELL_ROLES[role];
+    fill(document.getElementById("activation"), rules.activations.map(k => ({ key: k, label: k })), null);
+    fill(document.getElementById("moment"), rules.moments.map(k => ({ key: k, label: k })), null);
+    document.getElementById("bc-activacion").textContent =
+      `El rol "${role}" permite activación ${rules.activations.join("/")} y momento ${rules.moments.join("/")}.`;
+    stepAct.style.display = "block";
+  } else {
+    stepAct.style.display = "none";
+  }
+
+  // Efectos
+  const stepFx = document.getElementById("step-effects");
+  if (role && T.SPELL_ROLES[role]) {
+    stepFx.style.display = "block";
+    document.getElementById("bc-effects").textContent =
+      `Efectos permitidos para "${role}": ${T.SPELL_ROLES[role].effects.join(", ")}.`;
+    renderEffects();
+  } else {
+    stepFx.style.display = "none";
+  }
+}
+
+// Un efecto inicial solo cuando el rol cambie a uno nuevo sin efectos.
+function ensureEffectsSeeded() {
+  const role = document.getElementById("role").value;
+  if (!role) return;
+  const allowed = T.SPELL_ROLES[role].effects;
+  for (const e of effects) {
+    if (!allowed.includes(e.tipo)) e.tipo = allowed[0];
+    if (!e.target) e.target = T.EFFECT_TARGETS[e.tipo][0];
+  }
+}
+
+function renderEffects() {
+  const box = document.getElementById("effects-list");
+  box.innerHTML = "";
+  ensureEffectsSeeded();
+  if (effects.length === 0) {
+    const allowed = T.SPELL_ROLES[document.getElementById("role").value].effects;
+    effects.push({ tipo: allowed[0], target: T.EFFECT_TARGETS[allowed[0]][0], element: null, magnitude: 1, duration: 0 });
+  }
+  effects.forEach((e, i) => {
+    const row = document.createElement("div");
+    row.className = "effect-row";
+    const allowed = T.SPELL_ROLES[document.getElementById("role").value].effects;
+
+    const tipo = document.createElement("select");
+    fill(tipo, allowed.map(k => ({ key: k, label: EFFECT_LABEL[k] || k })), e.tipo);
+    tipo.onchange = () => {
+      e.tipo = tipo.value;
+      e.target = T.EFFECT_TARGETS[e.tipo][0];
+      renderEffects();
+      schedulePreview();
+    };
+
+    const target = document.createElement("select");
+    fill(target, T.EFFECT_TARGETS[e.tipo].map(k => ({ key: k, label: k })), e.target);
+    target.onchange = () => { e.target = target.value; schedulePreview(); };
+
+    // Elemento opcional (solo si el efecto puede llevarlo)
+    const elem = document.createElement("select");
+    const elemOpts = [{ key: "null", label: "sin elemento" }];
+    const natura = document.getElementById("naturaleza").value;
+    const subtype = document.getElementById("subtype").value;
+    if (natura === "elemental" || natura === "primordial") {
+      for (const k of T.SPELL_NATURES[natura].subtypes) elemOpts.push({ key: k, label: ELEMENT_LABEL[k] || k });
+    }
+    fill(elem, elemOpts, e.element || "null");
+    elem.onchange = () => { e.element = elem.value === "null" ? null : elem.value; schedulePreview(); };
+
+    const mag = document.createElement("input");
+    mag.type = "number"; mag.min = "1"; mag.value = e.magnitude;
+    mag.title = "Magnitud";
+    mag.oninput = () => { e.magnitude = Math.max(1, Number(mag.value)); schedulePreview(); };
+
+    const del = document.createElement("button");
+    del.textContent = "✕"; del.className = "danger";
+    del.title = "Quitar";
+    del.style.width = "auto"; del.style.margin = "0";
+    del.onclick = () => { effects.splice(i, 1); renderEffects(); schedulePreview(); };
+
+    row.append(tipo, target, elem, mag, del);
+    box.appendChild(row);
+  });
+  document.getElementById("add-effect").onclick = () => {
+    const allowed = T.SPELL_ROLES[document.getElementById("role").value].effects;
+    const tipo = allowed[0];
+    effects.push({ tipo, target: T.EFFECT_TARGETS[tipo][0], element: null, magnitude: 1, duration: 0 });
+    renderEffects();
+    schedulePreview();
+  };
+}
+
+function readRecipe() {
+  const role = document.getElementById("role").value;
+  const stepFx = document.getElementById("step-effects");
+  return {
+    id: autoId(),
+    name: document.getElementById("name").value,
+    naturaleza: document.getElementById("naturaleza").value,
+    subtype: document.getElementById("subtype").value,
+    role,
+    activation: document.getElementById("activation").value,
+    moment: document.getElementById("moment").value,
+    effects: stepFx.style.display === "none" ? [] : effects.map(e => ({
+      tipo: e.tipo, target: e.target, element: e.element, magnitude: Number(e.magnitude),
+    })),
+    cost: {
+      tipo: document.getElementById("cost-type").value,
+      fulgor: Number(document.getElementById("cost-fulgor").value),
+    },
+    castTime: Number(document.getElementById("castTime").value),
+    cooldown: Number(document.getElementById("cooldown").value),
+    range: Number(document.getElementById("range").value),
+    basePrice: Number(document.getElementById("basePrice").value),
+  };
+}
+
+function schedulePreview() {
+  clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(showPreview, 220);
+}
+
+async function showPreview() {
+  const recipe = readRecipe();
+  try {
+    const res = await fetch("/api/cost?json=" + encodeURIComponent(JSON.stringify(recipe)));
+    const data = await res.json();
+    if (!data.ok) {
+      setStatus(data.errors.join(" "), false);
+      document.getElementById("save").disabled = true;
+      return;
+    }
+    const c = data.cost;
+    const def = data.def;
+    document.getElementById("m-potencia").textContent = c.potencia;
+    document.getElementById("m-fineza").textContent = c.fineza;
+    document.getElementById("m-costo").textContent = c.costoFino;
+    document.getElementById("m-fulgor").textContent = c.fulgorCost;
+    document.getElementById("m-tier").textContent = c.tier;
+    document.getElementById("m-rarity").textContent = c.rarity;
+    document.getElementById("m-dominio").textContent = c.dominioReq;
+    document.getElementById("m-channel").textContent = def.modules.spell.channel || "magico";
+    document.getElementById("cost-detail").textContent = JSON.stringify({
+      id: def.id,
+      tier: c.tier, rarity: c.rarity, material: c.material,
+      canal: def.modules.spell.channel,
+      naturaleza: def.modules.spell.naturaleza,
+      subtype: def.modules.spell.subtype,
+      role: def.modules.spell.role,
+      activation: def.modules.spell.activation,
+      moment: def.modules.spell.moment,
+      potencia: c.potencia, fineza: c.fineza,
+      costoFino: c.costoFino, fulgorCost: c.fulgorCost,
+      dominioReq: c.dominioReq, resultType: c.resultType,
+      effects: def.modules.spell.effects,
+      hits: def.modules.spell.hits,
+    }, null, 2);
+    setStatus("✓ Métricas calculadas en tiempo real con el generador real", true);
+    document.getElementById("save").disabled = !(recipe.name.trim() && recipe.effects.length > 0);
+    currentRecipe = recipe;
+  } catch (err) {
+    setStatus("Error de conexión: " + err.message, false);
+  }
+}
+
+function setStatus(msg, ok) {
+  const el = document.getElementById("status");
+  el.textContent = msg;
+  el.className = "status " + (ok ? "ok" : "err");
+}
+
+async function save() {
+  if (!currentRecipe) return;
+  currentRecipe.id = autoId();
+  const res = await fetch("/api/spells", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(currentRecipe),
+  });
+  const data = await res.json();
+  if (data.ok) {
+    setStatus(`✓ Guardado "${currentRecipe.id}" — listo en el motor`, true);
+    await listSpells();
+    document.getElementById("save").disabled = true;
+  } else {
+    setStatus(data.errors.join(" "), false);
+  }
+}
+
+async function listSpells() {
+  const res = await fetch("/api/spells");
+  const data = await res.json();
+  const box = document.getElementById("spells");
+  box.innerHTML = "";
+  if (!data.items.length) {
+    box.innerHTML = '<div style="color:var(--muted);font-size:13px">No hay hechizos guardados.</div>';
+    return;
+  }
+  for (const { recipe, cost } of data.items) {
+    const card = document.createElement("div");
+    card.className = "spell-card";
+    const tier = cost ? `<span class="tier-chip">${cost.tier}</span>` : "<span class='tier-chip'>?</span>";
+    const rarity = cost ? `<span class="chip">${cost.rarity}</span>` : "";
+    card.innerHTML = `
+      <div class="head"><b>${recipe.name || recipe.id}</b><span><code>${recipe.id}</code></span></div>
+      <div class="tags">${tier} ${rarity} costoFino ${cost ? cost.costoFino : "–"} · fulgor ${cost ? cost.fulgorCost : "–"} · req dominio ${cost ? cost.dominioReq : "–"} · ${recipe.naturaleza || ""} / ${recipe.role || ""}</div>
+      <pre class="mono" style="font-size:11px;margin:6px 0 0;white-space:pre-wrap">${JSON.stringify(recipe.effects || recipe.hits, null, 2)}</pre>
+      <button class="danger" data-id="${recipe.id}">Eliminar</button>`;
+    box.appendChild(card);
+    card.querySelector("[data-id]").onclick = async () => {
+      await fetch("/api/spells/" + encodeURIComponent(recipe.id), { method: "DELETE" });
+      await listSpells();
+    };
+  }
+}
+
+document.getElementById("save").onclick = save;
+document.getElementById("refresh").onclick = listSpells;
+document.getElementById("naturaleza").onchange = syncTree;
+document.getElementById("subtype").onchange = syncTree;
+document.getElementById("role").onchange = syncTree;
+["activation", "moment", "cost-type", "cost-fulgor", "castTime", "cooldown", "range", "basePrice"].forEach(id => {
+  const el = document.getElementById(id);
+  const evt = el.tagName === "SELECT" ? "change" : "input";
+  el.addEventListener(evt, schedulePreview);
+});
+["name"].forEach(id => {
+  document.getElementById(id).addEventListener("input", schedulePreview);
+});
+document.getElementById("id").addEventListener("input", schedulePreview);
+
+init();
+</script>
+</body>
+</html>

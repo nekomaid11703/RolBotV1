@@ -1,23 +1,15 @@
 // @ts-nocheck
 const { box } = require("../../utils/boxUtils");
 const { setHp } = require("../characterService");
-const {
-  checkAttackRange,
-  executeAttack,
-  executeReaction,
-  evaluateDodgeFeasibility,
-} = require("./combatEngine");
+const { checkAttackRange, executeAttack, executeReaction, evaluateDodgeFeasibility } = require("./combatEngine");
 const {
   capFatigue,
   calculateMovementFatigue,
   getMovementRange,
+  getCastCost,
+  getCastEfficiency,
 } = require("./fatigueEngine");
-const {
-  advanceTurn,
-  setPendingReaction,
-  updateDistance,
-  endSession,
-} = require("./combatState");
+const { advanceTurn, setPendingReaction, updateDistance, endSession } = require("./combatState");
 const { resolveAttackerWeapon } = require("./equipmentResolverService");
 const { formatReactionPrompt, buildFatigueBar } = require("./combatMessages");
 
@@ -58,6 +50,23 @@ async function executeDummyAttack(ctx, session, playerSlot, dummySlot, playerIsC
     dummyWeapon,
   );
 
+  // Lanzamiento mágico (módulo spell): aplicar batería de fulgor y dilución.
+  // El arma resuelta con `fulgorCost > 0` es un hechizo: el daño escala por la
+  // eficiencia del lanzamiento (getCastEfficiency) y la batería se descuenta.
+  const costeHechizo = dummyWeapon?.fulgorCost
+    ? getCastCost(dummySlot.character.stats.d_fulgor || 0, dummyWeapon.fulgorCost)
+    : 0;
+  const esHechizo = costeHechizo > 0;
+  let baseDamage = dummyAttack.baseDamage;
+  let fulgorGastado = 0;
+
+  if (esHechizo) {
+    const eff = getCastEfficiency(dummySlot.fulgor ?? 0, costeHechizo);
+    baseDamage = Math.max(1, Math.floor(baseDamage * eff));
+    fulgorGastado = Math.min(costeHechizo, dummySlot.fulgor ?? 0);
+    dummySlot.fulgor = Math.max(0, (dummySlot.fulgor ?? 0) - fulgorGastado);
+  }
+
   if (dummyAttack.canReact) {
     const canDodge = evaluateDodgeFeasibility(
       playerSlot.character.stats,
@@ -75,26 +84,25 @@ async function executeDummyAttack(ctx, session, playerSlot, dummySlot, playerIsC
       defenderChar: playerSlot.character,
       attackerUserId: dummySlot.userId,
       defenderUserId: playerSlot.userId,
-      baseDamage: dummyAttack.baseDamage,
+      baseDamage,
       defenderHp: playerSlot.hp,
       isChallengerAttacking: !playerIsChallenger,
       canDodgeSuccessfully: canDodge,
     });
 
     lines.push("");
-    lines.push(`\uD83E\uDD16 *${dummySlot.character.name}* ataca`);
-    lines.push(`\uD83D\uDCA5 Base: ${dummyAttack.baseDamage}`);
+    lines.push(`\uD83E\uDD16 *${dummySlot.character.name}* ${esHechizo ? "lanza" : "ataca"}`);
+    lines.push(`\uD83D\uDCA5 Base: ${baseDamage}`);
+    if (esHechizo) lines.push(`\uD83D\uDD0B Fulgor: ${fulgorGastado} usado`);
     lines.push("");
     lines.push("\u2726 \u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501 \u2726");
-    lines.push(
-      formatReactionPrompt(dummySlot.character.name, playerSlot.character.name, dummyAttack.baseDamage, canDodge),
-    );
+    lines.push(formatReactionPrompt(dummySlot.character.name, playerSlot.character.name, baseDamage, canDodge));
     return ctx.reply(box("\uD83E\uDD16 TURNO DEL DUMMY", lines));
   }
 
   const dummyReaction = executeReaction(
     "none",
-    dummyAttack.baseDamage,
+    baseDamage,
     playerSlot.character,
     playerSlot.hp,
     dummySlot.character,
@@ -186,11 +194,7 @@ async function runDummyTurn(ctx, session, playerIsChallenger, lines = []) {
   const distance = session.distance ?? 5;
 
   const dummyWeapon = await resolveAttackerWeapon(dummySlot.character).catch(() => null);
-  const { canAttack } = checkAttackRange(
-    distance,
-    dummySlot.character.stats,
-    dummyWeapon?.weaponRange ?? 0,
-  );
+  const { canAttack } = checkAttackRange(distance, dummySlot.character.stats, dummyWeapon?.weaponRange ?? 0);
 
   if (canAttack) {
     return executeDummyAttack(ctx, session, playerSlot, dummySlot, playerIsChallenger, dummyWeapon, lines);

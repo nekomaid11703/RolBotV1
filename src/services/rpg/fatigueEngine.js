@@ -17,6 +17,9 @@ const {
   MOVEMENT_FATIGUE_MIN,
   MOVEMENT_FATIGUE_DEF_REF,
   MSPD_TO_METERS,
+  DOMINIO_REF,
+  FULGOR_COST_BASE,
+  FULGOR_DILUTED_MIN,
 } = require("../../config/combatConfig");
 
 /**
@@ -197,6 +200,40 @@ function getMovementRange(mspd) {
   return Math.floor((mspd || 0) * MSPD_TO_METERS);
 }
 
+/**
+ * Coste de lanzamiento de un hechizo según dominio mágico (§11.5.2 / P3).
+ * El dominio REDUCE el coste (más lanzamientos con la misma batería), pero nunca
+ * suma daño directo (R6). Al alcanzar dominio puro (DOMINIO_REF) el coste se
+ * aplana en un piso, nunca llega a 0.
+ * @param {number} dominioMagico - d_fulgor del lanzador
+ * @param {number} [costeBase] - Coste nominal (default FULGOR_COST_BASE)
+ * @returns {number} Coste efectivo (≥ FULGOR_COST_BASE × FULGOR_DILUTED_MIN)
+ */
+function getCastCost(dominioMagico = 0, costeBase = FULGOR_COST_BASE) {
+  const d = Math.max(0, Number(dominioMagico) || 0);
+  const reduction = d / DOMINIO_REF;
+  const raw = costeBase * (1 - reduction);
+  const floor = costeBase * FULGOR_DILUTED_MIN;
+  return Math.max(floor, Math.round(raw));
+}
+
+/**
+ * Eficiencia de un lanzamiento diluido (A.2): si la batería actual no cubre el
+ * coste efectivo del hechizo, el daño escala por `eff = fulgor_actual/coste`
+ * con piso FULGOR_DILUTED_MIN. Nunca se prohíbe lanzar con batería parcial
+ * ("todo o nada" es una elección, no un techo duro). Con batería suficiente la
+ * eficiencia es 1 (lanzamiento pleno).
+ * @param {number} fulgorActual - Batería de fulgor actual del lanzador
+ * @param {number} coste - Coste efectivo del hechizo (getCastCost)
+ * @returns {number} Eficiencia en [FULGOR_DILUTED_MIN, 1]
+ */
+function getCastEfficiency(fulgorActual = 0, coste = FULGOR_COST_BASE) {
+  const f = Math.max(0, Number(fulgorActual) || 0);
+  const c = Math.max(1, Number(coste) || FULGOR_COST_BASE);
+  if (f >= c) return 1;
+  return Math.max(FULGOR_DILUTED_MIN, f / c);
+}
+
 module.exports = {
   getFatigueLevel,
   applyFatiguePenalties,
@@ -205,4 +242,6 @@ module.exports = {
   capFatigue,
   calculateMovementFatigue,
   getMovementRange,
+  getCastCost,
+  getCastEfficiency,
 };

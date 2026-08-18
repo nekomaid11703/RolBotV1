@@ -4,6 +4,44 @@ Registro de decisiones arquitectónicas y técnicas. Formato: fecha + contexto +
 
 ---
 
+## 2026-08-18 — Sistema Simplificado de Hechizos (reemplaza la taxonomía Fase D)
+
+**Contexto**: El árbol de forja Fase D (naturaleza → rol → activación/momento → efectos) era expresable pero difícil de resolver en el motor (los efectos viajan en el payload sin handlers reales). Para reducir la complejidad de desarrollo se sacrifica variabilidad: 4 ejes fijos pequeños + registro extensible de efectos.
+
+**Decisión**: Nueva taxonomía en `src/config/spellTree.js` (fuente única, re-exportada por `combatBalance.js` para retrocompat): (1) **tipo de hechizo** `SPELL_KINDS` (proyectil/explosion/barrera/buffo/aura); (2) **aplicación** `SPELL_APPLICATIONS` (propia/externa); (3) **naturaleza** `SPELL_NATURES` (elemental agua/fuego/tierra/aire/hielo/**electro**; primordial luz/oscuridad/caos; `FULGOR_NATURES` = 9 totales, TODO hechizo referencia una, nunca nula); (4) **registro de efectos** `EFFECT_DEFS` (datos: id/label/description/compatibleKinds/compatibleApplications/duration/stackable/handler=null). Resolver declarativo `src/services/rpg/spellEffects.js`: despacha por `tipo` a un handler o devuelve `{ pending: true }`. **Reacciones elementales**: se mantienen, gobernadas por `ELEMENT_PERSISTENCE` (imbuición = aura pasiva; `baseTurnos`, mismo elemento refresca, sin reacción reemplaza) y la tabla `ELEMENT_REACTIONS` (`${pasivo}@${dominante}`), consultada por `resolveElementReaction(ctx, dominante)`. **Tabla de 40 pares teóricos → 39 reacciones definidas** (2026-08-18): (a) geo siempre cristalizado en ambos órdenes, el orden NO cambia la reacción pero SÍ el daño (geo dominante > geo pasivo); (b) `tierra@aire` excluida: geo y anemo no reaccionan entre sí; (c) anemo no persistente → solo dominante (`X@aire` = torbellino); (d) primordiales solo dominante contra elementales, nunca entre sí (una reacción por primordial); (e) núcleo fuego/hielo/agua/electro con ciclo de dominancia fuego > hielo > agua > electro > fuego (cambia la reacción por orden) y 2 parejas neutras (fuego-agua = vaporizado, hielo-electro = super conductor) que dan la misma reacción en ambas direcciones. La semántica numérica (`canal`, estados) se implementa en Fase 4 junto a `combatState` (estado de imbuición).
+
+**Alternativas descartadas**: mantener los roles/activaciones/momentos de Fase D (más ejes que sostener y validar); implementar los efectos en esta fase (viola el plan: primero el sistema que los soporta, luego los handlers).
+
+---
+
+## 2026-08-11 — Equipamiento de mago Fase C: focos con obsolescencia, catálogo arcano y reglas 2h
+
+**Contexto**: La Fase B construía hechizos y los hacía lanzar al dummy, pero faltaba el equipamiento de mago (focos/túnicas/artefactos) y la palanca de obsolescencia del canal mágico (P2: el foco caduca, la habilidad no).
+
+**Decisión**: (1) `focus.js` como módulo de ítem (`static type = "focus"`, `triggers = ["Attack"]`) con config `{ slotHeld: "2h"|"1h", spellIds, canalizeScale }`; registrado en `itemCategories/index.js`. (2) `itemStatService.getSpellStats` → `canalizeBase = max(1, round(canalizeScale × conduccion_magica / EDGE_SCALE))` (espejo de `baseDamage`, la conducción del material ya escala por tier vía `getMaterialStats`). (3) `combatEngine` naturaleza `mágico`: `raw = FULGOR_ATK_SCALE × fulgor + canalizeBase`, mitigado por `r_fulgor`; `canalizeScale` multiplica como palanca fina. El término plano vive en el foco (obsolescencia P2/R2), no en la habilidad. (4) `equipmentService`: `EQUIPMENT_SLOTS` acepta `focus` en ambas manos, `resolveDefaultSlot` lo manda a `mano_der`, `equipItem` detecta 2h vía `focus.slotHeld` y marca `mano_izq` con `__2h:`. (5) `resolveAttackerWeapon` reconoce el módulo `focus`: resuelve el primer hechizo cargado del catálogo (o devuelve null → desarmado si no hay ninguno, C.5). (6) `arcaneFamily.js` con catálogo completo: `baculo_de_roble` (focus 2h → Doom), `varita_de_caoba` (focus 1h), `tunica_de_mago` (armor pecho + buff `d_fulgor`), `amuleto_de_fulgor` (artifact + buff `fulgor`) y `grimorio_de_tapa_negra` (special, no equipable — C.5).
+
+**Alternativas descartadas**: dar el término plano al hechizo (rompe P2: la habilidad no tiene obsolescencia, el material sí); multiplicar solo por `canalizeScale` sin término plano (el foco perdería la palanca de obsolescencia del material); buscar el hechizo solo entre el equipo equipado (los hechizos son del catálogo, no se equipan directamente).
+
+---
+
+**Contexto**: Para validar el canal mágico de extremo a extremo hacía falta construir hechizos (backend) y que el dummy PvE los equipara y lanzara (caso "Doom": 1 hit cryo + 5 hits pyro). No existía ni la construcción ni el lanzamiento.
+
+**Decisión**: (1) `spell.js` como módulo de ítem (`static type = "spell"`, `triggers = ["Attack"]`) que emite payload con `elements`, `hits[]` ordenados, `fulgorCost`, `spellNature` (`mágico|objeto`); registrado en `itemCategories/index.js`. (2) `skillForgeService.js` POCO puro: `validateSpellRecipe` (elementos ∈ tabla base hydro/pyro/geo/anemo/electro/cryo, `hits.length ≥ 1`, `≤ MAX_HITS_PER_SPELL`, `fulgorCost > 0`, `spellNature` válida), `buildSpellDefinition` (ItemDefinition tipo `spell` vía `createItemDefinition`), `refineSpell` (sube magnitude, baja coste, sube alcance — progresión sin obsolescencia §11.5.5) y `fingerprintSpell` (sha1 de elementos+hits+naturaleza+coste normalizados). (3) `itemFactory.js`: tipo `spell` válido y sin durabilidad. (4) Dummy mágico: `ARCANE_DUMMY_LOADOUT` + `buildDummyEquipment(loadout)` parametrizado, `generateDummyCharacter` con `minFulgor` garantizado, `resolveAttackerWeapon` reconoce el módulo `spell` (naturaleza mágico + `fulgorCost`), `dummyTurnService` aplica `getCastEfficiency` para lanzamiento diluido. (5) Semilla de catálogo `arcaneFamily.js` (Doom construido vía forja → valida el servicio con datos reales). Perillas `MAX_HITS_PER_SPELL` (10) y `MAX_ACTIVE_SKILLS` (4, §11.5.4).
+
+**Alternativas descartadas**: duplicar el flujo de lanzamiento fuera de `executeAttack` (P7 exige reusar el motor); resolver el hechizo en `dummyTurnService` sin pasar por el resolver (habría bifurcado la resolución de equipo); encajar los hit masks con la tabla completa de reacciones elementales (diferido a Fase D, se implementa el subset del caso de prueba).
+
+---
+
+## 2026-08-11 — Canal mágico Fase A: naturaleza `mágico`, batería de fulgor y coste por dominio
+
+**Contexto**: El motor de combate tenía tres naturalezas de daño físicas (`cortante`, `contundente`, `perforante`), sin canal mágico. Se diseñó el canal mágico (plan aprobado) para que los personajes con dominio mágico lancen hechizos usando stats vivas (`fulgor`/`d_fulgor`/`r_fulgor`) con espejo del canal físico (atk/def).
+
+**Decisión**: (1) Perillas centralizadas en `combatBalance.js`: `FULGOR_ATK_SCALE` (0.8, espejo cortante), `MAGIC_DEFENSE_SCALE` (100, espejo `DAMAGE_DEFENSE_SCALE`), `DOMINIO_REF` (100), `FULGOR_COST_BASE` (10), `FULGOR_DILUTED_MIN` (0.1); corregido duplicado `DAMAGE_DEFENSE_SCALE` (error de lint pre-existente). (2) `calculateWeaponDamage` con naturaleza `mágico`: daño = `FULGOR_ATK_SCALE × fulgor_atacante × MAGIC_DEFENSE_SCALE/(MAGIC_DEFENSE_SCALE + r_fulgor_defensor)`, piso `DAMAGE_MIN`, sin término plano; `weaponInfo.damageNature === "mágico"` activa el canal. (3) `combatState.resolveSessionFulgor` inicializa la batería de fulgor (default 0, nunca negativo) y `createSession` la siembra en ambos lados. (4) `fatigueEngine.getCastCost(dominio)` reduce el coste con piso `FULGOR_COST_BASE × FULGOR_DILUTED_MIN` (nunca 0). Re-export en `combatConfig.js`.
+
+**Alternativas descartadas**: fijar el daño mágico en el atk físico (duplica el canal físico y deja `fulgor` sin uso); mantener el coste plano (ignorar la eficiencia del dominio en el recuento de batería); permitir coste 0 en dominio alto (rompe la decisión R6 "el dominio no es daño directo").
+
+---
+
 ## 2026-08-03 — UI por secciones reutilizables + registro declarativo de acciones de combate
 
 **Contexto**: En la segunda prueba en vivo el jugador reportó (1) que las pantallas de combate/dummy seguían mostrando emojis de ítem (prefijos de tipo 🗡️/🛡️/📿/🔨/🧵, no el campo `icon` eliminado en v2.8.0); (2) que `/ver_pj` no reflejaba el equipamiento actual; (3) que varias pantallas no mostraban comandos disponibles (p. ej. `avanzar`/`retroceder`/`esquivar`/`bloquear`) porque `formatActionMenu`/`formatReactionPrompt` los tenían hardcodeados con solo 4 acciones.

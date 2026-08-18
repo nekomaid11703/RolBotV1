@@ -55,3 +55,7 @@ Convertido en healthcheck manual gated: salta (exit 0) si no hay `SUPABASE_URL` 
 ## TD-013 | Carrera FK `group_members_player_phone_fkey` en primer mensaje | resuelto (2026-08-04)
 
 `recordGroupActivity` y `recordUserActivity` corrían en paralelo; el upsert de `group_members` podía llegar antes de que existiera el `players` → violación de FK (PGRST PGRST204/23503) en usuarios nuevos. Fix: en `eventHandler.js`, `recordGroupActivity` se encadena tras `recordUserActivity` (promise chain), garantizando el jugador antes del miembro. Reigresión cubierta en `tests/event_handler_activity.test.js`.
+
+## TD-014 | `itemStatService.js:60` error TS7053 pre-existente | abierto
+
+`npm run typecheck` reporta `error TS7053` en `itemStatService.js:60` (indexing de `MATERIALS` con `string` sin firma de índice). Pre-existente a la Fase A del canal mágico (verificado con `git stash`); NO fue introducido por esta iteración. Pendiente: tipar `MATERIALS`/`getMaterialStats` con índice `Record<string, ...>` o `@ts-nocheck` dirigido.

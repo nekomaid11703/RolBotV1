@@ -14,8 +14,8 @@ const EQUIPMENT_SLOTS = {
   pecho: { accepts: ["armor"] },
   pantalones: { accepts: ["armor"] },
   botas: { accepts: ["armor"] },
-  mano_der: { accepts: ["weapon", "shield"] },
-  mano_izq: { accepts: ["weapon", "shield"] },
+  mano_der: { accepts: ["weapon", "shield", "focus"] },
+  mano_izq: { accepts: ["weapon", "shield", "focus"] },
   artefacto_1: { accepts: ["artifact"] },
   artefacto_2: { accepts: ["artifact"] },
   artefacto_3: { accepts: ["artifact"] },
@@ -85,6 +85,7 @@ function resolveDefaultSlot(itemDef, currentSlots = {}) {
   const cats = itemDef.categories || [];
 
   if (cats.includes("weapon")) return "mano_der";
+  if (cats.includes("focus")) return "mano_der";
   if (cats.includes("shield")) return "mano_izq";
   if (cats.includes("armor")) return resolveArmorSlot(itemDef);
   if (cats.includes("artifact")) {
@@ -183,9 +184,10 @@ async function equipItem({ characterId, creatorId, itemId, slot }) {
   const itemDef = getItem(itemId);
   if (!itemDef) throw new Error(`El ítem "${itemId}" no existe en el catálogo.`);
 
-  // Determinar si el arma requiere 2 manos leyendo su módulo weapon
+  // Determinar si el arma requiere 2 manos leyendo su módulo weapon o focus
   const weaponModule = (itemDef.modules || {}).weapon;
-  const isTwoHanded = weaponModule?.hands === 2;
+  const focusModule = (itemDef.modules || {}).focus;
+  const isTwoHanded = weaponModule?.hands === 2 || focusModule?.slotHeld === "2h";
 
   // Verificar que el slot acepta este tipo de ítem
   const slotConfig = EQUIPMENT_SLOTS[slot];

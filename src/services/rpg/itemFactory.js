@@ -7,14 +7,24 @@ const moduleRegistry = require("../../modules/moduleRegistry");
 require("../../data/itemCategories");
 
 /**
- * @typedef {"weapon"|"armor"|"artifact"|"consumable"|"material"|"special"|"throwable"} ItemType
+ * @typedef {"weapon"|"armor"|"artifact"|"consumable"|"material"|"special"|"throwable"|"spell"} ItemType
  */
 
 /**
  * @constant VALID_TYPES
  * @type {Set<string>}
  */
-const VALID_TYPES = new Set(["weapon", "armor", "artifact", "consumable", "material", "special", "throwable"]);
+const VALID_TYPES = new Set([
+  "weapon",
+  "armor",
+  "artifact",
+  "consumable",
+  "material",
+  "special",
+  "throwable",
+  "spell",
+  "focus",
+]);
 
 /**
  * @typedef {object} ItemDefinition
@@ -72,7 +82,13 @@ function deriveMetadata(def) {
 
   // Durabilidad derivada de la resistencia material (para armor/weapon/artefacto equipable).
   // Los arrojadizos son de una sola pieza (no portan durabilidad persistente).
-  if (def.type !== "consumable" && def.type !== "material" && def.type !== "special" && def.type !== "throwable") {
+  if (
+    def.type !== "consumable" &&
+    def.type !== "material" &&
+    def.type !== "special" &&
+    def.type !== "throwable" &&
+    def.type !== "spell"
+  ) {
     const maxResist = Math.max(1, matStats.resistencia_material);
     metadata.durability = { maxResist, currentResist: maxResist, isRepairable: def.isRepairable !== false };
   }

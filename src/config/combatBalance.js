@@ -15,6 +15,28 @@
 /** Damage formula: atk * DAMAGE_DEFENSE_SCALE / (DAMAGE_DEFENSE_SCALE + def) */
 const DAMAGE_DEFENSE_SCALE = 100;
 
+// ══════════════════════════════════════════
+// MAGIC CHANNEL (stats vivas: fulgor / d_fulgor / r_fulgor)
+// ══════════════════════════════════════════
+
+/**
+ * Naturaleza "mágico": solo término de stats (la habilidad NO tiene obsolescencia, §11.5.2).
+ * bodyDamage = FULGOR_ATK_SCALE × fulgor × 100/(100 + r_fulgor)   [espejo de cortante]
+ */
+const FULGOR_ATK_SCALE = 0.8;
+
+/** Espejo de DAMAGE_DEFENSE_SCALE sobre r_fulgor del defensor */
+const MAGIC_DEFENSE_SCALE = 100;
+
+/** Referencia de dominio puro: reduce coste de lanzamiento, nunca suma daño directo (§11.2) */
+const DOMINIO_REF = 100;
+
+/** Coste de lanzamiento nominal de un hechizo (batería gasta esta cantidad por aire) */
+const FULGOR_COST_BASE = 10;
+
+/** Piso de eficiencia del lanzamiento diluido (fulgor_actual/coste clamp ≥ este) */
+const FULGOR_DILUTED_MIN = 0.1;
+
 /**
  * Techo de DEF efectiva en la mitigación (0 = sin techo, comportamiento actual).
  * >0 aplaña la curva: apilar DEF por encima del cap deja de reducir daño.
@@ -308,6 +330,235 @@ const XP_PER_LEVEL = 2;
 const XP_LOSER_MULTIPLIER = 0.3;
 
 // ══════════════════════════════════════════
+// SPELL FORGE (Fase B)
+// ══════════════════════════════════════════
+
+/** Máximo de hits (componentes) por hechizo forjado */
+const MAX_HITS_PER_SPELL = 10;
+
+/** Máximo de habilidades activas equipables en combate (§11.5.4) */
+const MAX_ACTIVE_SKILLS = 4;
+
+// ══════════════════════════════════════════
+// SPELL FORGE TREE (árbol de forja — Fase D)
+// El forjador elige EN ORDEN: naturaleza → rol → activación/momento → efectos
+// → recursos. Cada selección desbloquea/bloquea las siguientes (progressive disclosure).
+// La taxonomía permite representar CUALQUIER hechizo/habilidad, sin hardcodear ejemplos.
+// ══════════════════════════════════════════
+
+/**
+ * Naturalezas raíz del árbol (§7 spec). Cada naturaleza define sus sub-tipos
+ * (elementos/primordiales/materias/conceptos) y los roles que puede expresar.
+ * La primigenia cubre todas las naturalezas (luz/oscuridad/caos son la raíz de toda
+ * la magia), las derivadas acotan a qué roles pueden llegar.
+ * @type {Record<string, { subtypes: string[], roles: string[] }>}
+ */
+const SPELL_NATURES = {
+  primordial: {
+    subtypes: ["luz", "oscuridad", "caos"],
+    roles: ["ataque", "imbuicion", "defensa", "curacion", "utilidad", "movimiento"],
+  },
+  elemental: {
+    subtypes: ["hydro", "pyro", "geo", "anemo", "electro", "cryo"],
+    roles: ["ataque", "imbuicion", "control", "utilidad"],
+  },
+  material: {
+    subtypes: ["forma", "filo", "peso"],
+    roles: ["ataque", "defensa", "utilidad"],
+  },
+  conceptual: {
+    subtypes: ["regeneracion", "deterioro", "modificacion", "potenciacion", "transmutacion"],
+    roles: ["ataque", "defensa", "curacion", "utilidad", "control", "movimiento"],
+  },
+};
+
+/**
+ * Tipos de efecto genéricos (componentes finales del hechizo). Un hechizo puede
+ * combinar varios; cada tipo declara los targets a los que puede apuntar.
+ */
+const EFFECT_TYPES = [
+  "dano",
+  "sanacion",
+  "escudo",
+  "aura",
+  "movimiento",
+  "control",
+  "invocacion",
+  "imbuicion",
+  "regeneracion",
+  "transmutacion",
+];
+
+/**
+ * Destinos posibles de un efecto.
+ */
+const TARGETS = ["propio", "enemigo", "aliado", "area"];
+
+/**
+ * Targets permitidos por tipo de efecto (desbloqueo naturaleza→rol a nivel componente).
+ */
+const EFFECT_TARGETS = {
+  dano: ["enemigo", "area"],
+  sanacion: ["aliado", "propio", "area"],
+  escudo: ["aliado", "propio"],
+  aura: ["propio", "area"],
+  movimiento: ["propio"],
+  control: ["enemigo", "area"],
+  invocacion: ["propio", "area", "enemigo"],
+  imbuicion: ["aliado", "propio"],
+  regeneracion: ["aliado", "propio", "area"],
+  transmutacion: ["propio", "enemigo", "area"],
+};
+
+/**
+ * Activaciones y momentos de uso (nivel rol del árbol).
+ */
+const ACTIVATIONS = ["activa", "pasiva"];
+const MOMENTS = ["combate", "fuera_combate", "ambos"];
+
+/**
+ * Reglas por rol: qué efectos, activaciones y momentos desbloquea.
+ * @type {Record<string, { effects: string[], activations: string[], moments: string[] }>}
+ */
+const SPELL_ROLES = {
+  ataque: {
+    effects: ["dano", "invocacion"],
+    activations: ["activa"],
+    moments: ["combate", "ambos"],
+  },
+  imbuicion: {
+    effects: ["imbuicion"],
+    activations: ["activa", "pasiva"],
+    moments: ["combate", "ambos"],
+  },
+  defensa: {
+    effects: ["escudo", "aura"],
+    activations: ["activa", "pasiva"],
+    moments: ["combate", "ambos"],
+  },
+  curacion: {
+    effects: ["sanacion", "regeneracion"],
+    activations: ["activa", "pasiva"],
+    moments: ["combate", "fuera_combate", "ambos"],
+  },
+  utilidad: {
+    effects: ["transmutacion", "control", "invocacion"],
+    activations: ["activa", "pasiva"],
+    moments: ["fuera_combate", "ambos"],
+  },
+  movimiento: {
+    effects: ["movimiento"],
+    activations: ["activa"],
+    moments: ["combate", "ambos"],
+  },
+};
+
+/**
+ * Peso base de complejidad por tipo de efecto (eje potencia del costo fino).
+ * Un efecto con más "información impresa" en el mundo cuesta más (£§ Fase D).
+ */
+const EFFECT_WEIGHTS = {
+  dano: 1,
+  sanacion: 1.2,
+  escudo: 1.2,
+  aura: 1.4,
+  movimiento: 1.3,
+  control: 1.4,
+  invocacion: 1.6,
+  imbuicion: 1.3,
+  regeneracion: 1.5,
+  transmutacion: 1.8,
+};
+
+/**
+ * Peso de fineza por target (eje control fino del costo fino).
+ * Apuntar a área u aliados exige más control que golpear al propio lanzador.
+ */
+const TARGET_WEIGHTS = {
+  propio: 0,
+  enemigo: 1,
+  aliado: 2,
+  area: 3,
+};
+
+/**
+ * Canal de daño derivado de la naturaleza (regla de oro §5):
+ *   material → físico (DEF)
+ *   conceptual → mágico (r_fulgor)
+ *   elemental → mágico (o físico si el componente es material)
+ *   primordial → según manifestación (default mágico)
+ * El motor usa este canal para resolver el daño (§5).
+ */
+const CHANNEL_BY_NATURE = {
+  material: "fisico",
+  conceptual: "magico",
+  elemental: "magico",
+  primordial: "magico",
+};
+
+// ══════════════════════════════════════════
+// SPELL COST FINE (costo fino — Fase D)
+// El poder de un hechizo se mide por complejidad, NO por daño ni naturaleza:
+//   costoFino = potencia (poder bruto) + fineza (control fino)
+// Derivados automáticos: fulgorCost, tier, dominioReq (el jugador NO los elige).
+// ══════════════════════════════════════════
+
+/** Peso inicial del eje "potencia" (poder bruto) en el costo fino — calibrar en el laboratorio */
+const SPELL_POTENCIA_WEIGHT = 1.0;
+
+/** Peso inicial del eje "fineza" (control fino) en el costo fino — calibrar en el laboratorio */
+const SPELL_FINEZA_WEIGHT = 1.0;
+
+/**
+ * Peso por elemento extra sostenido en potencia: un hechizo que mantiene varios
+ * elementos a la vez exige más poder bruto (potencia += (elementos únicos − 1) × este).
+ */
+const SPELL_ELEMENT_POWER_WEIGHT = 1.0;
+
+/** Referencia de alcance para el eje fineza (fineza += range / RANGE_REF) */
+const RANGE_REF = 5;
+
+/** Referencia de tiempo de casteo para el descuento de fulgorCost (f_cast = CAST_REF / castTime) */
+const CAST_REF = 1;
+
+/** Referencia de cooldown para el descuento de fulgorCost (f_cd = CD_REF / (CD_REF + cooldown)) */
+const CD_REF = 10;
+
+/**
+ * Peso de estructura del efecto en el eje fineza (complejidad de "información impresa"
+ * en el mundo). Enum cerrado, independiente del elemento/naturaleza.
+ * creación > ilusión > alteración > utilidad > destrucción (destrucción = 0).
+ * @type {Record<string, number>}
+ */
+const RESULT_TYPE_WEIGHTS = {
+  destruccion: 0,
+  utilidad: 2,
+  alteracion: 4,
+  ilusion: 6,
+  creacion: 8,
+};
+
+/**
+ * Brackets de tier del hechizo derivados del costoFino CRUDO (antes de descuentos).
+ * @type {{max: number, tier: string}[]}
+ */
+const SPELL_TIER_BRACKETS = [
+  { max: 9, tier: "E" },
+  { max: 15, tier: "D" },
+  { max: 24, tier: "C" },
+  { max: 35, tier: "B" },
+  { max: 50, tier: "A" },
+  { max: Infinity, tier: "S" },
+];
+
+/**
+ * Dominio (d_fulgor) requerido para lanzar a plenitud un hechizo de ese tier.
+ * Si el dominio no alcanza → lanzamiento degradado (min(1, d_fulgor/req)), nunca se prohíbe.
+ * @type {Record<string, number>}
+ */
+const SPELL_DOMINIO_REQ = { E: 0, D: 10, C: 20, B: 40, A: 60, S: 80 };
+
+// ══════════════════════════════════════════
 // STAT NORMALIZATION DEFAULTS
 // ══════════════════════════════════════════
 
@@ -355,10 +606,43 @@ const SIM_STAT_BASE = 1;
 module.exports = {
   // Damage
   DAMAGE_DEFENSE_SCALE,
-  DAMAGE_DEFENSE_SCALE,
   DEF_MITIGATION_CAP,
   DAMAGE_MIN,
   BLOCK_REDUCTION,
+
+  // Magic channel
+  FULGOR_ATK_SCALE,
+  MAGIC_DEFENSE_SCALE,
+  DOMINIO_REF,
+  FULGOR_COST_BASE,
+  FULGOR_DILUTED_MIN,
+
+  // Spell forge
+  MAX_HITS_PER_SPELL,
+  MAX_ACTIVE_SKILLS,
+
+  // Spell forge tree (árbol de forja — Fase D)
+  SPELL_NATURES,
+  SPELL_ROLES,
+  EFFECT_TYPES,
+  EFFECT_TARGETS,
+  ACTIVATIONS,
+  MOMENTS,
+  TARGETS,
+  EFFECT_WEIGHTS,
+  TARGET_WEIGHTS,
+  CHANNEL_BY_NATURE,
+
+  // Spell cost fine (costo fino — Fase D)
+  SPELL_POTENCIA_WEIGHT,
+  SPELL_FINEZA_WEIGHT,
+  SPELL_ELEMENT_POWER_WEIGHT,
+  RANGE_REF,
+  CAST_REF,
+  CD_REF,
+  RESULT_TYPE_WEIGHTS,
+  SPELL_TIER_BRACKETS,
+  SPELL_DOMINIO_REQ,
 
   // Distance
   MAX_DISTANCE,

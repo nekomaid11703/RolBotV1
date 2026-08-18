@@ -5,6 +5,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- **Canal mágico (Fase A)**: nueva naturaleza de daño `mágico` en `calculateWeaponDamage` (usar fulgor del atacante), batería de fulgor inicializada en sesiones (`resolveSessionFulgor`), coste de lanzamiento por dominio (`getCastCost`) y perillas centralizadas en `combatBalance.js` (`FULGOR_ATK_SCALE`, `MAGIC_DEFENSE_SCALE`, `DOMINIO_REF`, `FULGOR_COST_BASE`, `FULGOR_DILUTED_MIN`).
+- Tests: `tests/magic_channel.test.js` (18 casos) cubriendo naturaleza mágico, mitigación por `r_fulgor`, coste y batería.
+
+### Changed
+
+- Corregido duplicado `DAMAGE_DEFENSE_SCALE` en `combatBalance.js` (error de lint pre-existente).
+
+### Added (Fase B)
+
+- **Forja backend**: módulo de hechizo `src/data/itemCategories/spell.js` (triggers `Attack`, payload de hits ordenados) registrado en el registry, y `src/services/rpg/skillForgeService.js` con `validateSpellRecipe`, `buildSpellDefinition`, `refineSpell` y `fingerprintSpell` (detección de duplicados por hash normalizado). Nuevas perillas `MAX_HITS_PER_SPELL` y `MAX_ACTIVE_SKILLS`.
+- **Dummy mágico**: `ARCANE_DUMMY_LOADOUT` + `buildDummyEquipment(loadout)` parametrizado, `generateDummyCharacter` con garantía de batería mínima (`minFulgor`) y reconocimiento del módulo `spell` en `resolveAttackerWeapon` (naturaleza mágico + `fulgorCost`). `dummyTurnService` aplica coste/batería diluida (`getCastEfficiency`).
+- Semilla del catálogo arcano: `src/data/arcaneFamily.js` (hechizo "Doom" construido vía forja).
+- Tests: `tests/skill_forge.test.js` (23 casos) y `tests/dummy_arcane.test.js` (7 casos).
+
+### Added (Fase C)
+
+- **Equipamiento de mago**: módulo de foco `src/data/itemCategories/focus.js` (`type "focus"`, `slotHeld` 1h/2h, `spellIds` cargados, `canalizeScale`) registrado en el registry y `getSpellStats` en `itemStatService.js` (canalizeBase = espejo de baseDamage, palanca de obsolescencia P2).
+- **Catálogo arcano completo** en `arcaneFamily.js`: `baculo_de_roble` (focus 2h → Doom), `varita_de_caoba` (focus 1h), `tunica_de_mago` (armor pecho + buff `d_fulgor`), `amuleto_de_fulgor` (artifact + buff `fulgor`) y `grimorio_de_tapa_negra` (special, no equipable).
+- **Equipamiento de focos**: `EQUIPMENT_SLOTS` acepta `focus` en ambas manos, `resolveDefaultSlot`/`equipItem` respetan la regla 2h (marcador `__2h:` en `mano_izq`), y `resolveAttackerWeapon` reconoce el módulo `focus` canalizando el hechizo cargado (o cae a desarmado si no hay ninguno).
+- **Motor**: la naturaleza `mágico` suma el `canalizeBase` del foco como término plano y aplica `canalizeScale` como palanca fina.
+- Tests: `tests/item_catalog.test.js` (16 casos) cubriendo catálogo, focus stats, grimorio no equipable y regla 2h/1h.
+
 ## [1.6.0] - 2026-08-04
 
 ### Added

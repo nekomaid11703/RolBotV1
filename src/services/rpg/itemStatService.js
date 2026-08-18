@@ -106,6 +106,35 @@ function getArtifactStats(def) {
 }
 
 /**
+ * Resuelve la estadística de canalización de un foco a partir de su definición.
+ * Espejo de `baseDamage` de las armas: usa la conducción mágica del material
+ * como palanca (materialData.js) × multiplicador de tier. El foco es el único
+ * término plano/multiplicador del canal mágico → obsolescencia programada (P2).
+ * @param {import("./itemFactory").ItemDefinition} def - ItemDefinition (focus)
+ * @returns {object} { canalizeBase, slotHeld, spellIds, tier, canalizeScale }
+ */
+function getSpellStats(def) {
+  const tier = normalizeTier(def.tier || "E");
+  const mat = getMaterialStats(def.material || "madera", tier);
+  const focus = def.modules?.focus || {};
+
+  // getMaterialStats ya aplica el multiplicador de tier a conduccion_magica;
+  // aquí solo se combina con el canalizeScale del foco (palanca fina de balance).
+  const canalizeBase = Math.max(
+    1,
+    Math.round((Number(focus.canalizeScale) || 1) * (mat.conduccion_magica / EDGE_SCALE)),
+  );
+
+  return {
+    canalizeBase,
+    slotHeld: focus.slotHeld || "1h",
+    spellIds: Array.isArray(focus.spellIds) ? focus.spellIds : [],
+    tier,
+    canalizeScale: focus.canalizeScale || 1,
+  };
+}
+
+/**
  * Resuelve el coste de materiales de un ítem a partir de su tier y rareza.
  * Solo devuelve la fórmula base (sin receta de crafteo todavía).
  * @param {import("./itemFactory").ItemDefinition} def - ItemDefinition (normalizada)
@@ -142,5 +171,6 @@ module.exports = {
   getProjectileStats,
   getArmorStats,
   getArtifactStats,
+  getSpellStats,
   getMaterialCost,
 };

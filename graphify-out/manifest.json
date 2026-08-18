@@ -670,7 +670,7 @@
     "semantic_hash": ""
   },
   "src/commands/rpg/combat/atacar.js": {
-    "mtime": 1786043727.2633858,
+    "mtime": 1786208732.4387436,
     "ast_hash": "d03ad0b276b79e3a39c43cfdca0cf516",
     "semantic_hash": ""
   },
@@ -695,8 +695,8 @@
     "semantic_hash": ""
   },
   "src/config/combatConfig.js": {
-    "mtime": 1786160253.660261,
-    "ast_hash": "85903999934326135b51493b7c59d918",
+    "mtime": 1786498237.1216483,
+    "ast_hash": "5feb90122f47c3396cb8e5b42fdd8c9e",
     "semantic_hash": ""
   },
   "src/config/inventoryConfig.js": {
@@ -705,8 +705,8 @@
     "semantic_hash": ""
   },
   "src/data/items.js": {
-    "mtime": 1785857110.8539097,
-    "ast_hash": "6b0f13fe75eaf6d76b2cd26e3db90447",
+    "mtime": 1786732370.12995,
+    "ast_hash": "2cf652175cc9dc932a0b64003984eb08",
     "semantic_hash": ""
   },
   "src/database/migrations/001_create_inventory.sql": {
@@ -715,8 +715,8 @@
     "semantic_hash": ""
   },
   "src/services/rpg/combatEngine.js": {
-    "mtime": 1786160145.5592587,
-    "ast_hash": "5da584fce1c545c45ea4d68188301718",
+    "mtime": 1786741638.8717692,
+    "ast_hash": "e123dcea47686e7c781369bb69ba9742",
     "semantic_hash": ""
   },
   "src/services/rpg/combatMessages.js": {
@@ -725,8 +725,8 @@
     "semantic_hash": ""
   },
   "src/services/rpg/combatState.js": {
-    "mtime": 1785871731.7199216,
-    "ast_hash": "4e671316919d3d3fafa472290d443eca",
+    "mtime": 1787075386.9398077,
+    "ast_hash": "9543e3ded863c14f553fa76e540d2026",
     "semantic_hash": ""
   },
   "src/services/rpg/inventoryService.js": {
@@ -820,7 +820,7 @@
     "semantic_hash": ""
   },
   "tests/combat_state.test.js": {
-    "mtime": 1785857113.7840557,
+    "mtime": 1787075414.4173667,
     "ast_hash": "3f18e1f4c3e2efa4981f644411cc76dc",
     "semantic_hash": ""
   },
@@ -840,8 +840,8 @@
     "semantic_hash": ""
   },
   "src/services/rpg/fatigueEngine.js": {
-    "mtime": 1786147322.8788683,
-    "ast_hash": "d5a8dc29caf80ce02f8d138e330de25c",
+    "mtime": 1786499552.8048904,
+    "ast_hash": "d63617fad48af3fbe8febbe8de86fd8e",
     "semantic_hash": ""
   },
   "tests/fatigue_engine.test.js": {
@@ -860,43 +860,43 @@
     "semantic_hash": ""
   },
   "scripts/simulate_combat/aggregator.js": {
-    "mtime": 1786024634.3930845,
-    "ast_hash": "c209245f23d5f11b8de7791f6b07dd16",
+    "mtime": 1786208726.385606,
+    "ast_hash": "3f4ec8352a4e890a59e69c1f46ff2261",
     "semantic_hash": ""
   },
   "scripts/simulate_combat/combatLoop.js": {
-    "mtime": 1786161696.7002296,
-    "ast_hash": "d912722ee0e451bcb274ef066a16034e",
+    "mtime": 1786208726.4106202,
+    "ast_hash": "b4363926747e6ef0a912756a771d49af",
     "semantic_hash": ""
   },
   "scripts/simulate_combat/config.js": {
-    "mtime": 1786142493.071386,
-    "ast_hash": "b249d7f5e03bd09180789752838c8ce9",
+    "mtime": 1786208726.439616,
+    "ast_hash": "7be76bb0b2834ed664f59565d31185c1",
     "semantic_hash": ""
   },
   "scripts/simulate_combat/fighterGenerator.js": {
-    "mtime": 1786139153.439714,
-    "ast_hash": "8e0c25982b2f6d5794c7aedd026257df",
+    "mtime": 1786208726.4526086,
+    "ast_hash": "09c1cb4dbecdda6f4cc8f33030063d7b",
     "semantic_hash": ""
   },
   "scripts/simulate_combat/formatters.js": {
-    "mtime": 1786024650.5741925,
-    "ast_hash": "b7f0e337f3dd415a19a5ec61eb4e801c",
+    "mtime": 1786208726.457625,
+    "ast_hash": "f87993f6861dea1e9245e441e1bff352",
     "semantic_hash": ""
   },
   "scripts/simulate_combat/metricsCollector.js": {
-    "mtime": 1786024587.8584926,
-    "ast_hash": "4431cf9d8a1cc1571990e74b2471ba7d",
+    "mtime": 1786208726.4716165,
+    "ast_hash": "b3a040f2b3704a52bb47286e275e2c3d",
     "semantic_hash": ""
   },
   "scripts/simulation_output/raw_data.json": {
-    "mtime": 1786042688.1501713,
-    "ast_hash": "c489cef1f4dc72114363c6b18d7da6e0",
+    "mtime": 1786208732.4157422,
+    "ast_hash": "3ea499cae996330d8e674994c7996eda",
     "semantic_hash": ""
   },
   "scripts/simulation_output/report.md": {
-    "mtime": 1786042688.1681714,
-    "ast_hash": "40629e88517252f2bc2358ee5f4db3fb",
+    "mtime": 1786208732.4317446,
+    "ast_hash": "1ef78724b938e23534b3e660ad091f53",
     "semantic_hash": ""
   },
   "src/utils/quantityUtils.js": {
@@ -930,8 +930,8 @@
     "semantic_hash": ""
   },
   "src/data/itemCategories/index.js": {
-    "mtime": 1785857110.8379087,
-    "ast_hash": "c9ad046325f1201883e60ffabaee3cc5",
+    "mtime": 1786500711.8806057,
+    "ast_hash": "34a453a3f47ab47bf36512f9861baa24",
     "semantic_hash": ""
   },
   "src/services/rpg/itemService.js": {
@@ -1000,18 +1000,18 @@
     "semantic_hash": ""
   },
   "src/commands/rpg/combat/avanzar.js": {
-    "mtime": 1786043465.5118089,
+    "mtime": 1786208732.4517424,
     "ast_hash": "cb14c36cd340aac6e496f98476e97352",
     "semantic_hash": ""
   },
   "src/commands/rpg/combat/retroceder.js": {
-    "mtime": 1786043501.1611097,
+    "mtime": 1786208732.4547422,
     "ast_hash": "2ec670bfd5e247fdad9b4ad0a122f887",
     "semantic_hash": ""
   },
   "src/config/combatBalance.js": {
-    "mtime": 1786160326.0404997,
-    "ast_hash": "aed9cba0282b1d6542d57c53901d6795",
+    "mtime": 1786740046.4532664,
+    "ast_hash": "2d4cf29fd2e48624b4a20b0530a6521c",
     "semantic_hash": ""
   },
   "src/utils/randomUtils.js": {
@@ -1020,7 +1020,7 @@
     "semantic_hash": ""
   },
   "tests/distance_mechanic.test.js": {
-    "mtime": 1786142735.9531293,
+    "mtime": 1786208732.5167482,
     "ast_hash": "9b26a1ed3bfe859539e740f437eff302",
     "semantic_hash": ""
   },
@@ -1055,8 +1055,8 @@
     "semantic_hash": ""
   },
   "src/data/itemCategories/durability.js": {
-    "mtime": 1785857110.8299081,
-    "ast_hash": "beefa0546b6b85c8c562eacf055225dd",
+    "mtime": 1786208732.4717436,
+    "ast_hash": "de13c5045f13438b5e601b6246ba4970",
     "semantic_hash": ""
   },
   "src/data/itemCategories/weapon.js": {
@@ -1065,12 +1065,12 @@
     "semantic_hash": ""
   },
   "src/data/materialData.js": {
-    "mtime": 1785857110.8619213,
-    "ast_hash": "2045daf34f2855be7d3a5aff59df2156",
+    "mtime": 1786741571.8129258,
+    "ast_hash": "fd352e440e210f8e4abea2ccdb897638",
     "semantic_hash": ""
   },
   "tests/damage_natures.test.js": {
-    "mtime": 1786160539.6657453,
+    "mtime": 1786208732.5107539,
     "ast_hash": "8172bbbe12fab50ee1ef41fa02e52de6",
     "semantic_hash": ""
   },
@@ -1095,8 +1095,8 @@
     "semantic_hash": ""
   },
   "src/services/rpg/equipmentService.js": {
-    "mtime": 1785857112.154567,
-    "ast_hash": "017a9e6ef9f16d0dc22ae67292304a39",
+    "mtime": 1786500785.4108095,
+    "ast_hash": "ba054599e6b2de342404727977f632fa",
     "semantic_hash": ""
   },
   "tests/equipment_service.test.js": {
@@ -1130,7 +1130,7 @@
     "semantic_hash": ""
   },
   "src/services/rpg/armorSetService.js": {
-    "mtime": 1786147333.1249175,
+    "mtime": 1786208732.4757524,
     "ast_hash": "b3aea2dab3520d3988af8b61443ec576",
     "semantic_hash": ""
   },
@@ -1140,18 +1140,18 @@
     "semantic_hash": ""
   },
   "src/services/rpg/equipmentResolverService.js": {
-    "mtime": 1786139085.7332182,
-    "ast_hash": "7d4d8d8d0af5441704a735e296582e02",
+    "mtime": 1786741640.1383007,
+    "ast_hash": "61532133edc68c72dc2e06ffe9d9e010",
     "semantic_hash": ""
   },
   "src/services/rpg/itemFactory.js": {
-    "mtime": 1785871731.7339246,
-    "ast_hash": "ec96fc23cb5b3dd2f9de8aea047a31a3",
+    "mtime": 1786741640.416613,
+    "ast_hash": "31bd142cc1359002f9787012ad790f44",
     "semantic_hash": ""
   },
   "src/services/rpg/itemStatService.js": {
-    "mtime": 1786139560.6121874,
-    "ast_hash": "094a517217c3007fefaadcdb4ef2a0d2",
+    "mtime": 1786501269.5881557,
+    "ast_hash": "4f0bf595f3feb72a8f0ea824abee8bf8",
     "semantic_hash": ""
   },
   "tests/armor_set.test.js": {
@@ -1175,13 +1175,13 @@
     "semantic_hash": ""
   },
   "tests/item_stat_service.test.js": {
-    "mtime": 1786139497.7048545,
+    "mtime": 1786208732.5197432,
     "ast_hash": "d6259ffa4d7898a4cade5c112ddfa00e",
     "semantic_hash": ""
   },
   "memory/decisions.md": {
-    "mtime": 1785857105.4186163,
-    "ast_hash": "a2b02b9e7d2959d9d8d1bace313d0f39",
+    "mtime": 1787069233.74,
+    "ast_hash": "6aa684980d1de4ca18c5480a009658ac",
     "semantic_hash": ""
   },
   "memory/plans/item_system_engine.md": {
@@ -1190,8 +1190,8 @@
     "semantic_hash": ""
   },
   "memory/technical_debt.md": {
-    "mtime": 1785878846.711231,
-    "ast_hash": "c602ab3507fc12dc17d8777a8f557561",
+    "mtime": 1786498237.1216483,
+    "ast_hash": "f2f1dc3be1046165b729adf58c0b013e",
     "semantic_hash": ""
   },
   "src/data/armorSets.js": {
@@ -1200,8 +1200,8 @@
     "semantic_hash": ""
   },
   "src/data/ironFamily.js": {
-    "mtime": 1785857110.7040195,
-    "ast_hash": "a73d418969864cbacd72419783821ca3",
+    "mtime": 1786209677.252359,
+    "ast_hash": "6bd96b881bdcb91592a10c17fa08475c",
     "semantic_hash": ""
   },
   "src/data/itemCategories/throwable.js": {
@@ -1210,13 +1210,13 @@
     "semantic_hash": ""
   },
   "tests/iron_family.test.js": {
-    "mtime": 1785871733.3158233,
-    "ast_hash": "27201f74cc804870c233d8acbe7e8ba6",
+    "mtime": 1786209687.0399513,
+    "ast_hash": "686381e6750609f0e399d3c6da315ae0",
     "semantic_hash": ""
   },
   "src/services/rpg/dummyEquipment.js": {
-    "mtime": 1785871731.7299137,
-    "ast_hash": "316112e7667567ddbbacffc712ed329a",
+    "mtime": 1786741639.1186738,
+    "ast_hash": "54be9a85e9e0905badd15a37fd2e7966",
     "semantic_hash": ""
   },
   "tests/dummy_equipment.test.js": {
@@ -1300,8 +1300,8 @@
     "semantic_hash": ""
   },
   "tests/supabase_auth_state.test.js": {
-    "mtime": 1785871733.6319163,
-    "ast_hash": "332337f1f187a8d96182e641339b84d8",
+    "mtime": 1786741190.998537,
+    "ast_hash": "28d5fe0c4da07f3981281b891aa363a6",
     "semantic_hash": ""
   },
   "AUDITORIA_COMPLETA.md": {
@@ -1355,13 +1355,13 @@
     "semantic_hash": ""
   },
   "scripts/simulate_combat/audit.js": {
-    "mtime": 1786045706.9279878,
-    "ast_hash": "d867d0b53f02d2a390db138413259d5b",
+    "mtime": 1786208726.4036129,
+    "ast_hash": "ffd0b78cf0f08841604989dc846348ff",
     "semantic_hash": ""
   },
   "scripts/simulate_combat/run_experiments.js": {
-    "mtime": 1786128734.6599414,
-    "ast_hash": "50c26319b0a23814c17cd29b61d8371c",
+    "mtime": 1786208726.4826095,
+    "ast_hash": "d98ab366607b22c3484e15c741f5f18b",
     "semantic_hash": ""
   },
   "scripts/simulation_output/experiments/exp_fat_atk_025_overrides.json": {
@@ -1375,8 +1375,8 @@
     "semantic_hash": ""
   },
   "scripts/simulation_output/audit_report.md": {
-    "mtime": 1786030391.22517,
-    "ast_hash": "2f8dbbf3ca27a264122061535a4db75d",
+    "mtime": 1786208726.8356152,
+    "ast_hash": "6981f4e0341b460523a64a56090084d7",
     "semantic_hash": ""
   },
   "scripts/simulation_output/experiments/exp_fat_atk_025_report.md": {
@@ -1385,8 +1385,8 @@
     "semantic_hash": ""
   },
   "scripts/simulate_combat/run_equipment_experiments.js": {
-    "mtime": 1785938394.6852121,
-    "ast_hash": "b9b565868739c855480f00be708cf8ba",
+    "mtime": 1786208726.478623,
+    "ast_hash": "965f16327576b0d9bfdf5af63f9ecc1e",
     "semantic_hash": ""
   },
   "scripts/simulation_output/experiments/equip_amuleto_off_raw.json": {
@@ -1405,8 +1405,8 @@
     "semantic_hash": ""
   },
   "scripts/simulation_output/experiments/equip_cobertura_ligera_raw.json": {
-    "mtime": 1786025331.2413628,
-    "ast_hash": "b11ce5756023109852b343ffd7b39407",
+    "mtime": 1786208726.851614,
+    "ast_hash": "ca8110e206d5145d31d7733e177b4891",
     "semantic_hash": ""
   },
   "scripts/simulation_output/experiments/equip_cobertura_media_raw.json": {
@@ -1430,18 +1430,18 @@
     "semantic_hash": ""
   },
   "scripts/simulation_output/experiments/equip_naturaleza_espada_raw.json": {
-    "mtime": 1785938461.6142259,
-    "ast_hash": "30274f56ed57a10762d398f1f3ba0255",
+    "mtime": 1786208727.6006193,
+    "ast_hash": "36d724438a78e8bdbdc130f805093eda",
     "semantic_hash": ""
   },
   "scripts/simulation_output/experiments/equip_naturaleza_estoque_raw.json": {
-    "mtime": 1785938466.0762024,
-    "ast_hash": "4b5b37e1e1aeebc5e719b721897d09ed",
+    "mtime": 1786208729.07709,
+    "ast_hash": "701fb4e5b87004894e363735d7288a17",
     "semantic_hash": ""
   },
   "scripts/simulation_output/experiments/equip_naturaleza_maza_raw.json": {
-    "mtime": 1785938469.5468996,
-    "ast_hash": "50a6b8318ca3a642ae0d328af9fd67db",
+    "mtime": 1786208729.502074,
+    "ast_hash": "5b80ce917119a8cc2f91c367a56e06c5",
     "semantic_hash": ""
   },
   "scripts/simulation_output/experiments/equip_set_off_raw.json": {
@@ -1465,8 +1465,8 @@
     "semantic_hash": ""
   },
   "scripts/simulation_output/experiments/equip_tier_e_raw.json": {
-    "mtime": 1786025330.4266937,
-    "ast_hash": "4c26ad905fca32370387ec35bbc3138a",
+    "mtime": 1786208730.279081,
+    "ast_hash": "e50fefeb514eaff08dab519e208cc82e",
     "semantic_hash": ""
   },
   "docs/item_creation_guide.md": {
@@ -1490,8 +1490,8 @@
     "semantic_hash": ""
   },
   "scripts/simulation_output/experiments/equip_cobertura_ligera_report.md": {
-    "mtime": 1786025331.2463505,
-    "ast_hash": "0746686d34dc7065dc3eb5ba2a51d857",
+    "mtime": 1786208726.8546124,
+    "ast_hash": "482fc8e659eaa35e9e56edf3869e701d",
     "semantic_hash": ""
   },
   "scripts/simulation_output/experiments/equip_cobertura_media_report.md": {
@@ -1515,18 +1515,18 @@
     "semantic_hash": ""
   },
   "scripts/simulation_output/experiments/equip_naturaleza_espada_report.md": {
-    "mtime": 1785938461.623209,
-    "ast_hash": "bc90161a227cf0ecc13ffa9fa03011c9",
+    "mtime": 1786208727.6046057,
+    "ast_hash": "b660cfd6f24049e9f267334bc53522dc",
     "semantic_hash": ""
   },
   "scripts/simulation_output/experiments/equip_naturaleza_estoque_report.md": {
-    "mtime": 1785938466.08921,
-    "ast_hash": "57861a8ea383fe55aa9157ea881dd3f4",
+    "mtime": 1786208729.0860655,
+    "ast_hash": "06333f85e0ac65d7199bc3347325ab02",
     "semantic_hash": ""
   },
   "scripts/simulation_output/experiments/equip_naturaleza_maza_report.md": {
-    "mtime": 1785938469.556874,
-    "ast_hash": "d34b0f03cc7e364bbdf55109bdbea8da",
+    "mtime": 1786208729.5180905,
+    "ast_hash": "54954002df9e14a0f11761478e003116",
     "semantic_hash": ""
   },
   "scripts/simulation_output/experiments/equip_set_off_report.md": {
@@ -1550,8 +1550,8 @@
     "semantic_hash": ""
   },
   "scripts/simulation_output/experiments/equip_tier_e_report.md": {
-    "mtime": 1786025330.4376917,
-    "ast_hash": "5155b476acf3f92623b6f5c98824172a",
+    "mtime": 1786208730.4200742,
+    "ast_hash": "a34d2aaa70ae116f0c2619475446fb8d",
     "semantic_hash": ""
   },
   "scripts/simulation_output/experiments/fat_a10_overrides.json": {
@@ -1790,8 +1790,8 @@
     "semantic_hash": ""
   },
   "src/services/rpg/dummyTurnService.js": {
-    "mtime": 1786044211.038026,
-    "ast_hash": "73d0552df6318651eb8403b01edf5568",
+    "mtime": 1786741639.2597418,
+    "ast_hash": "3575cf44a7d6edb16d8703463d7a890e",
     "semantic_hash": ""
   },
   "tests/movement_turn_consume.test.js": {
@@ -2645,13 +2645,13 @@
     "semantic_hash": ""
   },
   "scripts/simulate_combat/run_phase_c.js": {
-    "mtime": 1786194865.804005,
-    "ast_hash": "0f3515b79ab7184cb2356b8098256924",
+    "mtime": 1786203944.0893128,
+    "ast_hash": "7c0ebb2fe9e24f1d2c4b33f7e4cf1a57",
     "semantic_hash": ""
   },
   "scripts/simulation_output/experiments/phase_c_lv300_nivelado_B_raw.json": {
-    "mtime": 1786194920.2420423,
-    "ast_hash": "35c415a94f325ae64aacf483a328527b",
+    "mtime": 1786197422.4558697,
+    "ast_hash": "7d5237e9b62c986247fd72276f294259",
     "semantic_hash": ""
   },
   "scripts/simulation_output/experiments/phase_c_lv500_nivelado_B_raw.json": {
@@ -2660,13 +2660,393 @@
     "semantic_hash": ""
   },
   "scripts/simulation_output/experiments/phase_c_lv300_nivelado_B_report.md": {
-    "mtime": 1786194920.0980487,
-    "ast_hash": "7c7a29ed398d892151477af6943ad705",
+    "mtime": 1786197422.398877,
+    "ast_hash": "7fe7df034d550837c6e5fc62cdcd2a42",
     "semantic_hash": ""
   },
   "scripts/simulation_output/experiments/phase_c_lv500_nivelado_B_report.md": {
     "mtime": 1786195054.4321527,
     "ast_hash": "3d4c8d8a2515a94f5624910660aa71a5",
+    "semantic_hash": ""
+  },
+  "scripts/simulate_combat/experimentalArmor.js": {
+    "mtime": 1786203962.236101,
+    "ast_hash": "902ec61388f7e1175d20cb98d1874bd1",
+    "semantic_hash": ""
+  },
+  "scripts/simulate_combat/run_armor_modes.js": {
+    "mtime": 1786404041.6481888,
+    "ast_hash": "1dd73e24f0124c194ac927f47606894b",
+    "semantic_hash": ""
+  },
+  "scripts/simulation_output/experiments/armor_modes_100_actual_def_soak_overflow_full_raw.json": {
+    "mtime": 1786204193.6300778,
+    "ast_hash": "faec29658e9a01398c4df4f9c6684f1c",
+    "semantic_hash": ""
+  },
+  "scripts/simulation_output/experiments/armor_modes_100_actual_overflow_full_raw.json": {
+    "mtime": 1786204688.7143042,
+    "ast_hash": "762756cff27f794ff1817779dc2ece32",
+    "semantic_hash": ""
+  },
+  "scripts/simulation_output/experiments/armor_modes_full_raw.json": {
+    "mtime": 1786204911.894326,
+    "ast_hash": "f4babd31e80ada8643956891f28b79c8",
+    "semantic_hash": ""
+  },
+  "scripts/simulation_output/experiments/it2_acero_a_raw.json": {
+    "mtime": 1786210387.8613958,
+    "ast_hash": "56b23ec405e1c2f1ad3760516639462c",
+    "semantic_hash": ""
+  },
+  "scripts/simulation_output/experiments/it2_acero_raw.json": {
+    "mtime": 1786210078.585924,
+    "ast_hash": "7494bb4fb17897bcc8cc4702040309bc",
+    "semantic_hash": ""
+  },
+  "scripts/simulation_output/experiments/it2_acero_vs_piedra_raw.json": {
+    "mtime": 1786210831.578781,
+    "ast_hash": "e6082da405293b65b05a9b13afd6670e",
+    "semantic_hash": ""
+  },
+  "scripts/simulation_output/experiments/it2_acero_vs_piedra_tierD_raw.json": {
+    "mtime": 1786404077.4995542,
+    "ast_hash": "dceed7d088e1bf3de83f830b7655f0a1",
+    "semantic_hash": ""
+  },
+  "scripts/simulation_output/experiments/it2_adamantita_a_raw.json": {
+    "mtime": 1786210426.1474466,
+    "ast_hash": "af8841b2e322ea1b6780ce449d0920b9",
+    "semantic_hash": ""
+  },
+  "scripts/simulation_output/experiments/it2_adamantita_raw.json": {
+    "mtime": 1786210109.4375534,
+    "ast_hash": "0851903ba074860e1307ce9bd1f92e6a",
+    "semantic_hash": ""
+  },
+  "scripts/simulation_output/experiments/it2_barrido_fino_raw.json": {
+    "mtime": 1786404200.6452053,
+    "ast_hash": "4fdd1491da0b2d2c059c359ed461dc0b",
+    "semantic_hash": ""
+  },
+  "scripts/simulation_output/experiments/it2_dbg_cruz_raw.json": {
+    "mtime": 1786210924.0142148,
+    "ast_hash": "fd0498092dc5b2f447795ef1a6595e6c",
+    "semantic_hash": ""
+  },
+  "scripts/simulation_output/experiments/it2_luminita_a_raw.json": {
+    "mtime": 1786210436.4617758,
+    "ast_hash": "6d3cfd719176c97547b09e65ed3adf81",
+    "semantic_hash": ""
+  },
+  "scripts/simulation_output/experiments/it2_luminita_raw.json": {
+    "mtime": 1786210112.0579762,
+    "ast_hash": "89941f58b163aa90bca972197047aa97",
+    "semantic_hash": ""
+  },
+  "scripts/simulation_output/experiments/it2_piedra_a_raw.json": {
+    "mtime": 1786210392.4395537,
+    "ast_hash": "03b947d93217e81caf12467cdc71a64a",
+    "semantic_hash": ""
+  },
+  "scripts/simulation_output/experiments/it2_piedra_raw.json": {
+    "mtime": 1786210080.669562,
+    "ast_hash": "48625625320950772230a2537c851436",
+    "semantic_hash": ""
+  },
+  "scripts/simulation_output/experiments/it2_piedra_vs_acero_inv_raw.json": {
+    "mtime": 1786403609.8586383,
+    "ast_hash": "8e9300c060618cfdd7b60c9a43dbd3be",
+    "semantic_hash": ""
+  },
+  "scripts/simulation_output/experiments/it2_platino250_verify_raw.json": {
+    "mtime": 1786210180.28941,
+    "ast_hash": "1aab6fc41dc1e4a16f1b5196e4bc235b",
+    "semantic_hash": ""
+  },
+  "scripts/simulation_output/experiments/it2_platino_a_raw.json": {
+    "mtime": 1786210438.6015356,
+    "ast_hash": "91a78c698046397cd1c0109fb3b47b8b",
+    "semantic_hash": ""
+  },
+  "scripts/simulation_output/experiments/it2_platino_actual_raw.json": {
+    "mtime": 1786210316.3897102,
+    "ast_hash": "a2c260120d46862e7672321cdef50f6f",
+    "semantic_hash": ""
+  },
+  "scripts/simulation_output/experiments/it2_platino_raw.json": {
+    "mtime": 1786210112.096985,
+    "ast_hash": "db6d310c719a2652d22183db6b426f58",
+    "semantic_hash": ""
+  },
+  "scripts/simulation_output/experiments/it2_titanio_a_raw.json": {
+    "mtime": 1786210442.291504,
+    "ast_hash": "4ae7ac76816fa0f9437e04a9ad5dd760",
+    "semantic_hash": ""
+  },
+  "scripts/simulation_output/experiments/it2_titanio_raw.json": {
+    "mtime": 1786209936.3259141,
+    "ast_hash": "73cab0f0d11a4a831d0b6ca32a4ec6ef",
+    "semantic_hash": ""
+  },
+  "scripts/simulation_output/experiments/phase_c_lv100_nivelado_B_acero_raw.json": {
+    "mtime": 1786204174.8059452,
+    "ast_hash": "c3f98ef480125adbf606f8d274511dbc",
+    "semantic_hash": ""
+  },
+  "scripts/simulation_output/experiments/real_engine_full_raw.json": {
+    "mtime": 1786206632.2285364,
+    "ast_hash": "65f21c4d967b5593d28290295fce06ea",
+    "semantic_hash": ""
+  },
+  "scripts/simulation_output/experiments/real_engine_matched_raw.json": {
+    "mtime": 1786207657.2810621,
+    "ast_hash": "1aa79b55d5ea65509617124ff11b24d0",
+    "semantic_hash": ""
+  },
+  "scripts/simulation_output/experiments/smoke_test_raw.json": {
+    "mtime": 1786196367.613626,
+    "ast_hash": "64a182352a2a1a2383da90cd6bee71f7",
+    "semantic_hash": ""
+  },
+  "scripts/simulation_output/experiments/verify_nonenone_raw.json": {
+    "mtime": 1786208155.3475187,
+    "ast_hash": "4c95739b50a6471e90210af642169b30",
+    "semantic_hash": ""
+  },
+  "scripts/simulation_output/experiments/armor_modes_100_actual_def_soak_overflow_full_report.md": {
+    "mtime": 1786204193.591644,
+    "ast_hash": "44cd4802a82a8fcfae071e07601a0898",
+    "semantic_hash": ""
+  },
+  "scripts/simulation_output/experiments/armor_modes_100_actual_overflow_full_report.md": {
+    "mtime": 1786204688.6832905,
+    "ast_hash": "529f88f1c03bac7d794b8266433ea37a",
+    "semantic_hash": ""
+  },
+  "scripts/simulation_output/experiments/armor_modes_full_report.md": {
+    "mtime": 1786204911.8563075,
+    "ast_hash": "82fcbac97c96fd407d24fd3e6a63dec7",
+    "semantic_hash": ""
+  },
+  "scripts/simulation_output/experiments/it2_acero_a_report.md": {
+    "mtime": 1786210387.8404136,
+    "ast_hash": "279d99d1f7399bab6f970e3d1081c7fb",
+    "semantic_hash": ""
+  },
+  "scripts/simulation_output/experiments/it2_acero_report.md": {
+    "mtime": 1786210078.5639198,
+    "ast_hash": "fd61c3b2c77952fdbf06a8401038baa4",
+    "semantic_hash": ""
+  },
+  "scripts/simulation_output/experiments/it2_acero_vs_piedra_report.md": {
+    "mtime": 1786210831.57278,
+    "ast_hash": "613c0ccbc720d47eaa4fe079f6a3ed96",
+    "semantic_hash": ""
+  },
+  "scripts/simulation_output/experiments/it2_acero_vs_piedra_tierD_report.md": {
+    "mtime": 1786404077.3895998,
+    "ast_hash": "2e524aae3d82284d266396a402eec7d2",
+    "semantic_hash": ""
+  },
+  "scripts/simulation_output/experiments/it2_adamantita_a_report.md": {
+    "mtime": 1786210426.1264393,
+    "ast_hash": "9b52098d75c481fb1540e04648a13c90",
+    "semantic_hash": ""
+  },
+  "scripts/simulation_output/experiments/it2_adamantita_report.md": {
+    "mtime": 1786210109.4295554,
+    "ast_hash": "d3b26f7387ec43092d87a1f9fc3490ed",
+    "semantic_hash": ""
+  },
+  "scripts/simulation_output/experiments/it2_barrido_fino_report.md": {
+    "mtime": 1786404200.4605036,
+    "ast_hash": "40c43e6ef6a8d6c04c05343c65233180",
+    "semantic_hash": ""
+  },
+  "scripts/simulation_output/experiments/it2_dbg_cruz_report.md": {
+    "mtime": 1786210923.832219,
+    "ast_hash": "f40f88e12cbfebbd1cc4d8e93ff50491",
+    "semantic_hash": ""
+  },
+  "scripts/simulation_output/experiments/it2_luminita_a_report.md": {
+    "mtime": 1786210436.4527757,
+    "ast_hash": "ac489c8e8bb370f945b1f27325f9adb6",
+    "semantic_hash": ""
+  },
+  "scripts/simulation_output/experiments/it2_luminita_report.md": {
+    "mtime": 1786210112.0519662,
+    "ast_hash": "481556d6fcd33f8e972398da7dc3f512",
+    "semantic_hash": ""
+  },
+  "scripts/simulation_output/experiments/it2_piedra_a_report.md": {
+    "mtime": 1786210392.4335518,
+    "ast_hash": "e2734047193bb316c65c816af23c90db",
+    "semantic_hash": ""
+  },
+  "scripts/simulation_output/experiments/it2_piedra_report.md": {
+    "mtime": 1786210080.6645646,
+    "ast_hash": "1d99753c59920b24d1e798731084d532",
+    "semantic_hash": ""
+  },
+  "scripts/simulation_output/experiments/it2_piedra_vs_acero_inv_report.md": {
+    "mtime": 1786403609.7551112,
+    "ast_hash": "487bd64036bac9846d9323f322fe5734",
+    "semantic_hash": ""
+  },
+  "scripts/simulation_output/experiments/it2_platino250_verify_report.md": {
+    "mtime": 1786210180.2784,
+    "ast_hash": "51574dd7194f74d595684e7dd260e714",
+    "semantic_hash": ""
+  },
+  "scripts/simulation_output/experiments/it2_platino_a_report.md": {
+    "mtime": 1786210438.5945325,
+    "ast_hash": "9525687f63cd96af28a2437c02285a5d",
+    "semantic_hash": ""
+  },
+  "scripts/simulation_output/experiments/it2_platino_actual_report.md": {
+    "mtime": 1786210316.3797228,
+    "ast_hash": "cc47ea609e94f53c16b74bdcc712ca2b",
+    "semantic_hash": ""
+  },
+  "scripts/simulation_output/experiments/it2_platino_report.md": {
+    "mtime": 1786210112.0509906,
+    "ast_hash": "7261b1f0f4d4416d721986adfcb0f9ba",
+    "semantic_hash": ""
+  },
+  "scripts/simulation_output/experiments/it2_titanio_a_report.md": {
+    "mtime": 1786210442.2855012,
+    "ast_hash": "1972a907e157bcfbd7a90df59ab906cb",
+    "semantic_hash": ""
+  },
+  "scripts/simulation_output/experiments/it2_titanio_report.md": {
+    "mtime": 1786209936.319914,
+    "ast_hash": "29cecdc644fc0f2674cd850fabc2eff4",
+    "semantic_hash": ""
+  },
+  "scripts/simulation_output/experiments/phase_c_lv100_nivelado_B_acero_report.md": {
+    "mtime": 1786204174.7849305,
+    "ast_hash": "bcb7169a717e793df2fd91a8fd779ada",
+    "semantic_hash": ""
+  },
+  "scripts/simulation_output/experiments/real_engine_full_report.md": {
+    "mtime": 1786206632.108531,
+    "ast_hash": "15009187d8dd8f3c4697c0ff2be8b486",
+    "semantic_hash": ""
+  },
+  "scripts/simulation_output/experiments/real_engine_matched_report.md": {
+    "mtime": 1786207657.226061,
+    "ast_hash": "1dec07d243456870f66bb2a693adcde1",
+    "semantic_hash": ""
+  },
+  "scripts/simulation_output/experiments/smoke_test_report.md": {
+    "mtime": 1786196367.563615,
+    "ast_hash": "66dbefa9ec19b17f122293794ac095a6",
+    "semantic_hash": ""
+  },
+  "scripts/simulation_output/experiments/verify_nonenone_report.md": {
+    "mtime": 1786208155.3065226,
+    "ast_hash": "acdaa932ec273c748ecff4e1c1502b28",
+    "semantic_hash": ""
+  },
+  "tests/magic_channel.test.js": {
+    "mtime": 1786741644.04063,
+    "ast_hash": "4724a7c3aadd4ec50db439d74f34d329",
+    "semantic_hash": ""
+  },
+  "src/data/arcaneFamily.js": {
+    "mtime": 1786741636.4293594,
+    "ast_hash": "46841e363bb7224fd44a8e937868d1ed",
+    "semantic_hash": ""
+  },
+  "src/data/itemCategories/spell.js": {
+    "mtime": 1786740122.001623,
+    "ast_hash": "df71ef4f0c9e87a338a69beb61e3046e",
+    "semantic_hash": ""
+  },
+  "src/services/rpg/skillForgeService.js": {
+    "mtime": 1786741640.6585221,
+    "ast_hash": "cb40cfd1c830f896e29d40aa01a24aaf",
+    "semantic_hash": ""
+  },
+  "tests/dummy_arcane.test.js": {
+    "mtime": 1786741642.6843934,
+    "ast_hash": "11dad8441181328c9559dd8d838d10ff",
+    "semantic_hash": ""
+  },
+  "tests/skill_forge.test.js": {
+    "mtime": 1786741644.4437056,
+    "ast_hash": "1916d42d57512f75812034f036edd36c",
+    "semantic_hash": ""
+  },
+  "src/data/itemCategories/focus.js": {
+    "mtime": 1786741636.928241,
+    "ast_hash": "ba9e4266ae5cbca1de3175f069a8ebc5",
+    "semantic_hash": ""
+  },
+  "tests/item_catalog.test.js": {
+    "mtime": 1786741643.757153,
+    "ast_hash": "bf05d4f883c1742f2e8a8457d7576391",
+    "semantic_hash": ""
+  },
+  "scripts/spell_lab/server.js": {
+    "mtime": 1786740781.1429448,
+    "ast_hash": "0d5aaf447961feb92dac46275975514f",
+    "semantic_hash": ""
+  },
+  "src/data/userSpells.js": {
+    "mtime": 1786741637.2576802,
+    "ast_hash": "c3af2c90d0cf63d2adcb791d1cf11b0f",
+    "semantic_hash": ""
+  },
+  "src/data/user_spells.json": {
+    "mtime": 1786740995.5196962,
+    "ast_hash": "d751713988987e9331980363e24189ce",
+    "semantic_hash": ""
+  },
+  "tests/spell_forge_tree.test.js": {
+    "mtime": 1786741644.5947652,
+    "ast_hash": "209f27f70083db7add485b7fd5a3b7d7",
+    "semantic_hash": ""
+  },
+  "tests/spell_forge_tree_service.test.js": {
+    "mtime": 1786741644.5428743,
+    "ast_hash": "1579f741458bff28e64b1f688786bd41",
+    "semantic_hash": ""
+  },
+  "tests/spell_module_tree.test.js": {
+    "mtime": 1786741644.6476681,
+    "ast_hash": "c86d8c37bcb36b65a3c99293995f56e8",
+    "semantic_hash": ""
+  },
+  "scripts/spell_lab/index.html": {
+    "mtime": 1786746567.6077619,
+    "ast_hash": "9de79413bb3bf2226ba306ef15fd1eca",
+    "semantic_hash": ""
+  },
+  "src/config/spellTree.js": {
+    "mtime": 1787073920.5352817,
+    "ast_hash": "ab7b79e8abdde096bfa45eddbc5ebb7f",
+    "semantic_hash": ""
+  },
+  "src/services/rpg/spellEffects.js": {
+    "mtime": 1787073984.0142488,
+    "ast_hash": "ced9c8caa3d79d4e699b261a91346d4e",
+    "semantic_hash": ""
+  },
+  "tests/spell_tree_simplified.test.js": {
+    "mtime": 1787074670.7063124,
+    "ast_hash": "eab2fd15e74ff2fcaf679654f3c32cef",
+    "semantic_hash": ""
+  },
+  "memory/plans/simplified_spell_system.md": {
+    "mtime": 1787069212.4997826,
+    "ast_hash": "46c09be53290bf03e9a35a490f20b8f7",
+    "semantic_hash": ""
+  },
+  "tests/combat_elemental.test.js": {
+    "mtime": 1787075437.1799202,
+    "ast_hash": "25929f184a8b996d054bd652516528b4",
     "semantic_hash": ""
   }
 }
