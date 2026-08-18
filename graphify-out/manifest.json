@@ -670,8 +670,8 @@
     "semantic_hash": ""
   },
   "src/commands/rpg/combat/atacar.js": {
-    "mtime": 1786208732.4387436,
-    "ast_hash": "d03ad0b276b79e3a39c43cfdca0cf516",
+    "mtime": 1787077071.354416,
+    "ast_hash": "240ae07aafea1cb41591de612ab05430",
     "semantic_hash": ""
   },
   "src/commands/rpg/combat/estado.js": {
@@ -720,13 +720,13 @@
     "semantic_hash": ""
   },
   "src/services/rpg/combatMessages.js": {
-    "mtime": 1785871731.716924,
-    "ast_hash": "1926f679da48a5f7a0c501b5d3428de9",
+    "mtime": 1787076974.709118,
+    "ast_hash": "f9584b76b350bd6ebbad510ceb370d21",
     "semantic_hash": ""
   },
   "src/services/rpg/combatState.js": {
-    "mtime": 1787075386.9398077,
-    "ast_hash": "9543e3ded863c14f553fa76e540d2026",
+    "mtime": 1787076921.4748852,
+    "ast_hash": "d1c7cba0026e5b4e2a123ef1fdb0bada",
     "semantic_hash": ""
   },
   "src/services/rpg/inventoryService.js": {
@@ -1140,8 +1140,8 @@
     "semantic_hash": ""
   },
   "src/services/rpg/equipmentResolverService.js": {
-    "mtime": 1786741640.1383007,
-    "ast_hash": "61532133edc68c72dc2e06ffe9d9e010",
+    "mtime": 1787076890.1120658,
+    "ast_hash": "27e99dbe3b0ae61bff9c41f78bf191cc",
     "semantic_hash": ""
   },
   "src/services/rpg/itemFactory.js": {
@@ -1790,8 +1790,8 @@
     "semantic_hash": ""
   },
   "src/services/rpg/dummyTurnService.js": {
-    "mtime": 1786741639.2597418,
-    "ast_hash": "3575cf44a7d6edb16d8703463d7a890e",
+    "mtime": 1787077003.3672276,
+    "ast_hash": "a585accd39a8d347c81f57dd311f95d8",
     "semantic_hash": ""
   },
   "tests/movement_turn_consume.test.js": {
@@ -2970,8 +2970,8 @@
     "semantic_hash": ""
   },
   "tests/dummy_arcane.test.js": {
-    "mtime": 1786741642.6843934,
-    "ast_hash": "11dad8441181328c9559dd8d838d10ff",
+    "mtime": 1787077180.1530626,
+    "ast_hash": "d22ec4f47bea9b05a7293526e11cef57",
     "semantic_hash": ""
   },
   "tests/skill_forge.test.js": {
@@ -3040,13 +3040,13 @@
     "semantic_hash": ""
   },
   "memory/plans/simplified_spell_system.md": {
-    "mtime": 1787069212.4997826,
-    "ast_hash": "46c09be53290bf03e9a35a490f20b8f7",
+    "mtime": 1787077717.4246156,
+    "ast_hash": "cf2dda3b31db51022a00052a8fc6f9bb",
     "semantic_hash": ""
   },
   "tests/combat_elemental.test.js": {
-    "mtime": 1787075437.1799202,
-    "ast_hash": "25929f184a8b996d054bd652516528b4",
+    "mtime": 1787077202.3810809,
+    "ast_hash": "6cedfd2eea0daacaa2c423e6aff461d5",
     "semantic_hash": ""
   }
 }

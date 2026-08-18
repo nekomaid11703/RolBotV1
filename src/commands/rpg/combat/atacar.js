@@ -6,6 +6,7 @@ const {
   advanceTurn,
   setPendingReaction,
   endSession,
+  applyElementalAttack,
 } = require("../../../services/rpg/combatState");
 const { runDummyTurn } = require("../../../services/rpg/dummyTurnService");
 const {
@@ -16,7 +17,7 @@ const {
   checkAttackRange,
 } = require("../../../services/rpg/combatEngine");
 const { calcFatigueCost, capFatigue } = require("../../../services/rpg/fatigueEngine");
-const { formatActionMenu, formatReactionPrompt, buildFatigueBar } = require("../../../services/rpg/combatMessages");
+const { formatActionMenu, formatReactionPrompt, buildFatigueBar, formatElementReactionLine } = require("../../../services/rpg/combatMessages");
 const { formatError } = require("../../../utils/formatErrorUtils");
 const { box } = require("../../../utils/boxUtils");
 const {
@@ -245,6 +246,9 @@ async function handlePvE(
     lines.push(`\uD83D\uDCA5 Da\u00F1o: ${reactionResult.finalDamage}`);
   }
 
+  const elemLine = formatElementReactionLine(attackInfo.elementReaction);
+  if (elemLine) lines.push(elemLine);
+
   lines.push(
     `\u2764\uFE0F *${defenderSlot.character.name}*: ${reactionResult.defenderHpBefore}\u2192${reactionResult.defenderHpAfter}`,
   );
@@ -313,6 +317,8 @@ async function handlePvPWithReaction(ctx, session, attackerSlot, defenderSlot, a
    */
   const gearLines = weaponDef ? [`${weaponDef.name} (${attackInfo.damageNature} \u00B7 ${attackInfo.baseDamage})`] : [];
 
+  const elemLine = formatElementReactionLine(attackInfo.elementReaction);
+
   /**
    * @constant lines
    * @type {*[]}
@@ -322,11 +328,14 @@ async function handlePvPWithReaction(ctx, session, attackerSlot, defenderSlot, a
     `\u2694\uFE0F *${attackerSlot.character.name}* \u2192 *${defenderSlot.character.name}*`,
     ...gearLines,
     `\uD83D\uDCA5 Base: ${attackInfo.baseDamage}`,
+  ];
+  if (elemLine) lines.push(elemLine);
+  lines.push(
     `\u26A1 ${buildFatigueBar(attackerSlot.fatigue, attackerSlot.character.stats.def || 1)}`,
     "",
     "\u2726 \u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501 \u2726",
     formatReactionPrompt(attackerSlot.character.name, defenderSlot.character.name, attackInfo.baseDamage, canDodge),
-  ];
+  );
 
   return ctx.reply(box("\u2694\uFE0F ATAQUE", lines));
 }
@@ -402,9 +411,13 @@ async function handlePvP(
     `\u2694\uFE0F *${attackerSlot.character.name}* \u2192 *${defenderSlot.character.name}*`,
     ...buildAttackGearLines(weaponDef, attackInfo, armorEntry, reactionResult),
     `\uD83D\uDCA5 Da\u00F1o: ${reactionResult.finalDamage}`,
+  ];
+  const elemLine = formatElementReactionLine(attackInfo.elementReaction);
+  if (elemLine) lines.push(elemLine);
+  lines.push(
     `\u2764\uFE0F *${defenderSlot.character.name}*: ${reactionResult.defenderHpBefore}\u2192${reactionResult.defenderHpAfter}`,
     `\u26A1 ${buildFatigueBar(attackerSlot.fatigue, attackerSlot.character.stats.def || 1)}`,
-  ];
+  );
 
   if (reactionResult.ko) {
     /**
@@ -525,6 +538,22 @@ module.exports = {
       defenderSlot.fatigue,
       weaponInfo,
     );
+
+    // Reacción elemental (Fase 4): si el arma/hechizo trae elemento, resolver
+    // la imbuición sobre el objetivo (aura persistida) y amplificar el daño
+    // del golpe por el canal de la reacción en el instante.
+    if (weaponInfo?.element) {
+      const amp = await applyElementalAttack(
+        session.id,
+        defenderSlot,
+        weaponInfo.element,
+        attackInfo.baseDamage,
+        attackInfo.materialDamage,
+      );
+      attackInfo.elementReaction = amp.reaction;
+      attackInfo.baseDamage = amp.baseDamage;
+      attackInfo.materialDamage = amp.materialDamage;
+    }
 
     if (session.isPvE) {
       return handlePvE(

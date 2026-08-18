@@ -9,9 +9,9 @@ const {
   getCastCost,
   getCastEfficiency,
 } = require("./fatigueEngine");
-const { advanceTurn, setPendingReaction, updateDistance, endSession } = require("./combatState");
+const { advanceTurn, setPendingReaction, updateDistance, endSession, applyElementalAttack } = require("./combatState");
 const { resolveAttackerWeapon } = require("./equipmentResolverService");
-const { formatReactionPrompt, buildFatigueBar } = require("./combatMessages");
+const { formatReactionPrompt, buildFatigueBar, formatElementReactionLine } = require("./combatMessages");
 
 /**
  * Devuelve los slots de jugador y dummy según quién sea el retador.
@@ -67,6 +67,22 @@ async function executeDummyAttack(ctx, session, playerSlot, dummySlot, playerIsC
     dummySlot.fulgor = Math.max(0, (dummySlot.fulgor ?? 0) - fulgorGastado);
   }
 
+  // Reacción elemental (Fase 4): si el ataque trae elemento, resolver la
+  // imbuición sobre el objetivo y amplificar el daño por el canal de la
+  // reacción en el instante (sesión persistida en applyElementalHit).
+  let elementReaction = null;
+  if (dummyAttack.element || dummyWeapon?.element) {
+    const amp = await applyElementalAttack(
+      session.id,
+      playerSlot,
+      dummyWeapon?.element || dummyAttack.element,
+      baseDamage,
+      dummyAttack.materialDamage,
+    );
+    elementReaction = amp.reaction;
+    baseDamage = amp.baseDamage;
+  }
+
   if (dummyAttack.canReact) {
     const canDodge = evaluateDodgeFeasibility(
       playerSlot.character.stats,
@@ -94,6 +110,8 @@ async function executeDummyAttack(ctx, session, playerSlot, dummySlot, playerIsC
     lines.push(`\uD83E\uDD16 *${dummySlot.character.name}* ${esHechizo ? "lanza" : "ataca"}`);
     lines.push(`\uD83D\uDCA5 Base: ${baseDamage}`);
     if (esHechizo) lines.push(`\uD83D\uDD0B Fulgor: ${fulgorGastado} usado`);
+    const elemLine = formatElementReactionLine(elementReaction);
+    if (elemLine) lines.push(elemLine);
     lines.push("");
     lines.push("\u2726 \u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501 \u2726");
     lines.push(formatReactionPrompt(dummySlot.character.name, playerSlot.character.name, baseDamage, canDodge));
@@ -119,6 +137,8 @@ async function executeDummyAttack(ctx, session, playerSlot, dummySlot, playerIsC
   lines.push("");
   lines.push(`\uD83E\uDD16 *${dummySlot.character.name}* ataca`);
   lines.push(`\uD83D\uDCA5 Da\u00F1o: ${dummyReaction.finalDamage}`);
+  const elemLine = formatElementReactionLine(elementReaction);
+  if (elemLine) lines.push(elemLine);
   lines.push(
     `\u2764\uFE0F *${playerSlot.character.name}*: ${dummyReaction.defenderHpBefore}\u2192${dummyReaction.defenderHpAfter}`,
   );

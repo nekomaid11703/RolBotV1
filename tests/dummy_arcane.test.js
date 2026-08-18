@@ -72,6 +72,13 @@ describe("resolveAttackerWeapon — reconoce el módulo spell (B.3)", () => {
     expect(weapon.fulgorCost).toBe(FULGOR_COST_BASE);
     expect(weapon.spellNature).toBe("mágico");
   });
+
+  it("expone el elemento dominante del hechizo en canónico de reacciones (cryo → hielo)", async () => {
+    const dummy = makeDummy();
+    const weapon = await resolveAttackerWeapon(dummy);
+    // Doom: 1 hit cryo + 5 hits pyro → dominante = primer hit con elemento.
+    expect(weapon.element).toBe("hielo");
+  });
 });
 
 describe("executeAttack — ataque mágico del dummy (B.3)", () => {

@@ -725,8 +725,8 @@
     "semantic_hash": ""
   },
   "src/services/rpg/combatState.js": {
-    "mtime": 1786741639.0752783,
-    "ast_hash": "48fc8c8a380fd93aca7a89a94e09f5a0",
+    "mtime": 1787075386.9398077,
+    "ast_hash": "9543e3ded863c14f553fa76e540d2026",
     "semantic_hash": ""
   },
   "src/services/rpg/inventoryService.js": {
@@ -820,7 +820,7 @@
     "semantic_hash": ""
   },
   "tests/combat_state.test.js": {
-    "mtime": 1785857113.7840557,
+    "mtime": 1787075414.4173667,
     "ast_hash": "3f18e1f4c3e2efa4981f644411cc76dc",
     "semantic_hash": ""
   },
@@ -3025,23 +3025,28 @@
     "semantic_hash": ""
   },
   "src/config/spellTree.js": {
-    "mtime": 1787069148.5809104,
-    "ast_hash": "6b336d89f1e4e68e38c2fb766fe5616f",
+    "mtime": 1787073920.5352817,
+    "ast_hash": "ab7b79e8abdde096bfa45eddbc5ebb7f",
     "semantic_hash": ""
   },
   "src/services/rpg/spellEffects.js": {
-    "mtime": 1787063952.8262951,
-    "ast_hash": "66a577ad5c4d364661d36c61414c860f",
+    "mtime": 1787073984.0142488,
+    "ast_hash": "ced9c8caa3d79d4e699b261a91346d4e",
     "semantic_hash": ""
   },
   "tests/spell_tree_simplified.test.js": {
-    "mtime": 1787069444.896654,
-    "ast_hash": "fc845a5c450a488d8b725df5cd586262",
+    "mtime": 1787074670.7063124,
+    "ast_hash": "eab2fd15e74ff2fcaf679654f3c32cef",
     "semantic_hash": ""
   },
   "memory/plans/simplified_spell_system.md": {
     "mtime": 1787069212.4997826,
     "ast_hash": "46c09be53290bf03e9a35a490f20b8f7",
+    "semantic_hash": ""
+  },
+  "tests/combat_elemental.test.js": {
+    "mtime": 1787075437.1799202,
+    "ast_hash": "25929f184a8b996d054bd652516528b4",
     "semantic_hash": ""
   }
 }

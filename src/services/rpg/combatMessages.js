@@ -164,6 +164,20 @@ function formatOutOfRange(name, meters, newDistance, effectiveRange) {
   return `\u26A0\uFE0F *${name}* a ${newDistance}m (alcance: ${effectiveRange}m) — demasiado lejos para atacar`;
 }
 
+/**
+ * Línea de evento de REACCIÓN ELEMENTAL (Fase 4) para los mensajes de ataque.
+ * Solo muestra línea si la reacción disparó (evento instantáneo); los casos de
+ * imbuición/refresco persisten el aura sin spam en el chat.
+ * @param {object|null} decision - Decisión de `applyElementalHit` (o null)
+ * @returns {string|null} Línea formateada o null si no hay evento que mostrar
+ */
+function formatElementReactionLine(decision) {
+  if (!decision || !decision.reacciono || !decision.reaction) return null;
+  const mult = Number(decision.multiplicador) || 1;
+  const efectos = Array.isArray(decision.efectos) && decision.efectos.length ? ` [${decision.efectos.join(", ")}]` : "";
+  return `\u26A1 Reacci\u00F3n *${decision.reaction.label}* \u00D7${mult}${efectos}`;
+}
+
 module.exports = {
   buildFatigueBar,
   buildStatSummary,
@@ -175,4 +189,5 @@ module.exports = {
   formatCombatDisolved,
   formatMovement,
   formatOutOfRange,
+  formatElementReactionLine,
 };

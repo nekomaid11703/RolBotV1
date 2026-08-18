@@ -2,6 +2,7 @@ const { supabase } = require("../src/database/supabase");
 const {
   createDummySession,
   applyElementalHit,
+  applyElementalAttack,
   advanceTurn,
   getSession,
   removeSession,
@@ -75,6 +76,44 @@ describe("combatState — estado de imbuición elemental (Fase 4)", () => {
     expect(res.reacciono).toBe(false);
     expect(res.motivo).toBe("mismo_elemento");
     expect(res.sessionAura).toMatchObject({ pasiva: "agua" });
+  });
+
+  it("applyElementalAttack escala el daño por el canal cuando reacciona", async () => {
+    const session = await createDummySession("user_test", challengerChar);
+    createdIds.push(session.id);
+    const slot = session.defender;
+
+    // Primero imprime hielo (sin reaccion), luego fuego dispara "derretido" ×1.5.
+    await applyElementalHit(session.id, slot.characterId, "hielo");
+    const amp = await applyElementalAttack(session.id, slot, "fuego", 100, 50);
+
+    expect(amp.reaction.reacciono).toBe(true);
+    expect(amp.reaction.multiplicador).toBe(1.5);
+    expect(amp.baseDamage).toBe(150);
+    expect(amp.materialDamage).toBe(75);
+  });
+
+  it("applyElementalAttack no amplifica cuando el golpe solo imprime el aura", async () => {
+    const session = await createDummySession("user_test", challengerChar);
+    createdIds.push(session.id);
+    const slot = session.defender;
+
+    const amp = await applyElementalAttack(session.id, slot, "fuego", 100, 50);
+
+    expect(amp.reaction.reacciono).toBe(false);
+    expect(amp.reaction.motivo).toBe("imprime_aura");
+    expect(amp.reaction.multiplicador).toBe(1);
+    expect(amp.baseDamage).toBe(100);
+    expect(amp.materialDamage).toBe(50);
+  });
+
+  it("applyElementalAttack devuelve sin cambios cuando la sesión no existe", async () => {
+    const slot = { characterId: "ghost", character: { id: "ghost" } };
+    const amp = await applyElementalAttack("no-such-session", slot, "fuego", 100, 50);
+
+    expect(amp.reaction).toBeNull();
+    expect(amp.baseDamage).toBe(100);
+    expect(amp.materialDamage).toBe(50);
   });
 
   it("advanceTurn decae la ventana de la imbuición y la limpia al llegar a cero", async () => {

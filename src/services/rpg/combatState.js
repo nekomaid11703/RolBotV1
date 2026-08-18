@@ -645,6 +645,35 @@ async function applyElementalHit(sessionId, targetId, dominante) {
 }
 
 /**
+ * Aplica una reacción elemental a un ataque sobre un objetivo: resuelve la
+ * imbuición (aura), persiste el nuevo estado y AMPLIFICA el daño del golpe
+ * por el `canal` de la reacción en el instante (SEMÁNTICA Fase 4).
+ *
+ * Es el punto de entrada del motor: los comandos/resolución de turno llaman a
+ * este helper con el golpe ya calculado y reciben el daño ya escalado además
+ * de la decisión (para mensajes y efectos de estado).
+ *
+ * @param {string} sessionId - ID de la sesión
+ * @param {object} targetSlot - Slot objetivo ({ characterId, ... }) con aura
+ * @param {string} dominante - Elemento entrante del golpe/hechizo (canónico)
+ * @param {number} baseDamage - Daño corporal del golpe sin amplificar
+ * @param {number} [materialDamage] - Daño material del golpe sin amplificar
+ * @returns {Promise<{reaction: object|null, baseDamage: number, materialDamage: number}>}
+ *   reaction = decisión nula si no hay sesión/objetivo; baseDamage/materialDamage
+ *   ya escalados por el multiplicador cuando la reacción dispara.
+ */
+async function applyElementalAttack(sessionId, targetSlot, dominante, baseDamage, materialDamage = 0) {
+  const res = await applyElementalHit(sessionId, targetSlot?.characterId, dominante);
+  if (!res) {
+    return { reaction: null, baseDamage, materialDamage };
+  }
+  const mult = Number(res.multiplicador) || 1;
+  const scaledBody = Math.max(1, Math.floor(baseDamage * mult));
+  const scaledMaterial = materialDamage > 0 ? Math.max(1, Math.floor(materialDamage * mult)) : materialDamage;
+  return { reaction: res, baseDamage: scaledBody, materialDamage: scaledMaterial };
+}
+
+/**
  * Marca una sesión como esperando reacción del defensor.
  * @param {string} sessionId - ID de la sesión
  * @param {*} pendingData - Datos del ataque pendiente de reacción
@@ -825,6 +854,7 @@ module.exports = {
   findSessionByUser,
   advanceTurn,
   applyElementalHit,
+  applyElementalAttack,
   resolveSlotByCharacterId,
   setPendingReaction,
   isSessionActive,

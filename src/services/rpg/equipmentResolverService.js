@@ -86,6 +86,40 @@ async function getEquippedItems(characterOrId) {
 }
 
 /**
+ * Mapea el vocabulario elemental del módulo spell (`ELEMENTS`: pyro/hydro/geo/
+ * anemo/electro/cryo) al canónico de `ELEMENT_REACTIONS` (fuego/agua/tierra/
+ * aire/electro/hielo + primordiales luz/oscuridad/caos). `resolveElementReaction`
+ * solo entiende este canónico, así que la resolución del arma lo traduce.
+ */
+const SPELL_ELEMENT_TO_REACTION = {
+  pyro: "fuego",
+  hydro: "agua",
+  geo: "tierra",
+  anemo: "aire",
+  cryo: "hielo",
+  electro: "electro",
+  fuego: "fuego",
+  agua: "agua",
+  tierra: "tierra",
+  aire: "aire",
+  hielo: "hielo",
+  luz: "luz",
+  oscuridad: "oscuridad",
+  caos: "caos",
+};
+
+/**
+ * Elemento dominante de un hechizo (primer hit que declara elemento) traducido
+ * al canónico de reacciones. null si el hechizo no declara hits elementales.
+ * @param {object} spell - Módulo spell ({ hits: Array<{element, magnitude}> })
+ * @returns {string|null} Elemento dominante canónico (fuego/agua/tierra/...)
+ */
+function resolveSpellDominante(spell) {
+  const raw = (Array.isArray(spell?.hits) ? spell.hits : []).find((h) => h && h.element)?.element;
+  return raw ? SPELL_ELEMENT_TO_REACTION[raw] || null : null;
+}
+
+/**
  * Resuelve el arma equipada del atacante a insumos de combate.
  * @param {object} character - Personaje atacante
  * @param {Array<object>} [equipped] - Salida de getEquippedItems (opcional, evita doble query)
@@ -138,6 +172,7 @@ async function resolveAttackerWeapon(character, equipped = null) {
       ranged: false,
       fulgorCost: Number(spell.fulgorCost) || 0,
       spellNature: spell.spellNature || "mágico",
+      element: resolveSpellDominante(spell),
       canalizeBase: focusStats.canalizeBase,
       canalizeScale: focusStats.canalizeScale,
     };
@@ -158,6 +193,7 @@ async function resolveAttackerWeapon(character, equipped = null) {
       ranged: false,
       fulgorCost: Number(spell.fulgorCost) || 0,
       spellNature: spell.spellNature || "mágico",
+      element: resolveSpellDominante(spell),
     };
   }
 

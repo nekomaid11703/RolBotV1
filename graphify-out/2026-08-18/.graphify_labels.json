@@ -226,8 +226,10 @@
   "224": "Matchup extremista_defensa vs extremista_ataque",
   "225": "Entity",
   "226": "run_phase_c.js",
+  "227": "generate_family_report.js",
   "228": "run_natures_lab.js",
   "229": "dar_stelas.js",
+  "230": "spell_forge_tree_service.test.js",
   "231": "activity_ux_optimization.test.js",
   "232": "characterConfig.js",
   "233": "Laboratorio Fase C — Arma vs Grados de Armadura",
@@ -239,6 +241,7 @@
   "239": "ban.js",
   "240": "promote.js",
   "241": "Laboratorio Modos de Armadura × Nivel (Iteración 1 Fase C)",
+  "242": "removeSession",
   "243": "Laboratorio Modos de Armadura × Nivel (Iteración 1 Fase C)",
   "244": "Laboratorio Modos de Armadura × Nivel (Iteración 1 Fase C)",
   "245": "Laboratorio Fase C — Arma vs Grados de Armadura",
@@ -254,7 +257,13 @@
   "255": "runSimulation",
   "256": "LRUCache",
   "257": "listCharacters",
+  "258": "retar.js",
+  "259": "statusService.js",
   "260": "magic_channel.test.js",
+  "261": "focus.js",
   "262": "admin_perm_rem.js",
-  "263": "logSystem"
+  "263": "logSystem",
+  "264": "heal.js",
+  "265": "Entity",
+  "266": "movement_turn_consume.test.js"
 }

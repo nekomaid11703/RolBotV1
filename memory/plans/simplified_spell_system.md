@@ -230,6 +230,22 @@ despacha por `tipo` a un handler registrado y consulta la tabla de reacciones po
   (`auraPasiva` + turnos) que `resolveElementReaction` consulta y la semántica
   numérica de cada reacción (amplificador `canal`, daño geo según rol, estados).
 
+  **Implementado (2026-08-18)**:
+  - `resolveElementReaction` devuelve `multiplicador` (= `canal`, default 1) y `efectos`
+    (ids de `EFFECT_DEFS`) en todas las ramas; las no-reacción dan 1/[].
+  - `combatState` mantiene `aura: { pasiva, turnos }` por slot (challenger/defender),
+    `applyElementalHit` consulta el resolver y persiste `auraResultante`
+    (imprimir/refresca/consumir/reemplazar), `advanceTurn` decae la ventana (`decaySlotAura`).
+  - `applyElementalAttack`: helper de motor que resuelve la imbuición sobre el objetivo
+    y AMPLIFICA el daño del golpe por el `canal` (evento instantáneo). `equipmentResolverService`
+    expone el elemento dominante del hechizo en el vocabulario canónico de reacciones
+    (`resolveSpellDominante`: pyro→fuego, hydro→agua, cryo→hielo, ..., primordiales directos).
+  - Cableado: `dummyTurnService.executeDummyAttack` (dummy→jugador) y `atacar.js`
+    (jugador→objetivo) llaman a `applyElementalAttack` cuando el arma trae elemento;
+    `combatMessages.formatElementReactionLine` imprime el evento ("Reacción derretido ×1.5").
+  - Los `efectos` de estado (quemadura/congelado/...) viajan en la decisión pero su
+    aplicación por `statusService` queda en Fase 3/4 siguiente (handlers de efectos).
+
 ---
 
 ## 8. Resumen del cambio
