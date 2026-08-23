@@ -42,8 +42,8 @@ describe("Familia del hierro — definiciones", () => {
     expect(getItem("no_existe")).toBeNull();
   });
 
-  it("getItemsByCategory mantiene el catálogo base (no contamina)", () => {
-    expect(getItemsByCategory("weapon")).toHaveLength(0);
+  it("getItemsByCategory expone las armas del catálogo cargado", () => {
+    expect(getItemsByCategory("weapon").length).toBeGreaterThan(0);
   });
 });
 

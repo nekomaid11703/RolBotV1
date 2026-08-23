@@ -3,12 +3,16 @@
 
 const { executeAttack, executeReaction, chooseAiReaction, getEffectiveWeaponRange } = require("../../src/services/rpg/combatEngine");
 const { BASE_ATTACK_RANGE, KITE_FATIGUE_MULTIPLIER } = require("../../src/config/combatConfig");
+const { DOMINIO_REF } = require("../../src/config/combatBalance");
 const { getArmorMode, applyArmorMode } = require("./experimentalArmor");
+const { initialBattery } = require("./fighterGenerator");
 const {
   calcFatigueRecovery,
   calcFatigueCost,
   capFatigue,
   getFatigueLevel,
+  getCastCost,
+  getCastEfficiency,
   getMovementRange,
 } = require("../../src/services/rpg/fatigueEngine");
 const { getCoverage, getMovementFatigueWithCoverage } = require("../../src/services/rpg/armorSetService");
@@ -27,6 +31,8 @@ const {
   RETREAT_MAX_DISTANCE,
   RETREAT_MAX_FATIGUE_RATIO,
   KITE_MOVE_RATIO,
+  MEDITACION_REGEN_BASE,
+  MEDITACION_DOMINIO_ESCALA,
 } = require("./config");
 
 /**
@@ -121,10 +127,13 @@ function shouldRest(state) {
  * @param state
  */
 function shouldUseItem(state) {
-  if (state.items.length === 0) return false;
-  if (state.hp >= state.fighter.hp * ITEM_USE_HP_RATIO) return false;
+  if (!state.items || state.items.length === 0) return false;
   if (fatigueRatio(state) > ITEM_USE_MAX_FATIGUE_RATIO) return false;
-  return true;
+  const item = state.items[0];
+  if (item.fulgorHeal) {
+    return state.fulgor < state.fulgorPoolMax * 0.5;
+  }
+  return state.hp < state.fighter.hp * ITEM_USE_HP_RATIO;
 }
 
 /**
@@ -145,12 +154,103 @@ function shouldRetreat(state, distance) {
  */
 function useItem(state) {
   const item = state.items[0];
-  const maxHp = state.fighter.hp;
-  const heal = Math.min(item.heal, Math.max(0, maxHp - state.hp));
-  state.hp += heal;
   state.items.shift();
   state.fatigue = capFatigue(state.fatigue + ITEM_USE_FATIGUE_COST);
-  return { name: item.name, heal };
+  if (item.fulgorHeal) {
+    const fulgorHeal = Math.min(item.fulgorHeal, Math.max(0, state.fulgorPoolMax - state.fulgor));
+    state.fulgor += fulgorHeal;
+    return { name: item.name, heal: 0, fulgorHeal };
+  }
+  const maxHp = state.fighter.hp;
+  const heal = Math.min(item.heal || 0, Math.max(0, maxHp - state.hp));
+  state.hp += heal;
+  return { name: item.name, heal, fulgorHeal: 0 };
+}
+
+/**
+ * Regeneración de batería por turno de meditación (o descanso): base + escala
+ * por dominio (d_fulgor espeja DOMINIO_REF como en getCastCost).
+ * @param {object} state
+ * @returns {number}
+ */
+function meditateRegen(state) {
+  const dominio = (state.fighter.stats.d_fulgor || 0) / MEDITACION_DOMINIO_ESCALA;
+  return Math.max(1, Math.round(MEDITACION_REGEN_BASE * (1 + dominio)));
+}
+
+/**
+ * Un mago ahorra su batería: no lanza con la piscina insuficiente para el
+ * coste del hechizo (con d_fulgor corregido por el dominio). Con política de
+ * "siempre lanza" se derrochaba en lanzamientos diluidos al piso.
+ * @param {object} actor
+ * @param {object|null} weaponInfo
+ * @returns {boolean}
+ */
+function shouldMeditate(actor, weaponInfo) {
+  if (!weaponInfo?.fulgorCost) return false;
+  const castCost = getCastCost(actor.fighter.stats.d_fulgor || 0, weaponInfo.fulgorCost);
+  if (castCost <= 0) return false;
+  return actor.fulgor < castCost && actor.fulgor < actor.fulgorPoolMax;
+}
+
+/**
+ * Half-turn de meditación: el mago gasta su turno rellenando la piscina de
+ * fulgor (sin gastar fatiga y sin contraataque gratuito del rival, a
+ * diferencia del descanso). El rival actúa en su propio medio turno.
+ * @param {object} actor
+ * @param {number} roundNum
+ * @param {boolean} isA
+ * @param {string} actorTag
+ * @returns {{ entries: Array }}
+ */
+function meditateHalfTurn(actor, roundNum, isA, actorTag) {
+  const before = actor.fulgor;
+  const regen = meditateRegen(actor);
+  actor.fulgor = Math.min(actor.fulgorPoolMax, actor.fulgor + regen);
+  actor.fulgorRegen += regen;
+  actor.meditations++;
+  const entries = [
+    {
+      round: roundNum,
+      half: isA ? 1 : 2,
+      attacker: `${actorTag}_meditate`,
+      action: "meditate",
+      fulgorBefore: before,
+      fulgorRegen: regen,
+      fulgor: actor.fulgor,
+      hpAfter: actor.hp,
+    },
+  ];
+  return { entries };
+}
+
+/**
+ * Intenta dedicar el turno a meditar (si el mago tiene alcance y le falta
+ * batería). Devuelve las entries de meditación o null si no procede.
+ * @param {object} actor
+ * @param {number} roundNum
+ * @param {boolean} isA
+ * @param {string} actorTag
+ * @param {number} distance
+ * @returns {Array|null}
+ */
+function tryMeditate(actor, roundNum, isA, actorTag, distance) {
+  const w = actor.fighter.equipment.weapon || null;
+  if (!w?.fulgorCost) return null;
+  const attackRange = w.ranged
+    ? getEffectiveWeaponRange(w, actor.fighter.stats)
+    : BASE_ATTACK_RANGE + (w.weaponRange || 0);
+  if (distance > attackRange) return null;
+
+  // A Rango 1 (melee cuerpo a cuerpo), si el foco/arma dispone de ataque físico secundario
+  // y el mago no tiene batería, prefiere golpear físicamente con el foco antes que meditar indefenso.
+  const hasPhysicalOption = Number(w.physicalDamage || (w.isFocus ? 0 : w.baseDamage) || 0) > 5;
+  if (distance <= 1 && hasPhysicalOption && actor.fulgor > 0) {
+    return null;
+  }
+
+  if (!shouldMeditate(actor, w)) return null;
+  return meditateHalfTurn(actor, roundNum, isA, actorTag).entries;
 }
 
 /**
@@ -184,6 +284,22 @@ function performAttack(actor, opponent, distance = 0) {
     weaponInfo,
     distance,
   );
+
+  const castCost = weaponInfo?.fulgorCost ? getCastCost(actor.fighter.stats.d_fulgor || 0, weaponInfo.fulgorCost) : 0;
+  let castEfficiency = 1;
+  let fulgorSpent = 0;
+  if (castCost > 0) {
+    castEfficiency = getCastEfficiency(actor.fulgor, castCost);
+    if (castEfficiency < 1) {
+      console.log(`[DILUTED] ${actor.fighter.name} battery=${actor.fulgor} cost=${castCost} eff=${castEfficiency}`);
+    }
+    attackInfo.baseDamage = Math.max(1, Math.floor(attackInfo.baseDamage * castEfficiency));
+    fulgorSpent = Math.min(castCost, actor.fulgor);
+    actor.fulgor = Math.max(0, actor.fulgor - fulgorSpent);
+    actor.spellCasts++;
+    actor.fulgorSpent += fulgorSpent;
+    if (castEfficiency < 1) actor.dilutedCasts++;
+  }
 
   const reactionType = attackInfo.canReact
     ? chooseAiReaction(defenderChar, opponent.hp, attackerChar, attackInfo.baseDamage, actor.hp, opponent.fatigue, actor.fatigue, attackInfo.distanceRefBonus, opponent.fighter.equipment)
@@ -242,6 +358,9 @@ function performAttack(actor, opponent, distance = 0) {
     defReduction: reactionResult.defReduction ?? expResult.defReduction,
     overflowToHp: reactionResult.overflowToHp ?? expResult.overflowToHp,
     overflow: reactionResult.armorAbsorption?.overflow || 0,
+    castCost,
+    castEfficiency,
+    fulgorSpent,
   };
 }
 
@@ -261,6 +380,11 @@ function restHalfTurn(rester, attacker, roundNum, isA, actorTag, distance = 0) {
   const recovery = calcFatigueRecovery("rest", rester.fatigue, resistance);
   rester.fatigue = capFatigue(rester.fatigue - recovery);
   rester.rests++;
+  // El descanso también repone batería mágica (meditar y descansar regeneran
+  // con la misma fórmula: llenar la piscina hasta su techo).
+  const regen = rester.fulgorPoolMax > 0 ? meditateRegen(rester) : 0;
+  rester.fulgor = Math.min(rester.fulgorPoolMax, rester.fulgor + regen);
+  rester.fulgorRegen += regen;
 
   entries.push({
     round: roundNum,
@@ -268,6 +392,7 @@ function restHalfTurn(rester, attacker, roundNum, isA, actorTag, distance = 0) {
     attacker: `${actorTag}_rest`,
     action: "rest",
     recovery,
+    fulgorRegen: regen,
     hpAfter: rester.hp,
   });
 
@@ -330,6 +455,14 @@ function executeHalfTurn(actor, opponent, distance, roundNum, isA) {
       });
     }
     return { entries, distance, ko: false };
+  }
+
+  // Un mago con batería insuficiente para el coste de su hechizo NO lo lanza
+  // (política de ahorro): medita en su turno para rellenar la piscina. Solo
+  // medita si ya está en alcance; fuera de alcance avanza (abajo).
+  const medEntriesTop = tryMeditate(actor, roundNum, isA, actorTag, distance);
+  if (medEntriesTop) {
+    return { entries: medEntriesTop, distance, ko: false };
   }
 
   let weaponInfo = actor.fighter.equipment.weapon || null;
@@ -406,6 +539,16 @@ function executeHalfTurn(actor, opponent, distance, roundNum, isA) {
 
   // El movimiento llegó a rango de ataque: atacar en el mismo turno.
   if (!isRanged && distance <= attackRange) {
+    // Si el mago llegó a alcance pero no le alcanza la batería, medita en el
+    // turno (sigue ahorrando en vez de lanzar diluido).
+    const medEntries = tryMeditate(actor, roundNum, isA, actorTag, distance);
+    if (medEntries) {
+      if (meters > 0) {
+        actor.fatigue = capFatigue(actor.fatigue + getMovementFatigueWithCoverage(meters, actor.fighter.equipment.armorList || [], actor.fighter.stats.def));
+      }
+      entries.push(...medEntries);
+      return { entries, distance, ko: false };
+    }
     const attack = performAttack(actor, opponent, distance);
     entries.push({ round: roundNum, half: isA ? 1 : 2, attacker: actorTag, ...attack });
     // El coste de fatiga del avance se paga DESPUÉS del golpe: el movimiento
@@ -430,10 +573,19 @@ function executeHalfTurn(actor, opponent, distance, roundNum, isA) {
  * @param fighterB
  */
 function simulateCombat(fighterA, fighterB) {
+  const batteryA = initialBattery(fighterA);
+  const batteryB = initialBattery(fighterB);
   const stateA = {
     fighter: fighterA,
     hp: fighterA.hp,
     fatigue: 0,
+    fulgor: batteryA,
+    fulgorPoolMax: batteryA,
+    fulgorSpent: 0,
+    fulgorRegen: 0,
+    meditations: 0,
+    spellCasts: 0,
+    dilutedCasts: 0,
     items: [...fighterA.loadout],
     ammo: fighterA.equipment?.ammo?.count || 0,
     rests: 0,
@@ -446,6 +598,13 @@ function simulateCombat(fighterA, fighterB) {
     fighter: fighterB,
     hp: fighterB.hp,
     fatigue: 0,
+    fulgor: batteryB,
+    fulgorPoolMax: batteryB,
+    fulgorSpent: 0,
+    fulgorRegen: 0,
+    meditations: 0,
+    spellCasts: 0,
+    dilutedCasts: 0,
     items: [...fighterB.loadout],
     ammo: fighterB.equipment?.ammo?.count || 0,
     rests: 0,
@@ -531,8 +690,8 @@ function simulateCombat(fighterA, fighterB) {
     hpCurveA,
     hpCurveB,
     distanceCurve,
-    stateA: { hp: stateA.hp, fatigue: stateA.fatigue, rests: stateA.rests, advances: stateA.advances, retreats: stateA.retreats, damageDealt: stateA.damageDealt, damageTaken: stateA.damageTaken, itemsLeft: stateA.items.length, ammoLeft: stateA.ammo },
-    stateB: { hp: stateB.hp, fatigue: stateB.fatigue, rests: stateB.rests, advances: stateB.advances, retreats: stateB.retreats, damageDealt: stateB.damageDealt, damageTaken: stateB.damageTaken, itemsLeft: stateB.items.length, ammoLeft: stateB.ammo },
+    stateA: { hp: stateA.hp, fatigue: stateA.fatigue, fulgor: stateA.fulgor, fulgorPoolMax: stateA.fulgorPoolMax, fulgorSpent: stateA.fulgorSpent, fulgorRegen: stateA.fulgorRegen, meditations: stateA.meditations, spellCasts: stateA.spellCasts, dilutedCasts: stateA.dilutedCasts, rests: stateA.rests, advances: stateA.advances, retreats: stateA.retreats, damageDealt: stateA.damageDealt, damageTaken: stateA.damageTaken, itemsLeft: stateA.items.length, ammoLeft: stateA.ammo },
+    stateB: { hp: stateB.hp, fatigue: stateB.fatigue, fulgor: stateB.fulgor, fulgorPoolMax: stateB.fulgorPoolMax, fulgorSpent: stateB.fulgorSpent, fulgorRegen: stateB.fulgorRegen, meditations: stateB.meditations, spellCasts: stateB.spellCasts, dilutedCasts: stateB.dilutedCasts, rests: stateB.rests, advances: stateB.advances, retreats: stateB.retreats, damageDealt: stateB.damageDealt, damageTaken: stateB.damageTaken, itemsLeft: stateB.items.length, ammoLeft: stateB.ammo },
   };
 }
 

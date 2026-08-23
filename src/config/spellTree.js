@@ -1,4 +1,18 @@
 // @ts-nocheck
+const {
+  DOMINIO_REF,
+  MAGIC_DEFENSE_SCALE,
+  QUEMADURA_DOT_BASE,
+  QUEMADURA_DURACION_BASE,
+  QUEMADURA_DURACION_ESCALA,
+  STATUS_DURATION_BASE,
+  VENENO_DOT_BASE,
+  DECADENCIA_DOT_BASE,
+  MALDICION_DAMAGE_MULTIPLIER,
+  ROMPE_ARMADURAS_DEF_REDUCTION,
+  CHOQUE_TERMICO_DAMAGE_BASE,
+} = require("./combatBalance");
+
 /**
  * Spell Tree — Sistema Simplificado de Hechizos/Habilidades.
  *
@@ -60,19 +74,154 @@ const SPELL_NATURES = {
  * Un hechizo siempre referencia UNA de estas como su elemento/aplicación de fulgor.
  * @type {string[]}
  */
-const FULGOR_NATURES = [
-  ...SPELL_NATURES.elemental.subtypes,
-  ...SPELL_NATURES.primordial.subtypes,
-];
+const FULGOR_NATURES = [...SPELL_NATURES.elemental.subtypes, ...SPELL_NATURES.primordial.subtypes];
 
 // ══════════════════════════════════════════
-// 4. REGISTRO DE EFECTOS (extensible, sin lógica aún)
+// 3b. PESOS DE FORMA (costo fino — eje potencia)
+// ══════════════════════════════════════════
+
+/**
+ * Aporte de potencia bruta por tipo de hechizo (forma de resolución).
+ * Un explosion/barrera "imprime más información" en el mundo que un proyectil
+ * directo; un buffo/aura aplica sobre objetivos múltiples o sostenidos.
+ * @type {Record<string, number>}
+ */
+const SPELL_KIND_WEIGHTS = {
+  proyectil: 1.0,
+  explosion: 1.5,
+  barrera: 1.5,
+  buffo: 1.0,
+  aura: 1.2,
+};
+
+/**
+ * Aporte de potencia por tipo de aplicación: apuntar a un objetivo externo
+ * exige más control que afectar al propio lanzador.
+ * @type {Record<string, number>}
+ */
+const SPELL_APPLICATION_WEIGHTS = {
+  propia: 0,
+  externa: 1,
+};
+
+/**
+ * Bonificador de potencia por duración: un efecto que persiste turnos imprime
+ * más mundo que un efecto instantáneo. Se suma a `weight × magnitude`.
+ * @type {number}
+ */
+const SPELL_DURATION_WEIGHT = 0.15;
+
+// ══════════════════════════════════════════
+// 3c. REGLAS DE RESOLUCIÓN (Contrato §11)
+// ══════════════════════════════════════════
+
+/**
+ * Reglas de resolución canónica por `kind × application` (Contrato §11).
+ *
+ * `kind` define la forma de resolución; `application` decide quién es el objetivo
+ * (el propio lanzador o un objetivo externo). Cada entrada declara:
+ *  - `targetModes`: targetMode explícitos permitidos (el motor NO infiere del nombre);
+ *  - `payload`: campos de resolución requeridos (radius, barrierHp, imbuement,
+ *    duration, statMods) que debe persistir el constructor;
+ *  - `dañoDirecto`: si la resolución admite un golpe directo (hit) elemental;
+ *  - `descripcion`: semántica canónica de la combinación.
+ * @type {Record<string, Record<string, {targetModes: string[], payload: object, dañoDirecto: boolean, descripcion: string}>>}
+ */
+const SPELL_RESOLUTION_RULES = {
+  proyectil: {
+    propia: {
+      targetModes: ["arma"],
+      payload: { imbuement: true },
+      dañoDirecto: false,
+      descripcion: "Imbuye el arma equipada del lanzador (imbuición temporal, no proyectil contra sí mismo).",
+    },
+    externa: {
+      targetModes: ["enemigo", "area"],
+      payload: {},
+      dañoDirecto: true,
+      descripcion: "Impacto elemental sobre el objetivo; imprime o reacciona.",
+    },
+  },
+  explosion: {
+    propia: {
+      targetModes: ["area"],
+      payload: { radius: true },
+      dañoDirecto: true,
+      descripcion: "Explosión con centro en el lanzador; daño o efectos en el área.",
+    },
+    externa: {
+      targetModes: ["area"],
+      payload: { radius: true },
+      dañoDirecto: true,
+      descripcion: "Explosión con centro en el objetivo; daño o efectos en el área.",
+    },
+  },
+  barrera: {
+    propia: {
+      targetModes: ["propio", "area"],
+      payload: { barrierHp: true },
+      dañoDirecto: false,
+      descripcion: "Barrera defensiva: protege al lanzador o área aliada (valor de protección).",
+    },
+    externa: {
+      targetModes: ["enemigo", "area"],
+      payload: { barrierHp: true },
+      dañoDirecto: false,
+      descripcion:
+        "Prisión rompible: confina al objetivo; bloquea avanzar/retroceder y atacar la barrera consume la acción.",
+    },
+  },
+  aura: {
+    propia: {
+      targetModes: ["propio", "objeto"],
+      payload: { imbuement: true, duration: true },
+      dañoDirecto: false,
+      descripcion: "Imbuye jugador u objeto propio de forma sostenida, sin daño instantáneo.",
+    },
+    externa: {
+      targetModes: ["aliado", "objeto"],
+      payload: { imbuement: true, duration: true },
+      dañoDirecto: false,
+      descripcion: "Imbuye jugador u objeto externo de forma sostenida, sin daño instantáneo.",
+    },
+  },
+  buffo: {
+    propia: {
+      targetModes: ["propio"],
+      payload: { statMods: true, duration: true },
+      dañoDirecto: false,
+      descripcion: "Cambio temporal de estadísticas del lanzador.",
+    },
+    externa: {
+      targetModes: ["aliado", "enemigo"],
+      payload: { statMods: true, duration: true },
+      dañoDirecto: false,
+      descripcion: "Cambio temporal de estadísticas del objetivo permitido.",
+    },
+  },
+};
+
+/**
+ * targetMode por defecto de cada `kind × application` cuando la receta no lo
+ * declara explícitamente (el constructor lo persiste de todos modos).
+ * @type {Record<string, Record<string, string>>}
+ */
+const RESOLUTION_DEFAULT_TARGET_MODE = {
+  proyectil: { propia: "arma", externa: "enemigo" },
+  explosion: { propia: "area", externa: "area" },
+  barrera: { propia: "propio", externa: "enemigo" },
+  aura: { propia: "propio", externa: "aliado" },
+  buffo: { propia: "propio", externa: "enemigo" },
+};
+
+// ══════════════════════════════════════════
+// 4. REGISTRO DE EFECTOS (extensible)
 // ══════════════════════════════════════════
 
 /**
  * Esquema mínimo que debe cumplir cada entrada del registro de efectos.
- * El campo `handler` se llena en fases futuras; hasta entonces el resolver
- * devuelve `{ applied: false, pending: true }` y la UI lo muestra como pendiente.
+ * `handler` resuelve la mecánica de los efectos implementados; puede ser null
+ * mientras un efecto permanezca declarativo.
  * @constant EFFECT_DEF_SCHEMA
  */
 const EFFECT_DEF_SCHEMA = {
@@ -83,14 +232,29 @@ const EFFECT_DEF_SCHEMA = {
   compatibleApplications: "array", // SPELL_APPLICATIONS en las que aplica
   duration: "boolean", // true si persiste turnos (veneno, enredado...)
   stackable: "boolean", // true si puede acumularse
-  handler: "function|nil", // implementación de la mecánica (PENDIENTE)
+  weight: "number", // aporte de potencia por unidad de magnitud (costo fino)
+  handler: "function|nil", // implementación de la mecánica, si existe
 };
 
 /**
  * Registro de efectos (semilla — la lista es extensible).
- * Cada entrada es DATOS; la mecánica vive en `handler` (null en esta fase).
+ * Cada entrada es DATOS; la mecánica, cuando existe, vive en `handler`.
  * @type {Record<string, object>}
  */
+function effectMagnitude(effect) {
+  return Math.max(1, Number(effect?.magnitude) || 1);
+}
+
+function effectDuration(effect) {
+  return Math.max(1, Number(effect?.duration) || STATUS_DURATION_BASE);
+}
+
+const CEGADURA_REF_REDUCTION = 3;
+
+function timedEffect(tipo, effect, fields = {}) {
+  return { tipo, turnos: effectDuration(effect), trigger: "turnStart", category: "negative", ...fields };
+}
+
 const EFFECT_DEFS = {
   veneno: {
     id: "veneno",
@@ -100,7 +264,8 @@ const EFFECT_DEFS = {
     compatibleApplications: ["externa"],
     duration: true,
     stackable: false,
-    handler: null,
+    weight: 1.0,
+    handler: (effect) => timedEffect("veneno", effect, { danoPorTick: VENENO_DOT_BASE * effectMagnitude(effect) }),
   },
   quemadura: {
     id: "quemadura",
@@ -110,7 +275,24 @@ const EFFECT_DEFS = {
     compatibleApplications: ["externa"],
     duration: true,
     stackable: false,
-    handler: null,
+    weight: 1.1,
+    handler: (effect, ctx = {}) => {
+      const dFulgor = Number(ctx.atacante?.stats?.d_fulgor) || 0;
+      const rFulgor = Number(ctx.objetivo?.stats?.r_fulgor) || 0;
+      const magnitude = Number(effect?.magnitude) || 1;
+      const durBase = Number(effect?.duration) || QUEMADURA_DURACION_BASE;
+      const eficiencia = 1 + dFulgor / DOMINIO_REF;
+      const turnos = Math.max(1, Math.floor(durBase + (dFulgor / DOMINIO_REF) * QUEMADURA_DURACION_ESCALA));
+      const dotPorTurno = Math.max(1, Math.floor(QUEMADURA_DOT_BASE * magnitude * eficiencia));
+      const mitigacion = MAGIC_DEFENSE_SCALE / (MAGIC_DEFENSE_SCALE + rFulgor);
+      return {
+        tipo: "quemadura",
+        turnos,
+        dotPorTurno,
+        danoPorTick: Math.max(1, Math.floor(dotPorTurno * mitigacion)),
+        lanzadorId: ctx.atacante?.id ?? ctx.atacante?.characterId ?? null,
+      };
+    },
   },
   enredado: {
     id: "enredado",
@@ -120,17 +302,39 @@ const EFFECT_DEFS = {
     compatibleApplications: ["externa"],
     duration: true,
     stackable: false,
-    handler: null,
+    weight: 1.2,
+    handler: (effect) => timedEffect("enredado", effect, { blockedActions: ["move"] }),
   },
   congelado: {
     id: "congelado",
     label: "Congelado",
-    description: "Inmoviliza y puede amplificar el daño entrante.",
+    description: "Inmoviliza el movimiento; bloquea ataques solo si el daño supera la R_FULGOR del objetivo.",
     compatibleKinds: ["proyectil", "explosion", "barrera", "aura"],
     compatibleApplications: ["externa"],
     duration: true,
     stackable: false,
-    handler: null,
+    weight: 1.4,
+    handler: (effect, ctx = {}) => {
+      const rFulgor = Number(ctx.objetivo?.stats?.r_fulgor) || 0;
+      const danoImpacto = Number(effect?.danoBase ?? ctx.danoBase ?? 0);
+      const blocksAttack = danoImpacto > rFulgor;
+      const blockedActions = blocksAttack ? ["move", "attack"] : ["move"];
+      return timedEffect("congelado", effect, { blockedActions, severe: blocksAttack });
+    },
+  },
+  cegadura: {
+    id: "cegadura",
+    label: "Cegadura",
+    description: "Deslumbra o priva de visión, reduciendo los Reflejos (REF) durante un tiempo.",
+    compatibleKinds: ["proyectil", "explosion", "buffo", "aura"],
+    compatibleApplications: ["externa"],
+    duration: true,
+    stackable: false,
+    weight: 1.2,
+    handler: (effect) =>
+      timedEffect("cegadura", effect, {
+        refReduction: CEGADURA_REF_REDUCTION * effectMagnitude(effect),
+      }),
   },
   purificado: {
     id: "purificado",
@@ -140,7 +344,8 @@ const EFFECT_DEFS = {
     compatibleApplications: ["propia", "externa"],
     duration: false,
     stackable: false,
-    handler: null,
+    weight: 0.9,
+    handler: () => ({ tipo: "purificado", instant: "purify", category: "positive" }),
   },
   maldito: {
     id: "maldito",
@@ -150,7 +355,8 @@ const EFFECT_DEFS = {
     compatibleApplications: ["externa"],
     duration: true,
     stackable: false,
-    handler: null,
+    weight: 1.3,
+    handler: (effect) => timedEffect("maldito", effect, { damageMultiplier: MALDICION_DAMAGE_MULTIPLIER }),
   },
   rompe_armaduras: {
     id: "rompe_armaduras",
@@ -160,7 +366,11 @@ const EFFECT_DEFS = {
     compatibleApplications: ["externa"],
     duration: true,
     stackable: true,
-    handler: null,
+    weight: 1.2,
+    handler: (effect) =>
+      timedEffect("rompe_armaduras", effect, {
+        defenseReduction: ROMPE_ARMADURAS_DEF_REDUCTION * effectMagnitude(effect),
+      }),
   },
   choque_termico: {
     id: "choque_termico",
@@ -170,7 +380,12 @@ const EFFECT_DEFS = {
     compatibleApplications: ["externa"],
     duration: false,
     stackable: false,
-    handler: null,
+    weight: 1.5,
+    handler: (effect) => ({
+      tipo: "choque_termico",
+      instant: "damage",
+      dano: CHOQUE_TERMICO_DAMAGE_BASE * effectMagnitude(effect),
+    }),
   },
   decadencia: {
     id: "decadencia",
@@ -180,7 +395,14 @@ const EFFECT_DEFS = {
     compatibleApplications: ["externa"],
     duration: true,
     stackable: true,
-    handler: null,
+    weight: 1.4,
+    handler: (effect, ctx = {}) => {
+      const rFulgor = Number(ctx.objetivo?.stats?.r_fulgor) || 0;
+      const mitigacion = MAGIC_DEFENSE_SCALE / (MAGIC_DEFENSE_SCALE + rFulgor);
+      return timedEffect("decadencia", effect, {
+        danoPorTick: Math.max(1, Math.floor(DECADENCIA_DOT_BASE * effectMagnitude(effect) * mitigacion)),
+      });
+    },
   },
 };
 
@@ -313,6 +535,11 @@ module.exports = {
   SPELL_APPLICATIONS,
   SPELL_NATURES,
   FULGOR_NATURES,
+  SPELL_KIND_WEIGHTS,
+  SPELL_APPLICATION_WEIGHTS,
+  SPELL_DURATION_WEIGHT,
+  SPELL_RESOLUTION_RULES,
+  RESOLUTION_DEFAULT_TARGET_MODE,
   EFFECT_DEFS,
   EFFECT_DEF_SCHEMA,
   ELEMENT_REACTIONS,

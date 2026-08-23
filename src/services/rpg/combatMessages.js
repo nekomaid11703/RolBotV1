@@ -14,10 +14,11 @@ const {
  * Delegado a combatSections (data-driven desde COMBAT_ACTIONS).
  * @param {string} characterName - Nombre del personaje en turno
  * @param {object} [session] - Sesión de combate
+ * @param {object} [ctx] - Contexto situacional {distance, enemyHp, enemyMaxHp, availableFulgor, maxFulgor}
  * @returns {string} Menú de acciones formateado
  */
-function formatActionMenu(characterName, session) {
-  return actionMenuLines(characterName, session).join("\n");
+function formatActionMenu(characterName, session, ctx) {
+  return actionMenuLines(characterName, session, ctx).join("\n");
 }
 
 /**
@@ -29,8 +30,23 @@ function formatActionMenu(characterName, session) {
  * @param {boolean} [canDodgeSuccessfully] - Si puede esquivar exitosamente
  * @returns {string} Prompt de reacción formateado
  */
-function formatReactionPrompt(attackerName, defenderName, baseDamage, canDodgeSuccessfully = false) {
-  return reactionPromptLines(attackerName, defenderName, baseDamage, canDodgeSuccessfully).join("\n");
+function formatReactionPrompt(attackerName, defenderName, baseDamage, canDodgeSuccessfully = false, dodgeChancePct) {
+  return reactionPromptLines(attackerName, defenderName, baseDamage, canDodgeSuccessfully, dodgeChancePct).join("\n");
+}
+
+/**
+ * Calcula el contexto situacional del slot en turno frente a su oponente.
+ * @param {object} mySlot - Slot del jugador en turno
+ * @param {object} oppSlot - Slot del oponente
+ * @param {number} distance - Distancia actual en metros
+ * @returns {{distance: number, enemyHp: number, enemyMaxHp: number, availableFulgor: number, maxFulgor: number}}
+ */
+function buildSituationalCtx(mySlot, oppSlot, distance) {
+  const maxFulgor = Math.min(100, Math.max(10, (mySlot.character.stats?.fulgor || 1) * 2));
+  const spentFulgor = mySlot.spentFulgor || 0;
+  const availableFulgor = Math.max(0, maxFulgor - spentFulgor);
+  const enemyMaxHp = Math.max(1, (oppSlot.character.stats?.hp || 1) * 2);
+  return { distance: distance ?? 5, enemyHp: oppSlot.hp, enemyMaxHp, availableFulgor, maxFulgor };
 }
 
 /**
@@ -73,24 +89,35 @@ function formatCombatStatus(session, equipmentMap = {}) {
   const c = session.challenger;
   const d = session.defender;
 
-  const currentName = String(session.currentTurnCharId) === String(c.characterId) ? c.character.name : d.character.name;
+  const isCurrent = String(session.currentTurnCharId) === String(c.characterId);
+  const currentSlot = isCurrent ? c : d;
+  const oppSlot = isCurrent ? d : c;
+  const currentName = currentSlot.character.name;
 
   const cEq = equipmentSectionLines(equipmentMap?.challenger);
   const dEq = equipmentSectionLines(equipmentMap?.defender);
 
+  const situationalCtx = buildSituationalCtx(currentSlot, oppSlot, session.distance);
+
+  // Fulgor de cada slot para mostrarlo
+  const cMaxFulgor = Math.min(100, Math.max(10, (c.character.stats?.fulgor || 1) * 2));
+  const dMaxFulgor = Math.min(100, Math.max(10, (d.character.stats?.fulgor || 1) * 2));
+  const cFulgor = Math.max(0, cMaxFulgor - (c.spentFulgor || 0));
+  const dFulgor = Math.max(0, dMaxFulgor - (d.spentFulgor || 0));
+
   const sections = [];
-  sections.push([`R${session.rounds + 1} Turno *${currentName}*`]);
-  sections.push(["\u2500\u2500 RETADOR \u2500\u2500", ...combatantLines(c)]);
+  sections.push([`R${session.rounds + 1}  ⚔️ Turno de *${currentName}*  📍 ${session.distance ?? 5}m`]);
+  sections.push([`── ${c.character.name} ──`, ...combatantLines(c), ...activeEffectLines(c), `✨ Fulgor: ${cFulgor}/${cMaxFulgor}`]);
   if (cEq.length > 0) sections.push(cEq);
-  sections.push(["\u2500\u2500 DEFENSOR \u2500\u2500", ...combatantLines(d)]);
+  sections.push([`── ${d.character.name} ──`, ...combatantLines(d), ...activeEffectLines(d), `✨ Fulgor: ${dFulgor}/${dMaxFulgor}`]);
   if (dEq.length > 0) sections.push(dEq);
 
   sections.push(["\u2726 \u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501 \u2726"]);
   if (session.status === "waiting_reaction" && session.pendingAttack) {
     const p = session.pendingAttack;
-    sections.push(reactionPromptLines(p.attackerName, p.defenderName, p.baseDamage, p.canDodgeSuccessfully ?? false));
+    sections.push(reactionPromptLines(p.attackerName, p.defenderName, p.baseDamage, p.canDodgeSuccessfully ?? false, p.dodgeChancePct));
   } else {
-    sections.push(actionMenuLines(currentName));
+    sections.push(actionMenuLines(currentName, session, situationalCtx));
   }
 
   return composeMessage({ title: "\uD83D\uDCCA ESTADO", sections });
@@ -178,9 +205,31 @@ function formatElementReactionLine(decision) {
   return `\u26A1 Reacci\u00F3n *${decision.reaction.label}* \u00D7${mult}${efectos}`;
 }
 
+function formatEffectEventLines(events) {
+  if (!Array.isArray(events)) return [];
+  return events
+    .map((event) => {
+      if (event.type === "apply") return `Estado aplicado: *${event.effect}* (${event.turnos} turnos)`;
+      if (event.type === "tick") return `${event.effect}: -${event.dano} HP`;
+      if (event.type === "expire") return `${event.effect} se disipó`;
+      if (event.type === "purify")
+        return event.removed.length ? `Purificado: ${event.removed.join(", ")}` : "Purificado: sin estados negativos";
+      if (event.type === "damage") return `${event.effect}: -${event.dano} HP`;
+      return null;
+    })
+    .filter(Boolean);
+}
+
+function activeEffectLines(slot) {
+  const effects = Array.isArray(slot?.activeEffects) ? slot.activeEffects : [];
+  if (!effects.length) return [];
+  return [`Estados: ${effects.map((effect) => `${effect.tipo} (${effect.turnos}t)`).join(", ")}`];
+}
+
 module.exports = {
   buildFatigueBar,
   buildStatSummary,
+  buildSituationalCtx,
   formatActionMenu,
   formatReactionPrompt,
   formatCombatOpen,
@@ -190,4 +239,6 @@ module.exports = {
   formatMovement,
   formatOutOfRange,
   formatElementReactionLine,
+  formatEffectEventLines,
+  activeEffectLines,
 };

@@ -156,6 +156,28 @@ describe("resolveDefenderArmor", () => {
   });
 });
 
+describe("createArmorDurabilityAdapter", () => {
+  it("reparte el daño material entre piezas en orden", async () => {
+    const { createArmorDurabilityAdapter } = require("../src/services/rpg/equipmentResolverService");
+    const piece = (resist) => ({
+      instance: {
+        maxResist: resist,
+        currentResist: resist,
+        isBroken: false,
+        absorbDamage(damage) {
+          const absorbed = Math.min(this.currentResist, damage);
+          this.currentResist -= absorbed;
+          this.isBroken = this.currentResist <= 0;
+          return { overflow: damage - absorbed };
+        },
+      },
+    });
+    const adapter = createArmorDurabilityAdapter({ list: [piece(3), piece(5)] });
+    expect(adapter.absorbDamage(6)).toMatchObject({ absorbed: 6, overflow: 0 });
+    expect(adapter.currentResist).toBe(2);
+  });
+});
+
 describe("resolveArtifacts", () => {
   beforeEach(() => setupMocks());
 

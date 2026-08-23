@@ -78,16 +78,15 @@ describe("combatMessages — Single Message Formatters", () => {
       r_fulgor: 1,
     });
     expect(Array.isArray(stats)).toBe(true);
-    expect(stats).toHaveLength(3);
-    expect(stats[0]).toContain("HP100");
-    expect(stats[0]).toContain("ATK5");
-    expect(stats[0]).toContain("DEF5");
-    expect(stats[0]).toContain("ASPD2");
-    expect(stats[1]).toContain("REF2");
-    expect(stats[1]).toContain("MSP2");
-    expect(stats[1]).toContain("FUL3");
-    expect(stats[2]).toContain("DF4");
-    expect(stats[2]).toContain("RF1");
+    expect(stats).toHaveLength(2);
+    expect(stats[0]).toContain("ATK 5");
+    expect(stats[0]).toContain("DEF 5");
+    expect(stats[0]).toContain("ASPD 2");
+    expect(stats[0]).toContain("MSP 2");
+    expect(stats[1]).toContain("REF 2");
+    expect(stats[1]).toContain("FUL 3");
+    expect(stats[1]).toContain("DF 4");
+    expect(stats[1]).toContain("RF 1");
   });
 
   it("buildFatigueBar retorna string con formato compacto", () => {

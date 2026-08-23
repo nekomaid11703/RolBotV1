@@ -40,23 +40,11 @@ const {
   MATERIAL_RARITY_WEIGHTS,
   MATERIAL_RARITY_ORDER,
   MATERIAL_LEVEL_SCALE,
-  TIER_CAPS,
   TIER_ORDER,
   AMMO_STOCK_MIN,
   AMMO_STOCK_MAX,
   FAMILIES,
 } = require("./families.config");
-
-// Rango mínimo de tier por rareza (el material marca el piso y el techo del
-// crafteo: un material mítico parte en S, un común nunca sale de E–C).
-const RARITY_MIN_TIER = {
-  comun: "E",
-  poco_comun: "D",
-  raro: "C",
-  epico: "B",
-  legendario: "A",
-  mitico: "S",
-};
 
 const TIER_INDEX = TIER_ORDER.reduce((acc, tier, i) => {
   acc[tier] = i;
@@ -237,17 +225,13 @@ function rollMaterial(level, family) {
 
 /**
  * Sortea un tier E–S para el ítem según el nivel del maniquí y la rareza del
- * material (piso/techo por rareza + bracket de nivel con varianza).
+/**
+ * Sortea un tier E–S (calidad de forja/manufactura) para el ítem según el nivel del maniquí.
+ * El tier es la calidad de la mano de obra del objeto (independiente de la rareza del material base).
  * @param {number} level
- * @param {string} materialRarity
  * @returns {string} Tier (E, D, C, B, A, S)
  */
-function rollTier(level, materialRarity) {
-  const maxTier = TIER_CAPS[materialRarity] || "B";
-  const minTier = RARITY_MIN_TIER[materialRarity] || "E";
-  const maxIdx = TIER_INDEX[maxTier];
-  const minIdx = TIER_INDEX[minTier];
-
+function rollTier(level) {
   const bracket = [
     { minLevel: LEVEL_MIN, maxLevel: 199, idx: TIER_INDEX.E },
     { minLevel: 200, maxLevel: 299, idx: TIER_INDEX.C },
@@ -260,9 +244,9 @@ function rollTier(level, materialRarity) {
   const roll = Math.random();
   if (roll >= 0.6) idx = Math.max(TIER_INDEX.E, base.idx - 1);
   if (roll >= 0.9) idx = Math.max(TIER_INDEX.E, base.idx - 2);
+  if (roll <= 0.05) idx = Math.min(TIER_INDEX.S, base.idx + 1); // 5% golpe de suerte suprema
 
-  idx = Math.max(minIdx, Math.min(maxIdx, idx));
-  return TIER_ORDER[idx];
+  return TIER_ORDER[Math.max(0, Math.min(TIER_ORDER.length - 1, idx))];
 }
 
 /**
@@ -303,14 +287,33 @@ function buildWeapon(family, poolEntry, material, tier, level) {
   };
   const stats = getWeaponStats(def);
 
+  if (poolEntry.isFocus) {
+    const { getSpellStats } = require("../../src/services/rpg/itemStatService");
+    const focusDef = {
+      tier,
+      material,
+      modules: { focus: { canalizeScale: poolEntry.canalizeScale || 1.0, slotHeld: poolEntry.hands === 2 ? "2h" : "1h" } },
+    };
+    const focusStats = getSpellStats(focusDef);
+    return {
+      ...poolEntry,
+      ...stats,
+      name: `${poolEntry.name} de ${materialName(material)}`,
+      tier,
+      material,
+      isFocus: true,
+      canalizeBase: focusStats.canalizeBase,
+      canalizeScale: focusStats.canalizeScale,
+      physicalDamage: focusStats.physicalDamage || 0,
+      magicConduction: stats.magicConduction || focusStats.magicConduction || 0,
+    };
+  }
+
   if (poolEntry.ranged === true) {
     const arrowMaterial = family.ammo && family.materials.includes(family.ammo.material)
       ? family.ammo.material
       : material;
-    const arrowTier = rollTier(level, MATERIALS[arrowMaterial]?.rarity || "comun");
-    // Flecha: daño base fijo por MATERIAL (afilabilidad), SIN escalado por tier
-    // (el tier de la flecha solo aporta aerodinámica AERO al alcance/falloff).
-    // Fórmula centralizada en itemStatService.getProjectileStats.
+    const arrowTier = rollTier(level);
     const arrowStats = getProjectileStats({
       tier: arrowTier,
       material: arrowMaterial,

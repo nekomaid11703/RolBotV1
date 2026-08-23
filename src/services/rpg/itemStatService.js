@@ -3,7 +3,7 @@ const { getMaterialStats, MATERIALS } = require("../../data/materialData");
 
 /**
  * Servicio de resolución de estadísticas finales de un ítem a partir de su
- * definición normalizada. La fórmula general es `base × tier × material`.
+ * definición normalizada. Cada fórmula aplica el tier una sola vez.
  *
  * NO instancia ítems ni comunica con la DB; recibe una ItemDefinition y
  * devuelve estadísticas numéricas puras (fácilmente testeables).
@@ -23,7 +23,6 @@ const EDGE_SCALE = 50;
  */
 function getWeaponStats(def) {
   const tier = normalizeTier(def.tier || "E");
-  const mult = getTierMultiplier(tier);
   const mat = getMaterialStats(def.material || "madera", tier);
   const weapon = def.modules?.weapon || {};
   const ranged = Boolean(weapon.ranged);
@@ -31,7 +30,10 @@ function getWeaponStats(def) {
   // Armas a distancia (arco): el daño lo aporta el proyectil, el arco no tiene baseDamage propio.
   const baseDamage = ranged
     ? 0
-    : Math.max(1, Math.round((Number(weapon.baseDamage) || 10) * mult * (mat.afilabilidad / EDGE_SCALE)));
+    : Math.max(1, Math.round((Number(weapon.baseDamage) || 10) * (mat.afilabilidad / EDGE_SCALE)));
+
+  // Conducción mágica aportada por el material del arma física (ej: espada de plata/platino)
+  const magicConduction = Math.round((mat.conduccion_magica / EDGE_SCALE) * 10);
 
   return {
     damageNature: weapon.damageNature || "cortante",
@@ -40,6 +42,7 @@ function getWeaponStats(def) {
     baseDamage,
     weaponRange: weapon.weaponRange || 1,
     ranged,
+    magicConduction,
   };
 }
 
@@ -111,7 +114,7 @@ function getArtifactStats(def) {
  * como palanca (materialData.js) × multiplicador de tier. El foco es el único
  * término plano/multiplicador del canal mágico → obsolescencia programada (P2).
  * @param {import("./itemFactory").ItemDefinition} def - ItemDefinition (focus)
- * @returns {object} { canalizeBase, slotHeld, spellIds, tier, canalizeScale }
+ * @returns {object} { canalizeBase, slotHeld, spellIds, tier, canalizeScale, physicalDamage, magicConduction }
  */
 function getSpellStats(def) {
   const tier = normalizeTier(def.tier || "E");
@@ -125,12 +128,18 @@ function getSpellStats(def) {
     Math.round((Number(focus.canalizeScale) || 1) * (mat.conduccion_magica / EDGE_SCALE)),
   );
 
+  // Daño físico aportado si se usa el foco como arma contundente/afilada
+  const physicalDamage = Math.round((mat.afilabilidad / EDGE_SCALE) * 8);
+  const magicConduction = Math.round((mat.conduccion_magica / EDGE_SCALE) * 10);
+
   return {
     canalizeBase,
     slotHeld: focus.slotHeld || "1h",
     spellIds: Array.isArray(focus.spellIds) ? focus.spellIds : [],
     tier,
     canalizeScale: focus.canalizeScale || 1,
+    physicalDamage,
+    magicConduction,
   };
 }
 
@@ -166,6 +175,53 @@ function defaultBaseCost(rarity, mult) {
   return Math.round(flat * mult);
 }
 
+/**
+ * Calcula la sinergia de build según la coherencia entre estadísticas y equipamiento.
+ * A niveles altos (400-500), premia significativamente la especialización coherente (+15%)
+ * y penaliza las reparticiones incoherentes (-10%).
+ * @param {object} stats - Estadísticas del luchador
+ * @param {object} equipment - Equipo portado
+ * @param {number} level - Nivel del luchador (100-500)
+ * @returns {number} Coeficiente de sinergia (0.90x a 1.15x)
+ */
+function calculateBuildSynergy(stats, equipment, level = 100) {
+  if (!stats || !equipment) return 1.0;
+
+  const fulgorVal = (stats.fulgor || 0) + (stats.d_fulgor || 0);
+  const physicalVal = (stats.atk || 0) + (stats.aspd || 0);
+  const defVal = (stats.def || 0) + (stats.hp || 0);
+
+  const weapon = equipment.weapon || {};
+  const isMagicWeapon = Boolean(weapon.fulgorCost || weapon.canalizeBase || weapon.isFocus);
+  const isRangedWeapon = Boolean(weapon.ranged);
+  const isMeleeWeapon = !isMagicWeapon && !isRangedWeapon;
+
+  let synergyScore = 0;
+
+  // 1. Coherencia Stat principal vs Arma equipada
+  if (fulgorVal > physicalVal && isMagicWeapon) synergyScore += 1.0;
+  else if (physicalVal > fulgorVal && isMeleeWeapon) synergyScore += 1.0;
+  else if (physicalVal > fulgorVal && isRangedWeapon && stats.aspd > stats.def) synergyScore += 1.0;
+  else if (fulgorVal > 15 && isMeleeWeapon) synergyScore -= 0.5;
+  else if (physicalVal > 30 && isMagicWeapon) synergyScore -= 0.5;
+
+  // 2. Coherencia Armadura / Escudo vs Estilo
+  const armorList = equipment.armorList || [];
+  const totalCoverage = armorList.length;
+  if (defVal > 30 && totalCoverage >= 3) synergyScore += 0.5;
+  if (stats.ref > 30 && totalCoverage <= 2) synergyScore += 0.5;
+
+  // Coeficiente según nivel
+  const levelRatio = Math.max(0, Math.min(1, (level - 100) / 400));
+  if (synergyScore >= 1.0) {
+    return 1.0 + (0.03 + 0.12 * levelRatio);
+  } else if (synergyScore < 0) {
+    return 1.0 - (0.10 * levelRatio);
+  }
+
+  return 1.0;
+}
+
 module.exports = {
   getWeaponStats,
   getProjectileStats,
@@ -173,4 +229,5 @@ module.exports = {
   getArtifactStats,
   getSpellStats,
   getMaterialCost,
+  calculateBuildSynergy,
 };

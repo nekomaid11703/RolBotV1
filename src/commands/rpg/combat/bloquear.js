@@ -1,10 +1,20 @@
 // @ts-nocheck
 const { getActiveCharacter, addXp, setHp } = require("../../../services/characterService");
-const { findSessionByCharacter, advanceTurn, endSession } = require("../../../services/rpg/combatState");
+const {
+  findSessionByCharacter,
+  advanceTurn,
+  endSession,
+  getEffectKoOutcome,
+} = require("../../../services/rpg/combatState");
 const { executeReaction, calculateXpReward } = require("../../../services/rpg/combatEngine");
 const { calcFatigueCost, calcFatigueRecovery, capFatigue } = require("../../../services/rpg/fatigueEngine");
-const { formatActionMenu, buildFatigueBar } = require("../../../services/rpg/combatMessages");
+const { formatActionMenu, buildFatigueBar, buildSituationalCtx } = require("../../../services/rpg/combatMessages");
 const { box } = require("../../../utils/boxUtils");
+const {
+  resolveDefenderArmor,
+  createArmorDurabilityAdapter,
+} = require("../../../services/rpg/equipmentResolverService");
+const { persistArmorDurability } = require("../../../services/rpg/durabilityPersistenceService");
 
 module.exports = {
   name: "bloquear",
@@ -73,6 +83,7 @@ module.exports = {
     /**
      * @constant reactionResult
      */
+    const armor = await resolveDefenderArmor(defenderSlot.character).catch(() => null);
     const reactionResult = executeReaction(
       "block",
       pending.baseDamage,
@@ -82,7 +93,10 @@ module.exports = {
       attackerSlot.hp,
       defenderSlot.fatigue,
       attackerSlot.fatigue,
+      pending.materialDamage || 0,
+      createArmorDurabilityAdapter(armor),
     );
+    await persistArmorDurability(defenderSlot.character, defenderSlot.userId, armor);
 
     /**
      * @constant newAttackerHp
@@ -95,6 +109,8 @@ module.exports = {
 
     await advanceTurn(session.id, newAttackerHp, newDefenderHp);
 
+    const effectKo = getEffectKoOutcome(session);
+
     /**
      * @constant lines
      * @type {*[]}
@@ -102,11 +118,25 @@ module.exports = {
     const lines = [];
     lines.push("");
     lines.push(`\uD83D\uDEE1\uFE0F *${activeChar.name}* bloque\u00F3`);
-    lines.push(`\uD83D\uDCA5 ${pending.baseDamage}\u2192${reactionResult.finalDamage} (\u221225%)`);
+    const absorbed = pending.baseDamage - reactionResult.finalDamage;
+    lines.push(`\uD83D\uDCA5 ${pending.baseDamage} \u2192 ${reactionResult.finalDamage} (\uD83D\uDEE1\uFE0F absorbi\u00F3 ${absorbed})`);
     lines.push(
       `\u2764\uFE0F *${activeChar.name}*: ${reactionResult.defenderHpBefore}\u2192${reactionResult.defenderHpAfter}`,
     );
-    lines.push(`\u26A1 ${buildFatigueBar(defenderSlot.fatigue, defenderSlot.character.stats.def || 1)}`);
+    lines.push(`Fat ${buildFatigueBar(defenderSlot.fatigue, defenderSlot.character.stats.def || 1)}`);
+
+    if (effectKo) {
+      const xpReward = calculateXpReward(effectKo.loser.character.nivel || 1, true);
+      await addXp({
+        creatorId: effectKo.winner.userId,
+        characterName: effectKo.winner.character.name,
+        cantidad: xpReward,
+      });
+      await setHp({ creatorId: effectKo.loser.userId, characterName: effectKo.loser.character.name, hp: 0 });
+      lines.push(`\uD83D\uDC80 *${effectKo.loser.character.name}* cayó por un estado`);
+      lines.push(`\uD83C\uDFC6 +${xpReward} XP`);
+      return ctx.reply(box("\uD83D\uDEE1\uFE0F BLOQUEO", lines));
+    }
 
     if (reactionResult.ko) {
       /**
@@ -137,7 +167,10 @@ module.exports = {
         : session.defender.character.name;
     lines.push("");
     lines.push("\u2726 \u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501 \u2726");
-    lines.push(formatActionMenu(nextTurnCharName));
+    const nextSlot = session.currentTurnCharId === session.challenger.characterId ? session.challenger : session.defender;
+    const nextOpp = session.currentTurnCharId === session.challenger.characterId ? session.defender : session.challenger;
+    const situCtx = buildSituationalCtx(nextSlot, nextOpp, session.distance);
+    lines.push(formatActionMenu(nextTurnCharName, session, situCtx));
 
     return ctx.reply(box("\uD83D\uDEE1\uFE0F BLOQUEO", lines));
   },

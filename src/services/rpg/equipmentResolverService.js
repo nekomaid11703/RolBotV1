@@ -119,6 +119,22 @@ function resolveSpellDominante(spell) {
   return raw ? SPELL_ELEMENT_TO_REACTION[raw] || null : null;
 }
 
+function resolveSpellPayload(spell) {
+  return {
+    hits: Array.isArray(spell?.hits) ? spell.hits.map((hit) => ({ ...hit })) : [],
+    effects: Array.isArray(spell?.effects) ? spell.effects.map((effect) => ({ ...effect })) : [],
+    nature: spell?.nature || null,
+    kind: spell?.kind || null,
+    application: spell?.application || "externa",
+    resolution: spell?.resolution
+      ? {
+          ...spell.resolution,
+          statMods: (spell.resolution.statMods || []).map((mod) => ({ ...mod })),
+        }
+      : null,
+  };
+}
+
 /**
  * Resuelve el arma equipada del atacante a insumos de combate.
  * @param {object} character - Personaje atacante
@@ -152,6 +168,9 @@ async function resolveAttackerWeapon(character, equipped = null) {
   // Foco (módulo focus): canaliza hechizos cargados (spellIds). El primer
   // hechizo cargado disponible en el catálogo es el que se lanza; sin hechizo
   // cargado cae a desarmado (C.5) — no se puede "lanzar nada".
+  // Foco (módulo focus): canaliza hechizos cargados (spellIds). El primer
+  // hechizo cargado disponible en el catálogo es el que se lanza; si no tiene hechizo
+  // cargado o se usa directamente, permite golpear físicamente con su physicalDamage.
   if ((def.modules || {}).focus) {
     const focus = def.modules.focus;
     const spellIds = Array.isArray(focus.spellIds) ? focus.spellIds : [];
@@ -159,10 +178,20 @@ async function resolveAttackerWeapon(character, equipped = null) {
       const d = getItem(id);
       return d && (d.modules || {}).spell;
     });
-    if (!spellId) return null;
+    const focusStats = getSpellStats(def);
+    if (!spellId) {
+      return {
+        damageNature: "impacto",
+        tier: def.tier || "E",
+        baseDamage: focusStats.physicalDamage || 2,
+        hands: focus.slotHeld === "2h" ? 2 : 1,
+        weaponRange: 1,
+        ranged: false,
+        magicConduction: focusStats.magicConduction || 0,
+      };
+    }
     const spell = getItem(spellId).modules.spell;
     const nature = spell.damageNature || (spell.spellNature === "objeto" ? "perforante" : "mágico");
-    const focusStats = getSpellStats(def);
     return {
       damageNature: nature,
       tier: def.tier || "E",
@@ -175,6 +204,8 @@ async function resolveAttackerWeapon(character, equipped = null) {
       element: resolveSpellDominante(spell),
       canalizeBase: focusStats.canalizeBase,
       canalizeScale: focusStats.canalizeScale,
+      magicConduction: focusStats.magicConduction || 0,
+      spell: resolveSpellPayload(spell),
     };
   }
 
@@ -194,6 +225,7 @@ async function resolveAttackerWeapon(character, equipped = null) {
       fulgorCost: Number(spell.fulgorCost) || 0,
       spellNature: spell.spellNature || "mágico",
       element: resolveSpellDominante(spell),
+      spell: resolveSpellPayload(spell),
     };
   }
 
@@ -205,6 +237,7 @@ async function resolveAttackerWeapon(character, equipped = null) {
     hands: stats.hands,
     weaponRange: stats.weaponRange,
     ranged: stats.ranged,
+    magicConduction: stats.magicConduction || 0,
   };
 
   // Proyectil (arco): la flecha aporta el daño base. Se resuelve desde el
@@ -275,6 +308,36 @@ async function resolveDefenderArmor(characterOrId, equipped = null) {
   }
 
   return { list, totalMaxResist, totalCurrentResist, totalBonusDef };
+}
+
+function createArmorDurabilityAdapter(armor) {
+  const pieces = Array.isArray(armor?.list) ? armor.list : [];
+  if (!pieces.length) return null;
+  return {
+    get maxResist() {
+      return pieces.reduce((total, piece) => total + (piece.instance.maxResist || 0), 0);
+    },
+    get currentResist() {
+      return pieces.reduce((total, piece) => total + Math.max(0, piece.instance.currentResist || 0), 0);
+    },
+    get isBroken() {
+      return pieces.every((piece) => piece.instance.isBroken);
+    },
+    absorbDamage(materialDamage) {
+      let remaining = Math.max(0, Number(materialDamage) || 0);
+      for (const piece of pieces) {
+        if (remaining <= 0) break;
+        const result = piece.instance.absorbDamage(remaining);
+        remaining = result.overflow || 0;
+      }
+      return {
+        absorbed: Math.max(0, Number(materialDamage) || 0) - remaining,
+        overflow: remaining,
+        isBroken: pieces.every((piece) => piece.instance.isBroken),
+        isDestroyed: pieces.every((piece) => piece.instance.isBroken),
+      };
+    },
+  };
 }
 
 /**
@@ -355,6 +418,7 @@ module.exports = {
   getEquippedItems,
   resolveAttackerWeapon,
   resolveDefenderArmor,
+  createArmorDurabilityAdapter,
   resolveArtifacts,
   resolveCharacterEquipment,
 };

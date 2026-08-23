@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Spell Lab — Constructor de hechizos (árbol)</title>
+<title>Spell Lab — Constructor de hechizos (sistema simplificado)</title>
 <style>
   :root {
     --bg: #0f1420; --panel: #1a2130; --border: #2c3750; --text: #e6ecff;
@@ -27,7 +27,7 @@
   button.danger { background: transparent; border: 1px solid var(--err); color: var(--err); }
   button:disabled { opacity: 0.5; cursor: not-allowed; }
   .effects-list { display: flex; flex-direction: column; gap: 6px; margin-top: 6px; }
-  .effect-row { display: grid; grid-template-columns: 1.1fr 1fr .9fr .9fr 30px; gap: 6px; align-items: center; }
+  .effect-row { display: grid; grid-template-columns: 1.1fr .8fr .9fr .9fr 30px; gap: 6px; align-items: center; }
   .step { border: 1px solid var(--border); border-radius: 8px; padding: 10px; margin-top: 10px; }
   .step h3 { margin: 0 0 6px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--accent); }
   .step .breadcrumb { font-size: 10px; color: var(--muted); margin-bottom: 6px; }
@@ -46,12 +46,13 @@
   code { background: #121826; padding: 1px 5px; border-radius: 4px; font-size: 12px; }
   .mono { font-family: ui-monospace, monospace; }
   .hint { font-size: 11px; color: var(--muted); margin-top: 4px; }
+  .pending { color: #fbbf24; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
 </style>
 </head>
 <body>
 <header>
   <h1>✨ Spell Lab</h1>
-  <small>Constructor por <b>árbol</b> — conectado al generador real</small>
+  <small>Constructor <b>simplificado</b> — tipo → aplicación → naturaleza → efectos</small>
 </header>
 
 <main>
@@ -61,7 +62,7 @@
       <div class="row">
         <div>
           <label>Nombre</label>
-          <input id="name" placeholder="Llama Infernal" />
+          <input id="name" placeholder="Bola de fuego" />
         </div>
         <div>
           <label>ID (auto-desde-nombre)</label>
@@ -69,87 +70,80 @@
         </div>
       </div>
 
-      <!-- Paso 1: Naturaleza -->
-      <div class="step" id="step-naturaleza">
-        <h3>Paso 1 · Naturaleza</h3>
-        <div class="breadcrumb" id="bc-naturaleza">Raíz del árbol de forja.</div>
-        <label>Naturaleza (raíz)</label>
-        <select id="naturaleza"></select>
-        <div id="subtype-wrap" style="display:none">
-          <label>Sub-tipo</label>
-          <select id="subtype"></select>
-        </div>
+      <!-- Paso 1: Tipo de hechizo -->
+      <div class="step" id="step-kind">
+        <h3>Paso 1 · Tipo de hechizo</h3>
+        <div class="breadcrumb" id="bc-kind"></div>
+        <label>Tipo (forma de resolución)</label>
+        <select id="kind"></select>
       </div>
 
-      <!-- Paso 2: Rol -->
-      <div class="step" id="step-role" style="display:none">
-        <h3>Paso 2 · Rol / objetivo</h3>
-        <div class="breadcrumb" id="bc-role"></div>
-        <label>Rol</label>
-        <select id="role"></select>
+      <!-- Paso 2: Aplicación -->
+      <div class="step" id="step-application" style="display:none">
+        <h3>Paso 2 · Aplicación</h3>
+        <div class="breadcrumb" id="bc-application"></div>
+        <label>Aplicación</label>
+        <select id="application"></select>
       </div>
 
-      <!-- Paso 3 + 4: Activación y momento -->
-      <div class="step" id="step-activacion" style="display:none">
-        <h3>Paso 3 + 4 · Activación y momento de uso</h3>
-        <div class="breadcrumb" id="bc-activacion"></div>
+      <!-- Paso 3: Naturaleza de fulgor -->
+      <div class="step" id="step-nature" style="display:none">
+        <h3>Paso 3 · Naturaleza de fulgor</h3>
+        <div class="breadcrumb" id="bc-nature"></div>
         <div class="row">
           <div>
-            <label>Activación</label>
-            <select id="activation"></select>
+            <label>Familia</label>
+            <select id="nature-family"></select>
           </div>
           <div>
-            <label>Momento de uso</label>
-            <select id="moment"></select>
+            <label>Naturaleza</label>
+            <select id="nature"></select>
           </div>
         </div>
       </div>
 
-      <!-- Paso 5: Efectos -->
+      <!-- Paso 4: Efectos -->
       <div class="step" id="step-effects" style="display:none">
-        <h3>Paso 5 · Efectos (componentes)</h3>
+        <h3>Paso 4 · Efectos</h3>
         <div class="breadcrumb" id="bc-effects"></div>
         <div class="effects-list" id="effects-list"></div>
         <button class="ghost" id="add-effect" style="width:auto;margin-top:6px">+ Efecto</button>
       </div>
 
-      <!-- Paso 6: Recursos -->
+      <!-- Paso 5: Recursos -->
       <div class="step">
-        <h3>Paso 6 · Recursos</h3>
+        <h3>Paso 5 · Recursos</h3>
         <div class="row">
           <div>
             <label>Coste</label>
             <select id="cost-type">
               <option value="por_uso">Por uso</option>
               <option value="por_turno">Por turno</option>
-              <option value="por_metro">Por metro</option>
             </select>
           </div>
-          <div>
-            <label>Fulgor</label>
-            <input id="cost-fulgor" type="number" min="0" value="3" />
-          </div>
-        </div>
-        <div class="row">
           <div>
             <label>Casteo (turnos)</label>
             <input id="castTime" type="number" min="1" value="1" />
           </div>
+        </div>
+        <div class="row">
           <div>
             <label>Cooldown (turnos)</label>
             <input id="cooldown" type="number" min="0" value="0" />
           </div>
-        </div>
-        <div class="row">
           <div>
             <label>Alcance (range)</label>
-            <input id="range" type="number" min="0" value="3" />
+            <input id="range" type="number" min="0" value="5" />
           </div>
+        </div>
+        <div class="row">
           <div>
             <label>Precio base</label>
             <input id="basePrice" type="number" min="0" value="500" />
           </div>
+          <div></div>
         </div>
+        <div class="hint">fulgorCost se DERIVA del costo fino (tier): casteo lento y cooldown lo abaratan. No se elige manualmente.</div>
       </div>
 
       <button id="save" disabled>Guardar en motor</button>
@@ -169,6 +163,7 @@
       <div style="text-align:center; margin-top:10px; font-size:12px; color:var(--muted)" id="tier-line">
         Tier: <span class="tier-chip" id="m-tier">–</span> &nbsp; <span class="chip" id="m-rarity">–</span> &nbsp; Dominio req: <b id="m-dominio">–</b> &nbsp; Canal: <span class="chip" id="m-channel">–</span>
       </div>
+      <div style="margin-top:8px; font-size:12px; color:var(--warning); display:none" id="balance-line"></div>
       <pre class="mono" id="cost-detail" style="background:#121826;border:1px solid var(--border);border-radius:6px;padding:10px;font-size:12px;margin-top:10px;white-space:pre-wrap"></pre>
     </section>
 
@@ -182,26 +177,15 @@
 
 <script>
 // ─────────────────────────────────────────────────────────────
-// Taxonomía consumida del servidor (fuente única, sin hardcodear).
+// Taxonomía simplificada consumida del servidor (fuente: spellTree.js).
 let T = null;
 let effects = [];
 let debounceTimer = null;
 let currentRecipe = null;
 
 const NATURE_LABEL = {
+  elemental: "Elemental (agua / fuego / tierra / aire / hielo / electro)",
   primordial: "Primordial (luz / oscuridad / caos)",
-  elemental: "Elemental (hydro / pyro / geo / anemo / electro / cryo)",
-  material: "Material (forma / filo / peso)",
-  conceptual: "Conceptual (regeneración / deterioro / modificación / potenciación / transmutación)",
-};
-const EFFECT_LABEL = {
-  dano: "Daño", sanacion: "Sanación", escudo: "Escudo", aura: "Aura",
-  movimiento: "Movimiento", control: "Control", invocacion: "Invocación",
-  imbuicion: "Imbuición", regeneracion: "Regeneración", transmutacion: "Transmutación",
-};
-const ELEMENT_LABEL = {
-  hydro: "Hydro", pyro: "Pyro", geo: "Geo", anemo: "Anemo", electro: "Electro", cryo: "Cryo",
-  luz: "Luz", oscuridad: "Oscuridad", caos: "Caos",
 };
 
 async function init() {
@@ -209,7 +193,7 @@ async function init() {
     const res = await fetch("/api/taxonomy");
     T = await res.json();
     document.getElementById("save").disabled = true;
-    populateNaturaleza();
+    populateKind();
     syncTree();
     schedulePreview();
     listSpells();
@@ -241,115 +225,130 @@ function fill(sel, options, selected) {
   }
 }
 
-function populateNaturaleza() {
-  fill(document.getElementById("naturaleza"),
-    Object.keys(T.SPELL_NATURES).map(k => ({ key: k, label: NATURE_LABEL[k] || k })),
+function populateKind() {
+  fill(document.getElementById("kind"),
+    Object.keys(T.SPELL_KINDS).map(k => ({ key: k, label: T.SPELL_KINDS[k].label || k })),
     null);
 }
 
-// Reads estado de selects y desbloquea las siguientes secciones (progressive disclosure).
+// Compatible con el tipo: exponemos ambas familias de aplicación.
 function syncTree() {
-  const naturaleza = document.getElementById("naturaleza").value;
-  const natura = T.SPELL_NATURES[naturaleza];
-  document.getElementById("bc-naturaleza").textContent = `Raíz elegida: ${naturaleza}. Sub-tipos: ${natura.subtypes.join(", ")}. Roles posibles: ${natura.roles.join(", ")}.`;
+  const kind = document.getElementById("kind").value;
+  const kindDef = T.SPELL_KINDS[kind];
+  document.getElementById("bc-kind").textContent = kindDef
+    ? `Tipo: ${kindDef.label}. Targets posibles: ${kindDef.target.join(", ")}.`
+    : "Elige un tipo de hechizo para continuar.";
 
-  // Sub-tipo
-  const subtypeWrap = document.getElementById("subtype-wrap");
-  subtypeWrap.style.display = naturaleza ? "block" : "none";
-  const prevSubtype = document.getElementById("subtype").value;
-  fill(document.getElementById("subtype"),
-    naturaleza ? natura.subtypes.map(k => ({ key: k, label: k })) : [],
-    prevSubtype && natura.subtypes.includes(prevSubtype) ? prevSubtype : natura.subtypes[0]);
+  // Aplicación
+  const stepApp = document.getElementById("step-application");
+  stepApp.style.display = kind ? "block" : "none";
+  if (kind) {
+    const prev = document.getElementById("application").value;
+    fill(document.getElementById("application"),
+      T.SPELL_APPLICATIONS.map(k => ({ key: k, label: k === "propia" ? "Propia (quien casteó)" : "Externa (objetivo)" })),
+      prev && T.SPELL_APPLICATIONS.includes(prev) ? prev : T.SPELL_APPLICATIONS[0]);
+    const app = document.getElementById("application").value;
+    document.getElementById("bc-application").textContent =
+      `Aplicación: ${app === "propia" ? "afecta a quien casteó" : "dirigida a un objetivo externo"}.`;
+  }
 
-  // Rol
-  const roleStep = document.getElementById("step-role");
-  const roleSel = document.getElementById("role");
-  const prevRole = roleSel.value;
-  fill(roleSel, naturaleza ? natura.roles.map(k => ({ key: k, label: k })) : [],
-    prevRole && natura.roles.includes(prevRole) ? prevRole : natura.roles[0]);
-  roleStep.style.display = naturaleza ? "block" : "none";
-  const role = roleSel.value || "";
-  document.getElementById("bc-role").textContent = role
-    ? `Rol: ${role}. Efectos: ${T.SPELL_ROLES[role].effects.join(", ")}.`
-    : "Elige un rol para continuar.";
-
-  // Activación + momento
-  const stepAct = document.getElementById("step-activacion");
-  if (role && T.SPELL_ROLES[role]) {
-    const rules = T.SPELL_ROLES[role];
-    fill(document.getElementById("activation"), rules.activations.map(k => ({ key: k, label: k })), null);
-    fill(document.getElementById("moment"), rules.moments.map(k => ({ key: k, label: k })), null);
-    document.getElementById("bc-activacion").textContent =
-      `El rol "${role}" permite activación ${rules.activations.join("/")} y momento ${rules.moments.join("/")}.`;
-    stepAct.style.display = "block";
-  } else {
-    stepAct.style.display = "none";
+  // Naturaleza de fulgor (siempre presente — nunca nula)
+  const stepNat = document.getElementById("step-nature");
+  stepNat.style.display = kind ? "block" : "none";
+  if (kind) {
+    const famSel = document.getElementById("nature-family");
+    const prevFam = famSel.value;
+    fill(famSel,
+      Object.keys(T.SPELL_NATURES).map(k => ({ key: k, label: NATURE_LABEL[k] || T.SPELL_NATURES[k].label || k })),
+      prevFam && T.SPELL_NATURES[prevFam] ? prevFam : Object.keys(T.SPELL_NATURES)[0]);
+    syncNature();
   }
 
   // Efectos
   const stepFx = document.getElementById("step-effects");
-  if (role && T.SPELL_ROLES[role]) {
-    stepFx.style.display = "block";
+  stepFx.style.display = kind ? "block" : "none";
+  if (kind) {
+    const app = document.getElementById("application").value;
+    const available = Object.keys(T.EFFECT_DEFS).filter(tipo => {
+      const def = T.EFFECT_DEFS[tipo];
+      return def.compatibleKinds.includes(kind) && def.compatibleApplications.includes(app);
+    });
     document.getElementById("bc-effects").textContent =
-      `Efectos permitidos para "${role}": ${T.SPELL_ROLES[role].effects.join(", ")}.`;
+      `Efectos compatibles con ${kindDef.label} / ${app}: ${available.join(", ")}.`;
     renderEffects();
-  } else {
-    stepFx.style.display = "none";
   }
 }
 
-// Un efecto inicial solo cuando el rol cambie a uno nuevo sin efectos.
-function ensureEffectsSeeded() {
-  const role = document.getElementById("role").value;
-  if (!role) return;
-  const allowed = T.SPELL_ROLES[role].effects;
-  for (const e of effects) {
-    if (!allowed.includes(e.tipo)) e.tipo = allowed[0];
-    if (!e.target) e.target = T.EFFECT_TARGETS[e.tipo][0];
-  }
+// Naturaleza primaria; recalcula el select de naturaleza al elegir familia.
+function syncNature() {
+  const fam = document.getElementById("nature-family").value;
+  const famDef = T.SPELL_NATURES[fam];
+  document.getElementById("bc-nature").textContent = famDef
+    ? `Familia: ${famDef.label || fam}. Naturalezas: ${famDef.subtypes.join(", ")}.`
+    : "Elige una familia de fulgor.";
+  const prev = document.getElementById("nature").value;
+  fill(document.getElementById("nature"),
+    famDef ? famDef.subtypes.map(k => ({ key: k, label: k })) : [],
+    prev && famDef.subtypes.includes(prev) ? prev : famDef.subtypes[0]);
+  schedulePreview();
+}
+
+// Re-filtra los efectos compatibles cuando cambia tipo/aplicación/familia.
+function pruneEffects() {
+  const kind = document.getElementById("kind").value;
+  const app = document.getElementById("application").value;
+  effects = effects.filter(e => {
+    const def = T.EFFECT_DEFS[e.tipo];
+    return def && def.compatibleKinds.includes(kind) && def.compatibleApplications.includes(app);
+  });
 }
 
 function renderEffects() {
   const box = document.getElementById("effects-list");
   box.innerHTML = "";
-  ensureEffectsSeeded();
+  const kind = document.getElementById("kind").value;
+  const app = document.getElementById("application").value;
+  if (!kind) return;
+  pruneEffects();
+  const available = Object.keys(T.EFFECT_DEFS).filter(tipo => {
+    const def = T.EFFECT_DEFS[tipo];
+    return def.compatibleKinds.includes(kind) && def.compatibleApplications.includes(app);
+  });
   if (effects.length === 0) {
-    const allowed = T.SPELL_ROLES[document.getElementById("role").value].effects;
-    effects.push({ tipo: allowed[0], target: T.EFFECT_TARGETS[allowed[0]][0], element: null, magnitude: 1, duration: 0 });
+    box.innerHTML = '<div class="hint">Sin efectos: el golpe de fulgor actúa solo (naturaleza + hits).</div>';
+    document.getElementById("add-effect").onclick = () => {
+      const tipo = available[0];
+      effects.push({ tipo, magnitude: 1, duration: T.EFFECT_DEFS[tipo].duration ? 1 : 0 });
+      renderEffects();
+      schedulePreview();
+    };
+    return;
   }
   effects.forEach((e, i) => {
     const row = document.createElement("div");
     row.className = "effect-row";
-    const allowed = T.SPELL_ROLES[document.getElementById("role").value].effects;
+    const def = T.EFFECT_DEFS[e.tipo];
 
     const tipo = document.createElement("select");
-    fill(tipo, allowed.map(k => ({ key: k, label: EFFECT_LABEL[k] || k })), e.tipo);
+    fill(tipo, available.map(k => ({ key: k, label: T.EFFECT_DEFS[k].label })), e.tipo);
     tipo.onchange = () => {
       e.tipo = tipo.value;
-      e.target = T.EFFECT_TARGETS[e.tipo][0];
+      e.duration = T.EFFECT_DEFS[e.tipo].duration ? 1 : 0;
       renderEffects();
       schedulePreview();
     };
-
-    const target = document.createElement("select");
-    fill(target, T.EFFECT_TARGETS[e.tipo].map(k => ({ key: k, label: k })), e.target);
-    target.onchange = () => { e.target = target.value; schedulePreview(); };
-
-    // Elemento opcional (solo si el efecto puede llevarlo)
-    const elem = document.createElement("select");
-    const elemOpts = [{ key: "null", label: "sin elemento" }];
-    const natura = document.getElementById("naturaleza").value;
-    const subtype = document.getElementById("subtype").value;
-    if (natura === "elemental" || natura === "primordial") {
-      for (const k of T.SPELL_NATURES[natura].subtypes) elemOpts.push({ key: k, label: ELEMENT_LABEL[k] || k });
-    }
-    fill(elem, elemOpts, e.element || "null");
-    elem.onchange = () => { e.element = elem.value === "null" ? null : elem.value; schedulePreview(); };
 
     const mag = document.createElement("input");
     mag.type = "number"; mag.min = "1"; mag.value = e.magnitude;
     mag.title = "Magnitud";
     mag.oninput = () => { e.magnitude = Math.max(1, Number(mag.value)); schedulePreview(); };
+
+    const dur = document.createElement("input");
+    dur.type = "number"; dur.min = "0";
+    dur.value = e.duration;
+    dur.title = "Duración (turnos)";
+    dur.disabled = !T.EFFECT_DEFS[e.tipo].duration;
+    dur.oninput = () => { e.duration = Math.max(0, Number(dur.value)); schedulePreview(); };
 
     const del = document.createElement("button");
     del.textContent = "✕"; del.className = "danger";
@@ -357,35 +356,41 @@ function renderEffects() {
     del.style.width = "auto"; del.style.margin = "0";
     del.onclick = () => { effects.splice(i, 1); renderEffects(); schedulePreview(); };
 
-    row.append(tipo, target, elem, mag, del);
+    row.append(tipo, mag, dur, statusHint(def), del);
     box.appendChild(row);
   });
   document.getElementById("add-effect").onclick = () => {
-    const allowed = T.SPELL_ROLES[document.getElementById("role").value].effects;
-    const tipo = allowed[0];
-    effects.push({ tipo, target: T.EFFECT_TARGETS[tipo][0], element: null, magnitude: 1, duration: 0 });
+    const tipo = available[0];
+    effects.push({ tipo, magnitude: 1, duration: T.EFFECT_DEFS[tipo].duration ? 1 : 0 });
     renderEffects();
     schedulePreview();
   };
 }
 
+function statusHint(def) {
+  const s = document.createElement("div");
+  s.style.fontSize = "10px"; s.style.color = "var(--muted)";
+  s.textContent = def.handler ? "activo" : "pendiente";
+  if (!def.handler) s.className = "pending";
+  return s;
+}
+
 function readRecipe() {
-  const role = document.getElementById("role").value;
+  const kind = document.getElementById("kind").value;
   const stepFx = document.getElementById("step-effects");
   return {
     id: autoId(),
     name: document.getElementById("name").value,
-    naturaleza: document.getElementById("naturaleza").value,
-    subtype: document.getElementById("subtype").value,
-    role,
-    activation: document.getElementById("activation").value,
-    moment: document.getElementById("moment").value,
+    kind,
+    application: document.getElementById("application").value,
+    nature: document.getElementById("nature").value,
     effects: stepFx.style.display === "none" ? [] : effects.map(e => ({
-      tipo: e.tipo, target: e.target, element: e.element, magnitude: Number(e.magnitude),
+      tipo: e.tipo,
+      magnitude: Number(e.magnitude),
+      duration: Number(e.duration) || 0,
     })),
     cost: {
       tipo: document.getElementById("cost-type").value,
-      fulgor: Number(document.getElementById("cost-fulgor").value),
     },
     castTime: Number(document.getElementById("castTime").value),
     cooldown: Number(document.getElementById("cooldown").value),
@@ -410,36 +415,53 @@ async function showPreview() {
       return;
     }
     const c = data.cost;
-    const def = data.def;
     document.getElementById("m-potencia").textContent = c.potencia;
     document.getElementById("m-fineza").textContent = c.fineza;
     document.getElementById("m-costo").textContent = c.costoFino;
     document.getElementById("m-fulgor").textContent = c.fulgorCost;
-    document.getElementById("m-tier").textContent = c.tier;
+    document.getElementById("m-tier").textContent = `${c.tier} [${c.category || "Básico"}]`;
     document.getElementById("m-rarity").textContent = c.rarity;
     document.getElementById("m-dominio").textContent = c.dominioReq;
-    document.getElementById("m-channel").textContent = def.modules.spell.channel || "magico";
+    document.getElementById("m-channel").textContent = "magico";
+    const balanceLine = document.getElementById("balance-line");
+    if (c.usableNaturalmente === false) {
+      balanceLine.textContent = "⚠ No usable naturalmente: costo final alcanza la batería máxima (100). Existe de forma canónica.";
+      balanceLine.style.display = "block";
+    } else if (c.tierAjustadoPorReglaE) {
+      balanceLine.textContent = "⚠ Tier ajustado a D: el tier E no admite efectos ni multi-elemento.";
+      balanceLine.style.display = "block";
+    } else if (c.reglasTier) {
+      balanceLine.textContent = `${c.tier} — ${c.reglasTier.desc}`;
+      balanceLine.style.display = "block";
+    } else {
+      balanceLine.style.display = "none";
+    }
     document.getElementById("cost-detail").textContent = JSON.stringify({
-      id: def.id,
-      tier: c.tier, rarity: c.rarity, material: c.material,
-      canal: def.modules.spell.channel,
-      naturaleza: def.modules.spell.naturaleza,
-      subtype: def.modules.spell.subtype,
-      role: def.modules.spell.role,
-      activation: def.modules.spell.activation,
-      moment: def.modules.spell.moment,
-      potencia: c.potencia, fineza: c.fineza,
-      costoFino: c.costoFino, fulgorCost: c.fulgorCost,
-      dominioReq: c.dominioReq, resultType: c.resultType,
-      effects: def.modules.spell.effects,
-      hits: def.modules.spell.hits,
+      id: recipe.id,
+      kind: recipe.kind,
+      application: recipe.application,
+      nature: recipe.nature,
+      effects: recipe.effects,
+      castTime: recipe.castTime, cooldown: recipe.cooldown, range: recipe.range,
+      tier: c.tier, rarity: c.rarity,
+      costoFino: c.costoFino, fulgorCost: c.fulgorCost, dominioReq: c.dominioReq,
+      usableNaturalmente: c.usableNaturalmente, fulgorPoolMax: c.fulgorPoolMax,
+      reglasTier: c.reglasTier ? c.reglasTier.desc : null,
+      reacciones: reactionsFor(recipe.nature),
     }, null, 2);
-    setStatus("✓ Métricas calculadas en tiempo real con el generador real", true);
-    document.getElementById("save").disabled = !(recipe.name.trim() && recipe.effects.length > 0);
+    setStatus("✓ Métricas calculadas en tiempo real con el sistema simplificado", true);
+    document.getElementById("save").disabled = !(recipe.name.trim() && recipe.nature);
     currentRecipe = recipe;
   } catch (err) {
     setStatus("Error de conexión: " + err.message, false);
   }
+}
+
+function reactionsFor(nature) {
+  if (!T || !nature) return [];
+  return Object.entries(T.ELEMENT_REACTIONS)
+    .filter(([key]) => key.endsWith("@" + nature))
+    .map(([key, r]) => `${key.split("@")[0]} @ ${nature} → ${r.label} ×${r.canal}`);
 }
 
 function setStatus(msg, ok) {
@@ -480,9 +502,10 @@ async function listSpells() {
     card.className = "spell-card";
     const tier = cost ? `<span class="tier-chip">${cost.tier}</span>` : "<span class='tier-chip'>?</span>";
     const rarity = cost ? `<span class="chip">${cost.rarity}</span>` : "";
+    const kindLabel = recipe.kind ? (T.SPELL_KINDS[recipe.kind]?.label || recipe.kind) : "–";
     card.innerHTML = `
       <div class="head"><b>${recipe.name || recipe.id}</b><span><code>${recipe.id}</code></span></div>
-      <div class="tags">${tier} ${rarity} costoFino ${cost ? cost.costoFino : "–"} · fulgor ${cost ? cost.fulgorCost : "–"} · req dominio ${cost ? cost.dominioReq : "–"} · ${recipe.naturaleza || ""} / ${recipe.role || ""}</div>
+      <div class="tags">${tier} ${rarity} costoFino ${cost ? cost.costoFino : "–"} · fulgor ${cost ? cost.fulgorCost : "–"} · req dominio ${cost ? cost.dominioReq : "–"} · ${kindLabel} / ${recipe.nature || "–"} / ${recipe.application || "–"}</div>
       <pre class="mono" style="font-size:11px;margin:6px 0 0;white-space:pre-wrap">${JSON.stringify(recipe.effects || recipe.hits, null, 2)}</pre>
       <button class="danger" data-id="${recipe.id}">Eliminar</button>`;
     box.appendChild(card);
@@ -495,18 +518,18 @@ async function listSpells() {
 
 document.getElementById("save").onclick = save;
 document.getElementById("refresh").onclick = listSpells;
-document.getElementById("naturaleza").onchange = syncTree;
-document.getElementById("subtype").onchange = syncTree;
-document.getElementById("role").onchange = syncTree;
-["activation", "moment", "cost-type", "cost-fulgor", "castTime", "cooldown", "range", "basePrice"].forEach(id => {
+document.getElementById("kind").onchange = syncTree;
+document.getElementById("application").onchange = syncTree;
+document.getElementById("nature-family").onchange = syncNature;
+document.getElementById("nature").onchange = schedulePreview;
+["cost-type", "castTime", "cooldown", "range", "basePrice"].forEach(id => {
   const el = document.getElementById(id);
   const evt = el.tagName === "SELECT" ? "change" : "input";
   el.addEventListener(evt, schedulePreview);
 });
-["name"].forEach(id => {
+["name", "id"].forEach(id => {
   document.getElementById(id).addEventListener("input", schedulePreview);
 });
-document.getElementById("id").addEventListener("input", schedulePreview);
 
 init();
 </script>

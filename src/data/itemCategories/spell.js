@@ -49,6 +49,17 @@ class SpellModule extends ModuleBase {
     this.effects = Array.isArray(config.effects) ? config.effects.map((e) => ({ ...e })) : [];
     this.resourceCost = config.resourceCost || null;
     this.channel = config.channel || null; // fisico | magico (regla de oro §5)
+
+    // Sistema Simplificado (2026-08-18): tipo de hechizo → aplicación →
+    // naturaleza de fulgor → efectos. Estos ejes viajan sin romper retrocompat.
+    this.kind = config.kind || null; // proyectil|explosion|barrera|buffo|aura
+    this.application = config.application || null; // propia|externa
+    this.nature = config.nature || null; // naturaleza de fulgor (FULGOR_NATURES)
+
+    // Payload de resolución explícito (Contrato §11): el motor NO infiere la
+    // semántica desde el nombre; el constructor persiste targetMode/radius/
+    // barrierHp/imbuement/duration/statMods normalizados.
+    this.resolution = config.resolution || null;
   }
 
   /**
@@ -77,6 +88,15 @@ class SpellModule extends ModuleBase {
       effects: this.effects.map((e) => ({ ...e })),
       resourceCost: this.resourceCost ? { ...this.resourceCost } : null,
       channel: this.channel,
+      kind: this.kind,
+      application: this.application,
+      nature: this.nature,
+      resolution: this.resolution
+        ? {
+            ...this.resolution,
+            statMods: (this.resolution.statMods || []).map((m) => ({ ...m })),
+          }
+        : null,
     };
   }
 }

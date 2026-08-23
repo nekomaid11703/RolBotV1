@@ -20,6 +20,11 @@ const EQUIPMENT_SLOTS = {
   artefacto_2: { accepts: ["artifact"] },
   artefacto_3: { accepts: ["artifact"] },
   artefacto_4: { accepts: ["artifact"] },
+  spell_1: { accepts: ["spell"] },
+  spell_2: { accepts: ["spell"] },
+  spell_3: { accepts: ["spell"] },
+  spell_4: { accepts: ["spell"] },
+  spell_container: { accepts: ["spell_container"] },
 };
 
 /**
@@ -45,6 +50,21 @@ const SLOT_ALIASES = {
   mano_derecha: "mano_der",
   mano_izquierda: "mano_izq",
   artefacto: "artefacto_1",
+  hechizo: "spell_1",
+  hechizo_1: "spell_1",
+  hechizo_2: "spell_2",
+  hechizo_3: "spell_3",
+  hechizo_4: "spell_4",
+  habilidad_1: "spell_1",
+  habilidad_2: "spell_2",
+  habilidad_3: "spell_3",
+  habilidad_4: "spell_4",
+  spell: "spell_1",
+  tomo: "spell_container",
+  grimorio: "spell_container",
+  pergamino: "spell_container",
+  contenedor: "spell_container",
+  spell_container: "spell_container",
 };
 
 /**
@@ -88,6 +108,7 @@ function resolveDefaultSlot(itemDef, currentSlots = {}) {
   if (cats.includes("focus")) return "mano_der";
   if (cats.includes("shield")) return "mano_izq";
   if (cats.includes("armor")) return resolveArmorSlot(itemDef);
+  if (cats.includes("spell_container")) return "spell_container";
   if (cats.includes("artifact")) {
     const order = ["artefacto_1", "artefacto_2", "artefacto_3", "artefacto_4"];
     return order.find((s) => !currentSlots[s]) || "artefacto_1";

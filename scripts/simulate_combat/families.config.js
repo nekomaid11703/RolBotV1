@@ -17,90 +17,105 @@ const MATERIAL_RARITY_WEIGHTS = {
 // Orden de rareza (índice = peso de desplazamiento por nivel).
 const MATERIAL_RARITY_ORDER = ["comun", "poco_comun", "raro", "epico", "legendario", "mitico"];
 
-// Escala de desplazamiento de peso hacia rarezas mayores según el nivel
-// (0 = el nivel no influye; 1 = a nivel máximo los materiales raros duplican
-// su peso base). Simula que el jugador accede a materiales mejores a medida
-// que sube de nivel.
+// Escala de desplazamiento de peso hacia rarezas mayores según el nivel.
 const MATERIAL_LEVEL_SCALE = 0.4;
 
-// Techo de tier por rareza del material: un material común jamás puede craftear
-// un arma de tier S (requisito: "material tier S → arma tier S").
-// comun → C, poco_comun → B, raro → A, epico → S, legendario → S, mitico → S.
-const TIER_CAPS = {
-  comun: "C",
-  poco_comun: "B",
-  raro: "A",
-  epico: "S",
-  legendario: "S",
-  mitico: "S",
-};
-
-// Orden de tiers (índice para comparar techos).
+// Orden de tiers de forja / calidad de manufactura (independiente del material).
 const TIER_ORDER = ["E", "D", "C", "B", "A", "S", "N"];
 
 // ── Munición (arco) ─────────────────────────────────────────────────────────
-// Stock fijo de flechas al generar un arquero (un jugador carga muchas).
-// Cap: 30 flechas (decisión Fase B).
 const AMMO_STOCK_MIN = 30;
 const AMMO_STOCK_MAX = 30;
 
 // ── IA por equipamiento ─────────────────────────────────────────────────────
-// Si la armadura suma este bonusDef (o más), la IA prefiere bloquear sobre
-// esquivar: el tanque aguanta con durabilidad en vez de gastar fatiga.
-// (Constante única en src/config/combatConfig.js)
 const { BLOCK_PREFER_DEF_THRESHOLD } = require("../../src/config/combatConfig");
 
-// ── Familias de ítems (editable) ────────────────────────────────────────────
-// Una familia = conjunto de materiales + plantillas de ítems. Los ítems se
-// DERIVAN con las fórmulas reales del motor (itemStatService: base × tier ×
-// material) usando el material y tier elegidos por el generador.
-// Para añadir/editar/borrar familias basta con editar este objeto (o usar
-// scripts/simulate_combat/manage_families.js).
+// Lista de TODOS los materiales del juego
+const ALL_MATERIALS = [
+  "madera", "cuero", "hueso", "piedra",
+  "hierro", "bronce", "acero", "plata",
+  "platino", "obsidiana", "oro", "madera_caoba",
+  "titanio", "mitril", "oricalco",
+  "luminita", "mineral_palido", "obsidiana_azul", "madera_irminsul",
+  "adamantita", "eterio", "vibranium", "filo_estelar"
+];
+
+// ── Familias de ítems ───────────────────────────────────────────────────────
+// Derivan sus estadísticas reales del motor (itemStatService: base × tier × material).
+// Incluyen de base armas físicas, focos (varita, báculo), armaduras y túnicas místicas.
 const FAMILIES = {
-  // Familia del Hierro: metal base del simulador (compat con presets).
-  hierro: {
-    id: "hierro",
-    name: "Familia del Hierro",
-    setId: "set_hierro",
-    materials: ["hierro", "acero", "bronce", "titanio", "mitril", "adamantita", "filo_estelar"],
+  universal: {
+    id: "universal",
+    name: "Familia Universal",
+    setId: "set_universal",
+    materials: ALL_MATERIALS,
     weaponPool: [
-      { id: "espada_de_hierro", name: "Espada", damageNature: "cortante", nominalDamage: 20, hands: 1, weaponRange: 1 },
-      { id: "estoque_de_hierro", name: "Estoque", damageNature: "perforante", nominalDamage: 14, hands: 1, weaponRange: 1 },
-      { id: "maza_de_hierro", name: "Maza", damageNature: "contundente", nominalDamage: 22, hands: 1, weaponRange: 1 },
-      { id: "arco_de_hierro", name: "Arco", damageNature: "proyectil", nominalDamage: 0, hands: 2, weaponRange: 20, ranged: true },
+      { id: "espada", name: "Espada", damageNature: "cortante", nominalDamage: 20, hands: 1, weaponRange: 1 },
+      { id: "estoque", name: "Estoque", damageNature: "perforante", nominalDamage: 14, hands: 1, weaponRange: 1 },
+      { id: "maza", name: "Maza", damageNature: "contundente", nominalDamage: 22, hands: 1, weaponRange: 1 },
+      { id: "arco", name: "Arco", damageNature: "proyectil", nominalDamage: 0, hands: 2, weaponRange: 20, ranged: true },
+      { id: "varita", name: "Varita Mágica", damageNature: "contundente", nominalDamage: 10, hands: 1, weaponRange: 1, isFocus: true, canalizeScale: 1.0 },
+      { id: "baculo", name: "Báculo Mágico", damageNature: "contundente", nominalDamage: 14, hands: 2, weaponRange: 1, isFocus: true, canalizeScale: 1.2 },
     ],
     armorSlotBase: {
       cabeza: "Casco",
       pecho: "Pechera",
       pantalones: "Grebas",
       botas: "Botas",
+      tunica: "Túnica Mística",
     },
-    coverageSuffix: { ligera: "Ligero", media: "", alta: "Alto", total: "Total" },
+    coverageSuffix: { ligera: "Ligero", media: "", alta: "Alto", total: "Total", mistica: "Mística" },
+    shield: { id: "escudo", name: "Escudo", slot: "mano_izq", coverage: "alta" },
+    amulet: { id: "amuleto", name: "Amuleto", slot: "artefacto_1", buff: { fulgor: 10, d_fulgor: 5 } },
+    ammo: { id: "flecha", name: "Flecha", damageNature: "proyectil", nominalDamage: 12 },
+  },
+  hierro: {
+    id: "hierro",
+    name: "Familia del Hierro",
+    setId: "set_hierro",
+    materials: ALL_MATERIALS,
+    weaponPool: [
+      { id: "espada_de_hierro", name: "Espada", damageNature: "cortante", nominalDamage: 20, hands: 1, weaponRange: 1 },
+      { id: "estoque_de_hierro", name: "Estoque", damageNature: "perforante", nominalDamage: 14, hands: 1, weaponRange: 1 },
+      { id: "maza_de_hierro", name: "Maza", damageNature: "contundente", nominalDamage: 22, hands: 1, weaponRange: 1 },
+      { id: "arco_de_hierro", name: "Arco", damageNature: "proyectil", nominalDamage: 0, hands: 2, weaponRange: 20, ranged: true },
+      { id: "varita_de_hierro", name: "Varita Mágica", damageNature: "contundente", nominalDamage: 10, hands: 1, weaponRange: 1, isFocus: true, canalizeScale: 1.0 },
+      { id: "baculo_de_hierro", name: "Báculo Mágico", damageNature: "contundente", nominalDamage: 14, hands: 2, weaponRange: 1, isFocus: true, canalizeScale: 1.2 },
+    ],
+    armorSlotBase: {
+      cabeza: "Casco",
+      pecho: "Pechera",
+      pantalones: "Grebas",
+      botas: "Botas",
+      tunica: "Túnica Mística",
+    },
+    coverageSuffix: { ligera: "Ligero", media: "", alta: "Alto", total: "Total", mistica: "Mística" },
     shield: { id: "escudo_de_hierro", name: "Escudo", slot: "mano_izq", coverage: "alta" },
-    amulet: { id: "amuleto_de_hierro", name: "Amuleto", slot: "artefacto_1", buff: { atk: 5 } },
+    amulet: { id: "amuleto_de_hierro", name: "Amuleto", slot: "artefacto_1", buff: { fulgor: 10 } },
     ammo: { id: "flecha_de_hierro", name: "Flecha", damageNature: "proyectil", nominalDamage: 12 },
   },
-
-  // Familia de la Madera: materiales vegetales (ejemplo para testear el generador).
   madera: {
     id: "madera",
     name: "Familia de la Madera",
     setId: "set_madera",
-    materials: ["madera", "cuero", "hueso", "madera_caoba", "madera_irminsul"],
+    materials: ALL_MATERIALS,
     weaponPool: [
       { id: "arco_de_madera", name: "Arco", damageNature: "proyectil", nominalDamage: 0, hands: 2, weaponRange: 18, ranged: true },
       { id: "clava_de_madera", name: "Clava", damageNature: "contundente", nominalDamage: 18, hands: 1, weaponRange: 1 },
       { id: "lanza_de_madera", name: "Lanza", damageNature: "perforante", nominalDamage: 16, hands: 2, weaponRange: 2 },
+      { id: "varita_de_madera", name: "Varita de Madera", damageNature: "contundente", nominalDamage: 8, hands: 1, weaponRange: 1, isFocus: true, canalizeScale: 1.0 },
+      { id: "baculo_de_madera", name: "Báculo de Madera", damageNature: "contundente", nominalDamage: 12, hands: 2, weaponRange: 1, isFocus: true, canalizeScale: 1.2 },
     ],
     armorSlotBase: {
       cabeza: "Capucha",
       pecho: "Coraza",
       pantalones: "Grebas",
       botas: "Botas",
+      tunica: "Túnica de Mago",
     },
-    coverageSuffix: { ligera: "Ligero", media: "", alta: "Alto", total: "Total" },
-    shield: { id: "escudo_de_madera", name: "Escudo de Madera", slot: "mano_izq", coverage: "media" },
-    amulet: { id: "amuleto_de_madera", name: "Amuleto de Madera", slot: "artefacto_1", buff: { ref: 5 } },
+    coverageSuffix: { ligera: "Ligera", media: "", alta: "Alta", total: "Total", mistica: "Mística" },
+    shield: { id: "rodela_de_madera", name: "Rodela", slot: "mano_izq", coverage: "media" },
+    amulet: { id: "talisman_de_madera", name: "Talismán", slot: "artefacto_1", buff: { d_fulgor: 8 } },
     ammo: { id: "flecha_de_madera", name: "Flecha de Madera", damageNature: "proyectil", nominalDamage: 10 },
   },
 };
@@ -109,7 +124,6 @@ module.exports = {
   MATERIAL_RARITY_WEIGHTS,
   MATERIAL_RARITY_ORDER,
   MATERIAL_LEVEL_SCALE,
-  TIER_CAPS,
   TIER_ORDER,
   AMMO_STOCK_MIN,
   AMMO_STOCK_MAX,

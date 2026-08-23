@@ -20,9 +20,9 @@ Registro de deuda técnica detectada. Formato: `TD-XXX | título | estado | desc
 
 Se decidió NO crear el RPC `exec_sql`. La auto-migración en arranque queda limitada a columnas vía `generateMigrationSQL` + `logMigrationInfo` (log-only). Si se requiere auto-migración de tablas en el futuro, evaluar Supa CLI o un proceso de migración fuera de línea.
 
-## TD-005 | Equipo en contraataques y reacciones no resuelto | abierto
+## TD-005 | Equipo en contraataques y reacciones no resuelto | resuelto (2026-08-20)
 
-`atacar.js` resuelve `weaponInfo`/`armorDurability` solo en el ataque principal (PvE/PvP). Los contraataques de `descansar.js`/`huir.js` y la absorción de material en reacciones `esquivar/bloquear` operan backward-compat (desarmado/sin armadura). Pendiente: resolver equipo del rol atacante en cada turno/contraataque y soportar absorción multi-pieza (el `combatEngine` hoy acepta una sola instancia `DurabilityModule`).
+`createArmorDurabilityAdapter` distribuye daño material entre todas las piezas y conserva el contrato del motor. `atacar`, `bloquear`, `esquivar`, los contraataques de `descansar`/`huir` y el turno ofensivo del dummy ya resuelven arma, daño material, armadura y persistencia multi-pieza. El simulador y el motor real comparten esta semántica de absorción.
 
 ## TD-006 | `itemCatalog` inyectable | resuelto parcialmente (2026-08-03)
 

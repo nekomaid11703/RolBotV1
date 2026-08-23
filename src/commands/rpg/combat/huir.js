@@ -5,6 +5,7 @@ const {
   endSession,
   advanceTurn,
   setPendingReaction,
+  getEffectKoOutcome,
 } = require("../../../services/rpg/combatState");
 const { rollFlee, executeAttack, executeReaction } = require("../../../services/rpg/combatEngine");
 const { calcFatigueCost, capFatigue } = require("../../../services/rpg/fatigueEngine");
@@ -13,8 +14,15 @@ const {
   formatActionMenu,
   formatReactionPrompt,
   buildFatigueBar,
+  buildSituationalCtx,
 } = require("../../../services/rpg/combatMessages");
 const { box } = require("../../../utils/boxUtils");
+const {
+  resolveAttackerWeapon,
+  resolveDefenderArmor,
+  createArmorDurabilityAdapter,
+} = require("../../../services/rpg/equipmentResolverService");
+const { persistArmorDurability } = require("../../../services/rpg/durabilityPersistenceService");
 
 module.exports = {
   name: "huir",
@@ -109,19 +117,19 @@ module.exports = {
     }
 
     // Si la huida falla, el jugador pierde el turno y sufre el ataque automático del perseguidor
-    /**
-     * @constant lines
-     * @type {*[]}
-     */
     const lines = [];
     lines.push("");
-    lines.push(`\u274C *${fleerSlot.character.name}* interceptado`);
-    lines.push(`Prob: ${Math.round(fleeResult.chance * 100)}%`);
+    lines.push(`\u274C *${fleerSlot.character.name}* fue interceptado`);
+    lines.push(`🎯 Probabilidad de escape: ${Math.round(fleeResult.chance * 100)}%`);
     lines.push(`\u26A1 ${buildFatigueBar(fleerSlot.fatigue, fleerSlot.character.stats.def || 1)}`);
 
     /**
      * @constant attackInfo
      */
+    const [weaponInfo, armor] = await Promise.all([
+      resolveAttackerWeapon(pursuerSlot.character).catch(() => null),
+      resolveDefenderArmor(fleerSlot.character).catch(() => null),
+    ]);
     const attackInfo = executeAttack(
       pursuerSlot.character,
       fleerSlot.character,
@@ -129,6 +137,7 @@ module.exports = {
       pursuerSlot.hp,
       pursuerSlot.fatigue,
       fleerSlot.fatigue,
+      weaponInfo,
     );
 
     if (attackInfo.canReact) {
@@ -153,6 +162,7 @@ module.exports = {
         attackerUserId: pursuerSlot.userId,
         defenderUserId: fleerSlot.userId,
         baseDamage: attackInfo.baseDamage,
+        materialDamage: attackInfo.materialDamage,
         defenderHp: fleerSlot.hp,
         isChallengerAttacking: !isChallenger,
         canDodgeSuccessfully: canDodge,
@@ -181,7 +191,10 @@ module.exports = {
       pursuerSlot.hp,
       fleerSlot.fatigue,
       pursuerSlot.fatigue,
+      attackInfo.materialDamage,
+      createArmorDurabilityAdapter(armor),
     );
+    await persistArmorDurability(fleerSlot.character, fleerSlot.userId || ctx.sender, armor);
 
     /**
      * @constant newFleerHp
@@ -193,11 +206,16 @@ module.exports = {
     const newAttackerHp = pursuerSlot.hp;
 
     await advanceTurn(session.id, isChallenger ? newFleerHp : newAttackerHp, isChallenger ? newAttackerHp : newFleerHp);
+    const effectKo = getEffectKoOutcome(session);
 
     lines.push("");
     lines.push(`\u2694\uFE0F *${pursuerSlot.character.name}* golpea`);
     lines.push(`\uD83D\uDCA5 Da\u00F1o: ${reactionResult.finalDamage}`);
     lines.push(`\u2764\uFE0F *${fleerSlot.character.name}*: ${reactionResult.defenderHpBefore}\u2192${newFleerHp}`);
+    if (effectKo) {
+      lines.push(`\uD83D\uDC80 *${effectKo.loser.character.name}* cayó por un estado`);
+      return ctx.reply(box("\uD83C\uDFC3 HUIDA", lines));
+    }
 
     if (reactionResult.ko) {
       await endSession(session.id, pursuerSlot.character.id);
@@ -209,7 +227,10 @@ module.exports = {
 
     lines.push("");
     lines.push("\u2726 \u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501 \u2726");
-    lines.push(formatActionMenu(pursuerSlot.character.name));
+    const nextSlot = session.currentTurnCharId === session.challenger.characterId ? session.challenger : session.defender;
+    const nextOpp = session.currentTurnCharId === session.challenger.characterId ? session.defender : session.challenger;
+    const situCtx = buildSituationalCtx(nextSlot, nextOpp, session.distance);
+    lines.push(formatActionMenu(pursuerSlot.character.name, session, situCtx));
 
     return ctx.reply(box("\uD83C\uDFC3 HUIDA", lines));
   },

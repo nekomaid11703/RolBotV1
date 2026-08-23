@@ -7,6 +7,11 @@ const {
   setPendingReaction,
   endSession,
   applyElementalAttack,
+  applySpellHits,
+  applySpellCastEffects,
+  getDamageMultiplier,
+  isActionBlocked,
+  getEffectKoOutcome,
 } = require("../../../services/rpg/combatState");
 const { runDummyTurn } = require("../../../services/rpg/dummyTurnService");
 const {
@@ -17,15 +22,23 @@ const {
   checkAttackRange,
 } = require("../../../services/rpg/combatEngine");
 const { calcFatigueCost, capFatigue } = require("../../../services/rpg/fatigueEngine");
-const { formatActionMenu, formatReactionPrompt, buildFatigueBar, formatElementReactionLine } = require("../../../services/rpg/combatMessages");
+const {
+  formatActionMenu,
+  formatReactionPrompt,
+  buildFatigueBar,
+  formatElementReactionLine,
+  formatEffectEventLines,
+  buildSituationalCtx,
+} = require("../../../services/rpg/combatMessages");
 const { formatError } = require("../../../utils/formatErrorUtils");
 const { box } = require("../../../utils/boxUtils");
 const {
   getEquippedItems,
   resolveAttackerWeapon,
   resolveDefenderArmor,
+  createArmorDurabilityAdapter,
 } = require("../../../services/rpg/equipmentResolverService");
-const { persistDurability } = require("../../../services/rpg/durabilityPersistenceService");
+const { persistDurability, persistArmorDurability } = require("../../../services/rpg/durabilityPersistenceService");
 
 /**
  * Resuelve el equipo del atacante/defensor a insumos de combate, con fallback
@@ -49,9 +62,15 @@ async function resolveCombatEquipment(attackerChar, defenderChar) {
       (e) => e.def && e.def.modules && e.def.modules.weapon && e.slot === "mano_der",
     );
     const armorEntry = armor?.list && armor.list.length ? armor.list[0] : null;
-    return { weaponInfo, armorEntry, weaponDef: weaponEntry?.def || null };
+    return {
+      weaponInfo,
+      armor,
+      armorEntry,
+      armorDurability: createArmorDurabilityAdapter(armor),
+      weaponDef: weaponEntry?.def || null,
+    };
   } catch {
-    return { weaponInfo: null, armorEntry: null, weaponDef: null };
+    return { weaponInfo: null, armor: null, armorEntry: null, armorDurability: null, weaponDef: null };
   }
 }
 
@@ -64,7 +83,7 @@ async function resolveCombatEquipment(attackerChar, defenderChar) {
  * @param {string} defenderUserId - Jugador (invalida caché)
  * @returns {Promise<void>}
  */
-async function applyDurabilityHit(armorEntry, armorDurability, defenderChar, defenderUserId) {
+async function _applyDurabilityHit(armorEntry, armorDurability, defenderChar, defenderUserId) {
   if (!armorEntry || !armorDurability || typeof armorDurability.absorbDamage !== "function") return;
 
   if (defenderChar && defenderChar.dummyEquipment) {
@@ -173,6 +192,8 @@ async function handlePvE(
   attackInfo,
   isChallenger,
   weaponInfo,
+  armor,
+  armorDurability,
   armorEntry,
   weaponDef,
 ) {
@@ -202,19 +223,14 @@ async function handlePvE(
     defenderSlot.fatigue,
     attackerSlot.fatigue,
     attackInfo.materialDamage,
-    armorEntry?.instance || null,
+    armorDurability,
   );
 
   /**
    * Persiste la durabilidad desgastada de la armadura del defensor. En PvE el
    * dummy sincroniza su equipo en memoria (no toca la DB).
    */
-  await applyDurabilityHit(
-    armorEntry,
-    armorEntry?.instance || null,
-    defenderSlot.character,
-    defenderSlot.userId || ctx.sender,
-  );
+  await persistArmorDurability(defenderSlot.character, defenderSlot.userId || ctx.sender, armor);
 
   /**
    * @constant newAttackerHp
@@ -248,11 +264,23 @@ async function handlePvE(
 
   const elemLine = formatElementReactionLine(attackInfo.elementReaction);
   if (elemLine) lines.push(elemLine);
+  lines.push(...formatEffectEventLines(attackInfo.effectEvents));
 
   lines.push(
     `\u2764\uFE0F *${defenderSlot.character.name}*: ${reactionResult.defenderHpBefore}\u2192${reactionResult.defenderHpAfter}`,
   );
   lines.push(`\u26A1 ${buildFatigueBar(attackerSlot.fatigue, attackerSlot.character.stats.def || 1)}`);
+
+  const effectKo = getEffectKoOutcome(session);
+  if (effectKo) {
+    if (effectKo.winner === attackerSlot) {
+      const xpReward = calculateXpReward(effectKo.loser.character.nivel || 1, true);
+      await addXp({ creatorId: ctx.sender, characterName: effectKo.winner.character.name, cantidad: xpReward });
+      lines.push(`\uD83D\uDC80 *${effectKo.loser.character.name}* cayó por un estado`);
+      lines.push(`\uD83C\uDFC6 +${xpReward} XP`);
+    }
+    return ctx.reply(box("\u2694\uFE0F ATAQUE", lines));
+  }
 
   if (reactionResult.ko) {
     /**
@@ -307,9 +335,13 @@ async function handlePvPWithReaction(ctx, session, attackerSlot, defenderSlot, a
     attackerUserId: attackerSlot.userId,
     defenderUserId: defenderSlot.userId,
     baseDamage: attackInfo.baseDamage,
+    materialDamage: attackInfo.materialDamage,
     defenderHp: defenderSlot.hp,
     isChallengerAttacking: isChallenger,
     canDodgeSuccessfully: canDodge,
+    dodgeChancePct: canDodge ? Math.round(((defenderSlot.character.stats.ref || 1) / ((defenderSlot.character.stats.ref || 1) + (attackerSlot.character.stats.aspd || 1))) * 100) : Math.round(((defenderSlot.character.stats.ref || 1) / ((defenderSlot.character.stats.ref || 1) + (attackerSlot.character.stats.aspd || 1))) * 100),
+    attackerName: attackerSlot.character.name,
+    defenderName: defenderSlot.character.name,
   });
 
   /**
@@ -330,6 +362,7 @@ async function handlePvPWithReaction(ctx, session, attackerSlot, defenderSlot, a
     `\uD83D\uDCA5 Base: ${attackInfo.baseDamage}`,
   ];
   if (elemLine) lines.push(elemLine);
+  lines.push(...formatEffectEventLines(attackInfo.effectEvents));
   lines.push(
     `\u26A1 ${buildFatigueBar(attackerSlot.fatigue, attackerSlot.character.stats.def || 1)}`,
     "",
@@ -362,6 +395,8 @@ async function handlePvP(
   attackInfo,
   isChallenger,
   weaponInfo,
+  armor,
+  armorDurability,
   armorEntry,
   weaponDef,
 ) {
@@ -378,18 +413,13 @@ async function handlePvP(
     defenderSlot.fatigue,
     attackerSlot.fatigue,
     attackInfo.materialDamage,
-    armorEntry?.instance || null,
+    armorDurability,
   );
 
   /**
    * Persiste la durabilidad desgastada de la armadura del defensor (PvP real).
    */
-  await applyDurabilityHit(
-    armorEntry,
-    armorEntry?.instance || null,
-    defenderSlot.character,
-    defenderSlot.userId || ctx.sender,
-  );
+  await persistArmorDurability(defenderSlot.character, defenderSlot.userId || ctx.sender, armor);
 
   /**
    * @constant newAttackerHp
@@ -414,10 +444,25 @@ async function handlePvP(
   ];
   const elemLine = formatElementReactionLine(attackInfo.elementReaction);
   if (elemLine) lines.push(elemLine);
+  lines.push(...formatEffectEventLines(attackInfo.effectEvents));
   lines.push(
     `\u2764\uFE0F *${defenderSlot.character.name}*: ${reactionResult.defenderHpBefore}\u2192${reactionResult.defenderHpAfter}`,
     `\u26A1 ${buildFatigueBar(attackerSlot.fatigue, attackerSlot.character.stats.def || 1)}`,
   );
+
+  const effectKo = getEffectKoOutcome(session);
+  if (effectKo) {
+    const xpReward = calculateXpReward(effectKo.loser.character.nivel || 1, true);
+    await addXp({
+      creatorId: effectKo.winner.userId,
+      characterName: effectKo.winner.character.name,
+      cantidad: xpReward,
+    });
+    await setHp({ creatorId: effectKo.loser.userId, characterName: effectKo.loser.character.name, hp: 0 });
+    lines.push(`\uD83D\uDC80 *${effectKo.loser.character.name}* cayó por un estado`);
+    lines.push(`\uD83C\uDFC6 +${xpReward} XP`);
+    return ctx.reply(box("\u2694\uFE0F ATAQUE", lines));
+  }
 
   if (reactionResult.ko) {
     /**
@@ -440,7 +485,11 @@ async function handlePvP(
 
   lines.push("");
   lines.push("\u2726 \u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501 \u2726");
-  lines.push(formatActionMenu(defenderSlot.character.name));
+  const nextIsChallenger = String(session.currentTurnCharId) === String(session.challenger.characterId);
+  const nextSlot = nextIsChallenger ? session.challenger : session.defender;
+  const nextOpp = nextIsChallenger ? session.defender : session.challenger;
+  const situCtx = buildSituationalCtx(nextSlot, nextOpp, session.distance);
+  lines.push(formatActionMenu(defenderSlot.character.name, session, situCtx));
 
   return ctx.reply(box("\u2694\uFE0F ATAQUE", lines));
 }
@@ -503,15 +552,17 @@ module.exports = {
       return ctx.reply("\u274C No es tu turno. Espera.");
     }
     const { isChallenger, attackerSlot, defenderSlot } = getSlots(session, activeChar);
+    if (isActionBlocked(attackerSlot, "attack")) {
+      return ctx.reply("\u274C Estás congelado y no puedes atacar este turno.");
+    }
 
     /**
      * Resuelve el equipo antes de validar el alcance para respetar el rango
      * propio del arma equipada.
      */
-    const { weaponInfo, armorEntry, weaponDef } = await resolveCombatEquipment(
-      attackerSlot.character,
-      defenderSlot.character,
-    );
+    const equipment = await resolveCombatEquipment(attackerSlot.character, defenderSlot.character);
+    const { weaponInfo, armorEntry, weaponDef } = equipment;
+    const { armor, armorDurability } = equipment;
 
     const distance = session.distance ?? 5;
     const { canAttack, effectiveRange } = checkAttackRange(distance, activeChar.stats, weaponInfo?.weaponRange ?? 0);
@@ -538,11 +589,23 @@ module.exports = {
       defenderSlot.fatigue,
       weaponInfo,
     );
+    attackInfo.baseDamage = Math.max(1, Math.floor(attackInfo.baseDamage * getDamageMultiplier(attackerSlot)));
 
     // Reacción elemental (Fase 4): si el arma/hechizo trae elemento, resolver
     // la imbuición sobre el objetivo (aura persistida) y amplificar el daño
     // del golpe por el canal de la reacción en el instante.
-    if (weaponInfo?.element) {
+    if (weaponInfo?.spell?.hits?.length) {
+      const amp = await applySpellHits(
+        session.id,
+        defenderSlot,
+        weaponInfo.spell.hits,
+        attackInfo.baseDamage,
+        attackInfo.materialDamage,
+      );
+      attackInfo.elementReaction = amp.reactions[amp.reactions.length - 1] || null;
+      attackInfo.baseDamage = amp.baseDamage;
+      attackInfo.materialDamage = amp.materialDamage;
+    } else if (weaponInfo?.element) {
       const amp = await applyElementalAttack(
         session.id,
         defenderSlot,
@@ -554,6 +617,15 @@ module.exports = {
       attackInfo.baseDamage = amp.baseDamage;
       attackInfo.materialDamage = amp.materialDamage;
     }
+    if (weaponInfo?.spell?.effects?.length) {
+      attackInfo.effectEvents = await applySpellCastEffects(
+        session.id,
+        attackerSlot,
+        defenderSlot,
+        weaponInfo.spell.effects,
+        weaponInfo.spell.application,
+      );
+    }
 
     if (session.isPvE) {
       return handlePvE(
@@ -564,6 +636,8 @@ module.exports = {
         attackInfo,
         isChallenger,
         weaponInfo,
+        armor,
+        armorDurability,
         armorEntry,
         weaponDef,
       );
@@ -581,6 +655,8 @@ module.exports = {
       attackInfo,
       isChallenger,
       weaponInfo,
+      armor,
+      armorDurability,
       armorEntry,
       weaponDef,
     );

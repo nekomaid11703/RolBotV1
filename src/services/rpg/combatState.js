@@ -7,7 +7,8 @@ const { logError, logSystem } = require("../loggerService");
  */
 const moduleRegistry = require("../../modules/moduleRegistry");
 const { buildDummyEquipment, IRON_DUMMY_LOADOUT } = require("./dummyEquipment");
-const { resolveElementReaction } = require("./spellEffects");
+const { resolveEffect, resolveElementReaction } = require("./spellEffects");
+const { EFFECT_DEFS } = require("../../config/spellTree");
 
 /**
  * @constant sessions
@@ -234,8 +235,8 @@ async function loadSessionsFromDb() {
     return (data || []).map((row) => ({
       id: row.id,
       isPvE: row.is_pve,
-      challenger: row.challenger,
-      defender: row.defender,
+      challenger: { ...row.challenger, activeEffects: row.challenger?.activeEffects || [] },
+      defender: { ...row.defender, activeEffects: row.defender?.activeEffects || [] },
       currentTurnCharId: row.current_turn_char_id,
       status: row.status,
       pendingAttack: row.pending_attack,
@@ -321,6 +322,7 @@ async function createSession(challengerId, defenderId, challengerChar, defenderC
       isBot: false,
       fatigue: 0,
       aura: { pasiva: null, turnos: 0 },
+      activeEffects: [],
     },
     defender: {
       userId: defenderId,
@@ -331,6 +333,7 @@ async function createSession(challengerId, defenderId, challengerChar, defenderC
       isBot: false,
       fatigue: 0,
       aura: { pasiva: null, turnos: 0 },
+      activeEffects: [],
     },
     currentTurnCharId: challengerChar.id,
     status: SESSION_STATES.WAITING_ACTION,
@@ -398,6 +401,7 @@ async function createDummySession(challengerId, challengerChar, options = {}) {
       isBot: false,
       fatigue: 0,
       aura: { pasiva: null, turnos: 0 },
+      activeEffects: [],
     },
     defender: {
       userId: "bot_dummy",
@@ -408,6 +412,7 @@ async function createDummySession(challengerId, challengerChar, options = {}) {
       isBot: true,
       fatigue: 0,
       aura: { pasiva: null, turnos: 0 },
+      activeEffects: [],
     },
     currentTurnCharId: challengerChar.id,
     status: SESSION_STATES.WAITING_ACTION,
@@ -553,11 +558,14 @@ async function advanceTurn(sessionId, newAttackerHp, newDefenderHp, skipRound = 
     actor: session.currentTurnCharId,
   });
 
+  let effectEvents = [];
   await persistSessionUpdate(session, (next) => {
     next.challenger.hp = newAttackerHp;
     next.defender.hp = newDefenderHp;
     decaySlotAura(next.challenger);
     decaySlotAura(next.defender);
+    decaySlotSpellCooldowns(next.challenger);
+    decaySlotSpellCooldowns(next.defender);
     next.lastTurnAt = Date.now();
     if (!skipRound) next.rounds += 1;
     next.pendingAttack = null;
@@ -565,7 +573,18 @@ async function advanceTurn(sessionId, newAttackerHp, newDefenderHp, skipRound = 
 
     next.currentTurnCharId =
       next.currentTurnCharId === next.challenger.characterId ? next.defender.characterId : next.challenger.characterId;
+
+    // Los estados de turno se resuelven antes de abrir acciones al nuevo actor.
+    effectEvents = tickStateEffects(resolveSlotByCharacterId(next, next.currentTurnCharId));
+    next.lastEffectEvents = effectEvents;
   });
+
+  const currentSlot = resolveSlotByCharacterId(session, session.currentTurnCharId);
+  if (currentSlot.hp <= 0) {
+    const winner = currentSlot === session.challenger ? session.defender : session.challenger;
+    await endSession(sessionId, winner.characterId);
+    return session;
+  }
 
   triggerModuleEvent(session, "TurnStart", {
     session,
@@ -573,6 +592,22 @@ async function advanceTurn(sessionId, newAttackerHp, newDefenderHp, skipRound = 
   });
 
   return session;
+}
+
+/**
+ * Decrementa los cooldowns de los hechizos activos del personaje.
+ * @param {object} slot
+ */
+function decaySlotSpellCooldowns(slot) {
+  if (!slot || !slot.spellCooldowns) return;
+  for (const spellId of Object.keys(slot.spellCooldowns)) {
+    if (slot.spellCooldowns[spellId] > 0) {
+      slot.spellCooldowns[spellId] -= 1;
+      if (slot.spellCooldowns[spellId] <= 0) {
+        delete slot.spellCooldowns[spellId];
+      }
+    }
+  }
 }
 
 /**
@@ -585,6 +620,119 @@ function decaySlotAura(slot) {
   if (slot.aura.turnos <= 0) {
     slot.aura = { pasiva: null, turnos: 0 };
   }
+}
+
+/**
+ * Aplica efectos de estado de una reacción a un slot objetivo (Fase 3).
+ * Los estados viven en memoria de sesión (`slot.activeEffects`):
+ *  - handler con descriptor { tipo, turnos, danoPorTick, ... } calculado con
+ *    d_fulgor del lanzador y r_fulgor del objetivo;
+ *  - si el efecto ya está activo y NO es stackable → se refresca (reemplaza);
+ *  - si es stackable → se acumula una instancia nueva.
+ * @param {object} target - Slot objetivo (con `activeEffects`)
+ * @param {object} lanzador - Slot del lanzador (por `character`)
+ * @param {string[]} efectoIds - Ids de EFFECT_DEFS aplicados por la reacción
+ * @returns {Array<object>} Descriptores aplicados
+ */
+function applyEffects(target, lanzador, effects, session) {
+  if (!Array.isArray(effects) || effects.length === 0) return [];
+  target.activeEffects = Array.isArray(target.activeEffects) ? target.activeEffects : [];
+  const events = [];
+  for (const rawEffect of effects) {
+    const effect = typeof rawEffect === "string" ? { tipo: rawEffect } : rawEffect;
+    const resolved = resolveEffect(effect, { atacante: lanzador.character, objetivo: target.character, session });
+    if (!resolved.applied || !resolved.result) continue;
+    const desc = resolved.result;
+    if (desc.instant === "purify") {
+      const removed = target.activeEffects
+        .filter((active) => active.category === "negative")
+        .map((active) => active.tipo);
+      target.activeEffects = target.activeEffects.filter((active) => active.category !== "negative");
+      events.push({ type: "purify", targetId: target.characterId, removed });
+      continue;
+    }
+    if (desc.instant === "damage") {
+      const dano = Math.max(0, Number(desc.dano) || 0);
+      target.hp = Math.max(0, target.hp - dano);
+      events.push({ type: "damage", effect: desc.tipo, targetId: target.characterId, dano });
+      continue;
+    }
+    const def = EFFECT_DEFS[desc.tipo];
+    const idx = target.activeEffects.findIndex((active) => active.tipo === desc.tipo);
+    if (idx >= 0 && !def.stackable) {
+      target.activeEffects[idx] = desc; // refresca duración, no acumula
+    } else {
+      target.activeEffects.push(desc);
+    }
+    events.push({ type: "apply", effect: desc.tipo, targetId: target.characterId, turnos: desc.turnos });
+  }
+  return events;
+}
+
+/**
+ * Tick de estados al inicio del turno del portador (Fase 3).
+ * Aplica el daño por tick (`danoPorTick`), decrementa la duración del efecto
+ * y lo elimina cuando llega a cero. Solo afecta a un slot.
+ * @param {object} slot - Slot cuyo turno comienza
+ */
+function tickStateEffects(slot) {
+  if (!Array.isArray(slot.activeEffects) || slot.activeEffects.length === 0) return [];
+  const restantes = [];
+  const events = [];
+  for (const ef of slot.activeEffects) {
+    const dano = Number(ef.danoPorTick) || 0;
+    if (dano > 0) {
+      slot.hp = Math.max(0, (Number(slot.hp) || 0) - dano);
+      events.push({ type: "tick", effect: ef.tipo, targetId: slot.characterId, dano });
+    }
+    const turnos = (Number(ef.turnos) || 1) - 1;
+    if (turnos > 0) restantes.push({ ...ef, turnos });
+    else events.push({ type: "expire", effect: ef.tipo, targetId: slot.characterId });
+  }
+  slot.activeEffects = restantes;
+  return events;
+}
+
+function isActionBlocked(slot, action) {
+  return (slot.activeEffects || []).some((effect) => effect.blockedActions?.includes(action));
+}
+
+function getDamageMultiplier(slot) {
+  return (slot.activeEffects || []).reduce(
+    (multiplier, effect) => multiplier * (Number(effect.damageMultiplier) || 1),
+    1,
+  );
+}
+
+function getDefenseReduction(slot) {
+  if (!slot || !Array.isArray(slot.activeEffects)) return 0;
+  return slot.activeEffects.reduce((acc, ef) => acc + (Number(ef.defenseReduction) || 0), 0);
+}
+
+function getReflexReduction(slot) {
+  if (!slot || !Array.isArray(slot.activeEffects)) return 0;
+  return slot.activeEffects.reduce((acc, ef) => acc + (Number(ef.refReduction) || 0), 0);
+}
+
+function applyBarrierDamage(slot, rawDamage) {
+  let damage = Math.max(0, Number(rawDamage) || 0);
+  if (slot.barrierHp && slot.barrierHp > 0) {
+    if (slot.barrierHp >= damage) {
+      slot.barrierHp -= damage;
+      return 0;
+    }
+    damage -= slot.barrierHp;
+    slot.barrierHp = 0;
+  }
+  return damage;
+}
+
+function getEffectKoOutcome(session) {
+  if (!session || session.status !== SESSION_STATES.COMPLETED || !session.winnerId) return null;
+  const winner = resolveSlotByCharacterId(session, session.winnerId);
+  const loser = winner === session.challenger ? session.defender : session.challenger;
+  if (!winner || !loser || loser.hp > 0) return null;
+  return { winner, loser, events: session.lastEffectEvents || [] };
 }
 
 /**
@@ -628,8 +776,7 @@ async function applyElementalHit(sessionId, targetId, dominante) {
   );
 
   await persistSessionUpdate(session, (next) => {
-    const nextTarget =
-      String(next.challenger.characterId) === String(targetId) ? next.challenger : next.defender;
+    const nextTarget = String(next.challenger.characterId) === String(targetId) ? next.challenger : next.defender;
     if (res.auraResultante && res.auraResultante.pasiva) {
       nextTarget.aura = { pasiva: res.auraResultante.pasiva, turnos: res.auraResultante.turnos };
     } else {
@@ -670,7 +817,56 @@ async function applyElementalAttack(sessionId, targetSlot, dominante, baseDamage
   const mult = Number(res.multiplicador) || 1;
   const scaledBody = Math.max(1, Math.floor(baseDamage * mult));
   const scaledMaterial = materialDamage > 0 ? Math.max(1, Math.floor(materialDamage * mult)) : materialDamage;
+  if (res.reacciono && Array.isArray(res.efectos) && res.efectos.length > 0) {
+    const session = sessions.get(sessionId);
+    if (session) {
+      await persistSessionUpdate(session, (next) => {
+        const target = resolveSlotByCharacterId(next, targetSlot.characterId);
+        const lanzador = target === next.challenger ? next.defender : next.challenger;
+        next.lastEffectEvents = applyEffects(target, lanzador, res.efectos, next);
+      });
+    }
+  }
+
   return { reaction: res, baseDamage: scaledBody, materialDamage: scaledMaterial };
+}
+
+async function applySpellHits(sessionId, targetSlot, hits, baseDamage, materialDamage = 0) {
+  const validHits = (Array.isArray(hits) ? hits : []).filter((hit) => hit?.element);
+  if (!validHits.length) {
+    return { reactions: [], baseDamage, materialDamage };
+  }
+  const totalMagnitude = validHits.reduce((total, hit) => total + Math.max(1, Number(hit.magnitude) || 1), 0);
+  let bodyTotal = 0;
+  let materialTotal = 0;
+  const reactions = [];
+  for (const hit of validHits) {
+    const ratio = Math.max(1, Number(hit.magnitude) || 1) / totalMagnitude;
+    const result = await applyElementalAttack(
+      sessionId,
+      targetSlot,
+      hit.element,
+      Math.max(1, Math.floor(baseDamage * ratio)),
+      materialDamage > 0 ? Math.max(1, Math.floor(materialDamage * ratio)) : 0,
+    );
+    bodyTotal += result.baseDamage;
+    materialTotal += result.materialDamage;
+    if (result.reaction?.reacciono) reactions.push(result.reaction);
+  }
+  return { reactions, baseDamage: bodyTotal, materialDamage: materialTotal };
+}
+
+async function applySpellCastEffects(sessionId, casterSlot, targetSlot, effects, application = "externa") {
+  const session = sessions.get(sessionId);
+  if (!session || !Array.isArray(effects) || effects.length === 0) return [];
+  let events = [];
+  await persistSessionUpdate(session, (next) => {
+    const caster = resolveSlotByCharacterId(next, casterSlot.characterId);
+    const target = application === "propia" ? caster : resolveSlotByCharacterId(next, targetSlot.characterId);
+    events = applyEffects(target, caster, effects, next);
+    next.lastEffectEvents = events;
+  });
+  return events;
 }
 
 /**
@@ -855,6 +1051,15 @@ module.exports = {
   advanceTurn,
   applyElementalHit,
   applyElementalAttack,
+  applySpellHits,
+  applySpellCastEffects,
+  applyEffects,
+  isActionBlocked,
+  getDamageMultiplier,
+  getDefenseReduction,
+  getReflexReduction,
+  applyBarrierDamage,
+  getEffectKoOutcome,
   resolveSlotByCharacterId,
   setPendingReaction,
   isSessionActive,

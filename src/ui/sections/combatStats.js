@@ -30,9 +30,8 @@ function buildHpBar(current, max = HP_MAX) {
  */
 function buildStatSummary(stats = {}) {
   return [
-    `HP${stats.hp ?? 0} ATK${stats.atk ?? 0} DEF${stats.def ?? 0} ASPD${stats.aspd ?? 0}`,
-    `REF${stats.ref ?? 0} MSP${stats.mspd ?? 0} FUL${stats.fulgor ?? 0}`,
-    `DF${stats.d_fulgor ?? 0} RF${stats.r_fulgor ?? 0}`,
+    `⚔️ ATK ${stats.atk ?? 0}  🛡️ DEF ${stats.def ?? 0}  ⚡ ASPD ${stats.aspd ?? 0}  🏃 MSP ${stats.mspd ?? 0}`,
+    `👁️ REF ${stats.ref ?? 0}  ✨ FUL ${stats.fulgor ?? 0}  DF ${stats.d_fulgor ?? 0}  RF ${stats.r_fulgor ?? 0}`,
   ];
 }
 

@@ -1,13 +1,7 @@
 // @ts-nocheck
 "use strict";
 
-const {
-  PERSONALITIES,
-  FATIGUE_SNAPSHOT_TURNS,
-  PHYSICAL_STATS,
-  MAGIC_STATS,
-  MAX_ROUNDS,
-} = require("./config");
+const { PERSONALITIES, FATIGUE_SNAPSHOT_TURNS, PHYSICAL_STATS, MAGIC_STATS, MAX_ROUNDS } = require("./config");
 
 const PERSONALITY_KEYS = Object.keys(PERSONALITIES);
 
@@ -70,7 +64,9 @@ function formatMarkdownReport(report, config = {}) {
   lines.push(`| Timeouts (draws) | ${report.overview.totalTimeouts} (${pct(1 - report.overview.koRate)}) |`);
   lines.push(`| Avg rounds (all) | ${num(report.overview.avgRoundsOverall)} |`);
   lines.push(`| Avg rounds (KO only) | ${num(report.overview.avgRoundsKO)} |`);
-  lines.push(`| Rounds P50 / P90 / Max | ${num(report.overview.roundsP50, 0)} / ${num(report.overview.roundsP90, 0)} / ${num(report.overview.roundsMax, 0)} |`);
+  lines.push(
+    `| Rounds P50 / P90 / Max | ${num(report.overview.roundsP50, 0)} / ${num(report.overview.roundsP90, 0)} / ${num(report.overview.roundsMax, 0)} |`,
+  );
   lines.push("");
 
   // ── Turnos nivel/equipo similares ──
@@ -99,9 +95,7 @@ function formatMarkdownReport(report, config = {}) {
   for (const key of PERSONALITY_KEYS) {
     const wr = report.winRates[key];
     const isMeta = key === report.meta.personality;
-    lines.push(
-      `| ${PERSONALITIES[key].label} | ${wr.wins} | ${wr.total} | ${pct(wr.rate)} | ${isMeta ? "YES" : ""} |`,
-    );
+    lines.push(`| ${PERSONALITIES[key].label} | ${wr.wins} | ${wr.total} | ${pct(wr.rate)} | ${isMeta ? "YES" : ""} |`);
   }
   lines.push("");
 
@@ -117,6 +111,23 @@ function formatMarkdownReport(report, config = {}) {
   lines.push(`| Battles with item use | ${pct(report.resources.battlesWithItemUseRate)} | - |`);
   lines.push("");
 
+  // ── Recursos mágicos ──
+  lines.push("## Magic Resource Use");
+  lines.push("| Metric | Value |");
+  lines.push("|--------|-------|");
+  lines.push(
+    `| Fulgor avg (start / spent / left) | ${num(report.magicResources.avgFulgorStartPerFighter)} / ${num(report.magicResources.avgFulgorSpentPerFighter)} / ${num(report.magicResources.avgFulgorLeftPerFighter)} |`,
+  );
+  lines.push(`| Bateria pool avg (start) | ${num(report.magicResources.avgBateriaStartPerFighter)} |`);
+  lines.push(`| Fulgor regen avg per fighter | ${num(report.magicResources.avgFulgorRegenPerFighter)} |`);
+  lines.push(`| Meditations avg per fighter | ${num(report.magicResources.avgMeditationsPerFighter)} |`);
+  lines.push(`| Spell casts per fighter | ${num(report.magicResources.avgSpellCastsPerFighter)} |`);
+  lines.push(
+    `| Diluted casts per fighter / cast rate | ${num(report.magicResources.avgDilutedCastsPerFighter)} / ${pct(report.magicResources.dilutedCastRate)} |`,
+  );
+  lines.push(`| Battles with spell casts | ${pct(report.magicResources.battlesWithSpellCastRate)} |`);
+  lines.push("");
+
   // ── Variación de datos ──
   lines.push("## Data Variance");
   lines.push("| Metric | Value |");
@@ -124,7 +135,9 @@ function formatMarkdownReport(report, config = {}) {
   lines.push(`| Weapon presence | ${pct(report.variance.weaponPresenceRate)} |`);
   lines.push(`| Armor presence | ${pct(report.variance.armorPresenceRate)} |`);
   lines.push(`| ATK spread (stddev) | ${num(report.variance.atkSpread, 2)} (avg ${num(report.variance.atkAvg, 2)}) |`);
-  lines.push(`| ASPD spread (stddev) | ${num(report.variance.aspdSpread, 2)} (avg ${num(report.variance.aspdAvg, 2)}) |`);
+  lines.push(
+    `| ASPD spread (stddev) | ${num(report.variance.aspdSpread, 2)} (avg ${num(report.variance.aspdAvg, 2)}) |`,
+  );
   const tierKeys = Object.keys(report.variance.equipmentTier).sort();
   for (const tier of tierKeys) {
     const t = report.variance.equipmentTier[tier];
@@ -159,13 +172,19 @@ function formatMarkdownReport(report, config = {}) {
     const c = report.variance.setPieces[key];
     lines.push(`| ${key} | ${c.count} | ${pct(c.winrate)} |`);
   }
-  lines.push(`Set bonus active: ${pct(report.variance.setBonus.active.winrate)} (${report.variance.setBonus.active.count}) vs inactive ${pct(report.variance.setBonus.inactive.winrate)} (${report.variance.setBonus.inactive.count})`);
+  lines.push(
+    `Set bonus active: ${pct(report.variance.setBonus.active.winrate)} (${report.variance.setBonus.active.count}) vs inactive ${pct(report.variance.setBonus.inactive.winrate)} (${report.variance.setBonus.inactive.count})`,
+  );
   lines.push("");
   lines.push("### Amulet");
-  lines.push(`With amulet: ${pct(report.variance.amulet.with.winrate)} (${report.variance.amulet.with.count}) vs without ${pct(report.variance.amulet.without.winrate)} (${report.variance.amulet.without.count})`);
+  lines.push(
+    `With amulet: ${pct(report.variance.amulet.with.winrate)} (${report.variance.amulet.with.count}) vs without ${pct(report.variance.amulet.without.winrate)} (${report.variance.amulet.without.count})`,
+  );
   lines.push("");
   lines.push("### Shield");
-  lines.push(`With shield: ${pct(report.variance.shield.with.winrate)} (${report.variance.shield.with.count}) vs without ${pct(report.variance.shield.without.winrate)} (${report.variance.shield.without.count})`);
+  lines.push(
+    `With shield: ${pct(report.variance.shield.with.winrate)} (${report.variance.shield.with.count}) vs without ${pct(report.variance.shield.without.winrate)} (${report.variance.shield.without.count})`,
+  );
   lines.push("");
   lines.push("### Weapon tier");
   lines.push("| Tier | Count | Winrate |");

@@ -28,9 +28,7 @@ const {
 describe("spellTree — taxonomía simplificada", () => {
   test("existen 5 tipos de hechizo con target válido", () => {
     const kinds = Object.keys(SPELL_KINDS);
-    expect(kinds.sort()).toEqual(
-      ["proyectil", "explosion", "barrera", "buffo", "aura"].sort(),
-    );
+    expect(kinds.sort()).toEqual(["proyectil", "explosion", "barrera", "buffo", "aura"].sort());
     for (const kind of kinds) {
       expect(SPELL_KINDS[kind].target.length).toBeGreaterThan(0);
       expect(SPELL_KINDS[kind].label).toBeTruthy();
@@ -42,15 +40,10 @@ describe("spellTree — taxonomía simplificada", () => {
   });
 
   test("naturalezas: elemental (6, incluye electro) y primordial; fulgor siempre presente", () => {
-    expect(SPELL_NATURES.elemental.subtypes).toEqual(
-      ["agua", "fuego", "tierra", "aire", "hielo", "electro"],
-    );
+    expect(SPELL_NATURES.elemental.subtypes).toEqual(["agua", "fuego", "tierra", "aire", "hielo", "electro"]);
     expect(SPELL_NATURES.primordial.subtypes).toEqual(["luz", "oscuridad", "caos"]);
     // Todas las naturalezas aplanadas: 6 elementales + 3 primordiales.
-    expect(FULGOR_NATURES).toEqual([
-      "agua", "fuego", "tierra", "aire", "hielo", "electro",
-      "luz", "oscuridad", "caos",
-    ]);
+    expect(FULGOR_NATURES).toEqual(["agua", "fuego", "tierra", "aire", "hielo", "electro", "luz", "oscuridad", "caos"]);
   });
 
   test("todo hechizo referencia UNA naturaleza de fulgor (nunca nula)", () => {
@@ -72,6 +65,7 @@ describe("spellTree — taxonomía simplificada", () => {
       expect(Array.isArray(def.compatibleApplications)).toBe(true);
       expect(typeof def.duration).toBe(EFFECT_DEF_SCHEMA.duration);
       expect(typeof def.stackable).toBe(EFFECT_DEF_SCHEMA.stackable);
+      expect(typeof def.weight).toBe(EFFECT_DEF_SCHEMA.weight);
       expect(def.handler === null || typeof def.handler === "function").toBe(true);
     }
   });
@@ -84,13 +78,30 @@ describe("spellTree — taxonomía simplificada", () => {
       for (const a of def.compatibleApplications) expect(apps).toContain(a);
     }
   });
+
+  test("pesos de forma: cada kind y aplicación tiene un aporte numérico", () => {
+    const { SPELL_KIND_WEIGHTS, SPELL_APPLICATION_WEIGHTS, SPELL_DURATION_WEIGHT } = require("../src/config/spellTree");
+    for (const kind of Object.keys(SPELL_KINDS)) {
+      expect(typeof SPELL_KIND_WEIGHTS[kind]).toBe("number");
+    }
+    for (const app of SPELL_APPLICATIONS) {
+      expect(typeof SPELL_APPLICATION_WEIGHTS[app]).toBe("number");
+    }
+    expect(typeof SPELL_DURATION_WEIGHT).toBe("number");
+  });
+
+  test("todos los efectos tienen un peso positivo de potencia", () => {
+    for (const def of Object.values(EFFECT_DEFS)) {
+      expect(def.weight).toBeGreaterThan(0);
+    }
+  });
 });
 
 describe("spellEffects — resolver declarativo", () => {
-  test("efecto registrado SIN handler → pendiente (no rompe el flujo)", () => {
+  test("efecto registrado con handler → descriptor aplicable", () => {
     const res = resolveEffect({ tipo: "veneno", magnitude: 3 }, {});
-    expect(res).toMatchObject({ tipo: "veneno", applied: false, pending: true });
-    expect(res.reason).toBe("HANDLER_PENDIENTE");
+    expect(res).toMatchObject({ tipo: "veneno", applied: true });
+    expect(res.result).toMatchObject({ tipo: "veneno", trigger: "turnStart", danoPorTick: 6 });
   });
 
   test("efecto desconocido → pendiente con razón EFECTO_DESCONOCIDO", () => {
@@ -113,17 +124,14 @@ describe("spellEffects — resolver declarativo", () => {
     }
   });
 
-  test("resolveSpellEffects procesa la lista completa (pendientes + aplicados)", () => {
+  test("resolveSpellEffects procesa la lista completa", () => {
     const { EFFECT_DEFS: defs } = require("../src/config/spellTree");
     const original = defs.purificado.handler;
     defs.purificado.handler = () => ({ stat: "estados", limpiados: 1 });
     try {
-      const results = resolveSpellEffects(
-        [{ tipo: "veneno", magnitude: 1 }, { tipo: "purificado" }],
-        {},
-      );
+      const results = resolveSpellEffects([{ tipo: "veneno", magnitude: 1 }, { tipo: "purificado" }], {});
       expect(results).toHaveLength(2);
-      expect(results[0].pending).toBe(true);
+      expect(results[0].applied).toBe(true);
       expect(results[1].applied).toBe(true);
     } finally {
       defs.purificado.handler = original;
@@ -135,8 +143,8 @@ describe("spellEffects — resolver declarativo", () => {
     expect(resolveSpellEffects([], {})).toEqual([]);
   });
 
-  test("hasImplementedEffects es false mientras no haya handlers", () => {
-    expect(hasImplementedEffects([{ tipo: "veneno" }])).toBe(false);
+  test("hasImplementedEffects reconoce los handlers de la Fase 3", () => {
+    expect(hasImplementedEffects([{ tipo: "veneno" }])).toBe(true);
   });
 });
 

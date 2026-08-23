@@ -2,10 +2,18 @@
 "use strict";
 
 const { RACES } = require("../../src/config/characterConfig");
-const { getWeaponStats, getProjectileStats, getArmorStats } = require("../../src/services/rpg/itemStatService");
+const { FULGOR_POOL_MAX } = require("../../src/config/combatBalance");
+const {
+  getWeaponStats,
+  getProjectileStats,
+  getArmorStats,
+  getSpellStats,
+} = require("../../src/services/rpg/itemStatService");
+const { ARCANE_GEAR, ARCANE_SPELLS } = require("../../src/data/arcaneFamily");
 const { generateLoadout: generateFamilyLoadout } = require("./familyGenerator");
 const {
   PERSONALITIES,
+  ARCHETYPE_MAP,
   WEIGHT_JITTER,
   GENERATED_STATS,
   PHYSICAL_STATS,
@@ -34,6 +42,7 @@ const {
   MAGIC_ALLOC_CHANCE,
   MAGIC_SHARE_MIN,
   MAGIC_SHARE_MAX,
+  BATTERY_POOL_REF,
 } = require("./config");
 
 const RACE_KEYS = Object.keys(RACES);
@@ -284,6 +293,69 @@ function deriveShield(tier) {
 }
 
 /**
+ * Construye el mismo payload de combate que resuelve un foco equipado: la
+ * varita canaliza `def` (un hechizo del repertorio experimental o, por defecto,
+ * Doom) y el motor conserva la física de un ataque normal.
+ * @param {object} [def] - ItemDefinition de hechizo con módulo spell
+ * @returns {object}
+ */
+function deriveMagicWeapon(def) {
+  const source = def && def.modules && def.modules.spell ? def : ARCANE_SPELLS.hechizo_doom;
+  const focus = ARCANE_GEAR.varita_de_caoba;
+  const spell = source.modules.spell;
+  const focusStats = getSpellStats(focus);
+  return {
+    id: `${focus.id}:${source.id}`,
+    name: `${source.name}`,
+    material: focus.material,
+    damageNature: spell.damageNature || "mágico",
+    tier: focus.tier,
+    baseDamage: spell.baseDamage || 0,
+    hands: 1,
+    weaponRange: spell.range || 1,
+    ranged: false,
+    fulgorCost: spell.fulgorCost || spell.resourceCost || 10,
+    spellNature: spell.spellNature || "mágico",
+    canalizeBase: focusStats.canalizeBase,
+    canalizeScale: focusStats.canalizeScale,
+    focus: { id: focus.id, name: focus.name },
+    spellId: source.id,
+    spell: {
+      hits: (spell.hits || []).map((hit) => ({ ...hit })),
+      effects: (spell.effects || []).map((effect) => ({ ...effect })),
+      nature: spell.nature || null,
+      kind: spell.kind || null,
+      application: spell.application || "externa",
+      resolution: spell.resolution
+        ? {
+            ...spell.resolution,
+            statMods: (spell.resolution.statMods || []).map((mod) => ({ ...mod })),
+          }
+        : null,
+    },
+  };
+}
+
+/**
+ * Calcula la batería inicial (pool de fulgor) de un luchador, SEPARADA del
+ * stat de daño `fulgor`: depende de la calidad del foco equipado
+ * (canalizeBase, derivado del material) más el stat de fulgor, y nunca supera
+ * FULGOR_POOL_MAX. `fighter.initialBattery` permite forzar el pool en tests.
+ * @param {object} fighter
+ * @returns {number}
+ */
+function initialBattery(fighter) {
+  if (typeof fighter.initialBattery === "number") {
+    return clamp(fighter.initialBattery, 0, FULGOR_POOL_MAX);
+  }
+  const weapon = fighter.equipment?.weapon;
+  const canalize = Number(weapon?.canalizeBase) || 0;
+  const baseFulgor = Number(fighter.stats?.fulgor) || 0;
+  const raw = Math.round((baseFulgor + canalize) * BATTERY_POOL_REF);
+  return clamp(raw, 0, FULGOR_POOL_MAX);
+}
+
+/**
  * Genera el equipamiento completo de un luchador a través del generador de
  * familias (scripts/simulate_combat/familyGenerator.js): el equipo se deriva
  * desde los MATERIALES (peso por rareza desplazado por nivel), el tier se
@@ -324,18 +396,27 @@ function applyEquipmentBuffs(stats, equipment) {
 }
 
 /**
- * Generate healing item loadout scaled by fighter level.
+ * Generate healing and magic utility loadouts scaled by fighter level and archetype.
  * @param {number} level
- * @returns {Array<{ name: string, heal: number }>}
+ * @param {string} archetype
+ * @returns {Array<{ name: string, heal?: number, fulgorHeal?: number }>}
  */
-function generateLoadout(level) {
+function generateLoadout(level, archetype = "fisico") {
   const stock = ITEM_STOCK_MIN + Math.floor(Math.random() * (ITEM_STOCK_MAX - ITEM_STOCK_MIN + 1));
-  const pool = ITEM_POOL.filter((item) => level >= item.minLevel);
   const items = [];
 
-  for (let i = 0; i < stock; i++) {
-    const chosen = pool[Math.floor(Math.random() * pool.length)];
-    items.push({ name: chosen.name, heal: chosen.heal });
+  const hpHeal = level >= 350 ? 150 : level >= 200 ? 80 : 40;
+  const hpName = level >= 350 ? "Poción Mayor de HP" : level >= 200 ? "Poción Media de HP" : "Poción Menor de HP";
+  items.push({ name: hpName, heal: hpHeal });
+
+  if (archetype === "magico" || archetype === "hibrido") {
+    const fulgorHeal = level >= 350 ? 50 : level >= 200 ? 30 : 15;
+    const fulgorName = level >= 350 ? "Elixir Supremo de Fulgor" : level >= 200 ? "Poción Media de Fulgor" : "Poción Menor de Fulgor";
+    items.push({ name: fulgorName, fulgorHeal });
+  }
+
+  while (items.length < stock) {
+    items.push({ name: hpName, heal: hpHeal });
   }
 
   return items;
@@ -364,17 +445,6 @@ function capToMaxLevel(stats, currentLevel, weights, magicPointsPerStat) {
 
 /**
  * Generate a fighter with personality-based stat allocation.
- *
- * 1. Pick random race -> get baseStats (sum = 50 across 9 stats)
- * 2. Pick random personality -> get allocation weights (physical + hp)
- * 3. Allocate the weight budget point-by-point (player-like spending,
- *    soft cap diversifies near the stat clamp)
- * 4. Magic stats: either reallocated share of the budget or race base
- * 5. Clamp all stats to [1, 100]
- * 6. Generate iron equipment scaled by level (probabilistic tier)
- * 7. Apply equipment buffs (set bonus + amulet) to effective stats
- * 8. nivel = sum of all 9 stats (min 100)
- * 9. HP pool = hp_stat * HP_STAT_MULTIPLIER
  * @param {string} [personalityKey] - Force a specific personality
  * @param {string} [raceKey] - Force a specific race
  * @param {object} [eqOpts] - Opciones de generación de equipo (presets)
@@ -402,8 +472,7 @@ function generateFighter(personalityKey, raceKey, eqOpts) {
   let magicPointsPerStat = 0;
   if (Math.random() < MAGIC_ALLOC_CHANCE) {
     const share = MAGIC_SHARE_MIN + Math.random() * (MAGIC_SHARE_MAX - MAGIC_SHARE_MIN);
-    const physicalTotal =
-      PHYSICAL_STATS.reduce((acc, key) => acc + (stats[key] || 0), 0) / MAGIC_STATS.length;
+    const physicalTotal = PHYSICAL_STATS.reduce((acc, key) => acc + (stats[key] || 0), 0) / MAGIC_STATS.length;
     magicPointsPerStat = Math.round(physicalTotal * share);
     for (const key of PHYSICAL_STATS) {
       stats[key] = clamp(Math.round((stats[key] || 0) * (1 - share)), STAT_CLAMP.min, STAT_CLAMP.max);
@@ -418,8 +487,15 @@ function generateFighter(personalityKey, raceKey, eqOpts) {
   }
   stats = clampAll(stats);
 
-  const baseLevel = Math.max(100, Object.values(stats).reduce((a, b) => a + b, 0));
+  const baseLevel = Math.max(
+    100,
+    Object.values(stats).reduce((a, b) => a + b, 0),
+  );
+  const archetype = ARCHETYPE_MAP[pKey] || "fisico";
   const equipment = generateEquipment(baseLevel, eqOpts);
+  if (archetype === "magico" || archetype === "hibrido" || pKey === "magus") {
+    equipment.weapon = deriveMagicWeapon(eqOpts && eqOpts.spell);
+  }
   const finalStats = applyEquipmentBuffs(stats, equipment);
 
   const nivel = Math.max(
@@ -431,7 +507,15 @@ function generateFighter(personalityKey, raceKey, eqOpts) {
   const finalCapped = capped.stats;
   const cappedNivel = capped.nivel;
 
-  const loadout = generateLoadout(cappedNivel);
+  const { calculateBuildSynergy } = require("../../src/services/rpg/itemStatService");
+  const synergyMult = calculateBuildSynergy(finalCapped, equipment, cappedNivel);
+  if (synergyMult !== 1.0) {
+    for (const k of Object.keys(finalCapped)) {
+      finalCapped[k] = Math.max(1, Math.round(finalCapped[k] * synergyMult));
+    }
+  }
+
+  const loadout = generateLoadout(cappedNivel, archetype);
 
   return {
     name: `${personality.label} ${race.name}`,
@@ -439,6 +523,7 @@ function generateFighter(personalityKey, raceKey, eqOpts) {
     nivel: cappedNivel,
     race: rKey,
     personality: pKey,
+    archetype,
     allocationWeights: randomizedWeights,
     magicPointsPerStat,
     hp: finalCapped.hp * HP_STAT_MULTIPLIER,
@@ -470,7 +555,10 @@ function scaleToLevel(fighter, targetLevel, eqOpts) {
     weights[key] = fighter.magicPointsPerStat || 0;
   }
 
-  const allocated = allocateDelta(fighter.stats, targetLevel - currentLevel, weights, [...GENERATED_STATS, ...MAGIC_STATS]);
+  const allocated = allocateDelta(fighter.stats, targetLevel - currentLevel, weights, [
+    ...GENERATED_STATS,
+    ...MAGIC_STATS,
+  ]);
   const newStats = clampAll(allocated);
 
   const baseLevel = Math.max(
@@ -479,6 +567,7 @@ function scaleToLevel(fighter, targetLevel, eqOpts) {
   );
 
   const equipment = generateEquipment(baseLevel, eqOpts);
+  if (fighter.personality === "magus") equipment.weapon = deriveMagicWeapon(eqOpts && eqOpts.spell);
   const finalStats = applyEquipmentBuffs(newStats, equipment);
 
   const newNivel = Math.max(
@@ -527,6 +616,8 @@ module.exports = {
   deriveWeapon,
   deriveArmorPiece,
   deriveShield,
+  deriveMagicWeapon,
+  initialBattery,
   applyEquipmentBuffs,
   randomRace,
   randomPersonality,

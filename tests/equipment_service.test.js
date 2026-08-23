@@ -84,7 +84,7 @@ function setupMocks() {
 }
 
 describe("EQUIPMENT_SLOTS — configuración", () => {
-  it("Tiene los 10 slots definidos", () => {
+  it("Tiene los 14 slots definidos (10 base + 4 ranuras de hechizo)", () => {
     const { EQUIPMENT_SLOTS } = require("../src/services/rpg/equipmentService");
     const slots = Object.keys(EQUIPMENT_SLOTS);
     expect(slots).toContain("cabeza");
@@ -95,7 +95,10 @@ describe("EQUIPMENT_SLOTS — configuración", () => {
     expect(slots).toContain("mano_izq");
     expect(slots).toContain("artefacto_1");
     expect(slots).toContain("artefacto_4");
-    expect(slots.length).toBe(10);
+    expect(slots).toContain("spell_1");
+    expect(slots).toContain("spell_4");
+    expect(slots).toContain("spell_container");
+    expect(slots.length).toBe(15);
   });
 });
 

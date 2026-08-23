@@ -65,6 +65,56 @@ const PERSONALITIES = {
     description: "ATK + ASPD + REF — asalta, esquiva y contraataca",
     weights: { atk: 26, def: 2, aspd: 16, ref: 8, mspd: 2, hp: 6 },
   },
+  mago_puro: {
+    label: "Mago Puro",
+    description: "FULGOR + D_FULGOR — máximo daño mágico",
+    weights: { atk: 1, def: 2, aspd: 3, ref: 2, mspd: 2, hp: 4, fulgor: 28, d_fulgor: 14, r_fulgor: 4 },
+  },
+  mago_control: {
+    label: "Mago Control",
+    description: "FULGOR + R_FULGOR + REF — control y resistencia mágica",
+    weights: { atk: 1, def: 4, aspd: 2, ref: 10, mspd: 2, hp: 6, fulgor: 18, d_fulgor: 6, r_fulgor: 11 },
+  },
+  hibrido_guerrero: {
+    label: "Híbrido Guerrero",
+    description: "ATK + ASPD + FULGOR — guerrero que canaliza",
+    weights: { atk: 16, def: 4, aspd: 12, ref: 4, mspd: 2, hp: 6, fulgor: 10, d_fulgor: 4, r_fulgor: 2 },
+  },
+  hibrido_mago: {
+    label: "Híbrido Mago",
+    description: "FULGOR + D_FULGOR + DEF + REF — mago tanque",
+    weights: { atk: 2, def: 10, aspd: 3, ref: 8, mspd: 2, hp: 6, fulgor: 14, d_fulgor: 8, r_fulgor: 7 },
+  },
+  mago_bombardero: {
+    label: "Mago Bombardero",
+    description: "FULGOR + D_FULGOR — instakill / gran daño arcano",
+    weights: { atk: 1, def: 1, aspd: 1, ref: 3, mspd: 1, hp: 3, fulgor: 32, d_fulgor: 18, r_fulgor: 4 },
+  },
+  mago_barrera: {
+    label: "Mago Barrera",
+    description: "FULGOR + R_FULGOR + DEF — mago defensivo",
+    weights: { atk: 1, def: 12, aspd: 1, ref: 5, mspd: 1, hp: 10, fulgor: 20, d_fulgor: 4, r_fulgor: 20 },
+  },
+  hibrido_perforante: {
+    label: "Híbrido Perforante",
+    description: "ATK + ASPD + FULGOR + D_FULGOR — estoque y magia",
+    weights: { atk: 18, def: 4, aspd: 14, ref: 6, mspd: 2, hp: 4, fulgor: 12, d_fulgor: 8, r_fulgor: 2 },
+  },
+  hibrido_tanque: {
+    label: "Híbrido Tanque",
+    description: "DEF + HP + FULGOR + R_FULGOR — coraza mística",
+    weights: { atk: 4, def: 18, aspd: 2, ref: 4, mspd: 2, hp: 12, fulgor: 14, d_fulgor: 4, r_fulgor: 10 },
+  },
+};
+
+const ARCHETYPE_MAP = {
+  tanque: "fisico", extremista_ataque: "fisico", extremista_defensa: "fisico",
+  extremista_velocidad: "fisico", extremista_reflejos: "fisico", berserker: "fisico",
+  guardian: "fisico", estratega: "fisico", gladiador: "fisico", matatanques: "fisico",
+  rompescudos: "fisico",
+  magus: "hibrido", hibrido_guerrero: "hibrido", hibrido_mago: "hibrido",
+  hibrido_perforante: "hibrido", hibrido_tanque: "hibrido",
+  mago_puro: "magico", mago_control: "magico", mago_bombardero: "magico", mago_barrera: "magico",
 };
 
 // Jitter de especialización (±15%) para que no sean clones exactos.
@@ -92,6 +142,17 @@ const FATIGUE_SNAPSHOT_TURNS = [1, 5, 10, 15, 20];
 const MAGIC_ALLOC_CHANCE = 0.3;
 const MAGIC_SHARE_MIN = 0.05;
 const MAGIC_SHARE_MAX = 0.3;
+
+// ── Piscina de batería mágica (SEPARADA del stat de daño `fulgor`) ──
+// La batería (pool) se llena según la calidad del foco (canalizeBase) + el
+// stat de fulgor del lanzador, y nunca supera FULGOR_POOL_MAX (combatBalance).
+// `initialBattery(fighter)` (fighterGenerator) es la que aplica la fórmula.
+const BATTERY_POOL_REF = 1;
+
+// Regeneración por turno dedicado a meditar (o descansar): base + escala por
+// dominio. MEDITACION_DOMINIO_ESCALA espeja DOMINIO_REF (d_fulgor/ref → +%).
+const MEDITACION_REGEN_BASE = 9;
+const MEDITACION_DOMINIO_ESCALA = 100;
 
 // ── IA: descanso ──
 const REST_FATIGUE_RATIO = 0.5;
@@ -265,6 +326,9 @@ const SIM_CONFIG = {
   MAGIC_ALLOC_CHANCE,
   MAGIC_SHARE_MIN,
   MAGIC_SHARE_MAX,
+  BATTERY_POOL_REF,
+  MEDITACION_REGEN_BASE,
+  MEDITACION_DOMINIO_ESCALA,
   REST_FATIGUE_RATIO,
   REST_LOW_HP_RATIO,
   REST_LOW_FATIGUE_RATIO,
@@ -300,6 +364,7 @@ const SIM_CONFIG = {
 
 module.exports = {
   PERSONALITIES,
+  ARCHETYPE_MAP,
   WEIGHT_JITTER,
   STAT_SOFT_CAP,
   DEFAULT_NUM_SIMS,
@@ -317,6 +382,9 @@ module.exports = {
   MAGIC_ALLOC_CHANCE,
   MAGIC_SHARE_MIN,
   MAGIC_SHARE_MAX,
+  BATTERY_POOL_REF,
+  MEDITACION_REGEN_BASE,
+  MEDITACION_DOMINIO_ESCALA,
   REST_FATIGUE_RATIO,
   REST_LOW_HP_RATIO,
   REST_LOW_FATIGUE_RATIO,

@@ -74,6 +74,37 @@ async function persistDurability({ characterId, creatorId, itemId, durability })
   return "updated";
 }
 
+async function persistArmorDurability(character, creatorId, armor) {
+  const pieces = Array.isArray(armor?.list) ? armor.list : [];
+  await Promise.all(
+    pieces.map(async (piece) => {
+      const durability = piece.instance;
+      if (!durability) return;
+      if (character?.dummyEquipment) {
+        const row = (character.dummyEquipment.inventory || []).find((item) => item.item_id === piece.itemId);
+        if (row) {
+          row.metadata = {
+            ...(row.metadata || {}),
+            durability: {
+              maxResist: durability.maxResist,
+              currentResist: durability.currentResist,
+              isRepairable: durability.isRepairable,
+              broken: durability.isBroken,
+            },
+          };
+        }
+        return;
+      }
+      await persistDurability({
+        characterId: character.id,
+        creatorId: creatorId || "system",
+        itemId: piece.itemId,
+        durability,
+      });
+    }),
+  );
+}
+
 /**
  * Lee la metadata actual de un ítem del inventario (para preservar campos ajenos).
  * @param {string|number} characterId
@@ -94,5 +125,6 @@ async function readMetadata(characterId, itemId) {
 
 module.exports = {
   persistDurability,
+  persistArmorDurability,
   readMetadata,
 };

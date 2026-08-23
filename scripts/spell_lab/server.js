@@ -29,6 +29,7 @@ const {
   buildSpellDefinition,
   refineSpell,
   computeSpellCost,
+  getSpellCategory,
   ELEMENTS,
 } = require("../../src/services/rpg/skillForgeService");
 const {
@@ -38,9 +39,7 @@ const {
   saveUserSpellRecipe,
   deleteUserSpellRecipe,
 } = require("../../src/data/userSpells");
-const {
-  MATERIALS,
-} = require("../../src/data/materialData");
+const { MATERIALS } = require("../../src/data/materialData");
 const {
   FULGOR_COST_BASE,
   FULGOR_DILUTED_MIN,
@@ -58,13 +57,25 @@ const {
   TARGET_WEIGHTS,
   CHANNEL_BY_NATURE,
 } = require("../../src/config/combatBalance");
+const {
+  SPELL_KINDS,
+  SPELL_APPLICATIONS,
+  SPELL_NATURES: SIMPLIFIED_NATURES,
+  FULGOR_NATURES,
+  SPELL_RESOLUTION_RULES,
+  RESOLUTION_DEFAULT_TARGET_MODE,
+  EFFECT_DEFS,
+  EFFECT_DEF_SCHEMA,
+  ELEMENT_REACTIONS,
+  ELEMENT_PERSISTENCE,
+} = require("../../src/config/spellTree");
+const { FULGOR_POOL_MAX, SPELL_TIER_RULES } = require("../../src/config/combatBalance");
 
-const PORT =
-  (() => {
-    const i = process.argv.indexOf("--port");
-    const v = i >= 0 ? Number(process.argv[i + 1]) : 0;
-    return Number.isFinite(v) && v > 0 ? v : 3000;
-  })();
+const PORT = (() => {
+  const i = process.argv.indexOf("--port");
+  const v = i >= 0 ? Number(process.argv[i + 1]) : 0;
+  return Number.isFinite(v) && v > 0 ? v : 3000;
+})();
 
 const HTML_FILE = path.join(__dirname, "index.html");
 
@@ -109,14 +120,20 @@ function buildResponse(recipe, errors) {
     try {
       const def = buildSpellDefinition(recipe);
       const cost = computeSpellCost(def);
+      const categoryInfo = getSpellCategory(def);
       out.def = def;
-      out.cost = cost;
+      out.cost = { ...cost, ...categoryInfo };
       out.costRaw = {
         potencia: cost.potencia,
         fineza: cost.fineza,
         elementosDuplicados: (def.modules.spell.elements || []).length,
         hits: (def.modules.spell.hits || []).map((h) => ({ element: h.element, magnitude: h.magnitude })),
-        effects: (def.modules.spell.effects || []).map((e) => ({ tipo: e.tipo, target: e.target, element: e.element, magnitude: e.magnitude })),
+        effects: (def.modules.spell.effects || []).map((e) => ({
+          tipo: e.tipo,
+          target: e.target,
+          element: e.element,
+          magnitude: e.magnitude,
+        })),
       };
     } catch (err) {
       out.ok = false;
@@ -136,6 +153,7 @@ function buildResponse(recipe, errors) {
 function normalizeRecipe(body) {
   const recipe = { ...body };
   const hasEffects = Array.isArray(body.effects);
+  const hasSimplified = Boolean(body.kind);
 
   if (hasEffects) {
     recipe.effects = body.effects.map((e) => ({
@@ -146,6 +164,12 @@ function normalizeRecipe(body) {
       magnitude: Math.max(0, Number(e.magnitude) || 0),
       duration: Math.max(0, Number(e.duration) || 0),
     }));
+  }
+
+  if (hasEffects && !hasSimplified) {
+    // Modo árbol (Fase D): los hits se derivan de los efectos "dano"; las
+    // recetas con `kind` (Sistema Simplificado) conservan hits explícitos para
+    // que el contrato §11 los evalúe (p.ej. DIRECT_DAMAGE_FORBIDDEN).
     recipe.naturaleza = body.naturaleza || null;
     recipe.subtype = body.subtype || null;
     recipe.role = body.role || null;
@@ -168,6 +192,21 @@ function normalizeRecipe(body) {
   recipe.range = Math.max(0, Number(body.range) || 0);
   recipe.cooldown = Math.max(0, Number(body.cooldown) || 0);
   recipe.castTime = Math.max(1, Number(body.castTime) || 1);
+  // Payload de resolución (Contrato §11): se normaliza numéricamente y se
+  // conserva junto al resto de la receta para que el constructor lo persista.
+  if (body.kind) {
+    const res = body.resolution && typeof body.resolution === "object" ? body.resolution : {};
+    recipe.resolution = {
+      targetMode: res.targetMode ?? null,
+      radius: Math.max(0, Number(res.radius) || 0),
+      barrierHp: Math.max(0, Number(res.barrierHp) || 0),
+      imbuement: res.imbuement ?? null,
+      duration: Math.max(0, Number(res.duration) || 0),
+      statMods: Array.isArray(res.statMods)
+        ? res.statMods.map((m) => ({ stat: m?.stat, delta: Number(m?.delta) || 0 }))
+        : [],
+    };
+  }
   // material / rarity / tier NO se toman del cliente: el motor los deriva
   // (tier y rarity del costo fino; material conceptual "etereo").
   delete recipe.material;
@@ -202,16 +241,33 @@ const server = http.createServer(async (req, res) => {
     // ── API ──
     if (pathname === "/api/taxonomy" && req.method === "GET") {
       return sendJson(res, 200, {
-        SPELL_NATURES,
-        SPELL_ROLES,
-        EFFECT_TYPES,
-        EFFECT_TARGETS,
-        ACTIVATIONS,
-        MOMENTS,
-        TARGETS,
-        EFFECT_WEIGHTS,
-        TARGET_WEIGHTS,
-        CHANNEL_BY_NATURE,
+        // Sistema Simplificado (fuente: spellTree.js) — usado por el lab.
+        SPELL_KINDS,
+        SPELL_APPLICATIONS,
+        SPELL_NATURES: SIMPLIFIED_NATURES,
+        FULGOR_NATURES,
+        SPELL_RESOLUTION_RULES,
+        RESOLUTION_DEFAULT_TARGET_MODE,
+        EFFECT_DEFS,
+        EFFECT_DEF_SCHEMA,
+        ELEMENT_REACTIONS,
+        ELEMENT_PERSISTENCE,
+        // Balanceo de costes/tier (Fase Balanceo 2026-08-18)
+        FULGOR_POOL_MAX,
+        SPELL_TIER_RULES,
+        // Retrocompat con la web antigua (Fase D) — se mantiene para migración.
+        LEGACY: {
+          SPELL_NATURES,
+          SPELL_ROLES,
+          EFFECT_TYPES,
+          EFFECT_TARGETS,
+          ACTIVATIONS,
+          MOMENTS,
+          TARGETS,
+          EFFECT_WEIGHTS,
+          TARGET_WEIGHTS,
+          CHANNEL_BY_NATURE,
+        },
       });
     }
 
@@ -263,13 +319,17 @@ const server = http.createServer(async (req, res) => {
 
     return sendJson(res, 404, { ok: false, errors: ["Ruta no encontrada"] });
   } catch (err) {
-    return sendJson(res, 500, { ok: false, errors: [String(err && err.message || err)] });
+    return sendJson(res, 500, { ok: false, errors: [String((err && err.message) || err)] });
   }
 });
 
-server.listen(PORT, () => {
-  console.log(`Spell Lab en http://localhost:${PORT}`);
-  console.log(`Elementos: ${ELEMENTS.join(", ")} | FULGOR_COST_BASE: ${FULGOR_COST_BASE} | tier: ${SPELL_TIER_BRACKETS.map((b) => b.tier).join(", ")}`);
-});
+if (require.main === module) {
+  server.listen(PORT, () => {
+    console.log(`Spell Lab en http://localhost:${PORT}`);
+    console.log(
+      `Elementos: ${ELEMENTS.join(", ")} | FULGOR_COST_BASE: ${FULGOR_COST_BASE} | tier: ${SPELL_TIER_BRACKETS.map((b) => b.tier).join(", ")}`,
+    );
+  });
+}
 
 module.exports = { server, previewCost, normalizeRecipe };

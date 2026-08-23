@@ -260,10 +260,17 @@
   "258": "retar.js",
   "259": "statusService.js",
   "260": "magic_channel.test.js",
-  "261": "focus.js",
-  "262": "admin_perm_rem.js",
+  "261": "itemFactory.js",
+  "262": "combatMessages.js",
   "263": "logSystem",
   "264": "heal.js",
   "265": "Entity",
-  "266": "movement_turn_consume.test.js"
+  "266": "createReport",
+  "267": "dummy_arcane.test.js",
+  "268": "durabilityPersistenceService.js",
+  "269": "bloquear.js",
+  "270": "esquivar.js",
+  "271": "add.js",
+  "272": "grupo_cerrar.js",
+  "273": "buff.js"
 }

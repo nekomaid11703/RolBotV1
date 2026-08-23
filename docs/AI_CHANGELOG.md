@@ -4,6 +4,124 @@ Este archivo registra los cambios significativos y decisiones arquitectónicas t
 
 ---
 
+## [Unreleased]
+
+### Sistema y Mecánicas de Contenedores de Hechizos (`spell_container`) (2026-08-22)
+
+- **Capacidades Ajustadas y Ranuras por Tier (`spellContainerService.js`)**:
+  - `CONTAINER_CAPACITIES`: Pergamino (1 slot), Libreta desgastada (4 slots), Grimorio (12 slots), **Grimorio Arcano (24 slots — capaz de albergar hasta 6 hechizos Tier S de 4 slots cada uno)**.
+  - Coste de ranuras por Tier (`getSpellSlotCost`): Tier S (4 slots), Tier A (3 slots), Tier B / C (2 slots), Tier E / D (1 slot).
+  - Validación de memoria al equipar hechizos (`equipActiveSpell`): rechaza el equipamiento si supera la capacidad libre del contenedor equipado activo.
+- **Ranura de Tomo Único (`equipmentService.js`)**:
+  - Incorporado slot oficial `spell_container` a `EQUIPMENT_SLOTS` y aliases coloquiales (`tomo`, `grimorio`, `pergamino`, `contenedor`). Un personaje solo puede tener 1 tomo equipado a la vez.
+- **UI & Menú de Hechizos (`spellSections.js` & `spell.js`)**:
+  - Muestra el tomo equipado con barra visual de capacidad `[████░░░░] 4/24 slots usados` al inicio de `/spell`.
+  - Muestra el coste en slots de cada hechizo según su Tier al listar `/spell` o `/spell info`.
+- **Pruebas Automatizadas (`tests/spell_container_capacity.test.js`)**:
+  - Creada suite de pruebas dedicada. Verificación limpia de la suite completa del proyecto (63 archivos, 770 tests 100% pasados).
+
+### Catálogo de Familias de Materiales y Rediseño de `/item_add` (2026-08-22)
+
+- **`src/data/materialFamilies.js`**:
+  - Generador y registro automático de familias de ítems para **todos los 20+ materiales del juego** (`materialData.js`: Madera, Cuero, Hueso, Piedra, Hierro, Bronce, Acero, Plata, Platino, Obsidiana, Oro, Madera de Caoba, Titanio, Mitril, Oricalco, Luminita, Mineral Pálido, Obsidiana Azul, Madera del Irminsul, Adamantita, Etério, Vibranium, Filo Estelar).
+  - Generación de **11 tipos de ítems por material**: Espadas (cortantes), Mazas (contundentes), Lanzas (perforantes), Dagas (perforantes), Báculos (canalización mágica), Cascos, Pecheras, Grebas, Botas, Escudos y Amuletos místicos.
+  - Derivación automática de metadatos (resistencia, durabilidad, masa, multiplicadores) mediante `createItemDefinition` de `itemFactory.js`.
+- **`src/data/items.js`**:
+  - Auto-carga de `materialFamilies.js` e integración con `getItem(id)`, `getAllItems()` y `getItemsByCategory(category)`.
+- **`src/commands/rpg/inventory/item_add.js`**:
+  - Rediseñado con soporte de **búsqueda inteligente por término** (ej: `/item_add mitril`, `/item_add casco`, `/item_add buscar espada`).
+  - Asignación rápida cuando la coincidencia es única o por ID exacto.
+  - Formato estructurado con sugerencias de IDs exactos cuando la búsqueda arroja múltiples coincidencias.
+  - Guía visual interactiva de materiales y categorías disponibles al ejecutar `/item_add` sin argumentos.
+- **`tests/material_families.test.js`**:
+  - Cobertura de pruebas automatizadas para el catálogo completo de familias de materiales y filtrado por categoría.
+
+### Puesta a Punto y Producción del Sistema de Combate (2026-08-22)
+
+- **UI & Mensajería Predictiva de Combate**:
+  - `src/ui/sections/combatSections.js` y `combatMessages.js`: Menú de turno enriquecido con contexto situacional directo (distancia en metros, HP y maxHP del enemigo, Fulgor disponible/máximo).
+  - `src/data/combatActions.js`: Prompt de reacción `REACTION_ACTIONS` actualizado para mostrar la **probabilidad % estimada de esquiva** y el coste de daño/fatiga antes de tomar la decisión.
+  - `src/ui/sections/combatStats.js`: `buildStatSummary` re-formateado a 2 líneas limpias con iconos temáticos (⚔️ ATK, 🛡️ DEF, ⚡ ASPD, 🏃 MSP, 👁️ REF, ✨ FUL).
+- **Integración de Meditación en Descanso**:
+  - `src/commands/rpg/combat/descansar.js`: `/descansar` (y alias `/meditar`) ahora recupera **Fatiga Y Fulgor** en el mismo turno. La recuperación de Fulgor es proporcional a la estadística de Defensa Arcana (`DF`).
+- **Comando `/usar` (Consumibles en Combate)**:
+  - `src/commands/rpg/combat/usar.js`: Nuevo comando de ejecución directa para usar pociones, vendas y elixires en combate o fuera de él. Consume del inventario, aplica curación de HP o restauración de Fulgor instantánea y avanza el turno.
+- **Visualización de Alcance de Hechizos (`/spell`)**:
+  - `src/ui/sections/spellSections.js` y `spell.js`: Sub-menú de hechizos equipados con indicadores 🟢/🔴 que comparan dinámicamente el alcance de cada hechizo contra la distancia actual de combate.
+- **Claridad en Reacciones y Resultados**:
+  - `bloquear.js`, `esquivar.js`, `huir.js` y `atacar.js` pasados a formato estándar con `buildSituationalCtx` para garantizar que el menú del siguiente turno presente la información situacional actualizada.
+
+### Catálogo Masivo de 40 Spells, Consumibles Escalados, Arenas Dinámicas y Sinergia de Build 100-500 (2026-08-22)
+
+- **`scripts/simulate_combat/repertorio40.js`**:
+  - Creación del catálogo masivo de **40 Habilidades Experimentales** forjadas bajo el Sistema Simplificado de Magia, cubriendo las 9 naturalezas de Fulgor (*fuego, agua, tierra, aire, hielo, electro, luz, oscuridad, caos*), las 2 aplicaciones (*propia, externa*), los 5 tipos de resolución (*proyectil, explosion, barrera, buffo, aura*) y efectos de estado. Clasificación determinista en Tiers oficiales con `getSpellCategory`.
+- **`scripts/simulate_combat/config.js` y `combatLoop.js`**:
+  - Adición de 4 personalidades especializadas (`mago_bombardero`, `mago_barrera`, `hibrido_perforante`, `hibrido_tanque`), nivelando la muestra (11 físicas vs 9 mágicas/híbridas).
+  - Implementación de consumibles de utilidad escalados por nivel (`ITEM_TIERS_BY_LEVEL`: Pociones Menores/Medias/Mayores de HP y Elixires de Fulgor).
+  - Soporte en `combatLoop.js` (`shouldUseItem`/`useItem`) para que magos e híbridos consuman pociones de Fulgor en combate, recargando batería de forma instantánea sin perder turnos meditando.
+- **`src/services/rpg/itemStatService.js`**:
+  - Implementación de `calculateBuildSynergy(stats, equipment, level)`, que evalúa la coherencia stat-equipo-hechizo. Aplica un coeficiente progresivo que otorga hasta **+15% de efectividad a Nivel 400-500** para builds especializadas y un malus de hasta **-10% por ineficiencia** a reparticiones sin coherencia.
+- **`scripts/simulate_combat/run_archetype_matrix.js`**:
+  - Runner actualizado para sortear distancias iniciales de arena (2m, 6m, 10m), asignar rotaciones de las 40 habilidades experimentales y evaluar comparativamente los brackets **Bracket Bajo (100–200)** vs **Bracket Alto (400–500 con sinergia activa)**.
+- **`memory/decisions.md`**:
+  - Registro de la **Nota Arquitectónica sobre el Consenso de Progresión**: la mejora/upgrade de equipamiento y hechizos del jugador está abstraída por nivel en el laboratorio y se diseñará en una sesión posterior.
+
+### Paso 5: Calibración y Balance Fino Competitivo (2026-08-22)
+
+- **`src/services/rpg/skillForgeService.js`**:
+  - Adición de `getSpellCategory(spellDef)` para clasificar objetivamente los hechizos en categorías canónicas (`Básico` Tier E/D, `Intermedio` Tier C/B, `Avanzado` Tier A, `Mítico` Tier S) según coste de Fulgor, `d_fulgor` requerido (`SPELL_DOMINIO_REQ`) y complejidad.
+- **`scripts/spell_lab/index.html` y `server.js`**:
+  - Integración de `getSpellCategory` en la API `/api/cost` y actualización del Spell Lab para mostrar la categoría real calculada y sus métricas objetivas de dominio y Fulgor.
+- **`scripts/simulate_combat/families.config.js` y `familyGenerator.js`**:
+  - Generador universal de familias para los 21+ materiales del juego (`materialData.js`), derivando de base armas físicas, focos modulares (varitas/báculos con daño + canalización), armaduras y túnicas místicas (cobertura mística + buff mágico), escudos y artefactos.
+  - Desvinculación del Tier de la rareza del material: el Tier representa la calidad de manufactura del objeto (existiendo Madera Tier S y Mitril Tier E).
+- **`scripts/simulate_combat/config.js` y `fighterGenerator.js`**:
+  - Adición de 4 personalidades con asignación de presupuesto en stats mágicas (`mago_puro`, `mago_control`, `hibrido_guerrero`, `hibrido_mago`) y mapa `ARCHETYPE_MAP`.
+  - Asignación de equipo modular y libertad total de acciones sin bloqueos de clase.
+- **`scripts/simulate_combat/run_archetype_matrix.js`**:
+  - Runner dedicado para simular la matriz cruzada 3×3 de enfrentamientos (Físico vs Físico, Físico vs Mágico, Físico vs Híbrido, Mágico vs Mágico, Mágico vs Híbrido, Híbrido vs Híbrido) con niveles parejos. Generación de reporte en `scripts/simulation_output/archetype_matrix_report.md`.
+
+### Runtime Completo de Efectos de Estado, Cegadura y Barreras (2026-08-22)
+
+- **`src/config/spellTree.js`**:
+  - Adición de la constante `CEGADURA_REF_REDUCTION = 3` y registro del nuevo efecto `cegadura` en `EFFECT_DEFS`.
+  - Refinamiento de `congelado`: inmoviliza el movimiento de forma estándar; el bloqueo de ataques es condicional al daño mágico del impacto superando la Resistencia Mágica del objetivo (`dañoMágico > R_FULGOR`).
+  - Consagración del **Principio Canónico de Naturalezas Primordiales**: Luz, Oscuridad y Caos pueden ejecutar todo el espectro (daño, debuffs como cegadura, buffs, curación, purificación, barreras y auras).
+- **`src/services/rpg/combatState.js`**:
+  - `getDefenseReduction(slot)`: cálculo acumulativo de reducción de defensa (DEF) para `rompe_armaduras`.
+  - `getReflexReduction(slot)`: cálculo acumulativo de reducción de reflejos (REF) para `cegadura`.
+  - `applyBarrierDamage(slot, rawDamage)`: absorción de daño prioritario por barrera defensiva antes de impactar el HP del personaje.
+- **`src/ui/sections/combatSections.js`**:
+  - `activeEffectLines(combatant)`: visualización de estados activos e indicadores de barrera HP en el menú de combate.
+- **`src/commands/rpg/combat/spell.js`**:
+  - Integración de `isActionBlocked` (bloqueo de casteo cuando está congelado severamente) y absorción de barrera al calcular daño mágico.
+- **`tests/spell_effects_runtime.test.js`**:
+  - Pruebas unitarias completas para `congelado` condicional, `cegadura`, `rompe_armaduras`, `applyBarrierDamage` y purificación.
+
+### Sistema de Hechizos `/spell`, Contenedores y Ranuras Activas (2026-08-22)
+
+- **`src/commands/rpg/combat/spell.js`**: comando principal `/spell` con sub-menú interactivo estilizado en la UI de combate (`spellSubmenuLines`), lanzamiento en combate, chequeo de cooldowns, toggle de pasivas, ficha técnica (`/spell info`) y listado de tomos (`/spell contenedores`).
+- **`src/commands/rpg/inventory/equipar_spell.js`**: comando `/equipar_spell` (alias `/equipar_hechizo`, `/equipar_habilidad`) para equipar/desequipar en las 4 ranuras activas de combate.
+- **`src/services/rpg/spellContainerService.js`**: servicio para gestionar la capacidad de tomos contenedores (`libreta_desgastada` [2], `pergamino` [1], `grimorio` [4], `grimorio_arcano` [8]) y el límite estricto de 4 ranuras activas equipadas (`spell_1`..`spell_4`).
+- **`src/services/rpg/equipmentService.js`**: adición de `spell_1`..`spell_4` a `EQUIPMENT_SLOTS` y sus alias coloquiales (`hechizo_1`, `habilidad_1`, etc.).
+- **`src/data/items.js`**: registro de ítems contenedores en el catálogo de ítems (`libreta_desgastada`, `pergamino`, `grimorio`, `grimorio_arcano`).
+- **`src/data/combatActions.js`**: adición de `/spell` al menú de acciones de combate de WhatsApp.
+- **`src/services/rpg/combatState.js`**: decaimiento por turno de cooldowns de hechizos activos (`decaySlotSpellCooldowns`).
+
+### Quemadura persistente en combate
+
+- **`src/config/spellTree.js`**: `quemadura` calcula duración y daño por tick según `d_fulgor` del lanzador, y mitiga cada tick con `r_fulgor` del objetivo.
+- **`src/services/rpg/combatState.js`**: las reacciones registran efectos persistentes en el slot objetivo; los efectos no acumulables se refrescan y el DOT se resuelve al inicio del turno del portador.
+- **`tests/combat_elemental.test.js`**: cobertura de aplicación, duración, consumo y mitigación de quemadura.
+
+### Paridad de equipo y preparación de balance competitivo
+
+- **`itemStatService`**: el tier de armas físicas se aplica una sola vez, eliminando el doble escalado frente a focos y armaduras.
+- **Equipo de combate**: absorción y persistencia multi-pieza en ataque, bloqueos, esquivas, descanso, huida y turno del dummy; TD-005 resuelta.
+- **`memory/plans/competitive_balance.md`**: criterios, métricas y puertas técnicas para el balance físico, mágico e híbrido.
+
+---
+
 ## [2.12.0] - 2026-08-06
 
 ### Generador de familias de ítems tester (múltiples materiales + tiers) + IA de equipamiento + informe detallado + re-baseline

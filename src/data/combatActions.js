@@ -14,24 +14,35 @@
  */
 
 const COMBAT_ACTIONS = [
-  { command: "atacar", label: "Ataque", kinds: ["action"] },
-  { command: "usar", label: "Consumible", hint: "item", kinds: ["action"] },
-  { command: "descansar", label: "Fatiga -5", kinds: ["action"] },
-  { command: "huir", label: "Escapar", kinds: ["action"] },
-  { command: "avanzar", label: "Avanzar", hint: "metros", kinds: ["action", "movement"] },
-  { command: "retroceder", label: "Retroceder", hint: "metros", kinds: ["action", "movement"] },
+  { command: "atacar",    label: "Ataque físico",          kinds: ["action"] },
+  { command: "spell",     label: "Hechizo/Habilidad",      hint: "slot|id",  kinds: ["action"] },
+  { command: "usar",      label: "Usar consumible",         hint: "item",    kinds: ["action"] },
+  { command: "descansar", label: "Descansar y meditar (recupera Fat. y Fulgor)", kinds: ["action"] },
+  { command: "huir",      label: "Intentar escapar",       kinds: ["action"] },
+  { command: "avanzar",   label: "Avanzar",                hint: "metros",  kinds: ["action", "movement"] },
+  { command: "retroceder",label: "Retroceder",             hint: "metros",  kinds: ["action", "movement"] },
 ];
 
 const REACTION_ACTIONS = [
   {
     command: "esquivar",
     label: "Esquivar",
-    render: ({ baseDamage, canDodge }) => (canDodge ? "✅ Daño: 0" : `❌ Daño: ${baseDamage}`),
+    /**
+     * @param {{baseDamage: number, canDodge: boolean, dodgeChancePct?: number}} opts
+     */
+    render: ({ baseDamage, canDodge, dodgeChancePct }) => {
+      if (canDodge) {
+        const pct = dodgeChancePct !== undefined ? `${dodgeChancePct}%` : "alta";
+        return `✅ Éxito: ${pct}  →  Daño: 0`;
+      }
+      const pct = dodgeChancePct !== undefined ? `${dodgeChancePct}%` : "baja";
+      return `⚠️ Éxito: ${pct}  →  Daño: ${baseDamage} (si falla)`;
+    },
   },
   {
     command: "bloquear",
     label: "Bloquear",
-    render: ({ baseDamage }) => `🛡️ Daño: ${Math.max(1, Math.round(baseDamage * 0.75))}`,
+    render: ({ baseDamage }) => `🛡️ Garantizado  →  Daño: ${Math.max(1, Math.round(baseDamage * 0.75))}`,
   },
 ];
 

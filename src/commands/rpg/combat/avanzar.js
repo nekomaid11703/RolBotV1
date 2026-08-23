@@ -1,5 +1,10 @@
 const { getActiveCharacter } = require("../../../services/characterService");
-const { findSessionByCharacter, updateDistance, advanceTurn } = require("../../../services/rpg/combatState");
+const {
+  findSessionByCharacter,
+  updateDistance,
+  advanceTurn,
+  isActionBlocked,
+} = require("../../../services/rpg/combatState");
 const { calculateMovementFatigue, capFatigue, getMovementRange } = require("../../../services/rpg/fatigueEngine");
 const { checkAttackRange } = require("../../../services/rpg/combatEngine");
 const { runDummyTurn } = require("../../../services/rpg/dummyTurnService");
@@ -71,6 +76,9 @@ module.exports = {
      * @constant playerSlot
      */
     const playerSlot = isChallenger ? session.challenger : session.defender;
+    if (isActionBlocked(playerSlot, "move")) {
+      return ctx.reply("\u274C Estás inmovilizado y no puedes avanzar.");
+    }
 
     /**
      * @constant maxMove

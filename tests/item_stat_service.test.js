@@ -13,6 +13,20 @@ const {
 } = require("../src/services/rpg/itemStatService");
 
 describe("getWeaponStats — base × tier × material", () => {
+  it("aplica el tier una sola vez mediante las estadísticas del material", () => {
+    const def = createItemDefinition({
+      id: "espada-tier",
+      type: "weapon",
+      material: "madera",
+      tier: "N",
+      modules: { weapon: { baseDamage: 10 } },
+    });
+    const stats = getWeaponStats(def);
+
+    // madera: afilabilidad 20 × tier N 1.84; EDGE_SCALE = 50.
+    expect(stats.baseDamage).toBe(Math.round(10 * ((20 * 1.84) / 50)));
+  });
+
   it("Aplica el multiplicador de tier al daño base", () => {
     const base = getWeaponStats(createItemDefinition({ id: "esp", type: "weapon", material: "madera", tier: "E" }));
     const alto = getWeaponStats(createItemDefinition({ id: "esp", type: "weapon", material: "madera", tier: "N" }));

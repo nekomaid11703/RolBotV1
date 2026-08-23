@@ -65,6 +65,8 @@ function collectMetrics(result) {
   let retreatsB = 0;
   let weaponHitsA = 0;
   let weaponHitsB = 0;
+  let meditationsA = 0;
+  let meditationsB = 0;
 
   for (const entry of result.log) {
     const isA = entry.attacker.startsWith("A");
@@ -98,6 +100,9 @@ function collectMetrics(result) {
     } else if (entry.action === "retreat") {
       if (isA) retreatsA++;
       else retreatsB++;
+    } else if (entry.action === "meditate") {
+      if (isA) meditationsA++;
+      else meditationsB++;
     }
   }
 
@@ -133,6 +138,22 @@ function collectMetrics(result) {
     fighterB_armorMaterial: eqB.armorMaterials[0] || "ninguno",
     fighterA_ammo: eqA.ammo,
     fighterB_ammo: eqB.ammo,
+    fighterA_fulgorStart: fighterA.stats.fulgor || 0,
+    fighterB_fulgorStart: fighterB.stats.fulgor || 0,
+    fighterA_fulgorLeft: result.stateA.fulgor,
+    fighterB_fulgorLeft: result.stateB.fulgor,
+    fighterA_fulgorSpent: result.stateA.fulgorSpent,
+    fighterB_fulgorSpent: result.stateB.fulgorSpent,
+    fighterA_fulgorRegen: result.stateA.fulgorRegen,
+    fighterB_fulgorRegen: result.stateB.fulgorRegen,
+    fighterA_fulgorPoolMax: result.stateA.fulgorPoolMax,
+    fighterB_fulgorPoolMax: result.stateB.fulgorPoolMax,
+    fighterA_meditations: result.stateA.meditations,
+    fighterB_meditations: result.stateB.meditations,
+    fighterA_spellCasts: result.stateA.spellCasts,
+    fighterB_spellCasts: result.stateB.spellCasts,
+    fighterA_dilutedCasts: result.stateA.dilutedCasts,
+    fighterB_dilutedCasts: result.stateB.dilutedCasts,
     fighterA_armorBonusDef: fighterA.equipment.armor?.bonusDef || 0,
     fighterB_armorBonusDef: fighterB.equipment.armor?.bonusDef || 0,
     fighterA_armorPieces: eqA.armorPieces,

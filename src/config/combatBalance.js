@@ -31,6 +31,32 @@ const MAGIC_DEFENSE_SCALE = 100;
 /** Referencia de dominio puro: reduce coste de lanzamiento, nunca suma daño directo (§11.2) */
 const DOMINIO_REF = 100;
 
+// ══════════════════════════════════════════
+// STATUS EFFECT — QUEMADURA (Fase 3, primero en implementarse)
+// ══════════════════════════════════════════
+
+/** Daño base por turno de quemadura, antes de magnitude/dominio/mitigación */
+const QUEMADURA_DOT_BASE = 2;
+
+/** Turnos base del estado de quemadura cuando el efecto no define duración */
+const QUEMADURA_DURACION_BASE = 2;
+
+/** Turnos extra por cada DOMINIO_REF completo del lanzador (d_fulgor/100 → +N turnos) */
+const QUEMADURA_DURACION_ESCALA = 2;
+
+/** Duración predeterminada de los estados que no la declaran en la receta */
+const STATUS_DURATION_BASE = 2;
+/** DOT físico base de veneno, antes de la magnitud del efecto */
+const VENENO_DOT_BASE = 2;
+/** DOT mágico base de decadencia, antes de magnitud y mitigación */
+const DECADENCIA_DOT_BASE = 1;
+/** Multiplicador de daño mientras el portador está maldito */
+const MALDICION_DAMAGE_MULTIPLIER = 0.75;
+/** DEF reducida por cada acumulación de rompe_armaduras */
+const ROMPE_ARMADURAS_DEF_REDUCTION = 5;
+/** Daño instantáneo base de choque_termico */
+const CHOQUE_TERMICO_DAMAGE_BASE = 4;
+
 /** Coste de lanzamiento nominal de un hechizo (batería gasta esta cantidad por aire) */
 const FULGOR_COST_BASE = 10;
 
@@ -539,24 +565,78 @@ const RESULT_TYPE_WEIGHTS = {
 };
 
 /**
+ * Batería de fulgor MÁXIMA de un jugador de nivel máximo (fulgor pool).
+ * Un hechizo con fulgorCost ≥ este tope existe canónicamente, pero NO puede
+ * lanzarse de forma natural (la batería no lo cubre).
+ */
+const FULGOR_POOL_MAX = 100;
+
+/**
  * Brackets de tier del hechizo derivados del costoFino CRUDO (antes de descuentos).
+ * Escala recalibrada para reflejar la progresión básico→avanzado afín al sistema
+ * de combate: cada tier abre ~25 puntos de costo fino y el techo natural es 100
+ * (batería de jugador de nivel máximo). El tier E fija las reglas canónicas del
+ * "golpe básico": un solo elemento, sin efectos, coste ≤ 10.
  * @type {{max: number, tier: string}[]}
  */
 const SPELL_TIER_BRACKETS = [
-  { max: 9, tier: "E" },
-  { max: 15, tier: "D" },
-  { max: 24, tier: "C" },
-  { max: 35, tier: "B" },
-  { max: 50, tier: "A" },
+  { max: 10, tier: "E" },
+  { max: 25, tier: "D" },
+  { max: 50, tier: "C" },
+  { max: 75, tier: "B" },
+  { max: 99, tier: "A" },
   { max: Infinity, tier: "S" },
 ];
+
+/**
+ * Reglas declarativas del tier (referencia de diseño, se exponen al lab).
+ * @type {Record<string, { label: string, costoMax: number, unElemento: boolean, sinEfectos: boolean, desc: string }>}
+ */
+const SPELL_TIER_RULES = {
+  E: {
+    label: "Básico",
+    costoMax: 10,
+    unElemento: true,
+    sinEfectos: true,
+    desc: "Golpe básico: un solo elemento, sin efectos, coste ≤ 10 de fulgor.",
+  },
+  D: {
+    label: "Intermedio",
+    costoMax: 25,
+    unElemento: true,
+    sinEfectos: false,
+    desc: "Admite efectos; aún un solo elemento.",
+  },
+  C: {
+    label: "Avanzado",
+    costoMax: 50,
+    unElemento: false,
+    sinEfectos: false,
+    desc: "Admite multi-elemento y efectos duraderos.",
+  },
+  B: { label: "Experto", costoMax: 75, unElemento: false, sinEfectos: false, desc: "Carga de efectos y alcance." },
+  A: {
+    label: "Maestro",
+    costoMax: 99,
+    unElemento: false,
+    sinEfectos: false,
+    desc: "Techo natural: casi toda la batería de un nivel máximo.",
+  },
+  S: {
+    label: "Mítico",
+    costoMax: null,
+    unElemento: false,
+    sinEfectos: false,
+    desc: "Canónico: supera la batería natural (100), no se lanza naturalmente.",
+  },
+};
 
 /**
  * Dominio (d_fulgor) requerido para lanzar a plenitud un hechizo de ese tier.
  * Si el dominio no alcanza → lanzamiento degradado (min(1, d_fulgor/req)), nunca se prohíbe.
  * @type {Record<string, number>}
  */
-const SPELL_DOMINIO_REQ = { E: 0, D: 10, C: 20, B: 40, A: 60, S: 80 };
+const SPELL_DOMINIO_REQ = { E: 0, D: 10, C: 20, B: 40, A: 70, S: 100 };
 
 // ══════════════════════════════════════════
 // STAT NORMALIZATION DEFAULTS
@@ -617,6 +697,17 @@ module.exports = {
   FULGOR_COST_BASE,
   FULGOR_DILUTED_MIN,
 
+  // Status effect — quemadura
+  QUEMADURA_DOT_BASE,
+  QUEMADURA_DURACION_BASE,
+  QUEMADURA_DURACION_ESCALA,
+  STATUS_DURATION_BASE,
+  VENENO_DOT_BASE,
+  DECADENCIA_DOT_BASE,
+  MALDICION_DAMAGE_MULTIPLIER,
+  ROMPE_ARMADURAS_DEF_REDUCTION,
+  CHOQUE_TERMICO_DAMAGE_BASE,
+
   // Spell forge
   MAX_HITS_PER_SPELL,
   MAX_ACTIVE_SKILLS,
@@ -642,7 +733,9 @@ module.exports = {
   CD_REF,
   RESULT_TYPE_WEIGHTS,
   SPELL_TIER_BRACKETS,
+  SPELL_TIER_RULES,
   SPELL_DOMINIO_REQ,
+  FULGOR_POOL_MAX,
 
   // Distance
   MAX_DISTANCE,

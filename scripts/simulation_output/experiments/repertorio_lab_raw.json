@@ -1,0 +1,162 @@
+{
+  "timestamp": "2026-08-22T17:39:54.337Z",
+  "foco": {
+    "id": "varita_de_caoba",
+    "nombre": "Varita de Caoba",
+    "tier": "D",
+    "canalizeBase": 1,
+    "canalizeScale": 1
+  },
+  "resumen": {
+    "total": 62,
+    "ok": 61
+  },
+  "selfCheck": {
+    "ok": true,
+    "failures": [],
+    "checks": 8
+  },
+  "negativos": {
+    "ok": true,
+    "results": [
+      {
+        "key": "proyectil_propia_con_hit",
+        "expected": "DIRECT_DAMAGE_FORBIDDEN",
+        "received": [
+          "DIRECT_DAMAGE_FORBIDDEN"
+        ],
+        "ok": true
+      },
+      {
+        "key": "explosion_sin_radius",
+        "expected": "EXPLOSION_RADIUS_REQUIRED",
+        "received": [
+          "EXPLOSION_RADIUS_REQUIRED"
+        ],
+        "ok": true
+      },
+      {
+        "key": "buffo_sin_stat_mods",
+        "expected": "BUFFO_STAT_MODS_REQUIRED",
+        "received": [
+          "BUFFO_STAT_MODS_REQUIRED"
+        ],
+        "ok": true
+      },
+      {
+        "key": "target_mode_fuera_de_rango",
+        "expected": "TARGET_MODE_FORBIDDEN",
+        "received": [
+          "TARGET_MODE_FORBIDDEN"
+        ],
+        "ok": true
+      },
+      {
+        "key": "buffo_stat_invalida",
+        "expected": "STAT_MOD_INVALID",
+        "received": [
+          "STAT_MOD_INVALID"
+        ],
+        "ok": true
+      }
+    ]
+  },
+  "smoke": [
+    {
+      "key": "directo_fuego_E",
+      "patrón": "directo",
+      "casteos": 80,
+      "casteosPromedio": 4,
+      "fulgorGastado": 80,
+      "daño": 1121,
+      "dilucion": 0,
+      "meditaciones": 0,
+      "winrate": 0.6,
+      "timeouts": 0
+    },
+    {
+      "key": "directo_hielo_D",
+      "patrón": "directo",
+      "casteos": 66,
+      "casteosPromedio": 3.3,
+      "fulgorGastado": 198,
+      "daño": 1041,
+      "dilucion": 0,
+      "meditaciones": 0,
+      "winrate": 0.4,
+      "timeouts": 0
+    },
+    {
+      "key": "directo_electro_C",
+      "patrón": "directo",
+      "casteos": 126,
+      "casteosPromedio": 6.3,
+      "fulgorGastado": 2058,
+      "daño": 1640,
+      "dilucion": 0.22,
+      "meditaciones": 95,
+      "winrate": 0.7,
+      "timeouts": 0
+    },
+    {
+      "key": "area_fuego_D",
+      "patrón": "area",
+      "casteos": 95,
+      "casteosPromedio": 4.75,
+      "fulgorGastado": 570,
+      "daño": 1313,
+      "dilucion": 0,
+      "meditaciones": 0,
+      "winrate": 0.5,
+      "timeouts": 0
+    },
+    {
+      "key": "area_hielo_C",
+      "patrón": "area",
+      "casteos": 77,
+      "casteosPromedio": 3.85,
+      "fulgorGastado": 462,
+      "daño": 1097,
+      "dilucion": 0,
+      "meditaciones": 0,
+      "winrate": 0.6,
+      "timeouts": 0
+    },
+    {
+      "key": "control_debuffo_oscuridad_D",
+      "patrón": "control-debuff",
+      "casteos": 73,
+      "casteosPromedio": 3.65,
+      "fulgorGastado": 584,
+      "daño": 1093,
+      "dilucion": 0,
+      "meditaciones": 0,
+      "winrate": 0.3,
+      "timeouts": 0
+    },
+    {
+      "key": "control_buffo_electro_D",
+      "patrón": "control-buff",
+      "casteos": 62,
+      "casteosPromedio": 3.1,
+      "fulgorGastado": 124,
+      "daño": 909,
+      "dilucion": 0,
+      "meditaciones": 0,
+      "winrate": 0.5,
+      "timeouts": 0
+    },
+    {
+      "key": "multihit_doom_legacy",
+      "patrón": "multi-hit",
+      "casteos": 61,
+      "casteosPromedio": 3.05,
+      "fulgorGastado": 427,
+      "daño": 940,
+      "dilucion": 0,
+      "meditaciones": 0,
+      "winrate": 0.4,
+      "timeouts": 0
+    }
+  ]
+}

@@ -9,9 +9,30 @@ const {
   getCastCost,
   getCastEfficiency,
 } = require("./fatigueEngine");
-const { advanceTurn, setPendingReaction, updateDistance, endSession, applyElementalAttack } = require("./combatState");
-const { resolveAttackerWeapon } = require("./equipmentResolverService");
-const { formatReactionPrompt, buildFatigueBar, formatElementReactionLine } = require("./combatMessages");
+const {
+  advanceTurn,
+  setPendingReaction,
+  updateDistance,
+  endSession,
+  applyElementalAttack,
+  applySpellHits,
+  applySpellCastEffects,
+  getDamageMultiplier,
+  isActionBlocked,
+  getEffectKoOutcome,
+} = require("./combatState");
+const {
+  resolveAttackerWeapon,
+  resolveDefenderArmor,
+  createArmorDurabilityAdapter,
+} = require("./equipmentResolverService");
+const { persistArmorDurability } = require("./durabilityPersistenceService");
+const {
+  formatReactionPrompt,
+  buildFatigueBar,
+  formatElementReactionLine,
+  formatEffectEventLines,
+} = require("./combatMessages");
 
 /**
  * Devuelve los slots de jugador y dummy según quién sea el retador.
@@ -40,6 +61,7 @@ function getSlots(session, playerIsChallenger) {
  * @returns {Promise<any>} Resultado de ctx.reply
  */
 async function executeDummyAttack(ctx, session, playerSlot, dummySlot, playerIsChallenger, dummyWeapon, lines) {
+  const armor = await resolveDefenderArmor(playerSlot.character).catch(() => null);
   const dummyAttack = executeAttack(
     dummySlot.character,
     playerSlot.character,
@@ -58,6 +80,7 @@ async function executeDummyAttack(ctx, session, playerSlot, dummySlot, playerIsC
     : 0;
   const esHechizo = costeHechizo > 0;
   let baseDamage = dummyAttack.baseDamage;
+  let materialDamage = dummyAttack.materialDamage;
   let fulgorGastado = 0;
 
   if (esHechizo) {
@@ -66,21 +89,38 @@ async function executeDummyAttack(ctx, session, playerSlot, dummySlot, playerIsC
     fulgorGastado = Math.min(costeHechizo, dummySlot.fulgor ?? 0);
     dummySlot.fulgor = Math.max(0, (dummySlot.fulgor ?? 0) - fulgorGastado);
   }
+  baseDamage = Math.max(1, Math.floor(baseDamage * getDamageMultiplier(dummySlot)));
 
   // Reacción elemental (Fase 4): si el ataque trae elemento, resolver la
   // imbuición sobre el objetivo y amplificar el daño por el canal de la
   // reacción en el instante (sesión persistida en applyElementalHit).
   let elementReaction = null;
-  if (dummyAttack.element || dummyWeapon?.element) {
+  if (dummyWeapon?.spell?.hits?.length) {
+    const amp = await applySpellHits(session.id, playerSlot, dummyWeapon.spell.hits, baseDamage, materialDamage);
+    elementReaction = amp.reactions[amp.reactions.length - 1] || null;
+    baseDamage = amp.baseDamage;
+    materialDamage = amp.materialDamage;
+  } else if (dummyAttack.element || dummyWeapon?.element) {
     const amp = await applyElementalAttack(
       session.id,
       playerSlot,
       dummyWeapon?.element || dummyAttack.element,
       baseDamage,
-      dummyAttack.materialDamage,
+      materialDamage,
     );
     elementReaction = amp.reaction;
     baseDamage = amp.baseDamage;
+    materialDamage = amp.materialDamage;
+  }
+  let effectEvents = [];
+  if (dummyWeapon?.spell?.effects?.length) {
+    effectEvents = await applySpellCastEffects(
+      session.id,
+      dummySlot,
+      playerSlot,
+      dummyWeapon.spell.effects,
+      dummyWeapon.spell.application,
+    );
   }
 
   if (dummyAttack.canReact) {
@@ -101,6 +141,7 @@ async function executeDummyAttack(ctx, session, playerSlot, dummySlot, playerIsC
       attackerUserId: dummySlot.userId,
       defenderUserId: playerSlot.userId,
       baseDamage,
+      materialDamage,
       defenderHp: playerSlot.hp,
       isChallengerAttacking: !playerIsChallenger,
       canDodgeSuccessfully: canDodge,
@@ -112,6 +153,7 @@ async function executeDummyAttack(ctx, session, playerSlot, dummySlot, playerIsC
     if (esHechizo) lines.push(`\uD83D\uDD0B Fulgor: ${fulgorGastado} usado`);
     const elemLine = formatElementReactionLine(elementReaction);
     if (elemLine) lines.push(elemLine);
+    lines.push(...formatEffectEventLines(effectEvents));
     lines.push("");
     lines.push("\u2726 \u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501 \u2726");
     lines.push(formatReactionPrompt(dummySlot.character.name, playerSlot.character.name, baseDamage, canDodge));
@@ -127,22 +169,31 @@ async function executeDummyAttack(ctx, session, playerSlot, dummySlot, playerIsC
     dummySlot.hp,
     playerSlot.fatigue,
     dummySlot.fatigue,
+    materialDamage,
+    createArmorDurabilityAdapter(armor),
   );
+  await persistArmorDurability(playerSlot.character, playerSlot.userId || ctx.sender, armor);
 
   const playerHpAfter = dummyReaction.defenderHpAfter;
   const newChallengerHp = playerIsChallenger ? playerHpAfter : session.challenger.hp;
   const newDefenderHp = playerIsChallenger ? session.defender.hp : playerHpAfter;
   await advanceTurn(session.id, newChallengerHp, newDefenderHp);
+  const effectKo = getEffectKoOutcome(session);
 
   lines.push("");
   lines.push(`\uD83E\uDD16 *${dummySlot.character.name}* ataca`);
   lines.push(`\uD83D\uDCA5 Da\u00F1o: ${dummyReaction.finalDamage}`);
   const elemLine = formatElementReactionLine(elementReaction);
   if (elemLine) lines.push(elemLine);
+  lines.push(...formatEffectEventLines(effectEvents));
   lines.push(
     `\u2764\uFE0F *${playerSlot.character.name}*: ${dummyReaction.defenderHpBefore}\u2192${dummyReaction.defenderHpAfter}`,
   );
   lines.push(`\u26A1 ${buildFatigueBar(dummySlot.fatigue, dummySlot.character.stats.def || 1)}`);
+  if (effectKo) {
+    lines.push(`\uD83D\uDC80 *${effectKo.loser.character.name}* cayó por un estado`);
+    return ctx.reply(box("\uD83E\uDD16 TURNO DEL DUMMY", lines));
+  }
 
   if (dummyReaction.ko) {
     await endSession(session.id, dummySlot.character.id);
@@ -212,6 +263,12 @@ async function executeDummyAdvance(ctx, session, playerSlot, dummySlot, playerIs
 async function runDummyTurn(ctx, session, playerIsChallenger, lines = []) {
   const { playerSlot, dummySlot } = getSlots(session, playerIsChallenger);
   const distance = session.distance ?? 5;
+
+  if (isActionBlocked(dummySlot, "attack") || isActionBlocked(dummySlot, "move")) {
+    await advanceTurn(session.id, session.challenger.hp, session.defender.hp);
+    lines.push(`\u2744\uFE0F *${dummySlot.character.name}* está congelado y pierde el turno.`);
+    return ctx.reply(box("\uD83E\uDD16 TURNO DEL DUMMY", lines));
+  }
 
   const dummyWeapon = await resolveAttackerWeapon(dummySlot.character).catch(() => null);
   const { canAttack } = checkAttackRange(distance, dummySlot.character.stats, dummyWeapon?.weaponRange ?? 0);

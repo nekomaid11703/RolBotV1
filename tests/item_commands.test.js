@@ -42,7 +42,7 @@ describe("item_add — execute", () => {
     };
     await itemAddModule.execute(ctx);
     expect(ctx.reply).toHaveBeenCalledTimes(1);
-    expect(replies[0]).toContain("Agregar");
+    expect(replies[0]).toContain("AGREGAR");
   });
 });
 
