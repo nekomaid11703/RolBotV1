@@ -164,16 +164,16 @@ describe("combatEngine — executeTurn", () => {
 });
 
 describe("combatEngine — calculateXpReward", () => {
-  it("Nivel 20 para el ganador da 50 + 20*2 = 90 XP", () => {
-    expect(calculateXpReward(20, true)).toBe(90);
+  it("Nivel 20 para el ganador da 100 + 20*50 = 1100 XP", () => {
+    expect(calculateXpReward(20, true)).toBe(1100);
   });
 
-  it("Nivel 20 para el perdedor da 30% (27 XP)", () => {
-    expect(calculateXpReward(20, false)).toBe(27);
+  it("Nivel 20 para el perdedor da 25% (275 XP)", () => {
+    expect(calculateXpReward(20, false)).toBe(275);
   });
 
-  it("Nivel 1 para el ganador da 52 XP", () => {
-    expect(calculateXpReward(1, true)).toBe(52);
+  it("Nivel 1 para el ganador da 150 XP", () => {
+    expect(calculateXpReward(1, true)).toBe(150);
   });
 });
 

@@ -230,12 +230,19 @@ const XP_CURVE_BASE = 10;
 const XP_CURVE_EXPONENT = 1.2;
 
 /**
- * Calculate XP required for the next level.
- * @param {number} currentLevel - Current character level
- * @returns {number} XP needed to reach the next level
+ * Calcula la XP requerida para pasar al siguiente nivel.
+ * Calibrado exactamente para que 1,000 batallas contra oponentes de nivel similar lleven al personaje a Nivel 500.
+ * @param {number} currentLevel - Nivel actual del personaje
+ * @returns {number} Puntos de XP necesarios para subir
  */
 function xpForNextLevel(currentLevel) {
-  return Math.floor(XP_CURVE_BASE * Math.pow(currentLevel, XP_CURVE_EXPONENT));
+  const lvl = Math.min(LEVEL_MAX, Math.max(1, Number(currentLevel) || 1));
+  const minLvl = LEVEL_INITIAL || 100;
+  const maxLvl = LEVEL_MAX || 500;
+  const progressRatio = Math.max(0, Math.min(1, (lvl - minLvl) / (maxLvl - minLvl)));
+  const battlesNeeded = 1.0 + 3.15 * Math.pow(progressRatio, 1.1);
+  const xpPerEqualBattle = 100 + lvl * 50;
+  return Math.floor(battlesNeeded * xpPerEqualBattle);
 }
 
 /**

@@ -121,20 +121,20 @@ describe("characterConfig — Niveles", () => {
 });
 
 describe("characterConfig — xpForNextLevel", () => {
-  it("Nivel 20 requiere 364 XP", () => {
-    expect(xpForNextLevel(20)).toBe(364);
+  it("Nivel 20 requiere 1100 XP", () => {
+    expect(xpForNextLevel(20)).toBe(1100);
   });
 
-  it("Nivel 30 requiere 592 XP", () => {
-    expect(xpForNextLevel(30)).toBe(592);
+  it("Nivel 30 requiere 1600 XP", () => {
+    expect(xpForNextLevel(30)).toBe(1600);
   });
 
-  it("Nivel 50 requiere 1093 XP", () => {
-    expect(xpForNextLevel(50)).toBe(1093);
+  it("Nivel 50 requiere 2600 XP", () => {
+    expect(xpForNextLevel(50)).toBe(2600);
   });
 
-  it("Nivel 100 requiere 2511 XP", () => {
-    expect(xpForNextLevel(100)).toBe(2511);
+  it("Nivel 100 requiere 5100 XP", () => {
+    expect(xpForNextLevel(100)).toBe(5100);
   });
 });
 

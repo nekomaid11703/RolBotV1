@@ -6,6 +6,49 @@ Este archivo registra los cambios significativos y decisiones arquitectónicas t
 
 ## [Unreleased]
 
+### Comando `/item_info` / `/inspeccionar` (2026-08-22)
+
+- **`src/commands/rpg/inventory/item_info.js` [NUEVO]**:
+  - Comando interactivo que permite inspeccionar la ficha técnica completa de cualquier ítem en inventario indicando su **número de posición 1-based** (`/item_info 2` o `/inspeccionar 1`) o su **ID/nombre**.
+  - Muestra: Identificación, Categoría, Rango/Tier (E a N), Estado de Equipamiento (`⚔️ Equipado en [mano_der]`), Estadísticas calculadas (Daño base, defensa, alcance, manos, conducción mágica, capacidad de slots), Atributos del material base (afilabilidad, resistencia, conducción) y Descripción de lore.
+- **`inventoryService.js`**:
+  - `getInventory()` & `getInventoryList()`: Actualizados para proyectar la columna `metadata` en el `select`, garantizando que la información de Tier y atributos personalizados se conserve en la vista del inventario.
+- **Pruebas Automatizadas**:
+  - `tests/item_info.test.js` [NUEVO]: 4/4 pruebas unitarias pasadas.
+  - Verificación global: 67 archivos de prueba, **797/797 tests pasados al 100%**.
+
+### Acciones Masivas (Bulk Actions) & Tolerancia a Fallos en Inventario / Equipamiento (2026-08-22)
+
+- **`equipmentService.js`**:
+  - `unequipItem()`: Devuelve de forma segura el objeto desequipado al inventario mediante `inventoryService.addItem()`.
+  - `unequipAllItems()`: Desequipa en bloque todos los objetos equipados y los devuelve al inventario.
+- **`inventoryService.js`**:
+  - `clearInventory()`: Elimina de forma segura todas las filas de `inventory` pertenecientes a un personaje.
+- **Comandos Actualizados**:
+  - `/desequipar todo` / `/unequip all`: Desequipa todos los ítems del personaje de una sola vez. Permite también slots múltiples: `/desequipar casco pechera botas`.
+  - `/equipar <n1> <n2>...`: Permite equipar múltiples ítems por número de inventario o ID de una sola vez (`/equipar 1 2 5 7` o `/equipar 1, 2, 5, 7`).
+  - `/item_rem todo` / `/item_rem all`: Vacía por completo todo el inventario del personaje activo. Permite también eliminación múltiple por posición (`/item_rem 1 2 5`).
+- **Pruebas Automatizadas**:
+  - `tests/bulk_inventory_equipment.test.js` [NUEVO]: Pruebas unitarias para `clearInventory`, `unequipAllItems` y `unequipItem` con devolución al inventario.
+  - `tests/item_commands.test.js`: Ajustada la comprobación de ayuda de `/item_rem` para no requerir personaje activo antes de ver el menú.
+  - Verificación global: 66 archivos de prueba, **793/793 tests pasados al 100%**.
+
+### Pilar 2 — Refinamiento de Materiales y Sistema de Forja / Crafteo (2026-08-22)
+
+- **`craftingService.js` [NUEVO]** (`src/services/rpg/craftingService.js`):
+  - `refineMaterial()`: Fusiona 2 unidades de material del mismo Tier en 1 del Tier superior (E→D→C→B→A→S→N). Valida existencia, disponibilidad en inventario y techo máximo (Tier N inrefinable).
+  - `craftEquipment()`: Forja equipamiento consumiendo 1–3 unidades de un material dado. El ítem producido hereda el Tier del material utilizado.
+  - **Tabla de recetas `CRAFTING_RECIPES`** con costes calibrados: ítems mágicos (varita: 1 ud., báculo/grimorio/túnica: 2 uds.) y armaduras/armas pesadas (pechera/escudo/espada larga: 3 uds.). Decisión explícita: los ítems de mago son más baratos para no desincentivar builds mágicos en Tier N.
+- **Comandos [NUEVO]** (`src/commands/rpg/crafting/`):
+  - `/refinar <material> [tier] [cantidad]`: Interfaz interactiva para elevar el Tier de un material. Ejemplo: `/refinar hierro E` → 2× Hierro E → 1× Hierro D.
+  - `/forjar <receta> <material> [tier]`: Muestra tabla de recetas por categoría y permite forjar ítems. Ejemplo: `/forjar tunica mitril S` → Pechera de Mitril Tier S (2 unidades).
+- **Pruebas Automatizadas** (`tests/crafting_refinement.test.js` [NUEVO]): 13/13 pruebas 100% verde. Técnica: `createRequire` + `vi.spyOn` sobre el objeto CJS real para interceptar correctamente módulos CommonJS desde un entorno ESM de Vitest.
+- **Calibración de XP y curva de Nivel** (corrección de calibración previa):
+  - `xpForNextLevel` recalibrada con coeficiente `3.15` → exactamente **998 batallas** de Nivel 100 a 500.
+  - Recompensa de XP: `100 + nivel × 50` (ganador), 25% en derrota.
+- **Tests actualizados**: `character_config.test.js`, `combat_engine.test.js` actualizados con los nuevos valores calibrados.
+- **Verificación final**: 65 archivos de prueba, **790/790 tests pasados al 100%**.
+
 ### Sistema y Mecánicas de Contenedores de Hechizos (`spell_container`) (2026-08-22)
 
 - **Capacidades Ajustadas y Ranuras por Tier (`spellContainerService.js`)**:

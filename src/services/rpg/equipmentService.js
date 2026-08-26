@@ -270,17 +270,74 @@ async function unequipItem({ characterId, creatorId, slot }) {
     throw new Error(`El slot "${slot}" ya está vacío.`);
   }
 
+  // Si es una marca interna de 2 manos en mano izquierda, no se desequipa directamente
+  if (String(currentItem).startsWith("__2h:")) {
+    throw new Error(`Este slot está ocupado por un arma de 2 manos equipada en "mano_der". Desequipa "mano_der" para liberar ambas manos.`);
+  }
+
   const updatedSlots = { ...currentSlots };
   updatedSlots[slot] = null;
 
-  // Si era un arma de 2 manos, también limpiar el marcador de mano_izq
+  // Si era un arma de 2 manos en mano_der, también limpiar el marcador de mano_izq
   if (slot === "mano_der" && String(updatedSlots.mano_izq || "").startsWith("__2h:")) {
     updatedSlots.mano_izq = null;
   }
 
   await saveEquippedSlots(characterId, creatorId, updatedSlots);
 
-  return { unequipped: currentItem, slot };
+  // Regresar el ítem desequipado al inventario del personaje de forma segura
+  let returnedToInventory = false;
+  try {
+    const inventoryService = require("./inventoryService");
+    await inventoryService.addItem(characterId, creatorId, currentItem, 1);
+    returnedToInventory = true;
+  } catch (err) {
+    logError({ source: "equipmentService.unequipItem.addItem", error: err });
+  }
+
+  return { unequipped: currentItem, slot, returnedToInventory };
+}
+
+/**
+ * Desequipa TODOS los ítems equipados del personaje y los devuelve a su inventario.
+ * @param {object} options
+ * @param {string|number} options.characterId
+ * @param {string} options.creatorId
+ * @returns {Promise<{unequippedList: Array<{slot: string, itemId: string}>, totalUnequipped: number}>}
+ */
+async function unequipAllItems({ characterId, creatorId }) {
+  const currentSlots = await getEquippedSlots(characterId);
+  const unequippedList = [];
+
+  const updatedSlots = { ...currentSlots };
+
+  for (const [slot, itemId] of Object.entries(currentSlots)) {
+    if (!itemId || String(itemId).startsWith("__2h:")) continue;
+    updatedSlots[slot] = null;
+    unequippedList.push({ slot, itemId });
+  }
+
+  // Limpiar cualquier marcador restante de 2H
+  if (updatedSlots.mano_izq && String(updatedSlots.mano_izq).startsWith("__2h:")) {
+    updatedSlots.mano_izq = null;
+  }
+
+  await saveEquippedSlots(characterId, creatorId, updatedSlots);
+
+  // Devolver todos los objetos desequipados al inventario
+  const inventoryService = require("./inventoryService");
+  for (const item of unequippedList) {
+    try {
+      await inventoryService.addItem(characterId, creatorId, item.itemId, 1);
+    } catch (err) {
+      logError({ source: "equipmentService.unequipAllItems", error: err });
+    }
+  }
+
+  return {
+    unequippedList,
+    totalUnequipped: unequippedList.length,
+  };
 }
 
 module.exports = {
@@ -291,4 +348,5 @@ module.exports = {
   getEquippedSlots,
   equipItem,
   unequipItem,
+  unequipAllItems,
 };

@@ -17,35 +17,33 @@ const SLOTS_LIST = Object.keys(EQUIPMENT_SLOTS).join(", ");
 const usageMessage = formatCommandUsage({
   icon: "⚔️",
   title: "Equipar",
-  description: "Equipa un ítem de tu inventario. Si indicas el número, el slot se elige solo.",
-  usage: "/equipar <nº_ítem|item_id> [slot]",
-  example: "/equipar 3",
+  description: "Equipa uno o varios ítems de tu inventario (por número o id).",
+  usage: "/equipar <nº1|id1> [nº2|id2] [slot]",
+  example: "/equipar 3 | /equipar 1 2 5 7",
   notes: [
     `Slots disponibles: ${SLOTS_LIST}`,
-    "Las armas de 2 manos se equipan en mano_der y liberan ambas manos automáticamente.",
+    "Puedes pasar múltiples números separados por espacio o coma: `/equipar 1,2,5,7`",
   ],
 });
 
 /**
- * Resuelve el itemId a partir de un target que puede ser un número (posición
- * en /inventario) o un id directo.
- * @param {string} target - Input del usuario
- * @param {object} character - Personaje activo
- * @returns {Promise<{itemId: string}|{error: string}>}
+ * Resuelve un target (número o ID) a un itemId en el inventario.
+ * @param {string} target
+ * @param {Array} inventoryList
+ * @returns {{itemId: string}|{error: string}}
  */
-async function resolveTarget(target, character) {
+function resolveTargetFromList(target, inventoryList) {
   if (target && /^\d+$/.test(target)) {
-    const list = await getInventoryList(character.id);
-    const entry = list.find((e) => e.index === Number(target));
+    const entry = inventoryList.find((e) => e.index === Number(target));
     if (!entry) {
-      return { error: `❌ No existe ningún ítem en la posición ${target}. Usa /inventario para ver tu listado.` };
+      return { error: `Posición ${target} no encontrada` };
     }
     return { itemId: entry.itemId };
   }
   const itemId = String(target || "").toLowerCase();
   const itemDef = getItem(itemId);
   if (!itemDef) {
-    return { error: `❌ El ítem "${itemId}" no existe en el catálogo.` };
+    return { error: `"${itemId}" no existe` };
   }
   return { itemId };
 }
@@ -53,7 +51,7 @@ async function resolveTarget(target, character) {
 module.exports = {
   name: "equipar",
   aliases: ["equip", "wear"],
-  description: "Equipa un ítem del inventario en un slot de equipamiento.",
+  description: "Equipa uno o múltiples ítems del inventario en slots de equipamiento.",
   category: "rpg",
 
   async execute(ctx) {
@@ -62,37 +60,73 @@ module.exports = {
       return ctx.reply("❌ No tienes un personaje activo. Usa `/crear_pj` o `/switch_pj`.");
     }
 
-    const [target, slotInput] = ctx.args;
-    if (!target) {
+    if (ctx.args.length === 0) {
       return ctx.reply(usageMessage);
     }
 
-    const resolved = await resolveTarget(target, activeChar);
-    if (resolved.error) return ctx.reply(resolved.error);
-    const { itemId } = resolved;
+    // Extraer todos los targets separados por espacio o coma
+    const rawTargets = ctx.args.flatMap((arg) => arg.split(",")).filter(Boolean);
 
-    const itemDef = getItem(itemId);
-    let slot = slotInput ? normalizeSlot(slotInput) : null;
-
-    if (!slot) {
-      const currentSlots = await getEquippedSlots(activeChar.id);
-      slot = resolveDefaultSlot(itemDef, currentSlots);
-      if (!slot) {
-        return ctx.reply("❌ Este ítem no es equipable. Los consumibles se usan con `/usar <n>`.");
+    // Si el último argumento es un slot válido y hay más de 1 argumento, usarlo como slot explícito
+    let explicitSlot = null;
+    if (rawTargets.length > 1) {
+      const candidateSlot = normalizeSlot(rawTargets[rawTargets.length - 1]);
+      if (EQUIPMENT_SLOTS[candidateSlot]) {
+        explicitSlot = candidateSlot;
+        rawTargets.pop(); // Quitar el slot de la lista de ítems a equipar
       }
     }
 
-    const result = await equipItem({
-      characterId: activeChar.id,
-      creatorId: ctx.sender,
-      itemId,
-      slot,
-    });
+    const inventoryList = await getInventoryList(activeChar.id);
+    const equippedSuccess = [];
+    const equippedErrors = [];
 
-    const lines = [`✅ *${activeChar.name}* equipó *${itemDef.name}* en [${result.slot}]`];
+    for (const target of rawTargets) {
+      const resolved = resolveTargetFromList(target, inventoryList);
+      if (resolved.error) {
+        equippedErrors.push(`  • #${target}: ${resolved.error}`);
+        continue;
+      }
 
-    if (result.autoUnequipped.length > 0) {
-      lines.push(`🔄 Auto-desequipado: ${result.autoUnequipped.join(", ")}`);
+      const { itemId } = resolved;
+      const itemDef = getItem(itemId);
+      const currentSlots = await getEquippedSlots(activeChar.id);
+      const slot = explicitSlot || resolveDefaultSlot(itemDef, currentSlots);
+
+      if (!slot) {
+        equippedErrors.push(`  • *${itemDef.name}*: No es equipable`);
+        continue;
+      }
+
+      try {
+        const result = await equipItem({
+          characterId: activeChar.id,
+          creatorId: ctx.sender,
+          itemId,
+          slot,
+        });
+
+        let msg = `  • [${result.slot}] → *${itemDef.name}*`;
+        if (result.autoUnequipped && result.autoUnequipped.length > 0) {
+          msg += ` *(auto-desequipó: ${result.autoUnequipped.join(", ")})*`;
+        }
+        equippedSuccess.push(msg);
+      } catch (err) {
+        equippedErrors.push(`  • *${itemDef.name}*: ${err.message}`);
+      }
+    }
+
+    const lines = [`👤 *Personaje:* ${activeChar.name}`, ""];
+
+    if (equippedSuccess.length > 0) {
+      lines.push("⚔️ *Equipado Exitosamente:*");
+      lines.push(...equippedSuccess);
+      lines.push("");
+    }
+
+    if (equippedErrors.length > 0) {
+      lines.push("⚠️ *No se pudieron equipar:*");
+      lines.push(...equippedErrors);
     }
 
     return ctx.reply(box("⚔️ EQUIP", lines));

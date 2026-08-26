@@ -559,38 +559,35 @@ async function getCombatStats({ creatorId, maxHp }) {
  * @returns
  */
 async function addXp({ creatorId, characterName, cantidad }) {
-  /**
-   * @constant slug
-   */
   const slug = getCharacterSlug(characterName);
-  /**
-   * @constant safeXp
-   */
   const safeXp = Math.max(1, Math.floor(Number(cantidad) || 0));
 
-  /**
-   * @constant character
-   */
   const character = await safeSingleOrNull(
-    supabase.from("characters").select("xp, xp_total").eq("player_phone", creatorId).eq("slug", slug),
+    supabase.from("characters").select("id, nivel, xp, xp_total, stats").eq("player_phone", creatorId).eq("slug", slug),
   );
   if (!character) throw new Error("No existe el personaje.");
 
-  /**
-   * @constant newXp
-   */
-  const newXp = (Number(character.xp) || 0) + safeXp;
-  /**
-   * @constant newXpTotal
-   */
-  const newXpTotal = (Number(character.xp_total) || 0) + safeXp;
+  let currentXp = (Number(character.xp) || 0) + safeXp;
+  let xpTotal = (Number(character.xp_total) || 0) + safeXp;
+  let currentLevel = Number(character.nivel) || LEVEL_INITIAL;
+  const stats = { ...(character.stats || {}) };
+  let pointsGained = 0;
 
-  /**
-   * @constant updatePayload
-   */
+  while (currentLevel < LEVEL_MAX) {
+    const needed = xpForNextLevel(currentLevel);
+    if (currentXp >= needed) {
+      currentXp -= needed;
+      pointsGained += 1;
+      stats.puntos_disponibles = (Number(stats.puntos_disponibles) || 0) + 1;
+    } else {
+      break;
+    }
+  }
+
   const updatePayload = filterExisting("characters", {
-    xp: newXp,
-    xp_total: newXpTotal,
+    xp: currentXp,
+    xp_total: xpTotal,
+    stats,
     updated_at: new Date().toISOString(),
   });
   const { data, error } = await supabase
@@ -604,7 +601,7 @@ async function addXp({ creatorId, characterName, cantidad }) {
   if (error || !data) throw new Error("Error actualizando XP.");
 
   invalidateUserCache(creatorId);
-  return { xp: newXp, xp_total: newXpTotal };
+  return { xp: currentXp, xp_total: xpTotal, pointsGained, totalPointsAvailable: Number(stats.puntos_disponibles) || 0 };
 }
 
 /**

@@ -1,95 +1,109 @@
 // @ts-nocheck
 const { getActiveCharacter } = require("../../../services/characterService");
-const { removeItem } = require("../../../services/rpg/inventoryService");
+const { removeItem, clearInventory, getInventoryList } = require("../../../services/rpg/inventoryService");
 const { getItem, ITEMS } = require("../../../data/items");
 const { box } = require("../../../utils/boxUtils");
 const { parseQuantity } = require("../../../utils/quantityUtils");
 
 module.exports = {
   name: "item_rem",
-  aliases: ["quitar_item", "removeitem", "remove_item"],
-  description: "Quita un \u00edtem del inventario de tu personaje.",
+  aliases: ["quitar_item", "removeitem", "remove_item", "tirar", "descartar"],
+  description: "Quita uno, varios o todos los ítems del inventario de tu personaje.",
   category: "rpg",
   adminPerm: "items",
 
-  /**
-   * Executes the .
-   * @async
-   * @param {*} ctx - execution context.
-   * @returns {any}
-   */
   async execute(ctx) {
     if (ctx.args.length === 0) {
-      /**
-       * @constant availableItems
-       */
-      const availableItems = Object.values(ITEMS)
-        .map((item) => `\u2022 \`${item.id}\` \u2014 ${item.name}`)
-        .join("\n");
-
       return ctx.reply(
-        box("\uD83D\uDCE6 Quitar \u00edtem", [
+        box("📦 Quitar / Vaciar Ítems", [
+          "💡 *Uso del Comando:*",
+          "  • `/item_rem todo` | `/item_rem all` — Vacía todo tu inventario",
+          "  • `/item_rem <pos1> [pos2]...` — Elimina los ítems en esas posiciones de tu inventario",
+          "  • `/item_rem <id_item> [cantidad]` — Elimina una cantidad específica",
           "",
-          "Uso: `/item_rem <id_item> [cantidad]`",
-          "",
-          "\uD83D\uDCCB \u00cdtems disponibles por ID:",
-          availableItems,
-          "",
-          "Ejemplo: `/item_rem pocion 2`",
+          "📌 *Ejemplos:*",
+          "  • `/item_rem todo`",
+          "  • `/item_rem 1 2 5`",
+          "  • `/item_rem pocion 2`",
         ]),
       );
     }
 
-    /**
-     * @constant itemIdInput
-     */
-    const itemIdInput = ctx.args[0].toLowerCase();
-    /**
-     * @constant quantity
-     */
-    const quantity = parseQuantity(ctx.args[1]);
-
-    /**
-     * @constant activeChar
-     */
     const activeChar = await getActiveCharacter({ creatorId: ctx.sender });
     if (!activeChar) {
-      return ctx.reply("\u274C No tienes un personaje activo. Usa `/crear_pj`.");
+      return ctx.reply("❌ No tienes un personaje activo. Usa `/crear_pj`.");
     }
 
-    /**
-     * @constant item
-     */
-    const item = getItem(itemIdInput);
-    if (!item) {
-      /**
-       * @constant validIds
-       */
-      const validIds = Object.keys(ITEMS)
-        .map((id) => `\`${id}\``)
-        .join(", ");
-      return ctx.reply(
-        `\u274C No existe ning\u00fan \u00edtem con ID \`${itemIdInput}\`.\n\nIDs v\u00e1lidos: ${validIds}`,
-      );
+    const firstArg = ctx.args[0].toLowerCase();
+
+    // ── Modo Vaciar Todo: /item_rem todo | /item_rem all ─────────────────────
+    if (firstArg === "todo" || firstArg === "all") {
+      const res = await clearInventory(activeChar.id, activeChar.creator_id);
+      if (res.deletedCount === 0) {
+        return ctx.reply("ℹ️ Tu inventario ya estaba completamente vacío.");
+      }
+      const lines = [
+        `🗑️ *Inventario de ${activeChar.name} vaciado!*`,
+        `📉 Se eliminaron ${res.deletedCount} unidad(es) de ítems en total.`,
+      ];
+      return ctx.reply(box("📦 INVENTARIO VACÍO", lines));
     }
 
-    /**
-     * @constant result
-     */
-    const result = await removeItem(activeChar.id, activeChar.creator_id, item.id, quantity);
+    const inventoryList = await getInventoryList(activeChar.id);
+    const removedSuccess = [];
+    const removedErrors = [];
 
-    /**
-     * @constant lines
-     * @type {*[]}
-     */
-    const lines = [
-      "",
-      `\uD83D\uDC64  Personaje: *${activeChar.name}*`,
-      `\uD83D\uDCE6  \u00cdtem quitado: *${item.name}* (\`${item.id}\`)`,
-      `\uD83D\uDD22  Cantidad quitada: -${quantity}`,
-      `\uD83D\uDCCA  Restante en inventario: ${result.remaining}`,
-    ];
+    // Si los argumentos parecen una lista de números (posiciones en inventario: /item_rem 1 2 5)
+    const isNumberList = ctx.args.every((arg) => /^\d+$/.test(arg.replace(/,/g, "")));
 
-    return ctx.reply(box("\u2705 \u00cdtem quitado", lines));
+    if (isNumberList) {
+      const positions = ctx.args.flatMap((arg) => arg.split(",")).map(Number).filter(Boolean);
+
+      for (const pos of positions) {
+        const entry = inventoryList.find((e) => e.index === pos);
+        if (!entry) {
+          removedErrors.push(`  • Posición ${pos}: No encontrada`);
+          continue;
+        }
+
+        try {
+          await removeItem(activeChar.id, activeChar.creator_id, entry.itemId, entry.quantity);
+          removedSuccess.push(`  • *${entry.name}* (x${entry.quantity})`);
+        } catch (err) {
+          removedErrors.push(`  • *${entry.name}*: ${err.message}`);
+        }
+      }
+    } else {
+      // Formato tradicional por ID: /item_rem pocion 2
+      const itemIdInput = firstArg;
+      const quantity = parseQuantity(ctx.args[1]);
+      const item = getItem(itemIdInput);
+
+      if (!item) {
+        return ctx.reply(`❌ No existe ningún ítem con ID \`${itemIdInput}\`.`);
+      }
+
+      try {
+        const result = await removeItem(activeChar.id, activeChar.creator_id, item.id, quantity);
+        removedSuccess.push(`  • *${item.name}* (-${quantity}, restante: ${result.remaining})`);
+      } catch (err) {
+        removedErrors.push(`  • *${item.name}*: ${err.message}`);
+      }
+    }
+
+    const lines = [`👤 *Personaje:* ${activeChar.name}`, ""];
+
+    if (removedSuccess.length > 0) {
+      lines.push("✅ *Ítems Eliminados:*");
+      lines.push(...removedSuccess);
+      lines.push("");
+    }
+
+    if (removedErrors.length > 0) {
+      lines.push("⚠️ *No se pudieron eliminar:*");
+      lines.push(...removedErrors);
+    }
+
+    return ctx.reply(box("📦 QUITAR ÍTEMS", lines));
   },
 };

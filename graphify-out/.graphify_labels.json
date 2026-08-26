@@ -281,5 +281,12 @@
   "279": "durabilityPersistenceService.js",
   "280": "context.js",
   "281": "bugstatus.js",
-  "282": "listCharacters"
+  "282": "listCharacters",
+  "283": "armorSetService.js",
+  "284": "statusService.js",
+  "285": "materialFamilies.js",
+  "286": "📊 Reporte Global de Matriz Competitiva y Sinergia de Build (matrix_40spells_1787435154875)",
+  "287": "buff.js",
+  "288": "damage.js",
+  "289": "armorSets.js"
 }

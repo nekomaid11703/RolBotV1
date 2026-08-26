@@ -73,7 +73,7 @@ async function withCharacterLock(characterId, fn) {
 async function getInventory(characterId) {
   const { data, error } = await supabase
     .from("inventory")
-    .select("item_id, quantity")
+    .select("item_id, quantity, metadata")
     .eq("character_id", characterId)
     .order("item_id", { ascending: true });
 
@@ -89,7 +89,7 @@ async function getInventory(characterId) {
  * Lista el inventario en orden con índice 1-based y datos del catálogo,
  * lista para mostrar numerado y para resolver ítems por posición.
  * @param {string|number} characterId - ID del personaje
- * @returns {Promise<Array<{index: number, itemId: string, name: string, quantity: number, categories: string[], modules: object}>>}
+ * @returns {Promise<Array<{index: number, itemId: string, name: string, quantity: number, metadata: object, categories: string[], modules: object}>>}
  */
 async function getInventoryList(characterId) {
   const inv = await getInventory(characterId);
@@ -100,6 +100,7 @@ async function getInventoryList(characterId) {
       itemId: entry.item_id,
       name: def?.name || entry.item_id,
       quantity: entry.quantity,
+      metadata: entry.metadata || {},
       categories: def?.categories || [],
       modules: def?.modules || {},
     };
@@ -503,12 +504,36 @@ async function cleanupTemporalItems(characterId) {
   return toRemove;
 }
 
+/**
+ * Elimina por completo todas las filas del inventario de un personaje.
+ * @param {string|number} characterId - ID del personaje
+ * @param {string} creatorId - ID del creador/usuario
+ * @returns {Promise<{deletedCount: number}>}
+ */
+async function clearInventory(characterId, creatorId) {
+  return withCharacterLock(characterId, async () => {
+    const inv = await getInventory(characterId);
+    const deletedCount = inv.reduce((acc, row) => acc + (row.quantity || 1), 0);
+
+    if (inv.length > 0) {
+      const { error } = await supabase.from("inventory").delete().eq("character_id", characterId);
+      if (error) {
+        throw new Error(`Error al vaciar inventario: ${error.message}`);
+      }
+    }
+
+    invalidateUserCache(creatorId);
+    return { deletedCount };
+  });
+}
+
 module.exports = {
   getInventory,
   getInventoryList,
   addItem,
   removeItem,
   useItem,
+  clearInventory,
   ensureTestKit,
   ensureTempTestKit,
   ensureIronFamilyKit,

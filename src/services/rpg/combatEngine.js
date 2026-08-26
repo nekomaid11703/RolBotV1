@@ -887,15 +887,9 @@ function executeTurn(
  * @returns {number} Puntos de XP otorgados
  */
 function calculateXpReward(enemyLevel = 1, isWinner = true) {
-  /**
-   * @constant lvl
-   */
   const lvl = Math.max(1, Number(enemyLevel) || 1);
-  /**
-   * @constant baseXp
-   */
-  const baseXp = 50 + lvl * 2;
-  return isWinner ? baseXp : Math.round(baseXp * 0.3);
+  const baseXp = 100 + lvl * 50;
+  return isWinner ? baseXp : Math.round(baseXp * 0.25);
 }
 
 /**
