@@ -1,0 +1,12 @@
+{
+  "tag": "projectile_decay_off",
+  "timestamp": "2026-08-05T14:02:19.656Z",
+  "numSims": 2000,
+  "overrides": [
+    {
+      "mod": "combatBalance",
+      "key": "PROJECTILE_FALL_OFF_RATE",
+      "value": 0
+    }
+  ]
+}

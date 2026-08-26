@@ -14,9 +14,13 @@ function exists(p) {
   return fs.existsSync(path.resolve(ROOT, p));
 }
 
+function firstExisting(paths) {
+  return paths.find(exists) || "";
+}
+
 function check(category, name, ok, detail = "") {
   const status = ok ? "✅" : "❌";
-  return `  ${status} ${name}${detail ? ` — ${detail}` : ""}`;
+  return "  " + status + " " + name + (detail ? " — " + detail : "");
 }
 
 function run() {
@@ -25,8 +29,11 @@ function run() {
   // ── Toolchain ──
   lines.push("📦 Toolchain:");
   lines.push(check("toolchain", "Node.js", true, process.version));
+  // npm is a fixed executable used only for the local pre-flight report.
+  // eslint-disable-next-line sonarjs/no-os-command-from-path
   lines.push(check("toolchain", "npm", true, execSync("npm --version").toString().trim()));
-  lines.push(check("toolchain", "ESLint config", exists("eslint.config.js")));
+  const eslintConfig = firstExisting(["eslint.config.js", "eslint.config.mjs", "eslint.config.cjs"]);
+  lines.push(check("toolchain", "ESLint config", Boolean(eslintConfig), eslintConfig));
   lines.push(check("toolchain", "TypeScript config", exists("tsconfig.json")));
   lines.push(check("toolchain", "Prettier config", exists(".prettierrc")));
   lines.push(check("toolchain", "Husky", exists(".husky/pre-commit")));
@@ -81,7 +88,9 @@ function run() {
   const testDir = path.join(ROOT, "tests");
   let testFiles = [];
   try {
-    testFiles = fs.readdirSync(testDir).filter((f) => f.startsWith("test_") && f.endsWith(".js"));
+    testFiles = fs
+      .readdirSync(testDir)
+      .filter((f) => f.endsWith(".test.js") || (f.startsWith("test_") && f.endsWith(".js")));
   } catch {}
   lines.push("\n🧪 Tests disponibles:", `  ${testFiles.length} archivos en tests/`);
 
@@ -90,7 +99,10 @@ function run() {
   let memoryCount = 0;
   try {
     if (fs.existsSync(memoryFile)) {
-      memoryCount = fs.readFileSync(memoryFile, "utf-8").split("\n").filter((l) => l.trim()).length;
+      memoryCount = fs
+        .readFileSync(memoryFile, "utf-8")
+        .split("\n")
+        .filter((l) => l.trim()).length;
     }
   } catch {}
   lines.push(check("memory", "NekoMemori entries", memoryCount > 0, `${memoryCount} entradas`));

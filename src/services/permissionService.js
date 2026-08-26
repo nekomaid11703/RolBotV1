@@ -4,11 +4,15 @@ const { getProfileDisplayName } = require("../utils/userMentionUtils");
 const { getUserProfile, getOrCreateProfile, listUserProfiles } = require("./userService");
 const { supabase } = require("../database/supabase");
 
+/**
+ * @constant PERMISSIONS_SESSION
+ * @type {string}
+ */
 const PERMISSIONS_SESSION = "permissions";
 
 /**
- *
- * @param candidate
+ * @param {*} candidate
+ * @returns
  */
 function resolveCandidateId(candidate) {
   if (candidate && typeof candidate === "object") {
@@ -29,17 +33,17 @@ function resolveCandidateId(candidate) {
 }
 
 /**
- *
- * @param profile
- * @param fallback
+ * @param {*} profile
+ * @param [fallback]
+ * @returns
  */
 function pickDisplayName(profile, fallback = "usuario") {
   return getProfileDisplayName(profile, fallback);
 }
 
 /**
- *
- * @param userId
+ * @param {*} userId
+ * @returns
  */
 async function readPermissions(userId) {
   const { data } = await supabase
@@ -52,9 +56,8 @@ async function readPermissions(userId) {
 }
 
 /**
- *
- * @param userId
- * @param permissions
+ * @param {*} userId
+ * @param {*} permissions
  */
 async function writePermissions(userId, permissions) {
   await supabase.from("bot_auth_state").upsert(
@@ -68,34 +71,46 @@ async function writePermissions(userId, permissions) {
 }
 
 /**
- *
- * @param candidate
+ * @param {*} candidate
+ * @returns
  */
 async function isEconomyAdmin(candidate) {
   if (isOwner(candidate)) {
     return true;
   }
 
+  /**
+   * @constant creatorId
+   */
   const creatorId = resolveCandidateId(candidate);
   if (!creatorId) {
     return false;
   }
 
+  /**
+   * @constant perms
+   */
   const perms = await readPermissions(creatorId);
   return Boolean(perms.economyAdmin);
 }
 
 /**
- *
- * @param candidate
+ * @param {*} candidate
+ * @returns
  */
 async function hasEconomyPermission(candidate) {
   return await isEconomyAdmin(candidate);
 }
 
 /**
- *
- * @param root0
+ * Set or unset a user as economy admin.
+ * @param {object} options
+ * @param {string} options.userId
+ * @param {string} [options.userName="usuario"]
+ * @param {boolean} [options.enabled=true]
+ * @param {boolean} [options.createIfMissing=true]
+ * @param {object} [options.registration={}]
+ * @returns {Promise<object|null>}
  */
 async function setEconomyAdmin({
   userId,
@@ -104,6 +119,9 @@ async function setEconomyAdmin({
   createIfMissing = true,
   registration = {},
 }) {
+  /**
+   * @constant data
+   */
   const data = createIfMissing
     ? await getOrCreateProfile({
         creatorId: userId,
@@ -122,6 +140,9 @@ async function setEconomyAdmin({
     throw new Error("El usuario no tiene perfil.");
   }
 
+  /**
+   * @constant perms
+   */
   const perms = await readPermissions(userId);
   perms.economyAdmin = Boolean(enabled);
   perms.grantedAt = perms.grantedAt || (enabled ? new Date().toISOString() : undefined);
@@ -132,40 +153,50 @@ async function setEconomyAdmin({
 }
 
 /**
- *
+ * @returns
  */
 async function listEconomyAdmins() {
   return listAdminsForCategory("economy");
 }
 
+/**
+ * @constant CATEGORY_LABELS
+ * @type {object}
+ */
 const CATEGORY_LABELS = {
   economy: "economía",
   items: "ítems",
 };
 
 /**
- *
- * @param category
+ * @param {*} category
+ * @returns
  */
 function getCategoryLabel(category) {
   return CATEGORY_LABELS[category] || category;
 }
 
 /**
- *
- * @param candidate
- * @param category
+ * @param {*} candidate
+ * @param {*} category
+ * @returns
  */
 async function isAdminForCategory(candidate, category) {
   if (isOwner(candidate)) {
     return true;
   }
 
+  /**
+   * @constant userId
+   */
   const userId = resolveCandidateId(candidate);
   if (!userId) {
     return false;
   }
 
+  /**
+   * @constant perms
+   */
   const perms = await readPermissions(userId);
 
   if (perms.categories && typeof perms.categories[category] === "string") {
@@ -180,17 +211,24 @@ async function isAdminForCategory(candidate, category) {
 }
 
 /**
- *
- * @param candidate
- * @param category
+ * @param {*} candidate
+ * @param {*} category
+ * @returns
  */
 async function hasPermissionForCategory(candidate, category) {
   return await isAdminForCategory(candidate, category);
 }
 
 /**
- *
- * @param root0
+ * Set or unset a user as admin for a specific category.
+ * @param {object} options
+ * @param {string} options.userId
+ * @param {string} [options.userName="usuario"]
+ * @param {string} options.category
+ * @param {boolean} [options.enabled=true]
+ * @param {boolean} [options.createIfMissing=true]
+ * @param {object} [options.registration={}]
+ * @returns {Promise<object|null>}
  */
 async function setAdminForCategory({
   userId,
@@ -204,6 +242,9 @@ async function setAdminForCategory({
     throw new Error("Se requiere una categoría válida.");
   }
 
+  /**
+   * @constant data
+   */
   const data = createIfMissing
     ? await getOrCreateProfile({
         creatorId: userId,
@@ -222,6 +263,9 @@ async function setAdminForCategory({
     throw new Error("El usuario no tiene perfil.");
   }
 
+  /**
+   * @constant perms
+   */
   const perms = await readPermissions(userId);
 
   if (!perms.categories) {
@@ -249,14 +293,17 @@ async function setAdminForCategory({
 }
 
 /**
- *
- * @param category
+ * @param {*} category
+ * @returns
  */
 async function listAdminsForCategory(category) {
   const { data: rows } = await supabase.from("bot_auth_state").select("id, data").eq("session_id", PERMISSIONS_SESSION);
 
   if (!rows || rows.length === 0) return [];
 
+  /**
+   * @constant adminIds
+   */
   const adminIds = rows
     .filter((row) => {
       if (!row.data) return false;
@@ -268,12 +315,23 @@ async function listAdminsForCategory(category) {
 
   if (adminIds.length === 0) return [];
 
+  /**
+   * @constant users
+   */
   const users = await listUserProfiles();
+  /**
+   * @constant userMap
+   * @type {object}
+   */
   const userMap = {};
   for (const u of users) {
     userMap[u.profile.creatorId] = u.profile;
   }
 
+  /**
+   * @constant permData
+   * @type {object}
+   */
   const permData = {};
   for (const row of rows) {
     if (!row.data) continue;
@@ -286,6 +344,9 @@ async function listAdminsForCategory(category) {
 
   return adminIds
     .map((id) => {
+      /**
+       * @constant profile
+       */
       const profile = userMap[id];
       return {
         userId: id,
@@ -299,13 +360,17 @@ async function listAdminsForCategory(category) {
 }
 
 /**
- *
+ * @returns
  */
 async function listAllCategories() {
   const { data: rows } = await supabase.from("bot_auth_state").select("id, data").eq("session_id", PERMISSIONS_SESSION);
 
   if (!rows || rows.length === 0) return [];
 
+  /**
+   * @constant categories
+   * @type {Set}
+   */
   const categories = new Set();
 
   for (const row of rows) {

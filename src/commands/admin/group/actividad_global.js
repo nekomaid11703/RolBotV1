@@ -12,9 +12,24 @@ module.exports = {
   description: "Muestra la actividad global de un usuario y el top general del bot.",
   category: "admin",
 
+  /**
+   * Executes the .
+   * @async
+   * @param {*} ctx - execution context.
+   * @returns {any}
+   */
   async execute(ctx) {
+    /**
+     * @constant targetId
+     */
     const targetId = getFirstMentionedJid(ctx) || ctx.senderJid || ctx.sender;
+    /**
+     * @constant rawLimit
+     */
     const rawLimit = Number(ctx.args?.[0]);
+    /**
+     * @constant limit
+     */
     const limit = Number.isFinite(rawLimit) && rawLimit > 0 ? Math.min(10, Math.floor(rawLimit)) : 10;
 
     const [targetProfile, topUsers, targetDisplayName] = await Promise.all([
@@ -23,6 +38,9 @@ module.exports = {
       resolveTargetDisplayName(ctx, targetId, ctx.userName || "usuario"),
     ]);
 
+    /**
+     * @constant activity
+     */
     const activity = targetProfile?.profile?.activity || {
       messages: 0,
       commands: 0,
@@ -39,6 +57,9 @@ module.exports = {
       lastCommandAt: null,
     };
 
+    /**
+     * @constant targetLabel
+     */
     const targetLabel = formatDisplayMention(targetId, targetDisplayName);
 
     if (!topUsers.length) {
@@ -71,7 +92,14 @@ module.exports = {
       );
     }
 
+    /**
+     * @constant mentions
+     * @type {*[]}
+     */
     const mentions = [];
+    /**
+     * @constant lines
+     */
     const lines = topUsers.map((entry, index) => {
       if (entry?.creatorId) {
         mentions.push(entry.creatorId);

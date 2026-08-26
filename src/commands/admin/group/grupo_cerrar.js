@@ -10,6 +10,11 @@ module.exports = {
   groupOnly: true,
   adminOnly: true,
 
+  /**
+   * Executes the .
+   * @async
+   * @param {*} ctx - execution context.
+   */
   async execute(ctx) {
     await closeGroup(ctx.sock, ctx.from);
     await ctx.reply(box("🔒 Grupo cerrado", ["", "Solo admins pueden enviar mensajes."]));

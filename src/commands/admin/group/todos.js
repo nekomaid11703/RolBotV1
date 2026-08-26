@@ -12,47 +12,75 @@ module.exports = {
   groupOnly: true,
   adminOnly: true,
 
+  /**
+   * Executes the .
+   * @async
+   * @param {*} ctx - execution context.
+   * @returns {any}
+   */
   async execute(ctx) {
+    /**
+     * @constant metadata
+     */
     const metadata = await getGroupMetadata(ctx.sock, ctx.from);
+    /**
+     * @constant participants
+     */
     const participants = metadata?.participants || [];
 
     if (!participants.length) {
       return ctx.reply("❌ No se pudieron obtener los miembros del grupo.");
     }
 
+    /**
+     * @constant memberJids
+     */
     const memberJids = participants
       .map((p) => p.id || p.jid || "")
       .filter(Boolean)
       .filter((jid) => jid !== ctx.sock?.user?.id);
 
-    const chunks = [];
+    /**
+     * @constant lines
+     * @type {*[]}
+     */
+    const lines = [];
     let chunk = "";
-    let chunkMentions = [];
+    let chunkJids = [];
     for (const jid of memberJids) {
+      /**
+       * @constant tag
+       */
       const tag = formatRealMentionTag(jid);
+      /**
+       * @constant next
+       */
       const next = chunk ? `${chunk} ${tag}` : tag;
       if (next.length > 2000) {
-        chunks.push({ text: chunk, mentions: chunkMentions });
+        lines.push({ text: chunk, mentions: chunkJids });
         chunk = tag;
-        chunkMentions = [jid];
+        chunkJids = [jid];
       } else {
         chunk = next;
-        chunkMentions.push(jid);
+        chunkJids.push(jid);
       }
     }
-    if (chunk) chunks.push({ text: chunk, mentions: chunkMentions });
+    if (chunk) lines.push({ text: chunk, mentions: chunkJids });
 
-    const firstChunk = chunks.shift() || { text: "", mentions: [] };
+    /**
+     * @constant firstLine
+     */
+    const firstLine = lines.shift() || { text: "", mentions: [] };
 
     await ctx.reply(
       withMentions(
-        box("👥 Miembros del grupo", ["", `Total: ${formatCount(memberJids.length)}`, "", firstChunk.text]),
-        firstChunk.mentions,
+        box("👥 Miembros del grupo", ["", `Total: ${formatCount(memberJids.length)}`, "", firstLine.text]),
+        firstLine.mentions,
       ),
     );
 
-    for (const chunk of chunks) {
-      await ctx.reply(withMentions(chunk.text, chunk.mentions));
+    for (const line of lines) {
+      await ctx.reply(withMentions(line.text, line.mentions));
     }
   },
 };

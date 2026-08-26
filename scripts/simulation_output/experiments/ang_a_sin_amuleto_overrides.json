@@ -1,0 +1,12 @@
+{
+  "tag": "ang_a_sin_amuleto",
+  "timestamp": "2026-08-07T17:57:21.134Z",
+  "numSims": 2000,
+  "overrides": [
+    {
+      "mod": "simConfig",
+      "key": "AMULET_CHANCE",
+      "value": 0
+    }
+  ]
+}

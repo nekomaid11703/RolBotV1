@@ -3,46 +3,68 @@ const { midnightReview } = require("../../scripts/midnight_review");
 const { logError } = require("./loggerService");
 
 /** @type {ReturnType<typeof setTimeout>|null} */
-let schedulerTimer = null;
-let schedulerActive = false;
-let schedulerGeneration = 0;
+let pendingTimer = null;
+/** @type {object|null} */
 let currentSock = null;
 
-function startMidnightReview(sock) {
-  currentSock = sock;
-  if (schedulerActive) return;
-  schedulerActive = true;
-  scheduleNext(++schedulerGeneration);
+/**
+ * Stop the midnight review timer and clear the WhatsApp socket reference.
+ */
+function stopMidnightReview() {
+  if (pendingTimer) {
+    clearTimeout(pendingTimer);
+    pendingTimer = null;
+  }
+  currentSock = null;
 }
 
-function scheduleNext(generation) {
+/**
+ * @param {*} sock
+ */
+function startMidnightReview(sock) {
+  stopMidnightReview();
+  currentSock = sock;
+  scheduleNext(sock);
+}
+
+/**
+ * @param {*} sock
+ */
+function scheduleNext(sock) {
+  /**
+   * @constant now
+   * @type {Date}
+   */
   const now = new Date();
+  /**
+   * @constant tomorrow
+   * @type {Date}
+   */
   const tomorrow = new Date(now);
   tomorrow.setDate(tomorrow.getDate() + 1);
   tomorrow.setHours(0, 0, 0, 0);
-  const msUntilMidnight = Math.max(1, tomorrow - now);
+  /**
+   * @constant msUntilMidnight
+   */
+  const msUntilMidnight = tomorrow - now;
 
-  schedulerTimer = setTimeout(async () => {
-    schedulerTimer = null;
-    if (!schedulerActive || generation !== schedulerGeneration) return;
-    const sock = currentSock;
+  if (msUntilMidnight <= 0) {
+    setImmediate(() => scheduleNext(sock));
+    return;
+  }
+
+  pendingTimer = setTimeout(async () => {
+    pendingTimer = null;
+    if (sock !== currentSock) return;
     try {
       await midnightReview(sock);
     } catch (err) {
       logError({ source: "schedulerService", error: err instanceof Error ? err : new Error(String(err)) });
     }
-    if (schedulerActive && generation === schedulerGeneration) scheduleNext(generation);
+    if (sock === currentSock) {
+      scheduleNext(sock);
+    }
   }, msUntilMidnight);
-}
-
-function stopMidnightReview() {
-  schedulerActive = false;
-  schedulerGeneration++;
-  currentSock = null;
-  if (schedulerTimer) {
-    clearTimeout(schedulerTimer);
-    schedulerTimer = null;
-  }
 }
 
 module.exports = { startMidnightReview, stopMidnightReview };

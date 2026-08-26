@@ -1,11 +1,10 @@
 // @ts-nocheck
 const { cache, TTLS } = require("./cacheService");
-const { logSystem } = require("../services/loggerService");
 const { hasColumn } = require("../database/columnRegistry");
 
 /**
- *
- * @param query
+ * @param {*} query
+ * @returns
  */
 async function safeSingle(query) {
   const { data, error } = await query.single();
@@ -14,8 +13,8 @@ async function safeSingle(query) {
 }
 
 /**
- *
- * @param query
+ * @param {*} query
+ * @returns
  */
 async function safeSingleOrNull(query) {
   const { data, error } = await query.single();
@@ -27,8 +26,8 @@ async function safeSingleOrNull(query) {
 }
 
 /**
- *
- * @param query
+ * @param {*} query
+ * @returns
  */
 async function safeMaybeSingle(query) {
   const { data, error } = await query.maybeSingle();
@@ -37,80 +36,94 @@ async function safeMaybeSingle(query) {
 }
 
 /**
- *
- * @param root0
+ * @param {object} options
+ * @returns
  */
 async function cachedRead({ key, fetch, ttl, bypassCache = false }) {
   if (!bypassCache) {
+    /**
+     * @constant cached
+     */
     const cached = cache.get(key);
-    if (cached) return cached;
+    if (cached !== undefined) return cached;
   }
+  /**
+   * @constant data
+   */
   const data = await fetch();
   cache.set(key, data, ttl);
   return data;
 }
 
 /**
- *
- * @param creatorId
+ * @param {*} creatorId
+ * @returns
  */
 function userCacheKey(creatorId) {
   return `user:${creatorId}`;
 }
 
 /**
- *
- * @param limit
+ * @param {*} limit
+ * @returns
  */
 function topBalancesCacheKey(limit) {
   return `topBalances:${limit}`;
 }
 
 /**
- *
- * @param groupId
+ * @param {*} groupId
+ * @returns
  */
 function groupCacheKey(groupId) {
   return `group:${groupId}`;
 }
 
 /**
- *
- * @param creatorId
+ * @param {*} creatorId
+ * @returns
  */
 function charactersCacheKey(creatorId) {
   return `characters:${creatorId}`;
 }
 
 /**
- *
- * @param groupId
- * @param limit
+ * @param {*} groupId
+ * @param {*} limit
+ * @returns
  */
 function topGroupMembersCacheKey(groupId, limit) {
   return `topGroupMembers:${groupId}:${limit}`;
 }
 
 /**
- *
- * @param limit
+ * @param {*} limit
+ * @returns
  */
 function topActiveUsersCacheKey(limit) {
   return `topActiveUsers:${limit}`;
 }
 
 /**
- *
- * @param creatorId
+ * @param {*} creatorId
  */
 function invalidateUserCache(creatorId) {
-  invalidateUserProfileCache(creatorId);
-  cache.invalidate((k) => k.startsWith(`characters:${creatorId}`) || k === `activeCharacter:${creatorId}`);
+  /**
+   * @constant key
+   */
+  const key = userCacheKey(creatorId);
+  cache.invalidate(
+    (k) =>
+      k === key ||
+      k.startsWith(`user:${creatorId}`) ||
+      k.startsWith(`characters:${creatorId}`) ||
+      k.startsWith(`activeCharacter:${creatorId}`),
+  );
 }
 
 /**
- *
- * @param creatorId
+ * Invalidates profile data without evicting character caches.
+ * @param {*} creatorId
  */
 function invalidateUserProfileCache(creatorId) {
   const key = userCacheKey(creatorId);
@@ -118,50 +131,63 @@ function invalidateUserProfileCache(creatorId) {
 }
 
 /**
- *
- * @param groupId
+ * @param {*} groupId
  */
 function invalidateGroupCache(groupId) {
+  /**
+   * @constant key
+   */
   const key = groupCacheKey(groupId);
   cache.invalidate((k) => k === key || k.startsWith(`group:${groupId}`) || k.startsWith(`topGroupMembers:${groupId}`));
 }
 
 /**
- *
+ * Invalidate all cached top balances queries.
  */
 function invalidateTopBalancesCache() {
   cache.invalidate((k) => k.startsWith("topBalances:"));
 }
 
 /**
- *
+ * Invalidate all cached top active users queries.
  */
 function invalidateTopActiveUsersCache() {
   cache.invalidate((k) => k.startsWith("topActiveUsers:"));
 }
 
 /**
- *
+ * Invalidate all cached queries.
  */
 function invalidateAllCache() {
   cache.clear();
 }
 
 /**
- *
- * @param table
+ * @param {*} table
  * @param {...any} columnGroups
+ * @returns
  */
 function safeSelect(table, ...columnGroups) {
+  /**
+   * @constant allCols
+   */
   const allCols = columnGroups
     .flat()
     .flatMap((c) => (typeof c === "string" ? c.split(",").map((s) => s.trim()) : []))
     .filter(Boolean);
 
+  /**
+   * @constant existing
+   */
   const existing = allCols.filter((col) => {
+    /**
+     * @constant exists
+     */
     const exists = hasColumn(table, col);
     if (!exists) {
-      logSystem(`safeSelect: columna "${col}" omitida en "${table}" (no existe en DB)`);
+      process.emitWarning(`safeSelect: columna "${col}" omitida en "${table}" (no existe en DB)`, {
+        code: "ROLBOT_SCHEMA_COLUMN_MISSING",
+      });
     }
     return exists;
   });

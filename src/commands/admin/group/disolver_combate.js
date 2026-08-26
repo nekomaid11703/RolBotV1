@@ -10,13 +10,25 @@ module.exports = {
   groupOnly: true,
   adminOnly: true,
 
+  /**
+   * Executes the .
+   * @async
+   * @param {*} ctx - execution context.
+   * @returns {any}
+   */
   async execute(ctx) {
+    /**
+     * @constant mentioned
+     */
     const mentioned = Array.isArray(ctx.mentionedJid) ? ctx.mentionedJid.filter(Boolean) : [];
 
     if (mentioned.length === 0) {
+      /**
+       * @constant session
+       */
       const session = findSessionByUser(ctx.sender);
       if (session) {
-        removeSession(session.id);
+        await removeSession(session.id);
         return ctx.reply(formatCombatDisolved(ctx.userName));
       }
       return ctx.reply(
@@ -24,14 +36,20 @@ module.exports = {
       );
     }
 
+    /**
+     * @constant targetId
+     */
     const targetId = mentioned[0];
+    /**
+     * @constant session
+     */
     const session = findSessionByUser(targetId);
 
     if (!session) {
       return ctx.reply("❌ Ese usuario no está en un combate activo.");
     }
 
-    removeSession(session.id);
+    await removeSession(session.id);
     return ctx.reply(formatCombatDisolved(ctx.userName));
   },
 };

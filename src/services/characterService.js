@@ -10,26 +10,29 @@ const {
   LEVEL_INITIAL,
   FREE_POINTS_AT_CREATION,
   calculateLevel,
+  xpForNextLevel,
   RANGOS,
-  HP_MAX,
 } = require("../config/characterConfig");
 const { getClase } = require("../data/clases");
 const { sanitizeName, ensureUserProfile } = require("./userService");
-const { sanitizarHabilidadesArray } = require("../utils/characterSkillUtils");
 
 /**
- *
- * @param characterName
+ * @param {*} characterName
+ * @returns
  */
 function getCharacterSlug(characterName) {
   return sanitizeName(characterName).toLowerCase();
 }
 
 /**
- *
- * @param stats
+ * @param [stats]
+ * @returns
  */
 function normalizeStats(stats = {}) {
+  /**
+   * @constant base
+   * @type {object}
+   */
   const base = { ...DEFAULT_CHARACTER_STATS };
   for (const key of Object.keys(base)) {
     if (typeof stats[key] === "number" && !Number.isNaN(stats[key])) {
@@ -40,12 +43,16 @@ function normalizeStats(stats = {}) {
 }
 
 /**
- *
- * @param character
+ * @param {*} character
+ * @returns
  */
 function normalizeCharacterRecord(character) {
   if (!character || typeof character !== "object") return character;
 
+  /**
+   * @constant normalized
+   * @type {object}
+   */
   const normalized = { ...character };
   normalized.name = String(normalized.name || "").trim();
   normalized.slug = getCharacterSlug(normalized.slug || normalized.name);
@@ -58,35 +65,16 @@ function normalizeCharacterRecord(character) {
 
   normalized.stats = normalizeStats(normalized.stats || {});
 
-  // Migración personajes antiguos: agregar stats mágicas base de la raza si faltan
-  if (
-    (normalized.stats.fulgor || 0) === 0 &&
-    (normalized.stats.d_fulgor || 0) === 0 &&
-    (normalized.stats.r_fulgor || 0) === 0
-  ) {
-    const raceCfg = RACES[normalized.raza];
-    if (raceCfg) {
-      normalized.stats.fulgor = (normalized.stats.fulgor || 0) + (raceCfg.baseStats.fulgor || 0);
-      normalized.stats.d_fulgor = (normalized.stats.d_fulgor || 0) + (raceCfg.baseStats.d_fulgor || 0);
-      normalized.stats.r_fulgor = (normalized.stats.r_fulgor || 0) + (raceCfg.baseStats.r_fulgor || 0);
-    }
+  if (normalized.hp_actual == null || Number.isNaN(Number(normalized.hp_actual))) {
+    normalized.hp_actual = (normalized.stats.hp || 1) * 2;
+  } else {
+    normalized.hp_actual = Math.max(0, Math.floor(Number(normalized.hp_actual)));
   }
-
-  normalized.hp_actual = Math.min(
-    HP_MAX,
-    Math.max(0, normalized.hp_actual != null ? Number(normalized.hp_actual) : HP_MAX),
-  );
 
   normalized.slots = {
     ...DEFAULT_CHARACTER_SLOTS,
     ...(normalized.slots || {}),
   };
-
-  normalized.slots.habilidades = sanitizarHabilidadesArray(
-    normalized.slots.habilidades,
-    normalized.clase,
-    normalized.nivel,
-  );
 
   if (normalized.description !== undefined && !String(normalized.slots.descripcion || "").trim()) {
     normalized.slots.descripcion = String(normalized.description).trim();
@@ -97,8 +85,16 @@ function normalizeCharacterRecord(character) {
 }
 
 /**
- *
- * @param root0
+ * Create a new character for a user.
+ * @param {object} options
+ * @param {string} options.creatorId
+ * @param {string} options.creatorName
+ * @param {string} options.characterName
+ * @param {string} [options.raza="humano"]
+ * @param {string} [options.clase="civil"]
+ * @param {object} [options.statDistribution={}]
+ * @param {string} [options.historia=""]
+ * @returns {Promise<object>}
  */
 async function createCharacter({
   creatorId,
@@ -115,8 +111,10 @@ async function createCharacter({
     registration: { source: "crear_pj", scope: "self", createdBy: creatorId },
   });
 
+  /**
+   * @constant slug
+   */
   const slug = getCharacterSlug(characterName);
-
   const { count } = await supabase
     .from("characters")
     .select("*", { count: "exact", head: true })
@@ -125,34 +123,69 @@ async function createCharacter({
     throw new Error("Has alcanzado el máximo de 5 personajes por usuario.");
   }
 
+  /**
+   * @constant raceConfig
+   */
   const raceConfig = RACES[raza];
   if (!raceConfig) throw new Error("Raza no válida.");
 
+  /**
+   * @constant claseConfig
+   */
   const claseConfig = getClase(clase);
   if (!claseConfig) throw new Error("Clase no válida.");
 
+  /**
+   * @constant raceStats
+   * @type {object}
+   */
   const raceStats = { ...raceConfig.baseStats };
+  /**
+   * @constant totalRace
+   */
   const totalRace = Object.values(raceStats).reduce((a, b) => a + b, 0);
   if (totalRace !== 50) {
     throw new Error(`La raza ${raceConfig.name} no tiene una distribucion de 50 puntos.`);
   }
 
+  /**
+   * @constant assignedPoints
+   */
   const assignedPoints = Object.values(statDistribution).reduce((a, b) => a + (Number(b) || 0), 0);
   if (assignedPoints !== FREE_POINTS_AT_CREATION) {
     throw new Error(`Debes distribuir exactamente ${FREE_POINTS_AT_CREATION} puntos libres.`);
   }
 
+  /**
+   * @constant finalStats
+   * @type {object}
+   */
   const finalStats = { ...DEFAULT_CHARACTER_STATS };
   for (const key of Object.keys(LEVELABLE_STATS)) {
+    /**
+     * @constant raceVal
+     */
     const raceVal = raceStats[key] || 0;
+    /**
+     * @constant freeVal
+     */
     const freeVal = Math.max(0, Math.min(Number(statDistribution[key]) || 0, 100));
     finalStats[key] = Math.max(0, Math.min(raceVal + freeVal, 100));
   }
 
+  /**
+   * @constant nivel
+   */
   const nivel = calculateLevel(finalStats);
 
+  /**
+   * @constant isActive
+   */
   const isActive = count === 0;
 
+  /**
+   * @constant record
+   */
   const record = filterExisting("characters", {
     player_phone: creatorId,
     name: characterName,
@@ -164,11 +197,10 @@ async function createCharacter({
     xp: 0,
     xp_total: 0,
     is_active: isActive,
-    hp_actual: HP_MAX,
+    hp_actual: finalStats.hp * 2,
     stats: finalStats,
     slots: { ...DEFAULT_CHARACTER_SLOTS, historia, habilidades: [] },
   });
-
   const { data, error } = await supabase.from("characters").insert(record).select().single();
 
   if (error) {
@@ -176,6 +208,9 @@ async function createCharacter({
     throw new Error("Error guardando el personaje: " + error.message);
   }
 
+  /**
+   * @constant normalized
+   */
   const normalized = normalizeCharacterRecord(data);
   normalized.active = data.is_active;
 
@@ -185,16 +220,21 @@ async function createCharacter({
 }
 
 /**
- *
- * @param root0
+ * @param {object} options
+ * @returns
  */
 async function listCharacters({ creatorId, bypassCache = false }) {
+  /**
+   * @constant cacheKey
+   */
   const cacheKey = charactersCacheKey(creatorId);
   if (!bypassCache) {
+    /**
+     * @constant cached
+     */
     const cached = cache.get(cacheKey);
     if (cached) return cached;
   }
-
   const { data, error } = await supabase
     .from("characters")
     .select("*")
@@ -203,7 +243,13 @@ async function listCharacters({ creatorId, bypassCache = false }) {
 
   if (error || !data) return [];
 
+  /**
+   * @constant result
+   */
   const result = data.map((row) => {
+    /**
+     * @constant normalized
+     */
     const normalized = normalizeCharacterRecord(row);
     normalized.active = row.is_active;
     return normalized;
@@ -214,16 +260,21 @@ async function listCharacters({ creatorId, bypassCache = false }) {
 }
 
 /**
- *
- * @param root0
+ * @param {object} options
+ * @returns
  */
 async function getActiveCharacter({ creatorId, bypassCache = false }) {
+  /**
+   * @constant cacheKey
+   */
   const cacheKey = `activeCharacter:${creatorId}`;
   if (!bypassCache) {
+    /**
+     * @constant cached
+     */
     const cached = cache.get(cacheKey);
     if (cached) return cached;
   }
-
   const { data, error } = await supabase
     .from("characters")
     .select("*")
@@ -232,6 +283,9 @@ async function getActiveCharacter({ creatorId, bypassCache = false }) {
     .maybeSingle();
 
   if (error || !data) return null;
+  /**
+   * @constant normalized
+   */
   const normalized = normalizeCharacterRecord(data);
   normalized.active = true;
 
@@ -240,8 +294,8 @@ async function getActiveCharacter({ creatorId, bypassCache = false }) {
 }
 
 /**
- *
- * @param root0
+@param {object} options
+ * @returns
  */
 async function setActiveCharacter({
   targetCreatorId,
@@ -254,8 +308,10 @@ async function setActiveCharacter({
     throw new Error("Solo el creador o un admin pueden hacer switch.");
   }
 
+  /**
+   * @constant slug
+   */
   const slug = getCharacterSlug(characterName);
-
   const { data: character, error } = await supabase
     .from("characters")
     .select("id")
@@ -265,6 +321,9 @@ async function setActiveCharacter({
 
   if (error || !character) throw new Error("No existe ese personaje.");
 
+  /**
+   * @constant deactivatePayload
+   */
   const deactivatePayload = filterExisting("characters", { is_active: false, updated_at: new Date().toISOString() });
   const { error: updateError } = await supabase
     .from("characters")
@@ -274,6 +333,9 @@ async function setActiveCharacter({
 
   if (updateError) throw new Error("Error desactivando personajes: " + updateError.message);
 
+  /**
+   * @constant activatePayload
+   */
   const activatePayload = filterExisting("characters", { is_active: true, updated_at: new Date().toISOString() });
   const { data: activated, error: activateError } = await supabase
     .from("characters")
@@ -287,6 +349,9 @@ async function setActiveCharacter({
     throw new Error("Error activando personaje: " + (activateError?.message || "No encontrado"));
   }
 
+  /**
+   * @constant normalized
+   */
   const normalized = normalizeCharacterRecord(activated);
   normalized.active = true;
 
@@ -296,18 +361,23 @@ async function setActiveCharacter({
 }
 
 /**
- *
- * @param root0
+ * @param {object} options
+ * @returns
  */
 async function deleteCharacter({ creatorId, characterName }) {
+  /**
+   * @constant slug
+   */
   const slug = getCharacterSlug(characterName);
 
+  /**
+   * @constant character
+   */
   const character = await safeSingleOrNull(
     supabase.from("characters").select("*").eq("player_phone", creatorId).eq("slug", slug),
   );
 
   if (!character) throw new Error("No existe el personaje.");
-
   const { error: deleteError } = await supabase.from("characters").delete().eq("id", character.id);
   if (deleteError) throw new Error("Error eliminando personaje: " + deleteError.message);
 
@@ -332,31 +402,46 @@ async function deleteCharacter({ creatorId, characterName }) {
 }
 
 /**
- *
- * @param root0
+ * @param {*} root0
+ * @returns
  */
 async function getCharacterNames({ creatorId }) {
+  /**
+   * @constant characters
+   */
   const characters = await listCharacters({ creatorId, bypassCache: true });
   return new Set(characters.map((c) => c.name));
 }
 
 /**
- *
- * @param root0
+ * @param {object} options
+ * @returns
  */
 async function renameCharacter({ characterName, newName, creatorId, requesterId, requesterIsAdmin = false }) {
   if (requesterId !== creatorId && !requesterIsAdmin) {
     throw new Error("Solo el creador o un admin pueden renombrar personajes.");
   }
 
+  /**
+   * @constant slug
+   */
   const slug = getCharacterSlug(characterName);
+  /**
+   * @constant newSlug
+   */
   const newSlug = getCharacterSlug(newName);
 
+  /**
+   * @constant existing
+   */
   const existing = await safeSingleOrNull(
     supabase.from("characters").select("id").eq("player_phone", creatorId).eq("slug", newSlug),
   );
   if (existing) throw new Error("Ya existe un personaje con ese nombre.");
 
+  /**
+   * @constant renamePayload
+   */
   const renamePayload = filterExisting("characters", {
     name: newName,
     slug: newSlug,
@@ -372,6 +457,9 @@ async function renameCharacter({ characterName, newName, creatorId, requesterId,
 
   if (error || !updated) throw new Error(error?.message || "No se encontró el personaje para renombrar.");
 
+  /**
+   * @constant normalized
+   */
   const normalized = normalizeCharacterRecord(updated);
   normalized.active = updated.is_active;
 
@@ -380,23 +468,36 @@ async function renameCharacter({ characterName, newName, creatorId, requesterId,
 }
 
 /**
- *
- * @param root0
+ * @param {object} options
+ * @returns
  */
 async function updateCharacterSlots({ characterName, creatorId, slots, requesterId, requesterIsAdmin = false }) {
   if (requesterId !== creatorId && !requesterIsAdmin) {
     throw new Error("Solo el creador o un admin pueden editar personajes.");
   }
 
+  /**
+   * @constant slug
+   */
   const slug = getCharacterSlug(characterName);
 
+  /**
+   * @constant current
+   */
   const current = await safeSingleOrNull(
     supabase.from("characters").select("slots").eq("player_phone", creatorId).eq("slug", slug),
   );
   if (!current) throw new Error("No existe el personaje.");
 
+  /**
+   * @constant mergedSlots
+   * @type {object}
+   */
   const mergedSlots = { ...DEFAULT_CHARACTER_SLOTS, ...(current.slots || {}), ...slots };
 
+  /**
+   * @constant slotsPayload
+   */
   const slotsPayload = filterExisting("characters", { slots: mergedSlots, updated_at: new Date().toISOString() });
   const { data: updated, error } = await supabase
     .from("characters")
@@ -408,6 +509,9 @@ async function updateCharacterSlots({ characterName, creatorId, slots, requester
 
   if (error || !updated) throw new Error(error?.message || "Error actualizando los slots del personaje.");
 
+  /**
+   * @constant normalized
+   */
   const normalized = normalizeCharacterRecord(updated);
   normalized.active = updated.is_active;
 
@@ -420,13 +524,118 @@ async function updateCharacterSlots({ characterName, creatorId, slots, requester
 // =========================
 
 /**
- *
- * @param root0
+ * @param {object} options
+ * @returns
  */
-async function setHp({ creatorId, characterName, hp }) {
-  const slug = getCharacterSlug(characterName);
-  const safeHp = Math.max(0, Math.min(HP_MAX, Math.floor(Number(hp) || 0)));
+async function getCombatStats({ creatorId, maxHp }) {
+  /**
+   * @constant character
+   */
+  const character = await getActiveCharacter({ creatorId });
+  if (!character) return null;
 
+  /**
+   * @constant baseMaxHp
+   */
+  const baseMaxHp = (character.stats?.hp || 1) * 2;
+  /**
+   * @constant combatStats
+   * @type {object}
+   */
+  const combatStats = { hp: character.hp_actual, hp_max: maxHp ?? baseMaxHp };
+  for (const key of Object.keys(LEVELABLE_STATS)) {
+    /**
+     * @constant baseVal
+     */
+    const baseVal = Number(character.stats[key]) || 0;
+    combatStats[key] = Math.max(0, Math.round(baseVal));
+  }
+
+  return combatStats;
+}
+
+/**
+ * @param {object} options
+ * @returns
+ */
+async function addXp({ creatorId, characterName, cantidad }) {
+  const slug = getCharacterSlug(characterName);
+  const safeXp = Math.max(1, Math.floor(Number(cantidad) || 0));
+
+  const character = await safeSingleOrNull(
+    supabase.from("characters").select("id, nivel, xp, xp_total, stats").eq("player_phone", creatorId).eq("slug", slug),
+  );
+  if (!character) throw new Error("No existe el personaje.");
+
+  let currentXp = (Number(character.xp) || 0) + safeXp;
+  let xpTotal = (Number(character.xp_total) || 0) + safeXp;
+  let currentLevel = Number(character.nivel) || LEVEL_INITIAL;
+  const stats = { ...(character.stats || {}) };
+  let pointsGained = 0;
+
+  while (currentLevel < LEVEL_MAX) {
+    const needed = xpForNextLevel(currentLevel);
+    if (currentXp >= needed) {
+      currentXp -= needed;
+      pointsGained += 1;
+      stats.puntos_disponibles = (Number(stats.puntos_disponibles) || 0) + 1;
+    } else {
+      break;
+    }
+  }
+
+  const updatePayload = filterExisting("characters", {
+    xp: currentXp,
+    xp_total: xpTotal,
+    stats,
+    updated_at: new Date().toISOString(),
+  });
+  const { data, error } = await supabase
+    .from("characters")
+    .update(updatePayload)
+    .eq("player_phone", creatorId)
+    .eq("slug", slug)
+    .select()
+    .maybeSingle();
+
+  if (error || !data) throw new Error("Error actualizando XP.");
+
+  invalidateUserCache(creatorId);
+  return { xp: currentXp, xp_total: xpTotal, pointsGained, totalPointsAvailable: Number(stats.puntos_disponibles) || 0 };
+}
+
+/**
+ * @param {object} options
+ * @returns
+ */
+async function setHp({ creatorId, characterName, hp, maxHp }) {
+  /**
+   * @constant slug
+   */
+  const slug = getCharacterSlug(characterName);
+
+  /**
+   * @constant character
+   */
+  const character = await safeSingleOrNull(
+    supabase.from("characters").select("stats").eq("player_phone", creatorId).eq("slug", slug),
+  );
+  /**
+   * @constant baseMaxHp
+   */
+  const baseMaxHp = (character?.stats?.hp ?? 1) * 2;
+  /**
+   * @constant maxHpOverride
+   */
+  const maxHpOverride = maxHp ?? baseMaxHp;
+  /**
+   * @constant safeHp
+   */
+  const safeHp = Math.max(0, Math.min(maxHpOverride, Math.floor(Number(hp) || 0)));
+
+  /**
+   * @constant updatePayload
+   */
   const updatePayload = filterExisting("characters", { hp_actual: safeHp, updated_at: new Date().toISOString() });
   const { data, error } = await supabase
     .from("characters")
@@ -442,6 +651,151 @@ async function setHp({ creatorId, characterName, hp }) {
   return normalizeCharacterRecord(data);
 }
 
+/**
+ * @param {object} options
+ * @returns
+ */
+async function restaurarHp({ creatorId, characterName, maxHp }) {
+  /**
+   * @constant slug
+   */
+  const slug = getCharacterSlug(characterName);
+  /**
+   * @constant character
+   */
+  const character = await safeSingleOrNull(
+    supabase.from("characters").select("stats").eq("player_phone", creatorId).eq("slug", slug),
+  );
+  /**
+   * @constant baseMaxHp
+   */
+  const baseMaxHp = (character?.stats?.hp ?? 1) * 2;
+  /**
+   * @constant maxHpOverride
+   */
+  const maxHpOverride = maxHp ?? baseMaxHp;
+  return setHp({ creatorId, characterName, hp: maxHpOverride, maxHp: maxHpOverride });
+}
+
+/**
+ * @param {object} options
+ * @returns
+ */
+async function distribuirPunto({ creatorId, characterName, stat }) {
+  if (!LEVELABLE_STATS[stat]) throw new Error(`La estadística '${stat}' no es válida.`);
+
+  /**
+   * @constant slug
+   */
+  const slug = getCharacterSlug(characterName);
+  /**
+   * @constant character
+   */
+  const character = await safeSingleOrNull(
+    supabase.from("characters").select("*").eq("player_phone", creatorId).eq("slug", slug),
+  );
+  if (!character) throw new Error("No existe el personaje.");
+
+  /**
+   * @constant stats
+   * @type {object}
+   */
+  const stats = { ...(character.stats || {}) };
+
+  if (LEVELABLE_STATS[stat] && stats[stat] >= LEVELABLE_STATS[stat].max) {
+    throw new Error(`${LEVELABLE_STATS[stat].name} ya está al máximo (${LEVELABLE_STATS[stat].max}).`);
+  }
+
+  /**
+   * @constant currentXp
+   */
+  const currentXp = Number(character.xp) || 0;
+  /**
+   * @constant currentLevel
+   */
+  const currentLevel = Number(character.nivel) || LEVEL_INITIAL;
+  /**
+   * @constant neededXp
+   */
+  const neededXp = xpForNextLevel(currentLevel);
+
+  if (currentXp < neededXp) {
+    throw new Error(`Necesitas ${neededXp} XP para subir de nivel. Tienes ${currentXp}.`);
+  }
+
+  stats[stat] = Math.min((stats[stat] || 0) + 1, LEVELABLE_STATS[stat].max);
+
+  /**
+   * @constant newLevel
+   */
+  const newLevel = calculateLevel(stats);
+  /**
+   * @constant remainingXp
+   */
+  const remainingXp = currentXp - neededXp;
+
+  /**
+   * @constant updatePayload
+   */
+  const updatePayload = filterExisting("characters", {
+    stats,
+    nivel: newLevel,
+    xp: remainingXp,
+    updated_at: new Date().toISOString(),
+  });
+  const { data, error } = await supabase
+    .from("characters")
+    .update(updatePayload)
+    .eq("id", character.id)
+    .select()
+    .maybeSingle();
+
+  if (error || !data) throw new Error("Error distribuyendo punto.");
+
+  invalidateUserCache(creatorId);
+  return normalizeCharacterRecord(data);
+}
+
+/**
+ * @param {object} options
+ * @returns
+ */
+async function getXpInfo({ creatorId, characterName }) {
+  /**
+   * @constant slug
+   */
+  const slug = getCharacterSlug(characterName);
+  /**
+   * @constant character
+   */
+  const character = await safeSingleOrNull(
+    supabase.from("characters").select("nivel, xp, xp_total").eq("player_phone", creatorId).eq("slug", slug),
+  );
+
+  if (!character) throw new Error("No existe el personaje.");
+
+  /**
+   * @constant currentLevel
+   */
+  const currentLevel = Number(character.nivel) || LEVEL_INITIAL;
+  /**
+   * @constant currentXp
+   */
+  const currentXp = Number(character.xp) || 0;
+  /**
+   * @constant neededXp
+   */
+  const neededXp = xpForNextLevel(currentLevel);
+
+  return {
+    nivel: currentLevel,
+    xp: currentXp,
+    xp_total: Number(character.xp_total) || 0,
+    xp_para_siguiente: neededXp,
+    progreso: neededXp > 0 ? Math.min(1, currentXp / neededXp) : 0,
+  };
+}
+
 module.exports = {
   createCharacter,
   listCharacters,
@@ -451,5 +805,10 @@ module.exports = {
   getCharacterNames,
   renameCharacter,
   updateCharacterSlots,
+  getCombatStats,
+  addXp,
   setHp,
+  restaurarHp,
+  distribuirPunto,
+  getXpInfo,
 };

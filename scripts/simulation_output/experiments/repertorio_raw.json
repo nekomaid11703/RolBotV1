@@ -1,0 +1,254 @@
+{
+  "timestamp": "2026-08-20T22:39:33.729Z",
+  "fecha": "2026-08-20",
+  "foco": {
+    "id": "varita_de_caoba",
+    "nombre": "Varita de Caoba",
+    "tier": "D",
+    "canalizeBase": 1,
+    "canalizeScale": 1
+  },
+  "FULGOR_POOL_MAX": 100,
+  "repertorio": [
+    {
+      "key": "directo_fuego_E",
+      "patron": "directo",
+      "seg": {
+        "arquetipo": "mago",
+        "patron": "directo",
+        "naturaleza": "fuego",
+        "resolucion": "proyectil × externa",
+        "foco": {
+          "id": "varita_de_caoba",
+          "nombre": "Varita de Caoba",
+          "tier": "D",
+          "canalizeBase": 1,
+          "canalizeScale": 1
+        },
+        "coste": {
+          "costoFino": 2,
+          "tier": "E",
+          "rarity": "comun",
+          "fulgorCost": 2
+        },
+        "bateria": {
+          "fulgorPoolMax": 100,
+          "lanzamientosEstimados": 50,
+          "dominioReq": 0,
+          "usableNaturalmente": true
+        }
+      },
+      "fingerprint": "89c8c7979e756f7213d53b3d9471ca01e8044422"
+    },
+    {
+      "key": "directo_hielo_D",
+      "patron": "directo",
+      "seg": {
+        "arquetipo": "mago",
+        "patron": "directo",
+        "naturaleza": "hielo",
+        "resolucion": "proyectil × externa",
+        "foco": {
+          "id": "varita_de_caoba",
+          "nombre": "Varita de Caoba",
+          "tier": "D",
+          "canalizeBase": 1,
+          "canalizeScale": 1
+        },
+        "coste": {
+          "costoFino": 4,
+          "tier": "D",
+          "rarity": "poco_comun",
+          "fulgorCost": 4
+        },
+        "bateria": {
+          "fulgorPoolMax": 100,
+          "lanzamientosEstimados": 25,
+          "dominioReq": 10,
+          "usableNaturalmente": true
+        }
+      },
+      "fingerprint": "70b403e2cae3bfdfeee210614eff2f69151bcb2d"
+    },
+    {
+      "key": "directo_electro_C",
+      "patron": "directo",
+      "seg": {
+        "arquetipo": "mago",
+        "patron": "directo",
+        "naturaleza": "electro",
+        "resolucion": "proyectil × externa",
+        "foco": {
+          "id": "varita_de_caoba",
+          "nombre": "Varita de Caoba",
+          "tier": "D",
+          "canalizeBase": 1,
+          "canalizeScale": 1
+        },
+        "coste": {
+          "costoFino": 27,
+          "tier": "C",
+          "rarity": "raro",
+          "fulgorCost": 27
+        },
+        "bateria": {
+          "fulgorPoolMax": 100,
+          "lanzamientosEstimados": 3,
+          "dominioReq": 20,
+          "usableNaturalmente": true
+        }
+      },
+      "fingerprint": "6c33411bcbe4ba488ec8e1ecc17a9b8ad9d3de01"
+    },
+    {
+      "key": "area_fuego_D",
+      "patron": "area",
+      "seg": {
+        "arquetipo": "mago",
+        "patron": "area",
+        "naturaleza": "fuego",
+        "resolucion": "explosion × externa",
+        "foco": {
+          "id": "varita_de_caoba",
+          "nombre": "Varita de Caoba",
+          "tier": "D",
+          "canalizeBase": 1,
+          "canalizeScale": 1
+        },
+        "coste": {
+          "costoFino": 21,
+          "tier": "D",
+          "rarity": "poco_comun",
+          "fulgorCost": 8
+        },
+        "bateria": {
+          "fulgorPoolMax": 100,
+          "lanzamientosEstimados": 12,
+          "dominioReq": 10,
+          "usableNaturalmente": true
+        }
+      },
+      "fingerprint": "071c3578da89134188004caf1004104947f83e70"
+    },
+    {
+      "key": "area_hielo_C",
+      "patron": "area",
+      "seg": {
+        "arquetipo": "mago",
+        "patron": "area",
+        "naturaleza": "hielo",
+        "resolucion": "explosion × externa",
+        "foco": {
+          "id": "varita_de_caoba",
+          "nombre": "Varita de Caoba",
+          "tier": "D",
+          "canalizeBase": 1,
+          "canalizeScale": 1
+        },
+        "coste": {
+          "costoFino": 41,
+          "tier": "C",
+          "rarity": "raro",
+          "fulgorCost": 9
+        },
+        "bateria": {
+          "fulgorPoolMax": 100,
+          "lanzamientosEstimados": 11,
+          "dominioReq": 20,
+          "usableNaturalmente": true
+        }
+      },
+      "fingerprint": "4642be7e232d8c07f40ee39cee696aa3017da412"
+    },
+    {
+      "key": "control_debuffo_oscuridad_D",
+      "patron": "control-debuff",
+      "seg": {
+        "arquetipo": "mago",
+        "patron": "control-debuff",
+        "naturaleza": "oscuridad",
+        "resolucion": "buffo × externa",
+        "foco": {
+          "id": "varita_de_caoba",
+          "nombre": "Varita de Caoba",
+          "tier": "D",
+          "canalizeBase": 1,
+          "canalizeScale": 1
+        },
+        "coste": {
+          "costoFino": 12,
+          "tier": "D",
+          "rarity": "poco_comun",
+          "fulgorCost": 12
+        },
+        "bateria": {
+          "fulgorPoolMax": 100,
+          "lanzamientosEstimados": 8,
+          "dominioReq": 10,
+          "usableNaturalmente": true
+        }
+      },
+      "fingerprint": "1cce00865748d713a6d65d0f11f4ee8fc26f09bd"
+    },
+    {
+      "key": "control_buffo_electro_D",
+      "patron": "control-buff",
+      "seg": {
+        "arquetipo": "mago",
+        "patron": "control-buff",
+        "naturaleza": "electro",
+        "resolucion": "buffo × propia",
+        "foco": {
+          "id": "varita_de_caoba",
+          "nombre": "Varita de Caoba",
+          "tier": "D",
+          "canalizeBase": 1,
+          "canalizeScale": 1
+        },
+        "coste": {
+          "costoFino": 3,
+          "tier": "D",
+          "rarity": "poco_comun",
+          "fulgorCost": 3
+        },
+        "bateria": {
+          "fulgorPoolMax": 100,
+          "lanzamientosEstimados": 33,
+          "dominioReq": 10,
+          "usableNaturalmente": true
+        }
+      },
+      "fingerprint": "2600ff7d8800c8d6d9e5e66fefe60ddd5861dd76"
+    },
+    {
+      "key": "multihit_doom_legacy",
+      "patron": "multi-hit",
+      "seg": {
+        "arquetipo": "mago",
+        "patron": "multi-hit",
+        "naturaleza": "cryo+pyro",
+        "resolucion": "hits (legacy)",
+        "foco": {
+          "id": "varita_de_caoba",
+          "nombre": "Varita de Caoba",
+          "tier": "D",
+          "canalizeBase": 1,
+          "canalizeScale": 1
+        },
+        "coste": {
+          "costoFino": 9,
+          "tier": "D",
+          "rarity": "poco_comun",
+          "fulgorCost": 1
+        },
+        "bateria": {
+          "fulgorPoolMax": 100,
+          "lanzamientosEstimados": 100,
+          "dominioReq": 10,
+          "usableNaturalmente": true
+        }
+      },
+      "fingerprint": "ceead2dcd3de7a042f09078364ab519d3a71651c"
+    }
+  ]
+}

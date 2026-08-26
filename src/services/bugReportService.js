@@ -1,6 +1,15 @@
 // @ts-nocheck
+/**
+ * @constant crypto
+ */
 const crypto = require("crypto");
+/**
+ * @constant path
+ */
 const path = require("path");
+/**
+ * @constant fs
+ */
 const fs = require("fs");
 const fsp = require("fs/promises");
 const { once } = require("events");
@@ -12,6 +21,10 @@ const { getGroupMetadata } = require("../utils/groupUtils");
 const { downloadMediaMessage } = require("@whiskeysockets/baileys");
 const { logSystem, logError } = require("./loggerService");
 
+/**
+ * @constant SESSION_ID
+ * @type {string}
+ */
 const SESSION_ID = "bug_report";
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
 const IMAGE_EXTENSIONS = new Map([
@@ -90,6 +103,10 @@ async function saveImage(msg, id) {
   return path.posix.join("bugs", "media", fileName);
 }
 
+/**
+ * @constant PRIORITY_KEYWORDS
+ * @type {object}
+ */
 const PRIORITY_KEYWORDS = {
   critical: [
     "crítico",
@@ -109,7 +126,15 @@ const PRIORITY_KEYWORDS = {
   low: ["menor", "cosmético", "estético", "sugerencia", "mejora", "tipografía", "color", "detalle"],
 };
 
+/**
+ * Determine priority.
+ * @param {*} description - - description.
+ * @returns
+ */
 function determinePriority(description) {
+  /**
+   * @constant lower
+   */
   const lower = description.toLowerCase();
   for (const [priority, keywords] of Object.entries(PRIORITY_KEYWORDS)) {
     if (keywords.some((k) => lower.includes(k))) return priority;
@@ -117,13 +142,25 @@ function determinePriority(description) {
   return "medium";
 }
 
+/**
+ * @constant CATEGORY_KEYWORDS
+ * @type {object}
+ */
 const CATEGORY_KEYWORDS = {
   bug: ["bug", "error", "fallo", "falla", "crash", "no funciona", "roto", "mal", "incorrecto"],
   suggestion: ["sugerencia", "mejora", "feature", "idea", "propuesta", "quisiera", "podría"],
   question: ["duda", "pregunta", "cómo", "qué es", "consulta", "?"],
 };
 
+/**
+ * Determine category.
+ * @param {*} description - - description.
+ * @returns
+ */
 function determineCategory(description) {
+  /**
+   * @constant lower
+   */
   const lower = description.toLowerCase();
   for (const [category, keywords] of Object.entries(CATEGORY_KEYWORDS)) {
     if (keywords.some((k) => lower.includes(k))) return category;
@@ -131,13 +168,33 @@ function determineCategory(description) {
   return "general";
 }
 
+/**
+ * Returns the role.
+ * @param {*} sock - - sock.
+ * @param {*} groupId - - group unique identifier.
+ * @param {*} userId - - user unique identifier.
+ * @returns
+ * @async
+ */
 async function getRole(sock, groupId, userId) {
   if (isOwner(userId)) return "owner";
   if (!groupId) return "user";
+  /**
+   * @constant metadata
+   */
   const metadata = await getGroupMetadata(sock, groupId);
   if (!metadata || !Array.isArray(metadata.participants)) return "user";
+  /**
+   * @constant normUserId
+   */
   const normUserId = userId.split(":")[0].split("/")[0].toLowerCase();
+  /**
+   * @constant participant
+   */
   const participant = metadata.participants.find((p) => {
+    /**
+     * @constant pid
+     */
     const pid = (p.id || p.jid || "").split(":")[0].split("/")[0].toLowerCase();
     return pid === normUserId;
   });
@@ -145,7 +202,17 @@ async function getRole(sock, groupId, userId) {
   return "user";
 }
 
+/**
+ * Returns the daily count.
+ * @param {*} userId - - user unique identifier.
+ * @throws {Error}
+ * @returns
+ * @async
+ */
 async function getDailyCount(userId) {
+  /**
+   * @constant today
+   */
   const today = new Date().toISOString().slice(0, 10);
   const { data, error } = await supabase
     .from("bot_auth_state")
@@ -157,17 +224,46 @@ async function getDailyCount(userId) {
   return (data || []).length;
 }
 
+/**
+ * Creates a new report.
+ * @param {*} root0
+ * @throws {Error}
+ * @returns
+ * @async
+ */
 async function createReport({ sock, groupId, userId, userName, description, msg }) {
+  /**
+   * @constant role
+   */
   const role = await getRole(sock, groupId, userId);
+  /**
+   * @constant limits
+   * @type {object}
+   */
   const limits = { owner: Infinity, admin: 5, user: 3 };
+  /**
+   * @constant limit
+   */
   const limit = limits[role] || 3;
+  /**
+   * @constant dailyCount
+   */
   const dailyCount = await getDailyCount(userId);
   if (dailyCount >= limit) {
     throw new Error(`Límite diario alcanzado (${limit}/día para ${role}s)`);
   }
 
+  /**
+   * @constant priority
+   */
   const priority = determinePriority(description);
+  /**
+   * @constant category
+   */
   const category = determineCategory(description);
+  /**
+   * @constant id
+   */
   const id = crypto.randomUUID();
 
   let mediaUrl = null;
@@ -180,6 +276,10 @@ async function createReport({ sock, groupId, userId, userName, description, msg 
     }
   }
 
+  /**
+   * @constant report
+   * @type {object}
+   */
   const report = {
     id,
     userId,
@@ -196,7 +296,6 @@ async function createReport({ sock, groupId, userId, userName, description, msg 
     resolvedAt: null,
     resolvedBy: null,
   };
-
   const { error } = await supabase.from("bot_auth_state").insert({ session_id: SESSION_ID, id, data: report });
   if (error) {
     if (mediaUrl) {
@@ -211,6 +310,9 @@ async function createReport({ sock, groupId, userId, userName, description, msg 
 
   if ((priority === "critical" || priority === "high") && sock) {
     try {
+      /**
+       * @constant ownerJids
+       */
       const ownerJids = getOwnerJids();
       for (const ownerJid of ownerJids) {
         await sock.sendMessage(ownerJid, {
@@ -225,6 +327,12 @@ async function createReport({ sock, groupId, userId, userName, description, msg 
   return report;
 }
 
+/**
+ * Returns the report.
+ * @param {*} id - - unique identifier.
+ * @returns
+ * @async
+ */
 async function getReport(id) {
   const { data, error } = await supabase
     .from("bot_auth_state")
@@ -236,7 +344,18 @@ async function getReport(id) {
   return data?.data || null;
 }
 
+/**
+ * Returns the user reports.
+ * @param {*} userId - - user unique identifier.
+ * @param {number} [days] - - days.
+ * @throws {Error}
+ * @returns
+ * @async
+ */
 async function getUserReports(userId, days = 30) {
+  /**
+   * @constant since
+   */
   const since = new Date(Date.now() - days * 86400000).toISOString();
   const { data, error } = await supabase
     .from("bot_auth_state")

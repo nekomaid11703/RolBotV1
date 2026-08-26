@@ -1,7 +1,6 @@
 // @ts-nocheck
 const path = require("path");
 const { randomUUID } = require("crypto");
-
 const { isAdmin, isBotAdmin, isOnGroup } = require("../utils/groupUtils");
 const { isOwner } = require("../utils/permissionUtils");
 const { hasEconomyPermission, hasPermissionForCategory, getCategoryLabel } = require("../services/permissionService");
@@ -10,9 +9,26 @@ const { logSystem, logCommand, logError } = require("../services/loggerService")
 const { incrementCommands, incrementErrors, addEvent } = require("../services/stats");
 const { commands, aliases, registerCommand, getJsFilesRecursively } = require("./commandRegistry");
 
-/**
- *
- */
+const chatCommandTails = new Map();
+
+function getActorId(ctx) {
+  return ctx.userId || ctx.sender || ctx.senderJid;
+}
+
+async function serializeChatCommand(chatId, task) {
+  const key = String(chatId || "unknown-chat");
+  const previous = chatCommandTails.get(key) || Promise.resolve();
+  // ponytail: per-chat ordering covers normal group combat; use DB/session locks if combat later spans chats.
+  const current = previous.catch(() => undefined).then(task);
+  chatCommandTails.set(key, current);
+
+  try {
+    return await current;
+  } finally {
+    if (chatCommandTails.get(key) === current) chatCommandTails.delete(key);
+  }
+}
+
 function loadCommands() {
   const commandsPath = path.join(__dirname, "../commands");
 
@@ -45,10 +61,160 @@ function loadCommands() {
   });
 }
 
-/**
- * @param {object} ctx - Command context
- * @returns {Promise<void>} Promise that resolves when complete
- */
+async function logDenied(ctx, logBase, reason, message) {
+  await logCommand({ ...logBase, status: "denied", reason });
+  await ctx.reply(message);
+  return true;
+}
+
+async function checkGroupOnly(ctx, command, logBase) {
+  if (!command.groupOnly || isOnGroup(ctx.from)) return null;
+  return logDenied(ctx, logBase, "Este comando solo funciona en grupos.", "❌ Este comando solo funciona en grupos.");
+}
+
+async function checkCreatorOnly(ctx, command, logBase) {
+  if (!command.creatorOnly) return null;
+  const owner = isOwner({ jid: ctx.senderJid || ctx.sender, phone: ctx.senderNumber, displayName: ctx.userName });
+  if (owner) return null;
+  return logDenied(
+    ctx,
+    logBase,
+    "Solo el creador puede usar este comando.",
+    "❌ Solo el creador puede usar este comando.",
+  );
+}
+
+async function checkEconomyAdmin(ctx, command, logBase) {
+  if (!command.economyAdminOnly) return null;
+  const allowed = await hasEconomyPermission({
+    jid: ctx.senderJid || ctx.sender,
+    phone: ctx.senderNumber,
+    displayName: ctx.userName,
+  });
+  if (allowed) return null;
+  return logDenied(
+    ctx,
+    logBase,
+    "Solo los administradores de economía pueden usar este comando.",
+    "❌ Solo los administradores de economía pueden usar este comando.",
+  );
+}
+
+async function checkAdminPerm(ctx, command, logBase) {
+  if (!command.adminPerm) return null;
+  const allowed = await hasPermissionForCategory(
+    { jid: ctx.senderJid || ctx.sender, phone: ctx.senderNumber, displayName: ctx.userName },
+    command.adminPerm,
+  );
+  if (allowed) return null;
+  const catLabel = getCategoryLabel(command.adminPerm);
+  return logDenied(
+    ctx,
+    logBase,
+    `Solo los administradores de ${catLabel} pueden usar este comando.`,
+    `❌ Solo los administradores de ${catLabel} pueden usar este comando.`,
+  );
+}
+
+async function checkAdminOnly(ctx, command, logBase) {
+  if (!command.adminOnly) return null;
+  if (!isOnGroup(ctx.from)) {
+    return logDenied(ctx, logBase, "Este comando solo funciona en grupos.", "❌ Este comando solo funciona en grupos.");
+  }
+  const admin = await isAdmin(ctx.sock, ctx.from, ctx.senderJid || ctx.sender);
+  if (admin) return null;
+  return logDenied(
+    ctx,
+    logBase,
+    "Solo los administradores pueden usar este comando.",
+    "❌ Solo los administradores pueden usar este comando.",
+  );
+}
+
+async function checkBotAdminOnly(ctx, command, logBase) {
+  if (!command.botAdminOnly) return null;
+  const botAdmin = await isBotAdmin(ctx.sock, ctx.from);
+  if (botAdmin) return null;
+  return logDenied(ctx, logBase, "El bot necesita ser administrador.", "❌ El bot necesita ser administrador.");
+}
+
+const PERMISSION_CHECKS = [
+  checkGroupOnly,
+  checkCreatorOnly,
+  checkEconomyAdmin,
+  checkAdminPerm,
+  checkAdminOnly,
+  checkBotAdminOnly,
+];
+
+async function checkPermission(ctx, command, logBase) {
+  for (const check of PERMISSION_CHECKS) {
+    const denied = await check(ctx, command, logBase);
+    if (denied) return denied;
+  }
+  return null;
+}
+
+async function recordActivity(ctx, commandName, command) {
+  const actorId = getActorId(ctx);
+  try {
+    await recordUserActivity({
+      creatorId: actorId,
+      creatorName: ctx.userName,
+      displayName: ctx.userName,
+      pushName: ctx.userName,
+      senderJid: ctx.senderJid || ctx.sender,
+      senderNumber: ctx.senderNumber || null,
+      commandCount: 1,
+      messageType: ctx.messageType,
+      isText: Boolean(ctx.text),
+      registration: {
+        source: "command",
+        scope: isOnGroup(ctx.from) ? "group" : "self",
+        createdBy: actorId,
+      },
+    });
+  } catch (activityError) {
+    await logError({
+      source: `command-activity:${command.name}`,
+      userId: actorId,
+      userName: ctx.userName,
+      groupId: ctx.from,
+      error: activityError,
+      context: { inputCommand: commandName, resolvedCommand: command.name },
+    });
+  }
+}
+
+async function handleCommandError(ctx, error, command, commandName, args, logBase) {
+  const err = /** @type {{ message?: string }} */ (error);
+  const correlationId = randomUUID().slice(0, 8);
+  await logCommand({
+    ...logBase,
+    status: "error",
+    reason: `Error interno [ID: ${correlationId}]`,
+  });
+
+  incrementErrors();
+  addEvent("err", `Error en /${command.name}: ${String(err.message || "").slice(0, 60)}`);
+
+  await logError({
+    source: `command:${command.name}`,
+    userId: getActorId(ctx),
+    userName: ctx.userName,
+    groupId: ctx.from,
+    error,
+    context: {
+      inputCommand: commandName,
+      resolvedCommand: command.name,
+      args,
+      isGroup: isOnGroup(ctx.from),
+      correlationId,
+    },
+  });
+  await ctx.reply(`❌ No se pudo ejecutar el comando. ID: ${correlationId}`);
+}
+
 async function handleCommand(ctx) {
   const prefix = "/";
 
@@ -74,7 +240,7 @@ async function handleCommand(ctx) {
   ctx.commandName = command.name;
 
   const logBase = {
-    userId: ctx.senderJid || ctx.sender,
+    userId: getActorId(ctx),
     userPhone: ctx.senderNumber || null,
     userName: ctx.userName,
     groupId: ctx.from,
@@ -83,181 +249,23 @@ async function handleCommand(ctx) {
     args,
   };
 
-  if (command.groupOnly && !isOnGroup(ctx.from)) {
-    await logCommand({
-      ...logBase,
-      status: "denied",
-      reason: "Este comando solo funciona en grupos.",
-    });
-
-    return ctx.reply("❌ Este comando solo funciona en grupos.");
-  }
-
-  if (command.creatorOnly) {
-    const owner = isOwner({
-      jid: ctx.senderJid || ctx.sender,
-      phone: ctx.senderNumber,
-      displayName: ctx.userName,
-    });
-
-    if (!owner) {
-      await logCommand({
-        ...logBase,
-        status: "denied",
-        reason: "Solo el creador puede usar este comando.",
-      });
-
-      return ctx.reply("❌ Solo el creador puede usar este comando.");
-    }
-  }
-
-  if (command.economyAdminOnly) {
-    const allowed = await hasEconomyPermission({
-      jid: ctx.senderJid || ctx.sender,
-      phone: ctx.senderNumber,
-      displayName: ctx.userName,
-    });
-
-    if (!allowed) {
-      await logCommand({
-        ...logBase,
-        status: "denied",
-        reason: "Solo los administradores de economía pueden usar este comando.",
-      });
-
-      return ctx.reply("❌ Solo los administradores de economía pueden usar este comando.");
-    }
-  }
-
-  if (command.adminPerm) {
-    const allowed = await hasPermissionForCategory(
-      {
-        jid: ctx.senderJid || ctx.sender,
-        phone: ctx.senderNumber,
-        displayName: ctx.userName,
-      },
-      command.adminPerm,
-    );
-
-    if (!allowed) {
-      const catLabel = getCategoryLabel(command.adminPerm);
-      await logCommand({
-        ...logBase,
-        status: "denied",
-        reason: `Solo los administradores de ${catLabel} pueden usar este comando.`,
-      });
-
-      return ctx.reply(`❌ Solo los administradores de ${catLabel} pueden usar este comando.`);
-    }
-  }
-
-  if (command.adminOnly) {
-    if (!isOnGroup(ctx.from)) {
-      await logCommand({
-        ...logBase,
-        status: "denied",
-        reason: "Este comando solo funciona en grupos.",
-      });
-
-      return ctx.reply("❌ Este comando solo funciona en grupos.");
-    }
-
-    const admin = await isAdmin(ctx.sock, ctx.from, ctx.senderJid || ctx.sender);
-
-    if (!admin) {
-      await logCommand({
-        ...logBase,
-        status: "denied",
-        reason: "Solo los administradores pueden usar este comando.",
-      });
-
-      return ctx.reply("❌ Solo los administradores pueden usar este comando.");
-    }
-  }
-
-  if (command.botAdminOnly) {
-    const botAdmin = await isBotAdmin(ctx.sock, ctx.from);
-
-    if (!botAdmin) {
-      await logCommand({
-        ...logBase,
-        status: "denied",
-        reason: "El bot necesita ser administrador.",
-      });
-
-      return ctx.reply("❌ El bot necesita ser administrador.");
-    }
-  }
-
-  try {
-    await command.execute(ctx);
-
-    incrementCommands();
-    addEvent("cmd", `/${command.name} — ${ctx.userName}`);
-
-    await logCommand({
-      ...logBase,
-      status: "success",
-    });
+  return serializeChatCommand(ctx.from, async () => {
+    const denied = await checkPermission(ctx, command, logBase);
+    if (denied) return;
 
     try {
-      await recordUserActivity({
-        creatorId: ctx.senderJid || ctx.sender,
-        creatorName: ctx.userName,
-        displayName: ctx.userName,
-        pushName: ctx.userName,
-        senderJid: ctx.senderJid || ctx.sender,
-        senderNumber: ctx.senderNumber || null,
-        commandCount: 1,
-        messageType: ctx.messageType,
-        isText: Boolean(ctx.text),
-        registration: {
-          source: "command",
-          scope: isOnGroup(ctx.from) ? "group" : "self",
-          createdBy: ctx.senderJid || ctx.sender,
-        },
-      });
-    } catch (activityError) {
-      await logError({
-        source: `command-activity:${command.name}`,
-        userId: ctx.senderJid || ctx.sender,
-        userName: ctx.userName,
-        groupId: ctx.from,
-        error: activityError,
-        context: {
-          inputCommand: commandName,
-          resolvedCommand: command.name,
-        },
-      });
+      await command.execute(ctx);
+
+      incrementCommands();
+      addEvent("cmd", `/${command.name} — ${ctx.userName}`);
+
+      await logCommand({ ...logBase, status: "success" });
+
+      await recordActivity(ctx, commandName, command);
+    } catch (error) {
+      await handleCommandError(ctx, error, command, commandName, args, logBase);
     }
-  } catch (error) {
-    const err = /** @type {{ message?: string }} */ (error);
-    const correlationId = randomUUID().slice(0, 8);
-    await logCommand({
-      ...logBase,
-      status: "error",
-      reason: `Error interno [ID: ${correlationId}]`,
-    });
-
-    incrementErrors();
-    addEvent("err", `Error en /${command.name}: ${String(err.message || "").slice(0, 60)}`);
-
-    await logError({
-      source: `command:${command.name}`,
-      userId: ctx.senderJid || ctx.sender,
-      userName: ctx.userName,
-      groupId: ctx.from,
-      error,
-      context: {
-        inputCommand: commandName,
-        resolvedCommand: command.name,
-        args,
-        isGroup: isOnGroup(ctx.from),
-        correlationId,
-      },
-    });
-    await ctx.reply(`❌ No se pudo ejecutar el comando. ID: ${correlationId}`);
-  }
+  });
 }
 
 module.exports = {

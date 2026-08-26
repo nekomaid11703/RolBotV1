@@ -1,8 +1,11 @@
 const { supabase } = require("./supabase");
 const { logSystem, logError } = require("../services/loggerService");
-const { discover } = require("./columnRegistry");
 const { checkVersion } = require("./schemaVersion");
 
+/**
+ * @constant SCHEMA
+ * @type {Record<string, {columns: string[]}>}
+ */
 const SCHEMA = {
   bot_auth_state: { columns: ["session_id", "id", "data"] },
   players: { columns: ["phone", "username", "money", "activity_messages", "activity_commands", "last_active_at"] },
@@ -24,15 +27,36 @@ const SCHEMA = {
       "hp_actual",
       "stats",
       "slots",
+      "equipped_slots",
       "created_at",
       "updated_at",
     ],
   },
   inventory: {
-    columns: ["id", "character_id", "item_id", "quantity", "created_at", "updated_at"],
+    columns: ["id", "character_id", "item_id", "quantity", "metadata", "created_at", "updated_at"],
+  },
+  combat_sessions: {
+    columns: [
+      "id",
+      "is_pve",
+      "challenger",
+      "defender",
+      "current_turn_char_id",
+      "status",
+      "pending_attack",
+      "created_at",
+      "last_turn_at",
+      "winner_id",
+      "rounds",
+      "distance",
+    ],
   },
 };
 
+/**
+ * @constant CRITICAL_EQUALS_COLUMNS
+ * @type {Record<string, string[]>}
+ */
 const CRITICAL_EQUALS_COLUMNS = {
   players: ["phone"],
   characters: ["player_phone", "slug", "is_active"],
@@ -43,25 +67,16 @@ const CRITICAL_EQUALS_COLUMNS = {
 };
 
 /**
- *
+ * Check database schema health by validating tables and critical columns.
+ * @returns {Promise<{errors: string[], warnings: string[]}>} Health check results
  */
 async function checkHealth() {
-  /** @type {string[]} */ const errors = [];
-  /** @type {string[]} */ const warnings = [];
-
-  await discover(true);
-
   const [tableResults, colResults] = await Promise.all([
     Promise.all(
       Object.entries(SCHEMA).map(async ([table, { columns }]) => {
         try {
-          const { data, error } = await supabase.from(table).select("*").limit(1);
-          if (error) return `Tabla "${table}" inaccesible: ${error.message}`;
-          if (data && data.length > 0) {
-            const missing = columns.filter((col) => !(col in data[0]));
-            if (missing.length > 0)
-              return { warn: true, msg: `Tabla "${table}" sin columnas esperadas: ${missing.join(", ")}` };
-          }
+          const { error } = await supabase.from(table).select(columns.join(",")).limit(1);
+          if (error) return `Tabla "${table}" inaccesible o incompleta: ${error.message}`;
           return null;
         } catch (err) {
           return `Tabla "${table}" error: ${err instanceof Error ? err.message : String(err)}`;
@@ -80,30 +95,40 @@ async function checkHealth() {
     ),
   ]);
 
+  /** @type {string[]} */
+  const errors = [];
+  /** @type {string[]} */
+  const warnings = [];
+
   for (const r of tableResults) {
-    if (!r) continue;
-    if (typeof r === "string") errors.push(r);
-    else warnings.push(r.msg);
+    if (r) errors.push(r);
   }
   for (const r of colResults) {
-    if (r) warnings.push(r);
+    if (r) errors.push(r);
   }
 
   return { errors, warnings };
 }
 
 /**
- *
+ * Verify schema on startup, checking version and health.
+ * @returns {Promise<{ok: boolean, errors: string[], warnings: string[]}>} Verification results
  */
 async function verifyStartup() {
   /** @type {{ ok: boolean, errors: string[], warnings: string[] }} */
   const results = { ok: true, errors: [], warnings: [] };
 
+  /**
+   * @constant versionResult
+   */
   const versionResult = await checkVersion();
   if (!versionResult.ok) {
     results.warnings.push(`SchemaVersion desajustado: DB=${versionResult.stored}, código=${versionResult.current}`);
   }
 
+  /**
+   * @constant health
+   */
   const health = await checkHealth();
   results.errors.push(...health.errors);
   results.warnings.push(...health.warnings);
@@ -125,4 +150,4 @@ async function verifyStartup() {
   return results;
 }
 
-module.exports = { verifyStartup };
+module.exports = { verifyStartup, checkHealth };

@@ -1,8 +1,13 @@
 const { discover } = require("./columnRegistry");
 const { supabase } = require("./supabase");
 const { logSystem } = require("../services/loggerService");
-const { setStoredVersion, CURRENT_VERSION } = require("./schemaVersion");
+const { setStoredVersion } = require("./schemaVersion");
+const { CURRENT_VERSION } = require("./schemaConstants");
 
+/**
+ * @constant DESIRED_SCHEMA
+ * @type {object}
+ */
 const DESIRED_SCHEMA = {
   players: ["phone", "username", "money", "activity_messages", "activity_commands", "last_active_at"],
   characters: [
@@ -10,6 +15,7 @@ const DESIRED_SCHEMA = {
     "player_phone",
     "name",
     "slug",
+    "category",
     "raza",
     "clase",
     "rango",
@@ -20,12 +26,13 @@ const DESIRED_SCHEMA = {
     "hp_actual",
     "stats",
     "slots",
+    "equipped_slots",
     "created_at",
     "updated_at",
   ],
   groups: ["id", "group_jid", "group_name", "total_messages"],
   group_members: ["group_id", "player_phone", "messages_count"],
-  inventory: ["id", "character_id", "item_id", "quantity", "created_at", "updated_at"],
+  inventory: ["id", "character_id", "item_id", "quantity", "metadata", "created_at", "updated_at"],
   combat_sessions: [
     "id",
     "is_pve",
@@ -38,9 +45,14 @@ const DESIRED_SCHEMA = {
     "last_turn_at",
     "winner_id",
     "rounds",
+    "distance",
   ],
 };
 
+/**
+ * @constant TABLE_CREATE_SQL
+ * @type {object}
+ */
 const TABLE_CREATE_SQL = {
   combat_sessions: `
     CREATE TABLE IF NOT EXISTS "combat_sessions" (
@@ -54,8 +66,15 @@ const TABLE_CREATE_SQL = {
       "created_at" BIGINT NOT NULL,
       "last_turn_at" BIGINT NOT NULL,
       "winner_id" TEXT,
-      "rounds" INTEGER DEFAULT 0
+      "rounds" INTEGER DEFAULT 0,
+      "distance" INTEGER NOT NULL DEFAULT 5 CHECK (distance >= 0)
     );
+
+    ALTER TABLE combat_sessions ENABLE ROW LEVEL SECURITY;
+    ALTER TABLE combat_sessions FORCE ROW LEVEL SECURITY;
+
+    REVOKE ALL PRIVILEGES ON TABLE combat_sessions FROM PUBLIC, anon, authenticated;
+    GRANT ALL PRIVILEGES ON TABLE combat_sessions TO service_role;
   `,
 };
 
@@ -67,10 +86,11 @@ const COLUMN_TYPES = {
   "players.activity_messages": "bigint DEFAULT 0",
   "players.activity_commands": "bigint DEFAULT 0",
   "players.last_active_at": "timestamptz",
-  "characters.id": "bigint",
+  "characters.id": "uuid",
   "characters.player_phone": "text",
   "characters.name": "text",
   "characters.slug": "text",
+  "characters.category": "text DEFAULT 'F'",
   "characters.raza": "text DEFAULT 'humano'",
   "characters.clase": "text DEFAULT 'civil'",
   "characters.rango": "text DEFAULT 'F'",
@@ -81,6 +101,7 @@ const COLUMN_TYPES = {
   "characters.hp_actual": "integer DEFAULT 100",
   "characters.stats": "jsonb",
   "characters.slots": "jsonb",
+  "characters.equipped_slots": "jsonb DEFAULT '{}'",
   "characters.created_at": "timestamptz DEFAULT now()",
   "characters.updated_at": "timestamptz DEFAULT now()",
   "groups.id": "bigint",
@@ -91,21 +112,34 @@ const COLUMN_TYPES = {
   "group_members.player_phone": "text",
   "group_members.messages_count": "bigint DEFAULT 0",
   "inventory.id": "bigint",
-  "inventory.character_id": "bigint",
+  "inventory.character_id": "uuid",
   "inventory.item_id": "text",
   "inventory.quantity": "integer DEFAULT 0",
+  "inventory.metadata": "jsonb DEFAULT '{}'",
   "inventory.created_at": "timestamptz DEFAULT now()",
   "inventory.updated_at": "timestamptz DEFAULT now()",
+  "combat_sessions.distance": "integer NOT NULL DEFAULT 5 CHECK (distance >= 0)",
 };
 
 /**
- *
+ * Detect columns that are missing from the database schema.
+ * @returns {Promise<Array<{table: string, column: string|null, reason: string}>>} List of missing column descriptors
  */
 async function detectMissingColumns() {
+  /**
+   * @constant registry
+   */
   const registry = await discover(true);
+  /**
+   * @constant missing
+   * @type {*[]}
+   */
   const missing = [];
 
   for (const [table, desiredCols] of Object.entries(DESIRED_SCHEMA)) {
+    /**
+     * @constant tableCols
+     */
     const tableCols = registry[table];
     if (!tableCols) {
       missing.push({ table, column: null, reason: "tabla_no_accesible" });
@@ -122,16 +156,27 @@ async function detectMissingColumns() {
 }
 
 /**
- *
+ * Generate SQL statements to add missing columns.
+ * @returns {Promise<{sql: string[], missing: Array<*>}>} Object with SQL statements and missing column info
  */
 async function generateMigrationSQL() {
+  /**
+   * @constant missing
+   */
   const missing = await detectMissingColumns();
   if (missing.length === 0) return { sql: [], missing };
 
+  /**
+   * @constant statements
+   * @type {*[]}
+   */
   const statements = [];
 
   for (const item of missing) {
     if (item.reason !== "no_existe") continue;
+    /**
+     * @constant typeDef
+     */
     const typeDef = COLUMN_TYPES[`${item.table}.${item.column}`];
     if (!typeDef) continue;
     statements.push(`ALTER TABLE "${item.table}" ADD COLUMN IF NOT EXISTS "${item.column}" ${typeDef};`);
@@ -141,7 +186,8 @@ async function generateMigrationSQL() {
 }
 
 /**
- *
+ * Log migration info and return status.
+ * @returns {Promise<{ok: boolean, sql: string[]}>} Migration result with ok flag and SQL statements
  */
 async function logMigrationInfo() {
   const { sql, missing } = await generateMigrationSQL();
@@ -164,14 +210,22 @@ async function logMigrationInfo() {
     }
   }
 
-  return { ok: sql.length === 0, sql };
+  return { ok: missing.length === 0, sql };
 }
 
 /**
- *
+ * Create tables defined in TABLE_CREATE_SQL if they do not exist.
+ * @returns {Promise<string[]>} List of created table names
  */
 async function createMissingTables() {
+  /**
+   * @constant registry
+   */
   const registry = await discover(true);
+  /**
+   * @constant created
+   * @type {*[]}
+   */
   const created = [];
 
   for (const [table, sql] of Object.entries(TABLE_CREATE_SQL)) {
@@ -186,7 +240,8 @@ async function createMissingTables() {
         created.push(table);
       }
     } catch (err) {
-      await logSystem(`Migration: error creando tabla "${table}": ${err instanceof Error ? err.message : String(err)}`);
+      const msg = err instanceof Error ? err.message : String(err);
+      await logSystem(`Migration: error creando tabla "${table}": ${msg}`);
     }
   }
 
@@ -194,12 +249,20 @@ async function createMissingTables() {
 }
 
 /**
- *
+ * Run full startup migration: create missing tables and log column status.
+ * @returns {Promise<{ok: boolean, sql: string[]}>} Migration result
  */
 async function runStartupMigration() {
   await createMissingTables();
+  /**
+   * @constant result
+   */
   const result = await logMigrationInfo();
-  await setStoredVersion(CURRENT_VERSION);
+  if (result.ok) {
+    await setStoredVersion(CURRENT_VERSION);
+  } else {
+    await logSystem(`Migration: versión ${CURRENT_VERSION} no registrada porque el schema sigue incompleto`);
+  }
   return result;
 }
 

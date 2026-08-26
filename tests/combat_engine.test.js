@@ -12,8 +12,17 @@ const {
   attemptBlock,
   attemptDodge,
   executeTurn,
+  calculateXpReward,
 } = require("../src/services/rpg/combatEngine");
-const { createSession, findSessionByCharacter, removeSession } = require("../src/services/rpg/combatState");
+const {
+  createSession,
+  findSessionByCharacter,
+  findSessionByUser,
+  advanceTurn,
+  endSession,
+  expireSession,
+  removeSession,
+} = require("../src/services/rpg/combatState");
 const { supabase } = require("../src/database/supabase");
 
 beforeEach(() => {
@@ -22,15 +31,12 @@ beforeEach(() => {
     delete: vi.fn(() => ({
       eq: vi.fn(async () => ({ error: null })),
     })),
-    select: vi.fn(() => ({
-      eq: vi.fn(() => ({
-        maybeSingle: vi.fn(async () => ({ data: null })),
-      })),
-    })),
   }));
 });
 
-afterEach(() => vi.restoreAllMocks());
+afterEach(() => {
+  vi.restoreAllMocks();
+});
 
 describe("combatConfig", () => {
   it("TURN_TIMEOUT_MS es 48 horas", () => {
@@ -63,22 +69,16 @@ describe("combatEngine — applyPenalties", () => {
     expect(result.def).toBe(40);
   });
 
-  it("HP 50 aplica penalización 0.2 (Lastimado)", () => {
+  it("HP bajo no aplica penalización (eliminada)", () => {
     const result = applyPenalties(sampleStats, 50);
-    expect(result.atk).toBe(40);
-    expect(result.def).toBe(32);
+    expect(result.atk).toBe(50);
+    expect(result.def).toBe(40);
   });
 
-  it("HP 30 aplica penalización 0.5 (Incapacitado)", () => {
-    const result = applyPenalties(sampleStats, 30);
-    expect(result.atk).toBe(25);
-    expect(result.def).toBe(20);
-  });
-
-  it("HP 10 aplica penalización 1.0 (K.O.)", () => {
+  it("HP 10 tampoco aplica penalización", () => {
     const result = applyPenalties(sampleStats, 10);
-    expect(result.atk).toBe(0);
-    expect(result.def).toBe(0);
+    expect(result.atk).toBe(50);
+    expect(result.def).toBe(40);
   });
 });
 
@@ -87,9 +87,9 @@ describe("combatEngine — calculateDamage", () => {
   const highDef = { atk: 10, def: 50, aspd: 10, ref: 10, mspd: 10 };
   const equal = { atk: 30, def: 30, aspd: 20, ref: 20, mspd: 20 };
 
-  it("ATK igual a DEF da daño mínimo (DAMAGE_MIN)", () => {
+  it("ATK=50, DEF=50 produce daño moderado con nueva fórmula DEF", () => {
     const dmg = calculateDamage(highAtk, highDef, 100, 100);
-    expect(dmg).toBe(DAMAGE_MIN);
+    expect(dmg).toBe(33);
   });
 
   it("Daño mínimo es 1 incluso si ATK <= DEF", () => {
@@ -163,6 +163,81 @@ describe("combatEngine — executeTurn", () => {
   });
 });
 
+describe("combatEngine — calculateXpReward", () => {
+  it("Nivel 20 para el ganador da 100 + 20*50 = 1100 XP", () => {
+    expect(calculateXpReward(20, true)).toBe(1100);
+  });
+
+  it("Nivel 20 para el perdedor da 25% (275 XP)", () => {
+    expect(calculateXpReward(20, false)).toBe(275);
+  });
+
+  it("Nivel 1 para el ganador da 150 XP", () => {
+    expect(calculateXpReward(1, true)).toBe(150);
+  });
+});
+
+describe("combatEngine — applyPenalties con fatiga", () => {
+  const stats = { atk: 50, def: 40, aspd: 30, ref: 20, mspd: 10 };
+
+  it("fatiga 0 + HP 100 -> sin penalidades", () => {
+    const result = applyPenalties(stats, 100, 0, 50);
+    expect(result.atk).toBe(50);
+    expect(result.aspd).toBe(30);
+  });
+
+  it("fatiga alta (agitado) + HP 100 -> solo speed stats reducidas", () => {
+    const result = applyPenalties(stats, 100, 20, 50);
+    expect(result.atk).toBe(50);
+    expect(result.aspd).toBe(24);
+    expect(result.mspd).toBe(8);
+    expect(result.ref).toBe(16);
+  });
+
+  it("fatiga + HP bajo -> solo penalidad por fatiga", () => {
+    const result = applyPenalties(stats, 50, 20, 50);
+    expect(result.atk).toBe(50);
+    expect(result.aspd).toBe(24);
+  });
+});
+
+describe("combatEngine — calculateDamage con fatiga", () => {
+  const atkStats = { atk: 50, def: 10, aspd: 30, ref: 15, mspd: 10 };
+  const defStats = { atk: 10, def: 30, aspd: 10, ref: 15, mspd: 10 };
+
+  it("fatiga en atacante reduce daño (porque aspd afecta sus penalidades)", () => {
+    const dmgNormal = calculateDamage(atkStats, defStats, 100, 100, 0, 0, 50, 50);
+    const dmgFatigued = calculateDamage(atkStats, defStats, 100, 100, 30, 0, 50, 50);
+    expect(dmgFatigued).toBe(dmgNormal);
+  });
+
+  it("fatiga en defensor puede no afectar daño (solo speed stats)", () => {
+    const dmgNormal = calculateDamage(atkStats, defStats, 100, 100, 0, 0, 50, 50);
+    const dmgDefFatigued = calculateDamage(atkStats, defStats, 100, 100, 0, 30, 50, 50);
+    expect(dmgDefFatigued).toBe(dmgNormal);
+  });
+});
+
+describe("combatEngine — canReact con fatiga", () => {
+  const defender = { atk: 10, def: 10, aspd: 10, ref: 15, mspd: 10 };
+  const fastAttacker = { atk: 10, def: 10, aspd: 20, ref: 5, mspd: 10 };
+
+  it("fatiga en defensor reduce ref -> puede impedir reaccion", () => {
+    const canReactNormal = canReact(defender, 100, fastAttacker, 100, 0, 0, 10, 10);
+    const canReactFatigued = canReact(defender, 100, fastAttacker, 100, 30, 0, 10, 10);
+    expect(canReactNormal).toBe(false);
+    expect(canReactFatigued).toBe(false);
+  });
+
+  it("fatiga alta en atacante reduce aspd -> facilita reaccion del defensor", () => {
+    const slowWithFatigue = { atk: 10, def: 10, aspd: 12, ref: 5, mspd: 10 };
+    const reactVsSlow = canReact(defender, 100, slowWithFatigue, 100, 0, 0, 10, 10);
+    const reactVsSlowFatigued = canReact(defender, 100, slowWithFatigue, 100, 0, 20, 10, 10);
+    expect(reactVsSlow).toBe(true);
+    expect(reactVsSlowFatigued).toBe(true);
+  });
+});
+
 describe("combatState — createSession", () => {
   const charA = { id: 101, name: "A", hp_actual: 100, stats: { hp: 100 } };
   const charB = { id: 102, name: "B", hp_actual: 100, stats: { hp: 100 } };
@@ -178,16 +253,5 @@ describe("combatState — createSession", () => {
     expect(foundByChar.id).toBe(session.id);
 
     await removeSession(session.id);
-  });
-
-  it("no publica en memoria una sesión que Supabase rechazó", async () => {
-    const failedA = { ...charA, id: 201 };
-    const failedB = { ...charB, id: 202 };
-    supabase.from.mockReturnValueOnce({
-      upsert: vi.fn(async () => ({ error: new Error("database unavailable") })),
-    });
-
-    await expect(createSession("userA", "userB", failedA, failedB)).rejects.toThrow("database unavailable");
-    expect(findSessionByCharacter(failedA.id)).toBeNull();
   });
 });

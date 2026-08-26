@@ -45,3 +45,10 @@ ai-memory/
 graphify-out/cost.json
 graphify-out/cache/
 
+
+# Cache files
+.eslintcache
+*.tsbuildinfo
+
+# Estado local del CLI de familias tester (los ítems son preview, en memoria)
+scripts/simulate_combat/families.state.json

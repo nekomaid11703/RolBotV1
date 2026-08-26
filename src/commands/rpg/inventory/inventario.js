@@ -1,8 +1,7 @@
 // @ts-nocheck
 const { getActiveCharacter } = require("../../../services/characterService");
-const { getInventory } = require("../../../services/rpg/inventoryService");
-const { getItem } = require("../../../data/items");
-const { box } = require("../../../utils/boxUtils");
+const { getInventoryList } = require("../../../services/rpg/inventoryService");
+const { composeMessage } = require("../../../ui/sectionBuilder");
 
 module.exports = {
   name: "inventario",
@@ -10,34 +9,38 @@ module.exports = {
   description: "Muestra los ítems en tu inventario activo.",
   category: "rpg",
 
+  /**
+   * Executes the .
+   * @async
+   * @param {*} ctx - execution context.
+   * @returns {any}
+   */
   async execute(ctx) {
+    /**
+     * @constant character
+     */
     const character = await getActiveCharacter({ creatorId: ctx.sender });
     if (!character) {
       return ctx.reply("❌ No tienes un personaje activo. Usa `/crear_pj` o `/switch_pj`.");
     }
 
-    const inventory = await getInventory(character.id);
+    /**
+     * @constant inventory
+     */
+    const inventory = await getInventoryList(character.id);
 
     if (inventory.length === 0) {
-      return ctx.reply(box("🎒 Inventario vacío", ["", "No tienes ítems en tu inventario."]));
+      return ctx.reply(
+        composeMessage({ title: "🎒 Inventario vacío", sections: [["No tienes ítems en tu inventario."]] }),
+      );
     }
 
-    const lines = [];
-    lines.push(`👤  ${String(character.name).toUpperCase()}`);
-    lines.push("");
+    const sections = [
+      [`👤  ${String(character.name).toUpperCase()}`],
+      inventory.map((entry) => `${entry.index}. ${entry.name} x${entry.quantity}`),
+      ["Usa `/equipar <n>` para equipar un ítem equipable.", "Usa `/usar <n>` para consumir un ítem."],
+    ];
 
-    for (const entry of inventory) {
-      const item = getItem(entry.item_id);
-      if (item) {
-        lines.push(`${item.icon}  ${item.name} x${entry.quantity}`);
-      } else {
-        lines.push(`❓  ${entry.item_id} x${entry.quantity}`);
-      }
-    }
-
-    lines.push("");
-    lines.push("Usa `/usar <item>` para consumir un ítem.");
-
-    return ctx.reply(box("🎒 INVENTARIO", lines));
+    return ctx.reply(composeMessage({ title: "🎒 INVENTARIO", sections }));
   },
 };

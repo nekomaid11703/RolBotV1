@@ -12,21 +12,18 @@ describe("inventoryConfig", () => {
 });
 
 describe("items — Catálogo", () => {
-  it("Tiene 4 ítems", () => {
-    expect(Object.keys(ITEMS)).toHaveLength(4);
+  it("Tiene 11 ítems (4 estándar + 3 temporales + 4 contenedores)", () => {
+    expect(Object.keys(ITEMS)).toHaveLength(11);
   });
 
-  it("Cada ítem tiene id, name, description, price, healHp, category, icon", () => {
+  it("Cada ítem tiene id, name, description, basePrice, modules, categories (sin icon)", () => {
     for (const [key, item] of Object.entries(ITEMS)) {
       expect(item.id).toBe(key);
       expect(item.name).toBeTruthy();
       expect(item.description).toBeTruthy();
-      expect(typeof item.price).toBe("number");
-      expect(item.price).toBeGreaterThan(0);
-      expect(typeof item.healHp).toBe("number");
-      expect(item.healHp).toBeGreaterThanOrEqual(0);
-      expect(item.category).toBe("consumable");
-      expect(item.icon).toBeTruthy();
+      expect(typeof item.basePrice).toBe("number");
+      expect(Array.isArray(item.categories)).toBe(true);
+      expect(item.icon).toBeUndefined();
     }
   });
 
@@ -36,39 +33,25 @@ describe("items — Catálogo", () => {
   });
 
   it("getItemsByCategory devuelve todos para consumable", () => {
-    expect(getItemsByCategory("consumable")).toHaveLength(4);
-    expect(getItemsByCategory("weapon")).toHaveLength(0);
+    expect(getItemsByCategory("consumable")).toHaveLength(7);
+    expect(getItemsByCategory("weapon").length).toBeGreaterThan(0);
   });
 });
 
 describe("items — Precios (inflados, roadmap)", () => {
   it("venda cuesta 100 stelas", () => {
-    expect(ITEMS.venda.price).toBe(100);
+    expect(ITEMS.venda.basePrice).toBe(100);
   });
 
   it("pocion cuesta 180 stelas", () => {
-    expect(ITEMS.pocion.price).toBe(180);
+    expect(ITEMS.pocion.basePrice).toBe(180);
   });
 
   it("tonico cuesta 280 stelas", () => {
-    expect(ITEMS.tonico.price).toBe(280);
+    expect(ITEMS.tonico.basePrice).toBe(280);
   });
 
   it("antidoto cuesta 200 stelas", () => {
-    expect(ITEMS.antidoto.price).toBe(200);
-  });
-});
-
-describe("item_add command", () => {
-  const itemAddCmd = require("../src/commands/rpg/inventory/item_add");
-
-  it("Comando item_add esta definido con name y aliases", () => {
-    expect(itemAddCmd.name).toBe("item_add");
-    expect(itemAddCmd.aliases).toContain("dar_item");
-    expect(itemAddCmd.aliases).toContain("giveitem");
-    expect(itemAddCmd.aliases).toContain("give_item");
-    expect(itemAddCmd.aliases).toContain("additem");
-    expect(itemAddCmd.adminPerm).toBe("items");
-    expect(typeof itemAddCmd.execute).toBe("function");
+    expect(ITEMS.antidoto.basePrice).toBe(200);
   });
 });

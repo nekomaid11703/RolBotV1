@@ -1,0 +1,12 @@
+{
+  "tag": "ang_m_hp_mult_2",
+  "timestamp": "2026-08-07T18:10:41.585Z",
+  "numSims": 2000,
+  "overrides": [
+    {
+      "mod": "simConfig",
+      "key": "HP_STAT_MULTIPLIER",
+      "value": 2
+    }
+  ]
+}

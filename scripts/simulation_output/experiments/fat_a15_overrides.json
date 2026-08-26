@@ -1,0 +1,12 @@
+{
+  "tag": "fat_a15",
+  "timestamp": "2026-08-05T03:13:52.089Z",
+  "numSims": 2000,
+  "overrides": [
+    {
+      "mod": "combatConfig",
+      "key": "FATIGUE_ATK_COST_SCALE",
+      "value": 0.15
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "tag": "ang_d_arma_por_atk_100",
+  "timestamp": "2026-08-07T18:02:40.284Z",
+  "numSims": 2000,
+  "overrides": [
+    {
+      "mod": "combatBalance",
+      "key": "WEAPON_BASE_ATK_WEIGHT",
+      "value": 1
+    }
+  ]
+}

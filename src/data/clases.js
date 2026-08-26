@@ -1,7 +1,10 @@
-// @ts-nocheck
 // Catálogo de clases — v1.0 Combat Update
 // Las stats base por clase son referencia para futuras actualizaciones.
 
+/**
+ * @constant CLASES
+ * @type {Record<string, {id: string, name: string, description: string, baseStats: object}>}
+ */
 const CLASES = {
   civil: {
     id: "civil",
@@ -30,15 +33,17 @@ const CLASES = {
 };
 
 /**
- *
- * @param id
+ * Get a class definition by its id.
+ * @param {string} id - Class identifier
+ * @returns {*|null} Class definition object or null
  */
 function getClase(id) {
   return CLASES[id] || null;
 }
 
 /**
- *
+ * List all available classes.
+ * @returns {Array<{id: string, name: string, description: string}>} Array of class summaries
  */
 function listarClases() {
   return Object.values(CLASES).map((c) => ({
@@ -49,8 +54,9 @@ function listarClases() {
 }
 
 /**
- *
- * @param id
+ * Check if a class id is valid.
+ * @param {string} id - Class identifier to validate
+ * @returns {boolean} True if the class exists
  */
 function validarClase(id) {
   return !!CLASES[id];

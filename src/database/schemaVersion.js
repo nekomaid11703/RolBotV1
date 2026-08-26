@@ -1,12 +1,21 @@
 const { supabase } = require("./supabase");
 const { logSystem } = require("../services/loggerService");
-
-const VERSION_KEY = "_schema_version";
-const SESSION_ID = "_meta";
-const CURRENT_VERSION = "2.1.0";
+const { CURRENT_VERSION } = require("./schemaConstants");
 
 /**
- *
+ * @constant VERSION_KEY
+ * @type {string}
+ */
+const VERSION_KEY = "_schema_version";
+/**
+ * @constant SESSION_ID
+ * @type {string}
+ */
+const SESSION_ID = "_meta";
+
+/**
+ * Get the stored schema version from the database.
+ * @returns {Promise<string|null>} Stored version string or null
  */
 async function getStoredVersion() {
   try {
@@ -24,7 +33,10 @@ async function getStoredVersion() {
   }
 }
 
-/** @param {string} version */
+/**
+ * Set the stored schema version in the database.
+ * @param {string} version - - Version string to store.
+ */
 async function setStoredVersion(version) {
   try {
     await supabase.from("bot_auth_state").upsert(
@@ -41,9 +53,13 @@ async function setStoredVersion(version) {
 }
 
 /**
- *
+ * Check if the stored schema version matches the current code version.
+ * @returns {Promise<{ok: boolean, stored: string|null, current: string}>} Version check result
  */
 async function checkVersion() {
+  /**
+   * @constant stored
+   */
   const stored = await getStoredVersion();
 
   if (!stored) {
@@ -61,4 +77,4 @@ async function checkVersion() {
   return { ok: true, stored, current: CURRENT_VERSION };
 }
 
-module.exports = { checkVersion, setStoredVersion, CURRENT_VERSION };
+module.exports = { checkVersion, setStoredVersion };

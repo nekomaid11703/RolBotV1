@@ -1,6 +1,10 @@
 // @ts-nocheck
 const { extractPhoneNumber, normalizeJid } = require("../utils/identityUtils");
 
+/**
+ * @constant TEXT_MESSAGE_TYPES
+ * @type {Set}
+ */
 const TEXT_MESSAGE_TYPES = new Set([
   "conversation",
   "extendedtextmessage",
@@ -14,8 +18,8 @@ const TEXT_MESSAGE_TYPES = new Set([
 ]);
 
 /**
- * @param {object|null|undefined} message - Message to process
- * @returns {object} - Context object
+ * @param {object|null|undefined} message - - Message to process.
+ * @returns {object} - Context object.
  */
 function unwrapMessageContent(message) {
   if (!message) return {};
@@ -40,16 +44,23 @@ function unwrapMessageContent(message) {
 }
 
 /**
- * @param {object|null|undefined} message - Message to process
- * @returns {string} - Formatted value
+ * @param {object|null|undefined} message - - Message to process.
+ * @returns {string} - Formatted value.
  */
 function getMessageType(message) {
+  /**
+   * @constant normalized
+   */
   const normalized = unwrapMessageContent(message);
 
   if (typeof normalized !== "object") {
     return "unknown";
   }
 
+  /**
+   * @constant keys
+   * @type {*[]}
+   */
   const keys = [
     "conversation",
     "extendedTextMessage",
@@ -77,8 +88,8 @@ function getMessageType(message) {
 }
 
 /**
- * @param {string} messageType - Type of message
- * @returns {boolean} - True if text-like
+ * @param {string} messageType - - Type of message.
+ * @returns {boolean} - True if text-like.
  */
 function isTextLikeMessageType(messageType) {
   return TEXT_MESSAGE_TYPES.has(
@@ -89,14 +100,20 @@ function isTextLikeMessageType(messageType) {
 }
 
 /**
- * @param {object|null|undefined} message - Message to process
- * @returns {string} - Formatted value
+ * @param {object|null|undefined} message - - Message to process.
+ * @returns {string} - Formatted value.
  */
 function extractText(message) {
   if (!message) return "";
 
+  /**
+   * @constant normalized
+   */
   const normalized = unwrapMessageContent(message);
 
+  /**
+   * @constant text
+   */
   const text =
     normalized.conversation ||
     normalized.extendedTextMessage?.text ||
@@ -113,26 +130,66 @@ function extractText(message) {
 }
 
 /**
- * @param {object} sock - Socket instance
- * @param {{ key: { remoteJid: string, participant?: string }, pushName?: string, participant?: string, message?: object }} msg - Message object
- * @returns {object} - Context object
+ * @param {object} options
+ * @param {object} options
+ * @param {*} sock
+ * @param {*} msg
+ * @returns {object} - Context object.
  */
 function createContext(sock, msg) {
+  /**
+   * @constant from
+   */
   const from = msg.key.remoteJid;
+  /**
+   * @constant isGroup
+   */
   const isGroup = from.endsWith("@g.us");
 
+  /**
+   * @constant senderJid
+   */
   const senderJid = isGroup ? msg.key.participant || msg.participant || from : from;
 
-  const senderNumber = extractPhoneNumber(senderJid) || null;
-  const senderBareJid = normalizeJid(senderJid);
+  /**
+   * Baileys keeps the routable LID in participant/remoteJid and exposes the
+   * stable phone-number JID separately when WhatsApp provides it.
+   */
+  const senderPn = normalizeJid(
+    isGroup
+      ? msg.key.participantPn || msg.participantPn || msg.key.senderPn || msg.senderPn
+      : msg.key.senderPn || msg.senderPn || msg.key.participantPn || msg.participantPn,
+  );
 
+  /**
+   * @constant senderNumber
+   */
+  const senderNumber = extractPhoneNumber(senderPn || senderJid) || null;
+  /**
+   * @constant senderBareJid
+   */
+  const senderBareJid = normalizeJid(senderJid);
+  const userId = senderPn || senderBareJid;
+
+  /**
+   * @constant userName
+   */
   const userName = msg.pushName || senderNumber || senderBareJid.split("@")[0];
 
   const normalizedMessage = unwrapMessageContent(msg.message);
-  const contextInfo = Object.values(normalizedMessage).find((content) => content?.contextInfo)?.contextInfo;
-  const mentionedJid = Array.isArray(contextInfo?.mentionedJid) ? contextInfo.mentionedJid : [];
+  const contentMentions = Object.values(normalizedMessage)
+    .map((content) => content?.contextInfo?.mentionedJid)
+    .find((mentions) => Array.isArray(mentions));
+  const contextMentions = normalizedMessage.messageContextInfo?.mentionedJid;
+  const mentionedJid = contentMentions || (Array.isArray(contextMentions) ? contextMentions : []);
 
+  /**
+   * @constant messageType
+   */
   const messageType = getMessageType(msg.message);
+  /**
+   * @constant text
+   */
   const text = extractText(msg.message);
 
   return {
@@ -142,9 +199,10 @@ function createContext(sock, msg) {
     chatJid: from,
     sender: senderJid,
     senderJid,
+    senderPn: senderPn || null,
     senderNumber,
     senderBareJid,
-    userId: senderJid,
+    userId,
     userName,
     isGroup,
     text,
@@ -160,6 +218,10 @@ function createContext(sock, msg) {
      */
     async reply(content, options = {}) {
       if (content && typeof content === "object" && !Array.isArray(content)) {
+        /**
+         * @constant payload
+         * @type {object}
+         */
         const payload = { ...content, ...options };
 
         if (typeof payload.text !== "string" && typeof payload.content === "string") {

@@ -7,6 +7,9 @@ const { box } = require("../../../utils/boxUtils");
 const { formatError } = require("../../../utils/formatErrorUtils");
 const { formatCommandUsage } = require("../../../utils/formatCommandUtils");
 
+/**
+ * @constant usageMessage
+ */
 const usageMessage = formatCommandUsage({
   icon: "✏️",
   title: "Renombrar personaje",
@@ -22,20 +25,38 @@ module.exports = {
   description: "Renombra uno de tus personajes.",
   category: "rpg",
 
+  /**
+   * Executes the .
+   * @async
+   * @param {*} ctx - execution context.
+   * @returns {any}
+   */
   async execute(ctx) {
+    /**
+     * @constant args
+     */
     const args = ctx.args;
 
     if (args.length < 2) {
       return ctx.reply(usageMessage);
     }
 
+    /**
+     * @constant currentName
+     */
     const currentName = args[0];
+    /**
+     * @constant newName
+     */
     const newName = args.slice(1).join(" ");
 
     if (newName.length < 2 || newName.length > MAX_CHARACTER_NAME_LENGTH) {
       return ctx.reply(formatError(`El nombre debe tener entre 2 y ${MAX_CHARACTER_NAME_LENGTH} caracteres.`));
     }
 
+    /**
+     * @constant names
+     */
     const names = await getCharacterNames({ creatorId: ctx.sender });
 
     if (!names.has(currentName)) {

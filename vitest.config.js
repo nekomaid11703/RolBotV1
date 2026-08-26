@@ -8,7 +8,7 @@ module.exports = defineConfig({
     env: {
       DOTENV_CONFIG_QUIET: "true",
       SUPABASE_URL: "http://127.0.0.1:54321",
-      SUPABASE_KEY: "test-only-key",
+      SUPABASE_SERVICE_ROLE_KEY: "test-only-key",
     },
   },
 });

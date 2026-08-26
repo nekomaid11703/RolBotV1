@@ -1,129 +1,217 @@
 // @ts-nocheck
+/**
+ * @constant createContext
+ */
 const createContext = require("./context");
 const { handleCommand } = require("./commandHandler");
 const { recordUserActivity } = require("../services/userService");
 const { recordGroupActivity } = require("../services/groupActivityService");
 const { incrementMessages } = require("../services/stats");
-const { logError } = require("../services/loggerService");
+const { logSystem, logError } = require("../services/loggerService");
 
-/** @param {object} sock - Socket instance */
-function registerEvents(sock) {
-  sock.ev.on("messages.upsert", async (/** @type {{ messages: object[], type?: string }} */ { messages, type }) => {
-    try {
-      if (type && type !== "notify") {
-        return;
-      }
+/**
+ * @constant ACTIVITY_TIMEOUT_MS
+ * @type {number}
+ */
+const ACTIVITY_TIMEOUT_MS = 15000;
 
-      if (!Array.isArray(messages) || messages.length === 0) {
-        return;
-      }
+/**
+ * Rejects if the promise does not settle within the given time.
+ * @param {Promise<*>} promise - - Promise to race against the timeout.
+ * @param {number} ms - - Max wait time in milliseconds.
+ * @returns {Promise<*>} - Result of the source promise.
+ */
+function withTimeout(promise, ms) {
+  let timer = null;
+  const timeout = new Promise((_, reject) => {
+    timer = setTimeout(() => {
+      const error = new Error("activity timeout");
+      error.code = "ACTIVITY_TIMEOUT";
+      reject(error);
+    }, ms);
+  });
+  return Promise.race([promise, timeout]).finally(() => clearTimeout(timer));
+}
 
-      for (const rawMsg of messages) {
-        try {
-          if (!rawMsg?.message) {
-            continue;
-          }
+/**
+ * Determines whether the skip message.
+ * @param {*} rawMsg - - raw message string.
+ * @returns
+ */
+function shouldSkipMessage(rawMsg) {
+  if (!rawMsg?.message) return true;
+  if (rawMsg.key?.remoteJid === "status@broadcast") return true;
+  if (rawMsg.key?.fromMe) return true;
+  return false;
+}
 
-          if (rawMsg.key?.remoteJid === "status@broadcast") {
-            continue;
-          }
+/**
+ * Record user and group activity.
+ * @param {*} ctx - - execution context.
+ * @param {*} rawMsg - - raw message string.
+ * @returns
+ * @async
+ */
+async function recordUserAndGroupActivity(ctx, rawMsg) {
+  /**
+   * @constant userId
+   */
+  const userId = ctx.userId || ctx.senderJid || ctx.sender;
+  /**
+   * @constant creatorName
+   */
+  const creatorName = ctx.userName;
+  /**
+   * @constant isTextMessage
+   */
+  const isTextMessage = Boolean(ctx.text);
+  /**
+   * @constant registration
+   * @type {object}
+   */
+  const registration = {
+    source: "activity",
+    scope: ctx.isGroup ? "group" : "self",
+    createdBy: userId,
+  };
 
-          if (rawMsg.key?.fromMe) {
-            continue;
-          }
+  incrementMessages();
 
-          const ctx = createContext(sock, rawMsg);
-          const userId = ctx.senderJid || ctx.sender;
-          const creatorName = ctx.userName;
-          const isTextMessage = Boolean(ctx.text);
-          const registration = {
-            source: "activity",
-            scope: ctx.isGroup ? "group" : "self",
-            createdBy: userId,
-          };
-
-          incrementMessages();
-
-          const activityTasks = [
-            recordUserActivity({
-              creatorId: userId,
-              creatorName,
-              displayName: creatorName,
-              pushName: rawMsg.pushName || creatorName,
-              senderJid: userId,
-              senderNumber: ctx.senderNumber || null,
-              messageType: ctx.messageType,
-              messageCount: 1,
-              isText: isTextMessage,
-              registration,
-            }).catch((error) =>
-              logError({
-                source: "recordUserActivity",
-                userId,
-                userName: creatorName,
-                groupId: ctx.from,
-                error,
-                context: {
-                  pushName: rawMsg.pushName || null,
-                  remoteJid: rawMsg.key?.remoteJid || null,
-                  messageType: ctx.messageType,
-                },
-              }),
-            ),
-          ];
-
-          if (ctx.isGroup) {
-            activityTasks.push(
-              recordGroupActivity({
-                groupId: ctx.from,
-                memberId: userId,
-                memberName: creatorName,
-                messageType: ctx.messageType,
-                messageCount: 1,
-                isText: isTextMessage,
-              }).catch((error) =>
-                logError({
-                  source: "recordGroupActivity",
-                  userId,
-                  userName: creatorName,
-                  groupId: ctx.from,
-                  error,
-                  context: {
-                    messageType: ctx.messageType,
-                    remoteJid: rawMsg.key?.remoteJid || null,
-                  },
-                }),
-              ),
-            );
-          }
-
-          await Promise.all(activityTasks);
-
-          if (!isTextMessage) {
-            continue;
-          }
-
-          await handleCommand(ctx);
-        } catch (messageError) {
-          await logError({
-            source: "messages.upsert",
-            error: messageError,
-            context: {
-              remoteJid: rawMsg?.key?.remoteJid || null,
-              fromMe: rawMsg?.key?.fromMe || false,
-            },
-          });
-        }
-      }
-    } catch (error) {
+  const userActivityPromise = recordUserActivity({
+    creatorId: userId,
+    creatorName,
+    displayName: creatorName,
+    pushName: rawMsg.pushName || creatorName,
+    senderJid: ctx.senderJid || ctx.sender,
+    senderNumber: ctx.senderNumber || null,
+    messageType: ctx.messageType,
+    messageCount: 1,
+    isText: isTextMessage,
+    registration,
+  }).then(
+    () => null,
+    async (error) => {
       await logError({
-        source: "messages.upsert",
+        source: "recordUserActivity",
+        userId,
+        userName: creatorName,
+        groupId: ctx.from,
         error,
         context: {
-          type: type || null,
-          messageCount: Array.isArray(messages) ? messages.length : 0,
+          pushName: rawMsg.pushName || null,
+          remoteJid: rawMsg.key?.remoteJid || null,
+          messageType: ctx.messageType,
         },
       });
+      return error;
+    },
+  );
+
+  const activityTasks = [userActivityPromise];
+
+  if (ctx.isGroup) {
+    activityTasks.push(
+      userActivityPromise.then(() =>
+        recordGroupActivity({
+          groupId: ctx.from,
+          memberId: userId,
+          memberName: creatorName,
+          messageType: ctx.messageType,
+          messageCount: 1,
+          isText: isTextMessage,
+        }).then(
+          () => null,
+          async (error) => {
+            await logError({
+              source: "recordGroupActivity",
+              userId,
+              userName: creatorName,
+              groupId: ctx.from,
+              error,
+              context: {
+                messageType: ctx.messageType,
+                remoteJid: rawMsg.key?.remoteJid || null,
+              },
+            });
+            return error;
+          },
+        ),
+      ),
+    );
+  }
+
+  const failures = (await Promise.all(activityTasks)).filter(Boolean);
+  if (failures.length > 0) {
+    const error = new AggregateError(failures, `${failures.length} actividad(es) no se pudieron persistir`);
+    error.code = "ACTIVITY_WRITE_FAILED";
+    throw error;
+  }
+
+  return isTextMessage;
+}
+
+/**
+ * Processes the single message.
+ * @param {*} rawMsg - - raw message string.
+ * @param {*} sock - - sock.
+ * @async
+ */
+async function processSingleMessage(rawMsg, sock) {
+  /**
+   * @constant ctx
+   */
+  const ctx = createContext(sock, rawMsg);
+  /**
+   * @constant startedAt
+   */
+  const startedAt = Date.now();
+  await logSystem("MSG_RECV", {
+    remoteJid: rawMsg?.key?.remoteJid || null,
+    fromMe: rawMsg?.key?.fromMe || false,
+    sender: ctx.sender,
+    type: ctx.messageType,
+    text: ctx.text ? ctx.text.slice(0, 40) : null,
+    pushName: rawMsg?.pushName || null,
+  });
+
+  try {
+    await withTimeout(recordUserAndGroupActivity(ctx, rawMsg), ACTIVITY_TIMEOUT_MS);
+    await logSystem("MSG_ACTIVITY_OK", { elapsedMs: Date.now() - startedAt });
+  } catch (activityError) {
+    const event = activityError?.code === "ACTIVITY_TIMEOUT" ? "MSG_ACTIVITY_TIMEOUT" : "MSG_ACTIVITY_ERROR";
+    await logSystem(event, {
+      elapsedMs: Date.now() - startedAt,
+      error: activityError instanceof Error ? activityError.message : String(activityError),
+    });
+  }
+
+  if (!ctx.text) return;
+  await handleCommand(ctx);
+}
+
+/**
+ * @param {object} sock - Socket instance.
+ * @param {*} sock
+ */
+function registerEvents(sock) {
+  sock.ev.on("messages.upsert", async ({ messages, type }) => {
+    if (type && type !== "notify") return;
+    if (!Array.isArray(messages) || messages.length === 0) return;
+
+    for (const rawMsg of messages) {
+      try {
+        if (shouldSkipMessage(rawMsg)) continue;
+        await processSingleMessage(rawMsg, sock);
+      } catch (messageError) {
+        await logError({
+          source: "messages.upsert",
+          error: messageError,
+          context: {
+            remoteJid: rawMsg?.key?.remoteJid || null,
+            fromMe: rawMsg?.key?.fromMe || false,
+          },
+        });
+      }
     }
   });
 }

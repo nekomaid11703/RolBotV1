@@ -1,13 +1,24 @@
 // @ts-nocheck
+/**
+ * @constant compactLines
+ */
 const { compactLines } = require("./formatErrorUtils");
 
+/**
+ * @constant LINE
+ * @type {string}
+ */
 const LINE = "✦ ━━━━━━━━━━━━━━ ✦";
 
 /**
- *
- * @param root0
+ * @param {object} options
+ * @returns
  */
 function buildUsageBody({ icon = "📘", title, description, usage, example, notes = [] }) {
+  /**
+   * @constant body
+   * @type {*[]}
+   */
   const body = [LINE, `${icon} *${String(title || "COMANDO").toUpperCase()}*`, LINE, ""];
   if (description) body.push(description, "");
   body.push("*Uso*", `\`${usage}\``);
@@ -21,11 +32,19 @@ function buildUsageBody({ icon = "📘", title, description, usage, example, not
 }
 
 /**
- *
- * @param root0
+ * @param {object} options
+ * @returns
  */
 function buildFormBody({ icon = "📋", title, description, command, fields = [], example = [], notes = [] }) {
+  /**
+   * @constant templateLines
+   * @type {*[]}
+   */
   const templateLines = [command, ...fields.map((f) => (f.includes(":") ? f : `${f}: `))];
+  /**
+   * @constant body
+   * @type {*[]}
+   */
   const body = [LINE, `${icon} *${String(title || "FORMULARIO").toUpperCase()}*`, LINE, ""];
   if (description) body.push(description, "");
   body.push("*Plantilla*", "```", templateLines.join("\n"), "```");
@@ -39,16 +58,16 @@ function buildFormBody({ icon = "📋", title, description, command, fields = []
 }
 
 /**
- *
- * @param opts
+ * @param {*} opts
+ * @returns
  */
 function formatCommandUsage(opts) {
   return compactLines(buildUsageBody(opts));
 }
 
 /**
- *
- * @param opts
+ * @param {*} opts
+ * @returns
  */
 function formatCommandForm(opts) {
   return compactLines(buildFormBody(opts));

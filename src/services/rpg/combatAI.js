@@ -1,47 +1,27 @@
 // @ts-nocheck
-const { executeTurn } = require("./combatEngine");
-const { advanceTurn, endSession, isSessionActive } = require("./combatState");
-const { setHp } = require("../characterService");
+const { checkAttackRange } = require("./combatEngine");
+const { getMovementRange } = require("./fatigueEngine");
 
 /**
  * Sistema de IA de combate extensible para PvE.
- * En la v1.0 implementa la estrategia de Dummy de entrenamiento.
  */
 class CombatAI {
   /**
-   * Ejecuta el turno de la IA en una sesión PvE activa.
-   * @param {object} session Sesión de combate activa
-   * @returns {object} Resultado del turno ejecutado por la IA
+   * Decide la acción de la IA basada en la distancia al oponente.
+   * @param {object} session
+   * @param {object} aiSlot
+   * @param {object} playerSlot
+   * @param _playerSlot
+   * @returns {{ movement: object|null, action: string }}
    */
-  static async executeAiTurn(session) {
-    if (!session || !isSessionActive(session) || !session.isPvE) {
-      return null;
+  static makeDecision(session, aiSlot, _playerSlot) {
+    const { canAttack } = checkAttackRange(session.distance, aiSlot.character.stats);
+    if (canAttack) {
+      return { movement: null, action: "attack" };
     }
-
-    const isChallengerAi = session.challenger.isBot;
-    const aiSlot = isChallengerAi ? session.challenger : session.defender;
-    const playerSlot = isChallengerAi ? session.defender : session.challenger;
-
-    const turnResult = executeTurn(aiSlot.character, playerSlot.character, playerSlot.hp);
-
-    const newChallengerHp = isChallengerAi ? session.challenger.hp : turnResult.defenderHpAfter;
-    const newDefenderHp = isChallengerAi ? turnResult.defenderHpAfter : session.defender.hp;
-
-    await advanceTurn(session.id, newChallengerHp, newDefenderHp);
-
-    if (turnResult.ko) {
-      const winnerChar = aiSlot.character;
-      const loserChar = playerSlot.character;
-
-      await endSession(session.id, winnerChar.id);
-      await setHp({
-        creatorId: playerSlot.userId,
-        characterName: loserChar.name,
-        hp: 0,
-      });
-    }
-
-    return turnResult;
+    const maxMove = getMovementRange(aiSlot.character.stats.mspd || 0);
+    const newDistance = Math.max(0, session.distance - maxMove);
+    return { movement: { direction: "advanced", meters: maxMove, newDistance }, action: "advance" };
   }
 }
 

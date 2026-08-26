@@ -10,13 +10,25 @@ module.exports = {
   groupOnly: true,
   adminOnly: true,
 
+  /**
+   * Executes the .
+   * @async
+   * @param {*} ctx - execution context.
+   * @returns {any}
+   */
   async execute(ctx) {
+    /**
+     * @constant text
+     */
     const text = ctx.args.join(" ").trim();
 
     if (!text) {
       return ctx.reply("❌ Debes proporcionar un número o enlace de invitación.\n\nUso: /add <número>");
     }
 
+    /**
+     * @constant result
+     */
     const result = await addParticipant(ctx.sock, ctx.from, text);
     await ctx.reply(box("➕ Usuario añadido", ["", result]));
   },

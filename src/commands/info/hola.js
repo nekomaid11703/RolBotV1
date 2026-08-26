@@ -10,6 +10,11 @@ module.exports = {
 
   category: "info",
 
+  /**
+   * Executes the .
+   * @async
+   * @param {*} ctx - execution context.
+   */
   async execute(ctx) {
     await ctx.react("👋");
 

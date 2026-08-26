@@ -1,0 +1,17 @@
+{
+  "tag": "it3_cap60_escala140",
+  "timestamp": "2026-08-07T18:57:44.926Z",
+  "numSims": 5000,
+  "overrides": [
+    {
+      "mod": "combatBalance",
+      "key": "DAMAGE_DEFENSE_SCALE",
+      "value": 140
+    },
+    {
+      "mod": "combatBalance",
+      "key": "DEF_MITIGATION_CAP",
+      "value": 60
+    }
+  ]
+}
