@@ -6,6 +6,27 @@ Este archivo registra los cambios significativos y decisiones arquitectónicas t
 
 ## [Unreleased]
 
+### P0 — Canon completo: saneamiento de la familia legacy de hierro (2026-09-09)
+
+- **Gate D1 resuelto (canon completo)**: eliminado `src/data/ironFamily.js` (`iron_family.test.js`
+  retirado). La familia de hierro (espada/casco/pechera/grebas/botas/amuleto/kunai) era un duplicado
+  legacy fuera de canon; hoy `materialFamilies` ya genera la familia canónica de acero.
+- `armorSets.js`: `set_hierro` → `set_acero` (`def:10`).
+- `materialFamilies`: los `kunai_*` (throwable) ahora se generan para cada material del canon;
+  `kunai_de_acero` cubre tienda (`shopConfig`) y la receta `kunai` de forja.
+- `equipmentResolverService`: flecha por defecto `flechas_de_acero` (material `acero`); la antigua
+  `flecha_de_hierro` no existía.
+- Ayudas/ejemplos de UI (`forjar`, `refinar`, `item_add`, `item_info`) y flavor (`shopConfig`,
+  `jobConfig`, `expeditionConfig`) actualizados al canon.
+- `materialData.getMaterialStats`: resolución estricta (lanza error si el material no es canon; ya
+  no cae en silencio a `madera`). Corregido `eterio` → `etereo` en `arcaneFamily`.
+- [NEW] Migración `007_hierro_to_acero.sql`: remapea `inventory` y `equipped_slots` (ids legacy de
+  hierro → acero). Aplicar en el despliegue.
+- [NEW] Guarda `tests/reference_integrity.test.js`: itemIds de configs/`TOOL_UPGRADE_COSTS` existen
+  y son canon; toda receta de forja produce ítem real por material.
+- Suite: **899 tests verdes en 81 archivos** (iron_family −18, reference_integrity +3).
+  Siguiente: P1 del roadmap FASE 2.6 (B8.2b R(L) + pisos por zona).
+
 ### B8.2a — Canon de materiales implementado (2026-09-08)
 
 - Catálogo reescrito con 24 materiales (6 rarezas × 4 ejes) usando la serie ×1.4:

@@ -30,7 +30,7 @@ module.exports = {
         "  • 2× Tier S → 1× Tier N *(Nirvana)*",
         "",
         "💡 *Uso:* `/refinar <material> [tier] [cantidad]`",
-        "  • Ej: `/refinar hierro E` → sube 1 lingote de Hierro E a D",
+        "  • Ej: `/refinar acero E` → sube 1 trozo de Acero E a D",
         "  • Ej: `/refinar mitril A 2` → sube 2 lotes de Mitril A a S",
       ];
       return ctx.reply(box("🔥 ALQUIMIA & REFINAMIENTO", lines));

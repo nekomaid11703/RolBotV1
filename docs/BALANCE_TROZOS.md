@@ -10,12 +10,15 @@ Cada trozo toca archivos propios, valida contra `progression:report` y entrega t
 | B2 | Entrenamiento acumulado de atributos en trabajos | Implementado (2026-09-07) |
 | B5 | Curva de nivel y coste de atributos (política) | Implementado (2026-09-07) |
 | B1 | XP por tramo de nivel (trabajos, expediciones, combate) | Implementado (2026-09-07) |
-| B4 | Progresión de herramientas y ROI | Implementado (2026-09-07) |
-| B4 | Progresión de herramientas y ROI | Pendiente |
-| B6 | Hitos de equipo y poder por rango | Pendiente |
+| B4 | Progresión de herramientas y ROI | Implementado (2026-09-07); recálculo de payback al quitar `lootBonus` en B8.2b |
+| B6 | Hitos de equipo y poder por rango | Pendiente (P3 del roadmap — FASE 2.6) |
 | B7 | Economía de forja/refinamiento (tiempo vs poder vs compra) | Implementado (2026-09-07) |
-| B8 | Identidad de materiales (stats por rareza y arquetipo) | B8.2a implementado; B8.2b (ley R(L)) pendiente |
-| B3 | Rutas jugables de materiales raros y endgame | Pendiente (último) |
+| B8 | Identidad de materiales (stats por rareza y arquetipo) | B8.2a implementado; B8.2b (ley R(L) + pisos) = P1 del roadmap |
+| B3 | Rutas jugables de materiales raros y endgame | Pendiente (P2 del roadmap) |
+
+> Estado 2026-09-09: aprobado el roadmap FASE 2.6 (`docs/ROADMAP.md`). Orden de ejecución nuevo:
+> P0 saneamiento de incoherencias de ítems (pre-req, gate D1) → B8.2b (P1, gates D2) → B3 (P2,
+> gates D3/D4) → B6 (P3) → segunda pasada de winrate (P4).
 
 ## Restricciones de diseño (P1-P5)
 

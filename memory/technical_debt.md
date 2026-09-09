@@ -30,7 +30,7 @@ El registro de definiciones de ítem (`src/data/itemCatalog.js`) partió vacío 
 
 ## TD-007 | Arma arrojadiza no lanzable en combate real | abierto
 
-El `kunai_de_hierro` (tipo `throwable`) está definido y su módulo emite payload `Throw`/`Use` (`damageNature`/`baseDamage`/`range`/`consumedOnUse`), pero aún no hay un flujo de combate que (a) permita lanzarlo desde el inventario (`/usar` o `/lanzar`), (b) consuma el turno de ataque y (c) descuente 1 unidad. El kit de hierro ya lo siembra (x5), por lo que queda listo para integrar con `combatEngine` + `inventoryService.useItem`. Pendiente de integrar con `combatEngine` + `inventoryService.useItem`.
+El `kunai_de_acero` (tipo `throwable`) está definido y su módulo emite payload `Throw`/`Use` (`damageNature`/`baseDamage`/`range`/`consumedOnUse`), pero aún no hay un flujo de combate que (a) permita lanzarlo desde el inventario (`/usar` o `/lanzar`), (b) consuma el turno de ataque y (c) descuente 1 unidad. El kit de acero ya lo siembra (x5), por lo que queda listo para integrar con `combatEngine` + `inventoryService.useItem`. Pendiente de integrar con `combatEngine` + `inventoryService.useItem`. (2026-09-09: el ítem pasó de `kunai_de_hierro` a la familia canónica `kunai_de_acero` tras el P0.)
 
 ## TD-008 | Scripts de graphify rotos tras merge perf/harden | resuelto (2026-08-04)
 

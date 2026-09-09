@@ -56,7 +56,7 @@ const SHOPS = {
       ],
       consejos: [
         "Lleva vendas. Siempre. No importa cuánto confíes en tu resistencia, porque los colmillos venenosos no se fijan en eso.",
-        "El cuero y la madera son más útiles de lo que parecen. El hierro quiebra bajo presión extrema; el cuero se dobla. A veces doblarse es mejor.",
+        "El cuero y la madera son más útiles de lo que parecen. El metal quiebra bajo presión extrema; el cuero se dobla. A veces doblarse es mejor.",
         "Si tu cuerpo empieza a sentirse pesado en combate, para. En serio. Conozco a gente que pensó que podía aguantar un poco más y... bueno, ya no están para contarlo.",
         "Los antídotos son para antes de que duela mucho, no para después. Eso lo descubrí de la manera difícil hace... mucho. Mucho tiempo.",
         "Un pergamino de hechizo bien usado vale más que tres espadas. Aunque una espada también sirve de palo si se te rompe la hoja.",
@@ -128,12 +128,12 @@ const SHOPS = {
     greeting:
       "¡Cierra esa puerta que entra corriente! Si vienes buscando chatarra barata, vete al bazar. Aquí se forja metal de verdad.",
     items: [
-      // ── Armas Básicas de Hierro (Tier E) ──
+      // ── Armas Básicas de Acero (Tier E) ──
       { itemId: "espada_de_acero", basePrice: 380, baseStock: 4, variance: 0.1, metadata: { tier: "E" } },
       { itemId: "daga_de_acero", basePrice: 220, baseStock: 5, variance: 0.1, metadata: { tier: "E" } },
       { itemId: "kunai_de_acero", basePrice: 65, baseStock: 25, variance: 0.1, metadata: { tier: "E" } },
 
-      // ── Piezas de Armadura de Hierro (Tier E) ──
+      // ── Piezas de Armadura de Acero (Tier E) ──
       { itemId: "casco_de_acero", basePrice: 210, baseStock: 3, variance: 0.1, metadata: { tier: "E" } },
       { itemId: "pechera_de_acero", basePrice: 360, baseStock: 2, variance: 0.1, metadata: { tier: "E" } },
       { itemId: "grebas_de_acero", basePrice: 230, baseStock: 3, variance: 0.1, metadata: { tier: "E" } },
@@ -159,7 +159,7 @@ const SHOPS = {
         "El peso de una buena coraza no es una carga, muchacho: es la diferencia entre respirar mañana o alimentar cuervos.",
       ],
       lore: [
-        "El hierro común sirve para empezar, pero el acero templado y los minerales raros como el titanio o la obsidiana... eso es arte mayor.",
+        "El acero de la Cuenca sirve para empezar, pero los minerales raros como el titanio o la obsidiana... eso es arte mayor.",
         "Dicen que en las montañas profundas aún quedan vetas de mineral pálido. Quien encuentre eso forjará leyendas.",
         "El metal tiene memoria. Si lo golpeas con ira se quiebra; si lo golpeas con pulso firme, se endurece.",
         "Nixia suele pasar por aquí a cambiarme clavos viejos por chucherías brillantes. Esa gata tiene más años que estas montañas, aunque actúe como una chiquilla.",
@@ -167,7 +167,7 @@ const SHOPS = {
       consejos: [
         "Una pechera pesada te salvará la vida contra tajos, pero si no tienes la constitución para llevarla, la fatiga te ahogará en tres turnos.",
         "Cuida el filo de tu arma. Un golpe mellado hace la mitad de daño contra armaduras duras.",
-        "Lleva siempre un par de kunais en el cinto. Cuando el enemigo intente retroceder, el hierro volador le recordará dónde está.",
+        "Lleva siempre un par de kunais en el cinto. Cuando el enemigo intente retroceder, el acero volador le recordará dónde está.",
       ],
     },
   },

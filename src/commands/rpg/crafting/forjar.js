@@ -277,7 +277,7 @@ function renderMenu() {
   lines.push("");
   lines.push("💡 *Uso:* `/forjar <secci\u00f3n|\u00ba>` para abrirla");
   lines.push("  \u2022 `/forjar <receta> <material> [tier]` para forjar");
-  lines.push("  \u2022 Ej: `/forjar 1` | `/forjar armas` | `/forjar flechas hierro E`");
+  lines.push("  \u2022 Ej: `/forjar 1` | `/forjar armas` | `/forjar flechas acero E`");
   return box("🔨 HERRERÍA & FORJA", lines);
 }
 
@@ -297,7 +297,7 @@ function renderSection(section) {
     lines.push("");
   }
   lines.push("💡 *Para forjar:* `/forjar <receta> <material> [tier]`");
-  lines.push("  \u2022 Ej: `/forjar ballesta mitril A` | `/forjar flechas hierro E`");
+  lines.push("  \u2022 Ej: `/forjar ballesta mitril A` | `/forjar flechas acero E`");
   lines.push(`  \u2022 \u21A9 Usa \`/forjar\` para volver al men\u00fa`);
   return box(`🔨 ${section.emoji} ${section.label}`, lines);
 }

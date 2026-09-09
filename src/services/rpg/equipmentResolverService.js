@@ -232,7 +232,7 @@ async function resolveAttackerWeapon(character, equipped = null) {
   // ítem de munición del inventario; sin flechas el arco no daña (→ desarmado).
   if (stats.ranged) {
     const weaponDef = def.modules?.weapon || {};
-    const arrowId = weaponDef.arrowId || "flecha_de_hierro";
+    const arrowId = weaponDef.arrowId || "flechas_de_acero";
     const arrowRow = items.find((e) => e.itemId === arrowId);
     const arrowDef = arrowRow?.def || getItem(arrowId) || null;
     const arrowStats = arrowDef ? getProjectileStats(arrowDef) : null;
@@ -242,7 +242,7 @@ async function resolveAttackerWeapon(character, equipped = null) {
         tier: arrowStats.tier,
         baseDamage: arrowStats.baseDamage,
         damageNature: arrowStats.damageNature,
-        material: arrowDef.material || "hierro",
+        material: arrowDef.material || "acero",
       };
     } else {
       weaponInfo.arrow = null;

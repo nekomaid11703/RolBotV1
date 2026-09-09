@@ -21,7 +21,7 @@ const usageMessage = formatCommandUsage({
   title: "Inspeccionar Ítem",
   description: "Muestra la información y ficha técnica de un ítem de tu inventario.",
   usage: "/item_info <nº_posición|id_item>",
-  example: "/item_info 2 | /inspeccionar amuleto_de_hierro",
+  example: "/item_info 2 | /inspeccionar amuleto_de_acero",
   notes: [
     "Usa el número de posición en tu /inventario (ej: /inspeccionar 1)",
     "Muestra stats, tier, material, efectos de artefactos y bonos de conjunto de armaduras.",

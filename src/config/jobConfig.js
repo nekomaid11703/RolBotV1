@@ -23,7 +23,7 @@ const JOBS = {
     id: "aprendiz_herrero",
     name: "Aprendiz de Herrería",
     icon: "🔨",
-    description: "Alimentar fuelles y martillar piezas de hierro bajo la tutela de Borin.",
+    description: "Alimentar fuelles y martillar piezas de acero bajo la tutela de Borin.",
     energyCost: 20,
     durationMinutes: 25,
     stelasReward: 180,

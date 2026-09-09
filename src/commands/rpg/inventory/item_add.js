@@ -47,7 +47,7 @@ module.exports = {
           "",
           "📌 *Formas de Uso:*",
           "  • `/item_add <id_exacto> [cantidad]` — Otorga un ítem directo",
-          "  • `/item_add <material> [cantidad]` — Otorga un trozo de material (ej: `/item_add hierro 5`)",
+          "  • `/item_add <material> [cantidad]` — Otorga un trozo de material (ej: `/item_add acero 5`)",
           "  • `/item_add filt_<búsqueda>` — Busca por nombre o material (ej: `/item_add filt_madera`)",
           "  • `/item_add buscar <término>` — Muestra lista de coincidencias",
           "",
@@ -56,7 +56,7 @@ module.exports = {
           "🔨 *Materiales disponibles:*",
           `  ${matList}`,
           "",
-          "💡 *Ejemplo:* `/item_add hierro 3` | `/item_add filt_arma`",
+          "💡 *Ejemplo:* `/item_add acero 3` | `/item_add filt_arma`",
         ]),
       );
     }

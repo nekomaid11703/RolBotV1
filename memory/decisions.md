@@ -4,6 +4,28 @@ Registro de decisiones arquitectónicas y técnicas. Formato: fecha + contexto +
 
 ---
 
+## 2026-09-09 — Gate D1: la familia legacy de hierro se migra por completo al canon (acero)
+
+**Contexto**: El canon B8 dejó `material:"hierro"` fuera de `materialData`, pero `ironFamily.js`
+seguía registrando `espada_de_hierro`, `set_hierro`, etc., que resolvían stats por el fallback
+silencioso a `madera` (`getMaterialStats`). `materialFamilies` ya genera la familia canónica de
+acero, por lo que ambas convivían como duplicados (misma rareza/eje filo) con nombres fuera de canon.
+
+**Decisión**: Canon completo — eliminar `ironFamily.js` y sus registros, remapear en DB (migración
+`007_hierro_to_acero.sql` sobre `inventory` y `characters.equipped_slots`) de los 7 ids legacy a sus
+equivalentes `*_de_acero`, redefinir el set en `armorSets` como `set_acero`, generar `kunai_*` como
+throwable para todos los materiales, apuntar la flecha por defecto a `flechas_de_acero` y hacer
+`getMaterialStats` estricto (error si el material no es canon). Se añadió la guarda
+`tests/reference_integrity.test.js`.
+
+**Alternativas descartadas**: mantener ids legacy con alias `hierro→acero` en `getMaterialStats`
+(deja dos familias paralelas con stats idénticas y nombres que mienten sobre el canon); renombrar
+solo algunos ítems sin migrar `equipped_slots`.
+
+---
+
+
+
 ## 2026-08-22 — Convención de Nombres de Ítems y Heredabilidad de Tier en Crafteo
 
 **Contexto**: Con la incorporación de las familias de todos los materiales al catálogo oficial, se definió la convención de nombres para ítems regulares y la regla de derivación de Tier para el futuro sistema de crafteo.

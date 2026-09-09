@@ -146,7 +146,7 @@ const ARCANE_GEAR = {
     description: "Libro de conjuros de tapa negra. Almacena hechizos forjados; no se equipa en combate.",
     rarity: "poco_comun",
     basePrice: 380,
-    material: "eterio",
+    material: "etereo",
     tier: "D",
     categories: ["special"],
     modules: {},

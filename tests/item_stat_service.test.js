@@ -62,7 +62,7 @@ describe("getProjectileStats — flecha fija por material, SIN escalado de tier"
       createItemDefinition({
         id: "flecha",
         type: "weapon",
-        material: "hierro",
+        material: "acero",
         tier,
         modules: { weapon: { damageNature: "proyectil", baseDamage: 12, hands: 1, weaponRange: 0 } },
       });
@@ -105,13 +105,13 @@ describe("getProjectileStats — flecha fija por material, SIN escalado de tier"
       hands: 2,
       weaponRange: 20,
       ranged: true,
-      arrow: { ...getProjectileStats(arrowFor(tier)), id: "f", material: "hierro" },
+      arrow: { ...getProjectileStats(arrowFor(tier)), id: "f", material: "acero" },
     });
     const arrowFor = (tier) =>
       createItemDefinition({
         id: "f",
         type: "weapon",
-        material: "hierro",
+        material: "acero",
         tier,
         modules: { weapon: { damageNature: "proyectil", baseDamage: 12, hands: 1, weaponRange: 0 } },
       });

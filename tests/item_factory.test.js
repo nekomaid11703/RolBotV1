@@ -30,7 +30,7 @@ describe("createItemDefinition", () => {
   });
 
   it("Deriva durabilidad para ítems equipables", () => {
-    const def = createItemDefinition({ id: "pechera", type: "armor", material: "hierro", tier: "C" });
+    const def = createItemDefinition({ id: "pechera", type: "armor", material: "acero", tier: "C" });
     expect(def.metadata.durability.maxResist).toBeGreaterThan(0);
     expect(def.metadata.durability.currentResist).toBe(def.metadata.durability.maxResist);
     expect(def.metadata.durability.isRepairable).toBe(true);

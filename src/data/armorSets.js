@@ -10,8 +10,8 @@
  * @type {Record<string, { name?: string, bonus: Record<string, number> }>}
  */
 const ARMOR_SETS = {
-  set_hierro: {
-    name: "Hierro",
+  set_acero: {
+    name: "Acero",
     bonus: { def: 10 },
   },
 };

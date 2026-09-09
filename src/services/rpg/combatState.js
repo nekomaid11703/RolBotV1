@@ -40,7 +40,7 @@ function restorePersistedSession(session) {
  * Genera un personaje dummy para combate de práctica PvE.
  * @param {*} challengerChar - Personaje del retador para escalar estadísticas del dummy
  * @param {object} [options] - { loadout, minFulgor }
- * @param {Array<{slot: string, itemId: string}>} [options.loadout] - Loadout del dummy (default hierro)
+ * @param {Array<{slot: string, itemId: string}>} [options.loadout] - Loadout del dummy (default acero)
  * @param {number} [options.minFulgor] - Batería mínima garantizada (dummy mágico)
  * @returns {*} Personaje dummy generado
  */

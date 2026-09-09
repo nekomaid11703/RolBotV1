@@ -56,10 +56,8 @@ describe("Sistema de Materiales", () => {
     expect(filoE.afilabilidad).toBeGreaterThan(luminitaE.afilabilidad);
   });
 
-  it("Material desconocido devuelve stats de madera (fallback)", () => {
-    const unknown = getMaterialStats("no_existe", "E");
-    const madera = getMaterialStats("madera", "E");
-    expect(unknown).toEqual(madera);
+  it("Material desconocido lanza error (sin fallback silencioso a madera)", () => {
+    expect(() => getMaterialStats("no_existe", "E")).toThrow(/Material desconocido "no_existe".*canon/);
   });
 });
 

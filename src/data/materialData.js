@@ -235,12 +235,20 @@ const MATERIALS = {
 
 /**
  * Obtiene las estadísticas finales de un material aplicando su Tier.
+ * Resolución estricta: si el material no pertenece al canon lanza error (P0),
+ * en lugar de caer silenciosamente a un fallback que falsea las stats del ítem.
  * @param {string} materialId
  * @param {string} [tier]
  * @returns {MaterialStats}
  */
 function getMaterialStats(materialId, tier = "E") {
-  const mat = MATERIALS[materialId] || MATERIALS.madera;
+  const mat = MATERIALS[materialId];
+  if (!mat) {
+    const canon = Object.keys(MATERIALS)
+      .filter((id) => id !== "etereo")
+      .join(", ");
+    throw new Error(`Material desconocido "${materialId}" (no pertenece al canon). Materiales: ${canon}.`);
+  }
   const mult = getTierMultiplier(tier);
   return {
     afilabilidad: Math.round(mat.baseStats.afilabilidad * mult),

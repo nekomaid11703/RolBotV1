@@ -37,7 +37,7 @@ const EXPEDITION_ZONES = {
   minas: {
     id: "minas",
     name: "Minas de la Cuenca Férrea",
-    description: "Antiguas galerías excavadas en roca sólida con vetas de hierro y carbón.",
+    description: "Antiguas galerías excavadas en roca sólida con vetas de acero y carbón.",
     minLevel: 1,
     energyCosts: {
       corta: 15,

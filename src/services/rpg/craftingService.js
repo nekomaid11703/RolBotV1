@@ -96,7 +96,7 @@ for (const [slot, baseCoverage] of Object.entries(ARMOR_BASE_COVERAGE)) {
 }
 
 /**
- * Normaliza una clave de material (ej: "hierro", "mitril", "madera").
+ * Normaliza una clave de material (ej: "acero", "mitril", "madera").
  * @param {string} matInput
  * @returns {string|null} Key del material o null si no existe
  */
@@ -162,7 +162,7 @@ function normalizeRecipeKey(recipeInput) {
  * @param {object} options
  * @param {string|number} options.characterId
  * @param {string} options.creatorId
- * @param {string} options.materialId - ID o nombre del material (ej: "hierro", "mitril")
+ * @param {string} options.materialId - ID o nombre del material (ej: "acero", "mitril")
  * @param {string} [options.tier="E"] - Tier actual a refinar
  * @param {number} [options.amount=1] - Cantidad de unidades refinadas a producir
  * @returns {Promise<{materialId: string, materialName: string, sourceTier: string, targetTier: string, consumedAmount: number, producedAmount: number}>}
@@ -235,7 +235,7 @@ async function refineMaterial({ characterId, creatorId, materialId, tier = "E", 
  * @param {string|number} options.characterId
  * @param {string} options.creatorId
  * @param {string} options.recipeType - Tipo de objeto (espada, pechera, baculo, etc.)
- * @param {string} options.materialId - Material utilizado (hierro, mitril, etc.)
+ * @param {string} options.materialId - Material utilizado (acero, mitril, etc.)
  * @param {string} [options.tier="E"] - Tier del material utilizado
  * @returns {Promise<{craftedItem: object, recipe: object, materialName: string, tier: string, materialCost: number}>}
  */

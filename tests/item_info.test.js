@@ -1,4 +1,4 @@
-// @ts-nocheck
+﻿// @ts-nocheck
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { createRequire } from "module";
 
@@ -64,11 +64,11 @@ describe("Comando /item_info — Inspeccionar Ítem", () => {
     vi.restoreAllMocks();
     activeCharMock = { id: 1, name: "Guerrero" };
     inventoryListMock = [
-      { item_id: "espada_de_hierro", quantity: 1, metadata: { tier: "E" } },
-      { item_id: "pechera_de_hierro", quantity: 1, metadata: { tier: "E" } },
-      { item_id: "amuleto_de_hierro", quantity: 1, metadata: { tier: "E" } },
+      { item_id: "espada_de_acero", quantity: 1, metadata: { tier: "E" } },
+      { item_id: "pechera_de_acero", quantity: 1, metadata: { tier: "E" } },
+      { item_id: "amuleto_de_acero", quantity: 1, metadata: { tier: "E" } },
     ];
-    equippedSlotsMock = { mano_der: "espada_de_hierro" };
+    equippedSlotsMock = { mano_der: "espada_de_acero" };
     mockCtx = {
       sender: "user123",
       args: [],
@@ -97,7 +97,7 @@ describe("Comando /item_info — Inspeccionar Ítem", () => {
 
     expect(mockCtx.reply).toHaveBeenCalledTimes(1);
     const replyText = mockCtx.reply.mock.calls[0][0];
-    expect(replyText).toContain("Espada de Hierro");
+    expect(replyText).toContain("Espada de Acero");
     expect(replyText).toContain("Tier E");
     expect(replyText).toContain("Equipado en [mano_der]");
     expect(replyText).toContain("Daño Base:");
@@ -109,7 +109,7 @@ describe("Comando /item_info — Inspeccionar Ítem", () => {
     await itemInfoCommand.execute(mockCtx);
 
     const replyText = mockCtx.reply.mock.calls[0][0];
-    expect(replyText).toContain("Pechera de Hierro");
+    expect(replyText).toContain("Pechera de Acero");
     expect(replyText).toContain("Bono de Conjunto (3+ piezas):");
   });
 
@@ -119,7 +119,7 @@ describe("Comando /item_info — Inspeccionar Ítem", () => {
     await itemInfoCommand.execute(mockCtx);
 
     const replyText = mockCtx.reply.mock.calls[0][0];
-    expect(replyText).toContain("Amuleto de Hierro");
+    expect(replyText).toContain("Amuleto de Acero");
     expect(replyText).toContain("EFECTOS DE ARTEFACTO:");
   });
 });

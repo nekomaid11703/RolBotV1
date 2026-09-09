@@ -3,6 +3,10 @@
 Estado: aprobado por el usuario (2026-09-08). Contiene las tablas y datos canónicos
 proporcionados por el usuario; son fuente de verdad para la implementación.
 
+Estado 2026-09-09: B8.2a implementado y commiteado. B8.2b (ley R(L) + pisos) pasa a ser el
+**P1 del roadmap FASE 2.6** (`docs/ROADMAP.md`), precedido por el saneamiento de incoherencias
+de ítems (P0, gate D1). B3 es el P2 de ese roadmap.
+
 ---
 
 ## 1. Objetivo
@@ -146,25 +150,27 @@ propuestos (por confirmar en ejecución):
 
 ## 8. Plan de ejecución
 
-### B8.2a — Catálogo canon
-- [ ] Reescribir `src/data/materialData.js` con los 24 materiales (ids, rareza,
+### B8.2a — Catálogo canon (implementado 2026-09-08)
+- [x] Reescribir `src/data/materialData.js` con los 24 materiales (ids, rareza,
       archetype, baseStats) y eliminar los fuera de canon.
-- [ ] Definir y exportar ids nuevos (`madera_tetrica`, `piel_titan`,
+- [x] Definir y exportar ids nuevos (`madera_tetrica`, `piel_titan`,
       `coraza_desgastada`, `coraza_robusta`, `cuarzo`, `madera_ebano`,
       `madera_noble`, `madera_terica`, `fulgorita`... con la grafía exacta).
-- [ ] Propagar referencias: `toolsConfig`, `shopConfig`, `expeditionConfig`,
+- [x] Propagar referencias: `toolsConfig`, `shopConfig`, `expeditionConfig`,
       `arcaneFamily`, recetas de forja/refinado y catálogos de prueba.
+- [x] Refinado universal 2:1 (E→N) sin techos: se eliminó `RARITY_TIER_CAP` y la
+      validación asociada en `craftingService` (2026-09-09).
 
-### B8.2b — Ley de obtención universal
+### B8.2b — Ley de obtención universal (P1 del roadmap FASE 2.6 — pendiente)
 - [ ] Implementar `R(L)` y el generador de rareza (geométrico con piso de zona).
 - [ ] Conectar el generador a expediciones y al bonus de herramienta.
 - [ ] Guardas en `progression:report`: “16:1 en L1” y “~1 mítico/16 en L10”,
       distribución por zona y piso.
 
 ### B8.2c — Guardas y documentación
-- [ ] Actualizar `tests/material_identity.test.js` a los nuevos presupuestos
+- [x] Actualizar `tests/material_identity.test.js` a los nuevos presupuestos
       (50/69/95/132/184/258), serie ×1.4 y familias por eje.
-- [ ] Actualizar pruebas de stats/forja/refinado afectadas.
+- [x] Actualizar pruebas de stats/forja/refinado afectadas.
 - [ ] Regenerar `docs/BALANCE_MATERIALES.md` y añadir tabla de `R(L)`.
 
 ### Fase 2 — Segunda pasada de balance de combate (posterior)
