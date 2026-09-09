@@ -185,9 +185,9 @@ function buildTemplate(raceConfig) {
     notes: [
       `Nombre: 2-${MAX_CHARACTER_NAME_LENGTH} caracteres.`,
       `Stats base de ${c.name} (entre paréntesis): ${buildRaceSummary(c)}`,
-      `Tienes ${FREE_POINTS_AT_CREATION} puntos libres para distribuir.`,
+      `Tienes ${FREE_POINTS_AT_CREATION} puntos libres: el número tras ':' se suma a la stat base.`,
       "Stats opcionales: si no las envías, se reparten uniformemente.",
-      `Clases disponibles: ${clases}.`,
+      `Clases disponibles (rol narrativo, sin bonificadores por ahora): ${clases}.`,
       "Historia: al final del mensaje, tan larga como quieras.",
     ],
   });

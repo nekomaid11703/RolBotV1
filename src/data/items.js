@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * @typedef {object} ItemDef
  * @property {string} id
@@ -62,6 +63,26 @@ const ITEMS = {
     rarity: "common",
     modules: { heal: { amount: 25 } },
   },
+  pescado_fresco: {
+    id: "pescado_fresco",
+    name: "Pescado Fresco",
+    description: "Pescado nutritivo obtenido de aguas cristalinas. Restaura 25 de energía y 10 HP al consumirse.",
+    categories: ["consumable"],
+    basePrice: 85,
+    maxStack: 99,
+    rarity: "common",
+    modules: { energy: { amount: 25 }, heal: { amount: 10 } },
+  },
+  hierba_medicinal: {
+    id: "hierba_medicinal",
+    name: "Hierba Medicinal",
+    description: "Hierba silvestre recolectada con propiedades curativas. Restaura 20 HP y purga toxinas leves.",
+    categories: ["consumable"],
+    basePrice: 70,
+    maxStack: 99,
+    rarity: "common",
+    modules: { heal: { amount: 20 }, curePoison: true },
+  },
   // Temp items for dummy combat — cleaned up on session end
   pocion_temp: {
     id: "pocion_temp",
@@ -98,12 +119,12 @@ const ITEMS = {
   libreta_desgastada: {
     id: "libreta_desgastada",
     name: "Libreta Desgastada",
-    description: "Una pequeña libreta de apuntes que permite almacenar hasta 2 hechizos.",
+    description: "Una pequeña libreta de apuntes que permite almacenar hasta 4 hechizos.",
     categories: ["spell_container"],
     basePrice: 150,
     maxStack: 1,
     rarity: "common",
-    modules: { spellContainer: { capacity: 2 } },
+    modules: { spellContainer: { capacity: 4 } },
   },
   pergamino: {
     id: "pergamino",
@@ -118,22 +139,22 @@ const ITEMS = {
   grimorio: {
     id: "grimorio",
     name: "Grimorio",
-    description: "Un tomo de magia resistente capaz de contener 4 hechizos.",
+    description: "Un tomo de magia resistente capaz de contener 12 hechizos.",
     categories: ["spell_container"],
-    basePrice: 500,
+    basePrice: 2800,
     maxStack: 1,
     rarity: "rare",
-    modules: { spellContainer: { capacity: 4 } },
+    modules: { spellContainer: { capacity: 12 } },
   },
   grimorio_arcano: {
     id: "grimorio_arcano",
     name: "Grimorio Arcano",
-    description: "Un sofisticado tomo encuadernado en piel mágica con capacidad para 8 hechizos.",
+    description: "Un sofisticado tomo encuadernado en piel mágica con capacidad para 24 hechizos.",
     categories: ["spell_container"],
-    basePrice: 1200,
+    basePrice: 8500,
     maxStack: 1,
     rarity: "epic",
-    modules: { spellContainer: { capacity: 8 } },
+    modules: { spellContainer: { capacity: 24 } },
   },
 };
 
@@ -182,4 +203,3 @@ module.exports = {
   getAllItems,
   getItemsByCategory,
 };
-

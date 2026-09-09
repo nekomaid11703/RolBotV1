@@ -42,7 +42,7 @@ describe("combatMessages — Single Message Formatters", () => {
 
   it("formatActionMenu muestra las opciones disponibles", () => {
     const menu = formatActionMenu("Aelin");
-    expect(menu).toContain("Turno de *Aelin*");
+    expect(menu).toContain("*Turno de Aelin*");
     expect(menu).toContain("/atacar");
     expect(menu).toContain("/usar");
     expect(menu).toContain("/huir");
@@ -65,7 +65,7 @@ describe("combatMessages — Single Message Formatters", () => {
     expect(status).toContain("/atacar");
   });
 
-  it("buildStatSummary retorna array de 3 filas con HP", () => {
+  it("buildStatSummary retorna array de 2 filas con stats y siglas legibles", () => {
     const stats = buildStatSummary({
       hp: 100,
       atk: 5,
@@ -84,9 +84,9 @@ describe("combatMessages — Single Message Formatters", () => {
     expect(stats[0]).toContain("ASPD 2");
     expect(stats[0]).toContain("MSP 2");
     expect(stats[1]).toContain("REF 2");
-    expect(stats[1]).toContain("FUL 3");
-    expect(stats[1]).toContain("DF 4");
-    expect(stats[1]).toContain("RF 1");
+    expect(stats[1]).toContain("FULG 3");
+    expect(stats[1]).toContain("DOMF 4");
+    expect(stats[1]).toContain("RESF 1");
   });
 
   it("buildFatigueBar retorna string con formato compacto", () => {

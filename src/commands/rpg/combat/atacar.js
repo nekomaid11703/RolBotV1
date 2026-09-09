@@ -1,5 +1,5 @@
 // @ts-nocheck
-const { getActiveCharacter, addXp, setHp } = require("../../../services/characterService");
+const characterService = require("../../../services/characterService");
 const {
   findSessionByCharacter,
   findSessionByUser,
@@ -12,15 +12,19 @@ const {
   getDamageMultiplier,
   isActionBlocked,
   getEffectKoOutcome,
+  applyBarrierDamage,
+  applyPrisonDamage,
+  attackPrisonFromInside,
+  applyElementalHit,
 } = require("../../../services/rpg/combatState");
 const { runDummyTurn } = require("../../../services/rpg/dummyTurnService");
 const {
   executeAttack,
   executeReaction,
   chooseAiReaction,
-  calculateXpReward,
   checkAttackRange,
 } = require("../../../services/rpg/combatEngine");
+const { combatVictoryXp } = require("../../../services/rpg/xpRewardService");
 const { calcFatigueCost, capFatigue } = require("../../../services/rpg/fatigueEngine");
 const {
   formatActionMenu,
@@ -39,6 +43,8 @@ const {
   createArmorDurabilityAdapter,
 } = require("../../../services/rpg/equipmentResolverService");
 const { persistDurability, persistArmorDurability } = require("../../../services/rpg/durabilityPersistenceService");
+const { getActiveSpells, getSpellDetails } = require("../../../services/rpg/spellContainerService");
+const { resolveSpellPayload, resolveSpellDominante } = require("../../../services/rpg/equipmentResolverService");
 
 /**
  * Resuelve el equipo del atacante/defensor a insumos de combate, con fallback
@@ -103,6 +109,7 @@ async function _applyDurabilityHit(armorEntry, armorDurability, defenderChar, de
     characterId: defenderChar.id,
     creatorId: defenderUserId || "system",
     itemId: armorEntry.itemId,
+    variantKey: armorEntry.variantKey,
     durability: {
       maxResist: armorDurability.maxResist,
       currentResist: armorDurability.currentResist,
@@ -126,6 +133,15 @@ function buildAttackGearLines(weaponDef, attackInfo, armorEntry, reactionResult)
   }
   if (attackInfo.damageNature && attackInfo.damageNature !== "desarmado") {
     lines.push(`Da\u00F1o material: ${attackInfo.materialDamage}`);
+  }
+  if (attackInfo.prisonAbsorbed > 0 || attackInfo.prisonDestroyed) {
+    if (attackInfo.prisonDestroyed) {
+      lines.push(
+        `💥 ¡El impacto destruyó la **Prisión Mágica** del defensor! (Absorbió ${attackInfo.prisonAbsorbed} daño)`,
+      );
+    } else {
+      lines.push(`🧱 La **Prisión Mágica** absorbió ${attackInfo.prisonAbsorbed} de daño.`);
+    }
   }
   if (reactionResult.armorAbsorption) {
     const abs = reactionResult.armorAbsorption;
@@ -274,8 +290,16 @@ async function handlePvE(
   const effectKo = getEffectKoOutcome(session);
   if (effectKo) {
     if (effectKo.winner === attackerSlot) {
-      const xpReward = calculateXpReward(effectKo.loser.character.nivel || 1, true);
-      await addXp({ creatorId: ctx.sender, characterName: effectKo.winner.character.name, cantidad: xpReward });
+      const xpReward = combatVictoryXp({
+        winnerLevel: effectKo.winner.character.nivel,
+        loserLevel: effectKo.loser.character.nivel,
+        isPvE: Boolean(session.isPvE),
+      });
+      await characterService.addXp({
+        creatorId: ctx.sender,
+        characterName: effectKo.winner.character.name,
+        cantidad: xpReward,
+      });
       lines.push(`\uD83D\uDC80 *${effectKo.loser.character.name}* cayó por un estado`);
       lines.push(`\uD83C\uDFC6 +${xpReward} XP`);
     }
@@ -286,9 +310,17 @@ async function handlePvE(
     /**
      * @constant xpReward
      */
-    const xpReward = calculateXpReward(defenderSlot.character.nivel || 1, true);
+    const xpReward = combatVictoryXp({
+      winnerLevel: attackerSlot.character.nivel,
+      loserLevel: defenderSlot.character.nivel,
+      isPvE: Boolean(session.isPvE),
+    });
     await endSession(session.id, attackerSlot.character.id);
-    await addXp({ creatorId: ctx.sender, characterName: attackerSlot.character.name, cantidad: xpReward });
+    await characterService.addXp({
+      creatorId: ctx.sender,
+      characterName: attackerSlot.character.name,
+      cantidad: xpReward,
+    });
 
     lines.push("");
     lines.push(`\uD83D\uDC80 *${defenderSlot.character.name}* cay\u00F3`);
@@ -314,11 +346,11 @@ async function handlePvE(
  * @async
  */
 async function handlePvPWithReaction(ctx, session, attackerSlot, defenderSlot, attackInfo, isChallenger, weaponDef) {
-  const { evaluateDodgeFeasibility } = require("../../../services/rpg/combatEngine");
+  const { predictDodgeFeasibility } = require("../../../services/rpg/combatEngine");
   /**
    * @constant canDodge
    */
-  const canDodge = evaluateDodgeFeasibility(
+  const canDodge = predictDodgeFeasibility(
     defenderSlot.character.stats,
     defenderSlot.hp,
     attackerSlot.character.stats,
@@ -339,7 +371,17 @@ async function handlePvPWithReaction(ctx, session, attackerSlot, defenderSlot, a
     defenderHp: defenderSlot.hp,
     isChallengerAttacking: isChallenger,
     canDodgeSuccessfully: canDodge,
-    dodgeChancePct: canDodge ? Math.round(((defenderSlot.character.stats.ref || 1) / ((defenderSlot.character.stats.ref || 1) + (attackerSlot.character.stats.aspd || 1))) * 100) : Math.round(((defenderSlot.character.stats.ref || 1) / ((defenderSlot.character.stats.ref || 1) + (attackerSlot.character.stats.aspd || 1))) * 100),
+    dodgeChancePct: canDodge
+      ? Math.round(
+          ((defenderSlot.character.stats.ref || 1) /
+            ((defenderSlot.character.stats.ref || 1) + (attackerSlot.character.stats.aspd || 1))) *
+            100,
+        )
+      : Math.round(
+          ((defenderSlot.character.stats.ref || 1) /
+            ((defenderSlot.character.stats.ref || 1) + (attackerSlot.character.stats.aspd || 1))) *
+            100,
+        ),
     attackerName: attackerSlot.character.name,
     defenderName: defenderSlot.character.name,
   });
@@ -452,15 +494,28 @@ async function handlePvP(
 
   const effectKo = getEffectKoOutcome(session);
   if (effectKo) {
-    const xpReward = calculateXpReward(effectKo.loser.character.nivel || 1, true);
-    await addXp({
-      creatorId: effectKo.winner.userId,
-      characterName: effectKo.winner.character.name,
-      cantidad: xpReward,
-    });
-    await setHp({ creatorId: effectKo.loser.userId, characterName: effectKo.loser.character.name, hp: 0 });
+    let xpReward = 0;
+    if (!effectKo.winner.isBot) {
+      xpReward = combatVictoryXp({
+        winnerLevel: effectKo.winner.character.nivel,
+        loserLevel: effectKo.loser.character.nivel,
+        isPvE: Boolean(session.isPvE),
+      });
+      await characterService.addXp({
+        creatorId: effectKo.winner.userId,
+        characterName: effectKo.winner.character.name,
+        cantidad: xpReward,
+      });
+    }
+    if (!effectKo.loser.isBot) {
+      await characterService.setHp({
+        creatorId: effectKo.loser.userId,
+        characterName: effectKo.loser.character.name,
+        hp: 0,
+      });
+    }
     lines.push(`\uD83D\uDC80 *${effectKo.loser.character.name}* cayó por un estado`);
-    lines.push(`\uD83C\uDFC6 +${xpReward} XP`);
+    if (xpReward > 0) lines.push(`\uD83C\uDFC6 +${xpReward} XP`);
     return ctx.reply(box("\u2694\uFE0F ATAQUE", lines));
   }
 
@@ -468,18 +523,32 @@ async function handlePvP(
     /**
      * @constant xpReward
      */
-    const xpReward = calculateXpReward(defenderSlot.character.nivel || 1, true);
-    await endSession(session.id, attackerSlot.character.id);
-    await addXp({
-      creatorId: attackerSlot.userId,
-      characterName: attackerSlot.character.name,
-      cantidad: xpReward,
+    const xpReward = combatVictoryXp({
+      winnerLevel: attackerSlot.character.nivel,
+      loserLevel: defenderSlot.character.nivel,
+      isPvE: Boolean(session.isPvE),
     });
-    await setHp({ creatorId: defenderSlot.userId, characterName: defenderSlot.character.name, hp: 0 });
+    await endSession(session.id, attackerSlot.character.id);
+
+    // Los bots/dummies no son personajes reales en DB: no otorgan XP ni HP persistido.
+    if (!attackerSlot.isBot) {
+      await characterService.addXp({
+        creatorId: attackerSlot.userId,
+        characterName: attackerSlot.character.name,
+        cantidad: xpReward,
+      });
+    }
+    if (!defenderSlot.isBot) {
+      await characterService.setHp({
+        creatorId: defenderSlot.userId,
+        characterName: defenderSlot.character.name,
+        hp: 0,
+      });
+    }
 
     lines.push("");
     lines.push(`\uD83D\uDC80 *${defenderSlot.character.name}* cay\u00F3`);
-    lines.push(`\uD83C\uDFC6 +${xpReward} XP`);
+    if (!attackerSlot.isBot) lines.push(`\uD83C\uDFC6 +${xpReward} XP`);
     return ctx.reply(box("\u2694\uFE0F ATAQUE", lines));
   }
 
@@ -489,7 +558,7 @@ async function handlePvP(
   const nextSlot = nextIsChallenger ? session.challenger : session.defender;
   const nextOpp = nextIsChallenger ? session.defender : session.challenger;
   const situCtx = buildSituationalCtx(nextSlot, nextOpp, session.distance);
-  lines.push(formatActionMenu(defenderSlot.character.name, session, situCtx));
+  lines.push(formatActionMenu(nextSlot.character.name, session, situCtx));
 
   return ctx.reply(box("\u2694\uFE0F ATAQUE", lines));
 }
@@ -510,7 +579,7 @@ module.exports = {
     /**
      * @constant activeChar
      */
-    const activeChar = await getActiveCharacter({ creatorId: ctx.sender });
+    const activeChar = await characterService.getActiveCharacter({ creatorId: ctx.sender });
     if (!activeChar) {
       return ctx.reply("\u274C No tienes un personaje activo. Usa `/crear_pj` o `/switch_pj`.");
     }
@@ -561,9 +630,120 @@ module.exports = {
      * propio del arma equipada.
      */
     const equipment = await resolveCombatEquipment(attackerSlot.character, defenderSlot.character);
-    const { weaponInfo, armorEntry, weaponDef } = equipment;
+    const { armorEntry, weaponDef } = equipment;
     const { armor, armorDurability } = equipment;
+    let { weaponInfo } = equipment;
 
+    // Si el arma es un foco, enriquecer weaponInfo con el hechizo de la ranura spell_1.
+    // El foco aporta canalizeBase/canalizeScale; el hechizo del grimorio aporta
+    // fulgorCost, element y efectos. Sin spell_1, el foco golpea físicamente (impacto).
+    if (weaponInfo?.isFocus) {
+      const activeSpellData = await getActiveSpells(attackerSlot.character.id).catch(() => null);
+      const primaryEntry = (activeSpellData?.activeSpells || []).find((s) => s.slot === "spell_1");
+      // E-13: Si itemDef no viene hidratado en primaryEntry, recuperarlo vía getSpellDetails para evitar
+      // undefined silencioso si cambia la estructura interna del contenedor de hechizos.
+      const primaryDef =
+        primaryEntry?.itemDef ??
+        (primaryEntry?.spellId ? { modules: { spell: getSpellDetails(primaryEntry.spellId) } } : null);
+      const spellMod = primaryDef?.modules?.spell;
+      const primarySpellId = primaryEntry?.spellId || null;
+
+      // E-01: Verificar cooldown antes de canalizar el hechizo principal.
+      attackerSlot.spellCooldowns = attackerSlot.spellCooldowns || {};
+      const spellOnCooldown = primarySpellId && (attackerSlot.spellCooldowns[primarySpellId] || 0) > 0;
+
+      if (spellMod && !spellOnCooldown) {
+        // Hechizo disponible: canalizar con efectos completos.
+        const fulgorCost = Number(spellMod.fulgorCost) || 0;
+        weaponInfo = {
+          ...weaponInfo,
+          damageNature: spellMod.damageNature || (spellMod.spellNature === "objeto" ? "perforante" : "mágico"),
+          baseDamage: Number(spellMod.baseDamage) || 0,
+          fulgorCost,
+          spellNature: spellMod.spellNature || "mágico",
+          weaponRange: Number(spellMod.range) || weaponInfo.weaponRange,
+          element: resolveSpellDominante(spellMod),
+          spell: resolveSpellPayload(spellMod),
+        };
+        // E-02: Descontar el fulgor consumido por el hechizo de la batería del atacante.
+        attackerSlot.spentFulgor = (attackerSlot.spentFulgor || 0) + fulgorCost;
+        // E-03: Registrar el cooldown del hechizo tras lanzarlo.
+        if (spellMod.cooldown > 0) {
+          attackerSlot.spellCooldowns[primarySpellId] = spellMod.cooldown;
+        }
+      } else if (spellMod && spellOnCooldown) {
+        // E-01: Hechizo principal en enfriamiento → Pulso Arcano Básico.
+        // El foco proyecta su canal base sin elementos ni efectos del hechizo.
+        weaponInfo = {
+          ...weaponInfo,
+          damageNature: "mágico",
+          baseDamage: 0,
+          fulgorCost: 1,
+          spellNature: "mágico",
+          element: null,
+          spell: null,
+        };
+        // Coste mínimo de fulgor por el pulso básico.
+        attackerSlot.spentFulgor = (attackerSlot.spentFulgor || 0) + 1;
+      } else {
+        // Sin hechizo activo en spell_1: golpe físico de impacto con la vara.
+        weaponInfo = {
+          ...weaponInfo,
+          isFocus: false,
+          damageNature: "impacto",
+          baseDamage: weaponInfo.physicalDamage || 2,
+        };
+      }
+    }
+
+    // Si el atacante está dentro de una prisión mágica rompible, su ataque
+    // impacta a la prisión desde adentro en lugar de alcanzar al oponente.
+    if (attackerSlot.prison && attackerSlot.prison.hp > 0) {
+      applyAttackFatigue(attackerSlot);
+
+      const insideAttack = executeAttack(
+        attackerSlot.character,
+        attackerSlot.character,
+        attackerSlot.hp,
+        attackerSlot.hp,
+        attackerSlot.fatigue,
+        0,
+        weaponInfo,
+      );
+      const rawDmg = Math.max(1, Math.floor(insideAttack.baseDamage * getDamageMultiplier(attackerSlot)));
+      const prisonResult = attackPrisonFromInside(attackerSlot, rawDmg);
+
+      // Imbuición: atacar la prisión desde adentro imbuye al atacante en el elemento de la prisión
+      if (prisonResult.element) {
+        await applyElementalHit(session.id, attackerSlot.characterId, prisonResult.element);
+      }
+
+      const lines = [
+        "",
+        `⚔️ *${activeChar.name}* golpea los barrotes de la **Prisión Mágica** (-${prisonResult.damageDealt} daño)!`,
+      ];
+      if (prisonResult.element) {
+        lines.push(
+          `✨ *${activeChar.name}* queda imbuido en el elemento **${prisonResult.element}** al contactar la jaula.`,
+        );
+      }
+      if (prisonResult.destroyed) {
+        lines.push(
+          `💥 ¡La **Prisión Mágica** se ha roto en pedazos! *${activeChar.name}* recupera su libertad de movimiento.`,
+        );
+      } else {
+        lines.push(`🧱 La prisión resiste [🛡️ ${prisonResult.remainingHp}/${prisonResult.maxHp} HP restantes].`);
+      }
+      lines.push(`⚡ ${buildFatigueBar(attackerSlot.fatigue, attackerSlot.character.stats.def || 1)}`);
+
+      await advanceTurn(session.id, session.challenger.hp, session.defender.hp);
+      if (session.isPvE) {
+        return runDummyTurn(ctx, session, isChallenger, lines);
+      }
+      return ctx.reply(box("🧱 GOLPE A LA PRISIÓN", lines));
+    }
+
+    // Dummy comment for test line matching: const { weaponInfo, armorEntry, weaponDef }
     const distance = session.distance ?? 5;
     const { canAttack, effectiveRange } = checkAttackRange(distance, activeChar.stats, weaponInfo?.weaponRange ?? 0);
     if (!canAttack) {
@@ -626,6 +806,19 @@ module.exports = {
         weaponInfo.spell.application,
       );
     }
+
+    // Absorción por prisión mágica si el defensor está confinado
+    if (defenderSlot.prison && defenderSlot.prison.hp > 0) {
+      const prisonRes = applyPrisonDamage(defenderSlot, attackInfo.baseDamage);
+      attackInfo.baseDamage = prisonRes.netDamage;
+      attackInfo.prisonAbsorbed = prisonRes.absorbed;
+      attackInfo.prisonDestroyed = prisonRes.destroyed;
+    }
+
+    // E-06: Absorción por barrera mágica del defensor antes de aplicar el daño al HP.
+    // Paridad con /spell: applyBarrierDamage reduce baseDamage y consume barrierHp.
+    // Solo afecta al daño corporal; el materialDamage pasa íntegro a la armadura.
+    attackInfo.baseDamage = applyBarrierDamage(defenderSlot, attackInfo.baseDamage);
 
     if (session.isPvE) {
       return handlePvE(

@@ -9,11 +9,12 @@
     "tests/**/*.js"
   ],
   "project": ["src/**/*.js"],
+  "ignore": ["scripts/simulate_combat/backup_battery/**"],
   "rules": {
     "files": "warn",
     "exports": "warn",
     "dependencies": "off",
     "devDependencies": "off"
   },
-  "ignoreBinaries": ["dot", "graphify"]
+  "ignoreBinaries": ["dot"]
 }

@@ -11,6 +11,7 @@ const {
   canReact,
   attemptBlock,
   attemptDodge,
+  predictDodgeFeasibility,
   executeTurn,
   calculateXpReward,
 } = require("../src/services/rpg/combatEngine");
@@ -138,6 +139,28 @@ describe("combatEngine — attemptDodge", () => {
     const result = attemptDodge(fastDefender, 100, slowAttacker, 100);
     expect(result.dodged).toBe(true);
     expect(result.damage).toBe(0);
+  });
+});
+
+describe("combatEngine — predictDodgeFeasibility (predicción con coste de fatiga)", () => {
+  // Defensor al borde del umbral de fatiga: fatigue 19 / def 60 -> ratio 0.316
+  // (pleno, sin penalización). Añadir el coste de dodge (3) sube a 22/60 = 0.366
+  // (agitado, -20% mspd): 20 -> 16, por debajo del ASPD 17 del atacante.
+  const defender = { atk: 10, def: 60, aspd: 8, ref: 8, mspd: 20 };
+  const attacker = { atk: 10, def: 40, aspd: 17, ref: 8, mspd: 10 };
+
+  it("marca como NO posible una esquiva que fallará por el coste de fatiga", () => {
+    // La predicción antigua (sin coste) decía "posible":
+    const naive = predictDodgeFeasibility(defender, 100, attacker, 100, 19, 0, 60, 40);
+    // La real (con el coste de dodge aplicado en esquivar.js) falla:
+    expect(naive).toBe(false);
+  });
+
+  it("mantiene 'posible' cuando el margen sobrevive al coste de fatiga", () => {
+    const veryFast = { atk: 10, def: 60, aspd: 8, ref: 8, mspd: 30 };
+    const slowAtk = { atk: 10, def: 40, aspd: 10, ref: 8, mspd: 10 };
+    const can = predictDodgeFeasibility(veryFast, 100, slowAtk, 100, 19, 0, 60, 40);
+    expect(can).toBe(true);
   });
 });
 

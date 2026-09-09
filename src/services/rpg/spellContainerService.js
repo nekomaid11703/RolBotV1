@@ -4,12 +4,10 @@ const equipmentService = require("./equipmentService");
 const { getInventoryList } = require("./inventoryService");
 
 /**
- * Capacidad por defecto de los ítems contenedores de hechizos.
- * @constant CONTAINER_CAPACITIES
- * @type {Record<string, number>}
- */
-/**
  * Capacidad de ranuras de memoria por tipo de ítem contenedor de hechizos.
+ * Diseño intencional: el grimorio mayor (grimorio_arcano = 24 slots) guarda
+ * hasta 6 hechizos Tier S (4 slots c/u). Fuente única de verdad: los ítems de
+ * items.js deben coincidir con este mapa.
  * @constant CONTAINER_CAPACITIES
  * @type {Record<string, number>}
  */
@@ -285,4 +283,3 @@ module.exports = {
   unequipActiveSpell,
   getSpellDetails,
 };
-

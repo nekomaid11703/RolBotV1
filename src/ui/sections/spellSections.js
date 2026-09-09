@@ -1,3 +1,4 @@
+// @ts-nocheck
 const { getSpellDetails, getSpellSlotCost } = require("../../services/rpg/spellContainerService");
 
 /**
@@ -48,7 +49,15 @@ function buildContainerBar(used = 0, capacity = 1) {
  * @param {number} [options.distance] - Distancia actual de combate (para indicador de rango)
  * @returns {string[]} Líneas formateadas
  */
-function spellSubmenuLines({ character, activeSpells = [], cooldowns = {}, activePassives = {}, spentFulgor = 0, distance, containerInfo }) {
+function spellSubmenuLines({
+  character,
+  activeSpells = [],
+  cooldowns = {},
+  activePassives = {},
+  spentFulgor = 0,
+  distance,
+  containerInfo,
+}) {
   const lines = [];
   const fulgorLine = buildFulgorSummary(character.stats?.fulgor || 1, spentFulgor);
   const distLine = distance !== undefined ? `  \uD83D\uDCCD Distancia actual: ${distance}m` : "";
@@ -60,7 +69,6 @@ function spellSubmenuLines({ character, activeSpells = [], cooldowns = {}, activ
   }
 
   lines.push("\uD83D\uDCDC *HECHIZOS EQUIPADOS (M\u00E1x 4)*");
-
 
   const slotMap = {};
   for (const item of activeSpells) {
@@ -97,7 +105,9 @@ function spellSubmenuLines({ character, activeSpells = [], cooldowns = {}, activ
 
     const slotCost = getSpellSlotCost(details?.tier);
     lines.push(`  \`[${num}]\`${rangeIndicator} *${details?.name || item.spellId}* (${details?.kind || "hechizo"})`);
-    lines.push(`      ${fulgorCost} | ${cdStatus}${toggleText} | ID: \`${item.spellId}\` | 🏷️ Tier ${details?.tier || "E"} (${slotCost} ${slotCost === 1 ? "slot" : "slots"})`);
+    lines.push(
+      `      ${fulgorCost} | ${cdStatus}${toggleText} | ID: \`${item.spellId}\` | 🏷️ Tier ${details?.tier || "E"} (${slotCost} ${slotCost === 1 ? "slot" : "slots"})`,
+    );
   }
 
   return lines;

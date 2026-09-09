@@ -5,11 +5,18 @@ const {
   advanceTurn,
   endSession,
   getEffectKoOutcome,
+  isActionBlocked,
 } = require("../../../services/rpg/combatState");
-const { executeReaction, calculateXpReward } = require("../../../services/rpg/combatEngine");
+const { executeReaction } = require("../../../services/rpg/combatEngine");
+const { combatVictoryXp } = require("../../../services/rpg/xpRewardService");
 const { calcFatigueCost, calcFatigueRecovery, capFatigue } = require("../../../services/rpg/fatigueEngine");
-const { formatActionMenu, buildFatigueBar, buildSituationalCtx } = require("../../../services/rpg/combatMessages");
-const { box } = require("../../../utils/boxUtils");
+const {
+  formatActionMenu,
+  formatCombatResult,
+  buildEnergyBar,
+  buildSituationalCtx,
+} = require("../../../services/rpg/combatMessages");
+const { divider } = require("../../../utils/boxUtils");
 const {
   resolveDefenderArmor,
   createArmorDurabilityAdapter,
@@ -70,6 +77,11 @@ module.exports = {
      */
     const attackerSlot = isDefenderChallenger ? session.defender : session.challenger;
 
+    // E-15: Personajes congelados, paralizados o atrapados no pueden bloquear.
+    if (isActionBlocked(defenderSlot, "block")) {
+      return ctx.reply("❌ Estás incapacitado y no puedes bloquear.");
+    }
+
     /**
      * @constant blockCost
      */
@@ -78,7 +90,8 @@ module.exports = {
      * @constant blockRecovery
      */
     const blockRecovery = calcFatigueRecovery("block", defenderSlot.fatigue, defenderSlot.character.stats.def || 1);
-    defenderSlot.fatigue = capFatigue(defenderSlot.fatigue + blockCost - blockRecovery);
+    // E-12: Bloquear NUNCA puede recuperar fatiga neta — coste mínimo garantizado de 1.
+    defenderSlot.fatigue = capFatigue(defenderSlot.fatigue + Math.max(1, blockCost - blockRecovery));
 
     /**
      * @constant reactionResult
@@ -119,23 +132,34 @@ module.exports = {
     lines.push("");
     lines.push(`\uD83D\uDEE1\uFE0F *${activeChar.name}* bloque\u00F3`);
     const absorbed = pending.baseDamage - reactionResult.finalDamage;
-    lines.push(`\uD83D\uDCA5 ${pending.baseDamage} \u2192 ${reactionResult.finalDamage} (\uD83D\uDEE1\uFE0F absorbi\u00F3 ${absorbed})`);
+    lines.push(
+      `\uD83D\uDCA5 ${pending.baseDamage} \u2192 ${reactionResult.finalDamage} (\uD83D\uDEE1\uFE0F absorbi\u00F3 ${absorbed})`,
+    );
     lines.push(
       `\u2764\uFE0F *${activeChar.name}*: ${reactionResult.defenderHpBefore}\u2192${reactionResult.defenderHpAfter}`,
     );
-    lines.push(`Fat ${buildFatigueBar(defenderSlot.fatigue, defenderSlot.character.stats.def || 1)}`);
+    lines.push(buildEnergyBar(defenderSlot.fatigue, defenderSlot.character.stats.def || 1));
 
     if (effectKo) {
-      const xpReward = calculateXpReward(effectKo.loser.character.nivel || 1, true);
-      await addXp({
-        creatorId: effectKo.winner.userId,
-        characterName: effectKo.winner.character.name,
-        cantidad: xpReward,
-      });
-      await setHp({ creatorId: effectKo.loser.userId, characterName: effectKo.loser.character.name, hp: 0 });
+      let xpReward = 0;
+      if (!effectKo.winner.isBot) {
+        xpReward = combatVictoryXp({
+          winnerLevel: effectKo.winner.character.nivel,
+          loserLevel: effectKo.loser.character.nivel,
+          isPvE: Boolean(session.isPvE),
+        });
+        await addXp({
+          creatorId: effectKo.winner.userId,
+          characterName: effectKo.winner.character.name,
+          cantidad: xpReward,
+        });
+      }
+      if (!effectKo.loser.isBot) {
+        await setHp({ creatorId: effectKo.loser.userId, characterName: effectKo.loser.character.name, hp: 0 });
+      }
       lines.push(`\uD83D\uDC80 *${effectKo.loser.character.name}* cayó por un estado`);
-      lines.push(`\uD83C\uDFC6 +${xpReward} XP`);
-      return ctx.reply(box("\uD83D\uDEE1\uFE0F BLOQUEO", lines));
+      if (xpReward > 0) lines.push(`\uD83C\uDFC6 +${xpReward} XP`);
+      return ctx.reply(formatCombatResult("\uD83D\uDEE1\uFE0F BLOQUEO", lines));
     }
 
     if (reactionResult.ko) {
@@ -146,16 +170,23 @@ module.exports = {
       /**
        * @constant xpReward
        */
-      const xpReward = calculateXpReward(activeChar.nivel || 1, true);
+      const xpReward = combatVictoryXp({
+        winnerLevel: winnerChar.nivel,
+        loserLevel: activeChar.nivel || 1,
+        isPvE: Boolean(session.isPvE),
+      });
       await endSession(session.id, winnerChar.id);
 
-      await addXp({ creatorId: pending.attackerUserId, characterName: winnerChar.name, cantidad: xpReward });
+      // Los bots/dummies no son personajes reales en DB: no otorgan XP ni HP persistido.
+      if (!attackerSlot.isBot) {
+        await addXp({ creatorId: pending.attackerUserId, characterName: winnerChar.name, cantidad: xpReward });
+      }
       await setHp({ creatorId: ctx.sender, characterName: activeChar.name, hp: 0 });
 
       lines.push("");
       lines.push(`\uD83D\uDC80 *${activeChar.name}* cay\u00F3`);
-      lines.push(`\uD83C\uDFC6 +${xpReward} XP`);
-      return ctx.reply(box("\uD83D\uDEE1\uFE0F BLOQUEO", lines));
+      if (!attackerSlot.isBot) lines.push(`\uD83C\uDFC6 +${xpReward} XP`);
+      return ctx.reply(formatCombatResult("\uD83D\uDEE1\uFE0F BLOQUEO", lines));
     }
 
     /**
@@ -166,12 +197,14 @@ module.exports = {
         ? session.challenger.character.name
         : session.defender.character.name;
     lines.push("");
-    lines.push("\u2726 \u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501 \u2726");
-    const nextSlot = session.currentTurnCharId === session.challenger.characterId ? session.challenger : session.defender;
-    const nextOpp = session.currentTurnCharId === session.challenger.characterId ? session.defender : session.challenger;
+    lines.push(divider());
+    const nextSlot =
+      session.currentTurnCharId === session.challenger.characterId ? session.challenger : session.defender;
+    const nextOpp =
+      session.currentTurnCharId === session.challenger.characterId ? session.defender : session.challenger;
     const situCtx = buildSituationalCtx(nextSlot, nextOpp, session.distance);
     lines.push(formatActionMenu(nextTurnCharName, session, situCtx));
 
-    return ctx.reply(box("\uD83D\uDEE1\uFE0F BLOQUEO", lines));
+    return ctx.reply(formatCombatResult("\uD83D\uDEE1\uFE0F BLOQUEO", lines));
   },
 };

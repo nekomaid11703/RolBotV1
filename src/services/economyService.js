@@ -582,4 +582,5 @@ module.exports = {
   transferMoney,
   claimDaily,
   getTopBalances,
+  withUserLock,
 };

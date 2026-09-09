@@ -56,6 +56,10 @@ Convertido en healthcheck manual gated: salta (exit 0) si no hay `SUPABASE_URL` 
 
 `recordGroupActivity` y `recordUserActivity` corrían en paralelo; el upsert de `group_members` podía llegar antes de que existiera el `players` → violación de FK (PGRST PGRST204/23503) en usuarios nuevos. Fix: en `eventHandler.js`, `recordGroupActivity` se encadena tras `recordUserActivity` (promise chain), garantizando el jugador antes del miembro. Reigresión cubierta en `tests/event_handler_activity.test.js`.
 
-## TD-014 | `itemStatService.js:60` error TS7053 pre-existente | abierto
+## TD-014 | Tipado de módulos RPG dinámicos | evolución planificada
 
-`npm run typecheck` reporta `error TS7053` en `itemStatService.js:60` (indexing de `MATERIALS` con `string` sin firma de índice). Pre-existente a la Fase A del canal mágico (verificado con `git stash`); NO fue introducido por esta iteración. Pendiente: tipar `MATERIALS`/`getMaterialStats` con índice `Record<string, ...>` o `@ts-nocheck` dirigido.
+Los módulos CommonJS con contratos dinámicos usan `@ts-nocheck` dirigido; `npm run typecheck` está verde. No es un riesgo de despliegue: es una mejora incremental de mantenibilidad para sustituir esos límites por tipos JSDoc compartidos, con pruebas como red de seguridad durante la migración.
+
+## TD-015 | Imports históricos de simuladores backup | resuelto (2026-09-05)
+
+Los siete artefactos históricos de `scripts/simulate_combat/backup_battery/` no son ejecutables compatibles ni forman parte de la aplicación. Se excluyeron explícitamente de Knip mediante `knip.json`, conservándolos como referencia sin contaminar el análisis de código soportado.

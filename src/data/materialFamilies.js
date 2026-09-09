@@ -16,6 +16,32 @@ const RARITY_PRICE_MULT = {
 };
 
 /**
+ * Grados de cobertura de armadura soportados por el motor (armorSetService).
+ * El grado indicado en `base` se sirve con el ítem existente (compat), el resto
+ * se genera como variante `${slot}_${grade}_de_${matId}`.
+ * @constant ARMOR_COVERAGE
+ * @type {Record<string, {slot: string, base: string, bonusDef: number, basePrice: number, name: string}>}
+ */
+const ARMOR_COVERAGE = {
+  casco: { slot: "cabeza", base: "media", bonusDef: 4, basePrice: 120, name: "Casco" },
+  pechera: { slot: "pecho", base: "alta", bonusDef: 7, basePrice: 220, name: "Pechera" },
+  grebas: { slot: "pantalones", base: "media", bonusDef: 5, basePrice: 140, name: "Grebas" },
+  botas: { slot: "botas", base: "ligera", bonusDef: 3, basePrice: 100, name: "Botas" },
+  escudo: { slot: "mano_izq", base: "media", bonusDef: 6, basePrice: 180, name: "Escudo" },
+};
+
+/**
+ * @constant COVERAGE_GRADES
+ * @type {string[]}
+ */
+const COVERAGE_GRADES = ["ligera", "media", "alta", "total"];
+/**
+ * @constant COVERAGE_NAME
+ * @type {Record<string, string>}
+ */
+const COVERAGE_NAME = { ligera: "Ligera", media: "Media", alta: "Alta", total: "Total" };
+
+/**
  * Genera y registra dinámicamente el catálogo completo de familias de ítems
  * para todos los materiales del juego (armas, armaduras, artefactos y escudos).
  */
@@ -31,6 +57,19 @@ function buildMaterialFamilies() {
     const setId = `set_${matId}`;
 
     const items = [
+      // ── Trozo de material (recurso base para forja) ──
+      {
+        id: `trozo_de_${matId}`,
+        type: "material",
+        name: `Trozo de ${name}`,
+        description: `Trozo de ${name.toLowerCase()} para forja.`,
+        rarity,
+        basePrice: Math.round(80 * priceMult),
+        categories: ["material"],
+        material: matId,
+        tier: "E",
+        modules: {},
+      },
       // ── Armas ──
       {
         id: `espada_de_${matId}`,
@@ -43,6 +82,18 @@ function buildMaterialFamilies() {
         material: matId,
         tier: "E",
         modules: { weapon: { damageNature: "cortante", hands: 1, baseDamage: 20, weaponRange: 1 } },
+      },
+      {
+        id: `espada_larga_de_${matId}`,
+        type: "weapon",
+        name: `Espada Larga de ${name}`,
+        description: `Mandoble cortante de gran alcance forjado en ${name.toLowerCase()}.`,
+        rarity,
+        basePrice: Math.round(190 * priceMult),
+        categories: ["weapon"],
+        material: matId,
+        tier: "E",
+        modules: { weapon: { damageNature: "cortante", hands: 2, baseDamage: 28, weaponRange: 2 } },
       },
       {
         id: `maza_de_${matId}`,
@@ -91,6 +142,18 @@ function buildMaterialFamilies() {
         material: matId,
         tier: "E",
         modules: { weapon: { damageNature: "magico", hands: 2, baseDamage: 18, weaponRange: 3 } },
+      },
+      {
+        id: `varita_de_${matId}`,
+        type: "focus",
+        name: `Varita de ${name}`,
+        description: `Varita mágica de una mano forjada en ${name.toLowerCase()}. Deja la otra mano libre para escudo o segundo foco.`,
+        rarity,
+        basePrice: Math.round(170 * priceMult),
+        categories: ["focus"],
+        material: matId,
+        tier: "E",
+        modules: { focus: { slotHeld: "1h", spellIds: [], canalizeScale: 1 } },
       },
 
       // ── Armadura (Set) ──
@@ -145,6 +208,26 @@ function buildMaterialFamilies() {
         tier: "E",
         setId,
         modules: { armor: { slot: "botas", coverage: "ligera", bonusDef: 3 } },
+      },
+
+      // ── Túnica de Mago (capa: cobertura ligera, bonificación de mago) ──
+      // Lore: la capa es de tela (cobertura mínima); el material del broche
+      // aplica la bonificación arcana. No forma parte del set de armadura.
+      {
+        id: `tunica_de_${matId}`,
+        type: "armor",
+        name: `Túnica de ${name}`,
+        description: `Túnica de mago con broche de ${name.toLowerCase()}. Tela ligera, pero canaliza el dominio arcano.`,
+        rarity,
+        basePrice: Math.round(210 * priceMult),
+        categories: ["armor"],
+        material: matId,
+        tier: "E",
+        setId: null,
+        modules: {
+          armor: { slot: "pecho", coverage: "ligera", bonusDef: 3 },
+          buff: { stats: { d_fulgor: 10 } },
+        },
       },
 
       // ── Escudo y Artefacto ──
@@ -271,6 +354,26 @@ function buildMaterialFamilies() {
         modules: { weapon: { ranged: false, damageNature: "perforante", baseDamage: 10 } },
       },
     ];
+
+    // ── Grados de cobertura de armadura (variantes ligera/media/alta/total) ────
+    for (const [slotKey, cfg] of Object.entries(ARMOR_COVERAGE)) {
+      for (const grade of COVERAGE_GRADES) {
+        if (grade === cfg.base) continue; // el grado base se cubre con el ítem existente
+        items.push({
+          id: `${slotKey}_${grade}_de_${matId}`,
+          type: "armor",
+          name: `${cfg.name} ${COVERAGE_NAME[grade]} de ${name}`,
+          description: `${cfg.name} de cobertura ${COVERAGE_NAME[grade].toLowerCase()} forjado en ${name.toLowerCase()}.`,
+          rarity,
+          basePrice: Math.round(cfg.basePrice * priceMult),
+          categories: ["armor"],
+          material: matId,
+          tier: "E",
+          setId,
+          modules: { armor: { slot: cfg.slot, coverage: grade, bonusDef: cfg.bonusDef } },
+        });
+      }
+    }
 
     for (const rawDef of items) {
       const def = createItemDefinition(rawDef);

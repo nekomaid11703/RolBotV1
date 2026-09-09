@@ -20,7 +20,8 @@ function searchItems(query) {
     const idMatch = item.id.toLowerCase().includes(q);
     const nameMatch = (item.name || "").toLowerCase().includes(q);
     const matMatch = (item.material || "").toLowerCase().includes(q);
-    const catMatch = (item.categories || []).some((c) => c.toLowerCase().includes(q)) || (item.type || "").toLowerCase().includes(q);
+    const catMatch =
+      (item.categories || []).some((c) => c.toLowerCase().includes(q)) || (item.type || "").toLowerCase().includes(q);
     const rarityMatch = (item.rarity || "").toLowerCase().includes(q);
     return idMatch || nameMatch || matMatch || catMatch || rarityMatch;
   });
@@ -46,7 +47,8 @@ module.exports = {
           "",
           "📌 *Formas de Uso:*",
           "  • `/item_add <id_exacto> [cantidad]` — Otorga un ítem directo",
-          "  • `/item_add <búsqueda>` — Busca por nombre o material (ej: `/item_add mitril`)",
+          "  • `/item_add <material> [cantidad]` — Otorga un trozo de material (ej: `/item_add hierro 5`)",
+          "  • `/item_add filt_<búsqueda>` — Busca por nombre o material (ej: `/item_add filt_madera`)",
           "  • `/item_add buscar <término>` — Muestra lista de coincidencias",
           "",
           "🏷️ *Categorías:* `weapon`, `armor`, `artifact`, `consumable`, `spell_container`",
@@ -54,13 +56,14 @@ module.exports = {
           "🔨 *Materiales disponibles:*",
           `  ${matList}`,
           "",
-          "💡 *Ejemplo:* `/item_add espada_de_mitril 1` | `/item_add pocion 5`",
+          "💡 *Ejemplo:* `/item_add hierro 3` | `/item_add filt_arma`",
         ]),
       );
     }
 
-    // Determinar si el primer argumento es "buscar"
+    // Determinar si el primer argumento es "buscar" o "filt_"
     let isSearchCommand = false;
+    let forceSearch = false;
     let queryArg = ctx.args[0];
     let qtyArg = ctx.args[1];
 
@@ -68,42 +71,53 @@ module.exports = {
       isSearchCommand = true;
       queryArg = ctx.args[1];
       qtyArg = ctx.args[2];
+    } else if (queryArg.toLowerCase().startsWith("filt_")) {
+      forceSearch = true;
+      queryArg = queryArg.slice(5);
     }
 
     const queryInput = queryArg.toLowerCase().trim();
     const quantity = parseQuantity(qtyArg);
 
-    // Intentar primero coincidencia exacta de ID
-    let exactItem = getItem(queryInput);
+    // Si no es modo búsqueda forzado, intentar resolver directamente
+    if (!isSearchCommand && !forceSearch) {
+      // 1. Intentar coincidencia exacta de ID
+      let exactItem = getItem(queryInput);
 
-    if (exactItem && !isSearchCommand) {
-      const activeChar = await getActiveCharacter({ creatorId: ctx.sender });
-      if (!activeChar) {
-        return ctx.reply("❌ No tienes un personaje activo. Usa `/crear_pj`.");
+      // 2. Si no existe, resolver nombre de material a trozo
+      if (!exactItem && MATERIALS[queryInput] && queryInput !== "etereo") {
+        exactItem = getItem(`trozo_de_${queryInput}`);
       }
 
-      const result = await addItem(activeChar.id, activeChar.creator_id, exactItem.id, quantity);
-      const lines = [
-        "",
-        `👤 Personaje: *${activeChar.name}*`,
-        `📦 Ítem añadido: *${exactItem.name}* (\`${exactItem.id}\`)`,
-        `🔢 Cantidad añadida: +${quantity}`,
-        `📊 Total en inventario: ${result.total}`,
-      ];
-      return ctx.reply(box("✅ ÍTEM AGREGADO", lines));
+      if (exactItem) {
+        const activeChar = await getActiveCharacter({ creatorId: ctx.sender });
+        if (!activeChar) {
+          return ctx.reply("❌ No tienes un personaje activo. Usa `/crear_pj`.");
+        }
+
+        const result = await addItem(activeChar.id, activeChar.creator_id, exactItem.id, quantity);
+        const lines = [
+          "",
+          `👤 Personaje: *${activeChar.name}*`,
+          `📦 Ítem añadido: *${exactItem.name}* (\`${exactItem.id}\`)`,
+          `🔢 Cantidad añadida: +${quantity}`,
+          `📊 Total en inventario: ${result.total}`,
+        ];
+        return ctx.reply(box("✅ ÍTEM AGREGADO", lines));
+      }
     }
 
-    // Si no es un ID exacto o el usuario pidió "buscar", realizar búsqueda parcial
+    // Modo búsqueda: filt_, buscar, o coincidencia parcial
     const matches = searchItems(queryInput);
 
     if (matches.length === 0) {
       return ctx.reply(
-        `❌ No se encontraron ítems que coincidan con "${queryInput}".\n\nPrueba buscar por material (ej: \`/item_add mitril\`) o tipo (ej: \`/item_add armor\`).`,
+        `❌ No se encontraron ítems que coincidan con "${queryInput}".\n\nPrueba buscar por material (ej: \`/item_add filt_madera\`) o tipo (ej: \`/item_add filt_armor\`).`,
       );
     }
 
     // Si la búsqueda arrojó exactamente 1 resultado y NO es comando explícito "buscar"
-    if (matches.length === 1 && !isSearchCommand) {
+    if (matches.length === 1 && !isSearchCommand && !forceSearch) {
       const target = matches[0];
       const activeChar = await getActiveCharacter({ creatorId: ctx.sender });
       if (!activeChar) {
@@ -121,16 +135,12 @@ module.exports = {
       return ctx.reply(box("✅ ÍTEM AGREGADO", lines));
     }
 
-    // Si arrojó múltiples resultados o se solicitó "buscar": mostrar lista estructurada
+    // Si arrojó múltiples resultados o se solicitó búsqueda: mostrar lista estructurada
     const maxResults = 25;
     const displayed = matches.slice(0, maxResults);
     const overflow = matches.length - displayed.length;
 
-    const resultLines = [
-      "",
-      `🔍 Coincidencias para "${queryInput}" (Total: ${matches.length}):`,
-      "",
-    ];
+    const resultLines = ["", `🔍 Coincidencias para "${queryInput}" (Total: ${matches.length}):`, ""];
 
     for (const item of displayed) {
       const typeLabel = item.type || (item.categories ? item.categories[0] : "item");

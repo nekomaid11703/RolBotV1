@@ -1,6 +1,11 @@
 // @ts-nocheck
 const { getActiveCharacter } = require("../../../services/characterService");
-const { unequipItem, unequipAllItems, normalizeSlot, EQUIPMENT_SLOTS } = require("../../../services/rpg/equipmentService");
+const {
+  unequipItem,
+  unequipAllItems,
+  normalizeSlot,
+  EQUIPMENT_SLOTS,
+} = require("../../../services/rpg/equipmentService");
 const { formatCommandUsage } = require("../../../utils/formatCommandUtils");
 const { box } = require("../../../utils/boxUtils");
 const { getItem } = require("../../../data/items");

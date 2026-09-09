@@ -32,7 +32,7 @@ const DESIRED_SCHEMA = {
   ],
   groups: ["id", "group_jid", "group_name", "total_messages"],
   group_members: ["group_id", "player_phone", "messages_count"],
-  inventory: ["id", "character_id", "item_id", "quantity", "metadata", "created_at", "updated_at"],
+  inventory: ["id", "character_id", "item_id", "variant_key", "quantity", "metadata", "created_at", "updated_at"],
   combat_sessions: [
     "id",
     "is_pve",
@@ -114,6 +114,7 @@ const COLUMN_TYPES = {
   "inventory.id": "bigint",
   "inventory.character_id": "uuid",
   "inventory.item_id": "text",
+  "inventory.variant_key": "text NOT NULL DEFAULT 'legacy'",
   "inventory.quantity": "integer DEFAULT 0",
   "inventory.metadata": "jsonb DEFAULT '{}'",
   "inventory.created_at": "timestamptz DEFAULT now()",

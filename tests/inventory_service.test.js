@@ -9,23 +9,36 @@ let mockOrderImpl = vi.fn().mockResolvedValue(MOCK_INVENTORY_DATA);
 
 function setupSupabaseMock() {
   const mockUpdateEq = vi.fn().mockReturnValue({
-    eq: vi.fn().mockResolvedValue({ error: null }),
+    eq: vi.fn().mockReturnValue({
+      eq: vi.fn().mockResolvedValue({ error: null }),
+    }),
   });
   const mockDeleteEq = vi.fn().mockReturnValue({
-    eq: vi.fn().mockResolvedValue({ error: null }),
+    eq: vi.fn().mockReturnValue({
+      eq: vi.fn().mockResolvedValue({ error: null }),
+    }),
   });
   const mockOrder = mockOrderImpl;
   const mockEq = vi.fn().mockReturnValue({ order: mockOrder });
   const mockSelect = vi.fn().mockReturnValue({ eq: mockEq });
+  const mockCharacterSelect = vi.fn().mockReturnValue({
+    eq: vi.fn().mockReturnValue({
+      maybeSingle: vi.fn().mockResolvedValue({ data: { slots: { tools: { mochila: { level: 1 } } } }, error: null }),
+    }),
+  });
+  const mockCharacterUpdate = vi.fn().mockReturnValue({
+    eq: vi.fn().mockResolvedValue({ error: null }),
+  });
   const mockInsert = vi.fn().mockResolvedValue({ error: null, data: null });
   const mockUpdateFn = vi.fn().mockReturnValue({ eq: mockUpdateEq });
   const mockDeleteFn = vi.fn().mockReturnValue({ eq: mockDeleteEq });
-  const mockFrom = vi.fn().mockReturnValue({
-    select: mockSelect,
-    insert: mockInsert,
-    update: mockUpdateFn,
-    delete: mockDeleteFn,
-  });
+  const mockFrom = vi
+    .fn()
+    .mockImplementation((table) =>
+      table === "characters"
+        ? { select: mockCharacterSelect, update: mockCharacterUpdate }
+        : { select: mockSelect, insert: mockInsert, update: mockUpdateFn, delete: mockDeleteFn },
+    );
 
   const mockSupabase = { from: mockFrom };
 
@@ -136,8 +149,8 @@ describe("getInventoryList", () => {
   it("enumera el inventario con índice 1-based y datos del catálogo", async () => {
     mocks.mockOrder.mockResolvedValue({
       data: [
-        { item_id: "pocion", quantity: 2 },
-        { item_id: "venda", quantity: 3 },
+        { item_id: "pocion", variant_key: "legacy", quantity: 2 },
+        { item_id: "venda", variant_key: "tier:E", quantity: 3 },
       ],
       error: null,
     });
@@ -147,6 +160,7 @@ describe("getInventoryList", () => {
       {
         index: 1,
         itemId: "pocion",
+        variantKey: "legacy",
         name: "Poción",
         quantity: 2,
         metadata: {},
@@ -156,6 +170,7 @@ describe("getInventoryList", () => {
       {
         index: 2,
         itemId: "venda",
+        variantKey: "tier:E",
         name: "Venda",
         quantity: 3,
         metadata: {},
@@ -178,14 +193,14 @@ describe("addItem", () => {
   it("agrega un item nuevo al inventario vacio", async () => {
     const { addItem } = loadService();
     const result = await addItem(1, "user1", "venda", 2);
-    expect(result).toEqual({ itemId: "venda", quantity: 2, total: 2 });
+    expect(result).toEqual({ itemId: "venda", variantKey: "legacy", quantity: 2, total: 2 });
   });
 
   it("incrementa cantidad de un item existente", async () => {
     mocks.mockOrder.mockResolvedValue({ data: [{ item_id: "venda", quantity: 5 }], error: null });
     const { addItem } = loadService();
     const result = await addItem(1, "user1", "venda", 3);
-    expect(result).toEqual({ itemId: "venda", quantity: 3, total: 8 });
+    expect(result).toEqual({ itemId: "venda", variantKey: "legacy", quantity: 3, total: 8 });
   });
 
   it("lanza error si el item no existe", async () => {
@@ -201,7 +216,7 @@ describe("addItem", () => {
     mocks.mockOrder.mockResolvedValue({ data: full, error: null });
     const { addItem } = loadService();
     await expect(addItem(1, "user1", "venda", 1)).rejects.toThrow(
-      `Inventario lleno (máx. ${MAX_INVENTORY_SIZE} tipos de items distintos).`,
+      `Inventario lleno (máx. ${MAX_INVENTORY_SIZE} tipos de items distintos). Mejora tu mochila con /herramientas.`,
     );
   });
 
@@ -228,6 +243,19 @@ describe("addItem", () => {
     const { addItem } = loadService();
     const result = await addItem(1, "user1", "pocion");
     expect(result.quantity).toBe(1);
+  });
+
+  it("mantiene separados los tiers E y D del mismo material", async () => {
+    const { addItem } = loadService();
+
+    const tierE = await addItem(1, "user1", "venda", 1, { tier: "E" });
+    const tierD = await addItem(1, "user1", "venda", 1, { tier: "D" });
+
+    expect(tierE.variantKey).toBe("tier:E");
+    expect(tierD.variantKey).toBe("tier:D");
+    expect(tierE.variantKey).not.toBe(tierD.variantKey);
+    expect(mocks.mockInsert).toHaveBeenCalledWith(expect.objectContaining({ variant_key: "tier:E" }));
+    expect(mocks.mockInsert).toHaveBeenCalledWith(expect.objectContaining({ variant_key: "tier:D" }));
   });
 });
 
@@ -335,53 +363,5 @@ describe("useItem", () => {
     expect(result).toBeDefined();
     const charService = require.cache[require.resolve("../src/services/characterService")];
     expect(charService.exports.setHp).toHaveBeenCalled();
-  });
-});
-
-describe("ensureTestKit", () => {
-  it("agrega los 4 items si el inventario esta vacio", async () => {
-    const { ensureTestKit } = loadService();
-    const added = await ensureTestKit(1, "user1");
-    expect(added).toEqual(["venda", "pocion", "tonico", "antidoto"]);
-  });
-
-  it("no agrega items que ya existen", async () => {
-    mocks.mockOrder.mockResolvedValue({
-      data: [
-        { item_id: "venda", quantity: 1 },
-        { item_id: "pocion", quantity: 2 },
-      ],
-      error: null,
-    });
-    const { ensureTestKit } = loadService();
-    const added = await ensureTestKit(1, "user1");
-    expect(added).toEqual(["tonico", "antidoto"]);
-  });
-
-  it("no agrega nada si ya existen todos", async () => {
-    mocks.mockOrder.mockResolvedValue({
-      data: [
-        { item_id: "venda", quantity: 1 },
-        { item_id: "pocion", quantity: 1 },
-        { item_id: "tonico", quantity: 1 },
-        { item_id: "antidoto", quantity: 1 },
-      ],
-      error: null,
-    });
-    const { ensureTestKit } = loadService();
-    const added = await ensureTestKit(1, "user1");
-    expect(added).toEqual([]);
-  });
-
-  it("continua si falla al agregar un item (logea error)", async () => {
-    let callCount = 0;
-    mocks.mockInsert.mockImplementation(async () => {
-      callCount++;
-      if (callCount === 1) return { error: new Error("insert failed") };
-      return { error: null, data: null };
-    });
-    const { ensureTestKit } = loadService();
-    const added = await ensureTestKit(1, "user1");
-    expect(added.length).toBe(3);
   });
 });

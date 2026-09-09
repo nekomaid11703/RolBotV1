@@ -1,3 +1,4 @@
+// @ts-nocheck
 const characterService = require("../../../services/characterService");
 const { findSessionByCharacter, advanceTurn } = require("../../../services/rpg/combatState");
 const spellContainerService = require("../../../services/rpg/spellContainerService");
@@ -230,7 +231,7 @@ module.exports = {
     const casterSlot = session[sideKey];
     const targetSlot = session[oppSideKey];
 
-    const { isActionBlocked, applyBarrierDamage } = require("../../../services/rpg/combatState");
+    const { isActionBlocked } = require("../../../services/rpg/combatState");
     if (isActionBlocked(casterSlot, "attack")) {
       return ctx.reply("🧊 Estás congelado y no puedes lanzar hechizos de ataque en este turno.");
     }
@@ -242,66 +243,227 @@ module.exports = {
       return ctx.reply(`⏳ El hechizo *${spellDetails.name}* está en cooldown (${currentCd} turnos restantes).`);
     }
 
-    // Verificar Batería de Fulgor
+    // Verificar Batería de Fulgor (dilución en vez de abort si se agota)
     const maxFulgor = Math.min(100, Math.max(10, (activeChar.stats?.fulgor || 1) * 2));
     casterSlot.spentFulgor = casterSlot.spentFulgor || 0;
     const availableFulgor = Math.max(0, maxFulgor - casterSlot.spentFulgor);
+    const fulgorCost = spellDetails.fulgorCost || 0;
 
-    if (availableFulgor < spellDetails.fulgorCost) {
-      return ctx.reply(
-        `❌ Fulgor insuficiente. Requiere ✨${spellDetails.fulgorCost}, pero tienes ✨${availableFulgor}/${maxFulgor}.`,
-      );
-    }
+    // Si el fulgor disponible es menor al coste: entrar en modo diluido (eff = 0.1)
+    // en lugar de abortar, consistente con la tubería de /atacar.
+    const isDiluted = availableFulgor < fulgorCost;
 
     // Deducir Fulgor y aplicar Cooldown
-    casterSlot.spentFulgor += spellDetails.fulgorCost;
+    casterSlot.spentFulgor += fulgorCost;
     if (spellDetails.cooldown > 0) {
       casterSlot.spellCooldowns[targetSpell.spellId] = spellDetails.cooldown;
     }
 
-    // Resolver bonificador de Conducción Mágica del arma/foco empuñado
-    const { resolveAttackerWeapon } = require("../../../services/rpg/equipmentResolverService");
-    const weaponInfo = await resolveAttackerWeapon(activeChar).catch(() => null);
-    const magicConductionBonus = Number(weaponInfo && "magicConduction" in weaponInfo ? weaponInfo.magicConduction : 0) || 0;
+    // Resolver foco equipado para obtener canalizeBase/canalizeScale
+    const {
+      resolveAttackerWeapon,
+      resolveSpellPayload,
+      resolveSpellDominante,
+    } = require("../../../services/rpg/equipmentResolverService");
+    const focusInfo = await resolveAttackerWeapon(activeChar).catch(() => null);
+    const canalizeBase = focusInfo?.isFocus ? focusInfo.canalizeBase || 0 : 0;
+    const canalizeScale = focusInfo?.isFocus ? focusInfo.canalizeScale || 1 : 1;
 
-    // Resolver Daño o Efectos del Hechizo (baseDamage + magicConductionBonus del arma/foco)
-    const rawSpellDmg = (spellDetails.baseDamage || Math.floor((activeChar.stats?.fulgor || 1) * 1.5)) + magicConductionBonus;
-    const baseDmg = Math.max(1, rawSpellDmg);
-    const isTargetPvE = targetSlot.isDummy;
+    // Construir weaponInfo sintético con datos del hechizo + amplificación del foco.
+    // Este weaponInfo es la misma forma que usa /atacar → misma tubería matemática.
+    const spellWeaponInfo = {
+      damageNature: "mágico",
+      baseDamage: Number(spellDetails.baseDamage) || 0,
+      fulgorCost,
+      spellNature: spellDetails.spellNature || "mágico",
+      weaponRange: Number(spellDetails.range) || 1,
+      canalizeBase,
+      canalizeScale,
+      element: resolveSpellDominante(spellDetails),
+      spell: resolveSpellPayload(spellDetails),
+      // Si el fulgor está diluido, marcar para que combatEngine aplique eff = 0.1
+      fulgorDiluted: isDiluted,
+    };
 
-    // Calcular daño mitigado por R_FULGOR
-    const rFulgor = targetSlot.character?.stats?.r_fulgor || 1;
-    const mitigatedDmg = Math.max(1, Math.round(baseDmg * (100 / (100 + rFulgor))));
+    const { executeAttack, getDamageMultiplier } = require("../../../services/rpg/combatEngine");
+    const {
+      applySpellHits,
+      applySpellCastEffects,
+      applyElementalAttack,
+      applyBarrierDamage,
+      applyPrisonDamage,
+      endSession,
+    } = require("../../../services/rpg/combatState");
 
-    // Absorción por Barrera (si el objetivo tiene escudo activo)
-    const netDmg = applyBarrierDamage(targetSlot, mitigatedDmg);
+    const isBarrierSelf =
+      spellDetails.kind === "barrera" &&
+      (spellDetails.application === "propia" || spellDetails.targetMode === "propio");
+    const isPrison =
+      spellDetails.kind === "barrera" &&
+      (spellDetails.application === "externa" || spellDetails.targetMode === "enemigo");
 
+    // ── RAMA A: BARRERA DEFENSIVA (PROPIA) ──
+    if (isBarrierSelf) {
+      const baseBarrierVal = Number(spellDetails.resolution?.barrierHp || spellDetails.baseDamage) || 20;
+      const rawBarrierHp = Math.floor((baseBarrierVal + canalizeBase) * canalizeScale);
+      const effectiveBarrierHp = Math.max(5, Math.floor(rawBarrierHp * (isDiluted ? 0.1 : 1)));
+
+      casterSlot.barrierHp = (casterSlot.barrierHp || 0) + effectiveBarrierHp;
+
+      if (spellWeaponInfo.spell?.effects?.length) {
+        await applySpellCastEffects(session.id, casterSlot, targetSlot, spellWeaponInfo.spell.effects, "propia");
+      }
+
+      const dilutedNote = isDiluted ? "\n⚠️ *Fulgor agotado — barrera diluida al 10% de potencia.*" : "";
+      const logLines = [
+        `✨ *${activeChar.name}* lanza *${spellDetails.name}*!${dilutedNote}`,
+        `🛡️ Se erige una **Barrera Defensiva** (+${effectiveBarrierHp} HP de absorción) [Total: ${casterSlot.barrierHp} HP].`,
+      ];
+
+      await advanceTurn(session.id, session.challenger.hp, session.defender.hp);
+      const isTargetPvE = targetSlot.isDummy || targetSlot.isBot;
+      if (isTargetPvE) {
+        return runDummyTurn(ctx, session, isChallenger, logLines);
+      }
+      const currentStatus = formatCombatStatus(session);
+      return ctx.reply(`${box("🛡️ BARRERA MÁGICA", logLines)}\n\n${currentStatus}`);
+    }
+
+    // ── RAMA B: PRISIÓN ROMPIBLE (EXTERNA) ──
+    if (isPrison) {
+      const baseBarrierVal = Number(spellDetails.resolution?.barrierHp || spellDetails.baseDamage) || 20;
+      const rawBarrierHp = Math.floor((baseBarrierVal + canalizeBase) * canalizeScale);
+      const effectiveBarrierHp = Math.max(5, Math.floor(rawBarrierHp * (isDiluted ? 0.1 : 1)));
+      const spellElem = resolveSpellDominante(spellDetails);
+
+      targetSlot.prison = {
+        hp: effectiveBarrierHp,
+        maxHp: effectiveBarrierHp,
+        element: spellElem,
+      };
+
+      if (spellWeaponInfo.spell?.effects?.length) {
+        await applySpellCastEffects(session.id, casterSlot, targetSlot, spellWeaponInfo.spell.effects, "externa");
+      }
+
+      const dilutedNote = isDiluted ? "\n⚠️ *Fulgor agotado — prisión diluida al 10% de resistencia.*" : "";
+      const logLines = [
+        `✨ *${activeChar.name}* lanza *${spellDetails.name}*!${dilutedNote}`,
+        `🧱 *${targetSlot.character.name}* ha sido encerrado en una **Prisión Rompible** [🛡️ ${effectiveBarrierHp}/${effectiveBarrierHp} HP | Elemento: ${spellElem || "arcano"}].`,
+        `⚠️ El objetivo no podrá desplazarse hasta destruirla golpeándola desde adentro.`,
+      ];
+
+      await advanceTurn(session.id, session.challenger.hp, session.defender.hp);
+      const isTargetPvE = targetSlot.isDummy || targetSlot.isBot;
+      if (isTargetPvE) {
+        return runDummyTurn(ctx, session, isChallenger, logLines);
+      }
+      const currentStatus = formatCombatStatus(session);
+      return ctx.reply(`${box("🧱 PRISIÓN MÁGICA", logLines)}\n\n${currentStatus}`);
+    }
+
+    // ── RAMA C: HECHIZO OFENSIVO ESTÁNDAR ──
+    let attackInfo = executeAttack(
+      casterSlot.character,
+      targetSlot.character,
+      targetSlot.hp,
+      casterSlot.hp,
+      casterSlot.fatigue,
+      targetSlot.fatigue,
+      spellWeaponInfo,
+    );
+    attackInfo.baseDamage = Math.max(1, Math.floor(attackInfo.baseDamage * getDamageMultiplier(casterSlot)));
+
+    // Reacciones elementales — misma lógica que /atacar
+    if (spellWeaponInfo.spell?.hits?.length) {
+      const amp = await applySpellHits(
+        session.id,
+        targetSlot,
+        spellWeaponInfo.spell.hits,
+        attackInfo.baseDamage,
+        attackInfo.materialDamage,
+      );
+      attackInfo.elementReaction = amp.reactions[amp.reactions.length - 1] || null;
+      attackInfo.baseDamage = amp.baseDamage;
+      attackInfo.materialDamage = amp.materialDamage;
+    } else if (spellWeaponInfo.element) {
+      const amp = await applyElementalAttack(
+        session.id,
+        targetSlot,
+        spellWeaponInfo.element,
+        attackInfo.baseDamage,
+        attackInfo.materialDamage,
+      );
+      attackInfo.elementReaction = amp.reaction;
+      attackInfo.baseDamage = amp.baseDamage;
+      attackInfo.materialDamage = amp.materialDamage;
+    }
+    if (spellWeaponInfo.spell?.effects?.length) {
+      attackInfo.effectEvents = await applySpellCastEffects(
+        session.id,
+        casterSlot,
+        targetSlot,
+        spellWeaponInfo.spell.effects,
+        spellWeaponInfo.spell.application,
+      );
+    }
+
+    const logLines = [];
+    const dilutedNote = isDiluted ? "\n⚠️ *Fulgor agotado — hechizo diluido al 10% de eficiencia.*" : "";
+    logLines.push(`✨ *${activeChar.name}* lanza *${spellDetails.name}*!${dilutedNote}`);
+
+    // Si el objetivo está en una prisión, el ataque externo debe penetrarla primero
+    let incomingDamage = attackInfo.baseDamage;
+    if (targetSlot.prison && targetSlot.prison.hp > 0) {
+      const prisonRes = applyPrisonDamage(targetSlot, incomingDamage);
+      incomingDamage = prisonRes.netDamage;
+      if (prisonRes.destroyed) {
+        logLines.push(
+          `💥 ¡El impacto destruyó la **Prisión Mágica** de *${targetSlot.character.name}*! (Absorbió ${prisonRes.absorbed} daño)`,
+        );
+      } else {
+        logLines.push(
+          `🧱 La **Prisión Mágica** absorbió el impacto (-${prisonRes.absorbed} HP, quedan ${targetSlot.prison.hp}/${targetSlot.prison.maxHp}).`,
+        );
+      }
+    }
+
+    // Absorción por barrera defensiva del objetivo y aplicar daño remanente al HP
+    const netDmg = applyBarrierDamage(targetSlot, incomingDamage);
     const newTargetHp = Math.max(0, targetSlot.hp - netDmg);
     targetSlot.hp = newTargetHp;
     if (targetSlot.userId && targetSlot.character?.name) {
-      await characterService.setHp({
-        creatorId: targetSlot.userId,
-        characterName: targetSlot.character.name,
-        hp: newTargetHp,
-      }).catch(() => null);
+      await characterService
+        .setHp({
+          creatorId: targetSlot.userId,
+          characterName: targetSlot.character.name,
+          hp: newTargetHp,
+        })
+        .catch(() => null);
     }
 
-    const logLines = [
-      `✨ *${activeChar.name}* lanza *${spellDetails.name}*!`,
-      `💥 Daño Mágico (${spellDetails.nature}): -${mitigatedDmg} HP a *${targetSlot.character.name}*`,
-    ];
+    if (netDmg > 0 || (incomingDamage === 0 && !targetSlot.prison)) {
+      logLines.push(
+        `💥 Daño Mágico (${spellDetails.nature || spellDetails.spellNature || "mágico"}): -${netDmg} HP a *${targetSlot.character.name}*`,
+      );
+    }
+
+    if (attackInfo.elementReaction) {
+      const { formatElementReactionLine } = require("../../../services/rpg/combatMessages");
+      logLines.push(formatElementReactionLine(attackInfo.elementReaction));
+    }
 
     if (newTargetHp === 0) {
       logLines.push(`💀 *${targetSlot.character.name}* ha sido derrotado!`);
-      const { endSession } = require("../../../services/rpg/combatState");
       await endSession(session.id, activeChar.id);
-      return ctx.reply(box("✨ VICTORIA MAGICA", logLines));
+      return ctx.reply(box("✨ VICTORIA MÁGICA", logLines));
     }
 
     // Avanzar turno
     await advanceTurn(session.id, session.challenger.hp, session.defender.hp);
 
     // Si es PvE (Dummy Turn)
+    const isTargetPvE = targetSlot.isDummy || targetSlot.isBot;
     if (isTargetPvE) {
       return runDummyTurn(ctx, session, isChallenger, logLines);
     }

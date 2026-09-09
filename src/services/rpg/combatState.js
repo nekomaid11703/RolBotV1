@@ -6,7 +6,7 @@ const { logError, logSystem } = require("../loggerService");
  * @constant moduleRegistry
  */
 const moduleRegistry = require("../../modules/moduleRegistry");
-const { buildDummyEquipment, IRON_DUMMY_LOADOUT } = require("./dummyEquipment");
+const { buildDummyEquipment } = require("./dummyEquipment");
 const { resolveEffect, resolveElementReaction } = require("./spellEffects");
 const { EFFECT_DEFS } = require("../../config/spellTree");
 
@@ -107,7 +107,7 @@ function generateDummyCharacter(challengerChar, options = {}) {
    */
   const dummyHp = Math.max(1, Math.floor(totalPoints / keys.length));
 
-  const loadout = Array.isArray(options.loadout) ? options.loadout : IRON_DUMMY_LOADOUT;
+  const loadout = Array.isArray(options.loadout) ? options.loadout : [];
 
   return {
     id: `dummy_${Date.now()}_${Math.floor(Math.random() * 1000)}`,
@@ -119,8 +119,8 @@ function generateDummyCharacter(challengerChar, options = {}) {
       hp: dummyHp,
       ...dummyStats,
     },
-    // Equipamiento en memoria (Familia del Hierro por defecto) para que el dummy
-    // use y luzca el sistema de equipo sin tocar la DB.
+    // Equipamiento en memoria (vacío por defecto) para que el dummy use y luzca
+    // el sistema de equipo sin tocar la DB. Ya no se inyecta equipo de prueba.
     dummyEquipment: buildDummyEquipment(loadout),
   };
 }
@@ -323,6 +323,8 @@ async function createSession(challengerId, defenderId, challengerChar, defenderC
       fatigue: 0,
       aura: { pasiva: null, turnos: 0 },
       activeEffects: [],
+      barrierHp: 0,
+      prison: null,
     },
     defender: {
       userId: defenderId,
@@ -334,6 +336,8 @@ async function createSession(challengerId, defenderId, challengerChar, defenderC
       fatigue: 0,
       aura: { pasiva: null, turnos: 0 },
       activeEffects: [],
+      barrierHp: 0,
+      prison: null,
     },
     currentTurnCharId: challengerChar.id,
     status: SESSION_STATES.WAITING_ACTION,
@@ -402,6 +406,8 @@ async function createDummySession(challengerId, challengerChar, options = {}) {
       fatigue: 0,
       aura: { pasiva: null, turnos: 0 },
       activeEffects: [],
+      barrierHp: 0,
+      prison: null,
     },
     defender: {
       userId: "bot_dummy",
@@ -413,6 +419,8 @@ async function createDummySession(challengerId, challengerChar, options = {}) {
       fatigue: 0,
       aura: { pasiva: null, turnos: 0 },
       activeEffects: [],
+      barrierHp: 0,
+      prison: null,
     },
     currentTurnCharId: challengerChar.id,
     status: SESSION_STATES.WAITING_ACTION,
@@ -660,11 +668,19 @@ function applyEffects(target, lanzador, effects, session) {
     const def = EFFECT_DEFS[desc.tipo];
     const idx = target.activeEffects.findIndex((active) => active.tipo === desc.tipo);
     if (idx >= 0 && !def.stackable) {
-      target.activeEffects[idx] = desc; // refresca duración, no acumula
+      // E-14: Límite de refrescos continuos (máximo 3 extensiones sucesivas de duración)
+      const currentRefreshes = target.activeEffects[idx].refreshCount || 0;
+      if (currentRefreshes < 3) {
+        target.activeEffects[idx] = { ...desc, refreshCount: currentRefreshes + 1 };
+        events.push({ type: "apply", effect: desc.tipo, targetId: target.characterId, turnos: desc.turnos });
+      } else {
+        // Alcanzó el límite de extensiones de duración continuas
+        events.push({ type: "refresh_capped", effect: desc.tipo, targetId: target.characterId });
+      }
     } else {
-      target.activeEffects.push(desc);
+      target.activeEffects.push({ ...desc, refreshCount: 0 });
+      events.push({ type: "apply", effect: desc.tipo, targetId: target.characterId, turnos: desc.turnos });
     }
-    events.push({ type: "apply", effect: desc.tipo, targetId: target.characterId, turnos: desc.turnos });
   }
   return events;
 }
@@ -725,6 +741,68 @@ function applyBarrierDamage(slot, rawDamage) {
     slot.barrierHp = 0;
   }
   return damage;
+}
+
+/**
+ * Absorbe daño entrante exterior hacia un objetivo atrapado en una prisión rompible.
+ * Si el daño supera la durabilidad de la prisión, esta se destruye y el daño
+ * remanente penetra hacia las defensas/HP del objetivo.
+ * @param {object} slot - Slot del objetivo que puede tener `prison`
+ * @param {number} rawDamage - Daño bruto del atacante
+ * @returns {{ netDamage: number, absorbed: number, destroyed: boolean, element: string|null }}
+ */
+function applyPrisonDamage(slot, rawDamage) {
+  let damage = Math.max(0, Number(rawDamage) || 0);
+  if (slot.prison && slot.prison.hp > 0) {
+    const element = slot.prison.element || null;
+    if (slot.prison.hp > damage) {
+      slot.prison.hp -= damage;
+      return { netDamage: 0, absorbed: damage, destroyed: false, element };
+    }
+    const absorbed = slot.prison.hp;
+    damage -= absorbed;
+    slot.prison = null;
+    return { netDamage: damage, absorbed, destroyed: true, element };
+  }
+  return { netDamage: damage, absorbed: 0, destroyed: false, element: null };
+}
+
+/**
+ * Ataca la prisión desde adentro para desgastarla y liberarse.
+ * Al golpear los barrotes mágicos, el combatiente atrapado absorbe el elemento
+ * de la prisión (imbuición).
+ * @param {object} slot - Slot del combatiente atrapado
+ * @param {number} rawDamage - Daño del golpe interno
+ * @returns {{ destroyed: boolean, damageDealt: number, remainingHp: number, maxHp: number, element: string|null, isPrison: boolean }}
+ */
+function attackPrisonFromInside(slot, rawDamage) {
+  const damage = Math.max(1, Number(rawDamage) || 1);
+  if (!slot.prison || slot.prison.hp <= 0) {
+    return { destroyed: false, damageDealt: 0, remainingHp: 0, maxHp: 0, element: null, isPrison: false };
+  }
+  const element = slot.prison.element || null;
+  const maxHp = slot.prison.maxHp || slot.prison.hp;
+  const hpBefore = slot.prison.hp;
+  if (hpBefore > damage) {
+    slot.prison.hp -= damage;
+    return {
+      destroyed: false,
+      damageDealt: damage,
+      remainingHp: slot.prison.hp,
+      maxHp,
+      element,
+      isPrison: true,
+    };
+  }
+  slot.prison = null;
+  return {
+    destroyed: true,
+    damageDealt: hpBefore,
+    remainingHp: 0,
+    maxHp,
+    element,
+    isPrison: true,
+  };
 }
 
 function getEffectKoOutcome(session) {
@@ -908,23 +986,6 @@ async function endSession(sessionId, winnerCharId) {
   });
 
   triggerModuleEvent(session, "CombatEnd", { session, winnerId: winnerCharId });
-  const { cleanupTemporalItems } = require("./inventoryService");
-  /**
-   * @constant challengerId
-   */
-  const challengerId = session.challenger.characterId;
-  /**
-   * @constant defenderId
-   */
-  const defenderId = session.defender.characterId;
-  await Promise.all([
-    cleanupTemporalItems(challengerId).catch((error) =>
-      logError({ source: "combatState.cleanupTemporalItems", error, context: { characterId: challengerId } }),
-    ),
-    cleanupTemporalItems(defenderId).catch((error) =>
-      logError({ source: "combatState.cleanupTemporalItems", error, context: { characterId: defenderId } }),
-    ),
-  ]);
 
   return session;
 }
@@ -1059,6 +1120,8 @@ module.exports = {
   getDefenseReduction,
   getReflexReduction,
   applyBarrierDamage,
+  applyPrisonDamage,
+  attackPrisonFromInside,
   getEffectKoOutcome,
   resolveSlotByCharacterId,
   setPendingReaction,

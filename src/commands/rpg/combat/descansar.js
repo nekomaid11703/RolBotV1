@@ -1,3 +1,4 @@
+// @ts-nocheck
 const { getActiveCharacter, setHp } = require("../../../services/characterService");
 const {
   findSessionByCharacter,
@@ -6,10 +7,16 @@ const {
   setPendingReaction,
   endSession,
   getEffectKoOutcome,
+  isActionBlocked,
 } = require("../../../services/rpg/combatState");
-const { executeAttack, executeReaction, evaluateDodgeFeasibility } = require("../../../services/rpg/combatEngine");
+const { executeAttack, executeReaction, predictDodgeFeasibility } = require("../../../services/rpg/combatEngine");
 const { calcFatigueRecovery, capFatigue } = require("../../../services/rpg/fatigueEngine");
-const { formatActionMenu, formatReactionPrompt, buildFatigueBar, buildSituationalCtx } = require("../../../services/rpg/combatMessages");
+const {
+  formatActionMenu,
+  formatReactionPrompt,
+  buildFatigueBar,
+  buildSituationalCtx,
+} = require("../../../services/rpg/combatMessages");
 const { box } = require("../../../utils/boxUtils");
 const {
   resolveAttackerWeapon,
@@ -65,8 +72,12 @@ async function getRestContext(ctx) {
  */
 function calcFulgorRecovery(stats, currentSpent, maxFulgor) {
   if (currentSpent <= 0) return { recovered: 0, newSpent: 0 };
+  // E-04: La recuperación base está acotada por d_fulgor pero NO puede superar
+  // el 40% del maxFulgor por turno, ni el hard-cap de 20. Esto mantiene coherencia
+  // con la curva de gasto de fatigueEngine y evita recuperar la batería en un turno.
   const base = 2 + Math.floor((stats.d_fulgor || 0) / 5);
-  const recovered = Math.min(Math.min(base, 20), currentSpent);
+  const capByMax = maxFulgor > 0 ? Math.floor(maxFulgor * 0.4) : 20;
+  const recovered = Math.min(Math.min(base, 20), capByMax, currentSpent);
   return { recovered, newSpent: Math.max(0, currentSpent - recovered) };
 }
 
@@ -112,7 +123,7 @@ async function handlePvECounterattack(ctx, session, resterSlot, opponentSlot, is
   );
 
   if (dummyAttack.canReact) {
-    const canDodge = evaluateDodgeFeasibility(
+    const canDodge = predictDodgeFeasibility(
       resterSlot.character.stats,
       resterSlot.hp,
       opponentSlot.character.stats,
@@ -213,6 +224,11 @@ module.exports = {
   async execute(ctx) {
     const restCtx = await getRestContext(ctx);
     if (restCtx.error) return ctx.reply(restCtx.error);
+
+    // E-15: Personajes congelados, paralizados o atrapados no pueden descansar.
+    if (isActionBlocked(restCtx.resterSlot, "rest")) {
+      return ctx.reply("❌ Estás incapacitado y no puedes descansar.");
+    }
 
     const recovery = calcFatigueRecovery(
       "rest",

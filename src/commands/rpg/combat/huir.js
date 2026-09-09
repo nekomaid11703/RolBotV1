@@ -13,10 +13,11 @@ const {
   formatFlee,
   formatActionMenu,
   formatReactionPrompt,
-  buildFatigueBar,
+  formatCombatResult,
+  buildEnergyBar,
   buildSituationalCtx,
 } = require("../../../services/rpg/combatMessages");
-const { box } = require("../../../utils/boxUtils");
+const { divider } = require("../../../utils/boxUtils");
 const {
   resolveAttackerWeapon,
   resolveDefenderArmor,
@@ -121,7 +122,7 @@ module.exports = {
     lines.push("");
     lines.push(`\u274C *${fleerSlot.character.name}* fue interceptado`);
     lines.push(`🎯 Probabilidad de escape: ${Math.round(fleeResult.chance * 100)}%`);
-    lines.push(`\u26A1 ${buildFatigueBar(fleerSlot.fatigue, fleerSlot.character.stats.def || 1)}`);
+    lines.push(buildEnergyBar(fleerSlot.fatigue, fleerSlot.character.stats.def || 1));
 
     /**
      * @constant attackInfo
@@ -141,11 +142,11 @@ module.exports = {
     );
 
     if (attackInfo.canReact) {
-      const { evaluateDodgeFeasibility } = require("../../../services/rpg/combatEngine");
+      const { predictDodgeFeasibility } = require("../../../services/rpg/combatEngine");
       /**
        * @constant canDodge
        */
-      const canDodge = evaluateDodgeFeasibility(
+      const canDodge = predictDodgeFeasibility(
         fleerSlot.character.stats,
         fleerSlot.hp,
         pursuerSlot.character.stats,
@@ -171,12 +172,12 @@ module.exports = {
       lines.push("");
       lines.push(`\u2694\uFE0F Contraataque (${attackInfo.baseDamage})`);
       lines.push("");
-      lines.push("\u2726 \u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501 \u2726");
+      lines.push(divider());
       lines.push(
         formatReactionPrompt(pursuerSlot.character.name, fleerSlot.character.name, attackInfo.baseDamage, canDodge),
       );
 
-      return ctx.reply(box("\uD83C\uDFC3 HUIDA", lines));
+      return ctx.reply(formatCombatResult("\uD83C\uDFC3 HUIDA", lines));
     }
 
     /**
@@ -214,7 +215,7 @@ module.exports = {
     lines.push(`\u2764\uFE0F *${fleerSlot.character.name}*: ${reactionResult.defenderHpBefore}\u2192${newFleerHp}`);
     if (effectKo) {
       lines.push(`\uD83D\uDC80 *${effectKo.loser.character.name}* cayó por un estado`);
-      return ctx.reply(box("\uD83C\uDFC3 HUIDA", lines));
+      return ctx.reply(formatCombatResult("\uD83C\uDFC3 HUIDA", lines));
     }
 
     if (reactionResult.ko) {
@@ -222,16 +223,18 @@ module.exports = {
       await setHp({ creatorId: ctx.sender, characterName: fleerSlot.character.name, hp: 0 });
       lines.push("");
       lines.push(`\uD83D\uDC80 *${fleerSlot.character.name}* cay\u00F3`);
-      return ctx.reply(box("\uD83C\uDFC3 HUIDA", lines));
+      return ctx.reply(formatCombatResult("\uD83C\uDFC3 HUIDA", lines));
     }
 
     lines.push("");
-    lines.push("\u2726 \u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501 \u2726");
-    const nextSlot = session.currentTurnCharId === session.challenger.characterId ? session.challenger : session.defender;
-    const nextOpp = session.currentTurnCharId === session.challenger.characterId ? session.defender : session.challenger;
+    lines.push(divider());
+    const nextSlot =
+      session.currentTurnCharId === session.challenger.characterId ? session.challenger : session.defender;
+    const nextOpp =
+      session.currentTurnCharId === session.challenger.characterId ? session.defender : session.challenger;
     const situCtx = buildSituationalCtx(nextSlot, nextOpp, session.distance);
     lines.push(formatActionMenu(pursuerSlot.character.name, session, situCtx));
 
-    return ctx.reply(box("\uD83C\uDFC3 HUIDA", lines));
+    return ctx.reply(formatCombatResult("\uD83C\uDFC3 HUIDA", lines));
   },
 };

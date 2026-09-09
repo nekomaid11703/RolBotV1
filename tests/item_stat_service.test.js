@@ -23,8 +23,8 @@ describe("getWeaponStats — base × tier × material", () => {
     });
     const stats = getWeaponStats(def);
 
-    // madera: afilabilidad 20 × tier N 1.84; EDGE_SCALE = 50.
-    expect(stats.baseDamage).toBe(Math.round(10 * ((20 * 1.84) / 50)));
+    // madera: afilabilidad 7 × tier N 1.84; EDGE_SCALE = 50.
+    expect(stats.baseDamage).toBe(Math.round(10 * ((7 * 1.84) / 50)));
   });
 
   it("Aplica el multiplicador de tier al daño base", () => {
@@ -36,8 +36,8 @@ describe("getWeaponStats — base × tier × material", () => {
 
   it("El material con mayor afilabilidad produce más daño al mismo tier", () => {
     const madera = getWeaponStats(createItemDefinition({ id: "a", type: "weapon", material: "madera", tier: "B" }));
-    const acero = getWeaponStats(createItemDefinition({ id: "b", type: "weapon", material: "acero", tier: "B" }));
-    expect(acero.baseDamage).toBeGreaterThanOrEqual(madera.baseDamage);
+    const piedra = getWeaponStats(createItemDefinition({ id: "b", type: "weapon", material: "piedra", tier: "B" }));
+    expect(piedra.baseDamage).toBeGreaterThanOrEqual(madera.baseDamage);
   });
 
   it("Conserva naturaleza de daño, manos y tier normalizado", () => {
@@ -45,7 +45,7 @@ describe("getWeaponStats — base × tier × material", () => {
       createItemDefinition({
         id: "lanza",
         type: "weapon",
-        material: "hierro",
+        material: "acero",
         tier: "B",
         modules: { weapon: { damageNature: "perforante", hands: 2 } },
       }),
@@ -83,16 +83,16 @@ describe("getProjectileStats — flecha fija por material, SIN escalado de tier"
         modules: { weapon: { damageNature: "proyectil", baseDamage: 12, hands: 1, weaponRange: 0 } },
       }),
     );
-    const acero = getProjectileStats(
+    const piedra = getProjectileStats(
       createItemDefinition({
         id: "f",
         type: "weapon",
-        material: "acero",
+        material: "piedra",
         tier: "B",
         modules: { weapon: { damageNature: "proyectil", baseDamage: 12, hands: 1, weaponRange: 0 } },
       }),
     );
-    expect(acero.baseDamage).toBeGreaterThanOrEqual(madera.baseDamage);
+    expect(piedra.baseDamage).toBeGreaterThanOrEqual(madera.baseDamage);
   });
 
   it("Proyectil de tier alto NO explota con doble escalado (flecha fija × BOW_DAMAGE_MULT)", () => {

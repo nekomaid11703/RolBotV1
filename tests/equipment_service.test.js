@@ -7,16 +7,23 @@
 let mockEquippedSlots = {};
 let mockSaveError = null;
 let mockSchemaError = null;
+let mockRemoveItem;
+let mockAddItem;
+let mockInventoryRows;
 
 function setupMocks() {
   mockEquippedSlots = {};
   mockSaveError = null;
   mockSchemaError = null;
+  mockRemoveItem = vi.fn().mockResolvedValue({ itemId: "test", removed: 1, remaining: 0 });
+  mockAddItem = vi.fn().mockResolvedValue({ itemId: "test", quantity: 1, total: 1 });
+  mockInventoryRows = [];
 
   const supabasePath = require.resolve("../src/database/supabase");
   const loggerPath = require.resolve("../src/services/loggerService");
   const columnRegistryPath = require.resolve("../src/database/columnRegistry");
   const safeQueryPath = require.resolve("../src/utils/safeQuery");
+  const inventoryServicePath = require.resolve("../src/services/rpg/inventoryService");
 
   const mockFrom = vi.fn().mockImplementation((table) => {
     if (table === "characters") {
@@ -76,6 +83,17 @@ function setupMocks() {
     filename: safeQueryPath,
     loaded: true,
     exports: { invalidateUserCache: vi.fn() },
+  };
+  require.cache[inventoryServicePath] = {
+    id: inventoryServicePath,
+    filename: inventoryServicePath,
+    loaded: true,
+    exports: {
+      getInventory: vi.fn().mockImplementation(() => Promise.resolve(mockInventoryRows)),
+      getInventoryList: vi.fn().mockResolvedValue([]),
+      addItem: mockAddItem,
+      removeItem: mockRemoveItem,
+    },
   };
 
   // Limpiar equipmentService del cache para que use los mocks frescos
@@ -165,6 +183,7 @@ describe("getSlotsToFree (via equipItem)", () => {
 
   it("Arma 1 mano: solo libera el slot de destino", async () => {
     mockEquippedSlots = { mano_der: "espada_vieja", mano_izq: "escudo_viejo" };
+    mockInventoryRows = [{ item_id: "daga_test", variant_key: "tier:E", quantity: 1 }];
     // items.js catálogo real: venda es consumible no weapon, usamos mock de ítem
     const itemsPath = require.resolve("../src/data/items");
     require.cache[itemsPath] = {
@@ -187,14 +206,22 @@ describe("getSlotsToFree (via equipItem)", () => {
     delete require.cache[require.resolve("../src/services/rpg/equipmentService")];
 
     const { equipItem } = require("../src/services/rpg/equipmentService");
-    const result = await equipItem({ characterId: 1, creatorId: "test", itemId: "daga_test", slot: "mano_der" });
+    const result = await equipItem({
+      characterId: 1,
+      creatorId: "test",
+      itemId: "daga_test",
+      slot: "mano_der",
+      variantKey: "tier:E",
+    });
     expect(result.equipped).toBe("daga_test");
     expect(result.autoUnequipped).toContain("espada_vieja");
     expect(result.autoUnequipped).not.toContain("escudo_viejo"); // mano_izq intacta
+    expect(mockRemoveItem).not.toHaveBeenCalled();
   });
 
   it("Arma 2 manos: libera AMBAS manos automáticamente", async () => {
     mockEquippedSlots = { mano_der: "espada_vieja", mano_izq: "escudo_viejo" };
+    mockInventoryRows = [{ item_id: "mandoble_test", variant_key: "tier:D", quantity: 1 }];
     const itemsPath = require.resolve("../src/data/items");
     require.cache[itemsPath] = {
       id: itemsPath,
@@ -216,10 +243,17 @@ describe("getSlotsToFree (via equipItem)", () => {
     delete require.cache[require.resolve("../src/services/rpg/equipmentService")];
 
     const { equipItem } = require("../src/services/rpg/equipmentService");
-    const result = await equipItem({ characterId: 1, creatorId: "test", itemId: "mandoble_test", slot: "mano_der" });
+    const result = await equipItem({
+      characterId: 1,
+      creatorId: "test",
+      itemId: "mandoble_test",
+      slot: "mano_der",
+      variantKey: "tier:D",
+    });
     expect(result.equipped).toBe("mandoble_test");
     expect(result.autoUnequipped).toContain("espada_vieja");
     expect(result.autoUnequipped).toContain("escudo_viejo");
+    expect(mockRemoveItem).not.toHaveBeenCalled();
   });
 
   it("Arma 2 manos en slot incorrecto lanza error", async () => {
@@ -255,17 +289,42 @@ describe("getSlotsToFree (via equipItem)", () => {
       "Slot inválido",
     );
   });
+
+  it("Los hechizos NO consumen ítem del inventario al equipar", async () => {
+    const itemsPath = require.resolve("../src/data/items");
+    require.cache[itemsPath] = {
+      id: itemsPath,
+      filename: itemsPath,
+      loaded: true,
+      exports: {
+        getItem: (id) =>
+          id === "bola_fuego_test"
+            ? { id: "bola_fuego_test", categories: ["spell"], modules: { spell: { cast: "ativa" } } }
+            : null,
+        getItemsByCategory: vi.fn(),
+        ITEMS: {},
+      },
+    };
+    delete require.cache[require.resolve("../src/services/rpg/equipmentService")];
+
+    const { equipItem } = require("../src/services/rpg/equipmentService");
+    const result = await equipItem({ characterId: 1, creatorId: "test", itemId: "bola_fuego_test", slot: "spell_1" });
+    expect(result.equipped).toBe("bola_fuego_test");
+    expect(mockRemoveItem).not.toHaveBeenCalled();
+  });
 });
 
 describe("unequipItem", () => {
   beforeEach(() => setupMocks());
 
   it("Desequipa ítem de slot ocupado correctamente", async () => {
-    mockEquippedSlots = { mano_der: "espada_X", mano_izq: null };
+    mockEquippedSlots = { mano_der: "espada_X::tier:D", mano_izq: null };
     const { unequipItem } = require("../src/services/rpg/equipmentService");
     const result = await unequipItem({ characterId: 1, creatorId: "test", slot: "mano_der" });
     expect(result.unequipped).toBe("espada_X");
+    expect(result.variantKey).toBe("tier:D");
     expect(result.slot).toBe("mano_der");
+    expect(mockAddItem).not.toHaveBeenCalled();
   });
 
   it("Desequipar arma 2 manos limpia también el marcador de mano_izq", async () => {
@@ -280,6 +339,31 @@ describe("unequipItem", () => {
     mockEquippedSlots = { mano_der: null };
     const { unequipItem } = require("../src/services/rpg/equipmentService");
     await expect(unequipItem({ characterId: 1, creatorId: "test", slot: "mano_der" })).rejects.toThrow("vacío");
+  });
+
+  it("desequipar un hechizo NO lo añade al inventario (no es ítem físico)", async () => {
+    mockEquippedSlots = { spell_1: "bola_fuego_test" };
+    const itemsPath = require.resolve("../src/data/items");
+    require.cache[itemsPath] = {
+      id: itemsPath,
+      filename: itemsPath,
+      loaded: true,
+      exports: {
+        getItem: (id) =>
+          id === "bola_fuego_test"
+            ? { id: "bola_fuego_test", name: "Bola de Fuego", categories: ["spell"], modules: { spell: {} } }
+            : null,
+        getItemsByCategory: vi.fn(),
+        ITEMS: {},
+      },
+    };
+    delete require.cache[require.resolve("../src/services/rpg/equipmentService")];
+
+    const { unequipItem } = require("../src/services/rpg/equipmentService");
+    const res = await unequipItem({ characterId: 1, creatorId: "test", slot: "spell_1" });
+
+    expect(res.unequipped).toBe("bola_fuego_test");
+    expect(mockAddItem).not.toHaveBeenCalled();
   });
 });
 

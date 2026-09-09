@@ -1,9 +1,9 @@
 // @ts-nocheck
-const { box } = require("../../utils/boxUtils");
-const { composeMessage } = require("../../ui/sectionBuilder");
-const { buildFatigueBar, buildStatSummary } = require("../../ui/sections/combatStats");
+const { box, divider } = require("../../utils/boxUtils");
+const { buildFatigueBar, buildEnergyBar, buildStatSummary } = require("../../ui/sections/combatStats");
 const {
   combatantLines,
+  activeEffectLines,
   equipmentSectionLines,
   actionMenuLines,
   reactionPromptLines,
@@ -63,20 +63,40 @@ function formatCombatOpen(session, hasTestKit = false, equipmentMap = {}) {
   const cEq = equipmentSectionLines(equipmentMap?.challenger);
   const dEq = equipmentSectionLines(equipmentMap?.defender);
 
-  const sections = [combatantLines(c)];
+  const sections = [
+    [`\uD83D\uDCCD Distancia: ${session.distance ?? 5}m`],
+    [...combatantLines(c), ...activeEffectLines(c)],
+  ];
   if (cEq.length > 0) sections.push(cEq);
   sections.push(["      \u2694\uFE0F VS \u2694\uFE0F"]);
-  sections.push(combatantLines(d));
+  sections.push([...combatantLines(d), ...activeEffectLines(d)]);
   if (dEq.length > 0) sections.push(dEq);
   if (hasTestKit) {
     sections.push(["\uD83C\uDF92 Consumibles de prueba"]);
   }
   sections.push([
-    "\u2726 \u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501 \u2726",
-    ...actionMenuLines(c.character.name),
+    divider(),
+    ...actionMenuLines(c.character.name, session, buildSituationalCtx(c, d, session.distance)),
   ]);
 
-  return composeMessage({ title: "\u2694\uFE0F COMBATE INICIADO", sections });
+  return plainCompose(`${divider()}\n\u2694\uFE0F COMBATE INICIADO`, sections);
+}
+
+/**
+ * Compone un mensaje con secciones separadas por líneas en blanco y un título
+ * en cabecera (sin box de bordes, ideal para WhatsApp).
+ * @param {string} title - Cabecera (puede ser multi-línea)
+ * @param {Array<Array<string>>} sections
+ * @returns {string}
+ */
+function plainCompose(title, sections) {
+  const lines = String(title).split("\n");
+  for (const section of sections) {
+    if (!section || section.length === 0) continue;
+    if (lines.length > 0) lines.push("");
+    lines.push(...section);
+  }
+  return lines.join("\n");
 }
 
 /**
@@ -99,28 +119,32 @@ function formatCombatStatus(session, equipmentMap = {}) {
 
   const situationalCtx = buildSituationalCtx(currentSlot, oppSlot, session.distance);
 
-  // Fulgor de cada slot para mostrarlo
-  const cMaxFulgor = Math.min(100, Math.max(10, (c.character.stats?.fulgor || 1) * 2));
-  const dMaxFulgor = Math.min(100, Math.max(10, (d.character.stats?.fulgor || 1) * 2));
-  const cFulgor = Math.max(0, cMaxFulgor - (c.spentFulgor || 0));
-  const dFulgor = Math.max(0, dMaxFulgor - (d.spentFulgor || 0));
-
   const sections = [];
-  sections.push([`R${session.rounds + 1}  ⚔️ Turno de *${currentName}*  📍 ${session.distance ?? 5}m`]);
-  sections.push([`── ${c.character.name} ──`, ...combatantLines(c), ...activeEffectLines(c), `✨ Fulgor: ${cFulgor}/${cMaxFulgor}`]);
+  sections.push([
+    `R${session.rounds + 1}  \u2694\uFE0F Turno de *${currentName}*  \uD83D\uDCCD ${session.distance ?? 5}m`,
+  ]);
+  sections.push([`\u2500\u2500 *${c.character.name}* \u2500\u2500`, ...combatantLines(c), ...activeEffectLines(c)]);
   if (cEq.length > 0) sections.push(cEq);
-  sections.push([`── ${d.character.name} ──`, ...combatantLines(d), ...activeEffectLines(d), `✨ Fulgor: ${dFulgor}/${dMaxFulgor}`]);
+  sections.push([`\u2500\u2500 *${d.character.name}* \u2500\u2500`, ...combatantLines(d), ...activeEffectLines(d)]);
   if (dEq.length > 0) sections.push(dEq);
 
-  sections.push(["\u2726 \u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501 \u2726"]);
+  sections.push([divider()]);
   if (session.status === "waiting_reaction" && session.pendingAttack) {
     const p = session.pendingAttack;
-    sections.push(reactionPromptLines(p.attackerName, p.defenderName, p.baseDamage, p.canDodgeSuccessfully ?? false, p.dodgeChancePct));
+    sections.push(
+      reactionPromptLines(
+        p.attackerName,
+        p.defenderName,
+        p.baseDamage,
+        p.canDodgeSuccessfully ?? false,
+        p.dodgeChancePct,
+      ),
+    );
   } else {
     sections.push(actionMenuLines(currentName, session, situationalCtx));
   }
 
-  return composeMessage({ title: "\uD83D\uDCCA ESTADO", sections });
+  return plainCompose(`${divider()}\n\uD83D\uDCCA ESTADO`, sections);
 }
 
 /**
@@ -220,20 +244,27 @@ function formatEffectEventLines(events) {
     .filter(Boolean);
 }
 
-function activeEffectLines(slot) {
-  const effects = Array.isArray(slot?.activeEffects) ? slot.activeEffects : [];
-  if (!effects.length) return [];
-  return [`Estados: ${effects.map((effect) => `${effect.tipo} (${effect.turnos}t)`).join(", ")}`];
+/**
+ * Compone un mensaje de RESULTADO de acción de combate con el estilo del nuevo
+ * diseño (separador ✦ + título + líneas, sin box de bordes).
+ * @param {string} title - Título del resultado (ej: "💨 ESQUIVA")
+ * @param {Array<string>} lines - Líneas del resultado
+ * @returns {string}
+ */
+function formatCombatResult(title, lines) {
+  return [`${divider()}`, title, "", ...lines].join("\n");
 }
 
 module.exports = {
   buildFatigueBar,
+  buildEnergyBar,
   buildStatSummary,
   buildSituationalCtx,
   formatActionMenu,
   formatReactionPrompt,
   formatCombatOpen,
   formatCombatStatus,
+  formatCombatResult,
   formatFlee,
   formatCombatDisolved,
   formatMovement,

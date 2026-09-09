@@ -1,23 +1,44 @@
 // @ts-nocheck
-const { buildHpBar, buildFatigueBar, buildStatSummary } = require("./combatStats");
+const { buildHpBar, buildEnergyBar } = require("./combatStats");
 const { equipmentSummaryLines } = require("./equipmentSections");
 const { COMBAT_ACTIONS, REACTION_ACTIONS } = require("../../data/combatActions");
 
 /**
- * Líneas de un combatiente en combate: nombre/Nv, HP, fatiga y stats.
+ * Líneas de stats del combatiente, condensadas 2 por línea (ancho amigable de WhatsApp).
+ * @param {object} stats - Stats del personaje
+ * @returns {string[]}
+ */
+function statLines(stats = {}) {
+  return [
+    `\u2694\uFE0F ATK ${stats.atk ?? 0}  \uD83D\uDEE1\uFE0F DEF ${stats.def ?? 0}`,
+    `\u26A1 ASPD ${stats.aspd ?? 0}  \uD83C\uDFC3 MSP ${stats.mspd ?? 0}`,
+    `\uD83D\uDC41\uFE0F REF ${stats.ref ?? 0}  \u2728 FULG ${stats.fulgor ?? 0}`,
+    `\u2728 DOMF ${stats.d_fulgor ?? 0}  \u2728 RESF ${stats.r_fulgor ?? 0}`,
+  ];
+}
+
+/**
+ * Líneas de un combatiente en combate: nombre/Nv, HP, energía y stats.
  * @param {object} combatant - Slot del combatiente (challenger/defender)
  * @returns {string[]}
  */
 function combatantLines(combatant) {
-  const stats = buildStatSummary(combatant.character.stats);
   const maxHp = Math.max(1, (combatant.character.stats?.hp ?? 1) * 2);
-  return [
-    `*${combatant.character.name}* Nv.${combatant.character.nivel || 20}`,
+  const lines = [
+    `*${combatant.character.name}*  Nv.${combatant.character.nivel || 20}`,
     `HP ${buildHpBar(combatant.hp, maxHp)}`,
-    `Fat ${buildFatigueBar(combatant.fatigue || 0, combatant.character.stats.def || 1)}`,
-    stats[0],
-    stats[1],
   ];
+  if (combatant.barrierHp && combatant.barrierHp > 0) {
+    lines.push(`🛡️ Barrera: ${combatant.barrierHp} HP`);
+  }
+  if (combatant.prison && combatant.prison.hp > 0) {
+    lines.push(
+      `🧱 Prisión: ${combatant.prison.hp}/${combatant.prison.maxHp} HP [${combatant.prison.element || "arcano"}]`,
+    );
+  }
+  lines.push(buildEnergyBar(combatant.fatigue || 0, combatant.character.stats.def || 1));
+  lines.push(...statLines(combatant.character.stats));
+  return lines;
 }
 
 /**
@@ -33,17 +54,11 @@ function equipmentSectionLines(eq) {
  * Líneas del menú de acciones del turno, generadas desde COMBAT_ACTIONS.
  * @param {string} characterName - Nombre del personaje en turno
  * @param {object} [session] - Sesión de combate (para filtros `when`)
- * @returns {string[]}
- */
-/**
- * Líneas del menú de acciones del turno, generadas desde COMBAT_ACTIONS.
- * @param {string} characterName - Nombre del personaje en turno
- * @param {object} [session] - Sesión de combate (para filtros `when`)
  * @param {object} [ctx] - Contexto situacional opcional {distance, enemyHp, enemyMaxHp, availableFulgor, maxFulgor}
  * @returns {string[]}
  */
 function actionMenuLines(characterName, session = {}, ctx = {}) {
-  const lines = [`\u2694\uFE0F Turno de *${characterName}*`];
+  const lines = [`\u2694\uFE0F *Turno de ${characterName}*`];
 
   // Línea de contexto situacional si se provee
   const parts = [];
@@ -61,19 +76,11 @@ function actionMenuLines(characterName, session = {}, ctx = {}) {
   for (const action of COMBAT_ACTIONS) {
     if (typeof action.when === "function" && !action.when(session)) continue;
     const hint = action.hint ? ` <${action.hint}>` : "";
-    lines.push(`  \u2022 \`/${action.command}\`${hint} \u2014 ${action.label}`);
+    lines.push(`  \u2022 \`/${action.command}\`${hint} — ${action.label}`);
   }
   return lines;
 }
 
-/**
- * Líneas del prompt de reacción del defensor, generadas desde REACTION_ACTIONS.
- * @param {string} attackerName - Nombre del atacante
- * @param {string} defenderName - Nombre del defensor
- * @param {number} baseDamage - Daño base del ataque
- * @param {boolean} [canDodgeSuccessfully] - Si puede esquivar exitosamente
- * @returns {string[]}
- */
 /**
  * Líneas del prompt de reacción del defensor, generadas desde REACTION_ACTIONS.
  * Muestra la probabilidad de éxito de esquiva y el daño estimado de cada opción.
@@ -90,46 +97,55 @@ function reactionPromptLines(attackerName, defenderName, baseDamage, canDodgeSuc
     `\uD83D\uDCA1 *${defenderName}* debe reaccionar:`,
     ...REACTION_ACTIONS.map((a) => {
       const detail = a.render({ baseDamage, canDodge: canDodgeSuccessfully, dodgeChancePct });
-      return `  \u2022 \`/${a.command}\` \u2192 ${detail}`;
+      return `  \u2022 \`/${a.command}\` → ${detail}`;
     }),
   ];
 }
 
 /**
  * Líneas de estados activos y barreras defensivas de un combatiente.
+ * Se muestran debajo del combatiente con su duración (cronómetro).
  * @param {object} combatant - Slot del combatiente
  * @returns {string[]}
  */
 function activeEffectLines(combatant) {
   const lines = [];
   const icons = {
-    quemadura: "🔥",
-    veneno: "🤢",
-    congelado: "🧊",
-    enredado: "🌿",
-    cegadura: "👁️",
-    maldito: "💀",
-    rompe_armaduras: "🛡️",
-    decadencia: "🥀",
+    quemadura: "\uD83D\uDD25",
+    envenenamiento: "\uD83E\uDD7A",
+    veneno: "\uD83E\uDD7A",
+    congelado: "\uD83E\uDD76",
+    enredado: "\uD83C\uDF3F",
+    cegadura: "\uD83D\uDC41\uFE0F",
+    maldito: "\uD83D\uDC80",
+    rompe_armaduras: "\uD83D\uDEE1\uFE0F",
+    decadencia: "\uD83E\uDD77",
   };
 
   const statusItems = [];
   if (combatant.barrierHp && combatant.barrierHp > 0) {
-    statusItems.push(`🛡️ Barrera (${combatant.barrierHp} HP)`);
+    statusItems.push(`\uD83D\uDEE1\uFE0F Barrera (${combatant.barrierHp} HP)`);
   }
 
   if (Array.isArray(combatant.activeEffects)) {
     for (const ef of combatant.activeEffects) {
-      const icon = icons[ef.tipo] || "✨";
+      const icon = icons[ef.tipo] || "\u2728";
       const dur = ef.turnos ? ` (${ef.turnos}t)` : "";
       statusItems.push(`${icon} ${ef.tipo}${dur}`);
     }
   }
 
   if (statusItems.length > 0) {
-    lines.push(`  └─ ${statusItems.join(" | ")}`);
+    lines.push(`  ${statusItems.join("  ·  ")}`);
   }
   return lines;
 }
 
-module.exports = { combatantLines, equipmentSectionLines, actionMenuLines, reactionPromptLines, activeEffectLines };
+module.exports = {
+  combatantLines,
+  statLines,
+  equipmentSectionLines,
+  actionMenuLines,
+  reactionPromptLines,
+  activeEffectLines,
+};

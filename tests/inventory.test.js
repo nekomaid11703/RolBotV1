@@ -12,8 +12,8 @@ describe("inventoryConfig", () => {
 });
 
 describe("items — Catálogo", () => {
-  it("Tiene 11 ítems (4 estándar + 3 temporales + 4 contenedores)", () => {
-    expect(Object.keys(ITEMS)).toHaveLength(11);
+  it("Tiene 13 ítems en el catálogo actual", () => {
+    expect(Object.keys(ITEMS)).toHaveLength(13);
   });
 
   it("Cada ítem tiene id, name, description, basePrice, modules, categories (sin icon)", () => {
@@ -33,7 +33,7 @@ describe("items — Catálogo", () => {
   });
 
   it("getItemsByCategory devuelve todos para consumable", () => {
-    expect(getItemsByCategory("consumable")).toHaveLength(7);
+    expect(getItemsByCategory("consumable")).toHaveLength(9);
     expect(getItemsByCategory("weapon").length).toBeGreaterThan(0);
   });
 });

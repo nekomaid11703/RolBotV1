@@ -43,14 +43,14 @@ describe("Sistema de Materiales", () => {
   it("Calcula atributos de material escalados por Tier", () => {
     const maderaE = getMaterialStats("madera", "E");
     const maderaN = getMaterialStats("madera", "N");
-    // Resistencia base 20, Tier E = 20 * 1.12 = 22.4 -> 22
-    expect(maderaE.resistencia_material).toBe(Math.round(20 * 1.12));
-    // Resistencia base 20, Tier N = 20 * 1.84 = 36.8 -> 37
-    expect(maderaN.resistencia_material).toBe(Math.round(20 * 1.84));
+    // Resistencia base 14, Tier E = 14 * 1.12 ≈ 15.68 -> 16
+    expect(maderaE.resistencia_material).toBe(Math.round(14 * 1.12));
+    // Resistencia base 14, Tier N = 14 * 1.84 = 25.76 -> 26
+    expect(maderaN.resistencia_material).toBe(Math.round(14 * 1.84));
   });
 
   it("Material mítico supera en su stat principal a cualquier legendario al mismo tier", () => {
-    // Afilabilidad: Filo Estelar (mítico, base 100) vs Luminita (legendario, base 80)
+    // Afilabilidad: Filo Estelar (mítico, base 100) vs Luminita (legendario, base 26)
     const filoE = getMaterialStats("filo_estelar", "E");
     const luminitaE = getMaterialStats("luminita", "E");
     expect(filoE.afilabilidad).toBeGreaterThan(luminitaE.afilabilidad);

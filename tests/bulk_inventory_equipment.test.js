@@ -79,7 +79,7 @@ describe("Comandos Masivos y Tolerancia a Fallos de Inventario/Equipamiento", ()
     expect(res.deletedCount).toBe(6);
   });
 
-  it("unequipItem desequipa y regresa el ítem al inventario con addItem", async () => {
+  it("unequipItem desequipa sin retirar la fila del inventario", async () => {
     const spyAdd = vi.spyOn(inventoryService, "addItem").mockResolvedValue({ success: true });
 
     const res = await equipmentService.unequipItem({ characterId: 1, creatorId: "u1", slot: "cabeza" });
@@ -87,15 +87,45 @@ describe("Comandos Masivos y Tolerancia a Fallos de Inventario/Equipamiento", ()
     expect(res.unequipped).toBe("casco_de_hierro");
     expect(res.slot).toBe("cabeza");
     expect(res.returnedToInventory).toBe(true);
-    expect(spyAdd).toHaveBeenCalledWith(1, "u1", "casco_de_hierro", 1);
+    expect(spyAdd).not.toHaveBeenCalled();
   });
 
-  it("unequipAllItems desequipa todos los slots ocupados y devuelve todos los ítems al inventario", async () => {
+  it("unequipAllItems desequipa todos los slots ocupados sin duplicar inventario", async () => {
     const spyAdd = vi.spyOn(inventoryService, "addItem").mockResolvedValue({ success: true });
 
     const res = await equipmentService.unequipAllItems({ characterId: 1, creatorId: "u1" });
 
     expect(res.totalUnequipped).toBe(3); // cabeza, pecho, mano_der (mano_izq es marcador)
-    expect(spyAdd).toHaveBeenCalledTimes(3);
+    expect(spyAdd).not.toHaveBeenCalled();
+  });
+
+  it("equipItem conserva el ítem en inventario y referencia su variante", async () => {
+    const spyRemove = vi.spyOn(inventoryService, "removeItem").mockResolvedValue({ success: true });
+    const itemsPath = _require.resolve("../src/data/items");
+    _require.cache[itemsPath] = {
+      id: itemsPath,
+      filename: itemsPath,
+      loaded: true,
+      exports: {
+        getItem: (id) =>
+          id === "espada_de_hierro"
+            ? { id: "espada_de_hierro", categories: ["weapon"], modules: { weapon: { hands: 1 } } }
+            : null,
+        getItemsByCategory: vi.fn(),
+        ITEMS: {},
+      },
+    };
+    delete _require.cache[_require.resolve("../src/services/rpg/equipmentService")];
+    const equipMod = _require("../src/services/rpg/equipmentService");
+
+    const res = await equipMod.equipItem({
+      characterId: 1,
+      creatorId: "u1",
+      itemId: "espada_de_hierro",
+      slot: "mano_der",
+    });
+
+    expect(res.equipped).toBe("espada_de_hierro");
+    expect(spyRemove).not.toHaveBeenCalled();
   });
 });

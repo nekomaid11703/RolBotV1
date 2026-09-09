@@ -1,11 +1,11 @@
 // @ts-nocheck
 const { getItem } = require("../../data/items");
 // Carga la semilla del catálogo arcano para que el loadout del dummy mágico
-// resuelva sus hechizos vía getItem (mismo patrón que IRON_DUMMY_LOADOUT).
+// resuelva sus hechizos vía getItem (mismo patrón que los loadouts explícitos).
 require("../../data/arcaneFamily");
 
 /**
- * Equipamiento en memoria del dummy PvE (Familia del Hierro).
+ * Equipamiento en memoria del dummy PvE.
  *
  * El dummy no tiene fila en `characters` ni `inventory`, así que su equipo se
  * resuelve 100% en memoria. Este módulo es puro: produce la MISMA forma que
@@ -13,19 +13,6 @@ require("../../data/arcaneFamily");
  * resolvers funcionan de forma idéntica para bots y jugadores sin bifurcar la
  * lógica de combate.
  */
-
-/**
- * @constant IRON_DUMMY_LOADOUT
- * @type {Array<{slot: string, itemId: string}>}
- */
-const IRON_DUMMY_LOADOUT = [
-  { slot: "mano_der", itemId: "espada_de_hierro" },
-  { slot: "cabeza", itemId: "casco_de_hierro" },
-  { slot: "pecho", itemId: "pechera_de_hierro" },
-  { slot: "pantalones", itemId: "grebas_de_hierro" },
-  { slot: "botas", itemId: "botas_de_hierro" },
-  { slot: "artefacto_1", itemId: "amuleto_de_hierro" },
-];
 
 /**
  * Loadout del dummy mágico: el hechizo va en `mano_der` (el lanzamiento se
@@ -37,11 +24,12 @@ const ARCANE_DUMMY_LOADOUT = [{ slot: "mano_der", itemId: "hechizo_doom" }];
 
 /**
  * Construye el equipo del dummy: mapa de slots + filas "inventory" con metadata
- * (durabilidad a plena resistencia, reparable).
- * @param {Array<{slot: string, itemId: string}>} [loadout] - Loadout base (default hierro)
+ * (durabilidad a plena resistencia, reparable). Por defecto el dummy NO lleva
+ * equipamiento de prueba (sin loadout).
+ * @param {Array<{slot: string, itemId: string}>} [loadout] - Loadout opcional
  * @returns {{ slots: Record<string,string>, inventory: Array<object> }}
  */
-function buildDummyEquipment(loadout = IRON_DUMMY_LOADOUT) {
+function buildDummyEquipment(loadout = []) {
   const slots = {};
   const inventory = [];
   for (const { slot, itemId } of loadout) {
@@ -62,4 +50,4 @@ function buildDummyEquipment(loadout = IRON_DUMMY_LOADOUT) {
   return { slots, inventory };
 }
 
-module.exports = { buildDummyEquipment, IRON_DUMMY_LOADOUT, ARCANE_DUMMY_LOADOUT };
+module.exports = { buildDummyEquipment, ARCANE_DUMMY_LOADOUT };

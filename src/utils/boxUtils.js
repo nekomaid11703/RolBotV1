@@ -43,4 +43,14 @@ function box(title, bodyLines) {
   return parts.join("\n");
 }
 
-module.exports = { box };
+/**
+ * Separador horizontal con floritura, apto para WhatsApp (sin bordes que se
+ * descuadren). Usa "─" que se renderiza monospace en dispositivos modernos.
+ * @param {number} [width] - Ancho deseado
+ * @returns {string}
+ */
+function divider(width = 13) {
+  return `✦ ${"─".repeat(Math.max(5, width))} ✦`;
+}
+
+module.exports = { box, divider };

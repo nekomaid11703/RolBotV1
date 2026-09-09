@@ -1,8 +1,14 @@
-﻿// @ts-nocheck
+// @ts-nocheck
 const { supabase } = require("../../database/supabase");
 const { filterExisting } = require("../../database/columnRegistry");
-const { getItem } = require("../../data/items");
-const { LEVELABLE_STATS, LEVEL_MAX, LEVEL_INITIAL, xpForNextLevel, calculateLevel } = require("../../config/characterConfig");
+const {
+  LEVELABLE_STATS,
+  LEVEL_MAX,
+  LEVEL_INITIAL,
+  xpForNextLevel,
+  calculateLevel,
+  clampLevel,
+} = require("../../config/characterConfig");
 const { invalidateUserCache, safeSingleOrNull } = require("../../utils/safeQuery");
 
 /**
@@ -14,7 +20,9 @@ const { invalidateUserCache, safeSingleOrNull } = require("../../utils/safeQuery
 async function addXpToCharacter(characterId, xpAmount) {
   const amount = Math.max(0, Number(xpAmount) || 0);
   if (amount === 0) {
-    const char = await safeSingleOrNull(supabase.from("characters").select("id, nivel, xp, xp_total, stats").eq("id", characterId));
+    const char = await safeSingleOrNull(
+      supabase.from("characters").select("id, nivel, xp, xp_total, stats").eq("id", characterId),
+    );
     const stats = char?.stats || {};
     return {
       newXp: Number(char?.xp) || 0,
@@ -42,11 +50,12 @@ async function addXpToCharacter(characterId, xpAmount) {
   const stats = { ...(char.stats || {}) };
   let pointsGained = 0;
 
-  // Llenar barra de XP y otorgar puntos mientras alcance la XP requerida
+  // Each earned level raises the next threshold, including large XP rewards.
   while (currentLevel < LEVEL_MAX) {
     const needed = xpForNextLevel(currentLevel);
     if (currentXp >= needed) {
       currentXp -= needed;
+      currentLevel += 1;
       pointsGained += 1;
       stats.puntos_disponibles = (Number(stats.puntos_disponibles) || 0) + 1;
     } else {
@@ -55,6 +64,7 @@ async function addXpToCharacter(characterId, xpAmount) {
   }
 
   const updatePayload = filterExisting("characters", {
+    nivel: currentLevel,
     xp: currentXp,
     xp_total: xpTotal,
     stats,
@@ -80,22 +90,33 @@ async function addXpToCharacter(characterId, xpAmount) {
  * @returns {string|null}
  */
 function normalizeStatKey(statInput) {
-  const s = String(statInput || "").toLowerCase().trim();
+  const s = String(statInput || "")
+    .toLowerCase()
+    .trim();
   if (LEVELABLE_STATS[s]) return s;
 
   const aliases = {
-    str: "fuerza",
-    fue: "fuerza",
-    fuerza: "fuerza",
-    agi: "agilidad",
-    agilidad: "agilidad",
-    dex: "destreza",
-    des: "destreza",
-    destreza: "destreza",
-    vit: "vitalidad",
-    vitalidad: "vitalidad",
-    res: "resistencia",
-    resistencia: "resistencia",
+    str: "atk",
+    fue: "atk",
+    fuerza: "atk",
+    ataque: "atk",
+    agi: "aspd",
+    agilidad: "aspd",
+    velocidad_ataque: "aspd",
+    dex: "ref",
+    des: "ref",
+    destreza: "ref",
+    reflejos: "ref",
+    vit: "hp",
+    vitalidad: "hp",
+    vida: "hp",
+    salud: "hp",
+    res: "def",
+    resistencia: "def",
+    defensa: "def",
+    mov: "mspd",
+    movimiento: "mspd",
+    velocidad_movimiento: "mspd",
     ful: "fulgor",
     fulgor: "fulgor",
     dful: "d_fulgor",
@@ -103,9 +124,9 @@ function normalizeStatKey(statInput) {
     d_fulgor: "d_fulgor",
     rful: "r_fulgor",
     r_fulgor: "r_fulgor",
-    per: "percepcion",
-    percepcion: "percepcion",
-    percepción: "percepcion",
+    per: "ref",
+    percepcion: "ref",
+    percepción: "ref",
   };
 
   return aliases[s] || null;
@@ -129,11 +150,7 @@ async function allocateStatPoints({ characterId, creatorId, stat, points = 1 }) 
 
   const numPoints = Math.max(1, Math.floor(Number(points) || 1));
 
-  const { data: char, error } = await supabase
-    .from("characters")
-    .select("*")
-    .eq("id", characterId)
-    .maybeSingle();
+  const { data: char, error } = await supabase.from("characters").select("*").eq("id", characterId).maybeSingle();
 
   if (error || !char) {
     throw new Error("Personaje no encontrado.");
@@ -158,7 +175,10 @@ async function allocateStatPoints({ characterId, creatorId, stat, points = 1 }) 
   stats[statKey] = newValue;
   stats.puntos_disponibles = available - actualAssigned;
 
-  const newLevel = calculateLevel(stats);
+  // An earned level must not decrease while its available point is unspent.
+  // La política B5 acota el nivel al tope oficial: las stats pueden seguir
+  // creciendo por entrenamiento no-XP, pero el nivel nunca supera LEVEL_MAX.
+  const newLevel = clampLevel(Math.max(Number(char.nivel) || LEVEL_INITIAL, calculateLevel(stats)));
 
   const updatePayload = filterExisting("characters", {
     stats,

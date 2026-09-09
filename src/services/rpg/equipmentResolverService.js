@@ -1,6 +1,6 @@
 // @ts-nocheck
 const { supabase } = require("../../database/supabase");
-const { getEquippedSlots } = require("./equipmentService");
+const { getEquippedSlots, parseEquipmentReference } = require("./equipmentService");
 const { getCategory } = require("../../data/itemCategories");
 const { getItem } = require("../../data/items");
 const {
@@ -30,7 +30,7 @@ const { ARMOR_SETS } = require("../../data/armorSets");
 async function getInventoryWithMetadata(characterId) {
   const { data, error } = await supabase
     .from("inventory")
-    .select("item_id, quantity, metadata")
+    .select("item_id, variant_key, quantity, metadata")
     .eq("character_id", characterId)
     .order("item_id", { ascending: true });
 
@@ -46,12 +46,14 @@ async function getInventoryWithMetadata(characterId) {
  */
 function buildEntriesFromDummy(dummy) {
   const entries = [];
-  for (const [slot, itemId] of Object.entries(dummy?.slots || {})) {
-    if (!itemId) continue;
-    if (String(itemId).startsWith("__2h:")) continue;
+  for (const [slot, reference] of Object.entries(dummy?.slots || {})) {
+    if (!reference) continue;
+    if (String(reference).startsWith("__2h:")) continue;
+    const { itemId, variantKey } = parseEquipmentReference(reference);
     const def = getItem(itemId);
-    const row = (dummy?.inventory || []).find((r) => r.item_id === itemId) || null;
-    entries.push({ slot, itemId, def, row });
+    const row =
+      (dummy?.inventory || []).find((r) => r.item_id === itemId && (r.variant_key || "legacy") === variantKey) || null;
+    entries.push({ slot, itemId, variantKey, def, row });
   }
   return entries;
 }
@@ -73,14 +75,16 @@ async function getEquippedItems(characterOrId) {
   const inventory = await getInventoryWithMetadata(characterId);
 
   const entries = [];
-  for (const [slot, itemId] of Object.entries(slots || {})) {
-    if (!itemId) continue;
+  for (const [slot, reference] of Object.entries(slots || {})) {
+    if (!reference) continue;
     // Marcador interno de arma a 2 manos: no expone ítem duplicado.
-    if (String(itemId).startsWith("__2h:")) continue;
+    if (String(reference).startsWith("__2h:")) continue;
+
+    const { itemId, variantKey } = parseEquipmentReference(reference);
 
     const def = getItem(itemId);
-    const row = inventory.find((r) => r.item_id === itemId) || null;
-    entries.push({ slot, itemId, def, row });
+    const row = inventory.find((r) => r.item_id === itemId && (r.variant_key || "legacy") === variantKey) || null;
+    entries.push({ slot, itemId, variantKey, def, row });
   }
   return entries;
 }
@@ -115,8 +119,9 @@ const SPELL_ELEMENT_TO_REACTION = {
  * @returns {string|null} Elemento dominante canónico (fuego/agua/tierra/...)
  */
 function resolveSpellDominante(spell) {
-  const raw = (Array.isArray(spell?.hits) ? spell.hits : []).find((h) => h && h.element)?.element;
-  return raw ? SPELL_ELEMENT_TO_REACTION[raw] || null : null;
+  const rawHit = (Array.isArray(spell?.hits) ? spell.hits : []).find((h) => h && h.element)?.element;
+  const raw = rawHit || spell?.element || spell?.nature || spell?.subtype || null;
+  return raw ? SPELL_ELEMENT_TO_REACTION[raw] || raw : null;
 }
 
 function resolveSpellPayload(spell) {
@@ -173,39 +178,22 @@ async function resolveAttackerWeapon(character, equipped = null) {
   // cargado o se usa directamente, permite golpear físicamente con su physicalDamage.
   if ((def.modules || {}).focus) {
     const focus = def.modules.focus;
-    const spellIds = Array.isArray(focus.spellIds) ? focus.spellIds : [];
-    const spellId = spellIds.find((id) => {
-      const d = getItem(id);
-      return d && (d.modules || {}).spell;
-    });
     const focusStats = getSpellStats(def);
-    if (!spellId) {
-      return {
-        damageNature: "impacto",
-        tier: def.tier || "E",
-        baseDamage: focusStats.physicalDamage || 2,
-        hands: focus.slotHeld === "2h" ? 2 : 1,
-        weaponRange: 1,
-        ranged: false,
-        magicConduction: focusStats.magicConduction || 0,
-      };
-    }
-    const spell = getItem(spellId).modules.spell;
-    const nature = spell.damageNature || (spell.spellNature === "objeto" ? "perforante" : "mágico");
+    // El foco es un amplificador puro: aporta canalizeBase y canalizeScale derivados
+    // del material y tier. El hechizo a lanzar proviene de la ranura activa (spell_1)
+    // del grimorio del atacante, resuelta en atacar.js / spell.js antes de executeAttack.
     return {
-      damageNature: nature,
+      isFocus: true,
+      damageNature: "impacto",
       tier: def.tier || "E",
-      baseDamage: Number(spell.baseDamage) || 0,
+      baseDamage: focusStats.physicalDamage || 2,
       hands: focus.slotHeld === "2h" ? 2 : 1,
-      weaponRange: Number(spell.range) || 1,
+      weaponRange: 1,
       ranged: false,
-      fulgorCost: Number(spell.fulgorCost) || 0,
-      spellNature: spell.spellNature || "mágico",
-      element: resolveSpellDominante(spell),
       canalizeBase: focusStats.canalizeBase,
       canalizeScale: focusStats.canalizeScale,
       magicConduction: focusStats.magicConduction || 0,
-      spell: resolveSpellPayload(spell),
+      physicalDamage: focusStats.physicalDamage || 2,
     };
   }
 
@@ -301,7 +289,7 @@ async function resolveDefenderArmor(characterOrId, equipped = null) {
       bonusDef,
     });
 
-    list.push({ slot: entry.slot, itemId: entry.itemId, instance, bonusDef });
+    list.push({ slot: entry.slot, itemId: entry.itemId, variantKey: entry.variantKey, instance, bonusDef });
     totalMaxResist += maxResist;
     totalCurrentResist += currentResist;
     totalBonusDef += bonusDef;
@@ -421,4 +409,6 @@ module.exports = {
   createArmorDurabilityAdapter,
   resolveArtifacts,
   resolveCharacterEquipment,
+  resolveSpellPayload,
+  resolveSpellDominante,
 };

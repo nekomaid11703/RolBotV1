@@ -1,3 +1,4 @@
+// @ts-nocheck
 const { normalizeTier, getTierMultiplier } = require("../../config/tierConfig");
 const { getMaterialStats, MATERIALS } = require("../../data/materialData");
 
@@ -216,7 +217,7 @@ function calculateBuildSynergy(stats, equipment, level = 100) {
   if (synergyScore >= 1.0) {
     return 1.0 + (0.03 + 0.12 * levelRatio);
   } else if (synergyScore < 0) {
-    return 1.0 - (0.10 * levelRatio);
+    return 1.0 - 0.1 * levelRatio;
   }
 
   return 1.0;

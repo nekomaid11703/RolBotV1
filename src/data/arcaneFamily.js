@@ -66,36 +66,40 @@ const ARCANE_SPELLS = {
  * @type {Record<string, object>}
  */
 const ARCANE_GEAR = {
-  // ---- Foco 2h (báculo): canaliza el hechizo Doom. Ocupa mano_der + mano_izq.
+  // ---- Foco 2h (báculo): amplifica hechizos via canalizeBase (material madera).
+  // El hechizo lanzado proviene de la ranura spell_1 activa del grimorio del jugador.
+  // Para mayor potencia, progresar a focos de plata, oro o mitril.
   baculo_de_roble: define({
     id: "baculo_de_roble",
     type: "focus",
     name: "Báculo de Roble",
     description:
-      "Báculo de roble que canaliza el hechizo Doom. Conducción básica, pero suficiente para la arcana menor.",
+      "Báculo de madera de roble tallada. Conducción básica, suficiente para la arcana menor. Requiere ambas manos.",
     rarity: "poco_comun",
     basePrice: 480,
     material: "madera",
     tier: "D",
     categories: ["focus"],
     modules: {
-      focus: { slotHeld: "2h", spellIds: ["hechizo_doom"], canalizeScale: 1 },
+      focus: { slotHeld: "2h", canalizeScale: 1 },
     },
   }),
 
   // ---- Foco 1h (varita): deja la otra mano libre (permite escudo/segundo foco).
+  // Conducción mágica: madera_caoba (25 base) — ligeramente superior al báculo base.
   varita_de_caoba: define({
     id: "varita_de_caoba",
     type: "focus",
     name: "Varita de Caoba",
-    description: "Varita de caoba compacta, de una mano, para lanzar Doom con libertad de movimiento.",
+    description:
+      "Varita de caoba compacta, de una mano. Mejor conducción que la madera común. Deja libre la mano secundaria.",
     rarity: "poco_comun",
     basePrice: 420,
     material: "madera_caoba",
     tier: "D",
     categories: ["focus"],
     modules: {
-      focus: { slotHeld: "1h", spellIds: ["hechizo_doom"], canalizeScale: 1 },
+      focus: { slotHeld: "1h", canalizeScale: 1 },
     },
   }),
 

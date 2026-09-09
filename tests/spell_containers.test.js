@@ -23,16 +23,16 @@ describe("spellContainerService", () => {
     const grimorioArcano = getItem("grimorio_arcano");
 
     expect(libreta).toBeTruthy();
-    expect(libreta.modules?.spellContainer?.capacity).toBe(2);
+    expect(libreta.modules?.spellContainer?.capacity).toBe(4);
 
     expect(pergamino).toBeTruthy();
     expect(pergamino.modules?.spellContainer?.capacity).toBe(1);
 
     expect(grimorio).toBeTruthy();
-    expect(grimorio.modules?.spellContainer?.capacity).toBe(4);
+    expect(grimorio.modules?.spellContainer?.capacity).toBe(12);
 
     expect(grimorioArcano).toBeTruthy();
-    expect(grimorioArcano.modules?.spellContainer?.capacity).toBe(8);
+    expect(grimorioArcano.modules?.spellContainer?.capacity).toBe(24);
   });
 
   it("mantiene exactamente 4 slots de hechizos activos", () => {

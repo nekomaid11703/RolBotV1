@@ -36,7 +36,7 @@ const KNOWN_SCHEMA = {
     "created_at",
     "updated_at",
   ],
-  inventory: ["id", "character_id", "item_id", "quantity", "metadata", "created_at", "updated_at"],
+  inventory: ["id", "character_id", "item_id", "variant_key", "quantity", "metadata", "created_at", "updated_at"],
   combat_sessions: [
     "id",
     "is_pve",

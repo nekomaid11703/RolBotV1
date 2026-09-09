@@ -33,7 +33,7 @@ const SCHEMA = {
     ],
   },
   inventory: {
-    columns: ["id", "character_id", "item_id", "quantity", "metadata", "created_at", "updated_at"],
+    columns: ["id", "character_id", "item_id", "variant_key", "quantity", "metadata", "created_at", "updated_at"],
   },
   combat_sessions: {
     columns: [
@@ -60,7 +60,7 @@ const SCHEMA = {
 const CRITICAL_EQUALS_COLUMNS = {
   players: ["phone"],
   characters: ["player_phone", "slug", "is_active"],
-  inventory: ["character_id", "item_id"],
+  inventory: ["character_id", "item_id", "variant_key"],
   groups: ["group_jid"],
   group_members: ["group_id", "player_phone"],
   bot_auth_state: ["session_id", "id"],

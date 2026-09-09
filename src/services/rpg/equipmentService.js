@@ -67,6 +67,16 @@ const SLOT_ALIASES = {
   spell_container: "spell_container",
 };
 
+function makeEquipmentReference(itemId, variantKey = "legacy") {
+  return `${itemId}::${variantKey}`;
+}
+
+function parseEquipmentReference(reference) {
+  const value = String(reference || "");
+  const [itemId, variantKey = "legacy"] = value.replace(/^__2h:/, "").split("::");
+  return { itemId, variantKey };
+}
+
 /**
  * Normaliza un slot/alias dado por el jugador a una clave real de EQUIPMENT_SLOTS.
  * @param {string} slot - Slot solicitado (posiblemente alias)
@@ -196,7 +206,7 @@ function getSlotsToFree(slot, isTwoHanded) {
  * @param {string} options.slot - Slot de destino
  * @returns {Promise<{equipped: string, slot: string, autoUnequipped: string[]}>}
  */
-async function equipItem({ characterId, creatorId, itemId, slot }) {
+async function equipItem({ characterId, creatorId, itemId, slot, variantKey = "legacy" }) {
   const validSlotKeys = Object.keys(EQUIPMENT_SLOTS);
   if (!validSlotKeys.includes(slot)) {
     throw new Error(`Slot inválido: "${slot}". Slots válidos: ${validSlotKeys.join(", ")}`);
@@ -224,6 +234,10 @@ async function equipItem({ characterId, creatorId, itemId, slot }) {
   }
 
   const currentSlots = await getEquippedSlots(characterId);
+  const reference = makeEquipmentReference(itemId, variantKey);
+  if (Object.values(currentSlots).some((current) => current === reference)) {
+    throw new Error("Este ítem ya está equipado.");
+  }
   const slotsToFree = getSlotsToFree(slot, isTwoHanded);
 
   // Registrar qué ítems fueron auto-desequipados
@@ -238,9 +252,16 @@ async function equipItem({ characterId, creatorId, itemId, slot }) {
   }
 
   // Si es 2 manos, marcar también mano_izq como ocupado por el arma principal
-  updatedSlots[slot] = itemId;
+  updatedSlots[slot] = reference;
   if (isTwoHanded) {
-    updatedSlots.mano_izq = `__2h:${itemId}`; // marcador especial para 2 manos
+    updatedSlots.mano_izq = `__2h:${reference}`; // marcador especial para 2 manos
+  }
+
+  if (!itemCategories.includes("spell")) {
+    const inventoryService = require("./inventoryService");
+    const inventory = await inventoryService.getInventory(characterId);
+    const owned = inventory.some((entry) => entry.item_id === itemId && (entry.variant_key || "legacy") === variantKey);
+    if (!owned) throw new Error("No tienes este ítem en tu inventario.");
   }
 
   await saveEquippedSlots(characterId, creatorId, updatedSlots);
@@ -264,17 +285,20 @@ async function unequipItem({ characterId, creatorId, slot }) {
   }
 
   const currentSlots = await getEquippedSlots(characterId);
-  const currentItem = currentSlots[slot] || null;
+  const currentReference = currentSlots[slot] || null;
 
-  if (!currentItem) {
+  if (!currentReference) {
     throw new Error(`El slot "${slot}" ya está vacío.`);
   }
 
   // Si es una marca interna de 2 manos en mano izquierda, no se desequipa directamente
-  if (String(currentItem).startsWith("__2h:")) {
-    throw new Error(`Este slot está ocupado por un arma de 2 manos equipada en "mano_der". Desequipa "mano_der" para liberar ambas manos.`);
+  if (String(currentReference).startsWith("__2h:")) {
+    throw new Error(
+      `Este slot está ocupado por un arma de 2 manos equipada en "mano_der". Desequipa "mano_der" para liberar ambas manos.`,
+    );
   }
 
+  const { itemId: currentItem, variantKey } = parseEquipmentReference(currentReference);
   const updatedSlots = { ...currentSlots };
   updatedSlots[slot] = null;
 
@@ -285,17 +309,7 @@ async function unequipItem({ characterId, creatorId, slot }) {
 
   await saveEquippedSlots(characterId, creatorId, updatedSlots);
 
-  // Regresar el ítem desequipado al inventario del personaje de forma segura
-  let returnedToInventory = false;
-  try {
-    const inventoryService = require("./inventoryService");
-    await inventoryService.addItem(characterId, creatorId, currentItem, 1);
-    returnedToInventory = true;
-  } catch (err) {
-    logError({ source: "equipmentService.unequipItem.addItem", error: err });
-  }
-
-  return { unequipped: currentItem, slot, returnedToInventory };
+  return { unequipped: currentItem, variantKey, slot, returnedToInventory: true };
 }
 
 /**
@@ -311,10 +325,10 @@ async function unequipAllItems({ characterId, creatorId }) {
 
   const updatedSlots = { ...currentSlots };
 
-  for (const [slot, itemId] of Object.entries(currentSlots)) {
-    if (!itemId || String(itemId).startsWith("__2h:")) continue;
+  for (const [slot, reference] of Object.entries(currentSlots)) {
+    if (!reference || String(reference).startsWith("__2h:")) continue;
     updatedSlots[slot] = null;
-    unequippedList.push({ slot, itemId });
+    unequippedList.push({ slot, ...parseEquipmentReference(reference) });
   }
 
   // Limpiar cualquier marcador restante de 2H
@@ -323,16 +337,6 @@ async function unequipAllItems({ characterId, creatorId }) {
   }
 
   await saveEquippedSlots(characterId, creatorId, updatedSlots);
-
-  // Devolver todos los objetos desequipados al inventario
-  const inventoryService = require("./inventoryService");
-  for (const item of unequippedList) {
-    try {
-      await inventoryService.addItem(characterId, creatorId, item.itemId, 1);
-    } catch (err) {
-      logError({ source: "equipmentService.unequipAllItems", error: err });
-    }
-  }
 
   return {
     unequippedList,
@@ -344,6 +348,8 @@ module.exports = {
   EQUIPMENT_SLOTS,
   SLOT_ALIASES,
   normalizeSlot,
+  makeEquipmentReference,
+  parseEquipmentReference,
   resolveDefaultSlot,
   getEquippedSlots,
   equipItem,

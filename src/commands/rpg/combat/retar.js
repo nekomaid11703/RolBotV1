@@ -1,7 +1,6 @@
 // @ts-nocheck
 const { getActiveCharacter } = require("../../../services/characterService");
 const { createSession, createDummySession, findSessionByCharacter } = require("../../../services/rpg/combatState");
-const { ensureTempTestKit, ensureIronFamilyKit } = require("../../../services/rpg/inventoryService");
 const { resolveCharacterEquipment } = require("../../../services/rpg/equipmentResolverService");
 const { formatCombatOpen } = require("../../../services/rpg/combatMessages");
 
@@ -59,6 +58,13 @@ module.exports = {
       return ctx.reply("❌ No tienes un personaje activo. Usa `/crear_pj`.");
     }
 
+    if (challengerChar.slots?.activity) {
+      const act = challengerChar.slots.activity;
+      return ctx.reply(
+        `❌ Tu personaje está ocupado en: ${act.name || act.type}. No puedes entrar en combate hasta que regrese o canceles.`,
+      );
+    }
+
     /**
      * @constant existingSession
      */
@@ -70,30 +76,9 @@ module.exports = {
     }
 
     if (isDummy) {
-      /**
-       * @constant added
-       */
-      const added = await ensureTempTestKit(challengerChar.id, challengerChar.creator_id);
-      /**
-       * @constant ironAdded
-       */
-      const ironAdded = await ensureIronFamilyKit(challengerChar.id, challengerChar.creator_id);
-      /**
-       * @constant session
-       */
       const session = await createDummySession(ctx.sender, challengerChar);
-      /**
-       * @constant equipmentMap
-       */
       const equipmentMap = await resolveOpenEquipment(session);
-      let msg = formatCombatOpen(session, true, equipmentMap);
-      if (added.length > 0) {
-        msg += `\n\n🎒 Se añadieron items de prueba: ${added.join(", ")}.`;
-      }
-      if (ironAdded.length > 0) {
-        msg += `\n\n⚙️ Set de hierro añadido al inventario: ${ironAdded.join(", ")}. Equipa con \`/equipar\`.`;
-      }
-      return ctx.reply(msg);
+      return ctx.reply(formatCombatOpen(session, false, equipmentMap));
     }
 
     /**
@@ -110,6 +95,13 @@ module.exports = {
     const defenderChar = await getActiveCharacter({ creatorId: targetId });
     if (!defenderChar) {
       return ctx.reply("❌ Ese usuario no tiene un personaje activo.");
+    }
+
+    if (defenderChar.slots?.activity) {
+      const act = defenderChar.slots.activity;
+      return ctx.reply(
+        `❌ ${defenderChar.name} está ocupado en: ${act.name || act.type}. No puede aceptar duelos en este momento.`,
+      );
     }
 
     /**

@@ -44,9 +44,9 @@ describe("C.4 — Catálogo arcano completo", () => {
     expect(getItem("hechizo_doom").modules.spell).toBeDefined();
   });
 
-  it("los focos cargan el hechizo Doom en spellIds", () => {
-    expect(ARCANE_GEAR.baculo_de_roble.modules.focus.spellIds).toContain("hechizo_doom");
-    expect(ARCANE_GEAR.varita_de_caoba.modules.focus.spellIds).toContain("hechizo_doom");
+  it("los focos son amplificadores (focus module con canalizeScale)", () => {
+    expect(ARCANE_GEAR.baculo_de_roble.modules.focus.canalizeScale).toBeGreaterThan(0);
+    expect(ARCANE_GEAR.varita_de_caoba.modules.focus.canalizeScale).toBeGreaterThan(0);
   });
 });
 
@@ -133,22 +133,19 @@ describe("C.1 — Foco canaliza hechizo (resolver)", () => {
     return dummy;
   }
 
-  it("báculo con Doom cargado resuelve arma mágica con canalizeBase", async () => {
+  it("báculo resuelve arma foco con canalizeBase y amplificación", async () => {
     const dummy = makeMage([{ slot: "mano_der", itemId: "baculo_de_roble" }]);
     const weapon = await resolveAttackerWeapon(dummy);
     expect(weapon).not.toBeNull();
-    expect(weapon.damageNature).toBe("mágico");
-    expect(weapon.fulgorCost).toBeGreaterThan(0);
+    expect(weapon.isFocus).toBe(true);
     expect(weapon.canalizeBase).toBeGreaterThan(0);
     expect(weapon.hands).toBe(2);
   });
 
-  it("foco sin hechizo cargado cae a desarmado (no se puede lanzar nada)", async () => {
+  it("foco se resuelve como arma equipada", async () => {
     const dummy = generateDummyCharacter(makeChallenger(), {
       loadout: [{ slot: "mano_der", itemId: "varita_de_caoba" }],
     });
-    // Quitar el hechizo del catálogo no es viable; verificamos el caso directo:
-    // un foco cuyo spellIds no exista → resolver retorna null.
     const resolver = await resolveAttackerWeapon({
       ...dummy,
       dummyEquipment: {
@@ -156,8 +153,8 @@ describe("C.1 — Foco canaliza hechizo (resolver)", () => {
         inventory: [{ item_id: "varita_de_caoba", quantity: 1, metadata: {} }],
       },
     });
-    // varita_de_caoba sí carga hechizo_doom en el catálogo → resuelve (no desarmado).
     expect(resolver).not.toBeNull();
+    expect(resolver.isFocus).toBe(true);
   });
 
   it("getEquippedItems salta el marcador __2h (sin duplicar arma)", async () => {

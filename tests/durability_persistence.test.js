@@ -23,22 +23,28 @@ function setupMocks() {
       select: vi.fn().mockReturnValue({
         eq: vi.fn().mockReturnValue({
           eq: vi.fn().mockReturnValue({
-            maybeSingle: vi
-              .fn()
-              .mockResolvedValue(
-                mockError ? { data: null, error: mockError } : { data: mockInventoryRow, error: null },
-              ),
+            eq: vi.fn().mockReturnValue({
+              maybeSingle: vi
+                .fn()
+                .mockResolvedValue(
+                  mockError ? { data: null, error: mockError } : { data: mockInventoryRow, error: null },
+                ),
+            }),
           }),
         }),
       }),
       update: vi.fn().mockReturnValue({
         eq: vi.fn().mockReturnValue({
-          eq: vi.fn().mockResolvedValue(mockError ? { error: mockError } : { error: null }),
+          eq: vi.fn().mockReturnValue({
+            eq: vi.fn().mockResolvedValue(mockError ? { error: mockError } : { error: null }),
+          }),
         }),
       }),
       delete: vi.fn().mockReturnValue({
         eq: vi.fn().mockReturnValue({
-          eq: vi.fn().mockResolvedValue({ error: null }),
+          eq: vi.fn().mockReturnValue({
+            eq: vi.fn().mockResolvedValue({ error: null }),
+          }),
         }),
       }),
     };
@@ -82,6 +88,7 @@ describe("persistDurability", () => {
       characterId: 1,
       creatorId: "t",
       itemId: "pechera",
+      variantKey: "tier:C",
       durability: { maxResist: 100, currentResist: 70, isRepairable: true },
     });
     expect(result).toBe("updated");
@@ -94,6 +101,7 @@ describe("persistDurability", () => {
       characterId: 1,
       creatorId: "t",
       itemId: "pechera",
+      variantKey: "tier:C",
       durability: { maxResist: 50, currentResist: 0, isRepairable: true },
     });
     expect(result).toBe("updated");
@@ -106,6 +114,7 @@ describe("persistDurability", () => {
       characterId: 1,
       creatorId: "t",
       itemId: "escudo",
+      variantKey: "tier:D",
       durability: { maxResist: 20, currentResist: 0, isRepairable: false },
     });
     expect(result).toBe("destroyed");
@@ -118,13 +127,13 @@ describe("readMetadata", () => {
   it("Devuelve metadata previa", async () => {
     mockInventoryRow = { metadata: { broken: false } };
     const { readMetadata } = require("../src/services/rpg/durabilityPersistenceService");
-    const metadata = await readMetadata(1, "pechera");
+    const metadata = await readMetadata(1, "pechera", "tier:C");
     expect(metadata.broken).toBe(false);
   });
 
   it("Devuelve {} si no existe", async () => {
     mockInventoryRow = null;
     const { readMetadata } = require("../src/services/rpg/durabilityPersistenceService");
-    expect(await readMetadata(1, "nada")).toEqual({});
+    expect(await readMetadata(1, "nada", "tier:E")).toEqual({});
   });
 });

@@ -720,7 +720,16 @@ function refineSpell(def, upgrade = {}) {
  * @returns {{ key: string, category: string, label: string, desc: string, dominioReq: number, tier: string, fulgorCost: number }}
  */
 function getSpellCategory(spellDef) {
-  if (!spellDef) return { key: "E", category: "Básico", label: "Escaso", desc: "Golpe básico", dominioReq: 0, tier: "E", fulgorCost: 0 };
+  if (!spellDef)
+    return {
+      key: "E",
+      category: "Básico",
+      label: "Escaso",
+      desc: "Golpe básico",
+      dominioReq: 0,
+      tier: "E",
+      fulgorCost: 0,
+    };
 
   const spell = spellDef.modules?.spell || spellDef;
   const fulgorCost = Number(spell.fulgorCost || spell.resourceCost) || 0;

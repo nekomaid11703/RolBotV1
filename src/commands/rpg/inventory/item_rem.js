@@ -1,7 +1,7 @@
 // @ts-nocheck
 const { getActiveCharacter } = require("../../../services/characterService");
 const { removeItem, clearInventory, getInventoryList } = require("../../../services/rpg/inventoryService");
-const { getItem, ITEMS } = require("../../../data/items");
+const { getItem } = require("../../../data/items");
 const { box } = require("../../../utils/boxUtils");
 const { parseQuantity } = require("../../../utils/quantityUtils");
 
@@ -57,7 +57,10 @@ module.exports = {
     const isNumberList = ctx.args.every((arg) => /^\d+$/.test(arg.replace(/,/g, "")));
 
     if (isNumberList) {
-      const positions = ctx.args.flatMap((arg) => arg.split(",")).map(Number).filter(Boolean);
+      const positions = ctx.args
+        .flatMap((arg) => arg.split(","))
+        .map(Number)
+        .filter(Boolean);
 
       for (const pos of positions) {
         const entry = inventoryList.find((e) => e.index === pos);

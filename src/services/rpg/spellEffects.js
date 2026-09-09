@@ -1,9 +1,5 @@
 // @ts-nocheck
-const {
-  EFFECT_DEFS,
-  ELEMENT_REACTIONS,
-  ELEMENT_PERSISTENCE,
-} = require("../../config/spellTree");
+const { EFFECT_DEFS, ELEMENT_REACTIONS, ELEMENT_PERSISTENCE } = require("../../config/spellTree");
 
 /**
  * Resolver declarativo de efectos de hechizo (Sistema Simplificado).

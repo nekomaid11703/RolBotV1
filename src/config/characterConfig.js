@@ -255,7 +255,7 @@ function calculateLevel(stats) {
   for (const key of Object.keys(LEVELABLE_STATS)) {
     sum += stats[key] || 0;
   }
-  return Math.max(LEVEL_INITIAL, sum);
+  return clampLevel(sum);
 }
 
 // =========================
@@ -267,6 +267,19 @@ function calculateLevel(stats) {
  * @type {*[]}
  */
 const RANGOS = ["F", "E", "D", "C", "B", "A", "S"];
+
+/**
+ * Acota un nivel al rango oficial [LEVEL_INITIAL, LEVEL_MAX].
+ * El nivel nunca supera el tope 500 aunque la suma de atributos crezca por
+ * entrenamiento no-XP (maestría individual hasta 100 por atributo).
+ * @param {number} level - Nivel bruto (normalmente suma de atributos)
+ * @returns {number}
+ */
+function clampLevel(level) {
+  const numeric = Number(level);
+  if (!Number.isFinite(numeric)) return LEVEL_INITIAL;
+  return Math.min(LEVEL_MAX, Math.max(LEVEL_INITIAL, Math.floor(numeric)));
+}
 
 /**
  * Get the list of available ranks.
@@ -313,6 +326,7 @@ module.exports = {
   XP_CURVE_EXPONENT,
   xpForNextLevel,
   calculateLevel,
+  clampLevel,
   RANGOS,
   rangosDisponibles,
 

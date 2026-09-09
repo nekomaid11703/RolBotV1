@@ -31,7 +31,7 @@ module.exports = {
         statsList,
         "",
         "💡 *Uso:* `/subir_stat <stat> [cantidad]`",
-        "  • Ej: `/subir_stat fuerza 1` | `/subir_stat fulgor 3`",
+        "  • Ej: `/subir_stat atk 1` | `/subir_stat fulgor 3`",
       ];
       return ctx.reply(box("📊 ASIGNAR PUNTOS DE ATRIBUTO", lines));
     }

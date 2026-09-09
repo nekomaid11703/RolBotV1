@@ -1,4 +1,4 @@
-const { getActiveCharacter } = require("../../../services/characterService");
+const characterService = require("../../../services/characterService");
 const {
   findSessionByCharacter,
   updateDistance,
@@ -8,7 +8,12 @@ const {
 const { calculateMovementFatigue, capFatigue, getMovementRange } = require("../../../services/rpg/fatigueEngine");
 const { checkAttackRange } = require("../../../services/rpg/combatEngine");
 const { runDummyTurn } = require("../../../services/rpg/dummyTurnService");
-const { formatMovement, formatOutOfRange, formatActionMenu } = require("../../../services/rpg/combatMessages");
+const {
+  formatMovement,
+  formatOutOfRange,
+  formatActionMenu,
+  buildSituationalCtx,
+} = require("../../../services/rpg/combatMessages");
 const { formatError } = require("../../../utils/formatErrorUtils");
 const { formatCommandUsage } = require("../../../utils/formatCommandUtils");
 const { box } = require("../../../utils/boxUtils");
@@ -39,7 +44,7 @@ module.exports = {
     /**
      * @constant activeChar
      */
-    const activeChar = await getActiveCharacter({ creatorId: ctx.sender });
+    const activeChar = await characterService.getActiveCharacter({ creatorId: ctx.sender });
     if (!activeChar) {
       return ctx.reply("\u274C No tienes un personaje activo. Usa `/crear_pj` o `/switch_pj`.");
     }
@@ -76,6 +81,11 @@ module.exports = {
      * @constant playerSlot
      */
     const playerSlot = isChallenger ? session.challenger : session.defender;
+    if (playerSlot.prison && playerSlot.prison.hp > 0) {
+      return ctx.reply(
+        `❌ *${activeChar.name}* está atrapado en una **Prisión Mágica** [🛡️ ${playerSlot.prison.hp}/${playerSlot.prison.maxHp} HP]. Debes atacarla para destruirla antes de poder avanzar.`,
+      );
+    }
     if (isActionBlocked(playerSlot, "move")) {
       return ctx.reply("\u274C Estás inmovilizado y no puedes avanzar.");
     }
@@ -136,6 +146,12 @@ module.exports = {
         session.currentTurnCharId === session.challenger.characterId
           ? session.challenger.character.name
           : session.defender.character.name,
+        session,
+        buildSituationalCtx(
+          session.currentTurnCharId === session.challenger.characterId ? session.challenger : session.defender,
+          session.currentTurnCharId === session.challenger.characterId ? session.defender : session.challenger,
+          newDistance,
+        ),
       ),
     ];
 

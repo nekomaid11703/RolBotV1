@@ -1,6 +1,5 @@
 // @ts-nocheck
 const { setActiveCharacter } = require("../../../services/characterService");
-const { getCharacterNames } = require("../../../services/characterService");
 const { isAdmin } = require("../../../utils/groupUtils");
 const { box } = require("../../../utils/boxUtils");
 const { formatError } = require("../../../utils/formatErrorUtils");
@@ -15,7 +14,7 @@ const usageMessage = formatCommandUsage({
   description: "Cambia tu personaje activo por otro de tu lista.",
   usage: "/switch_pj NombreDelPersonaje",
   example: "/switch_pj Kael",
-  notes: ["El nombre debe coincidir exactamente (sensible a mayúsculas)."],
+  notes: ["El nombre no distingue mayúsculas, acentos ni espacios."],
 });
 
 module.exports = {
@@ -45,27 +44,22 @@ module.exports = {
      */
     const name = targetName.trim();
 
-    /**
-     * @constant names
-     */
-    const names = await getCharacterNames({ creatorId: ctx.sender });
-
-    if (!names.has(name)) {
-      return ctx.reply(formatError(`No tienes un personaje llamado "${name}".`, `Usa /mis_pj para ver tu lista.`));
-    }
-
     let admin = false;
     if (ctx.isGroup) {
       admin = await isAdmin(ctx.sock, ctx.from, ctx.sender);
     }
 
-    await setActiveCharacter({
-      targetCreatorId: ctx.sender,
-      targetCreatorName: ctx.userName,
-      characterName: name,
-      requesterId: ctx.sender,
-      requesterIsAdmin: admin,
-    });
+    try {
+      await setActiveCharacter({
+        targetCreatorId: ctx.sender,
+        targetCreatorName: ctx.userName,
+        characterName: name,
+        requesterId: ctx.sender,
+        requesterIsAdmin: admin,
+      });
+    } catch (error) {
+      return ctx.reply(formatError(error, "Usa /mis_pj para ver tu lista."));
+    }
 
     await ctx.react("🔄");
 

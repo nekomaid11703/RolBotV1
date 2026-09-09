@@ -5,11 +5,12 @@ const { invalidateUserCache } = require("../../utils/safeQuery");
 const { logError } = require("../loggerService");
 const { getItem } = require("../../data/items");
 const { getActiveCharacter, setHp } = require("../characterService");
-const { MAX_INVENTORY_SIZE, MAX_STACK_SIZE } = require("../../config/inventoryConfig");
+const { MAX_STACK_SIZE } = require("../../config/inventoryConfig");
 const { parseQuantity } = require("../../utils/quantityUtils");
 const { createItem } = require("./itemService");
 const { setCooldown } = require("./statusService");
 const { createItemDefinition } = require("./itemFactory");
+const { randomUUID } = require("crypto");
 
 /**
  * Tipos cuyas instancias portan durabilidad/metadata derivada en `inventory.metadata`.
@@ -17,6 +18,45 @@ const { createItemDefinition } = require("./itemFactory");
  * @type {string[]}
  */
 const EQUIPABLE_TYPES = ["weapon", "armor", "artifact"];
+const INSTANCE_ITEM_TYPES = ["weapon", "armor", "artifact", "shield", "focus", "spell_container"];
+
+function getVariantKey(item, metadata, variantKey) {
+  if (variantKey) return variantKey;
+  if (metadata?.variantKey) return metadata.variantKey;
+  if ((item.categories || []).some((category) => INSTANCE_ITEM_TYPES.includes(category)))
+    return `instance:${randomUUID()}`;
+  if ((item.categories || []).includes("material")) return `tier:${metadata?.tier || "E"}`;
+  return metadata?.tier ? `tier:${metadata.tier}` : "legacy";
+}
+
+async function validateInventoryAdditions(characterId, additions) {
+  const inventory = await getInventory(characterId);
+  const maxSlots = await getMaxInventoryCapacity(characterId);
+  const stacks = new Map(
+    inventory.map((entry) => [`${entry.item_id}:${entry.variant_key || "legacy"}`, Number(entry.quantity) || 0]),
+  );
+
+  for (const addition of additions) {
+    const item = getItem(addition.itemId);
+    if (!item) return { ok: false, error: `El ítem "${addition.itemId}" no existe.` };
+    const variantKey = getVariantKey(item, addition.metadata);
+    const key = `${addition.itemId}:${variantKey}`;
+    const current = stacks.get(key) || 0;
+    const quantity = parseQuantity(addition.quantity);
+    if (current + quantity > MAX_STACK_SIZE) {
+      return { ok: false, error: `No hay espacio para ${item.name}: el stack máximo es ${MAX_STACK_SIZE}.` };
+    }
+    stacks.set(key, current + quantity);
+  }
+
+  if (stacks.size > maxSlots) {
+    return {
+      ok: false,
+      error: `Tu mochila no tiene espacio para todo el botín (${inventory.length}/${maxSlots} ranuras).`,
+    };
+  }
+  return { ok: true };
+}
 
 /**
  * Se lanza metadata inicial de un ítem equipable a partir de su definición.
@@ -73,7 +113,7 @@ async function withCharacterLock(characterId, fn) {
 async function getInventory(characterId) {
   const { data, error } = await supabase
     .from("inventory")
-    .select("item_id, quantity, metadata")
+    .select("item_id, variant_key, quantity, metadata")
     .eq("character_id", characterId)
     .order("item_id", { ascending: true });
 
@@ -98,6 +138,7 @@ async function getInventoryList(characterId) {
     return {
       index: i + 1,
       itemId: entry.item_id,
+      variantKey: entry.variant_key || "legacy",
       name: def?.name || entry.item_id,
       quantity: entry.quantity,
       metadata: entry.metadata || {},
@@ -113,9 +154,10 @@ async function getInventoryList(characterId) {
  * @param {string} creatorId - ID del creador/usuario
  * @param {string} itemId - ID del item a añadir
  * @param {number} [quantity] - Cantidad a añadir
+ * @param {object} [metadata=null] - Metadata adicional (ej: { tier: "E", crafted: true })
  * @returns {Promise<*>} Resultado con itemId, quantity y total
  */
-async function addItem(characterId, creatorId, itemId, quantity = 1) {
+async function addItem(characterId, creatorId, itemId, quantity = 1, metadata = null, variantKey = null) {
   return withCharacterLock(characterId, async () => {
     /**
      * @constant safeQty
@@ -135,10 +177,19 @@ async function addItem(characterId, creatorId, itemId, quantity = 1) {
     /**
      * @constant existing
      */
-    const existing = inv.find((row) => row.item_id === itemId);
+    const resolvedVariantKey = getVariantKey(item, metadata, variantKey);
+    const existing = inv.find((row) => row.item_id === itemId && (row.variant_key || "legacy") === resolvedVariantKey);
 
-    if (!existing && inv.length >= MAX_INVENTORY_SIZE) {
-      throw new Error(`Inventario lleno (máx. ${MAX_INVENTORY_SIZE} tipos de items distintos).`);
+    // Límite dinámico según nivel de mochila (20 base + 2 por nivel adicional, máx 38-40)
+    const charRes = await supabase.from("characters").select("slots").eq("id", characterId).maybeSingle();
+    const mochilaLvl = charRes?.data?.slots?.tools?.mochila?.level || 1;
+    const { getInventorySlotsByMochilaLevel } = require("../../config/toolsConfig");
+    const currentMaxSlots = getInventorySlotsByMochilaLevel(mochilaLvl);
+
+    if (!existing && inv.length >= currentMaxSlots) {
+      throw new Error(
+        `Inventario lleno (máx. ${currentMaxSlots} tipos de items distintos). Mejora tu mochila con /herramientas.`,
+      );
     }
 
     if (existing) {
@@ -150,29 +201,43 @@ async function addItem(characterId, creatorId, itemId, quantity = 1) {
        */
       const newQty = existing.quantity + safeQty;
       /**
+       * @constant mergedMeta
+       */
+      const mergedMeta = metadata ? { ...(existing.metadata || {}), ...metadata } : existing.metadata || null;
+      /**
        * @constant payload
        */
-      const payload = filterExisting("inventory", { quantity: newQty, updated_at: new Date().toISOString() });
+      const payload = filterExisting("inventory", {
+        quantity: newQty,
+        updated_at: new Date().toISOString(),
+        ...(mergedMeta ? { metadata: mergedMeta } : {}),
+      });
       const { error } = await supabase
         .from("inventory")
         .update(payload)
         .eq("character_id", characterId)
-        .eq("item_id", itemId);
+        .eq("item_id", itemId)
+        .eq("variant_key", resolvedVariantKey);
 
       if (error) throw new Error(`Error actualizando inventario: ${error.message}`);
     } else {
       /**
-       * @constant metadata
+       * @constant seedMeta
        */
-      const metadata = seedItemMetadata(item);
+      const seedMeta = seedItemMetadata(item);
+      /**
+       * @constant finalMeta
+       */
+      const finalMeta = metadata || seedMeta;
       /**
        * @constant payload
        */
       const payload = filterExisting("inventory", {
         character_id: characterId,
         item_id: itemId,
+        variant_key: resolvedVariantKey,
         quantity: safeQty,
-        ...(metadata ? { metadata } : {}),
+        ...(finalMeta ? { metadata: finalMeta } : {}),
       });
       const { error } = await supabase.from("inventory").insert(payload);
 
@@ -182,6 +247,7 @@ async function addItem(characterId, creatorId, itemId, quantity = 1) {
     invalidateUserCache(creatorId);
     return {
       itemId,
+      variantKey: resolvedVariantKey,
       quantity: safeQty,
       total: existing ? existing.quantity + safeQty : safeQty,
     };
@@ -196,7 +262,7 @@ async function addItem(characterId, creatorId, itemId, quantity = 1) {
  * @param {number} [quantity] - Cantidad a eliminar
  * @returns {Promise<*>} Resultado con itemId, removed y remaining
  */
-async function removeItem(characterId, creatorId, itemId, quantity = 1) {
+async function removeItem(characterId, creatorId, itemId, quantity = 1, variantKey = "legacy") {
   return withCharacterLock(characterId, async () => {
     /**
      * @constant safeQty
@@ -210,7 +276,7 @@ async function removeItem(characterId, creatorId, itemId, quantity = 1) {
     /**
      * @constant existing
      */
-    const existing = inv.find((row) => row.item_id === itemId);
+    const existing = inv.find((row) => row.item_id === itemId && (row.variant_key || "legacy") === variantKey);
 
     if (!existing || existing.quantity < safeQty) {
       throw new Error(`No tienes suficientes "${itemId}".`);
@@ -222,7 +288,12 @@ async function removeItem(characterId, creatorId, itemId, quantity = 1) {
     const newQty = existing.quantity - safeQty;
 
     if (newQty <= 0) {
-      const { error } = await supabase.from("inventory").delete().eq("character_id", characterId).eq("item_id", itemId);
+      const { error } = await supabase
+        .from("inventory")
+        .delete()
+        .eq("character_id", characterId)
+        .eq("item_id", itemId)
+        .eq("variant_key", variantKey);
 
       if (error) throw new Error(`Error eliminando ítem: ${error.message}`);
     } else {
@@ -234,7 +305,8 @@ async function removeItem(characterId, creatorId, itemId, quantity = 1) {
         .from("inventory")
         .update(payload)
         .eq("character_id", characterId)
-        .eq("item_id", itemId);
+        .eq("item_id", itemId)
+        .eq("variant_key", variantKey);
 
       if (error) throw new Error(`Error actualizando cantidad: ${error.message}`);
     }
@@ -313,9 +385,19 @@ async function useItem(creatorId, itemId) {
     const payload = filterExisting("inventory", { quantity: entry.quantity - 1, updated_at: new Date().toISOString() });
 
     if (entry.quantity - 1 <= 0) {
-      await supabase.from("inventory").delete().eq("character_id", character.id).eq("item_id", itemId);
+      await supabase
+        .from("inventory")
+        .delete()
+        .eq("character_id", character.id)
+        .eq("item_id", itemId)
+        .eq("variant_key", entry.variant_key || "legacy");
     } else {
-      await supabase.from("inventory").update(payload).eq("character_id", character.id).eq("item_id", itemId);
+      await supabase
+        .from("inventory")
+        .update(payload)
+        .eq("character_id", character.id)
+        .eq("item_id", itemId)
+        .eq("variant_key", entry.variant_key || "legacy");
     }
 
     let hpBefore = character.hp_actual;
@@ -346,165 +428,6 @@ async function useItem(creatorId, itemId) {
 }
 
 /**
- * Asegura que un personaje tenga los items de prueba básicos en su inventario.
- * @param {string|number} characterId - ID del personaje
- * @param {string} creatorId - ID del creador/usuario
- * @returns {Promise<string[]>} Lista de items añadidos
- */
-async function ensureTestKit(characterId, creatorId) {
-  /**
-   * @constant testItems
-   * @type {*[]}
-   */
-  const testItems = ["venda", "pocion", "tonico", "antidoto"];
-  /**
-   * @constant inv
-   */
-  const inv = await getInventory(characterId);
-  /**
-   * @constant existingIds
-   * @type {Set}
-   */
-  const existingIds = new Set(inv.map((row) => row.item_id));
-  /**
-   * @constant added
-   * @type {*[]}
-   */
-  const added = [];
-
-  for (const itemId of testItems) {
-    if (!existingIds.has(itemId)) {
-      try {
-        await addItem(characterId, creatorId, itemId, 1);
-        added.push(itemId);
-      } catch (err) {
-        logError({ source: "inventoryService.ensureTestKit", error: err, characterId, itemId });
-      }
-    }
-  }
-
-  return added;
-}
-
-/**
- * Asegura que un personaje tenga los items temporales de prueba.
- * @param {string|number} characterId - ID del personaje
- * @param {string} creatorId - ID del creador/usuario
- * @returns {Promise<string[]>} Lista de items temporales añadidos
- */
-async function ensureTempTestKit(characterId, creatorId) {
-  /**
-   * @constant tempItems
-   * @type {*[]}
-   */
-  const tempItems = ["venda_temp", "pocion_temp", "tonico_temp"];
-  /**
-   * @constant inv
-   */
-  const inv = await getInventory(characterId);
-  /**
-   * @constant existingIds
-   * @type {Set}
-   */
-  const existingIds = new Set(inv.map((row) => row.item_id));
-  /**
-   * @constant added
-   * @type {*[]}
-   */
-  const added = [];
-
-  for (const itemId of tempItems) {
-    if (!existingIds.has(itemId)) {
-      try {
-        await addItem(characterId, creatorId, itemId, 3);
-        added.push(itemId);
-      } catch (err) {
-        logError({ source: "inventoryService.ensureTempTestKit", error: err, characterId, itemId });
-      }
-    }
-  }
-
-  return added;
-}
-
-/**
- * Ítems de la Familia del Hierro que se siembran al retar al dummy para probar
- * equipo real (arma, set de armadura, artefacto y arrojadiza).
- * @constant IRON_FAMILY_KIT
- * @type {Array<[string, number]>}
- */
-const IRON_FAMILY_KIT = [
-  ["espada_de_hierro", 1],
-  ["casco_de_hierro", 1],
-  ["pechera_de_hierro", 1],
-  ["grebas_de_hierro", 1],
-  ["botas_de_hierro", 1],
-  ["amuleto_de_hierro", 1],
-  ["kunai_de_hierro", 5],
-];
-
-/**
- * Asegura que un personaje tenga la Familia del Hierro en el inventario.
- * @param {string|number} characterId - ID del personaje
- * @param {string} creatorId - ID del creador/usuario
- * @returns {Promise<string[]>} Lista de items añadidos
- */
-async function ensureIronFamilyKit(characterId, creatorId) {
-  const inv = await getInventory(characterId);
-  const existingIds = new Set(inv.map((row) => row.item_id));
-  const added = [];
-
-  for (const [itemId, qty] of IRON_FAMILY_KIT) {
-    if (!existingIds.has(itemId)) {
-      try {
-        await addItem(characterId, creatorId, itemId, qty);
-        added.push(itemId);
-      } catch (err) {
-        logError({ source: "inventoryService.ensureIronFamilyKit", error: err, characterId, itemId });
-      }
-    }
-  }
-
-  return added;
-}
-
-/**
- * Limpia los items temporales del inventario de un personaje.
- * @param {string|number} characterId - ID del personaje
- * @returns {Promise<string[]>} Lista de items temporales eliminados
- */
-async function cleanupTemporalItems(characterId) {
-  /**
-   * @constant inv
-   */
-  const inv = await getInventory(characterId);
-  /**
-   * @constant toRemove
-   * @type {*[]}
-   */
-  const toRemove = [];
-
-  for (const entry of inv) {
-    /**
-     * @constant item
-     */
-    const item = createItem(entry.item_id);
-    if (item && item.modules.some((m) => m.constructor.type === "temporal")) {
-      toRemove.push(entry.item_id);
-    }
-  }
-
-  if (toRemove.length === 0) return [];
-  const { error } = await supabase.from("inventory").delete().eq("character_id", characterId).in("item_id", toRemove);
-
-  if (error) {
-    logError({ source: "inventoryService.cleanupTemporalItems", error, characterId });
-  }
-
-  return toRemove;
-}
-
-/**
  * Elimina por completo todas las filas del inventario de un personaje.
  * @param {string|number} characterId - ID del personaje
  * @param {string} creatorId - ID del creador/usuario
@@ -527,6 +450,18 @@ async function clearInventory(characterId, creatorId) {
   });
 }
 
+/**
+ * Obtiene la capacidad máxima de inventario de un personaje.
+ * @param {string|number} characterId
+ * @returns {Promise<number>}
+ */
+async function getMaxInventoryCapacity(characterId) {
+  const { data } = await supabase.from("characters").select("slots").eq("id", characterId).maybeSingle();
+  const mochilaLvl = data?.slots?.tools?.mochila?.level || 1;
+  const { getInventorySlotsByMochilaLevel } = require("../../config/toolsConfig");
+  return getInventorySlotsByMochilaLevel(mochilaLvl);
+}
+
 module.exports = {
   getInventory,
   getInventoryList,
@@ -534,8 +469,7 @@ module.exports = {
   removeItem,
   useItem,
   clearInventory,
-  ensureTestKit,
-  ensureTempTestKit,
-  ensureIronFamilyKit,
-  cleanupTemporalItems,
+  getMaxInventoryCapacity,
+  getVariantKey,
+  validateInventoryAdditions,
 };

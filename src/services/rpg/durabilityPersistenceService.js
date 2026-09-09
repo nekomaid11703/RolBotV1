@@ -28,14 +28,14 @@ const METADATA_COLUMN = "metadata";
  * @param {object} options.durability - { maxResist, currentResist, isRepairable, isBroken }
  * @returns {Promise<'updated'|'destroyed'|'unchanged'>} Resultado de la operación
  */
-async function persistDurability({ characterId, creatorId, itemId, durability }) {
+async function persistDurability({ characterId, creatorId, itemId, variantKey = "legacy", durability }) {
   const maxResist = Math.max(1, Number(durability.maxResist) || 1);
   const parsedCurrent = Number(durability.currentResist);
   const currentResist = Math.max(0, Number.isFinite(parsedCurrent) ? parsedCurrent : maxResist);
   const isRepairable = durability.isRepairable !== false;
 
   // Construye metadata manteniendo cualquier dato previo que no sea durabilidad.
-  const existing = await readMetadata(characterId, itemId);
+  const existing = await readMetadata(characterId, itemId, variantKey);
   const metadata = {
     ...existing,
     durability: {
@@ -50,7 +50,12 @@ async function persistDurability({ characterId, creatorId, itemId, durability })
 
   // Ítem no reparable agotado: se destruye y se retira del inventario.
   if (currentResist <= 0 && !isRepairable) {
-    const { error } = await supabase.from("inventory").delete().eq("character_id", characterId).eq("item_id", itemId);
+    const { error } = await supabase
+      .from("inventory")
+      .delete()
+      .eq("character_id", characterId)
+      .eq("item_id", itemId)
+      .eq("variant_key", variantKey);
     if (error) throw new Error(`Error destruyendo ítem: ${error.message}`);
     return "destroyed";
   }
@@ -63,7 +68,8 @@ async function persistDurability({ characterId, creatorId, itemId, durability })
     .from("inventory")
     .update(payload)
     .eq("character_id", characterId)
-    .eq("item_id", itemId);
+    .eq("item_id", itemId)
+    .eq("variant_key", variantKey);
 
   if (error) {
     if (/does not exist|could not find|PGRST204/.test(String(error.message || ""))) {
@@ -99,6 +105,7 @@ async function persistArmorDurability(character, creatorId, armor) {
         characterId: character.id,
         creatorId: creatorId || "system",
         itemId: piece.itemId,
+        variantKey: piece.variantKey,
         durability,
       });
     }),
@@ -111,12 +118,13 @@ async function persistArmorDurability(character, creatorId, armor) {
  * @param {string} itemId
  * @returns {Promise<object>} metadata previa ({} si no existe)
  */
-async function readMetadata(characterId, itemId) {
+async function readMetadata(characterId, itemId, variantKey = "legacy") {
   const { data, error } = await supabase
     .from("inventory")
     .select("metadata")
     .eq("character_id", characterId)
     .eq("item_id", itemId)
+    .eq("variant_key", variantKey)
     .maybeSingle();
 
   if (error || !data) return {};

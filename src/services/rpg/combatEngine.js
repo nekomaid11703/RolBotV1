@@ -16,8 +16,6 @@ const {
   WEAPON_ATK_REF,
   DISTANCE_REF_BLOCK,
   DISTANCE_REF_BONUS,
-  PROJECTILE_FALL_OFF_RATE,
-  PROJECTILE_MIN_SCALE,
   MAX_DISTANCE,
   BOW_DAMAGE_MULT,
   BOW_SPEED_BASE,
@@ -30,7 +28,7 @@ const {
   FULGOR_ATK_SCALE,
   MAGIC_DEFENSE_SCALE,
 } = require("../../config/combatConfig");
-const { applyFatiguePenalties } = require("./fatigueEngine");
+const { applyFatiguePenalties, calcFatigueCost, capFatigue } = require("./fatigueEngine");
 const { randomFloat } = require("../../utils/randomUtils");
 const { getTierPenaltyBonus, normalizeTier } = require("../../config/tierConfig");
 const {
@@ -39,6 +37,8 @@ const {
   ARMOR_SOAK_RATIO,
   ARMOR_OVERFLOW_TO_HP,
 } = require("../../config/combatConfig");
+// E-08: Efectos de estado que reducen DEF o REF del defensor deben afectar la mitigación real.
+const { getDefenseReduction, getReflexReduction } = require("./combatState");
 
 /**
  * Factor de mitigación por DEF con escala y techo tuneables.
@@ -204,6 +204,45 @@ function evaluateDodgeFeasibility(
    */
   const atkPenalized = applyPenalties(attackerStats, attackerHp, attackerFatigue, attackerRes);
   return defPenalized.mspd > atkPenalized.aspd;
+}
+
+/**
+ * Predice si el defensor podrá esquivar con daño 0, considerando el coste de
+ * fatiga de la acción "dodge" que se suma ANTES del chequeo real (esquivar.js).
+ * Usar esta función en la UI garantiza que "esquiva posible → daño 0" coincida
+ * con el resultado real (evita marcar como posible una esquiva que fallará).
+ * @param {*} defenderStats - Stats crudos del defensor
+ * @param {number} defenderHp
+ * @param {*} attackerStats - Stats crudos del atacante
+ * @param {number} attackerHp
+ * @param {number} [defenderFatigue] - Fatiga del defensor ANTES del coste de dodge
+ * @param {number} [attackerFatigue]
+ * @param {number} [defenderRes]
+ * @param {number} [attackerRes]
+ * @returns {boolean} true si esquivará completamente (daño 0)
+ */
+function predictDodgeFeasibility(
+  defenderStats,
+  defenderHp,
+  attackerStats,
+  attackerHp,
+  defenderFatigue = 0,
+  attackerFatigue = 0,
+  defenderRes = 0,
+  attackerRes = 0,
+) {
+  const dodgeCost = calcFatigueCost("dodge", defenderStats);
+  const projectedFatigue = capFatigue(defenderFatigue + dodgeCost);
+  return evaluateDodgeFeasibility(
+    defenderStats,
+    defenderHp,
+    attackerStats,
+    attackerHp,
+    projectedFatigue,
+    attackerFatigue,
+    defenderRes,
+    attackerRes,
+  );
 }
 
 /**
@@ -387,7 +426,6 @@ function calculateWeaponDamage(attackerStats, defenderStats, weaponInfo, distanc
         WEAPON_BASE_ATK_WEIGHT +
         WEAPON_BASE_ATK_WEIGHT * Math.min(1, Math.max(0, (attackerStats.atk || 0) / WEAPON_ATK_REF))),
   );
-  const ranged = Boolean(weaponInfo?.ranged);
 
   if (!weaponInfo || nature === "desarmado") {
     // Fórmula clásica sin arma: atk del atacante vs def del defensor
@@ -629,6 +667,8 @@ function applyArmorMode(ctx) {
  * @param {number} [attackerFatigue] - Fatiga del atacante
  * @param {number} [materialDamage] - Daño a aplicar a la armadura (opcional)
  * @param {object|null} [armorDurability] - Instancia DurabilityModule de la armadura del defensor
+ * @param {object|null} [defenderSlot] - Slot del defensor (opcional). Si se pasa, aplica
+ *   efectos activos de reducción de DEF/REF (E-08).
  * @returns {*} Resultado completo de la reacción con daño final
  */
 function executeReaction(
@@ -642,9 +682,22 @@ function executeReaction(
   attackerFatigue = 0,
   materialDamage = 0,
   armorDurability = null,
+  defenderSlot = null,
 ) {
   const attackerStats = attackerChar.stats || {};
-  const defenderStats = defenderChar.stats || {};
+  // E-08: Aplicar reducciones de DEF y REF de efectos de estado activos sobre el defensor.
+  const rawDefenderStats = defenderChar.stats || {};
+  const defReductionFromEffects = getDefenseReduction(defenderSlot);
+  const refReductionFromEffects = getReflexReduction(defenderSlot);
+  const defenderStats =
+    defReductionFromEffects > 0 || refReductionFromEffects > 0
+      ? {
+          ...rawDefenderStats,
+          def: Math.max(0, (rawDefenderStats.def || 0) - defReductionFromEffects),
+          ref: Math.max(0, (rawDefenderStats.ref || rawDefenderStats.aspd || 0) - refReductionFromEffects),
+        }
+      : rawDefenderStats;
+
   const attackerRes = attackerStats.def || 0;
   const defenderRes = defenderStats.def || 0;
 
@@ -687,8 +740,6 @@ function executeReaction(
   }
 
   // Modo de armadura (Fase C Iteración 1 — "full"): bonusDef→DEF + soak + overflow→HP.
-  // `hasArmor` exige pieza con resistencia disponible (no rota/agotada) para
-  // def/soak; el overflow→HP aplica siempre que hubo material no absorbido.
   const hasArmor = Boolean(
     armorDurability &&
     typeof armorDurability.maxResist === "number" &&
@@ -718,7 +769,7 @@ function executeReaction(
     defenderHpBefore: defenderHp,
     defenderHpAfter,
     ko: defenderHpAfter <= 0,
-    armorAbsorption, // null si no hay armadura/material damage
+    armorAbsorption,
     soakApplied: armorMode.soakApplied,
     defReduction: armorMode.defReduction,
     overflowToHp: armorMode.overflowToHp,
@@ -927,6 +978,7 @@ module.exports = {
   resolveAttackerSpeed,
   canReact,
   evaluateDodgeFeasibility,
+  predictDodgeFeasibility,
   rollFlee,
   attemptBlock,
   attemptDodge,

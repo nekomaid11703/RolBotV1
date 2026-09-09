@@ -1,6 +1,5 @@
-﻿const characterService = require("../../../services/characterService");
+const characterService = require("../../../services/characterService");
 const { xpForNextLevel, LEVEL_MAX } = require("../../../config/characterConfig");
-const { composeMessage } = require("../../../ui/sectionBuilder");
 const { box } = require("../../../utils/boxUtils");
 
 /**

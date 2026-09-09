@@ -8,6 +8,8 @@ const {
   RACES,
   LEVELABLE_STATS,
   LEVEL_INITIAL,
+  LEVEL_MAX,
+  clampLevel,
   FREE_POINTS_AT_CREATION,
   calculateLevel,
   xpForNextLevel,
@@ -59,7 +61,7 @@ function normalizeCharacterRecord(character) {
   normalized.raza = normalized.raza || "humano";
   normalized.clase = normalized.clase || "civil";
   normalized.rango = RANGOS.includes(normalized.rango) ? normalized.rango : "F";
-  normalized.nivel = Math.max(LEVEL_INITIAL, Number(normalized.nivel) || LEVEL_INITIAL);
+  normalized.nivel = clampLevel(Number(normalized.nivel) || LEVEL_INITIAL);
   normalized.xp = Math.max(0, Number(normalized.xp) || 0);
   normalized.xp_total = Math.max(0, Number(normalized.xp_total) || 0);
 
@@ -560,7 +562,7 @@ async function getCombatStats({ creatorId, maxHp }) {
  */
 async function addXp({ creatorId, characterName, cantidad }) {
   const slug = getCharacterSlug(characterName);
-  const safeXp = Math.max(1, Math.floor(Number(cantidad) || 0));
+  const safeXp = Math.max(0, Math.floor(Number(cantidad) || 0));
 
   const character = await safeSingleOrNull(
     supabase.from("characters").select("id, nivel, xp, xp_total, stats").eq("player_phone", creatorId).eq("slug", slug),
@@ -577,6 +579,7 @@ async function addXp({ creatorId, characterName, cantidad }) {
     const needed = xpForNextLevel(currentLevel);
     if (currentXp >= needed) {
       currentXp -= needed;
+      currentLevel += 1;
       pointsGained += 1;
       stats.puntos_disponibles = (Number(stats.puntos_disponibles) || 0) + 1;
     } else {
@@ -585,6 +588,7 @@ async function addXp({ creatorId, characterName, cantidad }) {
   }
 
   const updatePayload = filterExisting("characters", {
+    nivel: currentLevel,
     xp: currentXp,
     xp_total: xpTotal,
     stats,
@@ -601,7 +605,12 @@ async function addXp({ creatorId, characterName, cantidad }) {
   if (error || !data) throw new Error("Error actualizando XP.");
 
   invalidateUserCache(creatorId);
-  return { xp: currentXp, xp_total: xpTotal, pointsGained, totalPointsAvailable: Number(stats.puntos_disponibles) || 0 };
+  return {
+    xp: currentXp,
+    xp_total: xpTotal,
+    pointsGained,
+    totalPointsAvailable: Number(stats.puntos_disponibles) || 0,
+  };
 }
 
 /**
@@ -681,85 +690,6 @@ async function restaurarHp({ creatorId, characterName, maxHp }) {
  * @param {object} options
  * @returns
  */
-async function distribuirPunto({ creatorId, characterName, stat }) {
-  if (!LEVELABLE_STATS[stat]) throw new Error(`La estadística '${stat}' no es válida.`);
-
-  /**
-   * @constant slug
-   */
-  const slug = getCharacterSlug(characterName);
-  /**
-   * @constant character
-   */
-  const character = await safeSingleOrNull(
-    supabase.from("characters").select("*").eq("player_phone", creatorId).eq("slug", slug),
-  );
-  if (!character) throw new Error("No existe el personaje.");
-
-  /**
-   * @constant stats
-   * @type {object}
-   */
-  const stats = { ...(character.stats || {}) };
-
-  if (LEVELABLE_STATS[stat] && stats[stat] >= LEVELABLE_STATS[stat].max) {
-    throw new Error(`${LEVELABLE_STATS[stat].name} ya está al máximo (${LEVELABLE_STATS[stat].max}).`);
-  }
-
-  /**
-   * @constant currentXp
-   */
-  const currentXp = Number(character.xp) || 0;
-  /**
-   * @constant currentLevel
-   */
-  const currentLevel = Number(character.nivel) || LEVEL_INITIAL;
-  /**
-   * @constant neededXp
-   */
-  const neededXp = xpForNextLevel(currentLevel);
-
-  if (currentXp < neededXp) {
-    throw new Error(`Necesitas ${neededXp} XP para subir de nivel. Tienes ${currentXp}.`);
-  }
-
-  stats[stat] = Math.min((stats[stat] || 0) + 1, LEVELABLE_STATS[stat].max);
-
-  /**
-   * @constant newLevel
-   */
-  const newLevel = calculateLevel(stats);
-  /**
-   * @constant remainingXp
-   */
-  const remainingXp = currentXp - neededXp;
-
-  /**
-   * @constant updatePayload
-   */
-  const updatePayload = filterExisting("characters", {
-    stats,
-    nivel: newLevel,
-    xp: remainingXp,
-    updated_at: new Date().toISOString(),
-  });
-  const { data, error } = await supabase
-    .from("characters")
-    .update(updatePayload)
-    .eq("id", character.id)
-    .select()
-    .maybeSingle();
-
-  if (error || !data) throw new Error("Error distribuyendo punto.");
-
-  invalidateUserCache(creatorId);
-  return normalizeCharacterRecord(data);
-}
-
-/**
- * @param {object} options
- * @returns
- */
 async function getXpInfo({ creatorId, characterName }) {
   /**
    * @constant slug
@@ -809,6 +739,5 @@ module.exports = {
   addXp,
   setHp,
   restaurarHp,
-  distribuirPunto,
   getXpInfo,
 };

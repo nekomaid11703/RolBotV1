@@ -19,6 +19,7 @@
     "audit": "npm audit",
     "check": "npm run lint && npm run typecheck && npm run depcruise",
     "tools:list": "node scripts/tools-list.js",
+    "progression:report": "node scripts/analyze_progression.js",
     "spell:lab": "node scripts/spell_lab/server.js",
     "check:all": "npm run lint && npm run typecheck && npm run depcruise && npm run format:check && npm test",
     "prepare": "husky",

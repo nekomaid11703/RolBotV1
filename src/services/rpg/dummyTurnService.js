@@ -1,7 +1,7 @@
 // @ts-nocheck
 const { box } = require("../../utils/boxUtils");
 const { setHp } = require("../characterService");
-const { checkAttackRange, executeAttack, executeReaction, evaluateDodgeFeasibility } = require("./combatEngine");
+const { checkAttackRange, executeAttack, executeReaction, predictDodgeFeasibility } = require("./combatEngine");
 const {
   capFatigue,
   calculateMovementFatigue,
@@ -124,7 +124,7 @@ async function executeDummyAttack(ctx, session, playerSlot, dummySlot, playerIsC
   }
 
   if (dummyAttack.canReact) {
-    const canDodge = evaluateDodgeFeasibility(
+    const canDodge = predictDodgeFeasibility(
       playerSlot.character.stats,
       playerSlot.hp,
       dummySlot.character.stats,

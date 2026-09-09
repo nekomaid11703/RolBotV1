@@ -1,12 +1,17 @@
 // @ts-nocheck
 const { getActiveCharacter } = require("../../../services/characterService");
 const { getInventoryList } = require("../../../services/rpg/inventoryService");
-const { getEquippedSlots } = require("../../../services/rpg/equipmentService");
+const { getEquippedSlots, parseEquipmentReference } = require("../../../services/rpg/equipmentService");
 const { getItem } = require("../../../data/items");
 const { MATERIALS } = require("../../../data/materialData");
 const { ARMOR_SETS } = require("../../../data/armorSets");
 const { TIERS, normalizeTier } = require("../../../config/tierConfig");
-const { getWeaponStats, getArmorStats, getSpellStats, getArtifactStats } = require("../../../services/rpg/itemStatService");
+const {
+  getWeaponStats,
+  getArmorStats,
+  getSpellStats,
+  getArtifactStats,
+} = require("../../../services/rpg/itemStatService");
 const { CONTAINER_CAPACITIES } = require("../../../services/rpg/spellContainerService");
 const { formatCommandUsage } = require("../../../utils/formatCommandUtils");
 const { box } = require("../../../utils/boxUtils");
@@ -54,7 +59,8 @@ module.exports = {
     if (!foundEntry) {
       const lower = target.toLowerCase();
       foundEntry = inventoryList.find(
-        (e) => e.itemId.toLowerCase() === lower || e.name.toLowerCase() === lower || e.itemId.toLowerCase().includes(lower),
+        (e) =>
+          e.itemId.toLowerCase() === lower || e.name.toLowerCase() === lower || e.itemId.toLowerCase().includes(lower),
       );
     }
 
@@ -75,7 +81,10 @@ module.exports = {
 
     // Comprobar si está equipado y en qué slot
     const equippedInSlot = Object.entries(equippedSlots).find(
-      ([slot, id]) => id === itemId && !String(id).startsWith("__2h:"),
+      ([_slot, reference]) =>
+        !String(reference).startsWith("__2h:") &&
+        parseEquipmentReference(reference).itemId === itemId &&
+        parseEquipmentReference(reference).variantKey === (foundEntry?.variantKey || "legacy"),
     );
 
     const lines = [
@@ -158,8 +167,8 @@ module.exports = {
 
     // 4. Contenedores de Hechizos
     if (categories.includes("spell_container")) {
-      const baseType = itemDef.modules?.spell_container?.containerType || "grimorio";
-      const maxSlots = CONTAINER_CAPACITIES[baseType] || 12;
+      const mod = itemDef.modules?.spellContainer;
+      const maxSlots = mod?.capacity || CONTAINER_CAPACITIES[itemId] || 4;
       lines.push("📖 *CONTENEDOR DE HECHIZOS:*");
       lines.push(`  • Capacidad Máxima: ${maxSlots} slots de magia`);
       lines.push("");

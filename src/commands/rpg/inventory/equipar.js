@@ -89,6 +89,7 @@ module.exports = {
       }
 
       const { itemId } = resolved;
+      const inventoryEntry = inventoryList.find((entry) => entry.itemId === itemId);
       const itemDef = getItem(itemId);
       const currentSlots = await getEquippedSlots(activeChar.id);
       const slot = explicitSlot || resolveDefaultSlot(itemDef, currentSlots);
@@ -103,6 +104,7 @@ module.exports = {
           characterId: activeChar.id,
           creatorId: ctx.sender,
           itemId,
+          variantKey: inventoryEntry?.variantKey,
           slot,
         });
 

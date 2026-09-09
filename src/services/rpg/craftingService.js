@@ -1,8 +1,7 @@
 // @ts-nocheck
-const { supabase } = require("../../database/supabase");
 const itemsModule = require("../../data/items");
 const { MATERIALS } = require("../../data/materialData");
-const { TIERS, normalizeTier } = require("../../config/tierConfig");
+const { normalizeTier } = require("../../config/tierConfig");
 const inventoryService = require("./inventoryService");
 const { invalidateUserCache } = require("../../utils/safeQuery");
 
@@ -28,37 +27,73 @@ const NEXT_TIER = {
  */
 const CRAFTING_RECIPES = {
   // ── Costo 1 unidad ──
-  daga:      { name: "Daga",         category: "weapon",         baseType: "daga",      materialCost: 1 },
-  kunai:     { name: "Kunai",        category: "throwable",      baseType: "kunai",     materialCost: 1 },
-  amuleto:   { name: "Amuleto",      category: "artifact",       baseType: "amuleto",   materialCost: 1 },
-  varita:    { name: "Varita Mágica",category: "weapon",         baseType: "baculo",    materialCost: 1 },
-  resortera: { name: "Resortera",    category: "weapon",         baseType: "resortera", materialCost: 1 },
-  cerbatana: { name: "Cerbatana",    category: "weapon",         baseType: "cerbatana", materialCost: 1 },
+  daga: { name: "Daga", category: "weapon", baseType: "daga", materialCost: 1 },
+  kunai: { name: "Kunai", category: "throwable", baseType: "kunai", materialCost: 1 },
+  amuleto: { name: "Amuleto", category: "artifact", baseType: "amuleto", materialCost: 1 },
+  varita: { name: "Varita Mágica", category: "focus", baseType: "varita", materialCost: 1 },
+  resortera: { name: "Resortera", category: "weapon", baseType: "resortera", materialCost: 1 },
+  cerbatana: { name: "Cerbatana", category: "weapon", baseType: "cerbatana", materialCost: 1 },
 
   // ── Municiones (1 unidad de material → 16 unidades de munición) ──
-  flechas:   { name: "Flechas",      category: "projectile",     baseType: "flechas",   materialCost: 1, producedQuantity: 16 },
-  virotes:   { name: "Virotes",      category: "projectile",     baseType: "virotes",   materialCost: 1, producedQuantity: 16 },
-  balines:   { name: "Balines",      category: "projectile",     baseType: "balines",   materialCost: 1, producedQuantity: 16 },
-  dardos:    { name: "Dardos",       category: "projectile",     baseType: "dardos",    materialCost: 1, producedQuantity: 16 },
+  flechas: { name: "Flechas", category: "projectile", baseType: "flechas", materialCost: 1, producedQuantity: 16 },
+  virotes: { name: "Virotes", category: "projectile", baseType: "virotes", materialCost: 1, producedQuantity: 16 },
+  balines: { name: "Balines", category: "projectile", baseType: "balines", materialCost: 1, producedQuantity: 16 },
+  dardos: { name: "Dardos", category: "projectile", baseType: "dardos", materialCost: 1, producedQuantity: 16 },
 
   // ── Costo 2 unidades ──
-  espada:    { name: "Espada",       category: "weapon",         baseType: "espada",    materialCost: 2 },
-  maza:      { name: "Maza",         category: "weapon",         baseType: "maza",      materialCost: 2 },
-  arco:      { name: "Arco",         category: "weapon",         baseType: "arco",      materialCost: 2 },
-  casco:     { name: "Casco",        category: "armor",          baseType: "casco",     materialCost: 2 },
-  botas:     { name: "Botas",        category: "armor",          baseType: "botas",     materialCost: 2 },
-  baculo:    { name: "Báculo Arcano",category: "weapon",         baseType: "baculo",    materialCost: 2 },
-  tunica:    { name: "Túnica de Mago",category: "armor",         baseType: "pechera",   materialCost: 2 },
-  grimorio:  { name: "Grimorio Arcano",category: "spell_container",baseType: "grimorio", materialCost: 2 },
+  espada: { name: "Espada", category: "weapon", baseType: "espada", materialCost: 2 },
+  maza: { name: "Maza", category: "weapon", baseType: "maza", materialCost: 2 },
+  arco: { name: "Arco", category: "weapon", baseType: "arco", materialCost: 2 },
+  casco: { name: "Casco", category: "armor", baseType: "casco", materialCost: 2 },
+  botas: { name: "Botas", category: "armor", baseType: "botas", materialCost: 2 },
+  baculo: { name: "Báculo Arcano", category: "weapon", baseType: "baculo", materialCost: 2 },
+  tunica: { name: "Túnica de Mago", category: "armor", baseType: "tunica", materialCost: 2 },
 
   // ── Costo 3 unidades ──
-  espada_larga: { name: "Espada Larga", category: "weapon",  baseType: "espada",  materialCost: 3 },
-  lanza:        { name: "Lanza",        category: "weapon",  baseType: "lanza",   materialCost: 3 },
-  ballesta:     { name: "Ballesta",     category: "weapon",  baseType: "ballesta",materialCost: 3 },
-  pechera:      { name: "Pechera",      category: "armor",   baseType: "pechera", materialCost: 3 },
-  grebas:       { name: "Grebas",       category: "armor",   baseType: "grebas",  materialCost: 3 },
-  escudo:       { name: "Escudo",       category: "shield",  baseType: "escudo",  materialCost: 3 },
+  espada_larga: { name: "Espada Larga", category: "weapon", baseType: "espada_larga", materialCost: 3 },
+  lanza: { name: "Lanza", category: "weapon", baseType: "lanza", materialCost: 3 },
+  ballesta: { name: "Ballesta", category: "weapon", baseType: "ballesta", materialCost: 3 },
+  pechera: { name: "Pechera", category: "armor", baseType: "pechera", materialCost: 3 },
+  grebas: { name: "Grebas", category: "armor", baseType: "grebas", materialCost: 3 },
+  escudo: { name: "Escudo", category: "shield", baseType: "escudo", materialCost: 3 },
 };
+
+/**
+ * Grados de cobertura de armadura: cada pieza base se replica como receta por
+ * grado (casco_ligera, casco_alta, casco_total...). El grado base de cada slot
+ * se sirve con la receta base existente (compat).
+ * @constant ARMOR_BASE_COVERAGE
+ * @type {Record<string, string>}
+ */
+const ARMOR_BASE_COVERAGE = { casco: "media", botas: "ligera", grebas: "media", pechera: "alta", escudo: "media" };
+
+/**
+ * @constant ARMOR_COVERAGE_GRADES
+ * @type {string[]}
+ */
+const ARMOR_COVERAGE_GRADES = ["ligera", "media", "alta", "total"];
+/**
+ * @constant ARMOR_COVERAGE_NAME
+ * @type {Record<string, string>}
+ */
+const ARMOR_COVERAGE_NAME = { ligera: "Ligera", media: "Media", alta: "Alta", total: "Total" };
+
+// Expandir CRAFTING_RECIPES con variantes por grado de cobertura.
+for (const [slot, baseCoverage] of Object.entries(ARMOR_BASE_COVERAGE)) {
+  const base = CRAFTING_RECIPES[slot];
+  if (!base) continue;
+  for (const grade of ARMOR_COVERAGE_GRADES) {
+    if (grade === baseCoverage) continue; // el grado base ya se forja con la receta base
+    const key = `${slot}_${grade}`;
+    if (CRAFTING_RECIPES[key]) continue;
+    CRAFTING_RECIPES[key] = {
+      name: `${base.name} ${ARMOR_COVERAGE_NAME[grade]}`,
+      category: base.category,
+      baseType: key,
+      materialCost: base.materialCost,
+    };
+  }
+}
 
 /**
  * Normaliza una clave de material (ej: "hierro", "mitril", "madera").
@@ -66,7 +101,9 @@ const CRAFTING_RECIPES = {
  * @returns {string|null} Key del material o null si no existe
  */
 function normalizeMaterialId(matInput) {
-  const m = String(matInput || "").toLowerCase().trim();
+  const m = String(matInput || "")
+    .toLowerCase()
+    .trim();
   if (MATERIALS[m]) return m;
   for (const [key, val] of Object.entries(MATERIALS)) {
     if (val.name.toLowerCase() === m) return key;
@@ -80,24 +117,42 @@ function normalizeMaterialId(matInput) {
  * @returns {string|null} Key de la receta o null
  */
 function normalizeRecipeKey(recipeInput) {
-  const r = String(recipeInput || "").toLowerCase().trim();
+  const r = String(recipeInput || "")
+    .toLowerCase()
+    .trim();
   if (CRAFTING_RECIPES[r]) return r;
   const aliases = {
     // melee
-    daga: "daga", kunai: "kunai", amuleto: "amuleto", varita: "varita",
-    espada: "espada", maza: "maza", casco: "casco", botas: "botas",
-    baculo: "baculo", baculo_arcano: "baculo",
-    tunica: "tunica", grimorio: "grimorio",
-    espada_larga: "espada_larga", lanza: "lanza",
-    pechera: "pechera", grebas: "grebas", escudo: "escudo",
+    daga: "daga",
+    kunai: "kunai",
+    amuleto: "amuleto",
+    varita: "varita",
+    espada: "espada",
+    maza: "maza",
+    casco: "casco",
+    botas: "botas",
+    baculo: "baculo",
+    baculo_arcano: "baculo",
+    tunica: "tunica",
+    espada_larga: "espada_larga",
+    lanza: "lanza",
+    pechera: "pechera",
+    grebas: "grebas",
+    escudo: "escudo",
     // ranged
-    arco: "arco", ballesta: "ballesta",
-    resortera: "resortera", cerbatana: "cerbatana",
+    arco: "arco",
+    ballesta: "ballesta",
+    resortera: "resortera",
+    cerbatana: "cerbatana",
     // ammo
-    flechas: "flechas", flecha: "flechas",
-    virotes: "virotes", virote: "virotes",
-    balines: "balines", balin: "balines",
-    dardos: "dardos", dardo: "dardos",
+    flechas: "flechas",
+    flecha: "flechas",
+    virotes: "virotes",
+    virote: "virotes",
+    balines: "balines",
+    balin: "balines",
+    dardos: "dardos",
+    dardo: "dardos",
   };
   return aliases[r] || null;
 }
@@ -122,14 +177,17 @@ async function refineMaterial({ characterId, creatorId, materialId, tier = "E", 
   const targetTier = NEXT_TIER[currentTier];
 
   if (!targetTier) {
-    throw new Error(`El material Tier ${currentTier} ya está en el rango máximo (Nirvana/N) y no puede ser refinado más.`);
+    throw new Error(
+      `El material Tier ${currentTier} ya está en el rango máximo (Nirvana/N) y no puede ser refinado más.`,
+    );
   }
 
   const numProduced = Math.max(1, Math.floor(Number(amount) || 1));
   const numRequired = numProduced * 2;
 
-  const matItemName = `lingote_de_${matKey}`;
-  const matDef = itemsModule.getItem(matItemName) || itemsModule.getItem(matKey) || { id: matKey, name: MATERIALS[matKey]?.name || matKey };
+  const matItemName = `trozo_de_${matKey}`;
+  const matDef = itemsModule.getItem(matItemName) ||
+    itemsModule.getItem(matKey) || { id: matKey, name: MATERIALS[matKey]?.name || matKey };
 
   // Verificar cantidad disponible en inventario
   const invList = await inventoryService.getInventoryList(characterId);
@@ -148,21 +206,16 @@ async function refineMaterial({ characterId, creatorId, materialId, tier = "E", 
   }
 
   // Consumir 2x unidades de Tier T
-  await inventoryService.removeItem({
+  await inventoryService.removeItem(
     characterId,
     creatorId,
-    itemId: matchingEntries[0].itemId,
-    quantity: numRequired,
-  });
+    matchingEntries[0].itemId,
+    numRequired,
+    matchingEntries[0].variantKey || "legacy",
+  );
 
   // Otorgar 1x unidad de Tier T+1
-  await inventoryService.addItem({
-    characterId,
-    creatorId,
-    itemId: matchingEntries[0].itemId,
-    quantity: numProduced,
-    metadata: { tier: targetTier },
-  });
+  await inventoryService.addItem(characterId, creatorId, matchingEntries[0].itemId, numProduced, { tier: targetTier });
 
   invalidateUserCache(creatorId);
 
@@ -209,7 +262,7 @@ async function craftEquipment({ characterId, creatorId, recipeType, materialId, 
     throw new Error(`No existe el producto forjado "${targetItemId}" para el material "${matKey}".`);
   }
 
-  const matItemName = `lingote_de_${matKey}`;
+  const matItemName = `trozo_de_${matKey}`;
   const requiredMaterialCount = recipe.materialCost;
 
   // Verificar cantidad de material en el inventario
@@ -229,22 +282,20 @@ async function craftEquipment({ characterId, creatorId, recipeType, materialId, 
   }
 
   // Consumir materiales del inventario
-  await inventoryService.removeItem({
+  await inventoryService.removeItem(
     characterId,
     creatorId,
-    itemId: matchingEntries[0].itemId,
-    quantity: requiredMaterialCount,
-  });
+    matchingEntries[0].itemId,
+    requiredMaterialCount,
+    matchingEntries[0].variantKey || "legacy",
+  );
 
   // Otorgar el ítem forjado al inventario con su metadata de Tier.
   // Si la receta define producedQuantity (ej: munición 16x), se entrega ese lote.
   const producedQuantity = recipe.producedQuantity ?? 1;
-  await inventoryService.addItem({
-    characterId,
-    creatorId,
-    itemId: targetItemId,
-    quantity: producedQuantity,
-    metadata: { tier: itemTier, crafted: true },
+  await inventoryService.addItem(characterId, creatorId, targetItemId, producedQuantity, {
+    tier: itemTier,
+    crafted: true,
   });
 
   invalidateUserCache(creatorId);

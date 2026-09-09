@@ -55,7 +55,7 @@ describe("Comando /spell y /equipar_spell", () => {
     const mockChar = { id: 1, name: "MagoPrueba", stats: { fulgor: 20 } };
     vi.spyOn(characterService, "getActiveCharacter").mockResolvedValue(mockChar);
     vi.spyOn(spellContainerService, "getSpellContainersInInventory").mockResolvedValue([
-      { index: 1, itemId: "grimorio", name: "Grimorio", quantity: 1, capacity: 4 },
+      { index: 1, itemId: "grimorio", name: "Grimorio", quantity: 1, capacity: 12 },
     ]);
 
     mockCtx.args = ["contenedores"];

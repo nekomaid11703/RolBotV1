@@ -1,3 +1,4 @@
+// @ts-nocheck
 const characterService = require("../../../services/characterService");
 const { useItem, getInventoryList } = require("../../../services/rpg/inventoryService");
 const { findSessionByCharacter, advanceTurn } = require("../../../services/rpg/combatState");
@@ -127,4 +128,3 @@ module.exports = {
     return ctx.reply(box("🧪 CONSUMIBLE", lines));
   },
 };
-

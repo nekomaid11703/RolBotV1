@@ -2,186 +2,234 @@
 const { getTierMultiplier } = require("../config/tierConfig");
 
 /**
- * Atributos base de materiales (Rango 1-100 natural)
+ * Atributos base de materiales (serie ×1.4 por rareza).
  * @typedef {object} MaterialStats
- * @property {number} afilabilidad - Calidad del filo (1-100)
- * @property {number} conduccion_magica - Conducción de Fulgor (1-100)
- * @property {number} resistencia_material - Durabilidad física / dureza (1-100)
- * @property {number} flexibilidad - Elasticidad / almacenamiento de energía (1-100)
+ * @property {number} afilabilidad - Calidad del filo
+ * @property {number} conduccion_magica - Conducción de Fulgor
+ * @property {number} resistencia_material - Durabilidad física / dureza
+ * @property {number} flexibilidad - Elasticidad / almacenamiento de energía
  */
 
 /**
- * Entrada del catálogo de materiales.
+ * Canon de materiales (B8, aprobado 2026-09-08).
+ *
+ * Estructura: 6 rarezas × 4 ejes = 24 materiales.
+ *   - flex (maderas): Madera, Caoba, Ébano, Noble, Tétrica, Irminsul.
+ *   - resistencia (biológicos/reliquias): Cuero, Coraza desgastada, Coraza robusta,
+ *     Piel bestial, Piel de titán, Luminita (restos de un titán).
+ *   - filo (minerales): Piedra, Acero, Obsidiana, Titanio, Mineral Pálido, Filo Estelar.
+ *   - conducción (cristales y metales preciosos): Cuarzo, Plata, Oro, Mitril,
+ *     Obsidiana Azul, Fulgorita.
+ *
+ * Los 4 valores de cada fila provienen de una única serie por rareza v = [x1,x2,x3,x4]
+ * con x1..x4 = [19,14,10,7] en común y ×1.4 por rareza. Disposición por eje:
+ *   filo  → A x1, C x2, R x3, F x4
+ *   cond  → A x2, C x1, R x3, F x4
+ *   res   → A x4, C x3, R x1, F x2
+ *   flex  → A x4, C x3, R x2, F x1
+ *
+ * Presupuestos: común 50 · poco 69 · raro 95 · épico 132 · legendario 184 · mítico 258.
+ */
+
+/**
  * @typedef {object} MaterialEntry
  * @property {string} id
  * @property {string} name
  * @property {string} rarity
+ * @property {"filo"|"cond"|"res"|"flex"} archetype
  * @property {MaterialStats} baseStats
  */
 
-/**
- * Catálogo de Materiales por Categorías
- * @type {Record<string, MaterialEntry>}
- */
 const MATERIALS = {
   // ── Conceptuales (no-físicos) ─────────────────────────────────────────────
   // Materia etérea: representación técnica de ítems que NO son objetos físicos
-  // (hechizos). Neutra en todas las stats físicas; no es forjable ni seleccionable.
+  // (hechizos). Neutra; no es forjable ni seleccionable. No forma parte del canon.
   etereo: {
     id: "etereo",
     name: "Etéreo",
     rarity: "comun",
+    archetype: "cond",
     baseStats: { afilabilidad: 1, conduccion_magica: 1, resistencia_material: 1, flexibilidad: 1 },
   },
 
-  // ── Comunes (presupuesto 80) ─────────────────────────────────────────────
-  madera: {
-    id: "madera",
-    name: "Madera",
+  // ── Comunes (presupuesto 50; serie 19/14/10/7) ───────────────────────────
+  piedra: {
+    id: "piedra",
+    name: "Piedra",
     rarity: "comun",
-    baseStats: { afilabilidad: 20, conduccion_magica: 20, resistencia_material: 20, flexibilidad: 20 },
+    archetype: "filo",
+    baseStats: { afilabilidad: 19, conduccion_magica: 14, resistencia_material: 10, flexibilidad: 7 },
+  },
+  cuarzo: {
+    id: "cuarzo",
+    name: "Cuarzo",
+    rarity: "comun",
+    archetype: "cond",
+    baseStats: { afilabilidad: 14, conduccion_magica: 19, resistencia_material: 10, flexibilidad: 7 },
   },
   cuero: {
     id: "cuero",
     name: "Cuero",
     rarity: "comun",
-    baseStats: { afilabilidad: 12, conduccion_magica: 12, resistencia_material: 14, flexibilidad: 42 },
+    archetype: "res",
+    baseStats: { afilabilidad: 7, conduccion_magica: 10, resistencia_material: 19, flexibilidad: 14 },
   },
-  hueso: {
-    id: "hueso",
-    name: "Hueso",
+  madera: {
+    id: "madera",
+    name: "Madera",
     rarity: "comun",
-    baseStats: { afilabilidad: 42, conduccion_magica: 12, resistencia_material: 16, flexibilidad: 10 },
-  },
-  piedra: {
-    id: "piedra",
-    name: "Piedra",
-    rarity: "comun",
-    baseStats: { afilabilidad: 12, conduccion_magica: 10, resistencia_material: 48, flexibilidad: 10 },
+    archetype: "flex",
+    baseStats: { afilabilidad: 7, conduccion_magica: 10, resistencia_material: 14, flexibilidad: 19 },
   },
 
-  // ── Poco Comunes (presupuesto 120) ───────────────────────────────────────
-  hierro: {
-    id: "hierro",
-    name: "Hierro",
-    rarity: "poco_comun",
-    baseStats: { afilabilidad: 30, conduccion_magica: 30, resistencia_material: 30, flexibilidad: 30 },
-  },
-  bronce: {
-    id: "bronce",
-    name: "Bronce",
-    rarity: "poco_comun",
-    baseStats: { afilabilidad: 60, conduccion_magica: 15, resistencia_material: 30, flexibilidad: 15 },
-  },
+  // ── Poco comunes (presupuesto 69; serie 26/19/14/10) ─────────────────────
   acero: {
     id: "acero",
     name: "Acero",
     rarity: "poco_comun",
-    baseStats: { afilabilidad: 20, conduccion_magica: 15, resistencia_material: 65, flexibilidad: 20 },
+    archetype: "filo",
+    baseStats: { afilabilidad: 26, conduccion_magica: 19, resistencia_material: 14, flexibilidad: 10 },
   },
   plata: {
     id: "plata",
     name: "Plata",
     rarity: "poco_comun",
-    baseStats: { afilabilidad: 20, conduccion_magica: 60, resistencia_material: 20, flexibilidad: 20 },
+    archetype: "cond",
+    baseStats: { afilabilidad: 19, conduccion_magica: 26, resistencia_material: 14, flexibilidad: 10 },
+  },
+  coraza_desgastada: {
+    id: "coraza_desgastada",
+    name: "Coraza desgastada",
+    rarity: "poco_comun",
+    archetype: "res",
+    baseStats: { afilabilidad: 10, conduccion_magica: 14, resistencia_material: 26, flexibilidad: 19 },
+  },
+  madera_caoba: {
+    id: "madera_caoba",
+    name: "Madera de Caoba",
+    rarity: "poco_comun",
+    archetype: "flex",
+    baseStats: { afilabilidad: 10, conduccion_magica: 14, resistencia_material: 19, flexibilidad: 26 },
   },
 
-  // ── Raros (presupuesto 170) ───────────────────────────────────────────────
-  platino: {
-    id: "platino",
-    name: "Platino",
-    rarity: "raro",
-    baseStats: { afilabilidad: 45, conduccion_magica: 40, resistencia_material: 45, flexibilidad: 40 },
-  },
+  // ── Raros (presupuesto 95; serie 36/26/19/14) ────────────────────────────
   obsidiana: {
     id: "obsidiana",
     name: "Obsidiana",
     rarity: "raro",
-    baseStats: { afilabilidad: 90, conduccion_magica: 20, resistencia_material: 40, flexibilidad: 20 },
+    archetype: "filo",
+    baseStats: { afilabilidad: 36, conduccion_magica: 26, resistencia_material: 19, flexibilidad: 14 },
   },
   oro: {
     id: "oro",
     name: "Oro",
     rarity: "raro",
-    baseStats: { afilabilidad: 30, conduccion_magica: 80, resistencia_material: 35, flexibilidad: 25 },
+    archetype: "cond",
+    baseStats: { afilabilidad: 26, conduccion_magica: 36, resistencia_material: 19, flexibilidad: 14 },
   },
-  madera_caoba: {
-    id: "madera_caoba",
-    name: "Madera de Caoba",
+  coraza_robusta: {
+    id: "coraza_robusta",
+    name: "Coraza robusta",
     rarity: "raro",
-    baseStats: { afilabilidad: 30, conduccion_magica: 25, resistencia_material: 35, flexibilidad: 80 },
+    archetype: "res",
+    baseStats: { afilabilidad: 14, conduccion_magica: 19, resistencia_material: 36, flexibilidad: 26 },
+  },
+  madera_ebano: {
+    id: "madera_ebano",
+    name: "Madera de ébano",
+    rarity: "raro",
+    archetype: "flex",
+    baseStats: { afilabilidad: 14, conduccion_magica: 19, resistencia_material: 26, flexibilidad: 36 },
   },
 
-  // ── Épicos (presupuesto 230) ──────────────────────────────────────────────
+  // ── Épicos (presupuesto 132; serie 51/36/26/19) ──────────────────────────
   titanio: {
     id: "titanio",
     name: "Titanio",
     rarity: "epico",
-    baseStats: { afilabilidad: 45, conduccion_magica: 30, resistencia_material: 100, flexibilidad: 55 },
+    archetype: "filo",
+    baseStats: { afilabilidad: 51, conduccion_magica: 36, resistencia_material: 26, flexibilidad: 19 },
   },
   mitril: {
     id: "mitril",
     name: "Mitril",
     rarity: "epico",
-    baseStats: { afilabilidad: 55, conduccion_magica: 100, resistencia_material: 40, flexibilidad: 35 },
+    archetype: "cond",
+    baseStats: { afilabilidad: 36, conduccion_magica: 51, resistencia_material: 26, flexibilidad: 19 },
   },
-  oricalco: {
-    id: "oricalco",
-    name: "Oricalco",
+  piel_bestial: {
+    id: "piel_bestial",
+    name: "Piel bestial",
     rarity: "epico",
-    baseStats: { afilabilidad: 100, conduccion_magica: 35, resistencia_material: 55, flexibilidad: 40 },
+    archetype: "res",
+    baseStats: { afilabilidad: 19, conduccion_magica: 26, resistencia_material: 51, flexibilidad: 36 },
+  },
+  madera_noble: {
+    id: "madera_noble",
+    name: "Madera noble",
+    rarity: "epico",
+    archetype: "flex",
+    baseStats: { afilabilidad: 19, conduccion_magica: 26, resistencia_material: 36, flexibilidad: 51 },
   },
 
-  // ── Legendarios (presupuesto 300) ─────────────────────────────────────────
-  luminita: {
-    id: "luminita",
-    name: "Luminita",
-    rarity: "legendario",
-    baseStats: { afilabilidad: 75, conduccion_magica: 75, resistencia_material: 75, flexibilidad: 75 },
-  },
+  // ── Legendarios (presupuesto 184; serie 71/51/36/26) ─────────────────────
   mineral_palido: {
     id: "mineral_palido",
     name: "Mineral Pálido",
     rarity: "legendario",
-    baseStats: { afilabilidad: 100, conduccion_magica: 40, resistencia_material: 100, flexibilidad: 60 },
+    archetype: "filo",
+    baseStats: { afilabilidad: 71, conduccion_magica: 51, resistencia_material: 36, flexibilidad: 26 },
   },
   obsidiana_azul: {
     id: "obsidiana_azul",
     name: "Obsidiana Azul",
     rarity: "legendario",
-    baseStats: { afilabilidad: 95, conduccion_magica: 60, resistencia_material: 55, flexibilidad: 90 },
+    archetype: "cond",
+    baseStats: { afilabilidad: 51, conduccion_magica: 71, resistencia_material: 36, flexibilidad: 26 },
   },
-  madera_irminsul: {
-    id: "madera_irminsul",
-    name: "Madera del Irminsul",
+  luminita: {
+    id: "luminita",
+    name: "Luminita",
     rarity: "legendario",
-    baseStats: { afilabilidad: 40, conduccion_magica: 100, resistencia_material: 60, flexibilidad: 100 },
+    archetype: "res",
+    baseStats: { afilabilidad: 26, conduccion_magica: 36, resistencia_material: 71, flexibilidad: 51 },
+  },
+  madera_tetrica: {
+    id: "madera_tetrica",
+    name: "Madera Tétrica",
+    rarity: "legendario",
+    archetype: "flex",
+    baseStats: { afilabilidad: 26, conduccion_magica: 36, resistencia_material: 51, flexibilidad: 71 },
   },
 
-  // ── Míticos (presupuesto 380) ─────────────────────────────────────────────
-  adamantita: {
-    id: "adamantita",
-    name: "Adamantita",
-    rarity: "mitico",
-    baseStats: { afilabilidad: 100, conduccion_magica: 80, resistencia_material: 100, flexibilidad: 100 },
-  },
-  eterio: {
-    id: "eterio",
-    name: "Etério",
-    rarity: "mitico",
-    baseStats: { afilabilidad: 80, conduccion_magica: 100, resistencia_material: 100, flexibilidad: 100 },
-  },
-  vibranium: {
-    id: "vibranium",
-    name: "Vibranium",
-    rarity: "mitico",
-    baseStats: { afilabilidad: 95, conduccion_magica: 85, resistencia_material: 100, flexibilidad: 100 },
-  },
+  // ── Míticos (presupuesto 258; serie 100/71/51/36) ────────────────────────
   filo_estelar: {
     id: "filo_estelar",
     name: "Filo Estelar",
     rarity: "mitico",
-    baseStats: { afilabilidad: 100, conduccion_magica: 85, resistencia_material: 95, flexibilidad: 100 },
+    archetype: "filo",
+    baseStats: { afilabilidad: 100, conduccion_magica: 71, resistencia_material: 51, flexibilidad: 36 },
+  },
+  fulgorita: {
+    id: "fulgorita",
+    name: "Fulgorita",
+    rarity: "mitico",
+    archetype: "cond",
+    baseStats: { afilabilidad: 71, conduccion_magica: 100, resistencia_material: 51, flexibilidad: 36 },
+  },
+  piel_titan: {
+    id: "piel_titan",
+    name: "Piel de titán",
+    rarity: "mitico",
+    archetype: "res",
+    baseStats: { afilabilidad: 36, conduccion_magica: 51, resistencia_material: 100, flexibilidad: 71 },
+  },
+  madera_irminsul: {
+    id: "madera_irminsul",
+    name: "Madera del Irminsul",
+    rarity: "mitico",
+    archetype: "flex",
+    baseStats: { afilabilidad: 36, conduccion_magica: 51, resistencia_material: 71, flexibilidad: 100 },
   },
 };
 

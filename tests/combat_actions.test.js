@@ -32,6 +32,17 @@ describe("combatActions — registro declarativo de acciones", () => {
     expect(menu).toContain("/retroceder");
   });
 
+  it("muestra distancia, HP enemigo y Fulgor cuando el contexto está disponible", () => {
+    const menu = formatActionMenu(
+      "Kael",
+      {},
+      { distance: 5, enemyHp: 12, enemyMaxHp: 20, availableFulgor: 8, maxFulgor: 10 },
+    );
+    expect(menu).toContain("5m");
+    expect(menu).toContain("12/20 HP");
+    expect(menu).toContain("8/10");
+  });
+
   it("El prompt de reacción refleja el registro", () => {
     const prompt = formatReactionPrompt("A", "B", 20, true);
     expect(prompt).toContain("/esquivar");

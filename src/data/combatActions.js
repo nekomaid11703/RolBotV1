@@ -14,13 +14,13 @@
  */
 
 const COMBAT_ACTIONS = [
-  { command: "atacar",    label: "Ataque físico",          kinds: ["action"] },
-  { command: "spell",     label: "Hechizo/Habilidad",      hint: "slot|id",  kinds: ["action"] },
-  { command: "usar",      label: "Usar consumible",         hint: "item",    kinds: ["action"] },
+  { command: "atacar", label: "Ataque físico", kinds: ["action"] },
+  { command: "spell", label: "Hechizo/Habilidad", hint: "slot|id", kinds: ["action"] },
+  { command: "usar", label: "Usar consumible", hint: "item", kinds: ["action"] },
   { command: "descansar", label: "Descansar y meditar (recupera Fat. y Fulgor)", kinds: ["action"] },
-  { command: "huir",      label: "Intentar escapar",       kinds: ["action"] },
-  { command: "avanzar",   label: "Avanzar",                hint: "metros",  kinds: ["action", "movement"] },
-  { command: "retroceder",label: "Retroceder",             hint: "metros",  kinds: ["action", "movement"] },
+  { command: "huir", label: "Intentar escapar", kinds: ["action"] },
+  { command: "avanzar", label: "Avanzar", hint: "metros", kinds: ["action", "movement"] },
+  { command: "retroceder", label: "Retroceder", hint: "metros", kinds: ["action", "movement"] },
 ];
 
 const REACTION_ACTIONS = [

@@ -25,12 +25,54 @@ describe("Pilar 1 — Progresión por Nivel, XP y Asignación de Atributos", () 
   });
 
   it("normalizeStatKey debe mapear alias de stats a claves canónicas", () => {
-    expect(experienceService.normalizeStatKey("str")).toBe("fuerza");
-    expect(experienceService.normalizeStatKey("fue")).toBe("fuerza");
-    expect(experienceService.normalizeStatKey("agi")).toBe("agilidad");
+    expect(experienceService.normalizeStatKey("str")).toBe("atk");
+    expect(experienceService.normalizeStatKey("fue")).toBe("atk");
+    expect(experienceService.normalizeStatKey("fuerza")).toBe("atk");
+    expect(experienceService.normalizeStatKey("agi")).toBe("aspd");
+    expect(experienceService.normalizeStatKey("vitalidad")).toBe("hp");
+    expect(experienceService.normalizeStatKey("resistencia")).toBe("def");
     expect(experienceService.normalizeStatKey("fulgor")).toBe("fulgor");
     expect(experienceService.normalizeStatKey("dominio")).toBe("d_fulgor");
     expect(experienceService.normalizeStatKey("invalid")).toBeNull();
+  });
+
+  it("eleva el umbral de XP por cada nivel obtenido en una misma recompensa", async () => {
+    const initialLevel = 100;
+    const reward = xpForNextLevel(initialLevel) + xpForNextLevel(initialLevel + 1) + 1;
+    const character = {
+      id: 1,
+      player_phone: "123456789",
+      nivel: initialLevel,
+      xp: 0,
+      xp_total: 0,
+      stats: { puntos_disponibles: 0 },
+    };
+    const updatePayloads = [];
+    const selectCharacter = {
+      eq: vi.fn().mockReturnThis(),
+      maybeSingle: vi.fn().mockResolvedValue({ data: character, error: null }),
+    };
+    const updateCharacter = {
+      eq: vi.fn().mockReturnValue({
+        select: vi.fn().mockReturnValue({ single: vi.fn().mockResolvedValue({ data: character, error: null }) }),
+      }),
+    };
+
+    vi.spyOn(supabase, "from").mockImplementation((table) => {
+      expect(table).toBe("characters");
+      return {
+        select: vi.fn().mockReturnValue(selectCharacter),
+        update: vi.fn((payload) => {
+          updatePayloads.push(payload);
+          return updateCharacter;
+        }),
+      };
+    });
+
+    const result = await experienceService.addXpToCharacter(character.id, reward);
+
+    expect(result).toMatchObject({ currentLevel: 102, newXp: 1, pointsGained: 2, totalPointsAvailable: 2 });
+    expect(updatePayloads[0]).toMatchObject({ nivel: 102, xp: 1, xp_total: reward });
   });
 });
 

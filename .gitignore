@@ -52,3 +52,6 @@ graphify-out/cache/
 
 # Estado local del CLI de familias tester (los ítems son preview, en memoria)
 scripts/simulate_combat/families.state.json
+
+# Salidas generadas de análisis de progresión
+scripts/progression_output/
