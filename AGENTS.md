@@ -1,6 +1,6 @@
 ## graphify — Knowledge Graph (Code-Only)
 
-Este proyecto tiene un knowledge graph activo en `graphify-out/` con **5653 nodos, 9105 aristas y 295 comunidades** que reflejan la arquitectura real del código **sin dependencias de IA externas**. El grafo se construye exclusivamente por **AST (tree-sitter)**, sin ningún LLM externo — **0 costo, 0 API keys, 100% reproducible**.
+Este proyecto tiene un knowledge graph activo en `graphify-out/` con **5800 nodos, 8986 aristas y 308 comunidades** que reflejan la arquitectura real del código **sin dependencias de IA externas**. El grafo se construye exclusivamente por **AST (tree-sitter)**, sin ningún LLM externo — **0 costo, 0 API keys, 100% reproducible**.
 
 **El chatbot es 100% código puro.** No tiene capa de IA interna (sin narración, roleplay, ni clasificación por IA). DeepSeek v4 flash (gratuito e ilimitado) lo usa exclusivamente el agente programador para:
 

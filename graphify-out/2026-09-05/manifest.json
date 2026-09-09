@@ -20,8 +20,8 @@
     "semantic_hash": "fd28e41afdc72d13ed3b59542f789112"
   },
   "src/config/characterConfig.js": {
-    "mtime": 1788806103.1521618,
-    "ast_hash": "1c00bb41c76593ad07757bb5fae0b101",
+    "mtime": 1787444781.1077871,
+    "ast_hash": "3d2644b21ca44560f06525243dd2efca",
     "semantic_hash": ""
   },
   "src/config/economyConfig.js": {
@@ -70,8 +70,8 @@
     "semantic_hash": "9489e7a7fd4f2b13f227360260628550"
   },
   "src/services/characterService.js": {
-    "mtime": 1788806149.7205446,
-    "ast_hash": "fbc04aeb14578e3ec01f95d8a5cf5b47",
+    "mtime": 1788633869.8638897,
+    "ast_hash": "10d9aa6d5d3f57b69302396ca3e756d3",
     "semantic_hash": ""
   },
   "src/services/economyService.js": {
@@ -165,8 +165,8 @@
     "semantic_hash": "b13d74b32ed682de3086dd60c9998486"
   },
   "AGENTS.md": {
-    "mtime": 1788638734.6590412,
-    "ast_hash": "489accac5a63c206dae080dd285aab22",
+    "mtime": 1785878672.2872362,
+    "ast_hash": "63ee7ead586683e17156691336b1c1d0",
     "semantic_hash": ""
   },
   "CHANGELOG.md": {
@@ -535,9 +535,9 @@
     "semantic_hash": "0b71c2e7d39daa010985d529f1320b37"
   },
   "knip.json": {
-    "mtime": 1788639160.3697078,
-    "ast_hash": "c90d59350020d424007e89ee934699c2",
-    "semantic_hash": ""
+    "mtime": 1785871726.5164232,
+    "ast_hash": "48a9ff5dc0cb6cece51924746fce7ef2",
+    "semantic_hash": "48a9ff5dc0cb6cece51924746fce7ef2"
   },
   "scripts/tools-list.js": {
     "mtime": 1785857108.4654908,
@@ -550,19 +550,19 @@
     "semantic_hash": "12137bb8780d308b48341b6915d1c4a7"
   },
   "src/database/columnRegistry.js": {
-    "mtime": 1788635371.8924704,
-    "ast_hash": "defc3c3493037b62c65b295a04863174",
-    "semantic_hash": ""
+    "mtime": 1785871731.3034163,
+    "ast_hash": "c2a88790ba6b1952de2132751ad664c9",
+    "semantic_hash": "c2a88790ba6b1952de2132751ad664c9"
   },
   "src/database/schemaMigration.js": {
-    "mtime": 1788635372.4542618,
-    "ast_hash": "a80706d230684a78c5d6e979bdfa9689",
-    "semantic_hash": ""
+    "mtime": 1785871731.3294086,
+    "ast_hash": "0c5eb8792801e46c59c556c0bb59afca",
+    "semantic_hash": "0c5eb8792801e46c59c556c0bb59afca"
   },
   "src/database/schemaValidator.js": {
-    "mtime": 1788635371.4958887,
-    "ast_hash": "5c74d8dabe3f03e2c2b73ba58bc6af35",
-    "semantic_hash": ""
+    "mtime": 1785871731.333422,
+    "ast_hash": "de80f14ce4cd99702b0b01095bfe143a",
+    "semantic_hash": "de80f14ce4cd99702b0b01095bfe143a"
   },
   "src/database/schemaVersion.js": {
     "mtime": 1785857111.0459075,
@@ -670,8 +670,8 @@
     "semantic_hash": "d218485440324a0bc3b1767e701d9b0a"
   },
   "src/commands/rpg/combat/atacar.js": {
-    "mtime": 1788818028.6676202,
-    "ast_hash": "3e86b608945dc8fb5e111f4d1ca714c1",
+    "mtime": 1788284767.464823,
+    "ast_hash": "d684f134456a2fc1b8e9b3de7ee10c94",
     "semantic_hash": ""
   },
   "src/commands/rpg/combat/estado.js": {
@@ -680,8 +680,8 @@
     "semantic_hash": "eab10f491025ea1d07e9a38cace7572e"
   },
   "src/commands/rpg/combat/retar.js": {
-    "mtime": 1788638283.7868702,
-    "ast_hash": "45f31c77c7ec73ddb556db4ffe9c4470",
+    "mtime": 1788538802.114582,
+    "ast_hash": "572dc84f73a9435ba05d0c182fec9e3a",
     "semantic_hash": ""
   },
   "src/commands/rpg/inventory/inventario.js": {
@@ -690,8 +690,8 @@
     "semantic_hash": "d118c8ef5db6f61825fa3f6bba38489a"
   },
   "src/commands/rpg/inventory/usar.js": {
-    "mtime": 1788638286.513792,
-    "ast_hash": "7375fb1d52b9c3171a785bf52da0d44c",
+    "mtime": 1787438514.6491835,
+    "ast_hash": "16009c0eeed6fd5b7c4ad97ce63bc582",
     "semantic_hash": ""
   },
   "src/config/combatConfig.js": {
@@ -705,8 +705,8 @@
     "semantic_hash": "d48940b8afdd1b9e1f7500b4591bf023"
   },
   "src/data/items.js": {
-    "mtime": 1788638290.451498,
-    "ast_hash": "1c4ea44a724faf5ed940610deafbfe7c",
+    "mtime": 1788538591.0573926,
+    "ast_hash": "9b75843d43ec7056fa1badfff9059716",
     "semantic_hash": ""
   },
   "src/database/migrations/001_create_inventory.sql": {
@@ -715,13 +715,13 @@
     "semantic_hash": "53aedbc32dfe5d23f518914668b1618b"
   },
   "src/services/rpg/combatEngine.js": {
-    "mtime": 1788638292.9294057,
-    "ast_hash": "831161ab4d362e5dbc123d616cc4fd4d",
+    "mtime": 1788284730.0109422,
+    "ast_hash": "481cfd9c3bef676bd087d523b830c79b",
     "semantic_hash": ""
   },
   "src/services/rpg/combatMessages.js": {
-    "mtime": 1788637027.404024,
-    "ast_hash": "043acd8b27cbaf5162220ae9a7f7b052",
+    "mtime": 1787939865.6119473,
+    "ast_hash": "78c6515bdbffdb21242ff0f37ebda56b",
     "semantic_hash": ""
   },
   "src/services/rpg/combatState.js": {
@@ -730,18 +730,18 @@
     "semantic_hash": ""
   },
   "src/services/rpg/inventoryService.js": {
-    "mtime": 1788636798.9882047,
-    "ast_hash": "af269ed6f4bbf666917f0055485f9bfb",
+    "mtime": 1788539215.0659287,
+    "ast_hash": "baa8695a7b654fecc2d23f72c006ca51",
     "semantic_hash": ""
   },
   "tests/combat_engine.test.js": {
-    "mtime": 1788638299.2183583,
-    "ast_hash": "8c4ed4bf965a53d2e1a2802f0676a4bd",
+    "mtime": 1787871266.4114614,
+    "ast_hash": "c6123a9da614b767cf14cf70ef3c0bd2",
     "semantic_hash": ""
   },
   "tests/inventory.test.js": {
-    "mtime": 1788638302.0182948,
-    "ast_hash": "fcc7bc09764c3f7cae3a12f374cafb2c",
+    "mtime": 1787443304.65226,
+    "ast_hash": "e4a3c010bb12e648f29a083d97635ac2",
     "semantic_hash": ""
   },
   "src/services/rpg/combatAI.js": {
@@ -755,13 +755,13 @@
     "semantic_hash": "4e53b5c2687e4e98064fedbfe1cf9297"
   },
   "src/commands/rpg/combat/bloquear.js": {
-    "mtime": 1788818078.000163,
-    "ast_hash": "d3f43c1d5e88788b10b4f2e6afe9e0fa",
+    "mtime": 1788284484.129522,
+    "ast_hash": "c620d50160f0801d6944988dce734a70",
     "semantic_hash": ""
   },
   "src/commands/rpg/combat/esquivar.js": {
-    "mtime": 1788818126.008667,
-    "ast_hash": "e2d2d4da811b27d50d0a602a7cd536ef",
+    "mtime": 1787939896.258865,
+    "ast_hash": "c69ce52c4db58af93cc57db2790d9842",
     "semantic_hash": ""
   },
   "tests/combat_messages.test.js": {
@@ -770,8 +770,8 @@
     "semantic_hash": ""
   },
   "src/commands/rpg/combat/huir.js": {
-    "mtime": 1788638283.6297379,
-    "ast_hash": "7f93fe8fb6b92e0a1d06b8c6e718dcf6",
+    "mtime": 1787940028.9140654,
+    "ast_hash": "a485ac77244593a0a20a78f19f5ec2b9",
     "semantic_hash": ""
   },
   "scripts/simulate_balance.js": {
@@ -795,13 +795,13 @@
     "semantic_hash": "75f208d1e2dba55ddc79087b6bf14a96"
   },
   "src/commands/rpg/inventory/item_add.js": {
-    "mtime": 1788638286.1952727,
-    "ast_hash": "5ab656fef5b1302d0f6eecb22f8c511e",
+    "mtime": 1787711938.0721235,
+    "ast_hash": "9af7b7aeb0b8241b23dc481e71b2a36f",
     "semantic_hash": ""
   },
   "src/commands/rpg/inventory/item_rem.js": {
-    "mtime": 1788638286.3995733,
-    "ast_hash": "7343a92fc3aef10011adf20773e8a468",
+    "mtime": 1788201841.684876,
+    "ast_hash": "fda7c18556cd7dcd1bf3213493d7e4d1",
     "semantic_hash": ""
   },
   "tests/admin_perm.test.js": {
@@ -850,8 +850,8 @@
     "semantic_hash": "fb2e054957fa0fdffe0e2f884e8ea9cc"
   },
   "src/commands/rpg/combat/descansar.js": {
-    "mtime": 1788638283.2331412,
-    "ast_hash": "50e63ad905d47adde9d4d20d98e176ae",
+    "mtime": 1788284783.7660277,
+    "ast_hash": "8310639b5e7472caa940ff80aa8b1e82",
     "semantic_hash": ""
   },
   "scripts/simulate_combat.js": {
@@ -905,8 +905,8 @@
     "semantic_hash": "1496deb41969eb150b3069b4f6d2d614"
   },
   "tests/inventory_service.test.js": {
-    "mtime": 1788638301.9553206,
-    "ast_hash": "c46184436b2a78178ff0e16773e9f4d0",
+    "mtime": 1787873601.4323263,
+    "ast_hash": "55d73cb6b5f8ee1288887d31cfe64631",
     "semantic_hash": ""
   },
   "src/data/itemCategories/buff.js": {
@@ -1000,13 +1000,13 @@
     "semantic_hash": "1f278d0a5bbb7837dfee0f0db0f4ac7e"
   },
   "src/commands/rpg/combat/avanzar.js": {
-    "mtime": 1788637588.6359348,
-    "ast_hash": "3b7f25fc1d13d0d83aa3faa682a81dea",
+    "mtime": 1788282554.3144007,
+    "ast_hash": "128e293e032acbe4ee171eab3f74961c",
     "semantic_hash": ""
   },
   "src/commands/rpg/combat/retroceder.js": {
-    "mtime": 1788637589.5024743,
-    "ast_hash": "38670634d12dad11bd9d505e4c2ee2e0",
+    "mtime": 1788282561.294968,
+    "ast_hash": "34296852b6585a9269326c0a9aaf39c9",
     "semantic_hash": ""
   },
   "src/config/combatBalance.js": {
@@ -1065,14 +1065,14 @@
     "semantic_hash": "2d9f5a6d91c955df3384e8ecc26fe944"
   },
   "src/data/materialData.js": {
-    "mtime": 1788988128.9549346,
-    "ast_hash": "f87797a9ec61e9deab88f51b250b6518",
-    "semantic_hash": ""
+    "mtime": 1786741571.8129258,
+    "ast_hash": "fd352e440e210f8e4abea2ccdb897638",
+    "semantic_hash": "fd352e440e210f8e4abea2ccdb897638"
   },
   "tests/damage_natures.test.js": {
-    "mtime": 1788985654.566404,
-    "ast_hash": "454631a20f2efd48c94b2c8058e4b137",
-    "semantic_hash": ""
+    "mtime": 1786208732.5107539,
+    "ast_hash": "8172bbbe12fab50ee1ef41fa02e52de6",
+    "semantic_hash": "8172bbbe12fab50ee1ef41fa02e52de6"
   },
   "docs/item_system_specification.md": {
     "mtime": 1785857101.613926,
@@ -1080,13 +1080,13 @@
     "semantic_hash": ""
   },
   "src/commands/rpg/inventory/desequipar.js": {
-    "mtime": 1788638285.8271182,
-    "ast_hash": "e4a4ae443efc02bd8f4dfd9d8aa3efdf",
+    "mtime": 1787448823.265731,
+    "ast_hash": "8a792da9b29e5705285ee6e932426a97",
     "semantic_hash": ""
   },
   "src/commands/rpg/inventory/equipar.js": {
-    "mtime": 1788635305.5574615,
-    "ast_hash": "997eb1fbe77336b4b8f0c87d9aa24858",
+    "mtime": 1787448836.5986578,
+    "ast_hash": "ec3be4f4f4fb81389af46c9261205991",
     "semantic_hash": ""
   },
   "src/database/migrations/002_add_item_metadata_and_equipment.sql": {
@@ -1095,13 +1095,13 @@
     "semantic_hash": "826678ec8fc0c024ce68ff95241afda4"
   },
   "src/services/rpg/equipmentService.js": {
-    "mtime": 1788635366.825284,
-    "ast_hash": "0391e31297bad69f3dd3caf4744edef9",
+    "mtime": 1787869203.0764546,
+    "ast_hash": "e64b69aa4d3a83e3175a51f6ac1507a9",
     "semantic_hash": ""
   },
   "tests/equipment_service.test.js": {
-    "mtime": 1788638301.1851428,
-    "ast_hash": "2c3c9e23e62a2ab402ab855b0f36b197",
+    "mtime": 1787869258.9929352,
+    "ast_hash": "c5f28805b332d47043f2d7a6a13dde5b",
     "semantic_hash": ""
   },
   "scripts/cleanup-temp-items.js": {
@@ -1135,13 +1135,13 @@
     "semantic_hash": ""
   },
   "src/services/rpg/durabilityPersistenceService.js": {
-    "mtime": 1788635367.825032,
-    "ast_hash": "ff9d49f412bc105ccfb9b546b35d08cd",
-    "semantic_hash": ""
+    "mtime": 1787248376.041773,
+    "ast_hash": "325c1dc03796152643402468eb3eaa03",
+    "semantic_hash": "325c1dc03796152643402468eb3eaa03"
   },
   "src/services/rpg/equipmentResolverService.js": {
-    "mtime": 1788635367.5248559,
-    "ast_hash": "0bc2a752b88fa6bd86d7664bda0b30d4",
+    "mtime": 1788283608.565506,
+    "ast_hash": "21e18f66f98a67dfc6ec2fd0eb57e7d2",
     "semantic_hash": ""
   },
   "src/services/rpg/itemFactory.js": {
@@ -1150,8 +1150,8 @@
     "semantic_hash": "31bd142cc1359002f9787012ad790f44"
   },
   "src/services/rpg/itemStatService.js": {
-    "mtime": 1788638294.9325187,
-    "ast_hash": "899f4ca2fca4042bc069251660130970",
+    "mtime": 1787435100.279066,
+    "ast_hash": "4a68ad560ca36b32a0e346c16163cf2f",
     "semantic_hash": ""
   },
   "tests/armor_set.test.js": {
@@ -1160,9 +1160,9 @@
     "semantic_hash": "7b89b78f9aa84baca8019636da562571"
   },
   "tests/durability_persistence.test.js": {
-    "mtime": 1788638300.472424,
-    "ast_hash": "9c9fbd7175995f65b8099a3a9089f3a6",
-    "semantic_hash": ""
+    "mtime": 1785871732.7364192,
+    "ast_hash": "f103de37c83dd9cc3f8574395a3ba2da",
+    "semantic_hash": "f103de37c83dd9cc3f8574395a3ba2da"
   },
   "tests/equipment_resolver.test.js": {
     "mtime": 1787247914.358534,
@@ -1175,9 +1175,9 @@
     "semantic_hash": "133c3431421c71e78cae157af5ccfc0a"
   },
   "tests/item_stat_service.test.js": {
-    "mtime": 1788985421.8878267,
-    "ast_hash": "2aea7c24ce0ff8fd7e7bfdee19068003",
-    "semantic_hash": ""
+    "mtime": 1787247703.889026,
+    "ast_hash": "c0dc5cbc8bb399852d1160b06ccdfebc",
+    "semantic_hash": "c0dc5cbc8bb399852d1160b06ccdfebc"
   },
   "memory/decisions.md": {
     "mtime": 1787442095.8153076,
@@ -1190,8 +1190,8 @@
     "semantic_hash": ""
   },
   "memory/technical_debt.md": {
-    "mtime": 1788639160.3797078,
-    "ast_hash": "0a29d80c8596cc9e8ddf57245f258a05",
+    "mtime": 1787249034.4446476,
+    "ast_hash": "963e2754feadccafb201f2683345ccc9",
     "semantic_hash": ""
   },
   "src/data/armorSets.js": {
@@ -1225,8 +1225,8 @@
     "semantic_hash": ""
   },
   "src/data/combatActions.js": {
-    "mtime": 1788638289.718832,
-    "ast_hash": "122b493d76ab68ee15c35e1d14f5f185",
+    "mtime": 1787436651.6091335,
+    "ast_hash": "526bf001be9ccc436cdfdfdafba43a99",
     "semantic_hash": ""
   },
   "src/ui/sectionBuilder.js": {
@@ -1240,8 +1240,8 @@
     "semantic_hash": "501d65004fc8a4b3d6d86ae5783306cd"
   },
   "src/ui/sections/combatSections.js": {
-    "mtime": 1788638296.3006625,
-    "ast_hash": "7534ace60ca655d230c9b1f6ef3593bc",
+    "mtime": 1788282201.8838506,
+    "ast_hash": "91df608533c1d7b1f3445fd59444f3a4",
     "semantic_hash": ""
   },
   "src/ui/sections/combatStats.js": {
@@ -1255,9 +1255,9 @@
     "semantic_hash": "cf621aefe8f02a92ba89e0d279b3c4d7"
   },
   "tests/combat_actions.test.js": {
-    "mtime": 1788637028.2401662,
-    "ast_hash": "268d57f3232aae409dfb1b365ca46164",
-    "semantic_hash": ""
+    "mtime": 1785857113.628055,
+    "ast_hash": "e034dbf53b68555a97fa62c574d113c1",
+    "semantic_hash": "e034dbf53b68555a97fa62c574d113c1"
   },
   "tests/section_builder.test.js": {
     "mtime": 1785857113.9559112,
@@ -2965,9 +2965,9 @@
     "semantic_hash": "d2db46b19b4b30941a87e5ab2f00f118"
   },
   "src/services/rpg/skillForgeService.js": {
-    "mtime": 1788638295.317513,
-    "ast_hash": "bcb700258f87d54e8679a40720726bda",
-    "semantic_hash": ""
+    "mtime": 1787432144.362557,
+    "ast_hash": "0e7c0a3006ab87ef9ef2f92657f6e01d",
+    "semantic_hash": "0e7c0a3006ab87ef9ef2f92657f6e01d"
   },
   "tests/dummy_arcane.test.js": {
     "mtime": 1787077180.1530626,
@@ -3030,9 +3030,9 @@
     "semantic_hash": "c594d6916d9e3183a074753bdcbd8079"
   },
   "src/services/rpg/spellEffects.js": {
-    "mtime": 1788638295.533055,
-    "ast_hash": "16a3430d215f3e7847c2179211a8bf6b",
-    "semantic_hash": ""
+    "mtime": 1787073984.0142488,
+    "ast_hash": "ced9c8caa3d79d4e699b261a91346d4e",
+    "semantic_hash": "ced9c8caa3d79d4e699b261a91346d4e"
   },
   "tests/spell_tree_simplified.test.js": {
     "mtime": 1787246864.377841,
@@ -3130,8 +3130,8 @@
     "semantic_hash": "f2099f2acc4672fea308ae45aad8bbac"
   },
   "src/commands/rpg/combat/spell.js": {
-    "mtime": 1788638284.628788,
-    "ast_hash": "145f0500e8833db4d066aad6175d411a",
+    "mtime": 1788282033.649151,
+    "ast_hash": "cb5f957d79114cf8d34f8561138b0b3f",
     "semantic_hash": ""
   },
   "src/commands/rpg/inventory/equipar_spell.js": {
@@ -3140,13 +3140,13 @@
     "semantic_hash": "c19bc1666f7214ef07b6845d6d1d0abb"
   },
   "src/services/rpg/spellContainerService.js": {
-    "mtime": 1788638295.4339075,
-    "ast_hash": "783661a83e122a41b130966178589dd8",
+    "mtime": 1787870071.5508711,
+    "ast_hash": "24624970a7f446375d98c14d89d8e3b7",
     "semantic_hash": ""
   },
   "src/ui/sections/spellSections.js": {
-    "mtime": 1788638296.5164487,
-    "ast_hash": "90d8fa47146aee16bf5242c9f24ce39d",
+    "mtime": 1787442687.9404743,
+    "ast_hash": "3ca7de61d9b7e4430320712bfee78ff8",
     "semantic_hash": ""
   },
   "tests/spell_command.test.js": {
@@ -3180,23 +3180,23 @@
     "semantic_hash": ""
   },
   "src/data/materialFamilies.js": {
-    "mtime": 1788638290.68355,
-    "ast_hash": "25c1f3a08fb8acd3f79cb4b3548751d0",
+    "mtime": 1787868420.8935547,
+    "ast_hash": "d313de5217efb490c0a75d5fcbf4f265",
     "semantic_hash": ""
   },
   "tests/material_families.test.js": {
-    "mtime": 1788638302.6159317,
-    "ast_hash": "55265794a78a3a4ec240228ddc5080bb",
+    "mtime": 1787439530.1091564,
+    "ast_hash": "ade8d01bf257c2eb571beeb891eb9dc5",
     "semantic_hash": ""
   },
   "tests/spell_container_capacity.test.js": {
-    "mtime": 1788638303.6071596,
-    "ast_hash": "4f14e17cd54e18555f809ea99e79fc84",
+    "mtime": 1787870113.163857,
+    "ast_hash": "5f1599e9674e4b3c9c706e12d486cc42",
     "semantic_hash": ""
   },
   "tests/usar_command.test.js": {
-    "mtime": 1788638304.3381827,
-    "ast_hash": "1934d084f9123cae1602fb921e858e9a",
+    "mtime": 1787438523.273122,
+    "ast_hash": "f984b934d9acc5bc894d5fd5014e7dfe",
     "semantic_hash": ""
   },
   "scripts/simulation_output/archetype_matrix_report.md": {
@@ -3205,8 +3205,8 @@
     "semantic_hash": ""
   },
   "src/commands/rpg/characters/level.js": {
-    "mtime": 1788638281.8196356,
-    "ast_hash": "73d7af38e6a3499e3df9c73f337823ac",
+    "mtime": 1788201821.603167,
+    "ast_hash": "ca7509a3948f012586be4dd7119ebc9c",
     "semantic_hash": ""
   },
   "src/commands/rpg/characters/subir_stat.js": {
@@ -3215,8 +3215,8 @@
     "semantic_hash": ""
   },
   "src/commands/rpg/crafting/forjar.js": {
-    "mtime": 1788638285.0847185,
-    "ast_hash": "f6e52012c824961c6e96b5573b79f4e9",
+    "mtime": 1787868451.3900962,
+    "ast_hash": "2801645c476cb308940a147291595a38",
     "semantic_hash": ""
   },
   "src/commands/rpg/crafting/refinar.js": {
@@ -3225,28 +3225,28 @@
     "semantic_hash": ""
   },
   "src/commands/rpg/inventory/item_info.js": {
-    "mtime": 1788635369.645244,
-    "ast_hash": "f82de86683292607117574381e680d02",
+    "mtime": 1788201832.7342434,
+    "ast_hash": "37e40db509fc8f1529c76145ed83996b",
     "semantic_hash": ""
   },
   "src/services/rpg/craftingService.js": {
-    "mtime": 1788988111.7380812,
-    "ast_hash": "b075c4b71032740d00eb6b723366418e",
+    "mtime": 1788201864.7367096,
+    "ast_hash": "16d0a527032f79dd6ae51444af19b343",
     "semantic_hash": ""
   },
   "src/services/rpg/experienceService.js": {
-    "mtime": 1788806227.898347,
-    "ast_hash": "4eed3c63343790f0e218b5c2565140b6",
+    "mtime": 1788633870.278201,
+    "ast_hash": "45d516cc7a4e73982fab20ce8248c767",
     "semantic_hash": ""
   },
   "tests/bulk_inventory_equipment.test.js": {
-    "mtime": 1788638298.2331853,
-    "ast_hash": "34f73ce0516f79f4f57eeb1e899d09b5",
+    "mtime": 1787861553.052581,
+    "ast_hash": "e6ad19e28f4108b1f0bd41afed1f8e73",
     "semantic_hash": ""
   },
   "tests/crafting_refinement.test.js": {
-    "mtime": 1788985525.1664808,
-    "ast_hash": "91a374b47005f6646c38835a1ba566be",
+    "mtime": 1787868516.8003097,
+    "ast_hash": "8e3d97632c2bae8df24496c4c2326d5d",
     "semantic_hash": ""
   },
   "tests/item_info.test.js": {
@@ -3260,183 +3260,98 @@
     "semantic_hash": ""
   },
   "tests/forjar_preview.test.js": {
-    "mtime": 1788986118.5716631,
-    "ast_hash": "a40bd394f748ecc5993003af3bf40e70",
+    "mtime": 1787867079.5527313,
+    "ast_hash": "b3d9207226f67d5d24aa6c1e5821eab2",
     "semantic_hash": ""
   },
   "tests/ranged_crafting.test.js": {
-    "mtime": 1788985525.4477332,
-    "ast_hash": "be60cb69844eedf52652eb73b90bfbd6",
+    "mtime": 1787712018.002764,
+    "ast_hash": "ff08d82daaf5359ea789b8ca09ff54f9",
     "semantic_hash": ""
   },
   "src/commands/rpg/crafting/comprar.js": {
-    "mtime": 1788638284.8185153,
-    "ast_hash": "9e310e3ddba7652ceaef1c955a610c57",
+    "mtime": 1788472303.8522658,
+    "ast_hash": "1f9a813f121fe3bd3bacd5dad32916f0",
     "semantic_hash": ""
   },
   "src/commands/rpg/crafting/hablar.js": {
-    "mtime": 1788638115.107553,
-    "ast_hash": "cac2db5248c22ced62f35dff14884c0f",
+    "mtime": 1788472244.481301,
+    "ast_hash": "0db3c62a411856047ae830dd28c3f407",
     "semantic_hash": ""
   },
   "src/commands/rpg/crafting/tienda.js": {
-    "mtime": 1788638285.332993,
-    "ast_hash": "1f4e720f599fd2c4460965f9d224f1dc",
+    "mtime": 1788473797.832798,
+    "ast_hash": "0c1dfce1ca7f7fb06f25b9ac26cfe557",
     "semantic_hash": ""
   },
   "src/commands/rpg/exploration/expedicion.js": {
-    "mtime": 1788636611.4396665,
-    "ast_hash": "fe3138dcfa0f20c091c6813d5e4a0dbb",
+    "mtime": 1788540554.648536,
+    "ast_hash": "96ab0e395dafdc4cf136838319d43d50",
     "semantic_hash": ""
   },
   "src/commands/rpg/exploration/herramientas.js": {
-    "mtime": 1788638285.6278474,
-    "ast_hash": "bcf2935da5286139c87e7e522279bc02",
+    "mtime": 1788540560.285508,
+    "ast_hash": "76b7d696f0e85f7222375f5c15178ae5",
     "semantic_hash": ""
   },
   "src/commands/rpg/exploration/trabajar.js": {
-    "mtime": 1788801713.073083,
-    "ast_hash": "7037dfd06642df11e356f8d3ffac8fac",
+    "mtime": 1788540566.7694218,
+    "ast_hash": "4f504a9ba16954f3902ffc108e6d4c8a",
     "semantic_hash": ""
   },
   "src/config/expeditionConfig.js": {
-    "mtime": 1788985523.591889,
-    "ast_hash": "086a27c4502f80ec7a775259378847c2",
+    "mtime": 1788539030.9246073,
+    "ast_hash": "345e76a19bcc8105450cfb6ead9775b7",
     "semantic_hash": ""
   },
   "src/config/jobConfig.js": {
-    "mtime": 1788800416.7112124,
-    "ast_hash": "11bb38eccac3d1fbc59a5b1f790149a2",
+    "mtime": 1788538639.1500123,
+    "ast_hash": "a23b1a5384109bb2afb795d94ff612b2",
     "semantic_hash": ""
   },
   "src/config/shopConfig.js": {
-    "mtime": 1788986100.9292307,
-    "ast_hash": "42e2a18ab39158483a5cabb219f346de",
+    "mtime": 1788473785.0065217,
+    "ast_hash": "4b47a1d0417684292c95d1277f476c35",
     "semantic_hash": ""
   },
   "src/config/toolsConfig.js": {
-    "mtime": 1788985523.9532843,
-    "ast_hash": "698f7efc98df9e2291e72294847c87cc",
+    "mtime": 1788539037.7010813,
+    "ast_hash": "9ce3ba2be72e6b9b8a0e13a9cd1d3a65",
     "semantic_hash": ""
   },
   "src/services/rpg/activityEngineService.js": {
-    "mtime": 1788817952.1782894,
-    "ast_hash": "80f5615fee389020315496b6cd344c4c",
+    "mtime": 1788538698.1412008,
+    "ast_hash": "25373f5e904573e2f4cb4d5da0f8a81f",
     "semantic_hash": ""
   },
   "src/services/rpg/shopEngineService.js": {
-    "mtime": 1788636144.2359905,
-    "ast_hash": "5409f534c60cf09bf7d61a1328b0a7f0",
+    "mtime": 1788538779.3220508,
+    "ast_hash": "89ea30307e420881264c50f42b04b95f",
     "semantic_hash": ""
   },
   "src/services/rpg/toolService.js": {
-    "mtime": 1788638295.7004035,
-    "ast_hash": "26804e9a60a5e057f894d0313f582bde",
+    "mtime": 1788539117.7867115,
+    "ast_hash": "6013263625a25b91ac3722f6e321ce3d",
     "semantic_hash": ""
   },
   "tests/expedition_system.test.js": {
-    "mtime": 1788821747.4933412,
-    "ast_hash": "4fe14d0bb033b3bfad0a659ad446f017",
+    "mtime": 1788539049.4171102,
+    "ast_hash": "d3080c08293fc5d9ddcd49f5d1e48d09",
     "semantic_hash": ""
   },
   "tests/exploit_fixes.test.js": {
-    "mtime": 1788638301.5665166,
-    "ast_hash": "41a8d96adef5651e5debd1d9e4110ce3",
+    "mtime": 1788470997.227651,
+    "ast_hash": "528cc1a1460938ac6ae720d5a1a3b365",
     "semantic_hash": ""
   },
   "tests/prison_barrier_mechanic.test.js": {
-    "mtime": 1788638302.9654565,
-    "ast_hash": "be08ba0c30d848db6a70c1ab7b07adca",
+    "mtime": 1788283691.5449681,
+    "ast_hash": "6b592ce118fa8ffb16d8ea9f2f3cc1d0",
     "semantic_hash": ""
   },
   "tests/shop_system.test.js": {
-    "mtime": 1788986118.379114,
-    "ast_hash": "f359f7b3dd0832af874b234612b64e90",
-    "semantic_hash": ""
-  },
-  "src/database/migrations/006_inventory_variants.sql": {
-    "mtime": 1788634740.425275,
-    "ast_hash": "cdfc5f38e2abfa1055d2805e7080447a",
-    "semantic_hash": ""
-  },
-  "scripts/analyze_progression.js": {
-    "mtime": 1788988334.6325836,
-    "ast_hash": "2b79745465144d84cea7c80ae3c8780b",
-    "semantic_hash": ""
-  },
-  "src/config/progressionBalance.js": {
-    "mtime": 1788823578.4651175,
-    "ast_hash": "7ec76f8f2120e873045fae91970b0bc9",
-    "semantic_hash": ""
-  },
-  "src/services/rpg/progressionAnalyticsService.js": {
-    "mtime": 1788988186.114147,
-    "ast_hash": "58a894b45631b22e0a68dbd66aed86b8",
-    "semantic_hash": ""
-  },
-  "tests/progression_analytics.test.js": {
-    "mtime": 1788985723.4993227,
-    "ast_hash": "3750d4305c5add02d28243f1d6e2b8a1",
-    "semantic_hash": ""
-  },
-  "src/services/rpg/jobTrainingService.js": {
-    "mtime": 1788801368.9218526,
-    "ast_hash": "83d47d98687c6b9925d78026067b40ca",
-    "semantic_hash": ""
-  },
-  "src/services/rpg/xpRewardService.js": {
-    "mtime": 1788817864.3017428,
-    "ast_hash": "8145b820976faa975082fc0adbd07a0e",
-    "semantic_hash": ""
-  },
-  "tests/curve_policy.test.js": {
-    "mtime": 1788807241.1457608,
-    "ast_hash": "7232dbf03531e6ba101a573d8a6ba13f",
-    "semantic_hash": ""
-  },
-  "tests/forge_economics.test.js": {
-    "mtime": 1788988334.736989,
-    "ast_hash": "83ba1825d7d422c5ad50c16674ef0a07",
-    "semantic_hash": ""
-  },
-  "tests/job_training.test.js": {
-    "mtime": 1788801429.485207,
-    "ast_hash": "a6b4b9de495a00a50c21265d94862b19",
-    "semantic_hash": ""
-  },
-  "tests/material_identity.test.js": {
-    "mtime": 1788985771.1602852,
-    "ast_hash": "42228d3be9fe0dc08588680e64996b16",
-    "semantic_hash": ""
-  },
-  "tests/materials_table.test.js": {
-    "mtime": 1788985669.0119264,
-    "ast_hash": "19ad39bf1eb6b794d9cd5872fde5a523",
-    "semantic_hash": ""
-  },
-  "tests/tool_progression.test.js": {
-    "mtime": 1788985748.5706258,
-    "ast_hash": "5be6d536a6407334de2e9e5e08de92b7",
-    "semantic_hash": ""
-  },
-  "tests/xp_reward_service.test.js": {
-    "mtime": 1788818443.1120672,
-    "ast_hash": "090aa5a8f571ebc1c2174c63eaeab8a0",
-    "semantic_hash": ""
-  },
-  "docs/BALANCE_MATERIALES.md": {
-    "mtime": 1788988383.6466024,
-    "ast_hash": "dd19859b8fac990398555d7820c3cfe2",
-    "semantic_hash": ""
-  },
-  "docs/BALANCE_TROZOS.md": {
-    "mtime": 1788986315.806678,
-    "ast_hash": "5f5ab576596c593481828c1fe923c3b7",
-    "semantic_hash": ""
-  },
-  "docs/PLAN_IMPLEMENTACION_MATERIALES.md": {
-    "mtime": 1788988250.3107002,
-    "ast_hash": "c36899eefae11cf1bcd4a8108d5aca40",
+    "mtime": 1788473821.9498792,
+    "ast_hash": "ae3d244c756f43d0dc95577e2f58c13f",
     "semantic_hash": ""
   }
 }
