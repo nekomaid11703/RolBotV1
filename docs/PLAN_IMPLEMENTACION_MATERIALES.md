@@ -3,9 +3,9 @@
 Estado: aprobado por el usuario (2026-09-08). Contiene las tablas y datos canónicos
 proporcionados por el usuario; son fuente de verdad para la implementación.
 
-Estado 2026-09-09: B8.2a implementado y commiteado. B8.2b (ley R(L) + pisos) pasa a ser el
-**P1 del roadmap FASE 2.6** (`docs/ROADMAP.md`), precedido por el saneamiento de incoherencias
-de ítems (P0, gate D1). B3 es el P2 de ese roadmap.
+Estado 2026-09-09: B8.2a (canon) y B8.2b (ley R(L) + pisos, P1 del roadmap FASE 2.6)
+implementados y en verde, junto con la recalibración B5/B1 y los anclajes material↔nivel.
+B3 (rutas de raros/endgame) es el P2 de ese roadmap.
 
 ---
 
@@ -161,11 +161,12 @@ propuestos (por confirmar en ejecución):
 - [x] Refinado universal 2:1 (E→N) sin techos: se eliminó `RARITY_TIER_CAP` y la
       validación asociada en `craftingService` (2026-09-09).
 
-### B8.2b — Ley de obtención universal (P1 del roadmap FASE 2.6 — pendiente)
-- [ ] Implementar `R(L)` y el generador de rareza (geométrico con piso de zona).
-- [ ] Conectar el generador a expediciones y al bonus de herramienta.
-- [ ] Guardas en `progression:report`: “16:1 en L1” y “~1 mítico/16 en L10”,
-      distribución por zona y piso.
+### B8.2b — Ley de obtención universal (P1 del roadmap FASE 2.6 — implementado 2026-09-09)
+- [x] Implementar `R(L)` y el generador de rareza (geométrico con piso de zona):
+      `rarityDropConfig.js` + `rarityDropService.js`; zonas con `floorRarity`/`rarityPool`.
+- [x] Conectar el generador a expediciones; la herramienta deja de ser bonus plano y gobierna la curva.
+- [x] Guardas en `progression:report`: “16:1 en L1” y “~1 mítico/16 en L10”, fuentes por banda/piso
+      y anclajes material↔nivel (`MATERIAL_LEVEL_ANCHOR`, f=0.35).
 
 ### B8.2c — Guardas y documentación
 - [x] Actualizar `tests/material_identity.test.js` a los nuevos presupuestos

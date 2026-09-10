@@ -6,6 +6,29 @@ Este archivo registra los cambios significativos y decisiones arquitectónicas t
 
 ## [Unreleased]
 
+### P1 — B8.2b Ley de obtención R(L), pisos y recalibración B5/B1 (2026-09-09)
+
+- **Rareza por herramienta (R(L))**: [NEW] `src/config/rarityDropConfig.js` (16→1.39,
+  `P(i+1)=P(i)/R`, renormalización por piso y bandas accesibles) y
+  [NEW] `src/services/rpg/rarityDropService.js` (`sampleBand`, `weightedEntry`, contexto de zona).
+- **Zonas multi-banda**: `expeditionConfig` ahora declara `floorRarity` y `rarityPool`; los
+  `lootTable` quedan solo para drops planos (pescado/hierbas). Modelo "banda + pool ponderado".
+- **Motor**: `activityEngineService` sustituye el bonus plano `(1+lootBonus)` por la ley R(L)
+  (tiradas corta 2 / media 3 / larga 5, cantidad por banda); la duración escala stelas/XP/flat.
+- **Herramientas**: `TOOL_UPGRADE_COSTS` pierde `lootBonus`; el nivel de herramienta gobierna la
+  curva. Gate D2: el payback B4 pasa a métrica informativa (el ROI en stelas ya no aplica ≤10).
+- **Reporte**: réplica exacta de la curva, guardas `16:1 en L1` y `~1 mítico/16 en L10`
+  (`rarityDrop.checks`).
+- **Recalibración B5/B1 (cap ~90 días)**: curva XP ×0.262 (~450 victorias equivalentes), regular =
+  4 combates/día y actividades ~20% de la XP diaria (`jobShareBase 0.1`, `expeditionShareBase 0.8`).
+- **Anclajes material↔nivel**: `MATERIAL_LEVEL_ANCHOR` + `ANCHOR_POLICY` (f=0.35) y
+  `materialAnchors` en el reporte (común 150/~10 d, poco 200/~21 d, raro 300/~43 d, épico 400/~66 d,
+  legendario/mítico 500/~90 d).
+- Guardas nuevas: `tests/rarity_drop.test.js`; ajustes en `level_progression`, `curve_policy`,
+  `xp_reward_service`, `progression_analytics`, `expedition_system`.
+- Suite: **910 tests verdes en 82 archivos**. Pendiente P2/B3: rutas de épico→mítico y calibración
+  fina de precios/cantidades con las métricas de anclaje.
+
 ### P0 — Canon completo: saneamiento de la familia legacy de hierro (2026-09-09)
 
 - **Gate D1 resuelto (canon completo)**: eliminado `src/data/ironFamily.js` (`iron_family.test.js`

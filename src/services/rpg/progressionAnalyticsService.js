@@ -6,9 +6,14 @@ const { SHOPS } = require("../../config/shopConfig");
 const { JOBS, trainingPointsForJob } = require("../../config/jobConfig");
 const { TOOL_UPGRADE_COSTS, TOOLS } = require("../../config/toolsConfig");
 const { TIERS } = require("../../config/tierConfig");
-const { xpForNextLevel, LEVEL_MAX } = require("../../config/characterConfig");
+const { xpForNextLevel, LEVEL_INITIAL, LEVEL_MAX } = require("../../config/characterConfig");
+const {
+  MATERIAL_ROLLS_BY_DURATION,
+  rarityBandProbabilities,
+  rarityRatioForLevel,
+} = require("../../config/rarityDropConfig");
 const { calculateXpReward } = require("./combatEngine");
-const { jobXpForLevel } = require("./xpRewardService");
+const { jobXpForLevel, expeditionXpForLevel } = require("./xpRewardService");
 const {
   PROGRESSION_COHORTS,
   PLAY_STYLES,
@@ -16,6 +21,8 @@ const {
   PROGRESSION_HORIZONS_DAYS,
   JOB_TRAINING,
   DESIGN_TARGETS,
+  MATERIAL_LEVEL_ANCHOR,
+  ANCHOR_POLICY,
   XP_RULES,
   TOOL_POLICY,
   CRAFTING_POLICY,
@@ -32,6 +39,19 @@ function materialIdFromItem(itemId) {
   return String(itemId || "").startsWith(prefix) ? String(itemId).slice(prefix.length) : null;
 }
 
+/**
+ * Aplana el rarityPool de una zona en entradas de material.
+ * @param {object} zone
+ * @returns {Array<{band: string, entry: object}>}
+ */
+function zoneMaterialEntries(zone) {
+  const entries = [];
+  for (const [band, bandEntries] of Object.entries(zone?.rarityPool || {})) {
+    for (const entry of bandEntries || []) entries.push({ band, entry });
+  }
+  return entries;
+}
+
 function getMaterialSources() {
   const sources = Object.fromEntries(
     Object.keys(MATERIALS)
@@ -40,15 +60,15 @@ function getMaterialSources() {
   );
 
   for (const zone of Object.values(EXPEDITION_ZONES)) {
-    for (const loot of zone.lootTable || []) {
-      const materialId = materialIdFromItem(loot.itemId);
+    for (const { band, entry } of zoneMaterialEntries(zone)) {
+      const materialId = materialIdFromItem(entry.itemId);
       if (materialId && sources[materialId])
         sources[materialId].push({
           type: "expedition",
           id: zone.id,
-          toolReq: loot.toolReq || "?",
-          minToolLevel: loot.minToolLevel || 1,
-          weight: loot.weight,
+          toolReq: entry.toolReq || "?",
+          band,
+          floorRarity: zone.floorRarity || "comun",
         });
     }
   }
@@ -112,34 +132,69 @@ function materialPrice(itemId) {
   return MATERIAL_PRICE_BY_RARITY[MATERIALS[materialId].rarity] || 80;
 }
 
-function toolBonusForLevel(level) {
-  return level >= 2 ? Number(TOOL_UPGRADE_COSTS[level]?.lootBonus) || 0 : 0;
+function zoneToolExpectedValue(zone, toolId, toolLevel) {
+  if (!zone) return 0;
+
+  // Valor esperado de materiales (banda por ley R(L), N tiradas de corta)
+  const poolEntries = zoneMaterialEntries(zone).filter(({ entry }) => entry.toolReq === toolId);
+  const byBand = new Map();
+  for (const { band, entry } of poolEntries) {
+    if (!byBand.has(band)) byBand.set(band, []);
+    byBand.get(band).push(entry);
+  }
+  const accessibleBands = Array.from(byBand.keys());
+  let materialValue = 0;
+  if (accessibleBands.length > 0) {
+    const probabilities = rarityBandProbabilities({
+      toolLevel,
+      floorRarity: zone.floorRarity || "comun",
+      accessibleBands,
+    });
+    let perRollValue = 0;
+    for (const band of accessibleBands) {
+      const entries = byBand.get(band);
+      const totalWeight = entries.reduce((sum, e) => sum + (Number(e.weight) || 1), 0);
+      let bandValue = 0;
+      for (const entry of entries) {
+        const avgQty = ((Number(entry.minQty) || 0) + (Number(entry.maxQty) || 0)) / 2;
+        bandValue += ((Number(entry.weight) || 1) / totalWeight) * avgQty * materialPrice(entry.itemId);
+      }
+      perRollValue += (probabilities[band] || 0) * bandValue;
+    }
+    materialValue = perRollValue * (MATERIAL_ROLLS_BY_DURATION.corta || 2);
+  }
+
+  // Drops planos no-material (pescado/hierbas): chance = weight/100, durMult corta = 1
+  let flatValue = 0;
+  for (const loot of zone.lootTable || []) {
+    if (loot.toolReq !== toolId) continue;
+    if ((loot.minToolLevel || 1) > toolLevel) continue;
+    const avgQty = ((Number(loot.minQty) || 0) + (Number(loot.maxQty) || 0)) / 2;
+    flatValue += (loot.weight / 100) * avgQty * materialPrice(loot.itemId);
+  }
+
+  return materialValue + flatValue;
 }
 
 function zoneForTool(toolId) {
-  const candidates = Object.values(EXPEDITION_ZONES).filter((zone) =>
-    (zone.lootTable || []).some((entry) => entry.toolReq === toolId),
-  );
+  const candidates = Object.values(EXPEDITION_ZONES).filter((zone) => {
+    const inPool = zoneMaterialEntries(zone).some(({ entry }) => entry.toolReq === toolId);
+    const inFlat = (zone.lootTable || []).some((entry) => entry.toolReq === toolId);
+    return inPool || inFlat;
+  });
   if (candidates.length === 0) return null;
-  // Zona de referencia: la que maximiza el valor esperado a nivel maestro,
-  // donde la herramienta genera más botín y debe amortizar su mejora.
-  return candidates.reduce((best, zone) =>
-    zoneToolExpectedValue(zone, toolId, 10) > zoneToolExpectedValue(best, toolId, 10) ? zone : best,
-  );
-}
-
-function zoneToolExpectedValue(zone, toolId, toolLevel) {
-  if (!zone) return 0;
-  const bonus = toolBonusForLevel(toolLevel);
-  let expected = 0;
-  for (const entry of zone.lootTable || []) {
-    if (entry.toolReq !== toolId) continue;
-    if ((entry.minToolLevel || 1) > toolLevel) continue;
-    const chance = (entry.weight / 100) * (1 + bonus);
-    const avgQty = ((entry.minQty || 0) + (entry.maxQty || 0)) / 2;
-    expected += chance * avgQty * materialPrice(entry.itemId);
-  }
-  return expected;
+  // Preferir zonas donde la curva R(L) realmente se traduce en más valor con el
+  // nivel (crecimiento L1→L10); así el payback refleja la rareza, no zonas de
+  // banda única donde subir de nivel no aporta nada.
+  const score = (zone) => zoneToolExpectedValue(zone, toolId, 10) - zoneToolExpectedValue(zone, toolId, 1);
+  return candidates.reduce((best, zone) => {
+    const bestScore = score(best);
+    const zoneScore = score(zone);
+    return zoneScore > bestScore ||
+      (zoneScore === bestScore && zoneToolExpectedValue(zone, toolId, 10) > zoneToolExpectedValue(best, toolId, 10))
+      ? zone
+      : best;
+  });
 }
 
 function dailyStelasIncome() {
@@ -239,27 +294,46 @@ function getRefineLadder() {
 
 function getMaterialAcquisitionRate(materialId) {
   const itemId = `trozo_de_${materialId}`;
+  const toolLevel = Math.max(1, Number(CRAFTING_POLICY.acquisitionToolLevel) || 1);
+  const zoneEntries = zoneMaterialEntries;
   let best = null;
+
   for (const zone of Object.values(EXPEDITION_ZONES)) {
-    for (const entry of zone.lootTable || []) {
-      if (entry.itemId !== itemId) continue;
-      const toolLevel = Math.max(CRAFTING_POLICY.acquisitionToolLevel, entry.minToolLevel || 1);
-      const bonus = toolBonusForLevel(toolLevel);
-      const chance = (entry.weight / 100) * (1 + bonus);
-      const avgQty = ((entry.minQty || 0) + (entry.maxQty || 0)) / 2;
-      const unitsPerRun = chance * avgQty;
-      const energyPerRun = zone.energyCosts?.corta || 15;
-      const runsPerDay = Math.max(1, Math.floor(100 / energyPerRun));
-      if (!best || unitsPerRun > best.unitsPerRun) {
-        best = {
-          zone: zone.id,
-          tool: entry.toolReq,
-          toolLevel,
-          unitsPerRun,
-          runsPerDay,
-          unitsPerDay: unitsPerRun * runsPerDay,
-        };
-      }
+    const hits = zoneEntries(zone).filter(({ entry }) => entry.itemId === itemId);
+    if (hits.length === 0) continue;
+
+    const toolOf = hits[0].entry.toolReq;
+    const floor = zone.floorRarity || "comun";
+    const accessibleBands = zoneEntries(zone)
+      .filter(({ entry }) => entry.toolReq === toolOf)
+      .map(({ band }) => band);
+    const probabilities = rarityBandProbabilities({ toolLevel, floorRarity: floor, accessibleBands });
+
+    // Unidades esperadas del material por expedición corta (tiradas × ley R(L))
+    let unitsPerRun = 0;
+    for (const { band, entry } of hits) {
+      const bandEntries = zoneEntries(zone).filter(
+        ({ band: otherBand, entry: other }) => otherBand === band && other.toolReq === toolOf,
+      );
+      const totalWeight = bandEntries.reduce((sum, { entry: other }) => sum + (Number(other.weight) || 1), 0);
+      const avgQty = ((Number(entry.minQty) || 0) + (Number(entry.maxQty) || 0)) / 2;
+      const perRoll = (probabilities[band] || 0) * ((Number(entry.weight) || 1) / totalWeight) * avgQty;
+      unitsPerRun += perRoll * (MATERIAL_ROLLS_BY_DURATION.corta || 2);
+    }
+    if (unitsPerRun <= 0) continue;
+
+    const energyPerRun = zone.energyCosts?.corta || 15;
+    const runsPerDay = Math.max(1, Math.floor(100 / energyPerRun));
+    const round2 = (value) => Math.round(value * 100) / 100;
+    if (!best || unitsPerRun > best.unitsPerRun) {
+      best = {
+        zone: zone.id,
+        tool: toolOf,
+        toolLevel,
+        unitsPerRun: round2(unitsPerRun),
+        runsPerDay,
+        unitsPerDay: round2(unitsPerRun * runsPerDay),
+      };
     }
   }
   return best;
@@ -322,7 +396,8 @@ function buildForgeEconomics() {
 function describeSourceList(sourceList) {
   if (!Array.isArray(sourceList) || sourceList.length === 0) return ["SIN RUTA"];
   return sourceList.map((source) => {
-    if (source.type === "expedition") return `Exp. ${source.id} (${source.toolReq} ≥${source.minToolLevel})`;
+    if (source.type === "expedition")
+      return `Exp. ${source.id} (${source.toolReq}; ${source.band || source.floorRarity})`;
     if (source.type === "shop") return `Tienda ${source.id}`;
     return source.type;
   });
@@ -373,6 +448,58 @@ function getMaterialsTableMarkdown() {
 function effectiveStatsPerDay(pointsPerDay) {
   const uncapped = pointsPerDay / JOB_TRAINING.pointsPerStatPoint;
   return Math.min(uncapped, JOB_TRAINING.weeklyCapPerStat / 7);
+}
+
+/**
+ * Anclajes material ↔ nivel (B5/B6): a qué nivel de equilibrio pertenece cada
+ * rareza y cuántos días/minutos de juego (2 h/día regular) cuesta alcanzarlo.
+ * @returns {{policy: object, anchors: Array<object>}}
+ */
+function buildMaterialAnchors() {
+  const policy = ANCHOR_POLICY;
+  const anchors = Object.entries(MATERIAL_LEVEL_ANCHOR).map(([rarity, targetLevel]) => {
+    let level = LEVEL_INITIAL;
+    let days = 0;
+    let guard = 0;
+    while (level < targetLevel && guard < LEVEL_MAX * 2) {
+      const need = xpForNextLevel(level);
+      const perDay =
+        policy.referenceCombatsPerDay * calculateXpReward(level, true) +
+        policy.referenceExpeditionsPerDay * expeditionXpForLevel(level, policy.referenceExpeditionXpWeight);
+      if (perDay <= 0) break;
+      days += need / perDay;
+      level += 1;
+      guard += 1;
+    }
+    const roundedDays = Math.round(days * 10) / 10;
+    return {
+      rarity,
+      equilibriumLevel: targetLevel,
+      daysToReach: roundedDays,
+      minutesToReach: Math.round(roundedDays * policy.sessionMinutesPerDay),
+    };
+  });
+  return { policy, anchors };
+}
+
+/**
+ * Guardas de la ley de obtención R(L) (B8.2b): "16:1 en L1" y "~1 mítico/16 en L10".
+ * @returns {object}
+ */
+function buildRarityChecks() {
+  const l1 = rarityBandProbabilities({ toolLevel: 1, floorRarity: "comun" });
+  const l10 = rarityBandProbabilities({ toolLevel: 10, floorRarity: "comun" });
+  const l1PocoOverComun = (l1.poco_comun || 0) / (l1.comun || 1);
+  const tolerance = 0.01;
+  return {
+    rL1: Math.round(rarityRatioForLevel(1) * 100) / 100,
+    rL10: Math.round(rarityRatioForLevel(10) * 100) / 100,
+    bands: { L1: l1, L10: l10 },
+    checks: {
+      l1SixteenToOne: Math.abs(l1PocoOverComun - 1 / 16) < tolerance,
+      l10MythicSixteenToOne: Math.abs((l10.mitico || 0) - 0.0625) < tolerance,
+    },
+  };
 }
 
 function getJobRates() {
@@ -492,6 +619,8 @@ function buildProgressionReport() {
   const jobDominance = getJobRewardDominance();
   const toolMetrics = buildToolMetrics();
   const forgeEconomics = buildForgeEconomics();
+  const rarityDrop = buildRarityChecks();
+  const materialAnchors = buildMaterialAnchors();
   const maxStatsPerDay = Math.max(...cohorts.map((row) => row.expectedJobStatsPerDay));
   const maxLongitudinalStats = Math.max(...longitudinal.map((row) => row.cumulativeJobStats));
   const maxJobValueCombatRatio = Math.max(...cohorts.map((row) => row.jobValueCombatRatio));
@@ -504,6 +633,8 @@ function buildProgressionReport() {
     jobDominance,
     toolMetrics,
     forgeEconomics,
+    rarityDrop,
+    materialAnchors,
     design: {
       targets: DESIGN_TARGETS,
       checks: {
@@ -537,6 +668,8 @@ module.exports = {
   buildForgeEconomics,
   getMaterialsTable,
   getMaterialsTableMarkdown,
+  buildRarityChecks,
+  buildMaterialAnchors,
   getDailyRates,
   simulateLongitudinal,
   estimateCohortProgress,

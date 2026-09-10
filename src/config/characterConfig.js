@@ -231,7 +231,10 @@ const XP_CURVE_EXPONENT = 1.2;
 
 /**
  * Calcula la XP requerida para pasar al siguiente nivel.
- * Calibrado exactamente para que 1,000 batallas contra oponentes de nivel similar lleven al personaje a Nivel 500.
+ * Recalibración B5 (2026-09-09): objetivo ~90 días jugando 2 h/día (regular = 4
+ * combates/día) hasta Nivel 500. La curva arranca en ~1 victoria/nivel y sube a
+ * ~1.26, cubriendo ~450 "victorias equivalentes" (360 de combate + ~90 de
+ * expediciones/trabajos, ≈20%).
  * @param {number} currentLevel - Nivel actual del personaje
  * @returns {number} Puntos de XP necesarios para subir
  */
@@ -240,7 +243,7 @@ function xpForNextLevel(currentLevel) {
   const minLvl = LEVEL_INITIAL || 100;
   const maxLvl = LEVEL_MAX || 500;
   const progressRatio = Math.max(0, Math.min(1, (lvl - minLvl) / (maxLvl - minLvl)));
-  const battlesNeeded = 1.0 + 3.15 * Math.pow(progressRatio, 1.1);
+  const battlesNeeded = 1.0 + 0.262 * Math.pow(progressRatio, 1.1);
   const xpPerEqualBattle = 100 + lvl * 50;
   return Math.floor(battlesNeeded * xpPerEqualBattle);
 }

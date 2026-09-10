@@ -8,17 +8,18 @@ Cada trozo toca archivos propios, valida contra `progression:report` y entrega t
 | Trozo | Sistema | Estado |
 |---|---|---|
 | B2 | Entrenamiento acumulado de atributos en trabajos | Implementado (2026-09-07) |
-| B5 | Curva de nivel y coste de atributos (política) | Implementado (2026-09-07) |
-| B1 | XP por tramo de nivel (trabajos, expediciones, combate) | Implementado (2026-09-07) |
-| B4 | Progresión de herramientas y ROI | Implementado (2026-09-07); recálculo de payback al quitar `lootBonus` en B8.2b |
+| B5 | Curva de nivel y coste de atributos (política) | Implementado (2026-09-07); recalibrado cap 500 ~90 d (2026-09-09) |
+| B1 | XP por tramo de nivel (trabajos, expediciones, combate) | Implementado (2026-09-07); actividades ~20% de la XP diaria (2026-09-09) |
+| B4 | Progresión de herramientas y ROI | Implementado (2026-09-07); ROI informativo tras quitar `lootBonus` (B8.2b) |
 | B6 | Hitos de equipo y poder por rango | Pendiente (P3 del roadmap — FASE 2.6) |
 | B7 | Economía de forja/refinamiento (tiempo vs poder vs compra) | Implementado (2026-09-07) |
-| B8 | Identidad de materiales (stats por rareza y arquetipo) | B8.2a implementado; B8.2b (ley R(L) + pisos) = P1 del roadmap |
+| B8 | Identidad de materiales (stats por rareza y arquetipo) | B8.2a y B8.2b implementados (R(L) + pisos) |
 | B3 | Rutas jugables de materiales raros y endgame | Pendiente (P2 del roadmap) |
 
-> Estado 2026-09-09: aprobado el roadmap FASE 2.6 (`docs/ROADMAP.md`). Orden de ejecución nuevo:
-> P0 saneamiento de incoherencias de ítems (pre-req, gate D1) → B8.2b (P1, gates D2) → B3 (P2,
-> gates D3/D4) → B6 (P3) → segunda pasada de winrate (P4).
+> Estado 2026-09-09: P0 (saneamiento de ítems, D1) y P1 (B8.2b R(L)+pisos y recalibración
+> B5/B1, D2 reframe) implementados. Próximo: P2/B3 rutas de materiales raros/endgame (D3/D4),
+> con anclajes `MATERIAL_LEVEL_ANCHOR` (común 150, poco 200, raro 300, épico 400, leg/mítico 500)
+> y objetivos de tiempo por rareza derivados del reporte.
 
 ## Restricciones de diseño (P1-P5)
 

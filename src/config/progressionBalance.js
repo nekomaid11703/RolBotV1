@@ -9,7 +9,7 @@ const PROGRESSION_COHORTS = [
 
 const PLAY_STYLES = {
   casual: { dailyEnergy: 40, combatsPerDay: 1 },
-  regular: { dailyEnergy: 70, combatsPerDay: 3 },
+  regular: { dailyEnergy: 70, combatsPerDay: 4 },
   dedicated: { dailyEnergy: 100, combatsPerDay: 6 },
 };
 
@@ -32,9 +32,11 @@ const XP_RULES = {
   pvpRiskPremium: 1.25,
   levelGapPremiumScale: 1,
   maxRiskMultiplier: 3,
-  jobShareBase: 0.01,
+  // B5 recalc (2026-09-09): expediciones y trabajos deben aportar ~20-25% de la
+  // XP diaria para que una sesión de 2 h mixta (combate + actividades) progrese.
+  jobShareBase: 0.1,
   jobShareReference: 35,
-  expeditionShareBase: 0.04,
+  expeditionShareBase: 0.8,
   expeditionShareReference: 110,
   // B1 (revisado): el valor de una jornada laboral incluye el equivalente XP de
   // su entrenamiento de atributo (1 punto = xpForNextLevel según B5). El total
@@ -62,6 +64,29 @@ const DESIGN_TARGETS = {
 
 const PROGRESSION_HORIZONS_DAYS = [1, 7, 30, 90, 180];
 
+/**
+ * Anclaje material ↔ nivel (B5/B6). El nivel de equilibrio es donde el DEF de un
+ * set de la rareza (mejor material de resistencia) ≈ 35% del presupuesto de una
+ * build (fracción f). Ver `docs/BALANCE_TROZOS.md`.
+ */
+const MATERIAL_LEVEL_ANCHOR = {
+  comun: 150,
+  poco_comun: 200,
+  raro: 300,
+  epico: 400,
+  legendario: 500,
+  mitico: 500,
+};
+
+/** Política de conversión para los anclajes (días de progresión ↔ minutos). */
+const ANCHOR_POLICY = {
+  gearLevelEquilibriumFactor: 0.35,
+  sessionMinutesPerDay: 120,
+  referenceCombatsPerDay: 4,
+  referenceExpeditionsPerDay: 3,
+  referenceExpeditionXpWeight: 40,
+};
+
 const TOOL_POLICY = {
   paybackExpeditionsLimit: 10,
   incomeStyle: "regular",
@@ -84,6 +109,8 @@ module.exports = {
   PROGRESSION_HORIZONS_DAYS,
   JOB_TRAINING,
   DESIGN_TARGETS,
+  MATERIAL_LEVEL_ANCHOR,
+  ANCHOR_POLICY,
   XP_RULES,
   TOOL_POLICY,
   CRAFTING_POLICY,

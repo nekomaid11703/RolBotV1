@@ -55,7 +55,7 @@ describe("B5 — equivalencia de coste de atributo por banda", () => {
     expect(bands).toHaveLength(5);
     expect(bands[0]).toMatchObject({ from: 100, to: 199 });
     expect(bands[0].winsPerStatPointAtStart).toBeCloseTo(1, 5);
-    expect(bands[4].winsPerStatPointAtEnd).toBeGreaterThan(4);
+    expect(bands[4].winsPerStatPointAtEnd).toBeGreaterThan(1.2);
     // La banda 500-500 no tiene transiciones internas (tope); las demás crecen.
     for (let i = 1; i < bands.length - 1; i += 1) {
       expect(bands[i].bandTotalXp).toBeGreaterThan(bands[i - 1].bandTotalXp);

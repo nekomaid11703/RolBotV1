@@ -1,7 +1,18 @@
 // @ts-nocheck
 /**
  * Configuración modular de zonas de expedición.
- * Cero hardcoding: permite añadir, eliminar o rebalancear fácilmente ubicaciones y probabilidades.
+ *
+ * Modelo B8.2b (aprobado 2026-09-09, opción "banda + pool ponderado"):
+ * - `floorRarity`: piso de la zona. Por debajo del piso no se reparte probabilidad.
+ * - `rarityPool`: materiales por banda de rareza (entry: itemId/weight/minQty/maxQty/toolReq).
+ *   La banda se tira con la ley R(L) según el nivel de la herramienta; dentro de la
+ *   banda el material se elige ponderado por `weight`.
+ * - `lootTable`: SOLO drops planos no-material (pescado, hierbas...): chance = weight/100
+ *   por duración, sin bonus plano de herramienta.
+ *
+ * Cantidades (calibración B8.2b): tiradas por duración corta=2/media=3/larga=5;
+ * cada tirada siempre entrega material del piso o mejor (común 2-4 uds, poco 2 uds,
+ * raro 1 ud) → la herramienta NO suma cantidad, suaviza la composición de rareza.
  */
 
 const EXPEDITION_ZONES = {
@@ -21,14 +32,17 @@ const EXPEDITION_ZONES = {
       larga: 60,
     },
     primaryTools: ["hacha", "bolsa", "cana"],
-    // Tabla de probabilidad base de drops y cantidad por duración
+    floorRarity: "comun",
+    rarityPool: {
+      comun: [
+        { itemId: "trozo_de_madera", weight: 45, minQty: 2, maxQty: 4, toolReq: "hacha" },
+        { itemId: "trozo_de_cuero", weight: 15, minQty: 2, maxQty: 4, toolReq: "bolsa" },
+      ],
+      poco_comun: [{ itemId: "trozo_de_madera_caoba", weight: 8, minQty: 2, maxQty: 2, toolReq: "hacha" }],
+    },
     lootTable: [
-      { itemId: "trozo_de_madera", weight: 45, minQty: 2, maxQty: 6, toolReq: "hacha", minToolLevel: 1 },
       { itemId: "hierba_medicinal", weight: 30, minQty: 1, maxQty: 3, toolReq: "bolsa", minToolLevel: 1 },
       { itemId: "pescado_fresco", weight: 20, minQty: 1, maxQty: 2, toolReq: "cana", minToolLevel: 1 },
-      { itemId: "trozo_de_cuero", weight: 15, minQty: 1, maxQty: 2, toolReq: "bolsa", minToolLevel: 1 },
-      // Rarezas desbloqueables con herramientas avanzadas:
-      { itemId: "trozo_de_madera_caoba", weight: 8, minQty: 1, maxQty: 2, toolReq: "hacha", minToolLevel: 4 },
     ],
     stelasRange: { min: 20, max: 80 },
     baseXp: 40,
@@ -50,12 +64,15 @@ const EXPEDITION_ZONES = {
       larga: 60,
     },
     primaryTools: ["pico"],
-    lootTable: [
-      { itemId: "trozo_de_piedra", weight: 50, minQty: 3, maxQty: 8, toolReq: "pico", minToolLevel: 1 },
-      { itemId: "trozo_de_acero", weight: 35, minQty: 1, maxQty: 4, toolReq: "pico", minToolLevel: 1 },
-      { itemId: "trozo_de_cuarzo", weight: 12, minQty: 1, maxQty: 2, toolReq: "pico", minToolLevel: 3 },
-      { itemId: "trozo_de_acero", weight: 6, minQty: 1, maxQty: 2, toolReq: "pico", minToolLevel: 5 },
-    ],
+    floorRarity: "comun",
+    rarityPool: {
+      comun: [
+        { itemId: "trozo_de_piedra", weight: 50, minQty: 2, maxQty: 4, toolReq: "pico" },
+        { itemId: "trozo_de_cuarzo", weight: 12, minQty: 2, maxQty: 4, toolReq: "pico" },
+      ],
+      poco_comun: [{ itemId: "trozo_de_acero", weight: 35, minQty: 2, maxQty: 2, toolReq: "pico" }],
+    },
+    lootTable: [],
     stelasRange: { min: 30, max: 100 },
     baseXp: 50,
   },
@@ -76,12 +93,14 @@ const EXPEDITION_ZONES = {
       larga: 90,
     },
     primaryTools: ["pico", "hacha"],
-    lootTable: [
-      { itemId: "trozo_de_acero", weight: 40, minQty: 2, maxQty: 5, toolReq: "pico", minToolLevel: 2 },
-      { itemId: "trozo_de_acero", weight: 20, minQty: 1, maxQty: 3, toolReq: "pico", minToolLevel: 3 },
-      { itemId: "trozo_de_plata", weight: 10, minQty: 1, maxQty: 2, toolReq: "pico", minToolLevel: 4 },
-      { itemId: "trozo_de_piedra", weight: 25, minQty: 2, maxQty: 6, toolReq: "pico", minToolLevel: 1 },
-    ],
+    floorRarity: "poco_comun",
+    rarityPool: {
+      poco_comun: [
+        { itemId: "trozo_de_acero", weight: 60, minQty: 2, maxQty: 2, toolReq: "pico" },
+        { itemId: "trozo_de_plata", weight: 10, minQty: 2, maxQty: 2, toolReq: "pico" },
+      ],
+    },
+    lootTable: [],
     stelasRange: { min: 50, max: 150 },
     baseXp: 75,
   },
@@ -102,10 +121,15 @@ const EXPEDITION_ZONES = {
       larga: 60,
     },
     primaryTools: ["cana", "bolsa"],
+    floorRarity: "comun",
+    rarityPool: {
+      comun: [
+        { itemId: "trozo_de_cuero", weight: 25, minQty: 2, maxQty: 4, toolReq: "bolsa" },
+        { itemId: "trozo_de_madera", weight: 20, minQty: 2, maxQty: 4, toolReq: "bolsa" },
+      ],
+    },
     lootTable: [
       { itemId: "pescado_fresco", weight: 55, minQty: 2, maxQty: 6, toolReq: "cana", minToolLevel: 1 },
-      { itemId: "trozo_de_cuero", weight: 25, minQty: 1, maxQty: 3, toolReq: "bolsa", minToolLevel: 1 },
-      { itemId: "trozo_de_madera", weight: 20, minQty: 2, maxQty: 4, toolReq: "bolsa", minToolLevel: 1 },
       { itemId: "hierba_medicinal", weight: 15, minQty: 1, maxQty: 2, toolReq: "bolsa", minToolLevel: 2 },
     ],
     stelasRange: { min: 40, max: 120 },
@@ -128,12 +152,17 @@ const EXPEDITION_ZONES = {
       larga: 120,
     },
     primaryTools: ["pico", "bolsa"],
-    lootTable: [
-      { itemId: "trozo_de_plata", weight: 35, minQty: 1, maxQty: 3, toolReq: "pico", minToolLevel: 3 },
-      { itemId: "trozo_de_acero", weight: 30, minQty: 1, maxQty: 3, toolReq: "pico", minToolLevel: 3 },
-      { itemId: "hierba_medicinal", weight: 25, minQty: 1, maxQty: 4, toolReq: "bolsa", minToolLevel: 2 },
-      { itemId: "trozo_de_oro", weight: 8, minQty: 1, maxQty: 1, toolReq: "pico", minToolLevel: 5 },
-    ],
+    // Nota: piso en poco_comun para conservar acero/plata como piso y el oro como
+    // rareza superior (revisable en P2/B3 con el reporte).
+    floorRarity: "poco_comun",
+    rarityPool: {
+      poco_comun: [
+        { itemId: "trozo_de_plata", weight: 35, minQty: 2, maxQty: 2, toolReq: "pico" },
+        { itemId: "trozo_de_acero", weight: 30, minQty: 2, maxQty: 2, toolReq: "pico" },
+      ],
+      raro: [{ itemId: "trozo_de_oro", weight: 8, minQty: 1, maxQty: 1, toolReq: "pico" }],
+    },
+    lootTable: [{ itemId: "hierba_medicinal", weight: 25, minQty: 1, maxQty: 4, toolReq: "bolsa", minToolLevel: 2 }],
     stelasRange: { min: 80, max: 240 },
     baseXp: 110,
   },

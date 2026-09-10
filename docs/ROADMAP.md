@@ -92,20 +92,27 @@ se mantienen en `docs/AI_CHANGELOG.md` (check:all actual: 914 tests verdes en 81
         itemId de configs/`TOOL_UPGRADE_COSTS` existe y su material es canon; toda receta de
         forja produce ítem real para cada material del canon. `iron_family.test.js` retirado.
   - Verificación: **899 tests verdes en 81 archivos** (`check:all`).
-- [ ] **P1 — B8.2b Ley de obtención R(L) + pisos por zona** (primero)
-  - [ ] [NEW] `src/config/rarityDropConfig.js` (o en `progressionBalance.js`): tabla R(L) 16→1.39,
-        `R(L)=16−14.61·(L−1)/9`, renormalización por piso.
-  - [ ] [NEW] `src/services/rpg/rarityDropService.js`: `rollRarity({toolLevel, floorRarity})`
-        geométrico con seed determinista.
-  - [ ] [MODIFY] `expeditionConfig.js`: `floorRarity` por zona + rareza por entrada de `lootTable`;
-        drops no-material fuera de la curva.
-  - [ ] [MODIFY] `activityEngineService.js:331-353`: sustituir `(1+lootBonus)` por el sampler;
-        duración solo escala cantidad/stelas/XP.
-  - [ ] [MODIFY] `progressionAnalyticsService.js` + `analyze_progression.js`: replicar cálculo,
-        métricas de distribución por zona y guardas "16:1 en L1" / "~1 mítico/16 en L10".
-  - [ ] [MODIFY] Tests `expedition_system`, `tool_progression`, `progression_analytics`,
+- [x] **P1 — B8.2b Ley de obtención R(L) + pisos por zona** — IMPLEMENTADO 2026-09-09
+  - [x] [NEW] `src/config/rarityDropConfig.js`: R(L) 16→1.39, probabilidades por banda y
+        renormalización por piso/accesible.
+  - [x] [NEW] `src/services/rpg/rarityDropService.js`: contexto de zona (pisos, herramientas),
+        `sampleBand` y `weightedEntry` (RNG inyectable).
+  - [x] [MODIFY] `expeditionConfig.js`: `floorRarity` + `rarityPool` por banda; `lootTable` queda
+        solo para drops planos no-material (pescado/hierbas).
+  - [x] [MODIFY] `activityEngineService.js`: tiradas de material por R(L) (corta 2 / media 3 /
+        larga 5); se eliminó `(1+lootBonus)`; duración solo escala stelas/XP/flat.
+  - [x] [MODIFY] `progressionAnalyticsService.js` + `analyze_progression.js`: réplica exacta de
+        la curva, fuentes por banda/piso y guardas `16:1 en L1` / `~1 mítico/16 en L10`.
+  - [x] Tests `rarity_drop` [NEW], `expedition_system`, `tool_progression`, `progression_analytics`,
         `forge_economics`.
-  - **Gate D2**: al quitar `lootBonus`, recalcular payback B4 (rebalancear costes o aceptar retorno).
+  - [x] **B5/B1 recalibrados** (dentro de P1): curva XP ×0.262 (≈450 victorias equivalentes),
+        regular=4 combates/día y actividades con ~20% de la XP diaria → **cap 500 en ~90 días**.
+  - [x] **Anclajes material↔nivel**: `MATERIAL_LEVEL_ANCHOR` + `ANCHOR_POLICY` (f=0.35) y
+        `materialAnchors` en el reporte (común 150/~10 d, poco 200/~21 d, raro 300/~43 d,
+        épico 400/~66 d, legendario/mítico 500/~90 d).
+  - **Gate D2 resuelto (reframe)**: con rareza pura el ROI B4 en stelas ya no cumple ≤10 viajes;
+        el payback queda como métrica informativa y las mejoras se miden por acceso a rareza.
+        La calibración fina de precios/cantidades se hace en P2 con las métricas del reporte.
 - [ ] **P2 — B3 Rutas jugables de materiales raros y endgame**
   - [ ] `unreachableMaterials=[]` y `blockedRequirements=[]` (hoy 16 SIN RUTA; oro/titanio
         bloquean herramientas 9-10).

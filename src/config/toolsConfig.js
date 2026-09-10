@@ -1,4 +1,4 @@
-// @ts-nocheck
+﻿// @ts-nocheck
 /**
  * Configuración central de las herramientas de recolección y expansión de inventario.
  * Progresión estricta de 1 a 10 niveles. No se compran en tiendas.
@@ -49,11 +49,11 @@ const TOOLS = {
  * - Stelas
  * - Materiales de forja específicos
  *
- * Calibración B4: cada mejora debe devolver su inversión en ≤10 expediciones de la
- * zona de la herramienta. Por eso el bonus de botín crece por escalones (0.35 →
- * 0.60 por nivel) y los costes en stelas/materiales se mantienen acotados; los
- * niveles 9-10 quedan bloqueados por materiales exóticos hasta disponer de rutas
- * (trozo de oro / trozo de titanio).
+ * Calibración B4/B8.2b: cada mejora debe devolver su inversión en ≤10 expediciones de la
+ * zona de la herramienta. La herramienta NO otorga bonus plano de botín: su nivel
+ * gobierna la curva de rareza R(L) (16:1 en L1 → ~1 mítico/16 en L10). Los costes
+ * en stelas/materiales se mantienen acotados; los niveles 9-10 quedan bloqueados por
+ * materiales exóticos hasta disponer de rutas (trozo de oro / trozo de titanio).
  */
 const TOOL_UPGRADE_COSTS = {
   2: {
@@ -62,7 +62,6 @@ const TOOL_UPGRADE_COSTS = {
       { itemId: "trozo_de_madera", quantity: 1 },
       { itemId: "trozo_de_piedra", quantity: 1 },
     ],
-    lootBonus: 0.45,
   },
   3: {
     stelas: 90,
@@ -70,7 +69,6 @@ const TOOL_UPGRADE_COSTS = {
       { itemId: "trozo_de_madera", quantity: 1 },
       { itemId: "trozo_de_acero", quantity: 1 },
     ],
-    lootBonus: 0.9,
   },
   4: {
     stelas: 120,
@@ -78,7 +76,6 @@ const TOOL_UPGRADE_COSTS = {
       { itemId: "trozo_de_acero", quantity: 1 },
       { itemId: "trozo_de_cuero", quantity: 1 },
     ],
-    lootBonus: 1.45,
   },
   5: {
     stelas: 160,
@@ -86,7 +83,6 @@ const TOOL_UPGRADE_COSTS = {
       { itemId: "trozo_de_acero", quantity: 1 },
       { itemId: "trozo_de_acero", quantity: 1 },
     ],
-    lootBonus: 2.0,
   },
   6: {
     stelas: 200,
@@ -94,12 +90,10 @@ const TOOL_UPGRADE_COSTS = {
       { itemId: "trozo_de_acero", quantity: 1 },
       { itemId: "trozo_de_cuero", quantity: 2 },
     ],
-    lootBonus: 2.7,
   },
   7: {
     stelas: 200,
     materials: [{ itemId: "trozo_de_plata", quantity: 1 }],
-    lootBonus: 3.4,
   },
   8: {
     stelas: 100,
@@ -107,12 +101,10 @@ const TOOL_UPGRADE_COSTS = {
       { itemId: "trozo_de_plata", quantity: 1 },
       { itemId: "trozo_de_madera_caoba", quantity: 1 },
     ],
-    lootBonus: 4.3,
   },
   9: {
     stelas: 180,
     materials: [{ itemId: "trozo_de_oro", quantity: 1 }],
-    lootBonus: 5.2,
   },
   10: {
     stelas: 220,
@@ -120,7 +112,6 @@ const TOOL_UPGRADE_COSTS = {
       { itemId: "trozo_de_oro", quantity: 1 },
       { itemId: "trozo_de_titanio", quantity: 1 },
     ],
-    lootBonus: 6.1, // Nivel Maestro
   },
 };
 

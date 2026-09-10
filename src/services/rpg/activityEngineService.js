@@ -4,9 +4,10 @@ const { filterExisting } = require("../../database/columnRegistry");
 const { invalidateUserCache } = require("../../utils/safeQuery");
 const { EXPEDITION_ZONES } = require("../../config/expeditionConfig");
 const { JOBS, trainingPointsForJob } = require("../../config/jobConfig");
-const { TOOL_UPGRADE_COSTS } = require("../../config/toolsConfig");
 const { JOB_TRAINING } = require("../../config/progressionBalance");
+const { MATERIAL_ROLLS_BY_DURATION, rarityBandProbabilities } = require("../../config/rarityDropConfig");
 const { getCharacterTools } = require("./toolService");
+const { resolveZoneMaterialContext, sampleBand, weightedEntry } = require("./rarityDropService");
 const { computeJobTraining } = require("./jobTrainingService");
 const { jobXpForLevel, expeditionXpForLevel } = require("./xpRewardService");
 const inventoryService = require("./inventoryService");
@@ -14,6 +15,18 @@ const economyService = require("../economyService");
 const characterService = require("../characterService");
 
 const MAX_DAILY_ENERGY = 100;
+
+/**
+ * Entero aleatorio uniforme entre min y max (inclusive).
+ * @param {number} min
+ * @param {number} max
+ * @returns {number}
+ */
+function randomInt(min, max) {
+  const lo = Number(min) || 1;
+  const hi = Math.max(lo, Number(max) || lo);
+  return Math.floor(Math.random() * (hi - lo + 1)) + lo;
+}
 
 /**
  * Devuelve la clave de la semana ISO (YYYY-Www) de una fecha.
@@ -323,33 +336,39 @@ async function claimActivity({ userId, characterId }) {
     const zone = EXPEDITION_ZONES[activity.zoneId];
     const tools = await getCharacterTools(characterId);
 
-    // Multiplicador por duración
+    // Multiplicador por duración (stelas, XP y drops planos no-material)
     const durMult = activity.durationType === "larga" ? 2.5 : activity.durationType === "media" ? 1.6 : 1.0;
 
-    // Calcular loot de materiales
+    // ── Botín de materiales por ley de rareza R(L) (B8.2b) ──
+    // La herramienta ya no suma bonus plano: su nivel suaviza la curva. Cada
+    // tirada SIEMPRE entrega material del piso de la zona o mejor.
     const lootObtained = [];
-    for (const lootEntry of zone?.lootTable || []) {
-      const tool = tools[lootEntry.toolReq];
-      const toolLvl = tool?.level || 1;
-
-      // Solo dropea si el nivel de la herramienta requerida es suficiente
-      if (toolLvl >= (lootEntry.minToolLevel || 1)) {
-        const bonus = TOOL_UPGRADE_COSTS[toolLvl]?.lootBonus || 0;
-        const roll = Math.random() * 100;
-        const adjustedWeight = lootEntry.weight * (1 + bonus);
-
-        if (roll < adjustedWeight) {
-          const baseQty = Math.floor(Math.random() * (lootEntry.maxQty - lootEntry.minQty + 1)) + lootEntry.minQty;
-          const finalQty = Math.max(1, Math.round(baseQty * durMult));
-          lootObtained.push({ itemId: lootEntry.itemId, quantity: finalQty });
-        }
+    const materialContext = resolveZoneMaterialContext(zone, tools);
+    if (materialContext) {
+      const probabilities = rarityBandProbabilities({
+        toolLevel: materialContext.toolLevel,
+        floorRarity: zone.floorRarity,
+        accessibleBands: materialContext.bandKeys,
+      });
+      const rolls = MATERIAL_ROLLS_BY_DURATION[activity.durationType] || 2;
+      for (let i = 0; i < rolls; i += 1) {
+        const band = sampleBand(probabilities);
+        const entries = materialContext.entriesByBand.get(band);
+        if (!band || !entries || entries.length === 0) continue;
+        const entry = weightedEntry(entries);
+        lootObtained.push({ itemId: entry.itemId, quantity: randomInt(entry.minQty, entry.maxQty) });
       }
     }
 
-    // Si la tirada no dio nada por mala suerte, asegurar al menos 1 material básico
-    if (lootObtained.length === 0 && zone?.lootTable?.length > 0) {
-      const fallback = zone.lootTable[0];
-      lootObtained.push({ itemId: fallback.itemId, quantity: 2 });
+    // ── Drops planos no-material (pescado, hierbas): chance = weight/100, sin bonus ──
+    for (const lootEntry of zone?.lootTable || []) {
+      const tool = tools[lootEntry.toolReq];
+      const toolLvl = tool?.level || 1;
+      if (toolLvl < (lootEntry.minToolLevel || 1)) continue;
+      if (Math.random() * 100 < lootEntry.weight) {
+        const baseQty = randomInt(lootEntry.minQty, lootEntry.maxQty);
+        lootObtained.push({ itemId: lootEntry.itemId, quantity: Math.max(1, Math.round(baseQty * durMult)) });
+      }
     }
 
     // Stelas halladas

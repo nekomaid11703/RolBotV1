@@ -55,7 +55,7 @@ module.exports = {
         lines.push(`🎒 **Nueva capacidad de mochila:** ${newSlots} ranuras de inventario.`);
       } else {
         lines.push(
-          `📈 **Bono de rendimiento:** +${Math.round((result.costPaid.lootBonus || 0) * 100)}% en extracciones.`,
+          "🧪 **Efecto:** cada nivel suaviza tu curva de rareza (más probabilidad de materiales raros en expediciones).",
         );
       }
 

@@ -4,6 +4,32 @@ Registro de decisiones arquitectónicas y técnicas. Formato: fecha + contexto +
 
 ---
 
+## 2026-09-09 — B8.2b: rareza por herramienta (R(L)), zonas multi-banda y recalibración B5/B1
+
+**Contexto**: El modelo anterior daba a la herramienta un bonus plano de probabilidad (`lootBonus`,
+hasta ×7.1 en nivel 10), lo que no expresaba identidad de rareza. Se aprobó el modelo "banda + pool
+ponderado": la zona declara piso y pool por banda, y el nivel de herramienta suaviza la curva
+`P(i+1)=P(i)/R(L)` (R=16 en L1, 1.39 en L10). Al probarlo, el ROI de herramienta en stelas se
+volvió no competitivo (gate D2).
+
+**Decisión**:
+1. [NEW] `rarityDropConfig` + `rarityDropService`; `expeditionConfig` con `floorRarity`/`rarityPool`;
+   `activityEngineService` con tiradas por R(L); `TOOL_UPGRADE_COSTS` sin `lootBonus`; reporte con
+   guardas 16:1/1:16 y fuentes por banda.
+2. **D2 reframe**: el payback B4 ≤10 expediciones se suspende como criterio; queda como métrica
+   informativa y las mejoras se miden por acceso a rareza (recalibración fina en P2).
+3. **B5/B1 recalibrados** para cap Nivel 500 en ~90 días jugando 2 h (regular 4 combates + ~20% XP
+   de actividades): curva ×0.262 (≈450 victorias equivalentes), `jobShareBase 0.1`,
+   `expeditionShareBase 0.8`.
+4. **Anclaje material↔nivel**: `MATERIAL_LEVEL_ANCHOR` con f=0.35 (DEF del set ≈ 35% del
+   presupuesto): común 150, poco 200, raro 300, épico 400, legendario/mítico 500; `ANCHOR_POLICY`
+   (2 h/día, 4 combates, 3 expediciones) y `materialAnchors` en el reporte.
+
+**Alternativas descartadas**: mantener el bonus plano (sin identidad de rareza); forzar ROI ≤10
+subiendo precios/cantidades en este paso (se pospone a P2 con las métricas de anclaje).
+
+---
+
 ## 2026-09-09 — Gate D1: la familia legacy de hierro se migra por completo al canon (acero)
 
 **Contexto**: El canon B8 dejó `material:"hierro"` fuera de `materialData`, pero `ironFamily.js`

@@ -32,10 +32,10 @@ describe("B1 — XP de actividades por tramo de nivel", () => {
     expect(jobXpForLevel(500, 110)).toBeGreaterThan(jobXpForLevel(100, 110));
   });
 
-  it("una jornada de trabajo no supera el 15% de una victoria del mismo nivel", () => {
+  it("una jornada de trabajo de peso máximo no supera ~45% de una victoria del mismo nivel", () => {
     for (const level of [100, 200, 300, 400, 500]) {
       const bestJobWeight = 110;
-      expect(jobXpForLevel(level, bestJobWeight)).toBeLessThanOrEqual(0.15 * calculateXpReward(level, true));
+      expect(jobXpForLevel(level, bestJobWeight)).toBeLessThanOrEqual(0.45 * calculateXpReward(level, true));
     }
   });
 

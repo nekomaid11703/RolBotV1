@@ -65,9 +65,11 @@ describe("Fase 2: Expediciones, Herramientas, Trabajos y Expansión de Inventari
   });
 
   describe("Regla de Oro: Cero Ítems Lastre", () => {
-    it("todos los drops de las zonas existen en el catálogo y son materiales funcionales o consumibles", () => {
+    it("todos los drops de las zonas (rarityPool + lootTable) existen en el catálogo", () => {
       for (const [zoneId, zone] of Object.entries(EXPEDITION_ZONES)) {
-        for (const drop of zone.lootTable) {
+        const flatDrops = zone.lootTable || [];
+        const materialDrops = Object.values(zone.rarityPool || {}).flat();
+        for (const drop of [...flatDrops, ...materialDrops]) {
           const itemDef = getItem(drop.itemId);
           expect(
             itemDef,
@@ -76,6 +78,21 @@ describe("Fase 2: Expediciones, Herramientas, Trabajos y Expansión de Inventari
           const hasCategory = Array.isArray(itemDef.categories) && itemDef.categories.length > 0;
           const hasModules = itemDef.modules && Object.keys(itemDef.modules).length > 0;
           expect(hasCategory || hasModules).toBe(true);
+        }
+      }
+    });
+
+    it("cada zona declara piso y pool de rareza con bandas en o por encima del piso", () => {
+      for (const [zoneId, zone] of Object.entries(EXPEDITION_ZONES)) {
+        expect(zone.floorRarity, `zona ${zoneId} debe declarar floorRarity`).toBeTruthy();
+        const order = ["comun", "poco_comun", "raro", "epico", "legendario", "mitico"];
+        const floorIdx = order.indexOf(zone.floorRarity);
+        for (const band of Object.keys(zone.rarityPool || {})) {
+          const bandIdx = order.indexOf(band);
+          expect(bandIdx, `banda ${band} en ${zoneId} bajo el piso ${zone.floorRarity}`).toBeGreaterThanOrEqual(
+            floorIdx,
+          );
+          expect((zone.rarityPool[band] || []).length).toBeGreaterThan(0);
         }
       }
     });

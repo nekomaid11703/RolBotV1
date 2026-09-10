@@ -12,7 +12,7 @@ describe("Pilar 1 — Progresión por Nivel, XP y Asignación de Atributos", () 
     expect(LEVEL_MAX).toBe(500);
   });
 
-  it("debe estar calibrado exactamente para requerir ~1,000 batallas iguales hasta Nivel 500", () => {
+  it("debe estar calibrado para ~450 victorias equivalentes hasta Nivel 500 (≈360 combate + ~20% actividades)", () => {
     let totalBattles = 0;
     for (let lvl = LEVEL_INITIAL; lvl < LEVEL_MAX; lvl++) {
       const needed = xpForNextLevel(lvl);
@@ -20,8 +20,8 @@ describe("Pilar 1 — Progresión por Nivel, XP y Asignación de Atributos", () 
       totalBattles += needed / reward;
     }
     const roundedBattles = Math.round(totalBattles);
-    expect(roundedBattles).toBeGreaterThanOrEqual(980);
-    expect(roundedBattles).toBeLessThanOrEqual(1020);
+    expect(roundedBattles).toBeGreaterThanOrEqual(430);
+    expect(roundedBattles).toBeLessThanOrEqual(470);
   });
 
   it("normalizeStatKey debe mapear alias de stats a claves canónicas", () => {

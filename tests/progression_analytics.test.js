@@ -1,4 +1,8 @@
-const { getAvailabilityReport, buildProgressionReport } = require("../src/services/rpg/progressionAnalyticsService");
+const {
+  getAvailabilityReport,
+  buildProgressionReport,
+  buildMaterialAnchors,
+} = require("../src/services/rpg/progressionAnalyticsService");
 const { JOB_TRAINING } = require("../src/config/progressionBalance");
 
 describe("progression analytics", () => {
@@ -36,5 +40,18 @@ describe("progression analytics", () => {
     }
     expect(report.design.checks.jobValueWithinCombat).toBe(true);
     expect(report.warnings.jobValueExceedsCombat).toBe(false);
+  });
+
+  it("ancla cada rareza a un nivel de equilibrio y a su tiempo de progresión (cap ~90 días)", () => {
+    const { anchors } = buildMaterialAnchors();
+    expect(anchors.map((row) => row.rarity)).toEqual(["comun", "poco_comun", "raro", "epico", "legendario", "mitico"]);
+    for (let i = 1; i < anchors.length; i += 1) {
+      expect(anchors[i].equilibriumLevel).toBeGreaterThanOrEqual(anchors[i - 1].equilibriumLevel);
+      expect(anchors[i].minutesToReach).toBeGreaterThanOrEqual(anchors[i - 1].minutesToReach);
+    }
+    const cap = anchors.find((row) => row.rarity === "mitico");
+    expect(cap.equilibriumLevel).toBe(500);
+    expect(cap.minutesToReach).toBeGreaterThan(9000);
+    expect(cap.minutesToReach).toBeLessThan(13000);
   });
 });
