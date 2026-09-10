@@ -287,6 +287,34 @@ function trainingPointsForJob(job) {
   return Math.max(2, Math.round(minutes / 5));
 }
 
+/** Suma de requisitos de stats de un trabajo. */
+function jobRequirementSum(job) {
+  return Object.values(job?.requirements || {}).reduce((sum, value) => sum + (Number(value) || 0), 0);
+}
+
+/**
+ * Pago de un trabajo (P2/Fase 1). Se compone para crear un trade-off real:
+ *   pago = K × √(energía × duración) × (1 + c × req/22)
+ * Así el pago por energía baja y el pago por hora sube con la densidad
+ * (energía/duración), y sube con los requisitos: ningún trabajo del mismo
+ * entrenamiento queda dominado.
+ */
+const JOB_WAGE_K = 6.93;
+const JOB_WAGE_REQ_FACTOR = 0.8;
+const JOB_WAGE_REQ_REFERENCE = 22;
+
+function computeJobStelasReward(job) {
+  const req = jobRequirementSum(job);
+  const mult = 1 + JOB_WAGE_REQ_FACTOR * (req / JOB_WAGE_REQ_REFERENCE);
+  const raw = JOB_WAGE_K * Math.sqrt((Number(job?.energyCost) || 1) * (Number(job?.durationMinutes) || 20)) * mult;
+  return Math.max(5, Math.round(raw / 5) * 5);
+}
+
+// Recalcula el salario de cada trabajo con la fórmula de identidad.
+for (const job of Object.values(JOBS)) {
+  job.stelasReward = computeJobStelasReward(job);
+}
+
 /**
  * Múltiplo del salario mínimo que paga un trabajo (por energía).
  * @param {object} job
@@ -301,6 +329,10 @@ function wageMultiplierForJob(job) {
 module.exports = {
   JOBS,
   MIN_WAGE_PER_ENERGY,
+  JOB_WAGE_K,
+  JOB_WAGE_REQ_FACTOR,
+  jobRequirementSum,
+  computeJobStelasReward,
   trainingPointsForJob,
   wageMultiplierForJob,
 };

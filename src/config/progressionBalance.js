@@ -90,6 +90,14 @@ const ANCHOR_POLICY = {
 const TOOL_POLICY = {
   paybackExpeditionsLimit: 10,
   incomeStyle: "regular",
+  // B4 (revisado 2026-09-09): el ROI se mide de forma ACUMULADA (coste total de la
+  // escalera vs ganancia de valor L1→L10). Meta por herramienta en expediciones cortas.
+  cumulativePaybackTargets: {
+    pico: 15,
+    hacha: 30,
+    bolsa: 30,
+    mochila: null,
+  },
 };
 
 /**

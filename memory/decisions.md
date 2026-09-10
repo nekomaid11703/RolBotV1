@@ -4,6 +4,55 @@ Registro de decisiones arquitectónicas y técnicas. Formato: fecha + contexto +
 
 ---
 
+## 2026-09-09 — Trabajos Fase 1: pago con trade-off hora/energía (sin dominados)
+
+**Contexto**: 12 de 20 trabajos quedaban dominados (otro pagaba más por hora y por energía con menos
+requisitos) y su único diferenciador era el stat entrenado; con el tope semanal, elegir empleo era
+casi indiferente.
+
+**Decisión**: Recalcular el pago con `K × √(energía × duración) × (1 + 0,8 × req/22)`. El término
+`√(energía × duración)` garantiza el trade-off: trabajos densos (cortos/energéticos) pagan más por
+hora; trabajos largos pagan más por energía; los requisitos elevan ambos. El stat entrenado se
+mantiene como firma. Se añade la guarda `tests/job_identity.test.js`.
+
+**Alternativas descartadas**: dejar pagos planos (empleos intercambiables); escalar por nivel (haría
+del nivel la palanca de dinero y no del desempeño del trabajo).
+
+---
+
+## 2026-09-09 — Economía: el crecimiento de ingreso viene de herramientas/materiales, no del nivel
+
+**Contexto**: Se detectó que los 20 trabajos son accesibles a nivel 100 (requisito máximo 22 pts) y
+pagan montos planos (720-1300/día), por lo que subir de nivel no aumentaba el ingreso; el `daily`
+es fijo (200) y el combate no da stelas.
+
+**Decisión**: Mantener los trabajos como **suelo estable** (salario mínimo y multiplicadores) y que
+el crecimiento económico provenga de las **herramientas/rareza** (venta de materiales) y del riesgo.
+Se añade `buildEconomyReport` al reporte con el ingreso diario por cohorte (trabajos + materiales +
+daily) vs coste del set de referencia, y las guardas `incomeGrowsWithProgression` /
+`materialIncomeScalesWithTool`.
+
+**Alternativas descartadas**: escalar salarios con el nivel o desbloquear trabajos por nivel (haría
+del nivel una palanca de dinero y diluiría el valor de la herramienta/rareza).
+
+---
+
+## 2026-09-09 — B4 revisado: costes de herramienta por jornada y payback acumulado
+
+**Contexto**: Con la curva R(L), el valor esperado por expedición casi no sube en los primeros
+niveles (deltas 1-4 stelas hasta L8) y explota en L9→L10 (+285 pico). El payback "por escalón" es
+inviable (100-400 expediciones) aunque la inversión total sí se amortiza.
+
+**Decisión**: Expresar las stelas de mejora como fracción del salario mínimo diario
+(0,10→0,40 de jornada) y medir B4 como **payback acumulado** al completar el nivel 10, con metas
+por herramienta (pico ≤15, hacha ≤30, bolsa ≤30; mochila sin payback). El reporte usa los precios
+de `pricingService` para el valor de materiales y avisa si la meta no se cumple.
+
+**Alternativas descartadas**: mantener payback por escalón (imposible con la curva); bajar costes
+para forzar ≤15 en todas (distorsiona la escalera y el valor de la rareza).
+
+---
+
 ## 2026-09-09 — P2: salario mínimo, valor de la stela y precios por tiempo
 
 **Contexto**: Hacía falta una vara económica única para que trabajos, `daily` y precios de tienda

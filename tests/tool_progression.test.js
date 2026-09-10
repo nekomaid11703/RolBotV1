@@ -42,4 +42,17 @@ describe("B4 — progresión de herramientas", () => {
     expect(pico.zone).not.toBeNull();
     expect(pico.upgrades[0].paybackExpeditions).not.toBeNull();
   });
+
+  it("el payback acumulado al nivel 10 cumple las metas por herramienta (B4 revisado)", () => {
+    const metrics = buildToolMetrics();
+    const targets = metrics.policy.cumulativePaybackTargets;
+    for (const tool of metrics.tools) {
+      const final = tool.upgrades[tool.upgrades.length - 1];
+      if (targets[tool.tool] == null) continue;
+      expect(final.paybackCumulativeExpeditions).not.toBeNull();
+      expect(final.paybackCumulativeExpeditions).toBeLessThanOrEqual(targets[tool.tool]);
+      expect(final.withinCumulativeTarget).toBe(true);
+    }
+    expect(metrics.warnings.hasOverLimitPayback).toBe(false);
+  });
 });

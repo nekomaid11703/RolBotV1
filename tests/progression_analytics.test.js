@@ -2,6 +2,7 @@ const {
   getAvailabilityReport,
   buildProgressionReport,
   buildMaterialAnchors,
+  buildEconomyReport,
 } = require("../src/services/rpg/progressionAnalyticsService");
 const { JOB_TRAINING } = require("../src/config/progressionBalance");
 
@@ -54,5 +55,17 @@ describe("progression analytics", () => {
     expect(cap.equilibriumLevel).toBe(500);
     expect(cap.minutesToReach).toBeGreaterThan(9000);
     expect(cap.minutesToReach).toBeLessThan(13000);
+  });
+
+  it("el ingreso diario crece con la progresión vía herramientas/materiales", () => {
+    const economy = buildEconomyReport();
+    expect(economy.cohorts).toHaveLength(6);
+    expect(economy.checks.incomeGrowsWithProgression).toBe(true);
+    expect(economy.checks.materialIncomeScalesWithTool).toBe(true);
+    for (const row of economy.cohorts) {
+      expect(row.totalIncomePerDay).toBeGreaterThan(0);
+      expect(row.gearCost).toBeGreaterThan(0);
+      expect(row.daysToGear).toBeGreaterThan(0);
+    }
   });
 });

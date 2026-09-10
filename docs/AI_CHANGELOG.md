@@ -6,6 +6,40 @@ Este archivo registra los cambios significativos y decisiones arquitectónicas t
 
 ## [Unreleased]
 
+### Trabajos — Fase 1: identidad de pago y rendimiento (2026-09-09)
+
+- Los salarios se recalculan con `pago = K × √(energía × duración) × (1 + 0,8 × req/22)`
+  (`computeJobStelasReward`). Crea un **trade-off real**: más densidad (energía/duración) ⇒ más
+  pago/hora y menos pago/energía; más requisitos ⇒ más pago en ambas.
+- Resultado: **0 trabajos dominados** por otro del mismo entrenamiento (antes 12 de 20), spread
+  diario 720 → 1.480 y el entrenamiento de stat sigue siendo la firma de cada empleo.
+- Guarda nueva `tests/job_identity.test.js` (sin dominados, trade-off, salario mínimo, spread).
+- Suite: **926 verdes en 84 archivos**.
+
+### Economía — Análisis de ingreso por cohorte (2026-09-09)
+
+- `buildEconomyReport` en `progression:report`: ingreso diario por cohorte = trabajos + venta de
+  materiales (mejor zona, herramientas del cohorte) + `daily`, comparado con el coste del set de
+  referencia de su rareza y los días para costearlo.
+- Guardas: `incomeGrowsWithProgression` y `materialIncomeScalesWithTool`.
+- Resultado (estilo regular): ingreso total **1.748 → 2.680 stelas/día** de entry a cap; trabajos
+  fijos 525 (suelo estable), materiales **1.023 → 1.955** (crecimiento por herramienta) y `daily` 200.
+  El set del nivel cuesta 0,8 (común) → 5,7 (legendario) días de ingreso.
+- Suite: **921 verdes en 83 archivos**.
+
+### B4 revisado — Costes de herramienta por jornada y payback acumulado (2026-09-09)
+
+- `toolsConfig`: las stelas de mejora se derivan del salario mínimo (`UPGRADE_WAGE_FRACTION`
+  0,10→0,40 de jornada; 72→288 stelas, total ~1.382). Requisitos de materiales sin cambios.
+- **B4 redefinido**: el ROI se mide **acumulado** (coste total de la escalera vs ganancia de valor
+  L1→L10) porque la curva R(L) concentra el valor en los tramos altos. Metas por herramienta
+  (`TOOL_POLICY.cumulativePaybackTargets`): pico ≤15, hacha ≤30, bolsa ≤30, mochila sin payback.
+- `progressionAnalyticsService`: el valor de materiales usa `pricingService`; `buildToolMetrics`
+  añade `cumulativeCost`, `cumulativeValueGain`, `paybackCumulativeExpeditions` y
+  `withinCumulativeTarget`; los avisos de sobrecoste se evalúan al nivel 10.
+- Resultado medido: pico ~14 exp, hacha ~29, bolsa ~26 (dentro de meta).
+- Suite: **920 verdes en 83 archivos**.
+
 ### P2 — Economía base: salario mínimo y precios por tiempo (2026-09-09)
 
 - **Salario mínimo**: 720 stelas / 100 de energía (trabajos peor pagados) con jornada de

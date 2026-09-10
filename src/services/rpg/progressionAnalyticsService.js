@@ -7,6 +7,7 @@ const { JOBS, trainingPointsForJob } = require("../../config/jobConfig");
 const { TOOL_UPGRADE_COSTS, TOOLS } = require("../../config/toolsConfig");
 const { TIERS } = require("../../config/tierConfig");
 const { xpForNextLevel, LEVEL_INITIAL, LEVEL_MAX } = require("../../config/characterConfig");
+const { DAILY_BASE_REWARD, DAILY_STREAK_BONUS_CAP } = require("../../config/economyConfig");
 const {
   MATERIAL_ROLLS_BY_DURATION,
   rarityBandProbabilities,
@@ -15,6 +16,7 @@ const {
   AXIS_TOOL,
 } = require("../../config/rarityDropConfig");
 const { calculateXpReward } = require("./combatEngine");
+const pricingService = require("./pricingService");
 const { materialForBandAxis } = require("./rarityDropService");
 const { jobXpForLevel, expeditionXpForLevel } = require("./xpRewardService");
 const {
@@ -128,9 +130,13 @@ function getLevelCurveBands() {
 }
 
 function materialPrice(itemId) {
+  const materialId = materialIdFromItem(itemId);
+  if (materialId && MATERIALS[materialId]) {
+    const value = pricingService.materialUnitValue(materialId);
+    if (value > 0) return value;
+  }
   const def = getItem(itemId);
   if (def?.basePrice) return Number(def.basePrice) || 0;
-  const materialId = materialIdFromItem(itemId);
   if (!materialId || !MATERIALS[materialId]) return 0;
   return MATERIAL_PRICE_BY_RARITY[MATERIALS[materialId].rarity] || 80;
 }
@@ -215,6 +221,8 @@ function buildToolMetrics() {
   for (const [toolId, toolDef] of Object.entries(TOOLS)) {
     const zone = zoneForTool(toolId);
     const upgrades = [];
+    const baseValue = zone ? zoneToolExpectedValue(zone, toolId, 1) : 0;
+    let cumulativeCost = 0;
     for (let to = 2; to <= 10; to += 1) {
       const cost = TOOL_UPGRADE_COSTS[to];
       const costStelas = Number(cost?.stelas) || 0;
@@ -223,6 +231,7 @@ function buildToolMetrics() {
         0,
       );
       const totalCost = costStelas + materialCost;
+      cumulativeCost += totalCost;
       const sourceBlocked = (cost?.materials || []).some((material) => {
         const id = materialIdFromItem(material.itemId);
         return id ? blockedSet.has(id) : false;
@@ -230,20 +239,35 @@ function buildToolMetrics() {
       const isExpansion = toolId === "mochila";
       let delta = null;
       let paybackExpeditions = null;
+      let cumulativeValueGain = null;
+      let paybackCumulativeExpeditions = null;
       if (zone) {
         delta = zoneToolExpectedValue(zone, toolId, to) - zoneToolExpectedValue(zone, toolId, to - 1);
         if (delta > 0) paybackExpeditions = Math.ceil(totalCost / delta);
+        cumulativeValueGain = zoneToolExpectedValue(zone, toolId, to) - baseValue;
+        if (cumulativeValueGain > 0) {
+          paybackCumulativeExpeditions = Math.ceil(cumulativeCost / cumulativeValueGain);
+        }
       }
+      const cumulativeTarget = TOOL_POLICY.cumulativePaybackTargets?.[toolId] ?? null;
       upgrades.push({
         upgradeTo: to,
         costStelas,
         materialCost,
         totalCost,
+        cumulativeCost,
         sourceBlocked,
         isExpansion,
         unlockedValueDeltaPerRun: delta === null ? null : Math.round(delta * 100) / 100,
         paybackExpeditions,
         withinPaybackLimit: paybackExpeditions !== null && paybackExpeditions <= TOOL_POLICY.paybackExpeditionsLimit,
+        cumulativeValueGain: cumulativeValueGain === null ? null : Math.round(cumulativeValueGain * 100) / 100,
+        paybackCumulativeExpeditions,
+        cumulativePaybackTarget: cumulativeTarget,
+        withinCumulativeTarget:
+          cumulativeTarget === null || cumulativeTarget === undefined
+            ? true
+            : paybackCumulativeExpeditions !== null && paybackCumulativeExpeditions <= cumulativeTarget,
         daysStelas: Math.ceil(totalCost / Math.max(1, stelasPerDay)),
       });
     }
@@ -258,16 +282,21 @@ function buildToolMetrics() {
   const blockedUpgrades = tools.flatMap((t) =>
     t.upgrades.filter((u) => u.sourceBlocked).map((u) => `${t.tool}→nivel${u.upgradeTo}`),
   );
-  const overLimit = tools.flatMap((t) =>
-    t.upgrades
-      .filter((u) => !u.isExpansion && u.paybackExpeditions !== null && !u.withinPaybackLimit)
-      .map((u) => `${t.tool}→nivel${u.upgradeTo}`),
-  );
+  // El ROI acumulado se evalúa al completar la escalera (nivel 10): los escalones
+  // intermedios son peldaños, no metas de payback individuales.
+  const overLimit = tools.flatMap((t) => {
+    const final = t.upgrades[t.upgrades.length - 1];
+    if (!final || final.cumulativePaybackTarget == null) return [];
+    return final.withinCumulativeTarget ? [] : [`${t.tool}→nivel10`];
+  });
 
   return {
     tools,
     dailyStelasIncome: stelasPerDay,
-    policy: { paybackExpeditionsLimit: TOOL_POLICY.paybackExpeditionsLimit },
+    policy: {
+      paybackExpeditionsLimit: TOOL_POLICY.paybackExpeditionsLimit,
+      cumulativePaybackTargets: TOOL_POLICY.cumulativePaybackTargets,
+    },
     warnings: {
       blockedUpgrades,
       overLimitPaybackUpgrades: overLimit,
@@ -476,6 +505,120 @@ function buildMaterialAnchors() {
 }
 
 /**
+ * Rareza de equipo de referencia para un nivel (espejo de MATERIAL_LEVEL_ANCHOR).
+ * @param {number} level
+ * @returns {string}
+ */
+function gearRarityForLevel(level) {
+  if (level < 200) return "comun";
+  if (level < 300) return "poco_comun";
+  if (level < 400) return "raro";
+  if (level < 500) return "epico";
+  return "legendario";
+}
+
+/**
+ * Coste de un set de referencia (espada + 5 piezas) de una rareza, a precios de
+ * tiempo de material (pricingService) con el margen del vendedor.
+ * @param {number} level
+ * @returns {number}
+ */
+function gearCostForLevel(level) {
+  const rarity = gearRarityForLevel(level);
+  const weaponMat = materialForBandAxis(rarity, "filo");
+  const armorMat = materialForBandAxis(rarity, "res");
+  if (!weaponMat || !armorMat) return 0;
+  const weaponUnits = 2; // espada
+  const armorUnits = 2 + 3 + 3 + 2 + 3; // casco, pechera, grebas, botas, escudo
+  const value =
+    weaponUnits * pricingService.materialUnitValue(weaponMat) + armorUnits * pricingService.materialUnitValue(armorMat);
+  return Math.round(value * 1.15);
+}
+
+/**
+ * Ingreso diario esperado por vender materiales de expedición con las
+ * herramientas al nivel dado (mejor zona por valor total de sus ejes).
+ * @param {number} toolLevel
+ * @param {object} style
+ * @returns {number}
+ */
+function materialIncomePerDay(toolLevel, style) {
+  const bandProbabilities = rarityBandProbabilities({ toolLevel });
+  let bestPerRun = 0;
+  let bestEnergy = 15;
+  for (const zone of Object.values(EXPEDITION_ZONES)) {
+    const totalWeight = Object.values(zone.axisWeights || {}).reduce(
+      (sum, value) => sum + Math.max(0, Number(value) || 0),
+      0,
+    );
+    if (totalWeight <= 0) continue;
+    let perRun = 0;
+    for (const [axis, weight] of Object.entries(zone.axisWeights)) {
+      const axisProbability = Math.max(0, Number(weight) || 0) / totalWeight;
+      for (const [rarity, bandProbability] of Object.entries(bandProbabilities)) {
+        const materialId = materialForBandAxis(rarity, axis);
+        if (!materialId) continue;
+        perRun +=
+          MATERIAL_ROLLS_BY_DURATION.corta *
+          axisProbability *
+          bandProbability *
+          averageBandQty(rarity) *
+          pricingService.materialUnitValue(materialId);
+      }
+    }
+    if (perRun > bestPerRun) {
+      bestPerRun = perRun;
+      bestEnergy = zone.energyCosts?.corta || 15;
+    }
+  }
+  const runsPerDay = Math.max(1, Math.floor(style.dailyEnergy / Math.max(1, bestEnergy)));
+  return Math.round(bestPerRun * runsPerDay);
+}
+
+/**
+ * Análisis de economía por cohorte: ingreso diario (trabajos + materiales + daily)
+ * vs coste del set de referencia, y días para costearlo. Valida que el ingreso
+ * crezca con la progresión (herramientas/materiales).
+ * @returns {{cohorts: Array<object>, checks: object}}
+ */
+function buildEconomyReport() {
+  const style = PLAY_STYLES[TOOL_POLICY.incomeStyle] || PLAY_STYLES.regular;
+  const jobIncome = dailyStelasIncome();
+  const dailyIncome = DAILY_BASE_REWARD + DAILY_STREAK_BONUS_CAP;
+
+  const cohorts = PROGRESSION_COHORTS.map((cohort) => {
+    const materialIncome = materialIncomePerDay(cohort.toolLevel, style);
+    const totalIncome = jobIncome + materialIncome + dailyIncome;
+    const gearCost = gearCostForLevel(cohort.level);
+    return {
+      cohort: cohort.id,
+      level: cohort.level,
+      toolLevel: cohort.toolLevel,
+      jobIncomePerDay: jobIncome,
+      materialIncomePerDay: materialIncome,
+      dailyIncome,
+      totalIncomePerDay: totalIncome,
+      gearCost,
+      daysToGear: gearCost > 0 ? Math.round((gearCost / totalIncome) * 10) / 10 : null,
+    };
+  });
+
+  const monotonic = cohorts.every(
+    (row, index) => index === 0 || row.totalIncomePerDay >= cohorts[index - 1].totalIncomePerDay,
+  );
+
+  return {
+    style: TOOL_POLICY.incomeStyle,
+    dailyCommandIncome: dailyIncome,
+    cohorts,
+    checks: {
+      incomeGrowsWithProgression: monotonic,
+      materialIncomeScalesWithTool: cohorts[cohorts.length - 1].materialIncomePerDay > cohorts[0].materialIncomePerDay,
+    },
+  };
+}
+
+/**
  * Guardas de la ley de obtención R(L) (B8.2b): "16:1 en L1" y "~1 mítico/16 en L10".
  * @returns {object}
  */
@@ -614,6 +757,7 @@ function buildProgressionReport() {
   const forgeEconomics = buildForgeEconomics();
   const rarityDrop = buildRarityChecks();
   const materialAnchors = buildMaterialAnchors();
+  const economy = buildEconomyReport();
   const maxStatsPerDay = Math.max(...cohorts.map((row) => row.expectedJobStatsPerDay));
   const maxLongitudinalStats = Math.max(...longitudinal.map((row) => row.cumulativeJobStats));
   const maxJobValueCombatRatio = Math.max(...cohorts.map((row) => row.jobValueCombatRatio));
@@ -628,6 +772,7 @@ function buildProgressionReport() {
     forgeEconomics,
     rarityDrop,
     materialAnchors,
+    economy,
     design: {
       targets: DESIGN_TARGETS,
       checks: {
@@ -663,6 +808,7 @@ module.exports = {
   getMaterialsTableMarkdown,
   buildRarityChecks,
   buildMaterialAnchors,
+  buildEconomyReport,
   getDailyRates,
   simulateLongitudinal,
   estimateCohortProgress,

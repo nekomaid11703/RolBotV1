@@ -120,10 +120,13 @@ se mantienen en `docs/AI_CHANGELOG.md` (check:all actual: 914 tests verdes en 81
   - [x] **Economía base (2026-09-09)**: salario mínimo 720/100 energía, stela = 6/min,
         `daily` 200 ≈ 0,28 jornadas y precios de tienda calculados por tiempo de material ×1,15
         (`pricingService`).
+  - [x] **Ingreso por cohorte (2026-09-09)**: el reporte mide trabajos + materiales + daily vs el
+        coste del set de cada nivel; el crecimiento económico viene de herramientas/rareza.
   - [ ] [NEW] Zonas profundas/de lore con multiplicadores mejores y coherentes — **Gate D3**.
   - [ ] `shopConfig.js`: acotar rareza máxima vendida (firma de expedición, P4) — **Gate D4**.
-  - [ ] Calibrar cantidades y costes de mejora de herramienta con las métricas de anclaje; cerrar la
-        desviación de la Bolsa nivel 10 (B4) y regenerar `BALANCE_MATERIALES.md`.
+  - [x] **B4 revisado (2026-09-09)**: costes de mejora como fracción de jornada y payback acumulado
+        al nivel 10 (pico ≤15, hacha/bolsa ≤30; mochila sin payback).
+  - [ ] Calibrar cantidades de drop con los anclajes y regenerar `BALANCE_MATERIALES.md`.
 - [ ] **P3 — B6 Hitos de equipo y poder por rango**
   - [ ] Poder relativo por build y cohorte en el reporte; ≥3 estilos viables por cohorte (P5).
   - [ ] Brechas de equipo sanas entre niveles y momentos de logro visibles (P2).

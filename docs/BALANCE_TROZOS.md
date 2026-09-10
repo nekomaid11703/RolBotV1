@@ -10,7 +10,7 @@ Cada trozo toca archivos propios, valida contra `progression:report` y entrega t
 | B2 | Entrenamiento acumulado de atributos en trabajos | Implementado (2026-09-07) |
 | B5 | Curva de nivel y coste de atributos (política) | Implementado (2026-09-07); recalibrado cap 500 ~90 d (2026-09-09) |
 | B1 | XP por tramo de nivel (trabajos, expediciones, combate) | Implementado (2026-09-07); actividades ~20% de la XP diaria (2026-09-09) |
-| B4 | Progresión de herramientas y ROI | Implementado (2026-09-07); ROI informativo tras quitar `lootBonus`; caña retirada (2026-09-09) |
+| B4 | Progresión de herramientas y ROI | Implementado; costes por jornada y payback acumulado (2026-09-09) |
 | B6 | Hitos de equipo y poder por rango | Pendiente (P3 del roadmap — FASE 2.6) |
 | B7 | Economía de forja/refinamiento (tiempo vs poder vs compra) | Implementado (2026-09-07) |
 | B8 | Identidad de materiales (stats por rareza y arquetipo) | B8.2a y B8.2b implementados (R(L) + pisos) |
@@ -82,12 +82,9 @@ satisface y cómo las mide en `progression:report`. Objetivos cuantitativos en
   advertencia de stats de trabajo. Aplica P2/P4/P5.
 - **B3**: `unreachableMaterials=[]` y `blockedRequirements=[]`. Aplica P3 (sorpresa por
   rareza escalonada) y P5 (varias rutas para el mismo material cuando aporte decisión).
-- **B4**: días por nivel de herramienta y ROI ≥1 en ≤10 usos de zona.
-  - Resultado: costes y bonus recalibrados (niveles 2-9 con retorno ≤10 en su zona de
-    referencia; nivel 10 pendiente de las rutas de oro/titanio de B3).
-  - Desviación conocida: Bolsa nivel 10 retorna en 13 expediciones; se revisará al añadir
-    rutas de titanio en B3. Aplica P4 (la
-  herramienta no debe ser la única vía óptima de materiales).
+- **B4**: coste de mejora como fracción de jornada y **payback acumulado** al nivel 10 ≤15
+  expediciones (pico) / ≤30 (hacha, bolsa); mochila sin payback. Aplica P4 (la herramienta no debe
+  ser la única vía óptima de materiales).
 - **B5**: curva 100→500 con política explícita; invariante de calibración documentada;
   relación nivel/stats coherente hasta el tope (hoy stats pueden superar el nivel máximo).
   Aplica P1 (coste de atributo ligado a decisiones) y P2 (progreso reconocible).
