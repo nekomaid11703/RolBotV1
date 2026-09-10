@@ -27,6 +27,20 @@ const STELA_PER_MINUTE = MINIMUM_WAGE_PER_DAY / WORKDAY_MINUTES;
 const VENDOR_MARGIN = 0.15;
 
 /**
+ * Fracción del precio de compra que se recupera al vender (sumidero de valor).
+ * @constant SELL_RATIO
+ * @type {number}
+ */
+const SELL_RATIO = 0.6;
+
+/**
+ * Coste de reparación en stelas por punto de resistencia restaurado.
+ * @constant REPAIR_COST_PER_POINT
+ * @type {number}
+ */
+const REPAIR_COST_PER_POINT = 2;
+
+/**
  * @constant DAILY_BASE_REWARD
  * @type {number}
  */
@@ -62,6 +76,8 @@ module.exports = {
   WORKDAY_MINUTES,
   STELA_PER_MINUTE,
   VENDOR_MARGIN,
+  SELL_RATIO,
+  REPAIR_COST_PER_POINT,
   DAILY_BASE_REWARD,
   DAILY_COOLDOWN_HOURS,
   DAILY_STREAK_RESET_HOURS,

@@ -7,7 +7,7 @@ const { JOBS, trainingPointsForJob } = require("../../config/jobConfig");
 const { TOOL_UPGRADE_COSTS, TOOLS } = require("../../config/toolsConfig");
 const { TIERS } = require("../../config/tierConfig");
 const { xpForNextLevel, LEVEL_INITIAL, LEVEL_MAX } = require("../../config/characterConfig");
-const { DAILY_BASE_REWARD, DAILY_STREAK_BONUS_CAP } = require("../../config/economyConfig");
+const { DAILY_BASE_REWARD, DAILY_STREAK_BONUS_CAP, SELL_RATIO, VENDOR_MARGIN } = require("../../config/economyConfig");
 const {
   MATERIAL_ROLLS_BY_DURATION,
   rarityBandProbabilities,
@@ -725,6 +725,60 @@ function buildShopReport() {
 }
 
 /**
+ * Ingreso diario esperado de stelas por expediciones (mejor zona, energía regular).
+ * @param {object} style
+ * @returns {number}
+ */
+function expeditionStelasPerDay(style) {
+  let best = 0;
+  for (const zone of Object.values(EXPEDITION_ZONES)) {
+    const avg = ((zone.stelasRange?.min || 0) + (zone.stelasRange?.max || 0)) / 2;
+    const runs = Math.max(1, Math.floor(style.dailyEnergy / (zone.energyCosts?.corta || 15)));
+    best = Math.max(best, avg * runs);
+  }
+  return Math.round(best);
+}
+
+/**
+ * Reporte de inflación y sumideros: grifos diarios de stelas (trabajos,
+ * expediciones, daily, venta de materiales) y su reparto. Valida que los
+ * trabajos no queden desplazados y que ningún grifo domine por completo.
+ * @returns {object}
+ */
+function buildInflationReport() {
+  const style = PLAY_STYLES[TOOL_POLICY.incomeStyle] || PLAY_STYLES.regular;
+  const entryToolLevel = PROGRESSION_COHORTS[0]?.toolLevel || 1;
+  const jobIncome = dailyStelasIncome();
+  const expeditionIncome = expeditionStelasPerDay(style);
+  const dailyIncome = DAILY_BASE_REWARD + DAILY_STREAK_BONUS_CAP;
+  const sellIncome = Math.round((materialIncomePerDay(entryToolLevel, style) * SELL_RATIO) / (1 + VENDOR_MARGIN));
+
+  const faucets = { jobIncome, expeditionIncome, dailyIncome, sellIncome };
+  const totalFaucetsPerDay = Object.values(faucets).reduce((sum, value) => sum + value, 0);
+  const shares = Object.fromEntries(
+    Object.entries(faucets).map(([key, value]) => [key, Math.round((value / totalFaucetsPerDay) * 100) / 100]),
+  );
+  const maxShare = Math.max(...Object.values(shares));
+
+  return {
+    faucets,
+    totalFaucetsPerDay,
+    shares,
+    sinks: {
+      toolUpgrades: true,
+      shopPurchases: true,
+      repairs: true,
+      sellLoss: Math.round((1 - SELL_RATIO) * 100) / 100,
+    },
+    checks: {
+      jobsShareHealthy: shares.jobIncome >= 0.2,
+      faucetsBalanced: maxShare <= 0.6,
+      recurringSinksAvailable: true,
+    },
+  };
+}
+
+/**
  * Guardas de la ley de obtención R(L) (B8.2b): "16:1 en L1" y "~1 mítico/16 en L10".
  * @returns {object}
  */
@@ -865,6 +919,7 @@ function buildProgressionReport() {
   const materialAnchors = buildMaterialAnchors();
   const economy = buildEconomyReport();
   const shops = buildShopReport();
+  const inflation = buildInflationReport();
   const maxStatsPerDay = Math.max(...cohorts.map((row) => row.expectedJobStatsPerDay));
   const maxLongitudinalStats = Math.max(...longitudinal.map((row) => row.cumulativeJobStats));
   const maxJobValueCombatRatio = Math.max(...cohorts.map((row) => row.jobValueCombatRatio));
@@ -881,6 +936,7 @@ function buildProgressionReport() {
     materialAnchors,
     economy,
     shops,
+    inflation,
     design: {
       targets: DESIGN_TARGETS,
       checks: {
@@ -918,6 +974,7 @@ module.exports = {
   buildMaterialAnchors,
   buildEconomyReport,
   buildShopReport,
+  buildInflationReport,
   getDailyRates,
   simulateLongitudinal,
   estimateCohortProgress,

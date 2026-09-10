@@ -5,6 +5,7 @@ const characterService = require("../characterService");
 const inventoryService = require("./inventoryService");
 const economyService = require("../economyService");
 const pricingService = require("./pricingService");
+const { SELL_RATIO } = require("../../config/economyConfig");
 
 /**
  * Registro en memoria de compras diarias por usuario para limitar el stock personal.
@@ -360,6 +361,77 @@ async function executePurchase({ userId, shopId = "bazar_nixia", itemKey, quanti
   };
 }
 
+/**
+ * Ejecuta la venta de un ítem del inventario del personaje activo.
+ * El precio de venta es una fracción del precio de compra (SELL_RATIO): es un
+ * grifo controlado de stelas que además destruye valor (sumidero parcial).
+ * @param {object} params
+ * @param {string} params.userId
+ * @param {string|number} params.itemKey - Índice de inventario (1-based) o itemId
+ * @param {number} [params.quantity=1]
+ * @returns {Promise<{success: boolean, error?: string, item?: object, quantity?: number, unitPrice?: number, totalGained?: number, newBalance?: number, characterName?: string}>}
+ */
+async function executeSale({ userId, itemKey, quantity = 1 }) {
+  const safeQty = Math.floor(Number(quantity) || 1);
+  if (safeQty <= 0) {
+    return { success: false, error: "❌ La cantidad a vender debe ser al menos 1." };
+  }
+
+  const activeChar = await characterService.getActiveCharacter({ creatorId: userId });
+  if (!activeChar) {
+    return { success: false, error: "❌ No tienes un personaje activo. Usa `/crear_pj` o `/switch_pj`." };
+  }
+  if (activeChar.slots?.activity) {
+    return { success: false, error: "❌ Tu personaje está ocupado; no puede comerciar ahora." };
+  }
+
+  const list = await inventoryService.getInventoryList(activeChar.id);
+  if (!list || list.length === 0) {
+    return { success: false, error: "❌ Tu inventario está vacío." };
+  }
+
+  let entry;
+  const numKey = Number(itemKey);
+  if (!Number.isNaN(numKey) && numKey >= 1 && numKey <= list.length) {
+    entry = list[numKey - 1];
+  } else {
+    const searchId = String(itemKey || "")
+      .toLowerCase()
+      .trim();
+    entry = list.find((e) => e.itemId.toLowerCase() === searchId) || null;
+  }
+
+  if (!entry) {
+    return { success: false, error: `❌ No tienes el ítem "${itemKey}". Revisa \`/inventario\`.` };
+  }
+  if (safeQty > entry.quantity) {
+    return { success: false, error: `❌ Solo tienes ${entry.quantity} unidad(es) de ese ítem.` };
+  }
+
+  const def = getItem(entry.itemId);
+  const tier = entry.metadata?.tier || "E";
+  const buyPrice = pricingService.itemBasePrice(entry.itemId, tier) ?? def?.basePrice ?? 0;
+  if (!buyPrice || buyPrice <= 0) {
+    return { success: false, error: "❌ Ese ítem no tiene valor de venta." };
+  }
+
+  const unitPrice = Math.max(1, Math.round(buyPrice * SELL_RATIO));
+  const totalGained = unitPrice * safeQty;
+
+  await inventoryService.removeItem(activeChar.id, userId, entry.itemId, safeQty, entry.variantKey || "legacy");
+  const newBalance = await economyService.addMoney(userId, totalGained);
+
+  return {
+    success: true,
+    item: { id: entry.itemId, name: def?.name || entry.itemId },
+    quantity: safeQty,
+    unitPrice,
+    totalGained,
+    newBalance,
+    characterName: activeChar.name,
+  };
+}
+
 module.exports = {
   getShopDefinition,
   resolveShopId,
@@ -368,6 +440,7 @@ module.exports = {
   getRemainingStock,
   getNpcDialogue,
   executePurchase,
+  executeSale,
   getTodayString,
   _internal: {
     dailyUserPurchases,

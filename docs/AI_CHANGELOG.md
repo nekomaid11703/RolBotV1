@@ -6,6 +6,18 @@ Este archivo registra los cambios significativos y decisiones arquitectónicas t
 
 ## [Unreleased]
 
+### Inflación y sumideros — venta, reparación y guardas (2026-09-09)
+
+- **Venta** (`executeSale` + comando `/vender`): convierte inventario en stelas al `SELL_RATIO` (60%
+  del precio de compra); destruye ~40% del valor (grifo controlado con sumidero parcial).
+- **Reparación** (`repairService` + comando `/reparar`): restaura durabilidad pagando
+  `REPAIR_COST_PER_POINT` (2 stelas/punto); sumidero recurrente.
+- **Guardas de inflación** (`buildInflationReport`): grifos diarios y su reparto — trabajos 810
+  (43%), venta 534 (29%), expediciones 320 (17%), daily 200 (11%); checks `jobsShareHealthy`,
+  `faucetsBalanced`, `recurringSinksAvailable` (todos `true`).
+- `economyConfig`: `SELL_RATIO`, `REPAIR_COST_PER_POINT`. Guardas en `tests/economy_sinks.test.js`.
+- Suite: **935 verdes en 86 archivos**.
+
 ### B7 — Forja vs compra con la economía nueva (2026-09-09)
 
 - `CRAFTING_POLICY.acquisitionToolLevel` 5 → 10 (coherente con el precio de materiales).

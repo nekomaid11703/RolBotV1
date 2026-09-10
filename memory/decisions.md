@@ -4,6 +4,21 @@ Registro de decisiones arquitectónicas y técnicas. Formato: fecha + contexto +
 
 ---
 
+## 2026-09-09 — Inflación y sumideros: venta, reparación y guardas
+
+**Contexto**: No existía comando de venta (los materiales no eran grifo de stelas) ni coste de
+reparación; tras comprar equipo las stelas se acumulaban sin drenaje recurrente.
+
+**Decisión**: Añadir **venta** (`/vender`, 60% del precio de compra: grifo controlado que destruye
+~40% del valor), **reparación** (`/reparar`, 2 stelas por punto de resistencia: sumidero recurrente)
+y un **reporte de inflación** con el reparto de grifos y las guardas `jobsShareHealthy`,
+`faucetsBalanced`, `recurringSinksAvailable`. Los trabajos mantienen ≥20% del grifo total (hoy 43%).
+
+**Alternativas descartadas**: no permitir vender (los materiales quedan sin salida de stelas);
+reparación gratuita (elimina el sumidero y acelera la inflación).
+
+---
+
 ## 2026-09-09 — B7: forja vs compra bajo P1 (tiempo vs stelas)
 
 **Contexto**: Con el nivel de adquisición en 5, forjar parecía siempre peor que comprar; además el

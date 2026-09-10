@@ -122,6 +122,8 @@ se mantienen en `docs/AI_CHANGELOG.md` (check:all actual: 914 tests verdes en 81
         (`pricingService`).
   - [x] **Ingreso por cohorte (2026-09-09)**: el reporte mide trabajos + materiales + daily vs el
         coste del set de cada nivel; el crecimiento económico viene de herramientas/rareza.
+  - [x] **Inflación y sumideros (2026-09-09)**: `/vender` (60%), `/reparar` (2 stelas/punto) y
+        reporte de grifos (trabajos 43%, venta 29%, expediciones 17%, daily 11%) con guardas.
   - [ ] [NEW] Zonas profundas/de lore con multiplicadores mejores y coherentes — **Gate D3**.
   - [x] **D4 (2026-09-09)**: cap de rareza por tienda (materia prima ≤ poco común; equipo ≤ poco,
         herrería ≤ raro) y precios por tier (×2 por escalón); materia prima raro+ solo por expedición.
