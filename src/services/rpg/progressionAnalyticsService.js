@@ -367,7 +367,29 @@ function getDirectForgeAlternative(materialId) {
   const itemId = `espada_de_${materialId}`;
   for (const shop of Object.values(SHOPS)) {
     for (const item of [...(shop.items || []), ...(shop.rotatingPool || [])]) {
-      if (item.itemId === itemId) return { shopId: shop.id, price: item.basePrice, tier: item.metadata?.tier || "E" };
+      if (item.itemId === itemId) {
+        const tier = item.metadata?.tier || "E";
+        const price = pricingService.itemBasePrice(itemId, tier) ?? item.basePrice;
+        return { shopId: shop.id, price, tier };
+      }
+    }
+  }
+  return null;
+}
+
+/**
+ * Trozo refinado (tier > E) vendido en tienda, con su precio calculado por tier.
+ * @param {string} materialId
+ * @returns {{tier: string, price: number}|null}
+ */
+function getRefinedTrozoShop(materialId) {
+  const itemId = `trozo_de_${materialId}`;
+  for (const shop of Object.values(SHOPS)) {
+    for (const item of [...(shop.items || []), ...(shop.rotatingPool || [])]) {
+      const tier = item.metadata?.tier;
+      if (item.itemId !== itemId || !tier || tier === "E") continue;
+      const price = pricingService.itemBasePrice(itemId, tier) ?? item.basePrice;
+      return { tier, price };
     }
   }
   return null;
@@ -381,17 +403,37 @@ function buildForgeEconomics() {
     const rarity = MATERIALS[materialId]?.rarity;
     const rate = getMaterialAcquisitionRate(materialId);
     const direct = getDirectForgeAlternative(materialId);
-    const tiers = TIER_ORDER.slice(1).map((tier) => {
-      const ladderRow = ladder.find((row) => row.tier === tier);
-      const unitsForSampleCraft = ladderRow.unitsEForSampleCraft;
+    // Escalera completa E→N: fabricar el sample (espada) en tier T cuesta
+    // 2 unidades de trozo tier T = 2 × 2^(rank-1) unidades E.
+    const tiers = TIER_ORDER.map((tier, index) => {
+      const unitsForSampleCraft = Math.pow(2, index) * CRAFTING_POLICY.sampleRecipeCost;
       return {
         tier,
         unitsForSampleCraft,
         daysForge: rate && rate.unitsPerDay > 0 ? unitsForSampleCraft / rate.unitsPerDay : null,
       };
     });
-    const tierD = tiers[0];
+    const tierE = tiers[0];
     const daysDirectBuy = direct && stelasPerDay > 0 ? direct.price / stelasPerDay : null;
+    const forgeVsBuyRatioE = tierE.daysForge !== null && daysDirectBuy ? tierE.daysForge / daysDirectBuy : null;
+
+    // Refinar vs comprar el trozo refinado que vende la tienda (si existe).
+    const refinedShop = getRefinedTrozoShop(materialId);
+    let refined = null;
+    if (refinedShop && rate && rate.unitsPerDay > 0) {
+      const steps = (TIERS[refinedShop.tier]?.rank || 1) - 1;
+      const unitsE = Math.pow(2, steps);
+      const daysRefine = unitsE / rate.unitsPerDay;
+      const daysBuyRefined = refinedShop.price / stelasPerDay;
+      refined = {
+        tier: refinedShop.tier,
+        unitsE,
+        daysRefine,
+        daysBuyRefined,
+        ratio: daysRefine / daysBuyRefined,
+      };
+    }
+
     return {
       material: materialId,
       materialName: MATERIALS[materialId]?.name || materialId,
@@ -399,17 +441,36 @@ function buildForgeEconomics() {
       acquisition: rate,
       directAlternative: direct,
       daysDirectBuy,
-      directDominatesTierD:
-        direct !== null && tierD.daysForge !== null && daysDirectBuy !== null && tierD.daysForge > daysDirectBuy,
+      forgeVsBuyRatioE,
+      refined,
+      directDominatesForgeE:
+        direct !== null && tierE.daysForge !== null && daysDirectBuy !== null && tierE.daysForge > daysDirectBuy,
       tiers,
     };
   });
+  const withDirect = materials.filter((material) => material.directAlternative !== null);
+  const withRefined = materials.filter((material) => material.refined !== null);
+  const materialValue = (materialId) => materialPrice(`trozo_de_${materialId}`);
   return {
     ladder,
     materials,
     dailyStelasIncome: stelasPerDay,
+    policy: { acquisitionToolLevel: CRAFTING_POLICY.acquisitionToolLevel },
     checks: {
-      directBuyDominatesSomeForge: materials.some((material) => material.directDominatesTierD),
+      // P1: forjar/refinar es la vía que paga con TIEMPO; comprar paga con stelas.
+      // El criterio no es "más rápido", sino que forjar ahorre stelas y que la
+      // compra directa exista como alternativa de conveniencia.
+      directBuyAvailableForE: materials.some((material) => material.directAlternative !== null),
+      forgeSavesStelas: withDirect.every(
+        (material) =>
+          material.tiers[0].unitsForSampleCraft * materialValue(material.material) <=
+          material.directAlternative.price * 1.001,
+      ),
+      refiningSavesStelas: withRefined.every(
+        (material) =>
+          material.refined.unitsE * materialValue(material.material) <=
+          material.refined.daysBuyRefined * stelasPerDay * 1.001,
+      ),
       unreachableMaterialsInForge: materials
         .filter((material) => material.acquisition === null)
         .map((material) => material.material),

@@ -6,6 +6,17 @@ Este archivo registra los cambios significativos y decisiones arquitectónicas t
 
 ## [Unreleased]
 
+### B7 — Forja vs compra con la economía nueva (2026-09-09)
+
+- `CRAFTING_POLICY.acquisitionToolLevel` 5 → 10 (coherente con el precio de materiales).
+- `buildForgeEconomics`: escalera completa **E→N**, `forgeVsBuyRatioE`, comparación de **refinado vs
+  compra del trozo refinado** y precios dinámicos (`pricingService`) también para la compra directa.
+- Criterio P1: forjar/refinar **paga con tiempo** y comprar **paga con stelas**. Nuevas guardas:
+  `directBuyAvailableForE`, `forgeSavesStelas`, `refiningSavesStelas` (todas en `true`).
+- Resultado: forjar/refinar ahorra el margen del vendedor (~15%) pero cuesta ~2× tiempo; los tiers
+  **D+ no tienen compra directa**, así que la forja es la única vía para equipo superior.
+- Suite: **930 verdes en 85 archivos**.
+
 ### Tienda — Cap de rareza (D4) y precios por tier (2026-09-09)
 
 - **Cap de rareza por tienda** (`shopConfig.rarityCap`): materia prima hasta `poco_comun` en todas;

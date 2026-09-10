@@ -12,7 +12,7 @@ Cada trozo toca archivos propios, valida contra `progression:report` y entrega t
 | B1 | XP por tramo de nivel (trabajos, expediciones, combate) | Implementado (2026-09-07); actividades ~20% de la XP diaria (2026-09-09) |
 | B4 | Progresión de herramientas y ROI | Implementado; costes por jornada y payback acumulado (2026-09-09) |
 | B6 | Hitos de equipo y poder por rango | Pendiente (P3 del roadmap — FASE 2.6) |
-| B7 | Economía de forja/refinamiento (tiempo vs poder vs compra) | Implementado (2026-09-07) |
+| B7 | Economía de forja/refinamiento (tiempo vs poder vs compra) | Implementado; recalibrado con precios por tiempo (2026-09-09) |
 | B8 | Identidad de materiales (stats por rareza y arquetipo) | B8.2a y B8.2b implementados (R(L) + pisos) |
 | B3 | Rutas jugables de materiales raros y endgame | Rutas por ejes implementadas (0 SIN RUTA); zonas nuevas (D3) y precios pendientes |
 
@@ -90,9 +90,9 @@ satisface y cómo las mide en `progression:report`. Objetivos cuantitativos en
   Aplica P1 (coste de atributo ligado a decisiones) y P2 (progreso reconocible).
 - **B6**: poder relativo por build y cohorte en el reporte; ≥3 estilos viables por cohorte
   (P5) y brechas de equipo sanas entre niveles.
-- **B7**: el reporte compara forja vs compra directa por material y tier (escalera 2:1,
-  tiempo de recolección por zona, poder relativo por tier y días de compra). Objetivo:
-  que refinar/forjar sea competitivo y divertido frente a "conseguir algo mejor directo".
+- **B7**: el reporte compara forja vs compra directa por material y tier (escalera 2:1, tiempo de
+  recolección por zona, poder relativo por tier). Criterio P1: forjar/refinar **ahorra stelas** (~15%)
+  a cambio de **más tiempo**; la compra directa es conveniencia. Los tiers D+ solo se obtienen forjando.
 
 ## Hallazgos base (previos a B2)
 

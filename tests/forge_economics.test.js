@@ -65,12 +65,18 @@ describe("B7 — economía forjar vs comprar", () => {
     expect(economics.checks.unreachableMaterialsInForge).toEqual([]);
     const titanio = economics.materials.find((material) => material.material === "titanio");
     expect(titanio.acquisition).not.toBeNull();
-    // Con tier de adquisición 5 el épico es tan raro que puede no haber días finitos.
-    expect(titanio.tiers[0].daysForge === null || titanio.tiers[0].daysForge > 0).toBe(true);
+    expect(titanio.tiers[0].daysForge).toBeGreaterThan(0);
   });
 
-  it("expone si la compra directa domina a forjar en Tier D", () => {
+  it("forjar/refinar ahorra stelas frente a comprar (P1: la compra paga con dinero)", () => {
     const economics = buildForgeEconomics();
-    expect(typeof economics.checks.directBuyDominatesSomeForge).toBe("boolean");
+    expect(economics.checks.directBuyAvailableForE).toBe(true);
+    expect(economics.checks.forgeSavesStelas).toBe(true);
+    expect(economics.checks.refiningSavesStelas).toBe(true);
+    const acero = economics.materials.find((material) => material.material === "acero");
+    expect(acero.refined).not.toBeNull();
+    expect(acero.refined.unitsE).toBe(2);
+    // Forjar es más lento que comprar (trade-off tiempo vs stelas).
+    expect(acero.forgeVsBuyRatioE).toBeGreaterThan(1);
   });
 });

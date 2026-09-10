@@ -4,6 +4,22 @@ Registro de decisiones arquitectónicas y técnicas. Formato: fecha + contexto +
 
 ---
 
+## 2026-09-09 — B7: forja vs compra bajo P1 (tiempo vs stelas)
+
+**Contexto**: Con el nivel de adquisición en 5, forjar parecía siempre peor que comprar; además el
+precio de compra directa usaba el `basePrice` estático (desactualizado frente al modelo de tiempo).
+
+**Decisión**: Fijar `acquisitionToolLevel=10` (coherente con la valoración) y comparar en términos
+de **stelas** (no de velocidad): forjar/refinar ahorra el margen del vendedor (~15%) y cuesta ~2×
+tiempo; la compra directa es la vía de conveniencia. Los tiers D+ no tienen compra directa (solo
+forja). `buildForgeEconomics` gana `forgeVsBuyRatioE`, comparación de refinado y guardas
+`directBuyAvailableForE` / `forgeSavesStelas` / `refiningSavesStelas`.
+
+**Alternativas descartadas**: exigir que forjar fuera más rápido que comprar (imposible sin
+distorsionar el valor del tiempo o regalar cantidad); medir con `basePrice` estático (precios viejos).
+
+---
+
 ## 2026-09-09 — D4: cap de rareza en tiendas y precios por tier
 
 **Contexto**: Las tiendas vendían materia prima y equipo sin un límite de rareza claro, compitiendo

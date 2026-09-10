@@ -106,7 +106,9 @@ const TOOL_POLICY = {
  * tiempo de forja vs tiempo de compra por tier y lo expone por material.
  */
 const CRAFTING_POLICY = {
-  acquisitionToolLevel: 5,
+  // Nivel de herramienta de referencia para valorar la adquisición al comparar
+  // forja vs compra (coherente con el precio de materiales, herramienta maestra).
+  acquisitionToolLevel: 10,
   sampleRecipeCost: 2, // equivalente de la receta "espada" (materialCost 2)
 };
 
