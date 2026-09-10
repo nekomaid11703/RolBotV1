@@ -3,9 +3,10 @@
 Estado: aprobado por el usuario (2026-09-08). Contiene las tablas y datos canónicos
 proporcionados por el usuario; son fuente de verdad para la implementación.
 
-Estado 2026-09-09: B8.2a (canon) y B8.2b (ley R(L) + pisos, P1 del roadmap FASE 2.6)
-implementados y en verde, junto con la recalibración B5/B1 y los anclajes material↔nivel.
-B3 (rutas de raros/endgame) es el P2 de ese roadmap.
+Estado 2026-09-09: B8.2a (canon) y B8.2b (ley R(L), P1) implementados, más la recalibración
+B5/B1 y los anclajes material↔nivel. **P2 (parcial)**: se eliminaron los pisos por zona y cada
+zona usa multiplicadores por eje (`axisWeights`); todas las combinaciones rareza × eje tienen ruta
+(`unreachable=0`). Pendiente: zonas nuevas (D3), cap de tienda (D4) y precios/cantidades.
 
 ---
 
@@ -162,8 +163,9 @@ propuestos (por confirmar en ejecución):
       validación asociada en `craftingService` (2026-09-09).
 
 ### B8.2b — Ley de obtención universal (P1 del roadmap FASE 2.6 — implementado 2026-09-09)
-- [x] Implementar `R(L)` y el generador de rareza (geométrico con piso de zona):
-      `rarityDropConfig.js` + `rarityDropService.js`; zonas con `floorRarity`/`rarityPool`.
+- [x] Implementar `R(L)` y el generador de rareza: `rarityDropConfig.js` + `rarityDropService.js`.
+      (P2 reemplazó el piso/`rarityPool` por multiplicadores de eje `axisWeights`; la rareza la
+      gobierna R(L) de la herramienta del eje, sin piso).
 - [x] Conectar el generador a expediciones; la herramienta deja de ser bonus plano y gobierna la curva.
 - [x] Guardas en `progression:report`: “16:1 en L1” y “~1 mítico/16 en L10”, fuentes por banda/piso
       y anclajes material↔nivel (`MATERIAL_LEVEL_ANCHOR`, f=0.35).

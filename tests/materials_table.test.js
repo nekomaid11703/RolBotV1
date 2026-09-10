@@ -16,30 +16,10 @@ describe("tabla de accesibilidad de materiales", () => {
     }
   });
 
-  it("marca como sin ruta los materiales sin método de obtención", () => {
+  it("todos los materiales canónicos tienen ruta de obtención por eje/zona", () => {
     const rows = getMaterialsTable();
     const sinRuta = rows.filter((row) => row.unreachable).map((row) => row.id);
-    expect(sinRuta).toEqual(
-      expect.arrayContaining([
-        "obsidiana",
-        "coraza_desgastada",
-        "coraza_robusta",
-        "madera_ebano",
-        "titanio",
-        "mitril",
-        "piel_bestial",
-        "madera_noble",
-        "mineral_palido",
-        "obsidiana_azul",
-        "luminita",
-        "madera_tetrica",
-        "filo_estelar",
-        "fulgorita",
-        "piel_titan",
-        "madera_irminsul",
-      ]),
-    );
-    expect(sinRuta).toHaveLength(16);
+    expect(sinRuta).toEqual([]);
   });
 
   it("describe los métodos de acero (expedición y tienda)", () => {
@@ -52,7 +32,7 @@ describe("tabla de accesibilidad de materiales", () => {
   it("genera markdown con cabecera y una fila por material", () => {
     const markdown = getMaterialsTableMarkdown();
     expect(markdown).toContain("| Material |");
-    expect(markdown).toContain("SIN RUTA");
+    expect(markdown).not.toContain("SIN RUTA");
     expect(markdown.split("\n").filter((line) => line.startsWith("| ") && line.includes("`"))).toHaveLength(
       Object.keys(MATERIALS).filter((id) => id !== "etereo").length,
     );

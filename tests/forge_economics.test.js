@@ -60,12 +60,13 @@ describe("B7 — economía forjar vs comprar", () => {
     expect(oro.tiers[oro.tiers.length - 1].daysForge).toBeGreaterThan(oro.tiers[0].daysForge);
   });
 
-  it("detecta materiales del muestreo sin fuente jugable (titanio/mitril)", () => {
+  it("todo el muestreo tiene ruta por eje (titanio/mitril incluidos)", () => {
     const economics = buildForgeEconomics();
-    expect(economics.checks.unreachableMaterialsInForge).toEqual(expect.arrayContaining(["titanio", "mitril"]));
+    expect(economics.checks.unreachableMaterialsInForge).toEqual([]);
     const titanio = economics.materials.find((material) => material.material === "titanio");
-    expect(titanio.acquisition).toBeNull();
-    expect(titanio.tiers[0].daysForge).toBeNull();
+    expect(titanio.acquisition).not.toBeNull();
+    // Con tier de adquisición 5 el épico es tan raro que puede no haber días finitos.
+    expect(titanio.tiers[0].daysForge === null || titanio.tiers[0].daysForge > 0).toBe(true);
   });
 
   it("expone si la compra directa domina a forjar en Tier D", () => {

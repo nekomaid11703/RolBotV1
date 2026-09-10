@@ -6,9 +6,10 @@ const {
 const { JOB_TRAINING } = require("../src/config/progressionBalance");
 
 describe("progression analytics", () => {
-  it("detecta materiales requeridos sin fuente jugable", () => {
+  it("todos los materiales requeridos tienen fuente por eje/zona", () => {
     const report = getAvailabilityReport();
-    expect(report.blockedRequirements).toEqual(expect.arrayContaining(["titanio"]));
+    expect(report.blockedRequirements).toEqual([]);
+    expect(report.unreachable).toEqual([]);
   });
 
   it("mide cohortes de nivel bajo, medio y alto sin exceder el objetivo de stats por trabajo", () => {

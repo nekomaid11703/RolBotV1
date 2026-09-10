@@ -1,17 +1,22 @@
 // @ts-nocheck
 /**
- * Guardas de la ley de obtención universal R(L) (B8.2b).
- * Pruebas puras sobre la curva (sin DB) y sobre las primitivas de muestreo.
+ * Ley R(L) (B8.2b) + identidad por eje de zona (P2).
+ * Pruebas puras, sin DB.
  */
 
 const {
   RARITY_BANDS,
+  MATERIAL_AXES,
   rarityRatioForLevel,
   rarityBandProbabilities,
   MATERIAL_ROLLS_BY_DURATION,
 } = require("../src/config/rarityDropConfig");
-const { resolveZoneMaterialContext, sampleBand, weightedEntry } = require("../src/services/rpg/rarityDropService");
-const { EXPEDITION_ZONES } = require("../src/config/expeditionConfig");
+const {
+  materialForBandAxis,
+  resolveZoneAxisContext,
+  chooseAxis,
+  sampleBand,
+} = require("../src/services/rpg/rarityDropService");
 
 describe("Ley R(L) — curva geométrica de rareza", () => {
   it("R(1)=16 y R(10)=1.39, con suavizado monótono decreciente", () => {
@@ -24,7 +29,7 @@ describe("Ley R(L) — curva geométrica de rareza", () => {
 
   it("las probabilidades por banda suman 1 y respetan P(i+1)=P(i)/R(L)", () => {
     for (const level of [1, 5, 10]) {
-      const probabilities = rarityBandProbabilities({ toolLevel: level, floorRarity: "comun" });
+      const probabilities = rarityBandProbabilities({ toolLevel: level });
       const sum = Object.values(probabilities).reduce((acc, value) => acc + value, 0);
       expect(sum).toBeCloseTo(1, 5);
       const ratio = rarityRatioForLevel(level);
@@ -35,39 +40,59 @@ describe("Ley R(L) — curva geométrica de rareza", () => {
   });
 
   it('guarda "16:1 en L1": P(poco)/P(común) = 1/16', () => {
-    const L1 = rarityBandProbabilities({ toolLevel: 1, floorRarity: "comun" });
+    const L1 = rarityBandProbabilities({ toolLevel: 1 });
     expect(L1.poco_comun / L1.comun).toBeCloseTo(1 / 16, 5);
   });
 
   it('guarda "~1 mítico/16 en L10": P(mítico) ≈ 1/16', () => {
-    const L10 = rarityBandProbabilities({ toolLevel: 10, floorRarity: "comun" });
+    const L10 = rarityBandProbabilities({ toolLevel: 10 });
     expect(L10.mitico).toBeCloseTo(1 / 16, 2);
   });
 
-  it("subir de herramienta aumenta la probabilidad de la rareza siguiente", () => {
-    const minas = EXPEDITION_ZONES.minas;
-    const bands = Object.keys(minas.rarityPool);
-    const pL1 = rarityBandProbabilities({ toolLevel: 1, floorRarity: minas.floorRarity, accessibleBands: bands });
-    const pL10 = rarityBandProbabilities({ toolLevel: 10, floorRarity: minas.floorRarity, accessibleBands: bands });
-    expect(pL10.poco_comun).toBeGreaterThan(pL1.poco_comun);
-    expect(pL1.poco_comun / pL1.comun).toBeCloseTo(1 / 16, 4);
+  it("subir de herramienta aumenta la probabilidad de todas las rarezas superiores", () => {
+    const pL1 = rarityBandProbabilities({ toolLevel: 1 });
+    const pL10 = rarityBandProbabilities({ toolLevel: 10 });
+    for (const band of ["poco_comun", "raro", "epico", "legendario", "mitico"]) {
+      expect(pL10[band]).toBeGreaterThan(pL1[band]);
+    }
   });
 });
 
-describe("Muestreo de rareza y material", () => {
-  it("el piso de la zona excluye bandas inferiores y renomaliza", () => {
-    const zone = {
-      floorRarity: "raro",
-      rarityPool: {
-        comun: [{ itemId: "a", weight: 1, toolReq: "pico" }],
-        poco_comun: [{ itemId: "b", weight: 1, toolReq: "pico" }],
-        raro: [{ itemId: "c", weight: 1, toolReq: "pico" }],
-      },
+describe("Identidad por eje y material canónico", () => {
+  it("el canon cubre las 24 combinaciones rareza × eje", () => {
+    const rarities = ["comun", "poco_comun", "raro", "epico", "legendario", "mitico"];
+    for (const rarity of rarities) {
+      for (const axis of MATERIAL_AXES) {
+        expect(materialForBandAxis(rarity, axis), `falta ${rarity}/${axis}`).toBeTruthy();
+      }
+    }
+    expect(materialForBandAxis("comun", "flex")).toBe("madera");
+    expect(materialForBandAxis("raro", "filo")).toBe("obsidiana");
+    expect(materialForBandAxis("mitico", "cond")).toBe("fulgorita");
+  });
+
+  it("el contexto de zona filtra ejes por herramienta poseída y normaliza pesos", () => {
+    const zone = { axisWeights: { filo: 1, flex: 1, cond: 1 } };
+    const onlyPico = resolveZoneAxisContext(zone, { pico: { level: 2 } });
+    expect(onlyPico.axes.map((entry) => entry.axis)).toEqual(["filo", "cond"]);
+    expect(onlyPico.axes[0].toolLevel).toBe(2);
+    expect(onlyPico.axes[0].probability).toBeCloseTo(0.5, 5);
+
+    const noTools = resolveZoneAxisContext(zone, {});
+    expect(noTools.axes).toEqual([]);
+  });
+
+  it("chooseAxis respeta las probabilidades (RNG inyectable)", () => {
+    const context = {
+      axes: [
+        { axis: "filo", tool: "pico", toolLevel: 1, probability: 0.25 },
+        { axis: "flex", tool: "hacha", toolLevel: 1, probability: 0.75 },
+      ],
     };
-    const context = resolveZoneMaterialContext(zone, { pico: { level: 5 } });
-    expect(context).not.toBeNull();
-    expect(context.bandKeys).toEqual(["raro"]);
-    expect(context.toolLevel).toBe(5);
+    expect(chooseAxis(context, () => 0.1).axis).toBe("filo");
+    expect(chooseAxis(context, () => 0.5).axis).toBe("flex");
+    expect(chooseAxis(context, () => 0.999).axis).toBe("flex");
+    expect(chooseAxis({ axes: [] }, () => 0.5)).toBeNull();
   });
 
   it("sampleBand elige según las probabilidades acumuladas", () => {
@@ -75,15 +100,6 @@ describe("Muestreo de rareza y material", () => {
     expect(sampleBand(probabilities, () => 0.1)).toBe("comun");
     expect(sampleBand(probabilities, () => 0.7)).toBe("poco_comun");
     expect(sampleBand(probabilities, () => 0.999)).toBe("poco_comun");
-  });
-
-  it("weightedEntry pondera por weight", () => {
-    const entries = [
-      { itemId: "comun", weight: 1 },
-      { itemId: "raro", weight: 3 },
-    ];
-    expect(weightedEntry(entries, () => 0.1).itemId).toBe("comun");
-    expect(weightedEntry(entries, () => 0.5).itemId).toBe("raro");
   });
 
   it("las tiradas de material dependen de la duración", () => {

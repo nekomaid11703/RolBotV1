@@ -3,7 +3,7 @@ const { buildToolMetrics } = require("../src/services/rpg/progressionAnalyticsSe
 describe("B4 — progresión de herramientas", () => {
   it("genera métricas para cada herramienta y sus 9 mejoras", () => {
     const metrics = buildToolMetrics();
-    expect(metrics.tools).toHaveLength(5);
+    expect(metrics.tools).toHaveLength(4);
     for (const tool of metrics.tools) {
       expect(tool.upgrades).toHaveLength(9);
       expect(tool.upgrades[0].upgradeTo).toBe(2);
@@ -21,15 +21,15 @@ describe("B4 — progresión de herramientas", () => {
     expect(metrics.dailyStelasIncome).toBeGreaterThan(0);
   });
 
-  it("detecta mejoras bloqueadas por materiales sin fuente (titanio)", () => {
+  it("con el modelo por ejes ninguna mejora queda bloqueada por materiales (todos tienen ruta)", () => {
     const metrics = buildToolMetrics();
     for (const tool of metrics.tools) {
       const nine = tool.upgrades.find((upgrade) => upgrade.upgradeTo === 9);
       const ten = tool.upgrades.find((upgrade) => upgrade.upgradeTo === 10);
-      expect(nine.sourceBlocked).toBe(false); // oro ya tiene ruta (tundra)
-      expect(ten.sourceBlocked).toBe(true); // titanio sigue sin fuente
+      expect(nine.sourceBlocked).toBe(false);
+      expect(ten.sourceBlocked).toBe(false);
     }
-    expect(metrics.warnings.hasBlockedUpgrades).toBe(true);
+    expect(metrics.warnings.hasBlockedUpgrades).toBe(false);
   });
 
   it("distingue la mochila (expansión) de las herramientas de recolección", () => {

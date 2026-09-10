@@ -11,8 +11,11 @@ const {
   MATERIAL_ROLLS_BY_DURATION,
   rarityBandProbabilities,
   rarityRatioForLevel,
+  DROP_QTY_BY_RARITY,
+  AXIS_TOOL,
 } = require("../../config/rarityDropConfig");
 const { calculateXpReward } = require("./combatEngine");
+const { materialForBandAxis } = require("./rarityDropService");
 const { jobXpForLevel, expeditionXpForLevel } = require("./xpRewardService");
 const {
   PROGRESSION_COHORTS,
@@ -40,16 +43,17 @@ function materialIdFromItem(itemId) {
 }
 
 /**
- * Aplana el rarityPool de una zona en entradas de material.
- * @param {object} zone
- * @returns {Array<{band: string, entry: object}>}
+ * Zonas que aportan un eje (multiplicador > 0).
+ * @param {string} axis
+ * @returns {Array<{zone: object, weight: number}>}
  */
-function zoneMaterialEntries(zone) {
-  const entries = [];
-  for (const [band, bandEntries] of Object.entries(zone?.rarityPool || {})) {
-    for (const entry of bandEntries || []) entries.push({ band, entry });
+function zonesForAxis(axis) {
+  const result = [];
+  for (const zone of Object.values(EXPEDITION_ZONES)) {
+    const weight = Number(zone.axisWeights?.[axis]) || 0;
+    if (weight > 0) result.push({ zone, weight });
   }
-  return entries;
+  return result;
 }
 
 function getMaterialSources() {
@@ -59,17 +63,16 @@ function getMaterialSources() {
       .map((id) => [id, []]),
   );
 
-  for (const zone of Object.values(EXPEDITION_ZONES)) {
-    for (const { band, entry } of zoneMaterialEntries(zone)) {
-      const materialId = materialIdFromItem(entry.itemId);
-      if (materialId && sources[materialId])
-        sources[materialId].push({
-          type: "expedition",
-          id: zone.id,
-          toolReq: entry.toolReq || "?",
-          band,
-          floorRarity: zone.floorRarity || "comun",
-        });
+  for (const [materialId, material] of Object.entries(MATERIALS)) {
+    if (materialId === "etereo") continue;
+    for (const { zone, weight } of zonesForAxis(material.archetype)) {
+      sources[materialId].push({
+        type: "expedition",
+        id: zone.id,
+        toolReq: AXIS_TOOL[material.archetype] || "?",
+        axis: material.archetype,
+        weight,
+      });
     }
   }
   for (const shop of Object.values(SHOPS)) {
@@ -132,36 +135,34 @@ function materialPrice(itemId) {
   return MATERIAL_PRICE_BY_RARITY[MATERIALS[materialId].rarity] || 80;
 }
 
+function averageBandQty(rarity) {
+  const [min, max] = DROP_QTY_BY_RARITY[rarity] || [1, 1];
+  return (min + max) / 2;
+}
+
 function zoneToolExpectedValue(zone, toolId, toolLevel) {
   if (!zone) return 0;
+  const weights = zone.axisWeights || {};
+  const totalWeight = Object.values(weights).reduce((sum, weight) => sum + Math.max(0, Number(weight) || 0), 0);
 
-  // Valor esperado de materiales (banda por ley R(L), N tiradas de corta)
-  const poolEntries = zoneMaterialEntries(zone).filter(({ entry }) => entry.toolReq === toolId);
-  const byBand = new Map();
-  for (const { band, entry } of poolEntries) {
-    if (!byBand.has(band)) byBand.set(band, []);
-    byBand.get(band).push(entry);
-  }
-  const accessibleBands = Array.from(byBand.keys());
+  // Valor esperado de materiales cuyo eje recolecta esta herramienta.
   let materialValue = 0;
-  if (accessibleBands.length > 0) {
-    const probabilities = rarityBandProbabilities({
-      toolLevel,
-      floorRarity: zone.floorRarity || "comun",
-      accessibleBands,
-    });
+  if (totalWeight > 0) {
+    const bandProbabilities = rarityBandProbabilities({ toolLevel });
+    const rolls = MATERIAL_ROLLS_BY_DURATION.corta || 2;
     let perRollValue = 0;
-    for (const band of accessibleBands) {
-      const entries = byBand.get(band);
-      const totalWeight = entries.reduce((sum, e) => sum + (Number(e.weight) || 1), 0);
-      let bandValue = 0;
-      for (const entry of entries) {
-        const avgQty = ((Number(entry.minQty) || 0) + (Number(entry.maxQty) || 0)) / 2;
-        bandValue += ((Number(entry.weight) || 1) / totalWeight) * avgQty * materialPrice(entry.itemId);
+    for (const [axis, weight] of Object.entries(weights)) {
+      if (AXIS_TOOL[axis] !== toolId) continue;
+      const axisProbability = Math.max(0, Number(weight) || 0) / totalWeight;
+      if (axisProbability <= 0) continue;
+      for (const [rarity, bandProbability] of Object.entries(bandProbabilities)) {
+        const materialId = materialForBandAxis(rarity, axis);
+        if (!materialId) continue;
+        const value = averageBandQty(rarity) * materialPrice(`trozo_de_${materialId}`);
+        perRollValue += axisProbability * bandProbability * value;
       }
-      perRollValue += (probabilities[band] || 0) * bandValue;
     }
-    materialValue = perRollValue * (MATERIAL_ROLLS_BY_DURATION.corta || 2);
+    materialValue = perRollValue * rolls;
   }
 
   // Drops planos no-material (pescado/hierbas): chance = weight/100, durMult corta = 1
@@ -178,14 +179,14 @@ function zoneToolExpectedValue(zone, toolId, toolLevel) {
 
 function zoneForTool(toolId) {
   const candidates = Object.values(EXPEDITION_ZONES).filter((zone) => {
-    const inPool = zoneMaterialEntries(zone).some(({ entry }) => entry.toolReq === toolId);
+    const inAxes = Object.entries(zone.axisWeights || {}).some(
+      ([axis, weight]) => AXIS_TOOL[axis] === toolId && Number(weight) > 0,
+    );
     const inFlat = (zone.lootTable || []).some((entry) => entry.toolReq === toolId);
-    return inPool || inFlat;
+    return inAxes || inFlat;
   });
   if (candidates.length === 0) return null;
-  // Preferir zonas donde la curva R(L) realmente se traduce en más valor con el
-  // nivel (crecimiento L1→L10); así el payback refleja la rareza, no zonas de
-  // banda única donde subir de nivel no aporta nada.
+  // Preferir zonas donde subir de nivel se traduce en más valor (crecimiento L1→L10).
   const score = (zone) => zoneToolExpectedValue(zone, toolId, 10) - zoneToolExpectedValue(zone, toolId, 1);
   return candidates.reduce((best, zone) => {
     const bestScore = score(best);
@@ -293,42 +294,35 @@ function getRefineLadder() {
 }
 
 function getMaterialAcquisitionRate(materialId) {
-  const itemId = `trozo_de_${materialId}`;
+  const material = MATERIALS[materialId];
+  if (!material) return null;
+  const axis = material.archetype;
+  const tool = AXIS_TOOL[axis] || "?";
   const toolLevel = Math.max(1, Number(CRAFTING_POLICY.acquisitionToolLevel) || 1);
-  const zoneEntries = zoneMaterialEntries;
+  const rolls = MATERIAL_ROLLS_BY_DURATION.corta || 2;
+  const bandProbability = rarityBandProbabilities({ toolLevel })[material.rarity] || 0;
+  const avgQty = averageBandQty(material.rarity);
+  const round2 = (value) => Math.round(value * 100) / 100;
+
   let best = null;
-
   for (const zone of Object.values(EXPEDITION_ZONES)) {
-    const hits = zoneEntries(zone).filter(({ entry }) => entry.itemId === itemId);
-    if (hits.length === 0) continue;
+    const weight = Math.max(0, Number(zone.axisWeights?.[axis]) || 0);
+    if (weight <= 0) continue;
+    const totalWeight = Object.values(zone.axisWeights || {}).reduce(
+      (sum, value) => sum + Math.max(0, Number(value) || 0),
+      0,
+    );
+    if (totalWeight <= 0) continue;
 
-    const toolOf = hits[0].entry.toolReq;
-    const floor = zone.floorRarity || "comun";
-    const accessibleBands = zoneEntries(zone)
-      .filter(({ entry }) => entry.toolReq === toolOf)
-      .map(({ band }) => band);
-    const probabilities = rarityBandProbabilities({ toolLevel, floorRarity: floor, accessibleBands });
-
-    // Unidades esperadas del material por expedición corta (tiradas × ley R(L))
-    let unitsPerRun = 0;
-    for (const { band, entry } of hits) {
-      const bandEntries = zoneEntries(zone).filter(
-        ({ band: otherBand, entry: other }) => otherBand === band && other.toolReq === toolOf,
-      );
-      const totalWeight = bandEntries.reduce((sum, { entry: other }) => sum + (Number(other.weight) || 1), 0);
-      const avgQty = ((Number(entry.minQty) || 0) + (Number(entry.maxQty) || 0)) / 2;
-      const perRoll = (probabilities[band] || 0) * ((Number(entry.weight) || 1) / totalWeight) * avgQty;
-      unitsPerRun += perRoll * (MATERIAL_ROLLS_BY_DURATION.corta || 2);
-    }
+    const unitsPerRun = rolls * (weight / totalWeight) * bandProbability * avgQty;
     if (unitsPerRun <= 0) continue;
 
     const energyPerRun = zone.energyCosts?.corta || 15;
     const runsPerDay = Math.max(1, Math.floor(100 / energyPerRun));
-    const round2 = (value) => Math.round(value * 100) / 100;
     if (!best || unitsPerRun > best.unitsPerRun) {
       best = {
         zone: zone.id,
-        tool: toolOf,
+        tool,
         toolLevel,
         unitsPerRun: round2(unitsPerRun),
         runsPerDay,
@@ -396,8 +390,7 @@ function buildForgeEconomics() {
 function describeSourceList(sourceList) {
   if (!Array.isArray(sourceList) || sourceList.length === 0) return ["SIN RUTA"];
   return sourceList.map((source) => {
-    if (source.type === "expedition")
-      return `Exp. ${source.id} (${source.toolReq}; ${source.band || source.floorRarity})`;
+    if (source.type === "expedition") return `Exp. ${source.id} (${source.toolReq}; ${source.axis})`;
     if (source.type === "shop") return `Tienda ${source.id}`;
     return source.type;
   });

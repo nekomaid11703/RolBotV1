@@ -4,6 +4,28 @@ Registro de decisiones arquitectónicas y técnicas. Formato: fecha + contexto +
 
 ---
 
+## 2026-09-09 — P2: identidad de zonas por multiplicadores de eje (sin piso de probabilidad)
+
+**Contexto**: El modelo B8.2b usaba un piso de rareza por zona, lo que hacía que zonas de piso
+alto (p. ej. Montañas con banda única poco común) regalaran materiales raros y que la herramienta
+solo importara en la única zona con dos bandas.
+
+**Decisión**: Eliminar el piso. Cada zona declara `axisWeights` (multiplicadores filo/cond/res/flex).
+Una tirada: (1) sortea el eje ponderado por zona, (2) usa el nivel de la herramienta de ese eje
+(`AXIS_TOOL`) para tirar la rareza con la curva completa R(L), (3) resuelve el material canónico
+rareza × eje (`materialForBandAxis`). Añadir zonas nuevas = añadir `axisWeights` de lore.
+
+**Consecuencia**: `unreachableMaterials=[]` y `blockedRequirements=[]` (las 24 combinaciones tienen
+ruta); la rareza pasa a ser un problema de probabilidad/tiempo, no de acceso. Pendiente: zonas
+profundas (D3), cap de rareza en tienda (D4) y calibración de precios/cantidades.
+Además se retiró la **caña de pescar** por no aportar un eje material ni valor de inversión;
+`pescado_fresco` queda como ítem legado sin fuente hasta un posible rediseño de pesca.
+
+**Alternativas descartadas**: mantener pisos por zona (banda única trivializa rarezas); ponderar
+solo por lista de materiales sin multiplicadores (menos control de identidad y lore).
+
+---
+
 ## 2026-09-09 — B8.2b: rareza por herramienta (R(L)), zonas multi-banda y recalibración B5/B1
 
 **Contexto**: El modelo anterior daba a la herramienta un bonus plano de probabilidad (`lootBonus`,

@@ -19,13 +19,6 @@ const TOOLS = {
     type: "tala",
     description: "Permite cortar maderas comunes y exóticas en bosques y arboledas.",
   },
-  cana: {
-    id: "cana",
-    name: "Caña de Pescar",
-    icon: "🎣",
-    type: "pesca",
-    description: "Permite capturar peces nutritivos y tesoros en ríos, lagos y costas.",
-  },
   bolsa: {
     id: "bolsa",
     name: "Bolsa de Herboristería",

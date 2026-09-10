@@ -64,7 +64,7 @@ async function upgradeTool({ userId, characterId, toolId }) {
   if (!toolDef) {
     return {
       success: false,
-      error: `La herramienta "${cleanToolId}" no existe. Herramientas válidas: pico, hacha, cana, bolsa, mochila.`,
+      error: `La herramienta "${cleanToolId}" no existe. Herramientas válidas: pico, hacha, bolsa, mochila.`,
     };
   }
 

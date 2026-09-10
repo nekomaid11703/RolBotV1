@@ -5,9 +5,13 @@ const { invalidateUserCache } = require("../../utils/safeQuery");
 const { EXPEDITION_ZONES } = require("../../config/expeditionConfig");
 const { JOBS, trainingPointsForJob } = require("../../config/jobConfig");
 const { JOB_TRAINING } = require("../../config/progressionBalance");
-const { MATERIAL_ROLLS_BY_DURATION, rarityBandProbabilities } = require("../../config/rarityDropConfig");
+const {
+  MATERIAL_ROLLS_BY_DURATION,
+  rarityBandProbabilities,
+  DROP_QTY_BY_RARITY,
+} = require("../../config/rarityDropConfig");
 const { getCharacterTools } = require("./toolService");
-const { resolveZoneMaterialContext, sampleBand, weightedEntry } = require("./rarityDropService");
+const { resolveZoneAxisContext, chooseAxis, sampleBand, materialForBandAxis } = require("./rarityDropService");
 const { computeJobTraining } = require("./jobTrainingService");
 const { jobXpForLevel, expeditionXpForLevel } = require("./xpRewardService");
 const inventoryService = require("./inventoryService");
@@ -339,24 +343,23 @@ async function claimActivity({ userId, characterId }) {
     // Multiplicador por duración (stelas, XP y drops planos no-material)
     const durMult = activity.durationType === "larga" ? 2.5 : activity.durationType === "media" ? 1.6 : 1.0;
 
-    // ── Botín de materiales por ley de rareza R(L) (B8.2b) ──
-    // La herramienta ya no suma bonus plano: su nivel suaviza la curva. Cada
-    // tirada SIEMPRE entrega material del piso de la zona o mejor.
+    // ── Botín de materiales: eje por zona + rareza por R(L) (B8.2b/P2) ──
+    // La zona sesga la especialización (axisWeights) y la herramienta de ese eje
+    // gobierna la curva; sin piso: cualquier rareza es posible pero escasa.
     const lootObtained = [];
-    const materialContext = resolveZoneMaterialContext(zone, tools);
-    if (materialContext) {
-      const probabilities = rarityBandProbabilities({
-        toolLevel: materialContext.toolLevel,
-        floorRarity: zone.floorRarity,
-        accessibleBands: materialContext.bandKeys,
-      });
+    const axisContext = resolveZoneAxisContext(zone, tools);
+    if (axisContext.axes.length > 0) {
       const rolls = MATERIAL_ROLLS_BY_DURATION[activity.durationType] || 2;
       for (let i = 0; i < rolls; i += 1) {
+        const axisEntry = chooseAxis(axisContext);
+        if (!axisEntry) continue;
+        const probabilities = rarityBandProbabilities({ toolLevel: axisEntry.toolLevel });
         const band = sampleBand(probabilities);
-        const entries = materialContext.entriesByBand.get(band);
-        if (!band || !entries || entries.length === 0) continue;
-        const entry = weightedEntry(entries);
-        lootObtained.push({ itemId: entry.itemId, quantity: randomInt(entry.minQty, entry.maxQty) });
+        if (!band) continue;
+        const materialId = materialForBandAxis(band, axisEntry.axis);
+        if (!materialId) continue;
+        const [minQty, maxQty] = DROP_QTY_BY_RARITY[band] || [1, 1];
+        lootObtained.push({ itemId: `trozo_de_${materialId}`, quantity: randomInt(minQty, maxQty) });
       }
     }
 

@@ -1,6 +1,8 @@
 // @ts-nocheck
 import { describe, it, expect, vi, beforeEach } from "vitest";
 const { EXPEDITION_ZONES } = require("../src/config/expeditionConfig");
+const { MATERIAL_AXES } = require("../src/config/rarityDropConfig");
+const { materialForBandAxis } = require("../src/services/rpg/rarityDropService");
 const { JOBS } = require("../src/config/jobConfig");
 const { TOOLS, TOOL_UPGRADE_COSTS, getInventorySlotsByMochilaLevel } = require("../src/config/toolsConfig");
 const activityEngine = require("../src/services/rpg/activityEngineService");
@@ -29,7 +31,6 @@ describe("Fase 2: Expediciones, Herramientas, Trabajos y Expansión de Inventari
         tools: {
           pico: { level: 1 },
           hacha: { level: 1 },
-          cana: { level: 1 },
           bolsa: { level: 1 },
           mochila: { level: 1 },
         },
@@ -65,11 +66,9 @@ describe("Fase 2: Expediciones, Herramientas, Trabajos y Expansión de Inventari
   });
 
   describe("Regla de Oro: Cero Ítems Lastre", () => {
-    it("todos los drops de las zonas (rarityPool + lootTable) existen en el catálogo", () => {
+    it("todos los drops planos de las zonas existen en el catálogo", () => {
       for (const [zoneId, zone] of Object.entries(EXPEDITION_ZONES)) {
-        const flatDrops = zone.lootTable || [];
-        const materialDrops = Object.values(zone.rarityPool || {}).flat();
-        for (const drop of [...flatDrops, ...materialDrops]) {
+        for (const drop of zone.lootTable || []) {
           const itemDef = getItem(drop.itemId);
           expect(
             itemDef,
@@ -82,17 +81,19 @@ describe("Fase 2: Expediciones, Herramientas, Trabajos y Expansión de Inventari
       }
     });
 
-    it("cada zona declara piso y pool de rareza con bandas en o por encima del piso", () => {
+    it("cada zona declara multiplicadores por eje válidos y el canon cubre rareza × eje", () => {
       for (const [zoneId, zone] of Object.entries(EXPEDITION_ZONES)) {
-        expect(zone.floorRarity, `zona ${zoneId} debe declarar floorRarity`).toBeTruthy();
-        const order = ["comun", "poco_comun", "raro", "epico", "legendario", "mitico"];
-        const floorIdx = order.indexOf(zone.floorRarity);
-        for (const band of Object.keys(zone.rarityPool || {})) {
-          const bandIdx = order.indexOf(band);
-          expect(bandIdx, `banda ${band} en ${zoneId} bajo el piso ${zone.floorRarity}`).toBeGreaterThanOrEqual(
-            floorIdx,
-          );
-          expect((zone.rarityPool[band] || []).length).toBeGreaterThan(0);
+        const weights = zone.axisWeights || {};
+        const axes = Object.keys(weights);
+        expect(axes.length, `zona ${zoneId} debe declarar al menos 2 ejes`).toBeGreaterThanOrEqual(2);
+        for (const axis of axes) {
+          expect(MATERIAL_AXES, `eje inválido "${axis}" en ${zoneId}`).toContain(axis);
+          expect(Number(weights[axis])).toBeGreaterThan(0);
+        }
+      }
+      for (const axis of MATERIAL_AXES) {
+        for (const rarity of ["comun", "poco_comun", "raro", "epico", "legendario", "mitico"]) {
+          expect(materialForBandAxis(rarity, axis), `falta material ${rarity}/${axis}`).toBeTruthy();
         }
       }
     });

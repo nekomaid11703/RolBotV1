@@ -10,11 +10,11 @@ Cada trozo toca archivos propios, valida contra `progression:report` y entrega t
 | B2 | Entrenamiento acumulado de atributos en trabajos | Implementado (2026-09-07) |
 | B5 | Curva de nivel y coste de atributos (política) | Implementado (2026-09-07); recalibrado cap 500 ~90 d (2026-09-09) |
 | B1 | XP por tramo de nivel (trabajos, expediciones, combate) | Implementado (2026-09-07); actividades ~20% de la XP diaria (2026-09-09) |
-| B4 | Progresión de herramientas y ROI | Implementado (2026-09-07); ROI informativo tras quitar `lootBonus` (B8.2b) |
+| B4 | Progresión de herramientas y ROI | Implementado (2026-09-07); ROI informativo tras quitar `lootBonus`; caña retirada (2026-09-09) |
 | B6 | Hitos de equipo y poder por rango | Pendiente (P3 del roadmap — FASE 2.6) |
 | B7 | Economía de forja/refinamiento (tiempo vs poder vs compra) | Implementado (2026-09-07) |
 | B8 | Identidad de materiales (stats por rareza y arquetipo) | B8.2a y B8.2b implementados (R(L) + pisos) |
-| B3 | Rutas jugables de materiales raros y endgame | Pendiente (P2 del roadmap) |
+| B3 | Rutas jugables de materiales raros y endgame | Rutas por ejes implementadas (0 SIN RUTA); zonas nuevas (D3) y precios pendientes |
 
 > Estado 2026-09-09: P0 (saneamiento de ítems, D1) y P1 (B8.2b R(L)+pisos y recalibración
 > B5/B1, D2 reframe) implementados. Próximo: P2/B3 rutas de materiales raros/endgame (D3/D4),

@@ -1,20 +1,37 @@
 // @ts-nocheck
 /**
- * Ley de obtención universal (B8.2b).
+ * Ley de obtención universal (B8.2b) + identidad por zona (P2).
  *
- * Distribución geométrica entre rarezas adyacentes gobernada por el nivel de la
- * herramienta de recolección. La herramienta ya NO otorga bonus plano de botín:
- * subir de nivel "suaviza" la curva y hace más probable la rareza siguiente.
+ * La rareza se decide con una distribución geométrica gobernada por el nivel de
+ * la herramienta que recolecta el eje del drop:
  *
  *   P(rareza i+1) = P(rareza i) / R(L)
  *   R(L) = 16 − 14.61 × (L − 1) / 9     (L1 → R=16, L10 → R=1.39)
  *
- * Cada zona declara un piso de rareza; por debajo del piso no se reparte
- * probabilidad y la curva se renormaliza sobre las bandas alcanzables.
+ * Las zonas NO usan piso de probabilidad: cada una define multiplicadores por
+ * especialización (`axisWeights`) que sesgan el eje del drop (flex menos filo/
+ * cond en el bosque; cuevas con más filo/cond/res, etc.). Primero se tira el eje
+ * según esos multiplicadores y su herramienta, y luego la rareza con R(L).
  */
 
 /** @constant RARITY_BANDS - Bandas de rareza del canon, de menor a mayor. */
 const RARITY_BANDS = ["comun", "poco_comun", "raro", "epico", "legendario", "mitico"];
+
+/** @constant MATERIAL_AXES - Especializaciones de material (ejes del canon). */
+const MATERIAL_AXES = ["filo", "cond", "res", "flex"];
+
+/** Herramienta que recolecta cada especialización. */
+const AXIS_TOOL = { filo: "pico", cond: "pico", res: "bolsa", flex: "hacha" };
+
+/** Cantidad entregada por banda (unidad [min, max]); las raras vienen de a 1. */
+const DROP_QTY_BY_RARITY = {
+  comun: [2, 4],
+  poco_comun: [2, 2],
+  raro: [1, 1],
+  epico: [1, 1],
+  legendario: [1, 1],
+  mitico: [1, 1],
+};
 
 /** @constant RARITY_BAND_INDEX - Índice de cada banda (0..5). */
 const RARITY_BAND_INDEX = Object.fromEntries(RARITY_BANDS.map((band, index) => [band, index]));
@@ -69,6 +86,9 @@ const MATERIAL_ROLLS_BY_DURATION = { corta: 2, media: 3, larga: 5 };
 module.exports = {
   RARITY_BANDS,
   RARITY_BAND_INDEX,
+  MATERIAL_AXES,
+  AXIS_TOOL,
+  DROP_QTY_BY_RARITY,
   rarityRatioForLevel,
   rarityBandProbabilities,
   MATERIAL_ROLLS_BY_DURATION,

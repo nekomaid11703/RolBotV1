@@ -6,6 +6,25 @@ Este archivo registra los cambios significativos y decisiones arquitectónicas t
 
 ## [Unreleased]
 
+### P2 (parcial) — Identidad de zonas por multiplicadores de eje (2026-09-09)
+
+- **Sin pisos de probabilidad**: `expeditionConfig` reemplaza `floorRarity`/`rarityPool` por
+  `axisWeights` (multiplicadores filo/cond/res/flex). El eje del drop se sortea ponderado; la
+  herramienta de ese eje (`AXIS_TOOL`) gobierna la rareza con la curva completa R(L).
+- `rarityDropService`: `materialForBandAxis`, `resolveZoneAxisContext`, `chooseAxis` (RNG inyectable);
+  `activityEngineService` hace tirada eje → rareza → material con `DROP_QTY_BY_RARITY`.
+- Analítica: fuentes por eje y adquisición por rareza; resultado **`unreachable=0` y
+  `blockedRequirements=0`** (las 24 combinaciones rareza × eje tienen ruta).
+- Zonas: Bosque (flex), Cuevas de la Cuenca (filo/cond/res), Picos (filo/cond), Costa
+  (res/flex), Tundra (cond/filo). Nuevas zonas = nuevos `axisWeights` coherentes con el lore.
+- **Caña retirada**: no aportaba un eje material ni valor de inversión. Herramientas activas: pico,
+  hacha, bolsa y mochila. `pescado_fresco` queda como ítem legado sin fuente (pesca pendiente si se
+  rediseña más adelante).
+- Tests: `rarity_drop`, `expedition_system`, `materials_table`, `forge_economics`,
+  `progression_analytics`, `tool_progression` actualizados. Suite: **911 verdes en 82 archivos**.
+- Pendiente de P2: zonas profundas de lore (**D3**), cap de rareza en tienda (**D4**) y calibración
+  de precios/cantidades con los anclajes.
+
 ### P1 — B8.2b Ley de obtención R(L), pisos y recalibración B5/B1 (2026-09-09)
 
 - **Rareza por herramienta (R(L))**: [NEW] `src/config/rarityDropConfig.js` (16→1.39,
