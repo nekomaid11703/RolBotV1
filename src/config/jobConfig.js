@@ -3,7 +3,16 @@
  * Configuración modular de los trabajos urbanos (Job System).
  * Cada trabajo define requisitos de stats, estadística que entrena pasivamente (tope 100),
  * salario en stelas, ganancia de XP, duración y coste de energía.
+ *
+ * Economía (P2): los salarios se expresan como múltiplos del salario mínimo
+ * (`MINIMUM_WAGE_PER_DAY` = 720 stelas / 100 de energía → 7,2 stelas por energía).
+ * El trabajo peor pagado marca la base; los demás van de ~1,04× a ~1,8×.
  */
+
+const { MINIMUM_WAGE_PER_DAY } = require("./economyConfig");
+
+/** Stelas mínimas por punto de energía (salario mínimo). */
+const MIN_WAGE_PER_ENERGY = MINIMUM_WAGE_PER_DAY / 100;
 
 const JOBS = {
   ayudante_panaderia: {
@@ -278,7 +287,20 @@ function trainingPointsForJob(job) {
   return Math.max(2, Math.round(minutes / 5));
 }
 
+/**
+ * Múltiplo del salario mínimo que paga un trabajo (por energía).
+ * @param {object} job
+ * @returns {number}
+ */
+function wageMultiplierForJob(job) {
+  const energy = Number(job?.energyCost) || 1;
+  const reward = Number(job?.stelasReward) || 0;
+  return Math.round((reward / (MIN_WAGE_PER_ENERGY * energy)) * 100) / 100;
+}
+
 module.exports = {
   JOBS,
+  MIN_WAGE_PER_ENERGY,
   trainingPointsForJob,
+  wageMultiplierForJob,
 };

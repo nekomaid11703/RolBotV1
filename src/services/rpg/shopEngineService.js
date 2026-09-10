@@ -4,6 +4,7 @@ const { getItem } = require("../../data/items");
 const characterService = require("../characterService");
 const inventoryService = require("./inventoryService");
 const economyService = require("../economyService");
+const pricingService = require("./pricingService");
 
 /**
  * Registro en memoria de compras diarias por usuario para limitar el stock personal.
@@ -130,7 +131,8 @@ function getDailyCatalog(shopId = "bazar_nixia", dateStr = getTodayString()) {
 
     const variance = itemCfg.variance || 0.1;
     const priceDeltaMult = 1 + (randPrice * 2 - 1) * variance;
-    const dailyPrice = Math.max(1, Math.round(itemCfg.basePrice * priceDeltaMult));
+    const basePrice = pricingService.itemBasePrice(itemCfg.itemId) ?? itemCfg.basePrice;
+    const dailyPrice = Math.max(1, Math.round(basePrice * priceDeltaMult));
 
     const stockSpread = Math.round((randStock * 2 - 1) * (itemCfg.baseStock * 0.25));
     const dailyStock = Math.max(1, itemCfg.baseStock + stockSpread);
@@ -161,7 +163,8 @@ function getDailyCatalog(shopId = "bazar_nixia", dateStr = getTodayString()) {
 
       const variance = specialCfg.variance || 0.15;
       const priceDeltaMult = 1 + (randPrice * 2 - 1) * variance;
-      const dailyPrice = Math.max(1, Math.round(specialCfg.basePrice * priceDeltaMult));
+      const basePrice = pricingService.itemBasePrice(specialCfg.itemId) ?? specialCfg.basePrice;
+      const dailyPrice = Math.max(1, Math.round(basePrice * priceDeltaMult));
 
       const stockSpread = Math.round((randStock * 2 - 1) * (specialCfg.baseStock * 0.2));
       const dailyStock = Math.max(1, specialCfg.baseStock + stockSpread);

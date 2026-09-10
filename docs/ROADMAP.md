@@ -117,9 +117,12 @@ se mantienen en `docs/AI_CHANGELOG.md` (check:all actual: 914 tests verdes en 81
   - [x] **Modelo de identidad por multiplicadores (2026-09-09)**: se eliminan los pisos; cada zona
         declara `axisWeights` (filo/cond/res/flex) y la rareza la decide R(L) de la herramienta del
         eje. Resultado: `unreachableMaterials=[]` y `blockedRequirements=[]` (0 SIN RUTA).
+  - [x] **Economía base (2026-09-09)**: salario mínimo 720/100 energía, stela = 6/min,
+        `daily` 200 ≈ 0,28 jornadas y precios de tienda calculados por tiempo de material ×1,15
+        (`pricingService`).
   - [ ] [NEW] Zonas profundas/de lore con multiplicadores mejores y coherentes — **Gate D3**.
   - [ ] `shopConfig.js`: acotar rareza máxima vendida (firma de expedición, P4) — **Gate D4**.
-  - [ ] Calibrar precios/cantidades con las métricas de anclaje y los tiempos por rareza; cerrar la
+  - [ ] Calibrar cantidades y costes de mejora de herramienta con las métricas de anclaje; cerrar la
         desviación de la Bolsa nivel 10 (B4) y regenerar `BALANCE_MATERIALES.md`.
 - [ ] **P3 — B6 Hitos de equipo y poder por rango**
   - [ ] Poder relativo por build y cohorte en el reporte; ≥3 estilos viables por cohorte (P5).

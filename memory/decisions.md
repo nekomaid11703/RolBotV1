@@ -4,6 +4,24 @@ Registro de decisiones arquitectónicas y técnicas. Formato: fecha + contexto +
 
 ---
 
+## 2026-09-09 — P2: salario mínimo, valor de la stela y precios por tiempo
+
+**Contexto**: Hacía falta una vara económica única para que trabajos, `daily` y precios de tienda
+sean congruentes. El `daily` máximo era 200, sin referencia clara frente a los trabajos (720-1300
+por día de 100 energía).
+
+**Decisión**: Salario mínimo = **720 stelas / 100 energía** (trabajo peor pagado) y jornada de
+referencia de **120 min** → **1 minuto = 6 stelas**. Los salarios de trabajo se documentan como
+múltiplos del mínimo (`MIN_WAGE_PER_ENERGY=7,2`, `wageMultiplierForJob`), sin cambiar montos. Los
+precios de tienda se calculan: `precio = minutos_material(herramienta 10) × 6 × unidades_receta ×
+1,15` vía `pricingService`; los ítems sin material conservan su precio. `daily` (200) = 0,28
+jornadas, mantiene valor sin dominar.
+
+**Alternativas descartadas**: basar la stela en el `daily` (1,67/min, valores ~3,6× más bajos y
+con inversiones raras al valorar por nivel de referencia); hardcodear precios (menos trazable).
+
+---
+
 ## 2026-09-09 — P2: identidad de zonas por multiplicadores de eje (sin piso de probabilidad)
 
 **Contexto**: El modelo B8.2b usaba un piso de rareza por zona, lo que hacía que zonas de piso

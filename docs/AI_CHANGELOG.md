@@ -6,6 +6,20 @@ Este archivo registra los cambios significativos y decisiones arquitectónicas t
 
 ## [Unreleased]
 
+### P2 — Economía base: salario mínimo y precios por tiempo (2026-09-09)
+
+- **Salario mínimo**: 720 stelas / 100 de energía (trabajos peor pagados) con jornada de
+  referencia de 120 min → `STELA_PER_MINUTE = 6`. El `daily` máximo (200) equivale a ~0,28
+  jornadas: mantiene valor sin desplazar a los trabajos.
+- `economyConfig`: `MINIMUM_WAGE_PER_DAY`, `WORKDAY_MINUTES`, `STELA_PER_MINUTE`, `VENDOR_MARGIN`.
+- `jobConfig`: `MIN_WAGE_PER_ENERGY` (7,2) y `wageMultiplierForJob` documentan cada trabajo como
+  múltiplo del mínimo (montos sin cambios).
+- [NEW] `pricingService`: `materialMinutesPerUnit` (herramienta 10, mejor zona), `materialUnitValue`
+  y `itemBasePrice` = valor × unidades de receta × 1,15. `shopEngineService` usa el precio calculado
+  (los ítems sin material conservan su `basePrice`).
+- Valores de referencia: madera 57 · acero 170 · oro 524 · titanio 655 · filo estelar 1.266.
+- Guardas: `tests/pricing.test.js`. Suite: **919 verdes en 83 archivos**.
+
 ### P2 (parcial) — Identidad de zonas por multiplicadores de eje (2026-09-09)
 
 - **Sin pisos de probabilidad**: `expeditionConfig` reemplaza `floorRarity`/`rarityPool` por
