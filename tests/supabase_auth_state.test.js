@@ -25,7 +25,10 @@ afterEach(() => {
 });
 
 describe("Supabase auth state", () => {
-  it("no crea credenciales nuevas cuando falla la lectura de la sesión", async () => {
+  // Estos tests cargan el estado de Baileys de verdad (red + cripto async).
+  // Bajo la suite paralela completa la contención de CPU dispara el timeout de
+  // 10s pese a tardar ~2s en solitario; 30s dejan margen estable.
+  it("no crea credenciales nuevas cuando falla la lectura de la sesión", { timeout: 30000 }, async () => {
     const upsert = vi.fn();
     const query = {
       select: vi.fn(() => query),
@@ -43,7 +46,7 @@ describe("Supabase auth state", () => {
     expect(upsert).not.toHaveBeenCalled();
   });
 
-  it("agrupa las claves en una consulta y reutiliza la caché de Baileys", async () => {
+  it("agrupa las claves en una consulta y reutiliza la caché de Baileys", { timeout: 30000 }, async () => {
     const inQuery = vi.fn().mockResolvedValue({
       data: [
         { id: "session-a", data: { value: "A" } },

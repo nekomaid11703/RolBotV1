@@ -1,0 +1,12 @@
+{
+  "tag": "fat_r10",
+  "timestamp": "2026-08-05T03:14:03.763Z",
+  "numSims": 2000,
+  "overrides": [
+    {
+      "mod": "combatConfig",
+      "key": "FATIGUE_RECOVERY_MAX",
+      "value": 10
+    }
+  ]
+}

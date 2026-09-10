@@ -1,0 +1,94 @@
+{
+  "config": {
+    "numSims": 100,
+    "level": 300,
+    "nominal": 20,
+    "tier": "B",
+    "mirrorOnly": true,
+    "maxRounds": 30,
+    "builds": [
+      "cortante",
+      "contundente",
+      "perforante",
+      "proyectil",
+      "desarmado"
+    ]
+  },
+  "rows": [
+    {
+      "buildA": "cortante",
+      "buildB": "cortante",
+      "winsA": 50,
+      "winsB": 50,
+      "timeouts": 0,
+      "winrateA": 50,
+      "avgRounds": 3,
+      "maxRounds": 3,
+      "dmgABad": 0,
+      "dmgBBad": 0,
+      "avgDmgA": 63,
+      "avgDmgB": 63
+    },
+    {
+      "buildA": "contundente",
+      "buildB": "contundente",
+      "winsA": 50,
+      "winsB": 50,
+      "timeouts": 0,
+      "winrateA": 50,
+      "avgRounds": 3,
+      "maxRounds": 3,
+      "dmgABad": 0,
+      "dmgBBad": 0,
+      "avgDmgA": 53,
+      "avgDmgB": 53
+    },
+    {
+      "buildA": "perforante",
+      "buildB": "perforante",
+      "winsA": 50,
+      "winsB": 50,
+      "timeouts": 0,
+      "winrateA": 50,
+      "avgRounds": 3,
+      "maxRounds": 3,
+      "dmgABad": 0,
+      "dmgBBad": 0,
+      "avgDmgA": 70,
+      "avgDmgB": 70
+    },
+    {
+      "buildA": "proyectil",
+      "buildB": "proyectil",
+      "winsA": 50,
+      "winsB": 50,
+      "timeouts": 0,
+      "winrateA": 50,
+      "avgRounds": 3,
+      "maxRounds": 3,
+      "dmgABad": 0,
+      "dmgBBad": 0,
+      "avgDmgA": 40,
+      "avgDmgB": 40
+    },
+    {
+      "buildA": "desarmado",
+      "buildB": "desarmado",
+      "winsA": 50,
+      "winsB": 50,
+      "timeouts": 0,
+      "winrateA": 50,
+      "avgRounds": 5,
+      "maxRounds": 5,
+      "dmgABad": 0,
+      "dmgBBad": 0,
+      "avgDmgA": 0,
+      "avgDmgB": 33
+    }
+  ],
+  "invariantes": {
+    "noTimeouts": true,
+    "timeoutsPairs": []
+  },
+  "timestamp": "2026-08-07T22:33:43.752Z"
+}

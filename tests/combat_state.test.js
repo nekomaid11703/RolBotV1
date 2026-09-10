@@ -3,6 +3,7 @@ const {
   generateDummyCharacter,
   isSessionActive,
   isSessionExpired,
+  resolveSessionHp,
   getSession,
   findSessionByCharacter,
   findSessionByUser,
@@ -41,10 +42,11 @@ describe("combatState — generateDummyCharacter", () => {
     expect(dummy.nivel).toBe(34);
   });
 
-  it("hp_actual es 100", () => {
+  it("hp_actual es el doble de stats.hp del dummy", () => {
     const challenger = { stats: { atk: 10, def: 8, aspd: 6, ref: 5, mspd: 5 } };
     const dummy = generateDummyCharacter(challenger);
-    expect(dummy.hp_actual).toBe(100);
+    expect(dummy.hp_actual).toBe(dummy.stats.hp * 2);
+    expect(dummy.hp_actual).toBeGreaterThan(0);
   });
 
   it("todos los stats son >= 1", () => {
@@ -119,5 +121,31 @@ describe("combatState — isSessionExpired", () => {
       lastTurnAt: Date.now(),
     };
     expect(isSessionExpired(session)).toBe(false);
+  });
+});
+
+describe("combatState — resolveSessionHp", () => {
+  it("devuelve el HP persistido si es mayor a 0", () => {
+    const char = { hp_actual: 42, stats: { hp: 50 } };
+    expect(resolveSessionHp(char)).toBe(42);
+  });
+
+  it("cae al HP máximo si el HP persistido es 0", () => {
+    const char = { hp_actual: 0, stats: { hp: 50 } };
+    expect(resolveSessionHp(char)).toBe(100);
+  });
+
+  it("cae al HP máximo si el HP es nulo/indefinido", () => {
+    expect(resolveSessionHp({ hp_actual: null, stats: { hp: 30 } })).toBe(60);
+    expect(resolveSessionHp({ stats: { hp: 30 } })).toBe(60);
+  });
+
+  it("cae al HP máximo si el HP es negativo o inválido", () => {
+    expect(resolveSessionHp({ hp_actual: -5, stats: { hp: 20 } })).toBe(40);
+    expect(resolveSessionHp({ hp_actual: "abc", stats: { hp: 20 } })).toBe(40);
+  });
+
+  it("usa 1 como base si no hay stats.hp", () => {
+    expect(resolveSessionHp({ hp_actual: 0 })).toBe(2);
   });
 });

@@ -1,0 +1,29 @@
+{
+  "config": {
+    "numSims": 300,
+    "personalityA": "extremista_defensa",
+    "personalityB": "matatanques",
+    "weaponA": null,
+    "weaponB": "estoque_de_hierro",
+    "overrides": [],
+    "timestamp": "2026-08-07T18:50:14.721Z"
+  },
+  "summary": {
+    "winsA": 204,
+    "winsB": 96,
+    "winrateA": 68,
+    "winrateB": 32,
+    "avgRounds": 7.036666666666667,
+    "avgRoundsA": 6.348039215686274,
+    "avgRoundsB": 8.5,
+    "koTypes": {
+      "A": {
+        "ko": 200,
+        "timeout": 4
+      },
+      "B": {
+        "ko": 96
+      }
+    }
+  }
+}

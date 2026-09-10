@@ -1,10 +1,20 @@
 // @ts-nocheck
+/**
+ * Normalises the jid.
+ * @param {*} value - - value to process.
+ * @returns
+ */
 function normalizeJid(value) {
   return String(value || "")
     .trim()
     .toLowerCase();
 }
 
+/**
+ * Extracts the phone number.
+ * @param {*} value - - value to process.
+ * @returns
+ */
 function extractPhoneNumber(value) {
   return String(value || "")
     .split("@")[0]
@@ -12,12 +22,29 @@ function extractPhoneNumber(value) {
     .replace(/\D/g, "");
 }
 
+/**
+ * Unique strings.
+ * @param {Array} [values] - - array of values.
+ * @returns
+ */
 function uniqueStrings(values = []) {
   return [...new Set(values.filter(Boolean))];
 }
 
+/**
+ * Returns whether the same is identity.
+ * @param {*} left - - left.
+ * @param {*} right - - right.
+ * @returns
+ */
 function isSameIdentity(left, right) {
+  /**
+   * @constant a
+   */
   const a = normalizeJid(left);
+  /**
+   * @constant b
+   */
   const b = normalizeJid(right);
 
   if (!a || !b) {
@@ -28,13 +55,28 @@ function isSameIdentity(left, right) {
     return true;
   }
 
+  /**
+   * @constant aNumber
+   */
   const aNumber = extractPhoneNumber(a);
+  /**
+   * @constant bNumber
+   */
   const bNumber = extractPhoneNumber(b);
 
   return Boolean(aNumber && bNumber && aNumber === bNumber);
 }
 
+/**
+ * To identity candidates.
+ * @param {*} value - - value to process.
+ * @returns
+ */
 function toIdentityCandidates(value) {
+  /**
+   * @constant candidates
+   * @type {*[]}
+   */
   const candidates = [];
 
   if (value === null || value === undefined) {
@@ -50,6 +92,10 @@ function toIdentityCandidates(value) {
   }
 
   if (typeof value === "object") {
+    /**
+     * @constant keys
+     * @type {*[]}
+     */
     const keys = [
       "jid",
       "userId",
@@ -79,6 +125,9 @@ function toIdentityCandidates(value) {
     return uniqueStrings(candidates.flatMap((entry) => toIdentityCandidates(entry)));
   }
 
+  /**
+   * @constant raw
+   */
   const raw = String(value || "").trim();
   if (!raw) {
     return candidates;
@@ -86,6 +135,9 @@ function toIdentityCandidates(value) {
 
   candidates.push(normalizeJid(raw));
 
+  /**
+   * @constant phone
+   */
   const phone = extractPhoneNumber(raw);
   if (phone) {
     candidates.push(phone);

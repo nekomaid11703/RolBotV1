@@ -77,3 +77,57 @@ it("registra un fallo del comando y responde con un ID seguro", async () => {
   expect(reply).toHaveBeenCalledWith(expect.stringContaining(`ID: ${correlationId}`));
   expect(reply.mock.calls[0][0]).not.toContain("detalle-interno-no-exponer");
 });
+
+it("detiene un comando denegado aunque reply devuelva undefined", async () => {
+  const execute = vi.fn();
+  commands.set("solo_grupo", { name: "solo_grupo", groupOnly: true, execute });
+  const reply = vi.fn(async () => undefined);
+
+  await handleCommand({
+    text: "/solo_grupo",
+    sender: "user@s.whatsapp.net",
+    senderJid: "user@s.whatsapp.net",
+    senderNumber: "595981000000",
+    userName: "Tester",
+    from: "chat@s.whatsapp.net",
+    reply,
+  });
+
+  expect(reply).toHaveBeenCalledOnce();
+  expect(logCommand).toHaveBeenCalledWith(expect.objectContaining({ status: "denied" }));
+  expect(execute).not.toHaveBeenCalled();
+});
+
+it("serializa comandos del mismo chat para evitar carreras de estado", async () => {
+  let releaseFirst;
+  const firstCanFinish = new Promise((resolve) => {
+    releaseFirst = resolve;
+  });
+  const events = [];
+  commands.set("turno", {
+    name: "turno",
+    execute: async (ctx) => {
+      events.push(`start:${ctx.args[0]}`);
+      if (ctx.args[0] === "uno") await firstCanFinish;
+      events.push(`end:${ctx.args[0]}`);
+    },
+  });
+  const baseContext = {
+    sender: "user@s.whatsapp.net",
+    senderJid: "user@s.whatsapp.net",
+    senderNumber: "595981000000",
+    userName: "Tester",
+    from: "group@g.us",
+    reply: vi.fn(),
+  };
+
+  const first = handleCommand({ ...baseContext, text: "/turno uno" });
+  await vi.waitFor(() => expect(events).toEqual(["start:uno"]));
+  const second = handleCommand({ ...baseContext, text: "/turno dos" });
+  await Promise.resolve();
+
+  expect(events).toEqual(["start:uno"]);
+  releaseFirst();
+  await Promise.all([first, second]);
+  expect(events).toEqual(["start:uno", "end:uno", "start:dos", "end:dos"]);
+});

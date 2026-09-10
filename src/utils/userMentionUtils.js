@@ -7,6 +7,9 @@
  * @returns {string} Cleaned text
  */
 function cleanText(value, fallback = "usuario") {
+  /**
+   * @constant text
+   */
   const text = String(value || "").trim();
   return text || fallback;
 }
@@ -17,12 +20,18 @@ function cleanText(value, fallback = "usuario") {
  * @returns {boolean} True if meaningful
  */
 function isMeaningfulDisplayName(value) {
+  /**
+   * @constant text
+   */
   const text = String(value || "").trim();
 
   if (!text) {
     return false;
   }
 
+  /**
+   * @constant normalized
+   */
   const normalized = text.toLowerCase();
 
   if (normalized === "usuario" || normalized === "creador") {
@@ -40,7 +49,16 @@ function isMeaningfulDisplayName(value) {
   return true;
 }
 
+/**
+ * Formats the real mention tag.
+ * @param {*} jid - - jid.
+ * @param {string} [fallback] - - fallback.
+ * @returns
+ */
 function formatRealMentionTag(jid, fallback = "usuario") {
+  /**
+   * @constant local
+   */
   const local = String(jid || "")
     .split("@")[0]
     .replace(/\D/g, "")
@@ -55,8 +73,20 @@ function formatRealMentionTag(jid, fallback = "usuario") {
   }`;
 }
 
+/**
+ * Formats the display mention.
+ * @param {*} jid - - jid.
+ * @param {string} [displayName] - - display display name.
+ * @returns
+ */
 function formatDisplayMention(jid, displayName = "usuario") {
+  /**
+   * @constant cleanName
+   */
   const cleanName = cleanText(displayName, "usuario");
+  /**
+   * @constant mention
+   */
   const mention = formatRealMentionTag(jid, cleanName);
 
   if (isMeaningfulDisplayName(cleanName)) {
@@ -66,7 +96,17 @@ function formatDisplayMention(jid, displayName = "usuario") {
   return mention;
 }
 
+/**
+ * Returns the profile display name.
+ * @param {*} profile - - profile.
+ * @param {string} [fallback] - - fallback.
+ * @returns
+ */
 function getProfileDisplayName(profile, fallback = "usuario") {
+  /**
+   * @constant candidates
+   * @type {*[]}
+   */
   const candidates = [
     profile?.metadata?.displayName,
     profile?.metadata?.pushName,
@@ -81,6 +121,12 @@ function getProfileDisplayName(profile, fallback = "usuario") {
   return fallback;
 }
 
+/**
+ * With mentions.
+ * @param {*} text - - text content.
+ * @param {Array} [mentions] - - mentions.
+ * @returns
+ */
 function withMentions(text, mentions = []) {
   return {
     text,

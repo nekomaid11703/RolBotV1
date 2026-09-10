@@ -1,2 +1,6 @@
 {
+  "sonarlint.connectedMode.project": {
+    "connectionId": "nekoqube",
+    "projectKey": "nekomaid11703_RolBotV1"
+  }
 }

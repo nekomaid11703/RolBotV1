@@ -115,6 +115,7 @@ describe("Formato de uso/ejemplo en comandos", () => {
       expect(ctx.replies[0]).toContain("Plantilla");
       expect(ctx.replies[0]).toContain("Nombre:");
       expect(ctx.replies[0]).toContain("Historia");
+      expect(ctx.replies[0]).toContain("se suma a la stat base");
     });
 
     it("con arg 'humano' muestra la plantilla de humano", async () => {

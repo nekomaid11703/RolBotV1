@@ -13,16 +13,37 @@ module.exports = {
   groupOnly: true,
   adminOnly: true,
 
+  /**
+   * Executes the .
+   * @async
+   * @param {*} ctx - execution context.
+   * @returns {any}
+   */
   async execute(ctx) {
+    /**
+     * @constant targetId
+     */
     const targetId = getFirstMentionedJid(ctx);
 
     if (!targetId) {
       return ctx.reply("❌ Debes mencionar al usuario que deseas advertir.\n\nUso: /warn @usuario [motivo]");
     }
 
+    /**
+     * @constant reason
+     */
     const reason = ctx.args.slice(1).join(" ").trim() || "Sin motivo especificado";
+    /**
+     * @constant targetName
+     */
     const targetName = await resolveTargetDisplayName(ctx, targetId);
+    /**
+     * @constant currentWarns
+     */
     const currentWarns = await getWarns(ctx.from, targetId);
+    /**
+     * @constant warnCount
+     */
     const warnCount = currentWarns.count;
 
     await addWarn(ctx.from, targetId, {

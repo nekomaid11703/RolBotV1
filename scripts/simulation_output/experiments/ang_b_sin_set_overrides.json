@@ -1,0 +1,12 @@
+{
+  "tag": "ang_b_sin_set",
+  "timestamp": "2026-08-07T17:57:21.957Z",
+  "numSims": 2000,
+  "overrides": [
+    {
+      "mod": "simConfig",
+      "key": "SET_BONUS_THRESHOLD",
+      "value": 99
+    }
+  ]
+}

@@ -1,27 +1,38 @@
-// @ts-nocheck
 const { BufferJSON, initAuthCreds, makeCacheableSignalKeyStore } = require("@whiskeysockets/baileys");
 const { supabase } = require("../database/supabase");
 const { logError } = require("../services/loggerService");
 
+/**
+ * @constant TABLE_NAME
+ * @type {string}
+ */
 const TABLE_NAME = "bot_auth_state";
 
+/**
+ * Create a Supabase-backed authentication state for Baileys.
+ * Implements a circuit breaker pattern for fault tolerance.
+ * @param {string} [sessionId] - Session identifier
+ * @returns {Promise<*>} Auth state object with state and saveCreds
+ */
 async function useSupabaseAuthState(sessionId = "default") {
   let consecutiveFailures = 0;
   let circuitOpen = false;
   let nextAttemptTime = 0;
-  const COOLDOWN_MS = 30000; // 30 segundos de cooldown
+  /**
+   * @constant COOLDOWN_MS
+   * @type {number}
+   */
+  const COOLDOWN_MS = 30000;
+  /**
+   * @constant MAX_FAILURES
+   * @type {number}
+   */
   const MAX_FAILURES = 3;
 
-  const checkCircuit = () => {
-    if (circuitOpen) {
-      if (Date.now() > nextAttemptTime) {
-        // Semi-abierto: permitir un intento de prueba
-        return true;
-      }
-      return false;
-    }
-    return true;
-  };
+  /**
+   * @returns {boolean} Whether the circuit allows requests.
+   */
+  const checkCircuit = () => !circuitOpen || Date.now() > nextAttemptTime;
 
   const assertCircuitAvailable = () => {
     if (!checkCircuit()) {
@@ -29,12 +40,16 @@ async function useSupabaseAuthState(sessionId = "default") {
     }
   };
 
+  /** @returns {void} */
   const recordSuccess = () => {
     consecutiveFailures = 0;
     circuitOpen = false;
   };
 
-  /** @param {unknown} err - Error that caused the failure */
+  /**
+   * Record a failure and potentially open the circuit.
+   * @param {unknown} err - - Error that caused the failure.
+   */
   const recordFailure = (err) => {
     consecutiveFailures++;
     if (consecutiveFailures >= MAX_FAILURES) {
@@ -52,12 +67,16 @@ async function useSupabaseAuthState(sessionId = "default") {
   };
 
   /**
-   * @param {object} data - Data to persist
-   * @param {string} id - Record identifier
+   * Write data to the auth state table.
+   * @param {*} data - - Data to persist.
+   * @param {string} id - - Record identifier.
    */
   const writeData = async (data, id) => {
     assertCircuitAvailable();
     try {
+      /**
+       * @constant json
+       */
       const json = JSON.parse(JSON.stringify(data, BufferJSON.replacer));
       const { error } = await supabase.from(TABLE_NAME).upsert({ session_id: sessionId, id, data: json });
 
@@ -74,8 +93,9 @@ async function useSupabaseAuthState(sessionId = "default") {
   };
 
   /**
+   * Read data from the auth state table.
    * @param {string} id - Record identifier
-   * @returns {Promise<object|null>} - Promise resolving to the data or null
+   * @returns {Promise<*|null>} Resolves to the stored data or null
    */
   const readData = async (id) => {
     assertCircuitAvailable();
@@ -89,7 +109,6 @@ async function useSupabaseAuthState(sessionId = "default") {
 
       if (error) {
         if (error.code === "PGRST116") {
-          // Fila no encontrada, es normal al iniciar credenciales limpias
           recordSuccess();
           return null;
         }
@@ -109,23 +128,6 @@ async function useSupabaseAuthState(sessionId = "default") {
     }
   };
 
-  /** @param {string} id - Record identifier */
-  const _removeData = async (id) => {
-    if (!checkCircuit()) return;
-    try {
-      const { error } = await supabase.from(TABLE_NAME).delete().eq("session_id", sessionId).eq("id", id);
-
-      if (error) throw error;
-      recordSuccess();
-    } catch (err) {
-      recordFailure(err);
-      await logError({
-        source: `supabaseAuthState.removeData:${id}`,
-        error: err,
-      });
-    }
-  };
-
   let creds = await readData("creds");
   if (!creds) {
     creds = initAuthCreds();
@@ -134,9 +136,10 @@ async function useSupabaseAuthState(sessionId = "default") {
 
   const persistentKeys = {
     /**
-     * @param {string} type - Key category
-     * @param {string[]} ids - Key identifiers
-     * @returns {Promise<object>} Stored keys by identifier
+     * Get key data by type and ids.
+     * @param {string} type - Key or event type
+     * @param {string[]} ids - Array of identifiers
+     * @returns {Promise<*>} Object mapping ids to values
      */
     get: async (type, ids) => {
       assertCircuitAvailable();
@@ -153,6 +156,7 @@ async function useSupabaseAuthState(sessionId = "default") {
         if (error) throw error;
 
         const stored = new Map((rows || []).map((row) => [row.id, row.data]));
+        /** @type {Record<string, *>} */
         const data = {};
         for (const id of uniqueIds) {
           const raw = stored.get(`${type}-${id}`);
@@ -174,17 +178,37 @@ async function useSupabaseAuthState(sessionId = "default") {
         throw err;
       }
     },
-
-    /** @param {object} data - Key mutations by category */
+    /**
+     * Set key data in batch.
+     * @param {*} data - Data payload with category/id/value nesting
+     * @returns {Promise<void>}
+     */
     set: async (data) => {
       assertCircuitAvailable();
+      /**
+       * @constant upsertData
+       * @type {*[]}
+       */
       const upsertData = [];
+      /**
+       * @constant deleteData
+       * @type {*[]}
+       */
       const deleteData = [];
       for (const category in data) {
         for (const id in data[category]) {
+          /**
+           * @constant value
+           */
           const value = data[category][id];
+          /**
+           * @constant key
+           */
           const key = `${category}-${id}`;
           if (value) {
+            /**
+             * @constant json
+             */
             const json = JSON.parse(JSON.stringify(value, BufferJSON.replacer));
             upsertData.push({ session_id: sessionId, id: key, data: json });
           } else {
@@ -209,7 +233,10 @@ async function useSupabaseAuthState(sessionId = "default") {
         recordSuccess();
       } catch (err) {
         recordFailure(err);
-        await logError({ source: "supabaseAuthState.keys.set", error: err });
+        await logError({
+          source: "supabaseAuthState.keys.set",
+          error: err,
+        });
         throw err;
       }
     },
@@ -220,6 +247,10 @@ async function useSupabaseAuthState(sessionId = "default") {
       creds,
       keys: makeCacheableSignalKeyStore(persistentKeys),
     },
+    /**
+     * Saves the creds.
+     * @returns {any}
+     */
     saveCreds: () => {
       return writeData(creds, "creds");
     },

@@ -1,0 +1,17 @@
+{
+  "tag": "diag_fatiga_plana",
+  "timestamp": "2026-08-07T16:07:29.099Z",
+  "numSims": 2000,
+  "overrides": [
+    {
+      "mod": "combatConfig",
+      "key": "FATIGUE_ATK_COST_SCALE",
+      "value": 0
+    },
+    {
+      "mod": "combatConfig",
+      "key": "FATIGUE_DEF_REDUCTION_SCALE",
+      "value": 0
+    }
+  ]
+}

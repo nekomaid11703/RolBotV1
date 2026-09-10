@@ -1,0 +1,22 @@
+{
+  "tag": "ang_e_combo_dc",
+  "timestamp": "2026-08-07T18:02:42.941Z",
+  "numSims": 2000,
+  "overrides": [
+    {
+      "mod": "combatBalance",
+      "key": "WEAPON_BASE_ATK_WEIGHT",
+      "value": 0.5
+    },
+    {
+      "mod": "simConfig",
+      "key": "AMULET_CHANCE",
+      "value": 0
+    },
+    {
+      "mod": "simConfig",
+      "key": "SET_BONUS_THRESHOLD",
+      "value": 99
+    }
+  ]
+}

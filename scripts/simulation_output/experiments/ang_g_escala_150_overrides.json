@@ -1,0 +1,12 @@
+{
+  "tag": "ang_g_escala_150",
+  "timestamp": "2026-08-07T18:06:56.214Z",
+  "numSims": 2000,
+  "overrides": [
+    {
+      "mod": "combatBalance",
+      "key": "DAMAGE_DEFENSE_SCALE",
+      "value": 150
+    }
+  ]
+}

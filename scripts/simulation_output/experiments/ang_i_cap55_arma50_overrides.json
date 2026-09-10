@@ -1,0 +1,17 @@
+{
+  "tag": "ang_i_cap55_arma50",
+  "timestamp": "2026-08-07T18:08:05.837Z",
+  "numSims": 2000,
+  "overrides": [
+    {
+      "mod": "combatBalance",
+      "key": "DEF_MITIGATION_CAP",
+      "value": 55
+    },
+    {
+      "mod": "combatBalance",
+      "key": "WEAPON_BASE_ATK_WEIGHT",
+      "value": 0.5
+    }
+  ]
+}

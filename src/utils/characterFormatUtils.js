@@ -1,101 +1,17 @@
 // @ts-nocheck
-const { box } = require("./boxUtils");
-const { LEVELABLE_STATS, getHpState, HP_MAX } = require("../config/characterConfig");
+const { characterSheet, buildHpBar, formatHpState } = require("../ui/sections/characterSections");
 
 /**
- *
- * @param character
+ * Formatea la ficha completa de un personaje compuesta por secciones
+ * reutilizables (stats, equipo, inventario, historia).
+ * @param {object} character - Personaje
+ * @param {Array<object>|null} [inventoryParam] - Inventario resuelto
+ * @param {number} [maxHpOverride] - HP máximo forzado
+ * @param {object|null} [equipment] - Resumen de equipo (resolveCharacterEquipment)
+ * @returns {string}
  */
-const { getItem } = require("../data/items");
-
-/**
- *
- * @param character
- * @param inventory
- * @param inventoryParam
- */
-function formatCharacter(character, inventoryParam = null) {
-  const lines = [];
-
-  const hpState = getHpState(character.hp_actual);
-  const hpBar = buildHpBar(character.hp_actual, HP_MAX);
-
-  lines.push("");
-  lines.push(`👤  ${String(character.name || "").toUpperCase()}`);
-  lines.push(`🎖️  ${character.clase || "?"}  ·  Rango ${character.rango || "F"}`);
-  lines.push(`📖  Nivel ${character.nivel || 20}`);
-  lines.push("");
-  lines.push(`${hpBar}  ${character.hp_actual}/${HP_MAX}  (${hpState.name})`);
-
-  if (character.stats) {
-    lines.push("");
-    for (const [key, config] of Object.entries(LEVELABLE_STATS)) {
-      const val = character.stats[key];
-      if (val !== undefined) {
-        lines.push(`${config.icon}  ${config.label}: ${val}`);
-      }
-    }
-  }
-
-  const habilidades = Array.isArray(character.slots?.habilidades) ? character.slots.habilidades : [];
-  if (habilidades.length > 0) {
-    lines.push("");
-    lines.push("⭐ Habilidades:");
-    for (const h of habilidades) {
-      lines.push(`   · ${h}`);
-    }
-  }
-
-  const inventory = Array.isArray(inventoryParam)
-    ? inventoryParam
-    : Array.isArray(character.inventory)
-      ? character.inventory
-      : null;
-
-  lines.push("");
-  if (inventory && inventory.length > 0) {
-    const totalQty = inventory.reduce((sum, i) => sum + (Number(i.quantity) || 0), 0);
-    lines.push(`🎒  Inventario (${totalQty} ítems):`);
-    for (const entry of inventory) {
-      const itemDef = getItem(entry.item_id);
-      const icon = itemDef ? itemDef.icon : "📦";
-      const name = itemDef ? itemDef.name : entry.item_id;
-      lines.push(`   · ${icon} ${name} x${entry.quantity}`);
-    }
-  } else {
-    const itemCount = character.item_count || 0;
-    lines.push(`🎒  Items: ${itemCount}`);
-  }
-
-  if (character.slots?.historia) {
-    lines.push("");
-    lines.push(`📜  ${character.slots.historia}`);
-  }
-
-  return box(`🎭 ${(character.name || "").toUpperCase()}`, lines);
-}
-
-/**
- *
- * @param hp
- * @param max
- */
-function buildHpBar(hp, max) {
-  const barLength = 10;
-  const filled = Math.round((hp / max) * barLength);
-  const empty = barLength - filled;
-  const filledChar = "█";
-  const emptyChar = "░";
-  return "[" + filledChar.repeat(filled) + emptyChar.repeat(empty) + "]";
-}
-
-/**
- *
- * @param hp
- */
-function formatHpState(hp) {
-  const state = getHpState(hp);
-  return `${hp}/${HP_MAX}  (${state.name})`;
+function formatCharacter(character, inventoryParam = null, maxHpOverride, equipment = null) {
+  return characterSheet(character, { inventory: inventoryParam, maxHpOverride, equipment });
 }
 
 module.exports = { formatCharacter, buildHpBar, formatHpState };

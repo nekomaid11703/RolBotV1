@@ -8,7 +8,11 @@ const { resolveTargetDisplayName } = require("../../services/displayNameService"
 const { box } = require("../../utils/boxUtils");
 const { formatError } = require("../../utils/formatErrorUtils");
 const { formatCommandUsage } = require("../../utils/formatCommandUtils");
+const { isSameIdentity } = require("../../utils/identityUtils");
 
+/**
+ * @constant usageMessage
+ */
 const usageMessage = formatCommandUsage({
   icon: "💸",
   title: "Transferir stelas",
@@ -24,42 +28,64 @@ module.exports = {
   description: "Transfiere tus stelas a otro usuario.",
   category: "economia",
 
+  /**
+   * Executes the .
+   * @async
+   * @param {*} ctx - execution context.
+   * @returns {any}
+   */
   async execute(ctx) {
+    const senderId = ctx.userId || ctx.sender;
+    /**
+     * @constant targetId
+     */
     const targetId = getFirstMentionedJid(ctx);
 
     if (!targetId) {
       return ctx.reply(usageMessage);
     }
 
-    if (targetId === ctx.sender) {
+    if (isSameIdentity(targetId, senderId)) {
       return ctx.reply(formatError("No puedes enviarte stelas a ti mismo."));
     }
 
+    /**
+     * @constant amount
+     */
     const amount = extractAmountFromArgs(ctx.args);
 
     if (!amount) {
       return ctx.reply(usageMessage);
     }
 
+    /**
+     * @constant targetProfile
+     */
     const targetProfile = await getUserProfile({ creatorId: targetId });
     if (!targetProfile) {
       return ctx.reply(formatError("El usuario destinatario no tiene perfil registrado."));
     }
 
+    /**
+     * @constant targetName
+     */
     const targetName = await resolveTargetDisplayName(ctx, targetId);
 
-    await transferMoney(ctx.sender, targetId, amount, {
+    await transferMoney(senderId, targetId, amount, {
       fromUserName: ctx.userName || "usuario",
       toUserName: targetName,
       toRegistration: {
         source: "dar_stelas",
         scope: "target",
-        createdBy: ctx.sender,
+        createdBy: senderId,
         displayName: targetName,
       },
     });
 
-    const senderBalance = await getBalance(ctx.sender);
+    /**
+     * @constant senderBalance
+     */
+    const senderBalance = await getBalance(senderId);
 
     await ctx.reply(
       box("💸 Transferencia", [

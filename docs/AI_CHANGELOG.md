@@ -1,0 +1,1049 @@
+# AI_CHANGELOG.md — Registro de Cambios de la IA
+
+Este archivo registra los cambios significativos y decisiones arquitectónicas tomadas por Antigravity en la base de código.
+
+---
+
+## [Unreleased]
+
+### B6 — Hitos de equipo y poder por rango (2026-09-09)
+
+- `armorSets.js` genera un set por material (`set_<materialId>`) con bono por arquetipo y rareza:
+  filo→ATK, cond→fulgor/dominio, res→DEF/HP, flex→ASPD/REF. Antes solo existía `set_acero`.
+- `buildBuildPowerReport`: compara los 4 builds por cohorte (arma del arquetipo + 4 piezas + set) con
+  un score normalizado por eje; cuenta estilos viables (≥85% del mejor).
+- Guarda P5: `viableStylesPerCohort` (mínimo **3** en todas las cohortes); cobertura de sets por
+  material en `reference_integrity`.
+- Suite: **937 verdes en 86 archivos**.
+
+### Inflación y sumideros — venta, reparación y guardas (2026-09-09)
+
+- **Venta** (`executeSale` + comando `/vender`): convierte inventario en stelas al `SELL_RATIO` (60%
+  del precio de compra); destruye ~40% del valor (grifo controlado con sumidero parcial).
+- **Reparación** (`repairService` + comando `/reparar`): restaura durabilidad pagando
+  `REPAIR_COST_PER_POINT` (2 stelas/punto); sumidero recurrente.
+- **Guardas de inflación** (`buildInflationReport`): grifos diarios y su reparto — trabajos 810
+  (43%), venta 534 (29%), expediciones 320 (17%), daily 200 (11%); checks `jobsShareHealthy`,
+  `faucetsBalanced`, `recurringSinksAvailable` (todos `true`).
+- `economyConfig`: `SELL_RATIO`, `REPAIR_COST_PER_POINT`. Guardas en `tests/economy_sinks.test.js`.
+- Suite: **935 verdes en 86 archivos**.
+
+### B7 — Forja vs compra con la economía nueva (2026-09-09)
+
+- `CRAFTING_POLICY.acquisitionToolLevel` 5 → 10 (coherente con el precio de materiales).
+- `buildForgeEconomics`: escalera completa **E→N**, `forgeVsBuyRatioE`, comparación de **refinado vs
+  compra del trozo refinado** y precios dinámicos (`pricingService`) también para la compra directa.
+- Criterio P1: forjar/refinar **paga con tiempo** y comprar **paga con stelas**. Nuevas guardas:
+  `directBuyAvailableForE`, `forgeSavesStelas`, `refiningSavesStelas` (todas en `true`).
+- Resultado: forjar/refinar ahorra el margen del vendedor (~15%) pero cuesta ~2× tiempo; los tiers
+  **D+ no tienen compra directa**, así que la forja es la única vía para equipo superior.
+- Suite: **930 verdes en 85 archivos**.
+
+### Tienda — Cap de rareza (D4) y precios por tier (2026-09-09)
+
+- **Cap de rareza por tienda** (`shopConfig.rarityCap`): materia prima hasta `poco_comun` en todas;
+  equipo terminado hasta `poco_comun` (bazar, magia) y hasta `raro` en la herrería. La materia prima
+  `raro+` queda como **firma de la expedición**.
+- `pricingService` ahora valora por **tier** (refinado 2:1 ⇒ ×2 por escalón; E=1 … N=64) y
+  `shopEngineService` pasa el `metadata.tier` de cada entrada.
+- Reporte: `shops` con `capsRespected` y `rareMaterialsNotSold` (overlap de firma = 0) y guarda
+  `tests/shop_caps.test.js`.
+- Suite: **930 verdes en 85 archivos**.
+
+### Trabajos — Fase 1: identidad de pago y rendimiento (2026-09-09)
+
+- Los salarios se recalculan con `pago = K × √(energía × duración) × (1 + 0,8 × req/22)`
+  (`computeJobStelasReward`). Crea un **trade-off real**: más densidad (energía/duración) ⇒ más
+  pago/hora y menos pago/energía; más requisitos ⇒ más pago en ambas.
+- Resultado: **0 trabajos dominados** por otro del mismo entrenamiento (antes 12 de 20), spread
+  diario 720 → 1.480 y el entrenamiento de stat sigue siendo la firma de cada empleo.
+- Guarda nueva `tests/job_identity.test.js` (sin dominados, trade-off, salario mínimo, spread).
+- Suite: **926 verdes en 84 archivos**.
+
+### Economía — Análisis de ingreso por cohorte (2026-09-09)
+
+- `buildEconomyReport` en `progression:report`: ingreso diario por cohorte = trabajos + venta de
+  materiales (mejor zona, herramientas del cohorte) + `daily`, comparado con el coste del set de
+  referencia de su rareza y los días para costearlo.
+- Guardas: `incomeGrowsWithProgression` y `materialIncomeScalesWithTool`.
+- Resultado (estilo regular): ingreso total **1.748 → 2.680 stelas/día** de entry a cap; trabajos
+  fijos 525 (suelo estable), materiales **1.023 → 1.955** (crecimiento por herramienta) y `daily` 200.
+  El set del nivel cuesta 0,8 (común) → 5,7 (legendario) días de ingreso.
+- Suite: **921 verdes en 83 archivos**.
+
+### B4 revisado — Costes de herramienta por jornada y payback acumulado (2026-09-09)
+
+- `toolsConfig`: las stelas de mejora se derivan del salario mínimo (`UPGRADE_WAGE_FRACTION`
+  0,10→0,40 de jornada; 72→288 stelas, total ~1.382). Requisitos de materiales sin cambios.
+- **B4 redefinido**: el ROI se mide **acumulado** (coste total de la escalera vs ganancia de valor
+  L1→L10) porque la curva R(L) concentra el valor en los tramos altos. Metas por herramienta
+  (`TOOL_POLICY.cumulativePaybackTargets`): pico ≤15, hacha ≤30, bolsa ≤30, mochila sin payback.
+- `progressionAnalyticsService`: el valor de materiales usa `pricingService`; `buildToolMetrics`
+  añade `cumulativeCost`, `cumulativeValueGain`, `paybackCumulativeExpeditions` y
+  `withinCumulativeTarget`; los avisos de sobrecoste se evalúan al nivel 10.
+- Resultado medido: pico ~14 exp, hacha ~29, bolsa ~26 (dentro de meta).
+- Suite: **920 verdes en 83 archivos**.
+
+### P2 — Economía base: salario mínimo y precios por tiempo (2026-09-09)
+
+- **Salario mínimo**: 720 stelas / 100 de energía (trabajos peor pagados) con jornada de
+  referencia de 120 min → `STELA_PER_MINUTE = 6`. El `daily` máximo (200) equivale a ~0,28
+  jornadas: mantiene valor sin desplazar a los trabajos.
+- `economyConfig`: `MINIMUM_WAGE_PER_DAY`, `WORKDAY_MINUTES`, `STELA_PER_MINUTE`, `VENDOR_MARGIN`.
+- `jobConfig`: `MIN_WAGE_PER_ENERGY` (7,2) y `wageMultiplierForJob` documentan cada trabajo como
+  múltiplo del mínimo (montos sin cambios).
+- [NEW] `pricingService`: `materialMinutesPerUnit` (herramienta 10, mejor zona), `materialUnitValue`
+  y `itemBasePrice` = valor × unidades de receta × 1,15. `shopEngineService` usa el precio calculado
+  (los ítems sin material conservan su `basePrice`).
+- Valores de referencia: madera 57 · acero 170 · oro 524 · titanio 655 · filo estelar 1.266.
+- Guardas: `tests/pricing.test.js`. Suite: **919 verdes en 83 archivos**.
+
+### P2 (parcial) — Identidad de zonas por multiplicadores de eje (2026-09-09)
+
+- **Sin pisos de probabilidad**: `expeditionConfig` reemplaza `floorRarity`/`rarityPool` por
+  `axisWeights` (multiplicadores filo/cond/res/flex). El eje del drop se sortea ponderado; la
+  herramienta de ese eje (`AXIS_TOOL`) gobierna la rareza con la curva completa R(L).
+- `rarityDropService`: `materialForBandAxis`, `resolveZoneAxisContext`, `chooseAxis` (RNG inyectable);
+  `activityEngineService` hace tirada eje → rareza → material con `DROP_QTY_BY_RARITY`.
+- Analítica: fuentes por eje y adquisición por rareza; resultado **`unreachable=0` y
+  `blockedRequirements=0`** (las 24 combinaciones rareza × eje tienen ruta).
+- Zonas: Bosque (flex), Cuevas de la Cuenca (filo/cond/res), Picos (filo/cond), Costa
+  (res/flex), Tundra (cond/filo). Nuevas zonas = nuevos `axisWeights` coherentes con el lore.
+- **Caña retirada**: no aportaba un eje material ni valor de inversión. Herramientas activas: pico,
+  hacha, bolsa y mochila. `pescado_fresco` queda como ítem legado sin fuente (pesca pendiente si se
+  rediseña más adelante).
+- Tests: `rarity_drop`, `expedition_system`, `materials_table`, `forge_economics`,
+  `progression_analytics`, `tool_progression` actualizados. Suite: **911 verdes en 82 archivos**.
+- Pendiente de P2: zonas profundas de lore (**D3**), cap de rareza en tienda (**D4**) y calibración
+  de precios/cantidades con los anclajes.
+
+### P1 — B8.2b Ley de obtención R(L), pisos y recalibración B5/B1 (2026-09-09)
+
+- **Rareza por herramienta (R(L))**: [NEW] `src/config/rarityDropConfig.js` (16→1.39,
+  `P(i+1)=P(i)/R`, renormalización por piso y bandas accesibles) y
+  [NEW] `src/services/rpg/rarityDropService.js` (`sampleBand`, `weightedEntry`, contexto de zona).
+- **Zonas multi-banda**: `expeditionConfig` ahora declara `floorRarity` y `rarityPool`; los
+  `lootTable` quedan solo para drops planos (pescado/hierbas). Modelo "banda + pool ponderado".
+- **Motor**: `activityEngineService` sustituye el bonus plano `(1+lootBonus)` por la ley R(L)
+  (tiradas corta 2 / media 3 / larga 5, cantidad por banda); la duración escala stelas/XP/flat.
+- **Herramientas**: `TOOL_UPGRADE_COSTS` pierde `lootBonus`; el nivel de herramienta gobierna la
+  curva. Gate D2: el payback B4 pasa a métrica informativa (el ROI en stelas ya no aplica ≤10).
+- **Reporte**: réplica exacta de la curva, guardas `16:1 en L1` y `~1 mítico/16 en L10`
+  (`rarityDrop.checks`).
+- **Recalibración B5/B1 (cap ~90 días)**: curva XP ×0.262 (~450 victorias equivalentes), regular =
+  4 combates/día y actividades ~20% de la XP diaria (`jobShareBase 0.1`, `expeditionShareBase 0.8`).
+- **Anclajes material↔nivel**: `MATERIAL_LEVEL_ANCHOR` + `ANCHOR_POLICY` (f=0.35) y
+  `materialAnchors` en el reporte (común 150/~10 d, poco 200/~21 d, raro 300/~43 d, épico 400/~66 d,
+  legendario/mítico 500/~90 d).
+- Guardas nuevas: `tests/rarity_drop.test.js`; ajustes en `level_progression`, `curve_policy`,
+  `xp_reward_service`, `progression_analytics`, `expedition_system`.
+- Suite: **910 tests verdes en 82 archivos**. Pendiente P2/B3: rutas de épico→mítico y calibración
+  fina de precios/cantidades con las métricas de anclaje.
+
+### P0 — Canon completo: saneamiento de la familia legacy de hierro (2026-09-09)
+
+- **Gate D1 resuelto (canon completo)**: eliminado `src/data/ironFamily.js` (`iron_family.test.js`
+  retirado). La familia de hierro (espada/casco/pechera/grebas/botas/amuleto/kunai) era un duplicado
+  legacy fuera de canon; hoy `materialFamilies` ya genera la familia canónica de acero.
+- `armorSets.js`: `set_hierro` → `set_acero` (`def:10`).
+- `materialFamilies`: los `kunai_*` (throwable) ahora se generan para cada material del canon;
+  `kunai_de_acero` cubre tienda (`shopConfig`) y la receta `kunai` de forja.
+- `equipmentResolverService`: flecha por defecto `flechas_de_acero` (material `acero`); la antigua
+  `flecha_de_hierro` no existía.
+- Ayudas/ejemplos de UI (`forjar`, `refinar`, `item_add`, `item_info`) y flavor (`shopConfig`,
+  `jobConfig`, `expeditionConfig`) actualizados al canon.
+- `materialData.getMaterialStats`: resolución estricta (lanza error si el material no es canon; ya
+  no cae en silencio a `madera`). Corregido `eterio` → `etereo` en `arcaneFamily`.
+- [NEW] Migración `007_hierro_to_acero.sql`: remapea `inventory` y `equipped_slots` (ids legacy de
+  hierro → acero). Aplicar en el despliegue.
+- [NEW] Guarda `tests/reference_integrity.test.js`: itemIds de configs/`TOOL_UPGRADE_COSTS` existen
+  y son canon; toda receta de forja produce ítem real por material.
+- Suite: **899 tests verdes en 81 archivos** (iron_family −18, reference_integrity +3).
+  Siguiente: P1 del roadmap FASE 2.6 (B8.2b R(L) + pisos por zona).
+
+### B8.2a — Canon de materiales implementado (2026-09-08)
+
+- Catálogo reescrito con 24 materiales (6 rarezas × 4 ejes) usando la serie ×1.4:
+  presupuestos 50/69/95/132/184/258 y primarias 19/26/36/51/71/100.
+- Familias por eje (flex=maderas; res=biológicos/reliquias; filo=minerales;
+  cond=cristales/metales preciosos). Nombres canónicos confirmados (Madera Tétrica,
+  Piel de titán, Coraza desgastada, Coraza robusta).
+- Materiales fuera de canon eliminados y remapeados en tiendas, expediciones,
+  herramientas y recetas (hierro→acero, bronce→cuarzo, platino→oro, hueso→piedra).
+- Refinado universal 2:1 (E→N) sin techos por rareza: se descartó el techo propuesto;
+  la rareza ×1.4 + la adquisición 16:1 autoregulan el costo de refinar frente a buscar
+  materiales mejores.
+- Guardas: `material_identity.test.js`, `materials_table.test.js` (16 SIN RUTA),
+  `forge_economics.test.js` y ajustes de `item_stat`/`crafting`/`ranged`/`shop`.
+- 914 pruebas verdes en 81 archivos. Pendiente B8.2b (ley de obtención R(L) y pisos
+  por zona) y la segunda pasada de winrate de combate.
+
+
+- Reestructurados los 23 materiales con presupuesto por rareza (80/120/160/200/260/320),
+  arquetipo declarado (balanceado/filo/místico/tanque/ágil) y formas espigadas:
+  - Los míticos dejan de ser "planos 4×~100" (ej. Filo Estelar 100/60/75/85).
+  - La Obsidiana (raro, filo 84) ya no compite con el Filo Estelar (mítico, filo 100,
+    resistencia 75): hueco real de identidad y durabilidad.
+  - Cadena de filo ascendente por rareza: hueso 46 → bronce 66 → obsidiana 84 → oricalco 95 → filo 100.
+- Guardas automáticas (`tests/material_identity.test.js`): presupuestos por rareza,
+  ausencia de materiales planos en la cima, huecos verticales y balanceados por rareza.
+- La tabla `docs/BALANCE_MATERIALES.md` ahora incluye la columna de arquetipo y se
+  regenera con `npm run progression:report`.
+- Nota de diseño: el refinado permanece sin techo duro (la paridad refinar-vs-buscar se
+  calibrará por probabilidades de drop en B3, no prohibiendo rutas).
+
+
+- Nueva sección en `progression:report` (`buildForgeEconomics`):
+  - Escalera de refinamiento 2:1 con unidades Tier E por unidad/tier (E→N: 2^6) y poder
+    relativo por tier frente a Tier E.
+  - Tasa de recolección por material (zona, herramienta, uds/día) y días de forja de una
+    espada por tier.
+  - Alternativa directa en tiendas y sus días de compra; chequeo automático de si la compra
+    domina a la forja en Tier D.
+- Hallazgos medidos: forjar Tier D es más barato en tiempo que comprar (hierro 0.2 vs 0.7
+  días; acero 0.6 vs 1.6 días); el salto bruto de poder E→N es ~64% (1.12→1.84), por lo que
+  el incentivo de refinar tiers altos vive en materiales, sets, cobertura y durabilidad más
+  que en stats brutas.
+- Pruebas: `tests/forge_economics.test.js` (5).
+
+
+- Métricas de herramientas en `progression:report` (`buildToolMetrics`):
+  - Coste real por mejora = stelas + materiales valorados a precio de catálogo.
+  - Zona de referencia por herramienta (la de mayor valor esperado a nivel maestro) y
+    valor extra por expedición que aporta cada nivel (bonus + desbloqueo de entradas).
+  - Retorno en expediciones (objetivo ≤10), días de stelas para pagar la mejora y
+    detección de mejoras bloqueadas por materiales sin fuente (oro/titanio).
+- Recalibración de `TOOL_UPGRADE_COSTS`: curva de stelas reducida (60→220 por nivel),
+  materiales en cantidades 1-2 y bonus de botín por nivel reforzado (0.45→6.1) para que
+  cada mejora de niveles 2-9 se amortice en ≤10 expediciones de su zona.
+- Desviación conocida documentada: Bolsa nivel 10 (13 expediciones) queda ligada a B3
+  (fuente de titanio).
+- Pruebas: `tests/tool_progression.test.js` (4); ajuste de mock en `expedition_system`.
+
+
+- El reporte y las reglas de balance ahora convierten el entrenamiento de atributo a XP
+  equivalente con la equivalencia B5 (1 punto = `xpForNextLevel`) y lo suman a la XP del
+  trabajo: `jobValuePerDay = jobXpPerDay + jobStatEquivalentXpPerDay`.
+- Nueva restricción `jobValueCombatRatio ≤ jobMaxValueRatioOfCombat (1)`: el valor laboral
+  total no puede superar la XP de combate diaria del mismo perfil; verificada en todas las
+  cohortes y estilos con chequeo automático `jobValueWithinCombat` en el reporte.
+- Sin esta conversión, trabajar en niveles altos ofrecía XP comparable al combate y además
+  un punto de stat sin riesgo; ahora ese valor es visible y acotado.
+- Prueba añadida en `tests/progression_analytics.test.js`.
+
+
+- Nuevo `xpRewardService` (`src/services/rpg/xpRewardService.js`):
+  - `combatVictoryXp`: el PvP aplica prima de riesgo 1.25× (P1); vencer a un rival de nivel superior suma bonus por hueco; multiplicador acotado (×3 máx).
+  - `jobXpForLevel` / `expeditionXpForLevel`: la XP de actividades no-combate se expresa como fracción del XP requerido para el siguiente nivel (1% por jornada de trabajo de referencia; 4%/110 de peso para expediciones), por lo que escala con el nivel del personaje en lugar de ser fija.
+- Integrado en `/atacar`, `/bloquear`, `/esquivar` (todas las vías de victoria, PvP y PvE) y en el cobro de trabajos y expediciones (`activityEngineService`).
+- El modelo analítico y `progression:report` usan el mismo cálculo para cohortes.
+- Pruebas: `tests/xp_reward_service.test.js` (7) y ajuste en `tests/expedition_system.test.js`.
+
+
+- **Política explícita**: nivel = suma de atributos, acotada a [100, 500]. `clampLevel()` centraliza el acotado y se aplica en `calculateLevel`, normalización de personajes y asignación de puntos.
+- **Cierre de inconsistencia**: el nivel ya nunca supera 500 aunque la suma de atributos crezca por entrenamiento no-XP (jobs); la maestría individual queda acotada por los topes por atributo (100) y semanales de B2.
+- **Equivalencia de coste publicada en `progression:report`** (curva por bandas): victorias iguales por punto de atributo pasan de ~1.0 (nivel 100) a ~4.15 (nivel 500), con XP total por banda 1.03M/2.63M/5.09M/8.43M.
+- Pruebas: `tests/curve_policy.test.js` (6) sobre clamp, tope de `calculateLevel` y bandas.
+
+
+- Definidas cinco restricciones de diseño como criterio transversal de balanceo: P1 (el tiempo no es la única moneda; prima de riesgo ≥1.25×), P2 (maestría reconocible; ≥2 logros/semana), P3 (sorpresa; ≥3 momentos/semana), P4 (firma por vía; solapamiento ≤35%), P5 (≥3 estilos viables por cohorte).
+- `DESIGN_TARGETS` añadido a `progressionBalance.js`; el reporte incorpora comprobación automática de dominancia de recompensas en trabajos (`jobSingleDominant`) y los objetivos declarados.
+- Acta de conformidad en `docs/BALANCE_TROZOS.md`: B2 cumple P2/P4/P5, cumple parcial P1 (la prima de riesgo vive en B1/B5), P3 no aplica a trabajos.
+- Evidencia en reporte: ningún empleo domina a la vez XP/h (encendedor_farolas), stelas/h (escribano_corte) y entrenamiento/energía → hay decisiones entre recompensas.
+
+
+- Sustituido el `50% → +1 stat` por trabajo por un sistema de puntos de entrenamiento acumulado (`JOB_TRAINING` en `progressionBalance.js`).
+- `computeJobTraining` (`src/services/rpg/jobTrainingService.js`): conversión exacta al cruzar el umbral (24 pts), tope semanal de +1 por atributo (`weeklyCapPerStat`) y reinicio por semana ISO; respeta el tope 100.
+- Cada trabajo aporta puntos según su duración (`trainingPointsForJob` en `jobConfig.js`).
+- Persistencia en `characters.slots.training` (JSONB, sin migración).
+- UI: `/trabajar cobrar` muestra el progreso (`DEF 14/24`) y el avance semanal; `/trabajar estado` muestra qué atributo entrena y su progreso actual.
+- Modelo analítico actualizado: el reporte usa el mismo contrato; la tasa efectiva queda ≤1 stat/semana por atributo y las advertencias de stats de trabajo desaparecen.
+- Pruebas: `tests/job_training.test.js` (6) y ajustes en `tests/progression_analytics.test.js`.
+- Plan persistido en `docs/BALANCE_TROZOS.md` (B3 movido al final).
+
+
+- **Cohortes longitudinales** (`src/config/progressionBalance.js`): niveles 100/150/200/300/400/500, estilos casual/regular/dedicado y horizontes de 1/7/30/90/180 días.
+- **Catálogo de accesibilidad** (`src/services/rpg/progressionAnalyticsService.js`): cruza expediciones, tiendas y requisitos de herramientas con el catálogo de materiales para detectar recursos sin fuente jugable y requisitos bloqueados.
+- **Simulación reproducible** (`npm run progression:report`): proyecta niveles alcanzados por cohorte/estilo y estadísticas acumuladas por trabajo en el tiempo, con salida JSON y Markdown determinista.
+- **Hallazgos base del reporte**:
+  - 14 materiales sin ruta jugable (oro, titanio, mitril, oricalco, legendarios y míticos).
+  - Dos requisitos bloqueados para herramientas (oro y titanio).
+  - El sistema de trabajos supera el objetivo de progresión de atributos y domina el progreso de stats frente a la XP.
+- **Pruebas** (`tests/progression_analytics.test.js`): 3 pruebas de detección de bloqueos, cohortes y proyección longitudinal.
+
+
+- **Personajes y progresión**: la XP avanza el nivel y sus umbrales correctamente; se normalizaron aliases de atributos y se mejoró la guía de creación y cambio de personaje.
+- **Inventario y equipo**: aplicada la migración `006_inventory_variants.sql`; tiers, durabilidad y equipo usan variantes/instancias independientes sin pérdida al equipar o desequipar.
+- **Forja y refinamiento**: las operaciones consumen la variante exacta del material y conservan stacks homogéneos.
+- **Economía y actividades**: las compras usan capacidad dinámica, reembolsan fallos de entrega y las expediciones validan el espacio completo antes de entregar botín.
+- **UX de WhatsApp**: trabajos aceptan selección numérica, mensajes de personaje activo usan comandos reales y los menús de combate muestran distancia, HP enemigo y Fulgor después de abrir, atacar o moverse.
+- **Calidad**: 73 archivos de prueba y 872 tests verdes; lint, typecheck, dependency-cruiser, formato y `npm audit --omit=dev` correctos.
+- **Migración operativa**: `006_inventory_variants.sql` debe permanecer aplicada en Supabase antes de desplegar el código correspondiente.
+
+### Fase 2: Recolección Pasiva, Expediciones, Herramientas (1-10), Trabajos y Expansión de Inventario (2026-09-04)
+
+- **Regla de Oro: Cero Ítems Lastre (Zero Clutter Policy)**:
+  - Todo material recolectado posee utilidad mecánica comprobada en forja y refinamiento (`trozo_de_piedra`, `trozo_de_hierro`, `trozo_de_bronce`, `trozo_de_acero`, `trozo_de_plata`, `trozo_de_madera`, etc.).
+  - Incorporados únicamente dos nuevos consumibles con módulos funcionales en `src/data/items.js`:
+    - `pescado_fresco`: `modules: { energy: { amount: 25 }, heal: { amount: 10 } }` (restaura energía diaria y salud).
+    - `hierba_medicinal`: `modules: { heal: { amount: 20 }, curePoison: true }` (cura 20 HP y purga toxinas).
+- **Progresión Estricta de Herramientas y Expansión de Mochila (`src/config/toolsConfig.js`, `src/services/rpg/toolService.js`)**:
+  - 5 herramientas base: `pico`, `hacha`, `cana`, `bolsa`, `mochila`.
+  - Progresión lineal de Niveles 1 a 10: no se compran en tiendas; se mejoran consumiendo stelas y materiales crecientes acordes al tier.
+  - La **Mochila de Viajero** expande dinámicamente el límite del inventario en `inventoryService.js`: desde 20 ranuras en Nivel 1 (+2 por nivel) hasta 38 ranuras en Nivel 10.
+- **Motor de Actividades Pasivas y Control de Energía (`src/services/rpg/activityEngineService.js`)**:
+  - Reserva diaria de 100 puntos de energía/vigor por personaje (reseteo determinista cada día a las 00:00 UTC).
+  - Bloqueo temporal de personaje en estado `busy` durante expediciones o turnos de trabajo: impide entrar en combate (`retar.js`) o visitar tiendas (`executePurchase`) mientras esté de viaje.
+  - Soporte de subcomandos `iniciar`, `estado`, `reclamar` y `cancelar` (abortar en cualquier momento para liberar al personaje).
+- **Zonas de Expedición Configurables (`src/config/expeditionConfig.js`)**:
+  - Zonas iniciales: Bosque de los Susurros, Minas de la Cuenca Férrea, Picos Escarpados, Costa de los Naufragios y Tundra Quebrada.
+  - Tablas de probabilidad ponderada por nivel de herramienta afín y duraciones (`corta`, `media`, `larga`).
+- **Sistema de 20 Trabajos Urbanos (`src/config/jobConfig.js`)**:
+  - 20 oficios con requisitos de estadísticas mínimas, recompensas en stelas, experiencia y probabilidad de entrenar +1 punto la estadística correspondiente sin superar el tope máximo de 100.
+- **Nuevos Comandos de Usuario**:
+  - `/expedicion` (`src/commands/rpg/exploration/expedicion.js`)
+  - `/herramientas` (`src/commands/rpg/exploration/herramientas.js`)
+  - `/trabajar` (`src/commands/rpg/exploration/trabajar.js`)
+- **Aseguramiento de Calidad**:
+  - Creada suite `tests/expedition_system.test.js` con **12/12 tests pasando al 100%**.
+
+### Fase 1: Sistema de Tiendas Reciclable, Comercio con Stelas y NPC Nixia (2026-09-03)
+
+- **Motor Genérico de Tiendas (`src/services/rpg/shopEngineService.js`)**:
+  - Implementada arquitectura extensible para tiendas (`SHOPS`) que permite gestionar inventarios fijos o dinámicos, dueños NPCs o jugadores.
+  - **Stock y Precios Deterministas**: Variación diaria calculada mediante semilla `YYYY-MM-DD:shopId:itemId` sin requerir cron jobs frágiles en base de datos.
+  - **Transaccionalidad Atómica y Seguridad**: Validación obligatoria de personaje activo (`getActiveCharacter`), capacidad en inventario (`MAX_INVENTORY_SIZE`), verificación y deducción de stelas bajo candado `withUserLock` e inyección de ítems bajo `withCharacterLock`.
+  - **Fix de Deadlock Reentrante en Compra**: Se eliminó la llamada anidada a `withUserLock` en `shopEngineService.executePurchase` debido a que `removeMoney` ya adquiere el candado internamente, evitando que el bucle de espera de `withUserLock` se bloqueara a sí mismo indefinidamente.
+- **Expansión a Multi-Tiendas y NPCs Especializados (`src/config/shopConfig.js`, `shopEngineService.js`)**:
+  - Incorporadas **El Santuario del Fulgor** (`tienda_magia`), regentada por el **Maestro Elidyr**, con foco en pergaminos, focos de madera y grimorios raros con stock fuertemente limitado.
+  - Incorporada **La Forja del Yunque Negro** (`herreria`), regentada por el herrero **Borin Martillo-Férreo**, con armas y armaduras básicas de hierro (Tier E) y lingotes en bruto.
+  - **Rebalance Económico Anti-Trivialización**: Se incrementaron sustancialmente los precios base de los contenedores avanzados (`grimorio`: ✧ 2,800; `grimorio_arcano`: ✧ 8,500) y se excluyeron armas/armaduras de tiers medios y altos de las tiendas de NPCs, garantizando que el equipo poderoso solo se obtenga mediante forja, crafteo y expediciones.
+  - `/tienda` ahora muestra un **directorio general interactivo** si se invoca sin argumentos, o el catálogo específico al ingresar `/tienda magia`, `/tienda herreria` o `/tienda nixia`.
+  - `/comprar` y `/hablar` admiten selección dinámica de tienda con resolución de alias (`magia`, `herreria`, `forja`, `nixia`).
+  - **Catálogos con Rotación Diaria de Stock y Ofertas Especiales (`shopEngineService.js`, `shopConfig.js`)**:
+    - Además de la fluctuación diaria determinista de precios (±10%) y stock, se implementó el soporte para `rotatingPool`: artículos de mayor tier (Tier D: acero, bronce, plata) que rotan día con día con stock escaso (1 a 3 unidades) y precios elevados.
+    - Se incorporó la insignia visual `⭐ [Oferta del Día]` en la visualización de `/tienda` para destacar los ítems rotativos.
+  - `npm run lint`: 0 errores, 0 advertencias.
+  - `npm test`: **72 suites de prueba, 852/852 tests pasados al 100%** (incluye `tests/shop_system.test.js`).
+
+### Corrección de Exploits Restantes del Sistema de Combate (2026-09-03)
+
+- **E-14 — Límite de Auto-buffs y Refrescos Continuos (`combatState.js`)**:
+  - Se implementó un contador `refreshCount` en los efectos no-stackable dentro de `applyEffects`.
+  - Ahora se permite un máximo de 3 extensiones sucesivas de duración por efecto, impidiendo que el spam de buffs propios mantenga efectos activos perpetuamente.
+- **E-12 — Bloqueo no es recuperador neto de fatiga (`bloquear.js`)**:
+  - Se corrigió el cálculo de fatiga al bloquear: `Math.max(1, blockCost - blockRecovery)`. Ahora bloquear siempre agrega al menos 1 punto de fatiga neta garantizada, impidiendo que personajes con defensas extremas regeneren fatiga y ejecuten bloqueo infinito.
+- **E-15 — Bloqueo de acciones para combatientes incapacitados (`bloquear.js`, `descansar.js`)**:
+  - Integrado `isActionBlocked(slot, "block")` y `isActionBlocked(slot, "rest")`. Combatientes afectados por estados incapacitantes (congelados, paralizados o atrapados) ya no pueden evadir turnos descansando o mitigando con bloqueos.
+- **E-08 — Aplicación real de debuffs de DEF y REF (`combatEngine.js`)**:
+  - `executeReaction` ahora recibe `defenderSlot` de manera opcional y procesa las funciones `getDefenseReduction(slot)` y `getReflexReduction(slot)` sobre las estadísticas efectivas del defensor, permitiendo que efectos de estado que reducen DEF y REF surtan efecto mecánico real en combate.
+- **E-13 — Normalización y fallback seguro de `spell_1` (`atacar.js`)**:
+  - Implementado fallback con `getSpellDetails(primaryEntry.spellId)` en `atacar.js` en caso de que `primaryEntry.itemDef` no venga hidratado en el contenedor, previniendo fallos silenciosos de canalización.
+- **E-04 — Límite de coherencia en recuperación de Fulgor (`descansar.js`)**:
+  - `calcFulgorRecovery` ahora está acotado por un límite del 40% del `maxFulgor` del personaje además del cap absoluto, manteniendo coherencia con el gasto energético de `fatigueEngine.js`.
+- **Verificación**:
+  - `npm run lint`: 0 errores, 0 advertencias.
+  - `npm test`: **71 archivos de prueba, 843/843 tests pasados al 100%** (incluye `tests/exploit_fixes.test.js`).
+
+### Paridad de Prisión y Barreras Mágicas — Punto 2 (2026-09-01)
+
+- **Mecánica de Prisión y Confinamiento (`combatState.js`, `spell.js`, `atacar.js`)**:
+  - **Lanzamiento de Prisión**: Hechizos de barrera con aplicación `externa` confinan al objetivo en `slot.prison = { hp, maxHp, element }`. La resistencia de la prisión escala proporcionalmente con el fulgor y canalización invertidos.
+  - **Bloqueo de Movimiento**: `/avanzar` y `/retroceder` impiden el desplazamiento mientras el combatiente esté confinado en una prisión activa (`slot.prison.hp > 0`), mostrando el estado de la jaula y su durabilidad restante.
+  - **Golpe a la Prisión desde Adentro (Opción 2 & Imbuición)**: Si un combatiente atrapado ejecuta `/atacar`, su ataque impacta la prisión desde adentro desgastando su durabilidad. Además, el combatiente queda automáticamente imbuido en el elemento elemental de la prisión (`applyElementalHit`). Si la durabilidad llega a 0, la prisión se destruye y el personaje queda libre.
+  - **Degradación de Prisión desde Afuera**: Ataques externos hacia un objetivo confinado degradan primero la durabilidad de la prisión (`applyPrisonDamage`). Cualquier daño remanente penetra hacia la barrera o HP del objetivo atrapado.
+  - **Barreras Defensivas Propias**: Hechizos con aplicación `propia` asignan absorción `slot.barrierHp` al lanzador sin realizar ataque ofensivo sobre el oponente.
+  - **UI de Combate**: El panel de combate (`combatSections.js`) renderiza badges visuales de `🛡️ Barrera: X HP` y `🧱 Prisión: X/Y HP [elemento]`.
+- **Verificación**:
+  - `npm run lint`: 0 errores, 0 advertencias.
+  - `npm test`: **70 archivos de prueba, 839/839 tests pasados al 100%** (incluyendo nueva suite `tests/prison_barrier_mechanic.test.js` con 14 pruebas específicas).
+
+### Corrección de Exploits Críticos de Combate & Paridad de Barreras (2026-08-31)
+
+- **Corrección de E-01 / E-02 / E-03 (`src/commands/rpg/combat/atacar.js`)**:
+  - **Verificación de Cooldown**: `/atacar` con foco ahora valida si `spell_1` está en enfriamiento (`spellCooldowns[primarySpellId] > 0`).
+  - **Pulso Arcano Básico (Opción B)**: Si `spell_1` está en enfriamiento activo, el foco canaliza un disparo arcano residual (`baseDamage: 0`, `damageNature: "mágico"`, sin elementos ni efectos del hechizo, consumiendo 1 punto mínimo de fulgor), evitando que el mago especializado deba recurrir al golpe físico cuerpo a cuerpo.
+  - **Deducción de Fulgor**: Al canalizar el hechizo de `spell_1`, el coste `fulgorCost` ahora se deduce efectivamente de la batería `spentFulgor` del atacante.
+  - **Registro de Cooldown**: Se registra el cooldown correspondiente en `attackerSlot.spellCooldowns[primarySpellId]` tras ejecutar el ataque canalizado.
+- **Corrección de E-06 — Paridad de Barreras (`applyBarrierDamage` en `atacar.js`)**:
+  - Integrada la función `applyBarrierDamage(defenderSlot, attackInfo.baseDamage)` en `/atacar` antes del despacho a PvE y PvP. Las barreras mágicas ahora absorben daño contra cualquier tipo de ataque entrante, no únicamente contra `/spell`.
+- **Auditoría Sistemática de Exploits**:
+  - Creado artefacto `exploit_audit.md` catalogando 15 vulnerabilidades y desbalances del sistema de combate.
+- **Verificación**:
+  - `npm run lint`: 0 errores, 0 advertencias.
+  - `npm test`: 69 suites de prueba, **825/825 tests pasados al 100%**.
+
+### Unificación de Tubería Mágica — Opción C (2026-08-31)
+
+- **Unificación de Lanzamiento de Hechizos (`/atacar` vs `/spell`)**:
+  - Eliminada la duplicación y bifurcación matemática de `src/commands/rpg/combat/spell.js`: ahora construye un `weaponInfo` sintético con los datos del hechizo y delega 100% el cálculo a `combatEngine.executeAttack`.
+  - La mitigación por `r_fulgor`, aplicación de fatiga, dilución de batería de fulgor (`eff = 0.1`), bonificadores situacionales y activación de **Reacciones Elementales** (`applyElementalAttack` / `applySpellHits`) están completamente unificadas en un único pipeline central.
+- **Desacoplamiento de Hechizos en Focos (`focus.js` & `arcaneFamily.js`)**:
+  - Los focos (`focus`) actúan ahora como amplificadores puros: aportan `canalizeBase` (fuerza bruta del material) y `canalizeScale` sin contener `spellIds` pre-cableados.
+  - Al ejecutar `/atacar` con un foco equipado, el sistema lee automáticamente el hechizo asignado a la ranura activa `spell_1` del grimorio del jugador. Si `spell_1` está vacía, el foco ataca físicamente con su daño de impacto.
+  - Estandarizado `varita_de_caoba` (`material: "madera_caoba"`) y `baculo_de_roble` (`material: "madera"`).
+- **Pruebas y Verificación**:
+  - `npm run lint`: 0 errores, 0 advertencias.
+  - `npm test`: 69 archivos de prueba, **825/825 tests pasados al 100%**.
+
+
+- **`src/commands/rpg/inventory/item_info.js` [NUEVO]**:
+  - Comando interactivo que permite inspeccionar la ficha técnica completa de cualquier ítem en inventario indicando su **número de posición 1-based** (`/item_info 2` o `/inspeccionar 1`) o su **ID/nombre**.
+  - Muestra: Identificación, Categoría, Rango/Tier (E a N), Estado de Equipamiento (`⚔️ Equipado en [mano_der]`), Estadísticas calculadas (Daño base, defensa, alcance, manos, conducción mágica, capacidad de slots), Atributos del material base (afilabilidad, resistencia, conducción) y Descripción de lore.
+- **`inventoryService.js`**:
+  - `getInventory()` & `getInventoryList()`: Actualizados para proyectar la columna `metadata` en el `select`, garantizando que la información de Tier y atributos personalizados se conserve en la vista del inventario.
+- **Pruebas Automatizadas**:
+  - `tests/item_info.test.js` [NUEVO]: 4/4 pruebas unitarias pasadas.
+  - Verificación global: 67 archivos de prueba, **797/797 tests pasados al 100%**.
+
+### Acciones Masivas (Bulk Actions) & Tolerancia a Fallos en Inventario / Equipamiento (2026-08-22)
+
+- **`equipmentService.js`**:
+  - `unequipItem()`: Devuelve de forma segura el objeto desequipado al inventario mediante `inventoryService.addItem()`.
+  - `unequipAllItems()`: Desequipa en bloque todos los objetos equipados y los devuelve al inventario.
+- **`inventoryService.js`**:
+  - `clearInventory()`: Elimina de forma segura todas las filas de `inventory` pertenecientes a un personaje.
+- **Comandos Actualizados**:
+  - `/desequipar todo` / `/unequip all`: Desequipa todos los ítems del personaje de una sola vez. Permite también slots múltiples: `/desequipar casco pechera botas`.
+  - `/equipar <n1> <n2>...`: Permite equipar múltiples ítems por número de inventario o ID de una sola vez (`/equipar 1 2 5 7` o `/equipar 1, 2, 5, 7`).
+  - `/item_rem todo` / `/item_rem all`: Vacía por completo todo el inventario del personaje activo. Permite también eliminación múltiple por posición (`/item_rem 1 2 5`).
+- **Pruebas Automatizadas**:
+  - `tests/bulk_inventory_equipment.test.js` [NUEVO]: Pruebas unitarias para `clearInventory`, `unequipAllItems` y `unequipItem` con devolución al inventario.
+  - `tests/item_commands.test.js`: Ajustada la comprobación de ayuda de `/item_rem` para no requerir personaje activo antes de ver el menú.
+  - Verificación global: 66 archivos de prueba, **793/793 tests pasados al 100%**.
+
+### Pilar 2 — Refinamiento de Materiales y Sistema de Forja / Crafteo (2026-08-22)
+
+- **`craftingService.js` [NUEVO]** (`src/services/rpg/craftingService.js`):
+  - `refineMaterial()`: Fusiona 2 unidades de material del mismo Tier en 1 del Tier superior (E→D→C→B→A→S→N). Valida existencia, disponibilidad en inventario y techo máximo (Tier N inrefinable).
+  - `craftEquipment()`: Forja equipamiento consumiendo 1–3 unidades de un material dado. El ítem producido hereda el Tier del material utilizado.
+  - **Tabla de recetas `CRAFTING_RECIPES`** con costes calibrados: ítems mágicos (varita: 1 ud., báculo/grimorio/túnica: 2 uds.) y armaduras/armas pesadas (pechera/escudo/espada larga: 3 uds.). Decisión explícita: los ítems de mago son más baratos para no desincentivar builds mágicos en Tier N.
+- **Comandos [NUEVO]** (`src/commands/rpg/crafting/`):
+  - `/refinar <material> [tier] [cantidad]`: Interfaz interactiva para elevar el Tier de un material. Ejemplo: `/refinar hierro E` → 2× Hierro E → 1× Hierro D.
+  - `/forjar <receta> <material> [tier]`: Muestra tabla de recetas por categoría y permite forjar ítems. Ejemplo: `/forjar tunica mitril S` → Pechera de Mitril Tier S (2 unidades).
+- **Pruebas Automatizadas** (`tests/crafting_refinement.test.js` [NUEVO]): 13/13 pruebas 100% verde. Técnica: `createRequire` + `vi.spyOn` sobre el objeto CJS real para interceptar correctamente módulos CommonJS desde un entorno ESM de Vitest.
+- **Calibración de XP y curva de Nivel** (corrección de calibración previa):
+  - `xpForNextLevel` recalibrada con coeficiente `3.15` → exactamente **998 batallas** de Nivel 100 a 500.
+  - Recompensa de XP: `100 + nivel × 50` (ganador), 25% en derrota.
+- **Tests actualizados**: `character_config.test.js`, `combat_engine.test.js` actualizados con los nuevos valores calibrados.
+- **Verificación final**: 65 archivos de prueba, **790/790 tests pasados al 100%**.
+
+### Sistema y Mecánicas de Contenedores de Hechizos (`spell_container`) (2026-08-22)
+
+- **Capacidades Ajustadas y Ranuras por Tier (`spellContainerService.js`)**:
+  - `CONTAINER_CAPACITIES`: Pergamino (1 slot), Libreta desgastada (4 slots), Grimorio (12 slots), **Grimorio Arcano (24 slots — capaz de albergar hasta 6 hechizos Tier S de 4 slots cada uno)**. (Capacidad alineada con los ítems de items.js.)
+  - Coste de ranuras por Tier (`getSpellSlotCost`): Tier S (4 slots), Tier A (3 slots), Tier B / C (2 slots), Tier E / D (1 slot).
+  - Validación de memoria al equipar hechizos (`equipActiveSpell`): rechaza el equipamiento si supera la capacidad libre del contenedor equipado activo.
+- **Ranura de Tomo Único (`equipmentService.js`)**:
+  - Incorporado slot oficial `spell_container` a `EQUIPMENT_SLOTS` y aliases coloquiales (`tomo`, `grimorio`, `pergamino`, `contenedor`). Un personaje solo puede tener 1 tomo equipado a la vez.
+- **UI & Menú de Hechizos (`spellSections.js` & `spell.js`)**:
+  - Muestra el tomo equipado con barra visual de capacidad `[████░░░░] 4/24 slots usados` al inicio de `/spell`.
+  - Muestra el coste en slots de cada hechizo según su Tier al listar `/spell` o `/spell info`.
+- **Pruebas Automatizadas (`tests/spell_container_capacity.test.js`)**:
+  - Creada suite de pruebas dedicada. Verificación limpia de la suite completa del proyecto (63 archivos, 770 tests 100% pasados).
+
+### Catálogo de Familias de Materiales y Rediseño de `/item_add` (2026-08-22)
+
+- **`src/data/materialFamilies.js`**:
+  - Generador y registro automático de familias de ítems para **todos los 20+ materiales del juego** (`materialData.js`: Madera, Cuero, Hueso, Piedra, Hierro, Bronce, Acero, Plata, Platino, Obsidiana, Oro, Madera de Caoba, Titanio, Mitril, Oricalco, Luminita, Mineral Pálido, Obsidiana Azul, Madera del Irminsul, Adamantita, Etério, Vibranium, Filo Estelar).
+  - Generación de **11 tipos de ítems por material**: Espadas (cortantes), Mazas (contundentes), Lanzas (perforantes), Dagas (perforantes), Báculos (canalización mágica), Cascos, Pecheras, Grebas, Botas, Escudos y Amuletos místicos.
+  - Derivación automática de metadatos (resistencia, durabilidad, masa, multiplicadores) mediante `createItemDefinition` de `itemFactory.js`.
+- **`src/data/items.js`**:
+  - Auto-carga de `materialFamilies.js` e integración con `getItem(id)`, `getAllItems()` y `getItemsByCategory(category)`.
+- **`src/commands/rpg/inventory/item_add.js`**:
+  - Rediseñado con soporte de **búsqueda inteligente por término** (ej: `/item_add mitril`, `/item_add casco`, `/item_add buscar espada`).
+  - Asignación rápida cuando la coincidencia es única o por ID exacto.
+  - Formato estructurado con sugerencias de IDs exactos cuando la búsqueda arroja múltiples coincidencias.
+  - Guía visual interactiva de materiales y categorías disponibles al ejecutar `/item_add` sin argumentos.
+- **`tests/material_families.test.js`**:
+  - Cobertura de pruebas automatizadas para el catálogo completo de familias de materiales y filtrado por categoría.
+
+### Puesta a Punto y Producción del Sistema de Combate (2026-08-22)
+
+- **UI & Mensajería Predictiva de Combate**:
+  - `src/ui/sections/combatSections.js` y `combatMessages.js`: Menú de turno enriquecido con contexto situacional directo (distancia en metros, HP y maxHP del enemigo, Fulgor disponible/máximo).
+  - `src/data/combatActions.js`: Prompt de reacción `REACTION_ACTIONS` actualizado para mostrar la **probabilidad % estimada de esquiva** y el coste de daño/fatiga antes de tomar la decisión.
+  - `src/ui/sections/combatStats.js`: `buildStatSummary` re-formateado a 2 líneas limpias con iconos temáticos (⚔️ ATK, 🛡️ DEF, ⚡ ASPD, 🏃 MSP, 👁️ REF, ✨ FUL).
+- **Integración de Meditación en Descanso**:
+  - `src/commands/rpg/combat/descansar.js`: `/descansar` (y alias `/meditar`) ahora recupera **Fatiga Y Fulgor** en el mismo turno. La recuperación de Fulgor es proporcional a la estadística de Defensa Arcana (`DF`).
+- **Comando `/usar` (Consumibles en Combate)**:
+  - `src/commands/rpg/combat/usar.js`: Nuevo comando de ejecución directa para usar pociones, vendas y elixires en combate o fuera de él. Consume del inventario, aplica curación de HP o restauración de Fulgor instantánea y avanza el turno.
+- **Visualización de Alcance de Hechizos (`/spell`)**:
+  - `src/ui/sections/spellSections.js` y `spell.js`: Sub-menú de hechizos equipados con indicadores 🟢/🔴 que comparan dinámicamente el alcance de cada hechizo contra la distancia actual de combate.
+- **Claridad en Reacciones y Resultados**:
+  - `bloquear.js`, `esquivar.js`, `huir.js` y `atacar.js` pasados a formato estándar con `buildSituationalCtx` para garantizar que el menú del siguiente turno presente la información situacional actualizada.
+
+### Catálogo Masivo de 40 Spells, Consumibles Escalados, Arenas Dinámicas y Sinergia de Build 100-500 (2026-08-22)
+
+- **`scripts/simulate_combat/repertorio40.js`**:
+  - Creación del catálogo masivo de **40 Habilidades Experimentales** forjadas bajo el Sistema Simplificado de Magia, cubriendo las 9 naturalezas de Fulgor (*fuego, agua, tierra, aire, hielo, electro, luz, oscuridad, caos*), las 2 aplicaciones (*propia, externa*), los 5 tipos de resolución (*proyectil, explosion, barrera, buffo, aura*) y efectos de estado. Clasificación determinista en Tiers oficiales con `getSpellCategory`.
+- **`scripts/simulate_combat/config.js` y `combatLoop.js`**:
+  - Adición de 4 personalidades especializadas (`mago_bombardero`, `mago_barrera`, `hibrido_perforante`, `hibrido_tanque`), nivelando la muestra (11 físicas vs 9 mágicas/híbridas).
+  - Implementación de consumibles de utilidad escalados por nivel (`ITEM_TIERS_BY_LEVEL`: Pociones Menores/Medias/Mayores de HP y Elixires de Fulgor).
+  - Soporte en `combatLoop.js` (`shouldUseItem`/`useItem`) para que magos e híbridos consuman pociones de Fulgor en combate, recargando batería de forma instantánea sin perder turnos meditando.
+- **`src/services/rpg/itemStatService.js`**:
+  - Implementación de `calculateBuildSynergy(stats, equipment, level)`, que evalúa la coherencia stat-equipo-hechizo. Aplica un coeficiente progresivo que otorga hasta **+15% de efectividad a Nivel 400-500** para builds especializadas y un malus de hasta **-10% por ineficiencia** a reparticiones sin coherencia.
+- **`scripts/simulate_combat/run_archetype_matrix.js`**:
+  - Runner actualizado para sortear distancias iniciales de arena (2m, 6m, 10m), asignar rotaciones de las 40 habilidades experimentales y evaluar comparativamente los brackets **Bracket Bajo (100–200)** vs **Bracket Alto (400–500 con sinergia activa)**.
+- **`memory/decisions.md`**:
+  - Registro de la **Nota Arquitectónica sobre el Consenso de Progresión**: la mejora/upgrade de equipamiento y hechizos del jugador está abstraída por nivel en el laboratorio y se diseñará en una sesión posterior.
+
+### Paso 5: Calibración y Balance Fino Competitivo (2026-08-22)
+
+- **`src/services/rpg/skillForgeService.js`**:
+  - Adición de `getSpellCategory(spellDef)` para clasificar objetivamente los hechizos en categorías canónicas (`Básico` Tier E/D, `Intermedio` Tier C/B, `Avanzado` Tier A, `Mítico` Tier S) según coste de Fulgor, `d_fulgor` requerido (`SPELL_DOMINIO_REQ`) y complejidad.
+- **`scripts/spell_lab/index.html` y `server.js`**:
+  - Integración de `getSpellCategory` en la API `/api/cost` y actualización del Spell Lab para mostrar la categoría real calculada y sus métricas objetivas de dominio y Fulgor.
+- **`scripts/simulate_combat/families.config.js` y `familyGenerator.js`**:
+  - Generador universal de familias para los 21+ materiales del juego (`materialData.js`), derivando de base armas físicas, focos modulares (varitas/báculos con daño + canalización), armaduras y túnicas místicas (cobertura mística + buff mágico), escudos y artefactos.
+  - Desvinculación del Tier de la rareza del material: el Tier representa la calidad de manufactura del objeto (existiendo Madera Tier S y Mitril Tier E).
+- **`scripts/simulate_combat/config.js` y `fighterGenerator.js`**:
+  - Adición de 4 personalidades con asignación de presupuesto en stats mágicas (`mago_puro`, `mago_control`, `hibrido_guerrero`, `hibrido_mago`) y mapa `ARCHETYPE_MAP`.
+  - Asignación de equipo modular y libertad total de acciones sin bloqueos de clase.
+- **`scripts/simulate_combat/run_archetype_matrix.js`**:
+  - Runner dedicado para simular la matriz cruzada 3×3 de enfrentamientos (Físico vs Físico, Físico vs Mágico, Físico vs Híbrido, Mágico vs Mágico, Mágico vs Híbrido, Híbrido vs Híbrido) con niveles parejos. Generación de reporte en `scripts/simulation_output/archetype_matrix_report.md`.
+
+### Runtime Completo de Efectos de Estado, Cegadura y Barreras (2026-08-22)
+
+- **`src/config/spellTree.js`**:
+  - Adición de la constante `CEGADURA_REF_REDUCTION = 3` y registro del nuevo efecto `cegadura` en `EFFECT_DEFS`.
+  - Refinamiento de `congelado`: inmoviliza el movimiento de forma estándar; el bloqueo de ataques es condicional al daño mágico del impacto superando la Resistencia Mágica del objetivo (`dañoMágico > R_FULGOR`).
+  - Consagración del **Principio Canónico de Naturalezas Primordiales**: Luz, Oscuridad y Caos pueden ejecutar todo el espectro (daño, debuffs como cegadura, buffs, curación, purificación, barreras y auras).
+- **`src/services/rpg/combatState.js`**:
+  - `getDefenseReduction(slot)`: cálculo acumulativo de reducción de defensa (DEF) para `rompe_armaduras`.
+  - `getReflexReduction(slot)`: cálculo acumulativo de reducción de reflejos (REF) para `cegadura`.
+  - `applyBarrierDamage(slot, rawDamage)`: absorción de daño prioritario por barrera defensiva antes de impactar el HP del personaje.
+- **`src/ui/sections/combatSections.js`**:
+  - `activeEffectLines(combatant)`: visualización de estados activos e indicadores de barrera HP en el menú de combate.
+- **`src/commands/rpg/combat/spell.js`**:
+  - Integración de `isActionBlocked` (bloqueo de casteo cuando está congelado severamente) y absorción de barrera al calcular daño mágico.
+- **`tests/spell_effects_runtime.test.js`**:
+  - Pruebas unitarias completas para `congelado` condicional, `cegadura`, `rompe_armaduras`, `applyBarrierDamage` y purificación.
+
+### Sistema de Hechizos `/spell`, Contenedores y Ranuras Activas (2026-08-22)
+
+- **`src/commands/rpg/combat/spell.js`**: comando principal `/spell` con sub-menú interactivo estilizado en la UI de combate (`spellSubmenuLines`), lanzamiento en combate, chequeo de cooldowns, toggle de pasivas, ficha técnica (`/spell info`) y listado de tomos (`/spell contenedores`).
+- **`src/commands/rpg/inventory/equipar_spell.js`**: comando `/equipar_spell` (alias `/equipar_hechizo`, `/equipar_habilidad`) para equipar/desequipar en las 4 ranuras activas de combate.
+- **`src/services/rpg/spellContainerService.js`**: servicio para gestionar la capacidad de tomos contenedores (`libreta_desgastada` [2], `pergamino` [1], `grimorio` [4], `grimorio_arcano` [8]) y el límite estricto de 4 ranuras activas equipadas (`spell_1`..`spell_4`).
+- **`src/services/rpg/equipmentService.js`**: adición de `spell_1`..`spell_4` a `EQUIPMENT_SLOTS` y sus alias coloquiales (`hechizo_1`, `habilidad_1`, etc.).
+- **`src/data/items.js`**: registro de ítems contenedores en el catálogo de ítems (`libreta_desgastada`, `pergamino`, `grimorio`, `grimorio_arcano`).
+- **`src/data/combatActions.js`**: adición de `/spell` al menú de acciones de combate de WhatsApp.
+- **`src/services/rpg/combatState.js`**: decaimiento por turno de cooldowns de hechizos activos (`decaySlotSpellCooldowns`).
+
+### Quemadura persistente en combate
+
+- **`src/config/spellTree.js`**: `quemadura` calcula duración y daño por tick según `d_fulgor` del lanzador, y mitiga cada tick con `r_fulgor` del objetivo.
+- **`src/services/rpg/combatState.js`**: las reacciones registran efectos persistentes en el slot objetivo; los efectos no acumulables se refrescan y el DOT se resuelve al inicio del turno del portador.
+- **`tests/combat_elemental.test.js`**: cobertura de aplicación, duración, consumo y mitigación de quemadura.
+
+### Paridad de equipo y preparación de balance competitivo
+
+- **`itemStatService`**: el tier de armas físicas se aplica una sola vez, eliminando el doble escalado frente a focos y armaduras.
+- **Equipo de combate**: absorción y persistencia multi-pieza en ataque, bloqueos, esquivas, descanso, huida y turno del dummy; TD-005 resuelta.
+- **`memory/plans/competitive_balance.md`**: criterios, métricas y puertas técnicas para el balance físico, mágico e híbrido.
+
+---
+
+## [2.12.0] - 2026-08-06
+
+### Generador de familias de ítems tester (múltiples materiales + tiers) + IA de equipamiento + informe detallado + re-baseline
+
+La simulación deja de depender del catálogo plano de hierro y pasa a generar equipo con **materiales reales del motor** (`materialData`), tiers por material, munición para arcos, y una IA de combate que reacciona al equipamiento. Los ítems siguen siendo SOLO tester (en memoria, sin registrar en el catálogo real).
+
+- **`scripts/simulate_combat/families.config.js`** (nuevo): pesos de rareza de material (común 40% / poco común 30% / raro 15% / épico 10% / legendario 3% / mítico 2%), techo de tier por material (común→C, poco común→B, raro→A, épico/legendario/mítico→S), familias editables (hierro + madera), stock de flechas y umbral de bloqueo (`BLOCK_PREFER_DEF_THRESHOLD=60`).
+- **`scripts/simulate_combat/familyGenerator.js`** (nuevo): registro en memoria `createFamily/removeFamily/editFamily/listFamilies` (persistencia opcional en `families.state.json` ignorada por git — solo cambios del CLI), `rollMaterial` (peso por rareza desplazado por nivel), `rollTier` (E–S según nivel + rareza del material), builders de arma/armadura/escudo/amuleto/municion con **stats reales del motor** (`base × tier × material` vía `itemStatService`), y `generateLoadout` (1 arma + munición si ranged + armadura con cobertura por pieza + escudo si 1 mano + amuleto). `rollTier` simula crafteo: tier del material como techo, con probabilidad de tier inferior.
+- **`scripts/simulate_combat/fighterGenerator.js`**: `generateEquipment` delega en `generateLoadout` (presets de experimento siguen funcionando). Fix de nombre redundante (`Arco de Hierro de Acero` → `Arco de Hierro`).
+- **IA de equipamiento** (`combatEngine.chooseAiReaction`): prefiere **bloquear** si hay escudo o `bonusDef ≥ 60`; el arquero sin flechas pasa a **desarmado** y se acerca (un ranged sin proyectil ya no "ataca a distancia" con daño 0). Umbral movido a `combatConfig.BLOCK_PREFER_DEF_THRESHOLD`.
+- **`scripts/simulate_combat/manage_families.js`** (nuevo): CLI `list/show/add/edit/rm` sobre `families.config.js` (persistencia probada entre ejecuciones).
+- **`scripts/simulate_combat/generate_family_report.js`** (nuevo): informe markdown detallado de equipamientos generados (stats, arma con naturaleza/tier/material/daño/alcance/municion, piezas de armadura con cobertura/maxResist/bonusDef, escudo, amuleto con buff, piezas de set y bono activo, stats de material por pieza) → `scripts/simulation_output/family_report.md`.
+- **Métricas** (`metricsCollector`/`aggregator`/`formatters`): secciones con winrate por material, rareza del material del arma, material de armadura y munición en el reporte.
+
+**Re-baseline (2000 sims, nuevo generador)**: integridad 0 issues; turnos subset parejo 6.03 (target 7.0 ✅, CI 5.45–6.62); ventaja primer atacante −4.4% (⚠️ ahora el 2º atacante gana — el primer atacante asume la fatiga de los 25 m iniciales, agravada por coberturas pesadas); meta gladiador 69.2% (target ≤55% ⚠️, hallazgo del motor, sin maquillar); set bonus activo 97.6% (todas las piezas comparten `setId` de familia); naturalezas por bracket desviadas de 1/3 (perforante ~44% porque el arco suma munición perforante). Hallazgos del motor pendientes: asimetría del primer atacante, progresión por tier vs nivel (el nivel no predice victoria), set bonus/amuleto solo UI, `getMovementFatigueWithCoverage` sin consumidor real.
+
+Lint 0, typecheck 0, 532/532 tests verdes.
+
+
+## [2.11.0] - 2026-08-05
+
+### Techo de 20 rounds + balance de duración (HP×3) + cobertura coherente por fighter + re-baseline
+
+Decisión de diseño del usuario: una pelea de más de 20 rounds se vuelve aburrida → el simulador ahora usa `MAX_ROUNDS=20` (solo simulación; el motor real no se toca).
+
+- **`scripts/simulate_combat/config.js`**: `MAX_ROUNDS` 50→20, `FATIGUE_SNAPSHOT_TURNS` recortado a `[1,5,10,15,20]`, `HP_STAT_MULTIPLIER` 5→3 (HP pool medio ~215→~130: los KOs llegan antes sin tocar fatiga del motor).
+- **`scripts/simulate_combat/fighterGenerator.js`**: la cobertura se sortea UNA vez por fighter (todas las piezas iguales) en vez de por pieza con "la más pesada manda" — antes el baseline quedaba con 65% "total" / 0.5% "ligera" sin varianza real; ahora ~25% cada cobertura.
+- **`scripts/simulate_combat/audit.js`**: labels dinámicos ("round ${maxRounds+1}", "Batallas ≥ ${maxRounds}"); nuevas métricas de sesgo del desempate por HP residual en timeouts (perdedor ≥50% HP del ganador, gap de HP P50/P90).
+
+**Resultados (baseline 2000 sims, techo 20 + HP×3)**: integridad 0 issues; turnos subset parejo 7.50 (target 7.0 ✅, antes 12.06); ventaja primer atacante 2.6% ✅ (antes 2.1% con techo 50); timeouts 9.2% (antes 4.4% con techo 50 — piso estructural del dodge determinista, ver abajo); duración media 7.20 (antes ~12); P90 20 (antes 26); cobertura ahora alta 55% / total 24% / media 11% / ligera 10% (el escudo fijo "alta" explica el 55%); meta tanque 67.1% (target ≤55% ⚠️ — hallazgo del motor, sin maquillar).
+
+**Sweep de fatiga (6 candidatos × 2000 sims via `run_experiments.js`)**: `FATIGUE_ATK_COST_SCALE` 0.10/0.15, `FATIGUE_RECOVERY_MAX` 10/8, y combos — todos quedaron en 286-329 timeouts y ~9.3-9.7 rounds: la fatiga NO es el driver de la cola larga. El driver real es el **dodge determinista** (`combatEngine.attemptDodge`: mspd > aspd → esquiva siempre; 69% de los timeouts tienen un lado con dodge perfecto). Decisión del usuario: mantener el dodge determinista → el ~8-9% de timeouts es el piso estructural aceptado. **HP×3 fue la palanca efectiva** (timeouts 15.7%→8.2%, turnos 9.81→7.73; HP×2 invertía la ventaja del primer atacante a −2.6% y dejaba P50 en 4 → descartado).
+
+**Experimentación (16 presets × 1000 sims, bajo el nuevo balance)**: todo acortó ~40% vs la pasada (amuleto 7.8→6.9 rounds, maza 16.8→9.2, tier E 15.1→9.1); jerarquías se mantienen (estoque más letal KO 96.7% / maza más lenta 9.2 rounds; tier E→A KO 84.7%→93.2%); el escudo ahora importa (winrate 49.2%→53.4%, antes sin efecto); set_on sigue alargando (5.5→7.0 rounds) y da ventaja (46.2%→52.1%).
+
+Lint 0, typecheck 0. Hallazgos del motor sin tocar (tickets pendientes): nivel no predice victoria (34.5%), meta tanque 67.1%, desempate por HP residual en timeout, set bonus/amuleto solo UI, `getMovementFatigueWithCoverage` sin consumidor real.
+
+
+
+## [2.10.0] - 2026-08-04
+
+### Catálogo de ítems real (Familia del Hierro) en la simulación + re-baseline con soft cap + experimentos de equipamiento
+
+Reemplaza el catálogo inventado de la simulación por el catálogo base de hierro derivado con las fórmulas REALES del motor (`itemStatService`: base × tier × material), con personalidades tipo jugador (especializadas 60-80% en 2-3 stats) y valida mecánicas pendientes del motor. Los ítems se crean SOLO en la simulación; cuando estén probados se implementarán en `src/data/` (revisando además cómo se almacenan los ítems ya creados).
+
+- **`scripts/simulate_combat/config.js`**: `PERSONALITIES` rediseñadas (tanque, asesino, esquivo, equilibrado, extremista_*, velocista, berserker, guardian, estratega, gladiador, magus), `IRON_FAMILY` (weaponPool espada cortante 20 / estoque perforante 14 / maza contundente 22; armorSlotBase cabeza/pecho/pantalones/botas; coverageSuffix ligera/media/alta/total; escudo en `mano_izq` cobertura alta; amuleto `{atk:+5}`), `TIER_BRACKETS` (E/C/B/A) con asignación probabilística 60/30/10, `SHIELD_CHANCE=0.6`, `AMULET_CHANCE=0.4`, `SET_BONUS={def:10}`, `STAT_SOFT_CAP=75`.
+- **Soft cap de asignación de puntos** (`fighterGenerator.js`): `allocateDelta` reparte el presupuesto de nivel punto a punto según pesos de personalidad con decay cuadrático desde el soft cap — el jugador diversifica al acercarse al clamp 100 (elimina la saturación que aplastaba la varianza). `scaleToLevel` re-gasta el delta con los pesos del propio fighter (adiós al escalado por ratio). `capToMaxLevel` recorta el exceso de nivel por buffs (suma ≤ 500).
+- **`combatLoop.js`**: cobertura real aplicada a movimiento (mspd penalizada + `getMovementFatigueWithCoverage`); durabilidad por piezas EN ORDEN (`createDurability` reparte el daño material entre `armorList` — mecánica validada en sim, pendiente en motor real que solo impacta `armor.list[0]`).
+- **Métricas/auditoría**: `metricsCollector` (equipmentTier, coverage, setPieces, amulet, shield, armorBrokenPieces...), `aggregator`/`formatters` (sección "Equipment Analysis" con winrates), `audit.js` (7.1 saturación por bracket, 7.2 naturalezas ≈1/3, 7.3 tier por nivel 60/30/10, 7.4 equipo; veredicto con backticks escapados; accepta `draw` por timeout con HP igual).
+- **`scripts/simulate_combat/run_equipment_experiments.js`** (nuevo): 16 presets × 1000 sims (amuleto on/off, escudo on/off, cobertura ligera→total, set on/off, naturaleza espada/estoque/maza, tier E/C/A) → `scripts/simulation_output/experiments/`.
+- **`docs/item_creation_guide.md`** (nueva): reglas canónicas de creación de ítems + resultados del re-baseline y experimentos.
+
+**Resultados (baseline 2000 sims)**: integridad 0 issues; saturación 0% en brackets bajos (máx 20.5% def en 400-500); naturalezas ≈1/3; tier 60/30/10; ventaja primer atacante 2.1% (target ≤5% ✅); meta velocista 64.6% (target ≤55% ❌ — hallazgo del motor); turnos 12.06 (target 7.0 ❌). **Experimentación**: amuleto acelera (rounds 12.8→10.2, ATK +8), set alarga combates (9.2→12.1 rounds), cobertura ligera/media invierte la ventaja del primer atacante, tier E→A reduce rounds 15.1→9.2, estoque es la naturaleza más letal (KO 98%). Lint 0, typecheck 0.
+
+
+## [2.9.0] - 2026-08-03
+
+### UI por secciones reutilizables + menú de combate data-driven + equipamiento en `/ver_pj`
+
+Segunda pasada de UI (feedback de la segunda prueba en vivo): separar las pantallas del sistema en secciones reutilizables que se alimentan directamente del registro de comandos/servicios, para que añadir/quitar funcionalidad actualice la UI sin tocar el formateador.
+
+- **Librería UI** (`src/ui/`): `sectionBuilder.composeMessage` compone cualquier mensaje a partir de secciones (arrays de líneas) separadas por línea en blanco; secciones por dominio en `src/ui/sections/` (`combatStats`, `combatSections`, `characterSections`, `equipmentSections`). `combatMessages`, `characterFormatUtils` e `inventario` ahora **componen** desde estas secciones en vez de construir líneas a mano (sin duplicación).
+- **Menú de acciones data-driven** (`src/data/combatActions.js`): `COMBAT_ACTIONS` y `REACTION_ACTIONS` son listas declarativas `{command, label, hint?, when?}` con `render` para reacciones. `formatActionMenu`/`formatReactionPrompt` (y las pantallas de combate) se generan desde el registro → el menú ya muestra `avanzar`/`retroceder`, que antes faltaban por estar hardcodeado con solo 4 acciones.
+- **Equipamiento en `/ver_pj`**: el comando resuelve el equipo con `equipmentResolverService.resolveCharacterEquipment` y `formatCharacter` muestra una sección **EQUIPO** (arma, armadura con durabilidad, material, artefactos, bonos de set) — antes no se reflejaba el equipamiento actual.
+- **Sin emojis de ítem restantes**: se eliminan los prefijos de tipo 🗡️/🧵/🛡️ de `formatEquipmentSummary` y de las líneas de arma/armadura en `atacar.js` (107/449 y armadura). Se conservan emojis de estado (HP/fatiga), encabezados de sección e iconos de stats.
+
+**Tests**: +11 (`combat_actions.test.js`×5, `section_builder.test.js`×4, equipo en `character_format.test.js`×2) — **469/469 verdes** (33 archivos). Typecheck 0. Eslint 0 errores en archivos tocados (2 preexistentes documentados en `atacar.js`).
+
+## [2.8.0] - 2026-08-03
+
+### UX de inventario + eliminación de iconos de ítems + fix HP 0 en combate
+
+Revisión del sistema de inventario (feedback de la primera prueba en vivo con el kit de hierro):
+
+- **Listado numerado**: `/inventario` muestra `N. Nombre xCantidad` con índice 1-based para referirse a los ítems cómodamente.
+- **`/equipar <n>|item_id [slot]`**: acepta el número del listado; si no se indica slot, se elige automáticamente por categoría (weapon→`mano_der`, shield→`mano_izq`, armor→slot del módulo o inferido por id/nombre, artifact→primer hueco libre). Nuevos helpers en `equipmentService`: `resolveDefaultSlot`, `resolveArmorSlot`, `normalizeSlot`, `SLOT_ALIASES` (casco, pechera, grebas, botas, mano...).
+- **`/des_equipar <slot>`**: nuevo nombre de comando (alias) y acepta alias de slot; `/usar <n>` acepta el número del listado.
+- **Eliminación de sticker/icono de ítems**: se quita el campo `icon` de las definiciones (`items.js`, `ironFamily.js`) y de todas las salidas de texto (inventario, usar, item_add, item_rem, equipar, desequipar, UI de equipo en combate, ataque). `itemFactory`/`itemService` ya no inyectan icono; `entityFactory` conserva `icon === ""`.
+- **Fix HP 0**: una sesión de combate nunca arranca con vida 0. Nuevo `combatState.resolveSessionHp` — si el HP persistido es 0/inválido, inicia con el HP máximo (p. ej. tras dejar vida 0 en un combate anterior).
+
+**Tests**: +15 (`resolveSessionHp`, `normalizeSlot`, `resolveDefaultSlot`, `getInventoryList`) → **458/458 verdes** (31 archivos). Typecheck 0. Eslint 0 errores en archivos tocados.
+
+## [2.7.0] - 2026-08-03
+
+### Dummy equipado con la Familia del Hierro + UI de combate
+
+Primera pasada integral de juego: el dummy PvE ahora usa equipo real y el sistema de combate lo muestra de punta a punta.
+
+- **`src/services/rpg/dummyEquipment.js`** (nuevo): equipo en memoria del dummy (espada, set `set_hierro` de 4 piezas, amuleto) en la misma forma que expone `getEquippedItems` para la DB. `generateDummyCharacter` lo adjunta; los resolvers lo usan **sin tocar la DB**.
+- **`equipmentResolverService`**: `getEquippedItems`/`resolveDefenderArmor` aceptan personaje (objeto) o id y resuelven el equipo en memoria del dummy; nuevo `resolveCharacterEquipment` (resumen de arma/armadura/artefactos/sets/cobertura) para la UI.
+- **UI de combate** (`combatMessages`): `formatCombatOpen` y `formatCombatStatus` ahora reciben un `equipmentMap` y dibujan arma (naturaleza+daño), piezas de armadura con durabilidad, resistencia material total, artefactos y bonos de set activos.
+- **`atacar.js`**: el ataque muestra el arma usada, el daño material, la absorción/overflow/rotura de la armadura y la durabilidad restante; los mensajes se reutilizan. El **contraataque del dummy ahora usa su espada** (resuelve su arma en memoria) y la durabilidad de su armadura se sincroniza en memoria (no escribe en la DB).
+- **`estado.js` / `retar.js`**: resuelven el equipo de ambos bandos para la apertura y el estado.
+- **Kit de hierro**: `inventoryService.ensureIronFamilyKit` siembra el set completo (+kunai x5) al retar al dummy; `/item_add` lista la familia de hierro.
+- `armorSetService`/`armorSets`: los bonos de set exponen `name` para la UI.
+
+**Tests**: +11 (`tests/dummy_equipment.test.js`: buildDummyEquipment, resolvers en memoria, resolveCharacterEquipment, UI) → **443/443 verdes** (31 archivos). Typecheck 0, eslint 0.
+
+## [2.6.0] - 2026-08-03
+
+### Familia del Hierro (primeros ítems de juego)
+
+Primeros ítems concretos construidos sobre el sistema gestor de ítems (v2.5.0):
+
+- **`src/data/ironFamily.js`**: 7 definiciones registradas en `itemCatalog` (material `hierro`, tier E):
+  - Arma equipable `espada_de_hierro` (cortante, 1 mano).
+  - Set `set_hierro` de 4 piezas: `casco`, `pechera`, `grebas`, `botas_de_hierro`.
+  - Artefacto `amuleto_de_hierro` (buff `atk: 5`).
+  - Arma arrojadiza `kunai_de_hierro` (perforante, apilable x20, consume turno de ataque).
+- **`src/data/armorSets.js`**: bonus del set (≥3 piezas) → `{ def: 10 }`.
+- **`src/data/itemCategories/throwable.js`** (nuevo módulo): arma no equipable, `trigger Throw/Use`, `consumedOnUse`.
+- **`src/services/rpg/itemFactory.js`**: nuevo tipo `throwable` en `VALID_TYPES`; los arrojadizos no portan durabilidad persistente.
+- **`src/data/items.js`**: `getItem` ahora cruza al `itemCatalog` inyectable (los ítems del catálogo son visibles para equipo/resolver/inventario). `getItemsByCategory` se mantiene sobre el catálogo base.
+
+**Tests**: +18 (`iron_family.test.js`: stats, factory, set bonus, arma no equipable, resolución de equipo con puente real) → **432/432 verdes** (30 archivos). Typecheck 0, eslint 0 errores.
+
+## [2.5.0] - 2026-08-03
+
+### Sistema Gestor de Ítems (mecánica, sin ítems concretos)
+
+`Plan: memory/plans/item_system_engine.md` — capa de gestión que construye, valida, resuelve y persiste las definiciones de ítem y su equipo. No se crearon ítems del catálogo; se prueba con fixtures sintéticos.
+
+- **`src/data/itemCatalog.js`**: registro inyectable/`lazy` de definiciones de ítem (vacío; catalogables a futuro).
+- **`src/services/rpg/itemFactory.js`**: `createItemDefinition` con validación de tipo (`weapon|armor|artifact|consumable|material|special`), normalización de tier y derivación de `metadata` (durabilidad `maxResist/currentResist` y `materialStats`) desde material+tier.
+- **`src/services/rpg/itemStatService.js`**: fórmula pura `base × tier × material` → `getWeaponStats`/`getArmorStats`/`getArtifactStats`/`getMaterialCost`.
+- **`src/services/rpg/equipmentResolverService.js`**: cruza `equipped_slots` ↔ `inventory.metadata` → `weaponInfo` / instancias `DurabilityModule` / buffs de artefactos. Backward-compat: sin arma ⇒ `weaponInfo=null`.
+- **`src/services/rpg/durabilityPersistenceService.js`**: sincroniza `currentResist`/`broken` a `inventory.metadata`; si el ítem no es reparable y llega a 0 ⇒ se elimina (destroyed). Preserva campos ajenos de metadata.
+- **`src/services/rpg/armorSetService.js`**: cobertura (total/alta/media/ligera) → penalización `MSPD` y coste de fatiga por metro; bonos de set ≥3 piezas.
+- **Integración combate (`atacar.js`)**: resuelve `weaponInfo` del atacante y `armorDurability` del defensor y los pasa a `executeAttack`/`executeReaction`; persiste durabilidad tras el golpe (fallback silencioso, backward-compat).
+
+**Tests**: +32 (factory, stat service, resolver, durabilidad, sets) → **414/414 verdes**. Typecheck 0 errores, eslint 0 errores, depcruise 3 warnings históricos.
+
+## [2.4.0] - 2026-08-03
+
+### Remediación del Sistema de Ítems y Equipamiento
+
+**Corrección de deuda técnica (auditoría código ↔ Supabase):**
+
+- **Migración 003 (`src/database/migrations/003_remediation_item_equipment.sql`, manual en Supabase):**
+  - `inventory.metadata` (JSONB) — storage para durabilidad/tier/material/broken.
+  - `characters.equipped_slots` (JSONB) — desbloquea `/equipar` y `/desequipar`.
+  - Tabla `combat_sessions` (misma DDL de `TABLE_CREATE_SQL`) — persiste sesiones de combate.
+  - Limpieza de ítems temporales huérfanos (`*_temp`) del inventario.
+
+- **Versión de schema unificada** (`src/database/schemaConstants.js`): `CURRENT_VERSION` como única fuente (2.2.0); `schemaVersion.js` y `schemaMigration.js` dejan de tener versiones duplicadas (2.0.0 vs 2.1.0).
+
+- **Esquema conocido alineado:**
+  - `columnRegistry.KNOWN_SCHEMA`: añadido `characters.category`.
+  - `schemaValidator`: añadido `inventory.metadata` y `characters.equipped_slots`.
+  - `schemaMigration.DESIRED_SCHEMA`/`COLUMN_TYPES`: tipos corregidos a **UUID** (`characters.id`, `inventory.character_id`), añadidas nuevas columnas deseadas.
+
+- **Blindaje `equipmentService.js`:** nuevo guard que, ante columna/relación inexistente (PGRST204), lanza error claro apuntando a la migración 003 en lugar de fallar en silencio o devolver `{}`. Tests de degradación añadidos (migración ausente).
+
+- **Nuevo script** `scripts/cleanup-temp-items.js` idempotente (DRY por defecto, `--apply` para ejecutar).
+
+**Verificación:** typecheck 0 errores, lint 0 errores nuevos en archivos tocados (2 errores preexistentes en `formatErrorUtils.js`), 382/382 tests verdes (24 archivos), depcruise solo 3 warnings históricos, graphify actualizado (1558 nodos). Smoke vs Supabase: `equipped_slots`, `metadata` y `combat_sessions` operativos; `schema_version=2.2.0`.
+
+---
+
+## [2.3.1] - 2026-08-01
+
+### Reestructuración de Raíz y Limpieza de Archivos Obsoletos
+
+**Organización de la raíz del proyecto:**
+- `docs/` — Movidos `AI_CHANGELOG.md`, `ROADMAP.md`, `CHECKLIST.md` desde la raíz.
+- `_archive/` — Movidos `PLAN_stats_magicas.md` y `COMBATSISTEM.md` (borrador/plan completado).
+- Eliminados `tsconfig.tsbuildinfo` (artefacto de cache incremental de `tsc`), `.clinerules`, `.roomodes` y `.roo/` (configs de agentes que referenciaban la capa de IA purgada).
+
+**Limpieza de `_archive/`:**
+- Eliminados 6 archivos obsoletos: `carta_blanca.test.js`, `test_carta_blanca_inventory.js` (tests de sistemas de combate/inventario IA eliminados), `characterProgressionService.js` (servicio sin uso, XP deshabilitada), `classes.js` y `races.js` (catálogos antiguos reemplazados por `src/data/clases.js` y `src/config/characterConfig.js` con 21 razas canon) y `COMBATSISTEM.md` (borrador).
+- Conservados como histórico: `combat_systems_archive.zip`, `PLAN_stats_magicas.md` y `fase3_purga/`.
+
+**Referencias actualizadas:**
+- `.agents/AGENTS.md` y skills de opencode ahora apuntan a `RolBotV1/docs/`.
+- `src/data/itemCategories/index.js`: añadido JSDoc a `getCategory` (error TS7006 oculto por el cache incremental de `tsc` quedó visible al eliminar `tsconfig.tsbuildinfo`).
+
+**Verificación:** typecheck 0 errores, lint 0 errores nuevos en archivos tocados, 380/380 tests verdes, knip limpio, depcruise solo 3 warnings históricos.
+
+---
+
+## [2.3.0] - 2026-07-30
+
+### Sistema de Ítems V2 — Tiers, Materiales, Módulos, Equipamiento y Naturalezas de Daño
+
+**Nuevas funcionalidades:**
+
+- **Tiers (E/D/C/B/A/S/N)**: `tierConfig.js` — multiplicadores lineales (1.12x→1.84x), especiales para Contundente (1.2x→6.0x), penetración para Cortante (12%→84%).
+- **Materiales**: `materialData.js` — 20 materiales en 6 categorías con 4 atributos de forja (Afilabilidad, Conducción, Resistencia, Flexibilidad) escalados por Tier.
+- **WeaponModule**: naturaleza de daño (cortante/contundente/perforante), manos (1/2).
+- **ArmorModule**: slot corporal, grados de cobertura (total/alta/media/ligera).
+- **DurabilityModule**: absorción, `broken` (reparables) vs `destroyed` (no reparables).
+- **equipmentService**: 10 slots, auto-desequipado de armas de 2 manos (marcador `__2h:`), persistencia JSONB.
+- **Comandos `/equipar` y `/desequipar`** con validaciones completas.
+- **Migración SQL 002**: columnas `metadata` (inventory) y `equipped_slots` (characters) con índice GIN.
+
+**Motor de combate:**
+- `calculateWeaponDamage()` — Cortante: penetra DEF según tier. Contundente: daño material ×tier. Perforante: ignora DEF, daño fijo, ATK→ASPD.
+- `resolveAttackerSpeed()` — Perforante usa ATK como velocidad de estocada.
+- `executeAttack()` retrocompatible con nuevo parámetro `weaponInfo` opcional.
+
+**Tests:** 376 / 376 pasando (24 suites).
+
+---
+
+## [2.2.2] - 2026-07-28
+
+### Auditoría de Código con Knip
+
+- `knip.json`: desactiva el análisis de dependencias, incluye `scripts/` y `tests/`, y conserva `dot` como binario usado por dependency-cruiser.
+- `scripts/knip-wrapper.mjs`: desactiva `oxc-parser` raw transfer para evitar la asignación fallida de un buffer de 6 GiB en Windows/Node 24.
+- `src/`: elimina exports y funciones sin consumidores confirmados por el repositorio.
+- `tests/message_format.test.js`: usa un `require` estático para que Knip reconozca `messageFormatUtils.js` como usado.
+- Resultado: Knip sin hallazgos, sin análisis de dependencias.
+
+---
+
+## [2.2.1] - 2026-07-28
+
+### Correcciones del Toolchain y Cache
+
+- `scripts/tools-list.js`: reconoce configuraciones ESLint `.js`, `.mjs` y `.cjs`, y cuenta suites `*.test.js` además de `test_*.js`.
+- `src/utils/safeQuery.js`: `cachedRead` conserva correctamente valores cacheados falsy.
+- `src/core/commandRegistry.js`: carga archivos recursivos en orden determinista y evita `statSync` innecesario.
+- `tests/safe_query.test.js`: añade regresión para valores `null`, `false`, `0` y cadena vacía.
+
+---
+
+## [2.2.0] - 2026-07-21
+
+### Rediseño Completo del Sistema de Combate por Turnos y Formato Único de Mensaje
+
+**Objetivo:** Rediseñar el flujo de combate RPG para operar de forma totalmente asíncrona por turnos, eliminando la ejecución automática de turnos en `/retar`, agregando submenús de reacción (`/esquivar`, `/bloquear`), garantizando 1 único mensaje formateado por evento y permitiendo el modo entrenamiento PvE en mensajes directos (DM).
+
+#### Cambios Implementados:
+- **`src/config/combatConfig.js`**:
+  - Añadido enum `SESSION_STATES` (`WAITING_ACTION`, `WAITING_REACTION`, `COMPLETED`, `EXPIRED`).
+- **`src/services/rpg/combatState.js`**:
+  - Actualizado para inicializar sesiones en `waiting_action`.
+  - Añadidas funciones `setPendingReaction`, `clearPendingReaction` e `isSessionActive` para soportar la fase de reacción del jugador.
+  - Generación de identificadores de dummy únicos (`dummy_<timestamp>_<random>`) para prevenir colisiones entre combates.
+- **`src/services/rpg/combatEngine.js`**:
+  - Desacoplado `executeTurn` en `executeAttack`, `executeReaction` y `chooseAiReaction` manteniendo compatibilidad.
+- **`src/services/rpg/combatMessages.js`**:
+  - Diseñados formateadores de mensaje único (`formatCombatOpen`, `formatActionMenu`, `formatReactionPrompt`, `formatCombatStatus`) que devuelven la información del turno en una sola caja sin spam de mensajes.
+- **Comandos de combate (`retar.js`, `atacar.js`, `estado.js`, `esquivar.js`, `bloquear.js`)**:
+  - `/retar`: Elimina la ejecución automática de turnos. Envía un único mensaje de apertura con stats de ambos y menú de acción. Permite `/retar dummy` en mensajes privados (DM).
+  - `/atacar`: Procesa el ataque del jugador, contraataque del dummy o solicitudes de reacción en un solo mensaje. Removido `groupOnly` para soporte en DM.
+  - `/esquivar` y `/bloquear`: Creados nuevos comandos para que el jugador responda a ataques que superen la condición de reacción (REF/MSPD ≥ ASPD).
+  - `/estado`: Eliminadas respuestas dobles/contradictorias. Muestra el estado actual y el menú de acción o submenú de reacción correspondiente en un único mensaje.
+- **Pruebas unitarias**:
+  - Creado `tests/combat_messages.test.js` (4 nuevas pruebas para formateadores de mensaje único).
+  - Actualizado `tests/combat_engine.test.js` y `tests/combat_ai.test.js` (232/232 pruebas unitarias pasando en Vitest).
+
+---
+
+### Refactorización y Pulido de la Fase 2 — Sistema de Combate e Inventario
+
+**Objetivo:** Auditar y refactorizar el código implementado por el agente secundario para garantizar el anclaje de combate al personaje (`characterId`), normalización de estadísticas y alineación con las especificaciones del plan original.
+
+#### Cambios Implementados:
+- **`src/services/rpg/combatState.js`**:
+  - Refactorizado para indexar sesiones de combate por `characterId` (personaje activo) en lugar de por `userId`.
+  - Añadida función `findSessionByCharacter(characterId)` para permitir la alternancia de personajes (`/switch_pj`) y combates paralelos de un mismo usuario.
+  - Limpieza automática de temporizadores `setTimeout` al finalizar/expirar sesiones para prevenir fugas de memoria.
+- **`src/services/rpg/combatEngine.js`**:
+  - Añadido normalizador de estadísticas `normalizeStats` que soporta aliasing (`atk`/`fuerza`/`str`, `def`/`defensa`, `aspd`/`velocidad_ataque`, `ref`/`reflejos`, `mspd`/`velocidad_movimiento`).
+  - Corregida la fórmula de XP según la especificación: `50 + (nivel * 2)` para el ganador y 30% para el perdedor.
+- **`src/commands/rpg/combat/retar.js` & `atacar.js` & `estado.js`**:
+  - Actualizados para validar y operar sobre la sesión del personaje activo (`activeChar.id`).
+  - Añadida sugerencia amigable de `/switch_pj <nombre>` cuando el usuario intenta responder a un combate con un personaje activo diferente al que está en batalla.
+  - Sincronización de HP y asignación de XP en Supabase al finalizar la batalla.
+- **`src/services/rpg/inventoryService.js`**:
+  - `useItem` sincroniza inmediatamente la curación con la sesión activa en memoria si el personaje se encuentra en combate.
+- **Pruebas y Grafo**:
+  - Actualizado `tests/combat_engine.test.js` (225/225 pruebas unitarias pasando en Vitest).
+  - Grafo AST actualizado con Graphify (`951 nodos, 2108 bordes`).
+
+---
+
+## [2.0.1] - 2026-07-11
+
+### Operativización de Graphify como Herramienta Central
+
+**Objetivo:** Integrar Graphify como herramienta obligatoria para todo análisis, búsqueda, auditoría y guía del código.
+
+#### Normativas creadas:
+- **`c:\IA_rolbot\.agents\AGENTS.md`**: Reescritura completa con 7 secciones de normativas Graphify (Consulta Pre-Acción, Actualización Post-Modificación, Análisis/Auditoría, Búsqueda Guiada, Integridad, Reglas Operativas, Referencia de Comandos)
+- **`c:\IA_rolbot\RolBotV1\AGENTS.md`**: Actualización con reglas específicas del proyecto complementarias
+
+#### Grafo actualizado:
+- Actualización incremental: 92 archivos nuevos/modificados, 74 eliminados (523 nodos podados)
+- Resultado final: **1408 nodos, 2251 edges, 124 comunidades etiquetadas**
+- Health check: OK (0 errores de integridad)
+- Costo: 0 tokens LLM (extracción AST pura)
+
+#### Archivos modificados:
+- `c:\IA_rolbot\.agents\AGENTS.md` — Normativa exhaustiva de Graphify
+- `c:\IA_rolbot\RolBotV1\AGENTS.md` — Reglas específicas del proyecto
+- `graphify-out/graph.json` — Grafo actualizado
+- `graphify-out/GRAPH_REPORT.md` — Reporte regenerado con 124 community labels
+- `graphify-out/graph.html` — Visualización HTML regenerada
+- `graphify-out/.graphify_labels.json` — Etiquetas de comunidades
+
+#### Decisiones técnicas:
+- Hook post-commit ya instalado (se verificó que estaba activo)
+- Normativa consolidada en workspace root (`c:\IA_rolbot\.agents\AGENTS.md`) por ser la que Antigravity lee siempre
+- RolBotV1 AGENTS.md mantiene referencia local para herramientas de terceros
+
+---
+
+## [2.0.0] - 2026-07-11
+
+### Rediseño Completo del Sistema de Combate Táctico por Comandos (D20)
+
+#### Tareas Completadas
+- **Fase 1: Núcleo del Motor (Services)**
+  - Reescritura de `src/config/rpg.config.js` para adaptarlo a estadísticas de combate D20 (1-20) y mapeo de reacciones emoji para WhatsApp.
+  - Reescritura de `src/services/rpg/combatEngine.js` implementando la lógica matemática determinista D20 (sin arbitraje de IA, sin rol descriptivo literario).
+  - Reescritura de `src/services/rpg/combatStateManager.js` para utilizar la nueva ficha táctica con los slots de inventario, efectos activos, habilidades, XP y nivel, limitando los 6 atributos al rango [1, 20].
+  - Reescritura de `src/services/rpg/combatTurnManager.js` para auto-resolver turnos de NPCs de forma inline y agrupar toda la resolución del turno en una sola respuesta visual en WhatsApp, incluyendo menciones `@JID` para notificaciones push.
+- **Fase 2: Comandos Tácticos**
+  - Reescritura de `atacar.js` para iniciar combates PvE/PvP y realizar ataques usando el nuevo sistema D20 y reacciones emoji.
+  - Creación de `esquivar.js` (atajo `.e`) para preparar esquiva en base a Reflejos con críticos/pifias tácticas.
+  - Creación de `bloquear.js` (atajo `.b`) para reducir daño en base a Resistencia Física con críticos/pifias.
+  - Reescritura de `usar.js` (atajo `.u`) para consumir pociones/ítems usando dados D20 en combate.
+  - Creación de `habilidad.js` (atajo `.h`) para ejecutar habilidades activas escaladas por Dominio Mágico.
+  - Actualización de `combate.js` para mostrar el status del combate con barras HP unicode compactas.
+  - Simplificación de `rendirse.js` para permitir la rendición directa en PvE y PvP.
+- **Fase 3: Limpieza y Archivo**
+  - Traslado a `_archive/combat_obsoleto/` de todos los archivos y servicios de arbitraje de IA obsoletos (`combatRefereeService.js`, `combatParser.js`, `combatValidator.js`, `combatNarrator.js`, `narrativePrompts/`, `combatBuffer.js`, `sceneCache.js`, `narratorOutputValidator.js`, `worldLore.js`, `ruleEngine.js`).
+  - Eliminación de comandos huérfanos/obsoletos: `rol.js` y `duel.js`.
+- **Fase 4: Base de Datos de Enemigos**
+  - Reescritura de `src/services/rpg/enemies.js` adaptando a todos los NPCs (Slime, Goblin, Lobo, etc.) al nuevo sistema de 6 atributos [1, 20] y eliminando atributos de MP obsoletos.
+- **Fase 5: Pruebas y Carga**
+  - Reescritura completa de `tests/test_combat_engine_core.js` y `tests/test_combat_commands.js` para adaptarlos a la nueva interfaz D20. Ambos tests unitarios pasan al 100% (21/21 y 15/15 pruebas exitosas).
+  - Verificación de la inicialización y carga recursiva del bot (46 comandos y 108 aliases cargados correctamente).
+
+#### Archivos Creados/Reescritos
+- **Nuevos/Modificados:**
+  - [rpg.config.js](file:///c:/IA_rolbot/RolBotV1/src/config/rpg.config.js)
+  - [combatEngine.js](file:///c:/IA_rolbot/RolBotV1/src/services/rpg/combatEngine.js)
+  - [combatStateManager.js](file:///c:/IA_rolbot/RolBotV1/src/services/rpg/combatStateManager.js)
+  - [combatTurnManager.js](file:///c:/IA_rolbot/RolBotV1/src/services/rpg/combatTurnManager.js)
+  - [enemies.js](file:///c:/IA_rolbot/RolBotV1/src/services/rpg/enemies.js)
+  - [atacar.js](file:///c:/IA_rolbot/RolBotV1/src/commands/rpg/combat/atacar.js)
+  - [esquivar.js](file:///c:/IA_rolbot/RolBotV1/src/commands/rpg/combat/esquivar.js)
+  - [bloquear.js](file:///c:/IA_rolbot/RolBotV1/src/commands/rpg/combat/bloquear.js)
+  - [usar.js](file:///c:/IA_rolbot/RolBotV1/src/commands/rpg/combat/usar.js)
+  - [habilidad.js](file:///c:/IA_rolbot/RolBotV1/src/commands/rpg/combat/habilidad.js)
+  - [combate.js](file:///c:/IA_rolbot/RolBotV1/src/commands/rpg/combat/combate.js)
+  - [rendirse.js](file:///c:/IA_rolbot/RolBotV1/src/commands/rpg/combat/rendirse.js)
+- **Pruebas actualizadas:**
+  - [test_combat_engine_core.js](file:///c:/IA_rolbot/RolBotV1/tests/test_combat_engine_core.js)
+  - [test_combat_commands.js](file:///c:/IA_rolbot/RolBotV1/tests/test_combat_commands.js)
+
+#### Decisiones Técnicas Clave
+1. **Determinismo vs. IA:** Se eliminó por completo el pipeline de orquestación multi-modelo y prompts de LLMs para combate, haciéndolo 100% local, rápido y libre de costes de API/latencia.
+2. **Escalado Lineal 500%:** La progresión se rige estrictamente por la fórmula $M(L) = 1 + (L-1) \times \frac{4}{19}$ para proyectar un incremento exacto de 5 veces en efectividad de nivel 1 a 20.
+3. **Turnos Agrupados en WhatsApp:** Para optimizar la experiencia móvil, cuando un jugador ataca o realiza una acción, los turnos de todos los NPCs que le suceden se auto-resuelven inmediatamente y se muestran en una sola burbuja. Se usa mención `@JID` al final para alertar al siguiente jugador.
+4. **Reacciones de Feedback rápido:** El bot reacciona usando la API oficial (`ctx.react`) a los mensajes del usuario usando emojis clave (⚔️, 🛡️, 💨, 🧪, 💥, 💀), reduciendo la necesidad de burbujas de texto redundantes.
+
+---
+
+## [3.0.0] - 2026-07-14
+
+### Fases 0-5: Auditoría, Rescate, Portabilidad, CI/CD, Refactor, Rendimiento y Documentación
+
+#### 🔴 FASE 0 — RESCATE (Seguridad)
+- **0.1:** `.env.example` creado con placeholders de todas las variables (SUPABASE, GITHUB_PAT, OWNER_PHONE, OWNER_ALIASES). Las keys reales deben rotarse manualmente.
+- **0.2:** PII telefónica (`15550000000`) movida de `permissionsConfig.js:4` a env var `OWNER_PHONE`.
+- **0.3:** `supabase.js` reemplaza placeholder silencioso por throw FATAL si no hay credenciales.
+- **0.4:** `.gitignore` creado en raíz del workspace. Basura documentada para eliminación manual.
+- **0.5:** `nodemon.json` ignora `ai-memory/`, `bugs/`, `graphify-out/`, `_archive/`.
+
+#### 🟠 FASE 1 — PORTABILIDAD Y ESTABILIDAD
+- **1.1:** NekoMemori portátil: `fileUtils.js` usa `PROJECT_ROOT` env var con fallback relativo desde `__dirname`.
+- **1.2:** `opencode.json` portable: rutas Windows reemplazadas por `{env:VAR}`.
+- **1.3:** Atomic writes + mutex en NekoMemori: `withLock()` basado en promesas + atomic rename a `.tmp`.
+- **1.4:** BUG-004 corregido: `lastActionAt` solo se actualiza en turno válido.
+- **1.5:** Cleanup de rooms expiradas (TTL 5min, max 100 rooms) en `combatStateManager.js`.
+
+#### 🟡 FASE 2 — CI/CD Y AUTOMATIZACIÓN
+- **2.1:** CI workflow mejorado con `npm run test:vite` en `.github/workflows/ci.yml`.
+- **2.2:** ESLint: `no-console: warn`, `no-empty` sin `allowEmptyCatch`.
+
+#### 🟢 FASE 3 — REFACTOR Y DEUDA TÉCNICA
+- **3.1:** `knip.json` limpiado (archivos eliminados ya no referenciados).
+- **3.2:** `abilityEngine.applyEffect` refactorizado: 233 líneas → 14 dispatch functions independientes (`effectDamageMultiplier`, `effectHealPercent`, `effectBuff`, etc.).
+- **3.3:** `console.log` duplicado eliminado de `commandHandler.js:133`.
+- **3.5:** `resultUtils.js` creado con `fail()`, `ok()`, `isError()`, `unwrap()`. Migrados `inventoryService.js` (17 ocurrencias) y `combatEngine.js` (2).
+- **3.6:** Saltado por decisión del usuario (`bot_auth_state` con `session_id` es suficiente).
+
+#### 🔵 FASE 4 — RENDIMIENTO Y OPTIMIZACIÓN
+- **4.2:** `listUserProfiles` acepta `{ offset, limit }` con `.range()` de Supabase.
+- **4.3:** `getTopBalances` usa `ORDER BY money DESC LIMIT X` directo en SQL (antes: `SELECT *` + sort en JS).
+- **4.4:** Cache `EQUIP_BONUSES_CACHE` ya existente en `inventoryService.js` — documentado.
+- **4.5:** NekoMemori indexado: stats pre-computados en `rolbot-memory-stats.json`. `get_memory_stats` ya no parsea el JSONL completo.
+
+#### 📘 FASE 5 — DOCUMENTACIÓN Y EXTENSIBILIDAD
+- **5.1:** README reescrito con arquitectura, MCP, toolchain, estado del proyecto y knowledge graph.
+- **5.2:** JSDoc añadido a todas las funciones exportadas en `resultUtils.js`, `abilityEngine.js`, `combatEngine.js`, `inventoryService.js`.
+- **5.3:** Capa IA eliminada (verificada: 0 archivos residuales de providers, orchestrator, referee). El proyecto es 100% code-only.
+- **5.4:** Script `npm run tools:list` creado (pre-flight check de herramientas, skills, tests, MCPs).
+- **5.5:** Skills de Antigravity migrados a `.opencode/skills/` adaptados a opencode (tool names, rutas relativas, graphify).
+- **5.6:** Este changelog actualizado.
+
+#### Archivos modificados (principales)
+- `src/config/permissionsConfig.js` — PII a env var
+- `src/database/supabase.js` — FATAL en lugar de placeholder
+- `src/services/rpg/abilityEngine.js` — Refactor completo + JSDoc
+- `src/services/rpg/combatEngine.js` — JSDoc + `fail()` de resultUtils
+- `src/services/rpg/inventoryService.js` — JSDoc + `fail()` de resultUtils
+- `src/services/rpg/combatTurnManager.js` — BUG-004 fix
+- `src/services/rpg/combatStateManager.js` — Cleanup TTL
+- `src/services/userService.js` — Paginación con range()
+- `src/services/economyService.js` — SQL directo en getTopBalances
+- `src/core/commandHandler.js` — console.log eliminado
+- `src/utils/resultUtils.js` — Nuevo helper de errores
+- `mcp_nekomemori/utils/fileUtils.js` — Portabilidad + atomic writes + stats index
+- `mcp_nekomemori/tools/memory.js` — Stats index
+- `opencode.json` — Rutas portables
+- `eslint.config.js` — no-console, no-empty rules
+- `.github/workflows/ci.yml` — test:vite añadido
+- `package.json` — tools:list script
+- `scripts/tools-list.js` — Nuevo pre-flight check
+- `.opencode/skills/` — 3 skills migrados de Antigravity
+- `AUDITORIA_COMPLETA.md` — Auditoría viva actualizada
+- `README.md` — Reescrito completo
+- `AI_CHANGELOG.md` — Esta entrada
+
+---
+
+## [3.2.0] - 2026-07-23
+
+### Refactor Completo del Sistema de Estadísticas (HP, Stats Base, Fórmula DEF)
+
+**Objetivo:** Eliminar mecánicas de % de HP obsoletas, convertir HP en un stat leveleable, unificar stats base=1 y reemplazar la fórmula de daño cuadrática por una fórmula DEF basada en `ATK × (100/(100+DEF))`.
+
+#### Fase 1 — Eliminar HP % Mechanics
+- **`src/config/characterConfig.js`**: Eliminados `HP_THRESHOLDS`, `getHpState` y su exportación.
+- **`src/services/rpg/combatEngine.js`**: Eliminada penalización por HP en `applyPenalties`.
+- **`src/services/characterService.js`**: Eliminada penalización HP en `getCombatStats`.
+- **`src/utils/characterFormatUtils.js`**: Eliminado `formatHpState` con estados de color (verde/amarillo/rojo).
+- **Tests**: Eliminados 11 tests de HP thresholds/states (304 → 293).
+
+#### Fase 2 — HP como Stat Leveleable
+- **`src/config/characterConfig.js`**: `HP` añadido a `LEVELABLE_STATS` (9 stats, icon ❤️); `DEFAULT_CHARACTER_STATS.hp = 1`; 21 razas actualizadas con `hp` en `baseStats` (suma 50 pts c/u, HP range: 4-Elfo → 10-Oni).
+- **Consumer code**: `crear_pj.js` → `hp_actual = finalStats.hp`; `setHp()` clamp a `stats.hp`; `restaurarHp()` obtiene max desde stats; `distribuirPunto()` no modifica `hp_actual`; `useItem()` tope en `stats.hp`; `normalizeCharacterRecord` clamp a `stats.hp`; `formatCharacter` barra usa `stats.hp`.
+- **`src/services/rpg/combatMessages.js`**: `buildHpBar` usa `character.stats.hp` como max.
+- **`src/services/rpg/combatState.js`**: Dummy HP basado en `totalPoints`.
+- **Tests**: 26 tests de config validan 9 stats, DEFAULT=1, race sums=50.
+
+#### Fase 3 — Stats Base = 1
+- **`src/config/characterConfig.js`**: Todos los `DEFAULT_CHARACTER_STATS` en 1.
+- **`src/services/rpg/combatEngine.js`**: `normalizeStats` defaults `?? 1`.
+- **Tests**: Actualizados asserts de DEFAULT_CHARACTER_STATS.
+
+#### Fase 4 — Nueva Fórmula DEF
+- **`src/services/rpg/combatEngine.js`**: `calculateDamage` reemplazado: `Math.floor(atk × 100 / (100 + def))`.
+- **Tests**: Valor esperado actualizado (ATK=50, DEF=50 → 33).
+
+#### Limpieza de Código
+- **`src/services/rpg/combatState.js`**: Eliminado import no usado de `HP_MAX`.
+- **`src/utils/boxUtils.js`**: Eliminada constante `LINE` no usada.
+- **`scripts/simulate_combat/fighterGenerator.js`**: Eliminado `HP_MAX` import, fighters usan `race.baseStats.hp`.
+
+#### Archivos modificados:
+- `src/config/characterConfig.js` — HP_THRESHOLDS/getHpState removidos, HP en LEVELABLE_STATS y razas
+- `src/services/rpg/combatEngine.js` — Penalización HP removida, fórmula DEF nueva
+- `src/services/rpg/combatState.js` — HP_MAX import removido
+- `src/services/rpg/combatMessages.js` — HP bar usa stats.hp
+- `src/services/rpg/inventoryService.js` — useItem tope en stats.hp
+- `src/services/characterService.js` — HP penalty removido, setHp/restaurarHp/useItem actualizados
+- `src/utils/characterFormatUtils.js` — formatHpState sin state name
+- `src/utils/boxUtils.js` — LINE removida
+- `scripts/simulate_combat/fighterGenerator.js` — HP desde race.baseStats
+- `tests/character_config.test.js` — 9 stats, DEFAULT=1, race sums=50
+- `tests/combat_engine.test.js` — Nueva fórmula DEF, sin HP penalty
+- `tests/character_format.test.js` — Tests de HP state removidos
+
+---
+
+## [3.1.0] - 2026-07-21
+
+### Auditoría de Salubridad y Mantenimiento de Limpieza (Recomendaciones 1 y 2 Aplicadas)
+
+#### Tareas Completadas
+- **Recomendación 1 — Higiene de Tests Obsoletos:** Se archivaron `tests/carta_blanca.test.js` y `tests/test_carta_blanca_inventory.js` en `_archive/` (probaban sistemas de combate de IA e inventario obsoletos y eliminados).
+- **Recomendación 2 — Purga de Código Muerto:** 
+  - Se movió `src/services/characterProgressionService.js` (233 líneas de servicio no utilizado) a `_archive/characterProgressionService.js`.
+  - Se eliminaron las importaciones no utilizadas (`formatFeedback`, `buildFeedbackBody`, `compactLines`) en `src/utils/messageFormatUtils.js`.
+- **Formateo completo:** Se corrigieron 5 archivos `.js` con problemas de formato según Prettier (`npm run format`).
+- **Actualización de problemas conocidos:** Se marcó `KI-001` en `memory/known_issues.md` como resuelto.
+- **Verificación Completa:** `npm run check:all` finalizó 100% verde (0 errores de ESLint, 0 errores de TypeScript, 10/10 test files y 191/191 tests pasados en Vitest).
+- **Actualización del Grafo:** `graphify:update` completado exitosamente (853 nodos, 1845 edges, 63 comunidades).
+
+#### Archivos modificados/archivados:
+- `tests/carta_blanca.test.js` ➔ Movido a `_archive/`
+- `tests/test_carta_blanca_inventory.js` ➔ Movido a `_archive/`
+- `src/services/characterProgressionService.js` ➔ Movido a `_archive/`
+- `src/utils/messageFormatUtils.js` ➔ Limpieza de imports no usados
+- `memory/known_issues.md` ➔ Mover KI-001 a resueltos
+- `AI_CHANGELOG.md` ➔ Esta entrada

@@ -1,0 +1,22 @@
+{
+  "tag": "ang_r_cap60_escala140_hp25",
+  "timestamp": "2026-08-07T18:14:25.200Z",
+  "numSims": 2000,
+  "overrides": [
+    {
+      "mod": "combatBalance",
+      "key": "DEF_MITIGATION_CAP",
+      "value": 60
+    },
+    {
+      "mod": "combatBalance",
+      "key": "DAMAGE_DEFENSE_SCALE",
+      "value": 140
+    },
+    {
+      "mod": "simConfig",
+      "key": "HP_STAT_MULTIPLIER",
+      "value": 2.5
+    }
+  ]
+}

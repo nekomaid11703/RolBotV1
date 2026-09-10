@@ -10,9 +10,24 @@ const {
   topActiveUsersCacheKey,
 } = require("../utils/safeQuery");
 
+const userActivityTails = new Map();
+
+async function withUserActivityLock(userId, task) {
+  const key = String(userId || "unknown-user");
+  const previous = userActivityTails.get(key) || Promise.resolve();
+  const current = previous.catch(() => undefined).then(task);
+  userActivityTails.set(key, current);
+
+  try {
+    return await current;
+  } finally {
+    if (userActivityTails.get(key) === current) userActivityTails.delete(key);
+  }
+}
+
 /**
- *
- * @param text
+ * @param {*} text
+ * @returns
  */
 function stripAccents(text) {
   return String(text || "")
@@ -21,8 +36,8 @@ function stripAccents(text) {
 }
 
 /**
- *
- * @param text
+ * @param {*} text
+ * @returns
  */
 function sanitizeName(text) {
   return (
@@ -35,24 +50,35 @@ function sanitizeName(text) {
 }
 
 /**
- *
- * @param bypassCache
- * @param opts
+ * @param [bypassCache]
+ * @param [opts]
+ * @returns
  */
 async function listUserProfiles(bypassCache = false, opts = {}) {
+  /**
+   * @constant cacheKey
+   */
   const cacheKey = opts.offset || opts.limit ? null : "allUserProfiles";
   if (!bypassCache && cacheKey) {
+    /**
+     * @constant cached
+     */
     const cached = cache.get(cacheKey);
     if (cached) return cached;
   }
 
   let query = supabase.from("players").select("*");
   if (opts.limit) query = query.range(opts.offset || 0, (opts.offset || 0) + opts.limit - 1);
-
   const { data, error } = await query;
   if (error || !data) return [];
 
+  /**
+   * @constant result
+   */
   const result = data.map((row) => {
+    /**
+     * @constant profile
+     */
     const profile = normalizeProfile({}, { creatorId: row.phone, creatorName: row.username });
     profile.economy.money = Number(row.money || 0);
     profile.activity.messages = Number(row.activity_messages || 0);
@@ -66,10 +92,13 @@ async function listUserProfiles(bypassCache = false, opts = {}) {
 }
 
 /**
- *
- * @param root0
+ * @param {object} options
+ * @returns
  */
 function buildRegistration({ creatorId, registration = {} }) {
+  /**
+   * @constant now
+   */
   const now = new Date().toISOString();
 
   return {
@@ -81,11 +110,17 @@ function buildRegistration({ creatorId, registration = {} }) {
 }
 
 /**
- *
- * @param root0
+ * @param {object} options
+ * @returns
  */
 function buildDefaultProfile({ creatorId, creatorName, registration = {} }) {
+  /**
+   * @constant now
+   */
   const now = new Date().toISOString();
+  /**
+   * @constant cleanName
+   */
   const cleanName = String(creatorName || "usuario").trim() || "usuario";
 
   return {
@@ -135,10 +170,13 @@ function buildDefaultProfile({ creatorId, creatorName, registration = {} }) {
 }
 
 /**
- *
- * @param root0
+ * @param {object} options
+ * @returns
  */
 function normalizeRegistration({ creatorId, registration = {}, fallback = {} }) {
+  /**
+   * @constant base
+   */
   const base = buildRegistration({
     creatorId,
     registration: {
@@ -156,8 +194,8 @@ function normalizeRegistration({ creatorId, registration = {}, fallback = {} }) 
 }
 
 /**
- *
- * @param activity
+ * @param [activity]
+ * @returns
  */
 function normalizeActivity(activity = {}) {
   return {
@@ -179,14 +217,24 @@ function normalizeActivity(activity = {}) {
 }
 
 /**
- *
- * @param profile
- * @param root0
+ * @param {*} profile
+ * @param {object} options
+ * @returns
  */
 function normalizeProfile(profile, { creatorId, creatorName }) {
+  /**
+   * @constant now
+   */
   const now = new Date().toISOString();
+  /**
+   * @constant cleanName
+   */
   const cleanName = String(creatorName || profile?.creatorName || "usuario").trim() || "usuario";
 
+  /**
+   * @constant normalized
+   * @type {object}
+   */
   const normalized = {
     ...buildDefaultProfile({
       creatorId,
@@ -260,13 +308,19 @@ function normalizeProfile(profile, { creatorId, creatorName }) {
 }
 
 /**
- *
- * @param root0
+ * @param {object} options
+ * @returns
  */
 async function ensureUserProfile({ creatorId, creatorName = "usuario", registration = {} }) {
+  /**
+   * @constant existing
+   */
   const existing = await getUserProfile({ creatorId });
   if (existing) return existing;
 
+  /**
+   * @constant profile
+   */
   const profile = normalizeProfile({}, { creatorId, creatorName });
   profile.registration = normalizeRegistration({
     creatorId,
@@ -279,36 +333,55 @@ async function ensureUserProfile({ creatorId, creatorName = "usuario", registrat
 }
 
 /**
- *
- * @param root0
+ * @param {object} options
+ * @returns
  */
 async function getUserProfile({ creatorId, bypassCache = false }) {
+  /**
+   * @constant key
+   */
   const key = userCacheKey(creatorId);
   if (!bypassCache) {
+    /**
+     * @constant cached
+     */
     const cached = cache.get(key);
     if (cached) return cached;
   }
 
+  /**
+   * @constant data
+   */
   const data = await safeSingleOrNull(supabase.from("players").select("*").eq("phone", creatorId));
 
   if (!data) return null;
 
+  /**
+   * @constant profile
+   */
   const profile = normalizeProfile({}, { creatorId: data.phone, creatorName: data.username });
   profile.economy.money = Number(data.money || 0);
   profile.activity.messages = Number(data.activity_messages || 0);
   profile.activity.commands = Number(data.activity_commands || 0);
   profile.metadata.lastSeenAt = data.last_active_at || profile.createdAt;
 
+  /**
+   * @constant result
+   * @type {object}
+   */
   const result = { folder: "supabase", profilePath: "supabase", profile };
   cache.set(key, result, TTLS.memoryContext);
   return result;
 }
 
 /**
- *
- * @param root0
+ * @param {object} options
+ * @returns
  */
 async function saveUserProfile({ folder: _folder, profile }) {
+  /**
+   * @constant payload
+   */
   const payload = filterExisting("players", {
     phone: profile.creatorId,
     username: profile.creatorName,
@@ -317,7 +390,6 @@ async function saveUserProfile({ folder: _folder, profile }) {
     activity_commands: Number(profile.activity?.commands || 0),
     last_active_at: profile.metadata?.lastSeenAt || new Date().toISOString(),
   });
-
   const { error } = await supabase.from("players").upsert(payload, { onConflict: "phone" });
 
   if (error) throw new Error("Error guardando usuario: " + error.message);
@@ -327,8 +399,9 @@ async function saveUserProfile({ folder: _folder, profile }) {
 }
 
 /**
- * Persiste solo las columnas de actividad para no sobrescribir cambios de economÃ­a concurrentes.
+ * Persists activity columns without overwriting concurrent economy changes.
  * @param {object} profile
+ * @returns {Promise<object>}
  */
 async function saveUserActivity(profile) {
   const payload = filterExisting("players", {
@@ -347,10 +420,13 @@ async function saveUserActivity(profile) {
 }
 
 /**
- *
- * @param root0
+ * @param {object} options
+ * @returns
  */
 async function getOrCreateProfile({ creatorId, creatorName = "usuario", registration = {} }) {
+  /**
+   * @constant existing
+   */
   const existing = await getUserProfile({
     creatorId,
   });
@@ -367,10 +443,13 @@ async function getOrCreateProfile({ creatorId, creatorName = "usuario", registra
 }
 
 /**
- *
- * @param messageType
+ * @param {*} messageType
+ * @returns
  */
 function resolveActivityBucket(messageType) {
+  /**
+   * @constant normalizedType
+   */
   const normalizedType = String(messageType || "")
     .trim()
     .toLowerCase();
@@ -390,102 +469,97 @@ function resolveActivityBucket(messageType) {
 }
 
 /**
- *
- * @param root0
+ * @param {object} next
+ * @param {object} data
+ * @param {string} data.displayName
+ * @param {string} data.pushName
+ * @param {string} data.senderJid
+ * @param {string} data.senderNumber
+ * @param {string} data.now
+ * @returns {boolean} whether any field changed
  */
-async function recordUserActivity({
-  creatorId,
-  creatorName = "usuario",
-  displayName,
-  pushName,
-  senderJid,
-  senderNumber,
-  messageType = "unknown",
-  messageCount = 0,
-  commandCount = 0,
-  isText = false,
-  registration = {},
-}) {
-  const current = await getOrCreateProfile({
-    creatorId,
-    creatorName,
-    registration: {
-      source: registration.source || "activity",
-      scope: registration.scope || "self",
-      createdBy: registration.createdBy || creatorId,
-      createdAt: registration.createdAt,
-    },
-  });
-
-  if (!current) {
-    return null;
-  }
-
-  const profile = current.profile;
-  const next = {
-    ...profile,
-    metadata: {
-      ...(profile.metadata || {}),
-    },
-    activity: normalizeActivity(profile.activity || {}),
-  };
-
-  const now = new Date().toISOString();
+function updateDisplayName(next, displayName) {
+  if (typeof displayName !== "string") return false;
+  const clean = displayName.trim() || "usuario";
   let changed = false;
-
-  if (typeof displayName === "string") {
-    const cleanDisplayName = displayName.trim() || "usuario";
-
-    if (next.metadata.displayName !== cleanDisplayName) {
-      next.metadata.displayName = cleanDisplayName;
-      changed = true;
-    }
-
-    if (next.creatorName !== cleanDisplayName) {
-      next.creatorName = cleanDisplayName;
-      changed = true;
-    }
-  }
-
-  if (typeof pushName === "string") {
-    const cleanPushName = pushName.trim() || "usuario";
-
-    if (next.metadata.pushName !== cleanPushName) {
-      next.metadata.pushName = cleanPushName;
-      changed = true;
-    }
-  }
-
-  if (typeof senderJid === "string") {
-    const cleanSenderJid = String(senderJid).trim() || null;
-
-    if (cleanSenderJid && next.metadata.lastKnownJid !== cleanSenderJid) {
-      next.metadata.lastKnownJid = cleanSenderJid;
-      changed = true;
-    }
-  }
-
-  if (typeof senderNumber === "string") {
-    const cleanSenderNumber = senderNumber.trim() || null;
-
-    if (cleanSenderNumber && next.metadata.lastKnownNumber !== cleanSenderNumber) {
-      next.metadata.lastKnownNumber = cleanSenderNumber;
-      changed = true;
-    }
-  }
-
-  if (next.metadata.lastSeenAt !== now) {
-    next.metadata.lastSeenAt = now;
+  if (next.metadata.displayName !== clean) {
+    next.metadata.displayName = clean;
     changed = true;
   }
+  if (next.creatorName !== clean) {
+    next.creatorName = clean;
+    changed = true;
+  }
+  return changed;
+}
 
-  const safeMessageCount = Math.max(0, Math.floor(Number(messageCount) || 0));
-  const safeCommandCount = Math.max(0, Math.floor(Number(commandCount) || 0));
-  const bucket = resolveActivityBucket(messageType);
-  const normalizedType =
-    String(messageType || "unknown")
-      .trim()
-      .toLowerCase() || "unknown";
+function updatePushName(next, pushName) {
+  if (typeof pushName !== "string") return false;
+  const clean = pushName.trim() || "usuario";
+  if (next.metadata.pushName !== clean) {
+    next.metadata.pushName = clean;
+    return true;
+  }
+  return false;
+}
+
+function updateSenderJid(next, senderJid) {
+  if (typeof senderJid !== "string") return false;
+  const clean = String(senderJid).trim() || null;
+  if (clean && next.metadata.lastKnownJid !== clean) {
+    next.metadata.lastKnownJid = clean;
+    return true;
+  }
+  return false;
+}
+
+function updateSenderNumber(next, senderNumber) {
+  if (typeof senderNumber !== "string") return false;
+  const clean = senderNumber.trim() || null;
+  if (clean && next.metadata.lastKnownNumber !== clean) {
+    next.metadata.lastKnownNumber = clean;
+    return true;
+  }
+  return false;
+}
+
+function updateLastSeen(next, now) {
+  if (next.metadata.lastSeenAt !== now) {
+    next.metadata.lastSeenAt = now;
+    return true;
+  }
+  return false;
+}
+
+const METADATA_UPDATERS = [
+  (n, d) => updateDisplayName(n, d.displayName),
+  (n, d) => updatePushName(n, d.pushName),
+  (n, d) => updateSenderJid(n, d.senderJid),
+  (n, d) => updateSenderNumber(n, d.senderNumber),
+  (n, d) => updateLastSeen(n, d.now),
+];
+
+function updateProfileMetadata(next, data) {
+  let changed = false;
+  for (const updater of METADATA_UPDATERS) {
+    changed = updater(next, data) || changed;
+  }
+  return changed;
+}
+
+/**
+ * @param {object} next
+ * @param {object} counts
+ * @param {number} counts.safeMessageCount
+ * @param {number} counts.safeCommandCount
+ * @param {string} counts.normalizedType
+ * @param {boolean} counts.isText
+ * @param {string} counts.bucket
+ * @param {string} counts.now
+ * @returns {boolean} whether any field changed
+ */
+function updateActivityCounts(next, { safeMessageCount, safeCommandCount, normalizedType, isText, bucket, now }) {
+  let changed = false;
 
   if (safeMessageCount > 0) {
     next.activity.messages = Number(next.activity.messages || 0) + safeMessageCount;
@@ -509,7 +583,72 @@ async function recordUserActivity({
     changed = true;
   }
 
-  if (changed) {
+  return changed;
+}
+
+/**
+ * @param {object} options
+ * @returns {Promise<object|null>}
+ */
+async function recordUserActivityUnlocked(options) {
+  const {
+    creatorId,
+    creatorName = "usuario",
+    displayName,
+    pushName,
+    senderJid,
+    senderNumber,
+    messageType = "unknown",
+    messageCount = 0,
+    commandCount = 0,
+    isText = false,
+    registration = {},
+  } = options;
+
+  const current = await getOrCreateProfile({
+    creatorId,
+    creatorName,
+    registration: {
+      source: registration.source || "activity",
+      scope: registration.scope || "self",
+      createdBy: registration.createdBy || creatorId,
+      createdAt: registration.createdAt,
+    },
+  });
+
+  if (!current) {
+    return null;
+  }
+
+  const profile = current.profile;
+  const next = {
+    ...profile,
+    metadata: { ...(profile.metadata || {}) },
+    activity: normalizeActivity(profile.activity || {}),
+  };
+
+  const now = new Date().toISOString();
+
+  const metaChanged = updateProfileMetadata(next, { displayName, pushName, senderJid, senderNumber, now });
+
+  const safeMessageCount = Math.max(0, Math.floor(Number(messageCount) || 0));
+  const safeCommandCount = Math.max(0, Math.floor(Number(commandCount) || 0));
+  const bucket = resolveActivityBucket(messageType);
+  const normalizedType =
+    String(messageType || "unknown")
+      .trim()
+      .toLowerCase() || "unknown";
+
+  const activityChanged = updateActivityCounts(next, {
+    safeMessageCount,
+    safeCommandCount,
+    normalizedType,
+    isText,
+    bucket,
+    now,
+  });
+
+  if (metaChanged || activityChanged) {
     next.updatedAt = now;
     await saveUserActivity(next);
   }
@@ -517,18 +656,31 @@ async function recordUserActivity({
   return next;
 }
 
+async function recordUserActivity(options) {
+  return withUserActivityLock(options?.creatorId, () => recordUserActivityUnlocked(options));
+}
+
 /**
- *
- * @param a
- * @param b
+ * @param {*} a
+ * @param {*} b
+ * @returns
  */
 function sortActivityProfilesDesc(a, b) {
+  /**
+   * @constant diffMessages
+   */
   const diffMessages = Number(b.activity?.messages || 0) - Number(a.activity?.messages || 0);
   if (diffMessages !== 0) return diffMessages;
 
+  /**
+   * @constant diffCommands
+   */
   const diffCommands = Number(b.activity?.commands || 0) - Number(a.activity?.commands || 0);
   if (diffCommands !== 0) return diffCommands;
 
+  /**
+   * @constant diffText
+   */
   const diffText = Number(b.activity?.textMessages || 0) - Number(a.activity?.textMessages || 0);
   if (diffText !== 0) return diffText;
 
@@ -536,23 +688,47 @@ function sortActivityProfilesDesc(a, b) {
 }
 
 /**
- *
- * @param root0
+ * @param {object} options
+ * @returns
  */
 async function getTopActiveUsers({ limit = 10, bypassCache = false } = {}) {
+  /**
+   * @constant cacheKey
+   */
   const cacheKey = topActiveUsersCacheKey(limit);
   if (!bypassCache) {
+    /**
+     * @constant cached
+     */
     const cached = cache.get(cacheKey);
     if (cached) return cached;
   }
 
+  /**
+   * @constant safeLimit
+   */
   const safeLimit = Math.max(1, Math.min(50, Math.floor(Number(limit) || 10)));
+  /**
+   * @constant profiles
+   */
   const profiles = await listUserProfiles(bypassCache);
 
+  /**
+   * @constant result
+   */
   const result = profiles
     .map((entry) => {
+      /**
+       * @constant profile
+       */
       const profile = entry?.profile || {};
+      /**
+       * @constant activity
+       */
       const activity = normalizeActivity(profile.activity || {});
+      /**
+       * @constant displayName
+       */
       const displayName =
         String(profile?.metadata?.displayName || profile?.creatorName || "usuario").trim() || "usuario";
 

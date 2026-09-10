@@ -7,9 +7,20 @@ const { resolveTargetDisplayName } = require("../../../services/displayNameServi
 const { box } = require("../../../utils/boxUtils");
 const { formatCommandUsage } = require("../../../utils/formatCommandUtils");
 
+/**
+ * @constant CATEGORIES
+ * @type {*[]}
+ */
 const CATEGORIES = ["economy", "items"];
+/**
+ * @constant CATEGORY_DISPLAY
+ * @type {object}
+ */
 const CATEGORY_DISPLAY = { economy: "econom\u00eda", items: "\u00edtems" };
 
+/**
+ * @constant usageMessage
+ */
 const usageMessage = formatCommandUsage({
   icon: "\uD83D\uDEE1\uFE0F",
   title: "Dar permiso de administrador",
@@ -17,7 +28,7 @@ const usageMessage = formatCommandUsage({
   usage: "/admin_perm_add @usuario <categor\u00eda>",
   example: "/admin_perm_add @Nekomaid economy",
   notes: [
-    `Categor\u00edas disponibles: ${CATEGORIES.map((c) => `\`${c}\``).join(", ")}`,
+    "Categor\u00edas disponibles: " + CATEGORIES.map((c) => "'" + c + "'").join(", "),
     "El creador conserva permisos permanentes.",
   ],
 });
@@ -29,8 +40,20 @@ module.exports = {
   category: "admin",
   creatorOnly: true,
 
+  /**
+   * Executes the .
+   * @async
+   * @param {*} ctx - execution context.
+   * @returns {any}
+   */
   async execute(ctx) {
+    /**
+     * @constant targetId
+     */
     const targetId = getFirstMentionedJid(ctx);
+    /**
+     * @constant category
+     */
     const category = (ctx.args.find((a) => !a.startsWith("@") && CATEGORIES.includes(a)) || "").toLowerCase();
 
     if (!targetId || !category) {
@@ -39,7 +62,10 @@ module.exports = {
 
     if (!CATEGORIES.includes(category)) {
       return ctx.reply(
-        `\u274C Categor\u00eda \`${category}\` no v\u00e1lida.\n\nCategor\u00edas disponibles: ${CATEGORIES.map((c) => `\`${c}\``).join(", ")}`,
+        "\u274C Categor\u00eda '" +
+          category +
+          "' no v\u00e1lida.\n\nCategor\u00edas disponibles: " +
+          CATEGORIES.map((c) => "'" + c + "'").join(", "),
       );
     }
 
@@ -47,6 +73,9 @@ module.exports = {
       return ctx.reply(`\u2139\uFE0F El creador ya tiene permisos de ${CATEGORY_DISPLAY[category]}.`);
     }
 
+    /**
+     * @constant targetName
+     */
     const targetName = await resolveTargetDisplayName(ctx, targetId);
 
     await setAdminForCategory({

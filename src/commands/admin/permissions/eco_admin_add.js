@@ -7,6 +7,9 @@ const { resolveTargetDisplayName } = require("../../../services/displayNameServi
 const { box } = require("../../../utils/boxUtils");
 const { formatCommandUsage } = require("../../../utils/formatCommandUtils");
 
+/**
+ * @constant usageMessage
+ */
 const usageMessage = formatCommandUsage({
   icon: "🛡️",
   title: "Dar permiso de economia",
@@ -22,7 +25,16 @@ module.exports = {
   category: "admin",
   creatorOnly: true,
 
+  /**
+   * Executes the .
+   * @async
+   * @param {*} ctx - execution context.
+   * @returns {any}
+   */
   async execute(ctx) {
+    /**
+     * @constant targetId
+     */
     const targetId = getFirstMentionedJid(ctx);
 
     if (!targetId) {
@@ -33,6 +45,9 @@ module.exports = {
       return ctx.reply("ℹ️ El creador ya tiene permisos de economía.");
     }
 
+    /**
+     * @constant targetName
+     */
     const targetName = await resolveTargetDisplayName(ctx, targetId);
 
     await setEconomyAdmin({

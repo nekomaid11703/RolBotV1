@@ -1,0 +1,34 @@
+{
+  "config": {
+    "numSims": 500,
+    "personalityA": "extremista_defensa",
+    "personalityB": "extremista_ataque",
+    "weaponA": null,
+    "weaponB": "estoque_de_hierro",
+    "overrides": [
+      {
+        "mod": "simConfig",
+        "key": "PERSONALITIES.extremista_defensa.weights.def",
+        "value": 25
+      }
+    ],
+    "timestamp": "2026-08-07T18:53:27.107Z"
+  },
+  "summary": {
+    "winsA": 339,
+    "winsB": 161,
+    "winrateA": 67.80000000000001,
+    "winrateB": 32.2,
+    "avgRounds": 7.086,
+    "avgRoundsA": 6.507374631268436,
+    "avgRoundsB": 8.304347826086957,
+    "koTypes": {
+      "A": {
+        "ko": 339
+      },
+      "B": {
+        "ko": 161
+      }
+    }
+  }
+}

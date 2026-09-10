@@ -1,13 +1,14 @@
-// @ts-nocheck
 const fs = require("fs");
 const path = require("path");
 
+/** @type {Map<string, *>} */
 const commands = new Map();
+/** @type {Map<string, *>} */
 const aliases = new Map();
 
 /**
- *
- * @param value
+ * @param {string} value
+ * @returns {string}
  */
 function normalizeName(value) {
   return String(value || "")
@@ -16,11 +17,11 @@ function normalizeName(value) {
 }
 
 /**
- *
- * @param command
- * @param fileName
+ * @param {*} command
+ * @param {string} fileName
+ * @returns {string}
  */
-function registerCommand(command, fileName) {
+function validateCommand(command, fileName) {
   if (!command?.name) {
     throw new Error(`Comando inválido (${fileName}): falta la propiedad "name".`);
   }
@@ -46,6 +47,53 @@ function registerCommand(command, fileName) {
     );
   }
 
+  return commandName;
+}
+
+/**
+ * @param {string} alias
+ * @param {string} fileName
+ * @param {string} commandName
+ * @param {*} command
+ */
+function registerAlias(alias, fileName, commandName, command) {
+  if (typeof alias !== "string") {
+    throw new Error(`Alias inválido en (${fileName}): todos los aliases deben ser texto.`);
+  }
+
+  const aliasName = normalizeName(alias);
+
+  if (!aliasName) {
+    throw new Error(`Alias inválido en (${fileName}): no puede estar vacío.`);
+  }
+
+  if (commands.has(aliasName)) {
+    const existingCommand = commands.get(aliasName);
+    if (existingCommand !== command) {
+      throw new Error(
+        `Alias en conflicto: "${aliasName}" del comando "${commandName}" coincide con el nombre de un comando existente ("${existingCommand.name}").`,
+      );
+    }
+    throw new Error(`Alias en conflicto: "${aliasName}" del comando "${commandName}" coincide con su propio nombre.`);
+  }
+
+  if (aliases.has(aliasName)) {
+    const existingCommand = aliases.get(aliasName);
+    throw new Error(
+      `Alias duplicado detectado: "${aliasName}" usado por "${existingCommand.name}" y "${commandName}".`,
+    );
+  }
+
+  aliases.set(aliasName, command);
+}
+
+/**
+ * @param {*} command
+ * @param {string} fileName
+ */
+function registerCommand(command, fileName) {
+  const commandName = validateCommand(command, fileName);
+
   commands.set(commandName, command);
 
   if (!Array.isArray(command.aliases)) {
@@ -53,51 +101,24 @@ function registerCommand(command, fileName) {
   }
 
   for (const alias of command.aliases) {
-    if (typeof alias !== "string") {
-      throw new Error(`Alias inválido en (${fileName}): todos los aliases deben ser texto.`);
-    }
-
-    const aliasName = normalizeName(alias);
-
-    if (!aliasName) {
-      throw new Error(`Alias inválido en (${fileName}): no puede estar vacío.`);
-    }
-
-    if (commands.has(aliasName)) {
-      const existingCommand = commands.get(aliasName);
-      if (existingCommand !== command) {
-        throw new Error(
-          `Alias en conflicto: "${aliasName}" del comando "${commandName}" coincide con el nombre de un comando existente ("${existingCommand.name}").`,
-        );
-      }
-      throw new Error(`Alias en conflicto: "${aliasName}" del comando "${commandName}" coincide con su propio nombre.`);
-    }
-
-    if (aliases.has(aliasName)) {
-      const existingCommand = aliases.get(aliasName);
-      throw new Error(
-        `Alias duplicado detectado: "${aliasName}" usado por "${existingCommand.name}" y "${commandName}".`,
-      );
-    }
-
-    aliases.set(aliasName, command);
+    registerAlias(alias, fileName, commandName, command);
   }
 }
 
 /**
- *
- * @param dir
+ * @param {string} dir
+ * @returns {string[]}
  */
 function getJsFilesRecursively(dir) {
   /** @type {string[]} */
   let results = [];
-  const list = fs.readdirSync(dir);
-  for (const file of list) {
-    const filePath = path.join(dir, file);
-    const stat = fs.statSync(filePath);
-    if (stat && stat.isDirectory()) {
+  const list = fs.readdirSync(dir, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name));
+
+  for (const entry of list) {
+    const filePath = path.join(dir, entry.name);
+    if (entry.isDirectory()) {
       results = results.concat(getJsFilesRecursively(filePath));
-    } else if (file.endsWith(".js")) {
+    } else if (entry.isFile() && entry.name.endsWith(".js")) {
       results.push(filePath);
     }
   }

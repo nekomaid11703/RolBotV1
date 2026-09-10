@@ -1,0 +1,17 @@
+{
+  "tag": "fat_a10r10",
+  "timestamp": "2026-08-05T03:14:21.993Z",
+  "numSims": 2000,
+  "overrides": [
+    {
+      "mod": "combatConfig",
+      "key": "FATIGUE_ATK_COST_SCALE",
+      "value": 0.1
+    },
+    {
+      "mod": "combatConfig",
+      "key": "FATIGUE_RECOVERY_MAX",
+      "value": 10
+    }
+  ]
+}

@@ -1,4 +1,4 @@
-const { createDummySession, generateDummyCharacter, removeSession } = require("../src/services/rpg/combatState");
+const { createDummySession, removeSession } = require("../src/services/rpg/combatState");
 const CombatAI = require("../src/services/rpg/combatAI");
 const { supabase } = require("../src/database/supabase");
 
@@ -8,15 +8,12 @@ beforeEach(() => {
     delete: vi.fn(() => ({
       eq: vi.fn(async () => ({ error: null })),
     })),
-    select: vi.fn(() => ({
-      eq: vi.fn(() => ({
-        maybeSingle: vi.fn(async () => ({ data: null })),
-      })),
-    })),
   }));
 });
 
-afterEach(() => vi.restoreAllMocks());
+afterEach(() => {
+  vi.restoreAllMocks();
+});
 
 describe("CombatAI & Dummy Generation", () => {
   const challengerChar = {
@@ -36,25 +33,6 @@ describe("CombatAI & Dummy Generation", () => {
     },
   };
 
-  it("generateDummyCharacter genera un dummy con suma de stats igual a los puntos totales del jugador", () => {
-    const dummy = generateDummyCharacter(challengerChar);
-
-    const playerTotalPoints = 10 + 8 + 6 + 5 + 5 + 4 + 3 + 3; // 44 puntos
-    const dummyTotalPoints =
-      dummy.stats.atk +
-      dummy.stats.def +
-      dummy.stats.aspd +
-      dummy.stats.ref +
-      dummy.stats.mspd +
-      dummy.stats.fulgor +
-      dummy.stats.d_fulgor +
-      dummy.stats.r_fulgor;
-
-    expect(dummyTotalPoints).toBe(playerTotalPoints);
-    expect(dummy.nivel).toBe(playerTotalPoints);
-    expect(dummy.name).toBe("Maniqu\u00ed de Pr\u00e1ctica");
-  });
-
   it("createDummySession crea una sesion PvE valida", async () => {
     const session = await createDummySession("user123", challengerChar);
 
@@ -66,20 +44,33 @@ describe("CombatAI & Dummy Generation", () => {
     await removeSession(session.id);
   });
 
-  it("CombatAI.executeAiTurn ejecuta el contraataque de la IA del Dummy", async () => {
+  it("CombatAI.makeDecision retorna advance cuando está fuera de alcance", async () => {
     const session = await createDummySession("user123", challengerChar);
 
-    session.currentTurnCharId = session.defender.characterId;
-    const dummyHpBefore = session.defender.hp;
+    session.distance = 10;
+    const aiSlot = session.defender;
+    const playerSlot = session.challenger;
 
-    const result = await CombatAI.executeAiTurn(session);
+    const decision = CombatAI.makeDecision(session, aiSlot, playerSlot);
 
-    expect(result).not.toBeNull();
-    expect(result.attackerName).toBe("Maniqu\u00ed de Pr\u00e1ctica");
-    expect(result.defenderName).toBe("H\u00e9roe de Prueba");
-    expect(result.finalDamage).toBeGreaterThanOrEqual(0);
-    expect(session.challenger.hp).toBe(result.defenderHpAfter);
-    expect(session.defender.hp).toBe(dummyHpBefore);
+    expect(decision.action).toBe("advance");
+    expect(decision.movement).not.toBeNull();
+    expect(decision.movement.meters).toBeGreaterThan(0);
+
+    await removeSession(session.id);
+  });
+
+  it("CombatAI.makeDecision retorna attack cuando está en alcance", async () => {
+    const session = await createDummySession("user123", challengerChar);
+
+    session.distance = 0;
+    const aiSlot = session.defender;
+    const playerSlot = session.challenger;
+
+    const decision = CombatAI.makeDecision(session, aiSlot, playerSlot);
+
+    expect(decision.action).toBe("attack");
+    expect(decision.movement).toBeNull();
 
     await removeSession(session.id);
   });

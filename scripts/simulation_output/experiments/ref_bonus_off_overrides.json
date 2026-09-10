@@ -1,0 +1,12 @@
+{
+  "tag": "ref_bonus_off",
+  "timestamp": "2026-08-05T14:02:14.852Z",
+  "numSims": 2000,
+  "overrides": [
+    {
+      "mod": "combatBalance",
+      "key": "DISTANCE_REF_BONUS",
+      "value": 0
+    }
+  ]
+}

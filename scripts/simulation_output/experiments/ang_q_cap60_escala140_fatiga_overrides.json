@@ -1,0 +1,27 @@
+{
+  "tag": "ang_q_cap60_escala140_fatiga",
+  "timestamp": "2026-08-07T18:14:25.011Z",
+  "numSims": 2000,
+  "overrides": [
+    {
+      "mod": "combatBalance",
+      "key": "DEF_MITIGATION_CAP",
+      "value": 60
+    },
+    {
+      "mod": "combatBalance",
+      "key": "DAMAGE_DEFENSE_SCALE",
+      "value": 140
+    },
+    {
+      "mod": "combatConfig",
+      "key": "FATIGUE_ATK_COST_SCALE",
+      "value": 0
+    },
+    {
+      "mod": "combatConfig",
+      "key": "FATIGUE_DEF_REDUCTION_SCALE",
+      "value": 0
+    }
+  ]
+}

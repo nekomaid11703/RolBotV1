@@ -1,0 +1,12 @@
+{
+  "tag": "diag_sin_bloqueo",
+  "timestamp": "2026-08-07T16:07:29.081Z",
+  "numSims": 2000,
+  "overrides": [
+    {
+      "mod": "combatConfig",
+      "key": "BLOCK_REDUCTION",
+      "value": 0
+    }
+  ]
+}

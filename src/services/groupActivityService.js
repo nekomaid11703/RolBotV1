@@ -2,39 +2,56 @@
 const { GROUP_TOP_LIMIT } = require("../config/groupConfig");
 const { supabase } = require("../database/supabase");
 const { filterExisting } = require("../database/columnRegistry");
+
+const groupActivityTails = new Map();
+
+async function withGroupActivityLock(groupId, task) {
+  const key = String(groupId || "unknown-group");
+  const previous = groupActivityTails.get(key) || Promise.resolve();
+  const current = previous.catch(() => undefined).then(task);
+  groupActivityTails.set(key, current);
+
+  try {
+    return await current;
+  } finally {
+    if (groupActivityTails.get(key) === current) groupActivityTails.delete(key);
+  }
+}
 const { safeSingleOrNull } = require("../utils/safeQuery");
 const { cache, TTLS } = require("../utils/cacheService");
 
 /**
- *
- * @param groupId
+ * @param {*} groupId
+ * @returns
  */
 function groupCacheKey(groupId) {
   return `group:${groupId}`;
 }
 
 /**
- *
- * @param groupId
- * @param limit
+ * @param {*} groupId
+ * @param {*} limit
+ * @returns
  */
 function topGroupMembersCacheKey(groupId, limit) {
   return `topGroupMembers:${groupId}:${limit}`;
 }
 
 /**
- *
- * @param groupId
+ * @param {*} groupId
  */
 function invalidateGroupRankings(groupId) {
   cache.invalidate((key) => key.startsWith(`topGroupMembers:${groupId}`));
 }
 
 /**
- *
- * @param root0
+ * @param {object} options
+ * @returns
  */
 function buildDefaultGroupRecord({ groupId, groupName = "" }) {
+  /**
+   * @constant now
+   */
   const now = new Date().toISOString();
 
   return {
@@ -58,10 +75,13 @@ function buildDefaultGroupRecord({ groupId, groupName = "" }) {
 }
 
 /**
- *
- * @param messageType
+ * @param {*} messageType
+ * @returns
  */
 function resolveBucket(messageType) {
+  /**
+   * @constant normalized
+   */
   const normalized = String(messageType || "")
     .trim()
     .toLowerCase();
@@ -77,26 +97,37 @@ function resolveBucket(messageType) {
 }
 
 /**
- *
- * @param groupId
- * @param bypassCache
+ * @param {*} groupId
+ * @param [bypassCache]
+ * @returns
  */
 async function getGroupActivity(groupId, bypassCache = false) {
   if (!groupId) return null;
+  /**
+   * @constant cacheKey
+   */
   const cacheKey = groupCacheKey(groupId);
   if (!bypassCache) {
+    /**
+     * @constant cached
+     */
     const cached = cache.get(cacheKey);
     if (cached) return cached;
   }
 
+  /**
+   * @constant group
+   */
   const group = await safeSingleOrNull(supabase.from("groups").select("*").eq("group_jid", groupId));
   if (!group) return null;
-
   const { data: members } = await supabase
     .from("group_members")
     .select("*, players(username)")
     .eq("group_id", group.id);
 
+  /**
+   * @constant record
+   */
   const record = buildDefaultGroupRecord({ groupId, groupName: group.group_name });
   record.totals.messages = group.total_messages;
 
@@ -117,26 +148,27 @@ async function getGroupActivity(groupId, bypassCache = false) {
 }
 
 /**
- *
- * @param root0
+ * @param {object} options
+ * @returns
  */
 async function ensureGroupActivity({ groupId, groupName = "" }) {
   if (!groupId) throw new Error("Falta el identificador del grupo.");
   let record = await getGroupActivity(groupId);
   if (!record) {
     record = buildDefaultGroupRecord({ groupId, groupName });
-    await saveGroupActivity(record);
   }
   return record;
 }
 
 /**
- *
- * @param record
- * @param member
+ * @param {*} record
+ * @param {*} member
  */
 async function saveGroupActivity(record, member = null) {
   const { supabase } = require("../database/supabase");
+  /**
+   * @constant groupPayload
+   */
   const groupPayload = filterExisting("groups", {
     group_jid: record.groupId,
     group_name: record.groupName,
@@ -153,6 +185,9 @@ async function saveGroupActivity(record, member = null) {
   }
 
   if (member) {
+    /**
+     * @constant memberPayload
+     */
     const memberPayload = filterExisting("group_members", {
       group_id: group.id,
       player_phone: member.memberId,
@@ -167,10 +202,18 @@ async function saveGroupActivity(record, member = null) {
 }
 
 /**
- *
- * @param root0
+@param {object} options
+  groupId,
+  groupName = "",
+  memberId,
+  memberName = "usuario",
+  messageType = "unknown",
+  messageCount = 0,
+  isText = false,
+}".
+ * @returns
  */
-async function recordGroupActivity({
+async function recordGroupActivityUnlocked({
   groupId,
   groupName = "",
   memberId,
@@ -183,16 +226,42 @@ async function recordGroupActivity({
     return null;
   }
 
-  const record = await ensureGroupActivity({ groupId, groupName });
+  /**
+   * @constant record
+   */
+  const current = await ensureGroupActivity({ groupId, groupName });
+  const record = {
+    ...current,
+    totals: { ...current.totals },
+    members: { ...current.members },
+  };
+  /**
+   * @constant now
+   */
   const now = new Date().toISOString();
 
+  /**
+   * @constant safeMessageCount
+   */
   const safeMessageCount = Math.max(0, Math.floor(Number(messageCount) || 0));
+  /**
+   * @constant bucket
+   */
   const bucket = resolveBucket(messageType);
+  /**
+   * @constant normalizedType
+   */
   const normalizedType =
     String(messageType || "unknown")
       .trim()
       .toLowerCase() || "unknown";
+  /**
+   * @constant cleanMemberId
+   */
   const cleanMemberId = String(memberId || "").trim() || "desconocido";
+  /**
+   * @constant cleanMemberName
+   */
   const cleanMemberName = String(memberName || "usuario").trim() || "usuario";
 
   let changed = false;
@@ -210,10 +279,10 @@ async function recordGroupActivity({
       record.totals[bucket] = Number(record.totals[bucket] || 0) + safeMessageCount;
     }
 
-    let member = record.members[cleanMemberId];
+    let member = record.members[cleanMemberId] ? { ...record.members[cleanMemberId] } : null;
 
     if (!member) {
-      member = record.members[cleanMemberId] = {
+      member = {
         memberId: cleanMemberId,
         memberName: cleanMemberName,
         messages: 0,
@@ -230,6 +299,7 @@ async function recordGroupActivity({
         lastMessageType: normalizedType,
       };
     }
+    record.members[cleanMemberId] = member;
 
     member.memberName = cleanMemberName || member.memberName || "usuario";
     member.messages = Number(member.messages || 0) + safeMessageCount;
@@ -256,31 +326,59 @@ async function recordGroupActivity({
   return record;
 }
 
+async function recordGroupActivity(options) {
+  return withGroupActivityLock(options?.groupId, () => recordGroupActivityUnlocked(options));
+}
+
 /**
- *
- * @param root0
+ * @param {object} options
+ * @returns
  */
 async function getTopGroupMembers({ groupId, limit = GROUP_TOP_LIMIT, bypassCache = false }) {
+  /**
+   * @constant cacheKey
+   */
   const cacheKey = topGroupMembersCacheKey(groupId, limit);
   if (!bypassCache) {
+    /**
+     * @constant cached
+     */
     const cached = cache.get(cacheKey);
     if (cached) return cached;
   }
 
+  /**
+   * @constant record
+   */
   const record = await getGroupActivity(groupId, bypassCache);
 
   if (!record) {
     return [];
   }
 
+  /**
+   * @constant safeLimit
+   */
   const safeLimit = Math.max(1, Math.min(50, Math.floor(Number(limit) || GROUP_TOP_LIMIT)));
+  /**
+   * @constant members
+   */
   const members = Object.values(record.members || {});
 
+  /**
+   * @constant result
+   */
   const result = members
     .sort((a, b) => {
+      /**
+       * @constant diffMessages
+       */
       const diffMessages = Number(b.messages || 0) - Number(a.messages || 0);
       if (diffMessages !== 0) return diffMessages;
 
+      /**
+       * @constant diffText
+       */
       const diffText = Number(b.textMessages || 0) - Number(a.textMessages || 0);
       if (diffText !== 0) return diffText;
 
@@ -293,10 +391,13 @@ async function getTopGroupMembers({ groupId, limit = GROUP_TOP_LIMIT, bypassCach
 }
 
 /**
- *
- * @param root0
+ * @param {object} options
+ * @returns
  */
 async function getGroupMemberActivity({ groupId, memberId }) {
+  /**
+   * @constant record
+   */
   const record = await getGroupActivity(groupId);
 
   if (!record || !memberId) {

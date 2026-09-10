@@ -1,5 +1,5 @@
 const { removeParticipant } = require("../../../utils/groupUtils");
-const { executeGroupAction } = require("../../../utils/groupAdminHelper");
+const { executeGroupAction } = require("../../../services/groupAdminHelper");
 
 module.exports = {
   name: "ban",

@@ -15,7 +15,15 @@ module.exports = {
   category: "admin",
   groupOnly: true,
 
+  /**
+   * Executes the .
+   * @async
+   * @param {*} ctx - execution context.
+   */
   async execute(ctx) {
+    /**
+     * @constant targetId
+     */
     const targetId = getFirstMentionedJid(ctx) || ctx.senderJid || ctx.sender;
 
     const [groupData, memberActivity, metadata, userProfile, targetDisplayName] = await Promise.all([
@@ -31,8 +39,14 @@ module.exports = {
       resolveTargetDisplayName(ctx, targetId, ctx.userName || "usuario"),
     ]);
 
+    /**
+     * @constant groupName
+     */
     const groupName = String(metadata?.subject || groupData?.groupName || "este grupo").trim() || "este grupo";
 
+    /**
+     * @constant activity
+     */
     const activity = memberActivity || {
       messages: 0,
       textMessages: 0,
@@ -48,7 +62,13 @@ module.exports = {
       lastMessageType: null,
     };
 
+    /**
+     * @constant commandCount
+     */
     const commandCount = Number(userProfile?.profile?.activity?.commands || 0);
+    /**
+     * @constant targetLabel
+     */
     const targetLabel = formatDisplayMention(targetId, targetDisplayName);
 
     await ctx.reply(
