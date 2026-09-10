@@ -4,6 +4,23 @@ Registro de decisiones arquitectónicas y técnicas. Formato: fecha + contexto +
 
 ---
 
+## 2026-09-09 — D4: cap de rareza en tiendas y precios por tier
+
+**Contexto**: Las tiendas vendían materia prima y equipo sin un límite de rareza claro, compitiendo
+con la expedición como fuente; además los trozos de tier D se cobraban con precios fijos de config,
+ajenos al modelo de tiempo/valor.
+
+**Decisión**: Cada tienda declara `rarityCap` (materia prima hasta `poco_comun`; equipo hasta
+`poco_comun` salvo la herrería, que llega a `raro`). La materia prima `raro+` no se vende: es la
+firma de la expedición (overlap 0). Los precios pasan a valorar por **tier** (refinado 2:1 ⇒ ×2 por
+escalón, E=1…N=64) vía `pricingService`, y `shopEngineService` propaga el `metadata.tier`.
+Guardas: `tests/shop_caps.test.js` y el bloque `shops` del reporte.
+
+**Alternativas descartadas**: dejar la tienda sin cap (canibaliza la expedición); vender materia
+prima rara con sobreprecio (rompe la identidad de la ruta de expedición).
+
+---
+
 ## 2026-09-09 — Trabajos Fase 1: pago con trade-off hora/energía (sin dominados)
 
 **Contexto**: 12 de 20 trabajos quedaban dominados (otro pagaba más por hora y por energía con menos

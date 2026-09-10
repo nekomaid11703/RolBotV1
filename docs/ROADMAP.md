@@ -123,7 +123,8 @@ se mantienen en `docs/AI_CHANGELOG.md` (check:all actual: 914 tests verdes en 81
   - [x] **Ingreso por cohorte (2026-09-09)**: el reporte mide trabajos + materiales + daily vs el
         coste del set de cada nivel; el crecimiento económico viene de herramientas/rareza.
   - [ ] [NEW] Zonas profundas/de lore con multiplicadores mejores y coherentes — **Gate D3**.
-  - [ ] `shopConfig.js`: acotar rareza máxima vendida (firma de expedición, P4) — **Gate D4**.
+  - [x] **D4 (2026-09-09)**: cap de rareza por tienda (materia prima ≤ poco común; equipo ≤ poco,
+        herrería ≤ raro) y precios por tier (×2 por escalón); materia prima raro+ solo por expedición.
   - [x] **B4 revisado (2026-09-09)**: costes de mejora como fracción de jornada y payback acumulado
         al nivel 10 (pico ≤15, hacha/bolsa ≤30; mochila sin payback).
   - [ ] Calibrar cantidades de drop con los anclajes y regenerar `BALANCE_MATERIALES.md`.

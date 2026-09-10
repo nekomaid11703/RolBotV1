@@ -14,6 +14,7 @@ const {
   rarityRatioForLevel,
   DROP_QTY_BY_RARITY,
   AXIS_TOOL,
+  RARITY_BAND_INDEX,
 } = require("../../config/rarityDropConfig");
 const { calculateXpReward } = require("./combatEngine");
 const pricingService = require("./pricingService");
@@ -619,6 +620,50 @@ function buildEconomyReport() {
 }
 
 /**
+ * Reporte de tiendas (D4): cap de rareza respetado y firma de expedición
+ * (los materiales raro+ no se venden en tienda).
+ * @returns {object}
+ */
+function buildShopReport() {
+  const rarePlus = ["raro", "epico", "legendario", "mitico"];
+  const shops = Object.values(SHOPS).map((shop) => {
+    const violations = [];
+    for (const entry of [...(shop.items || []), ...(shop.rotatingPool || [])]) {
+      const def = getItem(entry.itemId);
+      if (!def) continue;
+      const isMaterial = String(entry.itemId).startsWith("trozo_de_");
+      const isEquipment = ["weapon", "armor", "artifact", "focus"].includes(def.type);
+      if (!isMaterial && !isEquipment) continue;
+      const category = isMaterial ? "material" : "equipment";
+      const rarity = isMaterial ? MATERIALS[def.material]?.rarity : def.rarity;
+      const cap = shop.rarityCap?.[category];
+      if (!rarity || !cap) continue;
+      if ((RARITY_BAND_INDEX[rarity] ?? 0) > (RARITY_BAND_INDEX[cap] ?? 0)) {
+        violations.push(`${entry.itemId}(${rarity}>${cap})`);
+      }
+    }
+    return { shop: shop.id, rarityCap: shop.rarityCap || null, violations };
+  });
+
+  const rareMaterials = Object.keys(MATERIALS).filter(
+    (id) => id !== "etereo" && rarePlus.includes(MATERIALS[id].rarity),
+  );
+  const sources = getMaterialSources();
+  const soldRare = rareMaterials.filter((id) => (sources[id] || []).some((s) => s.type === "shop"));
+  const signatureOverlap = rareMaterials.length > 0 ? soldRare.length / rareMaterials.length : 0;
+
+  return {
+    shops,
+    rareMaterialsSold: soldRare,
+    signatureOverlap: Math.round(signatureOverlap * 100) / 100,
+    checks: {
+      capsRespected: shops.every((shop) => shop.violations.length === 0),
+      rareMaterialsNotSold: soldRare.length === 0,
+    },
+  };
+}
+
+/**
  * Guardas de la ley de obtención R(L) (B8.2b): "16:1 en L1" y "~1 mítico/16 en L10".
  * @returns {object}
  */
@@ -758,6 +803,7 @@ function buildProgressionReport() {
   const rarityDrop = buildRarityChecks();
   const materialAnchors = buildMaterialAnchors();
   const economy = buildEconomyReport();
+  const shops = buildShopReport();
   const maxStatsPerDay = Math.max(...cohorts.map((row) => row.expectedJobStatsPerDay));
   const maxLongitudinalStats = Math.max(...longitudinal.map((row) => row.cumulativeJobStats));
   const maxJobValueCombatRatio = Math.max(...cohorts.map((row) => row.jobValueCombatRatio));
@@ -773,6 +819,7 @@ function buildProgressionReport() {
     rarityDrop,
     materialAnchors,
     economy,
+    shops,
     design: {
       targets: DESIGN_TARGETS,
       checks: {
@@ -809,6 +856,7 @@ module.exports = {
   buildRarityChecks,
   buildMaterialAnchors,
   buildEconomyReport,
+  buildShopReport,
   getDailyRates,
   simulateLongitudinal,
   estimateCohortProgress,

@@ -131,7 +131,7 @@ function getDailyCatalog(shopId = "bazar_nixia", dateStr = getTodayString()) {
 
     const variance = itemCfg.variance || 0.1;
     const priceDeltaMult = 1 + (randPrice * 2 - 1) * variance;
-    const basePrice = pricingService.itemBasePrice(itemCfg.itemId) ?? itemCfg.basePrice;
+    const basePrice = pricingService.itemBasePrice(itemCfg.itemId, itemCfg.metadata?.tier || "E") ?? itemCfg.basePrice;
     const dailyPrice = Math.max(1, Math.round(basePrice * priceDeltaMult));
 
     const stockSpread = Math.round((randStock * 2 - 1) * (itemCfg.baseStock * 0.25));
@@ -163,7 +163,8 @@ function getDailyCatalog(shopId = "bazar_nixia", dateStr = getTodayString()) {
 
       const variance = specialCfg.variance || 0.15;
       const priceDeltaMult = 1 + (randPrice * 2 - 1) * variance;
-      const basePrice = pricingService.itemBasePrice(specialCfg.itemId) ?? specialCfg.basePrice;
+      const basePrice =
+        pricingService.itemBasePrice(specialCfg.itemId, specialCfg.metadata?.tier || "E") ?? specialCfg.basePrice;
       const dailyPrice = Math.max(1, Math.round(basePrice * priceDeltaMult));
 
       const stockSpread = Math.round((randStock * 2 - 1) * (specialCfg.baseStock * 0.2));

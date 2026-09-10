@@ -6,6 +6,7 @@
 
 const {
   PRICING_TOOL_LEVEL,
+  tierValueFactor,
   materialMinutesPerUnit,
   materialUnitValue,
   itemBasePrice,
@@ -78,5 +79,14 @@ describe("Precio de ítems (material × receta × margen)", () => {
   it("ítems sin material devuelven null (conservan su precio de config)", () => {
     expect(itemBasePrice("venda")).toBeNull();
     expect(itemBasePrice("pergamino")).toBeNull();
+  });
+
+  it("el tier multiplica el valor por 2 por escalón de refinado (E→N = 64)", () => {
+    expect(tierValueFactor("E")).toBe(1);
+    expect(tierValueFactor("D")).toBe(2);
+    expect(tierValueFactor("N")).toBe(64);
+    const minutes = materialMinutesPerUnit("acero");
+    expect(materialUnitValue("acero", "D")).toBe(Math.round(minutes * STELA_PER_MINUTE * 2));
+    expect(itemBasePrice("trozo_de_acero", "C")).toBe(Math.round(minutes * STELA_PER_MINUTE * 4 * (1 + VENDOR_MARGIN)));
   });
 });

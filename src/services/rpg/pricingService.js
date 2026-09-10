@@ -20,9 +20,21 @@ const {
   DROP_QTY_BY_RARITY,
 } = require("../../config/rarityDropConfig");
 const { STELA_PER_MINUTE, VENDOR_MARGIN } = require("../../config/economyConfig");
+const { TIERS, normalizeTier } = require("../../config/tierConfig");
 
 /** Nivel de herramienta de referencia para valorar materiales (maestra). */
 const PRICING_TOOL_LEVEL = 10;
+
+/**
+ * Factor de valor por tier: refinar es 2:1, así que un trozo de tier T vale
+ * 2^(rank-1) trozos E. (E=1, D=2, C=4, ... N=64.)
+ * @param {string} tier
+ * @returns {number}
+ */
+function tierValueFactor(tier) {
+  const key = normalizeTier(tier);
+  return Math.pow(2, (TIERS[key]?.rank || 1) - 1);
+}
 
 function averageBandQty(rarity) {
   const [min, max] = DROP_QTY_BY_RARITY[rarity] || [1, 1];
@@ -62,21 +74,23 @@ function materialMinutesPerUnit(materialId, toolLevel = PRICING_TOOL_LEVEL) {
 /**
  * Valor de una unidad de material en stelas.
  * @param {string} materialId
+ * @param {string} [tier="E"]
  * @returns {number}
  */
-function materialUnitValue(materialId) {
+function materialUnitValue(materialId, tier = "E") {
   const minutes = materialMinutesPerUnit(materialId);
   if (!Number.isFinite(minutes)) return 0;
-  return Math.round(minutes * STELA_PER_MINUTE);
+  return Math.round(minutes * STELA_PER_MINUTE * tierValueFactor(tier));
 }
 
 /**
- * Precio base calculado de un ítem (material × receta × margen).
+ * Precio base calculado de un ítem (material × receta × tier × margen).
  * Devuelve null para ítems sin material o sin receta (conservan precio de config).
  * @param {string} itemId
+ * @param {string} [tier="E"]
  * @returns {number|null}
  */
-function itemBasePrice(itemId) {
+function itemBasePrice(itemId, tier = "E") {
   const def = getItem(itemId);
   if (!def || !def.material) return null;
 
@@ -88,13 +102,14 @@ function itemBasePrice(itemId) {
     units = recipe.materialCost / (recipe.producedQuantity || 1);
   }
 
-  const value = materialUnitValue(def.material);
+  const value = materialUnitValue(def.material, tier);
   if (value <= 0) return null;
   return Math.max(1, Math.round(value * units * (1 + VENDOR_MARGIN)));
 }
 
 module.exports = {
   PRICING_TOOL_LEVEL,
+  tierValueFactor,
   materialMinutesPerUnit,
   materialUnitValue,
   itemBasePrice,

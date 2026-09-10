@@ -6,6 +6,17 @@ Este archivo registra los cambios significativos y decisiones arquitectónicas t
 
 ## [Unreleased]
 
+### Tienda — Cap de rareza (D4) y precios por tier (2026-09-09)
+
+- **Cap de rareza por tienda** (`shopConfig.rarityCap`): materia prima hasta `poco_comun` en todas;
+  equipo terminado hasta `poco_comun` (bazar, magia) y hasta `raro` en la herrería. La materia prima
+  `raro+` queda como **firma de la expedición**.
+- `pricingService` ahora valora por **tier** (refinado 2:1 ⇒ ×2 por escalón; E=1 … N=64) y
+  `shopEngineService` pasa el `metadata.tier` de cada entrada.
+- Reporte: `shops` con `capsRespected` y `rareMaterialsNotSold` (overlap de firma = 0) y guarda
+  `tests/shop_caps.test.js`.
+- Suite: **930 verdes en 85 archivos**.
+
 ### Trabajos — Fase 1: identidad de pago y rendimiento (2026-09-09)
 
 - Los salarios se recalculan con `pago = K × √(energía × duración) × (1 + 0,8 × req/22)`

@@ -11,6 +11,8 @@ const SHOPS = {
     ownerId: "npc_nixia",
     npcName: "Nixia",
     npcTitle: "Andariega del Vacío · Deidad Primordial Menor",
+    // Cap D4: generalista; materia prima hasta poco común, equipo hasta poco común.
+    rarityCap: { material: "poco_comun", equipment: "poco_comun" },
     greeting: "¡Miau! Llegaste en buen momento, tengo la mochila recién reorganizada. ¿Ves algo que te guste?",
     items: [
       // ── Consumibles ──
@@ -74,6 +76,8 @@ const SHOPS = {
     ownerId: "npc_elidyr",
     npcName: "Maestro Elidyr",
     npcTitle: "Archivero de la Torre Silente",
+    // Cap D4: arcana; materia prima hasta poco común, equipo hasta poco común.
+    rarityCap: { material: "poco_comun", equipment: "poco_comun" },
     greeting:
       "Bienvenido al Santuario. Aquí tratamos la magia como ciencia y devoción. ¿Buscas dónde albergar tu Fulgor?",
     items: [
@@ -125,6 +129,9 @@ const SHOPS = {
     ownerId: "npc_borin",
     npcName: "Borin Martillo-Férreo",
     npcTitle: "Maestro Forjador de la Cuenca",
+    // Cap D4: forja; materia prima hasta poco común, equipo terminado hasta raro
+    // (la materia prima rara+ queda como firma de la expedición).
+    rarityCap: { material: "poco_comun", equipment: "raro" },
     greeting:
       "¡Cierra esa puerta que entra corriente! Si vienes buscando chatarra barata, vete al bazar. Aquí se forja metal de verdad.",
     items: [
