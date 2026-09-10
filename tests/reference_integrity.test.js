@@ -11,6 +11,7 @@ const { SHOPS } = require("../src/config/shopConfig");
 const { TOOL_UPGRADE_COSTS } = require("../src/config/toolsConfig");
 const { getItem } = require("../src/data/items");
 const { MATERIALS } = require("../src/data/materialData");
+const { getSet } = require("../src/data/armorSets");
 const { CRAFTING_RECIPES } = require("../src/services/rpg/craftingService");
 
 const CANON_MATERIALS = Object.keys(MATERIALS).filter((id) => id !== "etereo");
@@ -59,5 +60,14 @@ describe("Integridad de referencias de ítems (P0)", () => {
       }
     }
     expect(broken).toEqual([]);
+  });
+
+  it("cada material del canon tiene un set de armadura con bono (B6)", () => {
+    const missing = [];
+    for (const matId of CANON_MATERIALS) {
+      const set = getSet(`set_${matId}`);
+      if (!set || !set.bonus || Object.keys(set.bonus).length === 0) missing.push(matId);
+    }
+    expect(missing).toEqual([]);
   });
 });

@@ -3,6 +3,7 @@ const {
   buildProgressionReport,
   buildMaterialAnchors,
   buildEconomyReport,
+  buildBuildPowerReport,
 } = require("../src/services/rpg/progressionAnalyticsService");
 const { JOB_TRAINING } = require("../src/config/progressionBalance");
 
@@ -66,6 +67,17 @@ describe("progression analytics", () => {
       expect(row.totalIncomePerDay).toBeGreaterThan(0);
       expect(row.gearCost).toBeGreaterThan(0);
       expect(row.daysToGear).toBeGreaterThan(0);
+    }
+  });
+
+  it("B6: al menos 3 estilos de build viables por cohorte (P5)", () => {
+    const power = buildBuildPowerReport();
+    expect(power.checks.viableStylesPerCohort).toBe(true);
+    expect(power.cohorts).toHaveLength(6);
+    for (const row of power.cohorts) {
+      expect(row.builds).toHaveLength(4);
+      expect(row.viableStyles).toBeGreaterThanOrEqual(3);
+      expect(row.bestScore).toBeGreaterThan(0);
     }
   });
 });

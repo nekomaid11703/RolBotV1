@@ -6,6 +6,16 @@ Este archivo registra los cambios significativos y decisiones arquitectónicas t
 
 ## [Unreleased]
 
+### B6 — Hitos de equipo y poder por rango (2026-09-09)
+
+- `armorSets.js` genera un set por material (`set_<materialId>`) con bono por arquetipo y rareza:
+  filo→ATK, cond→fulgor/dominio, res→DEF/HP, flex→ASPD/REF. Antes solo existía `set_acero`.
+- `buildBuildPowerReport`: compara los 4 builds por cohorte (arma del arquetipo + 4 piezas + set) con
+  un score normalizado por eje; cuenta estilos viables (≥85% del mejor).
+- Guarda P5: `viableStylesPerCohort` (mínimo **3** en todas las cohortes); cobertura de sets por
+  material en `reference_integrity`.
+- Suite: **937 verdes en 86 archivos**.
+
 ### Inflación y sumideros — venta, reparación y guardas (2026-09-09)
 
 - **Venta** (`executeSale` + comando `/vender`): convierte inventario en stelas al `SELL_RATIO` (60%

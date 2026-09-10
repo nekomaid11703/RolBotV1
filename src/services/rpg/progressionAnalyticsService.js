@@ -14,11 +14,14 @@ const {
   rarityRatioForLevel,
   DROP_QTY_BY_RARITY,
   AXIS_TOOL,
+  MATERIAL_AXES,
   RARITY_BAND_INDEX,
 } = require("../../config/rarityDropConfig");
 const { calculateXpReward } = require("./combatEngine");
 const pricingService = require("./pricingService");
 const { materialForBandAxis } = require("./rarityDropService");
+const { getWeaponStats, getArmorStats } = require("./itemStatService");
+const { getSet } = require("../../data/armorSets");
 const { jobXpForLevel, expeditionXpForLevel } = require("./xpRewardService");
 const {
   PROGRESSION_COHORTS,
@@ -779,6 +782,93 @@ function buildInflationReport() {
 }
 
 /**
+ * Poder de un build (arquetipo) a una rareza: arma del arquetipo + 4 piezas de
+ * armadura + bono de set del material. Offense/defense/utility se combinan en un
+ * score comparable entre builds.
+ * @param {string} rarity
+ * @param {string} archetype
+ * @returns {object|null}
+ */
+function archetypeBuildScore(rarity, archetype) {
+  const materialId = materialForBandAxis(rarity, archetype);
+  if (!materialId) return null;
+
+  const weapon = getItem(`espada_de_${materialId}`);
+  const weaponStats = weapon ? getWeaponStats(weapon) : { baseDamage: 0 };
+
+  let armorDef = 0;
+  for (const slot of ["casco", "pechera", "grebas", "botas"]) {
+    const piece = getItem(`${slot}_de_${materialId}`);
+    if (piece) armorDef += getArmorStats(piece).bonusDef;
+  }
+
+  const bonus = getSet(`set_${materialId}`)?.bonus || {};
+  const offense = (weaponStats.baseDamage || 0) + (bonus.atk || 0) + (bonus.fulgor || 0) + (bonus.d_fulgor || 0);
+  const defense = armorDef + (bonus.def || 0) + (bonus.hp || 0) * 0.5;
+  const utility = (bonus.aspd || 0) + (bonus.ref || 0) + (bonus.mspd || 0);
+  const round = (value) => Math.round(value * 10) / 10;
+
+  return {
+    archetype,
+    material: materialId,
+    offense: round(offense),
+    defense: round(defense),
+    utility: round(utility),
+  };
+}
+
+/** Pesos del score normalizado por eje (evita que un eje con números grandes domine). */
+const BUILD_SCORE_WEIGHTS = { offense: 0.4, defense: 0.4, utility: 0.2 };
+
+/**
+ * Reporte de poder por rango (B6/P5): para cada cohorte compara los builds de los
+ * 4 arquetipos con el set de su rareza. El score normaliza cada eje por su máximo
+ * del cohorte y cuenta cuántos builds quedan a ≥85% del mejor (estilos viables).
+ * @returns {object}
+ */
+function buildBuildPowerReport() {
+  const cohorts = PROGRESSION_COHORTS.map((cohort) => {
+    const rarity = gearRarityForLevel(cohort.level);
+    const builds = MATERIAL_AXES.map((archetype) => archetypeBuildScore(rarity, archetype)).filter(Boolean);
+    const maxOffense = Math.max(...builds.map((build) => build.offense), 1);
+    const maxDefense = Math.max(...builds.map((build) => build.defense), 1);
+    const maxUtility = Math.max(...builds.map((build) => build.utility), 1);
+    const round = (value) => Math.round(value * 100) / 100;
+
+    const scored = builds.map((build) => ({
+      ...build,
+      score: round(
+        (build.offense / maxOffense) * BUILD_SCORE_WEIGHTS.offense +
+          (build.defense / maxDefense) * BUILD_SCORE_WEIGHTS.defense +
+          (build.utility / maxUtility) * BUILD_SCORE_WEIGHTS.utility,
+      ),
+    }));
+    const best = Math.max(...scored.map((build) => build.score));
+    const viableStyles = scored.filter((build) => build.score >= best * 0.85).length;
+
+    return {
+      cohort: cohort.id,
+      level: cohort.level,
+      rarity,
+      builds: scored,
+      bestScore: best,
+      viableStyles,
+    };
+  });
+
+  const minViableStyles = Math.min(...cohorts.map((row) => row.viableStyles));
+  return {
+    weights: BUILD_SCORE_WEIGHTS,
+    cohorts,
+    minViableStyles,
+    target: DESIGN_TARGETS.minViableStylesPerCohort,
+    checks: {
+      viableStylesPerCohort: minViableStyles >= DESIGN_TARGETS.minViableStylesPerCohort,
+    },
+  };
+}
+
+/**
  * Guardas de la ley de obtención R(L) (B8.2b): "16:1 en L1" y "~1 mítico/16 en L10".
  * @returns {object}
  */
@@ -920,6 +1010,7 @@ function buildProgressionReport() {
   const economy = buildEconomyReport();
   const shops = buildShopReport();
   const inflation = buildInflationReport();
+  const buildPower = buildBuildPowerReport();
   const maxStatsPerDay = Math.max(...cohorts.map((row) => row.expectedJobStatsPerDay));
   const maxLongitudinalStats = Math.max(...longitudinal.map((row) => row.cumulativeJobStats));
   const maxJobValueCombatRatio = Math.max(...cohorts.map((row) => row.jobValueCombatRatio));
@@ -937,6 +1028,7 @@ function buildProgressionReport() {
     economy,
     shops,
     inflation,
+    buildPower,
     design: {
       targets: DESIGN_TARGETS,
       checks: {
@@ -975,6 +1067,7 @@ module.exports = {
   buildEconomyReport,
   buildShopReport,
   buildInflationReport,
+  buildBuildPowerReport,
   getDailyRates,
   simulateLongitudinal,
   estimateCohortProgress,

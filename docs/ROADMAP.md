@@ -130,10 +130,10 @@ se mantienen en `docs/AI_CHANGELOG.md` (check:all actual: 914 tests verdes en 81
   - [x] **B4 revisado (2026-09-09)**: costes de mejora como fracción de jornada y payback acumulado
         al nivel 10 (pico ≤15, hacha/bolsa ≤30; mochila sin payback).
   - [ ] Calibrar cantidades de drop con los anclajes y regenerar `BALANCE_MATERIALES.md`.
-- [ ] **P3 — B6 Hitos de equipo y poder por rango**
-  - [ ] Poder relativo por build y cohorte en el reporte; ≥3 estilos viables por cohorte (P5).
-  - [ ] Brechas de equipo sanas entre niveles y momentos de logro visibles (P2).
-  - [ ] Configs de equipo/sets mapeadas al canon (tras P0) + tests de estilos viables.
+- [x] **P3 — B6 Hitos de equipo y poder por rango** — IMPLEMENTADO 2026-09-09
+  - [x] Sets generados por material con bono de arquetipo/rareza (identidad de build).
+  - [x] Poder relativo por build y cohorte en el reporte (`buildBuildPowerReport`); ≥3 estilos
+        viables por cohorte (P5), verificado con guarda `viableStylesPerCohort`.
 - [ ] **P4 — Fase 2: segunda pasada de winrate de combate** (cierre)
   - [ ] Recalibrar con stats nuevos (dummy, armaduras, `EDGE_SCALE`) vía `scripts/simulate_combat`
         y `run_balance_sweep`; re-baseline a turnos objetivo (7.0 histórico).

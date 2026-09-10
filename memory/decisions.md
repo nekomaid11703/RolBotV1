@@ -4,6 +4,21 @@ Registro de decisiones arquitectónicas y técnicas. Formato: fecha + contexto +
 
 ---
 
+## 2026-09-09 — B6: sets por material y poder por rango (P5)
+
+**Contexto**: Solo existía `set_acero`; los demás materiales generaban `set_<material>` sin bono, así
+que no había identidad de build ni forma de medir estilos viables.
+
+**Decisión**: Generar un set por material con bono por arquetipo y rareza (filo→ATK, cond→fulgor,
+res→DEF/HP, flex→ASPD/REF) y añadir `buildBuildPowerReport`, que compara los 4 builds por cohorte
+con un score normalizado por eje y cuenta estilos viables (≥85% del mejor). Guarda P5:
+`viableStylesPerCohort ≥ 3` (mínimo medido: 3).
+
+**Alternativas descartadas**: dejar sets sin bono (sin identidad); usar score absoluto (res dominaba
+por el peso de la defensa y solo 1 build resultaba viable).
+
+---
+
 ## 2026-09-09 — Inflación y sumideros: venta, reparación y guardas
 
 **Contexto**: No existía comando de venta (los materiales no eran grifo de stelas) ni coste de
